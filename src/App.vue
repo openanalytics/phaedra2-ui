@@ -1,26 +1,25 @@
-<template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
-</template>
-
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import { h } from 'vue'
+import Dashboard from '@/components/views/Dashboard.vue'
+import PlateView from '@/components/views/PlateView.vue'
+
+const routes = {
+  '': Dashboard,
+  'plate': PlateView
+}
 
 export default {
   name: 'App',
-  components: {
-    HelloWorld
-  }
+  data() {
+    return {
+      currentRoute: window.location.pathname.split('/')[1]
+    }
+  },
+  computed: {
+    ViewComponent () {
+      return routes[this.currentRoute]
+    }
+  },
+  render () { return h(this.ViewComponent) }
 }
 </script>
-
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
