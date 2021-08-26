@@ -1,13 +1,13 @@
 <script>
 import { h } from 'vue'
-import HelloWorld from '@/components/views/HelloWorld.vue'
 import Dashboard from '@/components/views/Dashboard.vue'
 import PlateView from '@/components/views/PlateView.vue'
+import PageLayout from '@/components/views/PageLayout.vue'
 
 const routes = {
   '': Dashboard,
   'plate': PlateView,
-  'hello': HelloWorld
+  'layout': PageLayout
 }
 
 export default {
