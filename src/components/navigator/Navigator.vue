@@ -1,22 +1,24 @@
 <template>
-    <q-toolbar class="bg-grey-3">
-        <q-toolbar-title v-show="drawerOpen">
-            Navigator
-        </q-toolbar-title>
-        <q-btn dense flat round icon="more_vert" v-show="drawerOpen" />
-        <q-btn dense flat round :icon="drawerIcon" @click="toggleDrawer" />
-    </q-toolbar>
-    <q-tree :nodes="demoTree" node-key="label" v-model:selected="selected" selected-color="primary">
-        <template v-slot:header-category="prop">
-            <div class="row items-center">
-                <q-icon name="folder" color="primary" size="28px" class="q-mr-sm" />
-                <div class="text-weight-bold">{{ prop.node.label }}</div>
-            </div>
-        </template>
-        <template v-slot:header-project="prop">
-            {{ prop.node.label }} <span v-if="prop.node.owner" class="text-green">&nbsp; [{{prop.node.owner}}]</span>
-        </template>
-    </q-tree>
+    <q-drawer show-if-above side="left" bordered v-model="drawerVisible" :mini="!drawerOpen" :mini-width="60" >
+        <q-toolbar class="bg-grey-3">
+            <q-toolbar-title v-show="drawerOpen">
+                Navigator
+            </q-toolbar-title>
+            <q-btn dense flat round icon="more_vert" v-show="drawerOpen" />
+            <q-btn dense flat round :icon="drawerIcon" @click="toggleDrawer" />
+        </q-toolbar>
+        <q-tree :nodes="demoTree" node-key="label" v-model:selected="selected" selected-color="primary">
+            <template v-slot:header-category="prop">
+                <div class="row items-center">
+                    <q-icon name="folder" color="primary" size="28px" class="q-mr-sm" />
+                    <div class="text-weight-bold">{{ prop.node.label }}</div>
+                </div>
+            </template>
+            <template v-slot:header-project="prop">
+                {{ prop.node.label }} <span v-if="prop.node.owner" class="text-green">&nbsp; [{{prop.node.owner}}]</span>
+            </template>
+        </q-tree>
+    </q-drawer>
 </template>
 
 <script>
@@ -37,6 +39,7 @@ export default {
                 false: "chevron_right"
             },
             selected: ref(null),
+            drawerVisible: ref(true),
             drawerOpen: ref(true),
             drawerIcon: ref("chevron_left"),
             demoTree: [
