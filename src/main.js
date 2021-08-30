@@ -1,18 +1,26 @@
 // Routing
 // --------------------------------------------------------------------
+
 import { createWebHistory, createRouter } from "vue-router"
 
 import Dashboard from '@/components/views/Dashboard.vue'
 import PlateView from '@/components/views/PlateView.vue'
+import ProjectView from '@/components/views/ProjectView.vue'
 
 const routes = [
-    { path: '/', component: Dashboard },
-    { path: '/plate', component: PlateView },
+    { name: "dashboard", path: "/", component: Dashboard },
+    { name: "plate", path: "/plate", component: PlateView },
+    { name: "project", path: "/project/:id", component: ProjectView },
 ]
 const router = createRouter({
     history: createWebHistory(),
     routes
 });
+
+// Vuex State management
+// --------------------------------------------------------------------
+
+import store from '@/store/index.js'
 
 // Quasar UI with Material Icons
 // --------------------------------------------------------------------
@@ -27,5 +35,6 @@ import { createApp } from "vue"
 import App from "./App.vue"
 createApp(App)
     .use(router)
+    .use(store)
     .use(Quasar)
     .mount("#app")

@@ -15,7 +15,8 @@
     "quasar": "^2.0.4",
     "roboto-fontface": "*",
     "vue": "^3.0.0",
-    "vue-router": "^4.0.11"
+    "vue-router": "^4.0.11",
+    "vuex": "^4.0.2"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
