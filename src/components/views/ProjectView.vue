@@ -44,6 +44,9 @@
             </div>
         </q-card-section>
     </q-card>
+    <q-card class="project-body" v-if="project">
+        <ExperimentList :experiments="experiments" ></ExperimentList>
+    </q-card>
 </template>
 
 <style>
@@ -60,8 +63,13 @@
     import { useStore } from 'vuex'
     import { useRoute } from 'vue-router'
 
+    import ExperimentList from "@/components/widgets/ExperimentList.vue"
+
     export default {
         name: 'Project',
+        components: {
+            ExperimentList
+        },
         setup() {
             const store = useStore()
             const route = useRoute()
@@ -72,8 +80,12 @@
                 store.dispatch('projects/loadById', projectId)
             }
 
+            const experiments = computed(() => store.getters['experiments/getByProjectId'](projectId))
+            store.dispatch('experiments/loadByProjectId', projectId)
+
             return {
-                project
+                project,
+                experiments
             }
         }
     }
