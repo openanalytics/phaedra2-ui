@@ -4,13 +4,15 @@
 import { createWebHistory, createRouter } from "vue-router"
 
 import Dashboard from '@/components/views/Dashboard.vue'
-import PlateView from '@/components/views/PlateView.vue'
 import ProjectView from '@/components/views/ProjectView.vue'
+import ExperimentView from '@/components/views/ExperimentView.vue'
+import PlateView from '@/components/views/PlateView.vue'
 
 const routes = [
     { name: "dashboard", path: "/", component: Dashboard },
-    { name: "plate", path: "/plate", component: PlateView },
     { name: "project", path: "/project/:id", component: ProjectView },
+    { name: "experiment", path: "/experiment/:id", component: ExperimentView },
+    { name: "plate", path: "/plate", component: PlateView },
 ]
 const router = createRouter({
     history: createWebHistory(),
