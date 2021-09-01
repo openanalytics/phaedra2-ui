@@ -9,6 +9,11 @@ export default {
       console.log('Mocking a backend call...')
       await wait(100)
       return demoProjects.find(project => project.id == id)
+    },
+    async getAllProjects() {
+      console.log('Mocking a backend call...')
+      await wait(100)
+      return demoProjects
     }
 }
 

@@ -7,9 +7,9 @@
             <q-btn dense flat round icon="settings" v-show="drawerOpen" />
             <q-btn dense flat round :icon="drawerIcon" @click="toggleDrawer" />
         </q-toolbar>
-        <q-tree :nodes="demoTree" node-key="label" v-model:selected="selected" selected-color="primary">
+        <q-tree :nodes="navTree" node-key="label" v-model:selected="selected" selected-color="primary">
             <template v-slot:header-link="prop">
-                <div class="row items-center">
+                <div class="row items-center" style="padding-left: 8px;">
                     <q-icon name="home" color="primary" size="28px" class="q-mr-sm" />
                     <div class="text-weight-bold">
                         <router-link :to="{ name: 'dashboard'}" class="nav-link">{{ prop.node.label }}</router-link>
@@ -38,6 +38,8 @@
 
 <script>
 import { ref } from 'vue'
+import { computed } from 'vue'
+import { useStore } from 'vuex'
 
 export default {
     methods: {
@@ -48,6 +50,29 @@ export default {
         }
     },
     setup() {
+        const store = useStore()
+        
+        const navTree = computed(() => {
+            const projects = store.getters['projects/getAll']().map(project => { return {
+                header: "project",
+                label: project.name,
+                id: project.id,
+                owner: project.team
+            }})
+            return [
+                {
+                    label: "Dashboard",
+                    header: "link",
+                },
+                {
+                    label: "Projects",
+                    header: "category",
+                    children: projects
+                }
+            ]
+        })
+        store.dispatch('projects/loadAll')
+
         return {
             drawerIcons: {
                 true: "chevron_left",
@@ -57,39 +82,7 @@ export default {
             drawerVisible: ref(true),
             drawerOpen: ref(true),
             drawerIcon: ref("chevron_left"),
-            demoTree: [
-                {
-                    label: "Dashboard",
-                    header: "link",
-                },
-                {
-                    label: "Projects",
-                    header: "category",
-                    children: [
-                        { label: "Project A", id: 1, header: "project", owner: "Team X" },
-                        { label: "Project B", id: 2, header: "project" },
-                        { label: "Project C", id: 3, header: "project", owner: "Team X" }
-                    ]
-                },
-                {
-                    label: "Protocols",
-                    header: "category",
-                    children: [
-                        { label: "Protocol X" },
-                        { label: "Protocol Y" },
-                        { label: "Protocol Z" }
-                    ]
-                },
-                {
-                    label: "Pipelines",
-                    header: "category",
-                    children: [
-                        { label: "Pipeline 1" },
-                        { label: "Pipeline 2" },
-                        { label: "Pipeline 3" }
-                    ]
-                }
-            ]
+            navTree
         }
     }
 }
