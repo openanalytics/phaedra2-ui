@@ -6,40 +6,58 @@
     </q-card>
     <q-card class="project-header" v-else>
         <q-card-section>
-            <div class="text-h6 text-primary">{{project.name}}</div>
+            <div class="text-h6">{{project.name}}</div>
+        </q-card-section>
+        <q-separator />
+        <q-card-section>
             <div class="row">
-                <div class="col-5">
-                <div class="row">
-                    <div class="col-2 text-weight-bold">ID:</div>
-                    <div class="col">{{project.id}}</div>
-                </div>
-                <div class="row">
-                    <div class="col-2 text-weight-bold">Description:</div>
-                    <div class="col">{{project.description}}</div>
-                </div>
-                <div class="row">
-                    <div class="col-2 text-weight-bold">Team:</div>
-                    <div class="col">{{project.team}}</div>
-                </div>
-                <div class="row">
-                    <div class="col-2 text-weight-bold">Tags:</div>
-                    <div class="col">
-                    <q-chip color="orange" text-color="white" label="Experimental" />
+                <div class="col-4">
+                    <div class="row">
+                        <div class="col-3 text-weight-bold">ID:</div>
+                        <div class="col">{{project.id}}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-3 text-weight-bold">Team:</div>
+                        <div class="col">{{project.team}}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-3 text-weight-bold">Description:</div>
+                        <div class="col">{{project.description}}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-3 text-weight-bold">Tags:</div>
+                        <div class="col">
+                            <q-badge color="orange" text-color="white" label="Experimental" />
+                        </div>
                     </div>
                 </div>
-                </div>
-                <div class="col-5">
+                <div class="col-4">
                 <div class="row">
                     <div class="col-2 text-weight-bold">Properties:</div>
                     <div class="col">
-
+                        <q-table
+                            dense
+                            :rows="project.properties"
+                            :columns="propertyColumns"
+                            table-header-class="text-grey"
+                            row-key="key"
+                            hide-pagination
+                        >
+                            <template v-slot:no-data>
+                                <div class="full-width row text-info">
+                                    <span>No properties</span>
+                                </div>
+                            </template>
+                        </q-table>
                     </div>
                 </div>
                 </div>
                 <div class="col-2">
-                <div class="row plate-button"><q-btn size="sm" rounded color="primary" label="Edit" /></div>
-                <div class="row plate-button"><q-btn size="sm" rounded color="primary" label="Delete" /></div>
-                <div class="row plate-button"><q-btn size="sm" rounded color="primary" icon="more_horiz" /></div>
+                </div>
+                <div class="col-2">
+                    <div class="row plate-button"><q-btn size="sm" rounded color="primary" label="Edit" /></div>
+                    <div class="row plate-button"><q-btn size="sm" rounded color="primary" label="Delete" /></div>
+                    <div class="row plate-button"><q-btn size="sm" rounded color="primary" icon="more_horiz" /></div>
                 </div>
             </div>
         </q-card-section>
@@ -65,6 +83,11 @@
 
     import ExperimentList from "@/components/widgets/ExperimentList.vue"
 
+    const propertyColumns = [
+        { name: 'key', align: 'left', label: 'Name', field: 'key', sortable: true },
+        { name: 'value', align: 'left', label: 'Value', field: 'value', sortable: true }
+    ]
+
     export default {
         name: 'Project',
         components: {
@@ -85,7 +108,8 @@
 
             return {
                 project,
-                experiments
+                experiments,
+                propertyColumns
             }
         }
     }
