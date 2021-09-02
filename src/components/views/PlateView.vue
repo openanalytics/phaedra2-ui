@@ -103,7 +103,6 @@
     import { useRoute } from 'vue-router'
 
     import WellGrid from "@/components/widgets/WellGrid.vue"
-    // import WellUtils from "@/lib/WellUtils.js"
 
     const propertyColumns = [
         { name: 'key', align: 'left', label: 'Name', field: 'key', sortable: true },
@@ -114,11 +113,6 @@
         name: 'Plate',
         components: {
             WellGrid
-        },
-        watch: {
-            experiment(newValue) {
-                console.log(newValue)
-            }
         },
         setup() {
             const store = useStore()
@@ -132,6 +126,8 @@
             //TODO Only works if experiment and project are already cached
             const experiment = computed(() => store.getters['experiments/getById'](plate.value.experimentId))
             const project = computed(() => store.getters['projects/getById'](experiment.value.projectId))
+            // const experiment = ref({ id: 1 })
+            // const project = ref({ id: 1 })
 
             return {
                 plate,
@@ -139,28 +135,6 @@
                 project,
                 propertyColumns
             }
-        },
-        // created() {
-        //     // Demo data
-        //     this.plate = {
-        //         id: 1,
-        //         barcode: "123456",
-        //         rows: 16,
-        //         columns: 24,
-        //         sequence: 1,
-        //         wells: []
-        //     };
-        //     for (var r = 1; r <= this.plate.rows; r++) {
-        //         for (var c = 1; c <= this.plate.columns; c++) {
-        //             this.plate.wells.push({
-        //                 nr: WellUtils.getWellNr(r, c, this.plate.columns),
-        //                 row: r,
-        //                 column: c,
-        //                 wellType: ((c < 3) ? "NC": (c > 22 ? "PC" : "SAMPLE")),
-        //                 substance: {}
-        //             });
-        //         }
-        //     }
-        // }
+        }
     }
 </script>

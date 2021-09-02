@@ -1,10 +1,10 @@
 <template>
   <div class="gridContainer">
-      <WellSlot :well="well" v-for="well in plate.wells" :key="well.nr"></WellSlot>
+      <WellSlot :well="well" :wellSize="wellSize" v-for="well in plate.wells" :key="well.nr"></WellSlot>
   </div>
 </template>
 
-<style>
+<style scoped>
     .gridContainer {
         display: grid;
         grid-template-columns: v-bind(gridColumnStyle);
@@ -12,26 +12,22 @@
 </style>
 
 <script>
-import WellSlot from "@/components/widgets/WellSlot.vue"
-import WellUtils from "@/lib/WellUtils.js"
+    import WellSlot from "@/components/widgets/WellSlot.vue"
 
-export default {
-    props: {
-        plate: Object
-    },
-    data() {
-        return {
-            gridColumnStyle: "repeat(" + this.plate.columns + ", 52px)"
-        }
-    },
-    components: {
-        WellSlot
-    },
-    methods: {
-        getWell(row, column) {
-            let wellNr = WellUtils.getWellNr(row, column, this.plate.columns);
-            return this.plate.wells[wellNr - 1];
-        }
-    },
-}
+    export default {
+        props: {
+            plate: Object
+        },
+        components: {
+            WellSlot
+        },
+        setup(props) {
+            const wellSize = 50
+
+            return {
+                wellSize,
+                gridColumnStyle: "repeat(" + props.plate.columns + ", " + (wellSize + 2) + "px)"
+            }
+        },
+    }
 </script>

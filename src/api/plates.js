@@ -9,6 +9,22 @@ const demoPlates = [
     { id: 5, barcode: '555555555', experimentId: 1, description: 'This is test plate 5', rows: 16, columns: 24, createdOn: new Date(), createdBy: 'TestUser' },
 ]
 
+import WellUtils from "@/lib/WellUtils.js"
+demoPlates.forEach(plate => {
+  plate.wells = [];
+  for (var r = 1; r <= plate.rows; r++) {
+      for (var c = 1; c <= plate.columns; c++) {
+          plate.wells.push({
+              nr: WellUtils.getWellNr(r, c, plate.columns),
+              row: r,
+              column: c,
+              wellType: ((c < 3) ? "NC": (c > 22 ? "PC" : "SAMPLE")),
+              substance: {}
+          });
+      }
+  }
+})
+
 export default {
     async getPlateById(id) {
       console.log('Mocking a backend call...')
