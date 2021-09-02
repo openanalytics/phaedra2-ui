@@ -1,7 +1,7 @@
 <template>
     <q-table
-        title="Experiments"
-        :rows="experiments"
+        title="Plates"
+        :rows="plates"
         :columns="columns"
         row-key="id"
         :pagination="{ rowsPerPage: 10 }"
@@ -18,11 +18,10 @@
         </template>
         <template v-slot:body-cell-name="props">
             <q-td :props="props">
-                <router-link :to="{ name: 'experiment', params: { id: props.row.id } }" class="nav-link">
+                <router-link :to="{ name: 'plate', params: { id: props.row.id } }" class="nav-link">
                     <div class="row items-center cursor-pointer">
                         <q-icon name="folder" class="icon q-pr-sm" />
                         {{ props.row.name }}
-                        <ExperimentContextMenu></ExperimentContextMenu>
                     </div>
                 </router-link>
             </q-td>
@@ -38,30 +37,18 @@
         </template>
         <template v-slot:no-data>
             <div class="full-width row text-info">
-                <span>No experiments to show.</span>
+                <span>No plates to show.</span>
             </div>
         </template>
     </q-table>
 </template>
 
-<style scoped>
-    .tag-icon {
-        margin-right: 5px;
-    }
-    .nav-link {
-        color: black;
-        text-decoration: none;
-    }
-</style>
-
 <script>
     import { ref, computed, onUnmounted } from 'vue'
     import { useStore } from 'vuex'
     
-    import ExperimentContextMenu from "@/components/widgets/ExperimentContextMenu.vue"
-
     const columns = [
-        { name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true },
+        { name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true },
         { name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true },
         { name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true },
         { name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: val => `${val.toLocaleString()}` },
@@ -71,7 +58,7 @@
     const filterMethod = function(rows, term) {
         return rows.filter(row => {
             return (row.id == term
-                || row.name.toLowerCase().includes(term)
+                || row.barcode.toLowerCase().includes(term)
                 || row.description.toLowerCase().includes(term)
                 || (row.tags && row.tags.some(tag => tag.toLowerCase().includes(term))))
         })
@@ -79,20 +66,17 @@
 
     export default {
         props: {
-            projectId: Number
-        },
-        components: {
-            ExperimentContextMenu
+            experimentId: Number
         },
         setup(props) {
             const store = useStore()
             const loading = ref(true)
             
-            const experiments = computed(() => store.getters['experiments/getByProjectId'](props.projectId))
-            store.dispatch('experiments/loadByProjectId', props.projectId)
+            const plates = computed(() => store.getters['plates/getByExperimentId'](props.experimentId))
+            store.dispatch('plates/loadByExperimentId', props.experimentId)
             
             const unsubscribe = store.subscribe((mutation) => {
-                if (mutation.type == "experiments/cacheExperiments") {
+                if (mutation.type == "plates/cachePlates") {
                     loading.value = false
                 }
             })
@@ -105,7 +89,7 @@
                 filter: ref(''),
                 filterMethod,
                 loading,
-                experiments
+                plates
             }
         }
     }

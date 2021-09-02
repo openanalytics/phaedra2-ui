@@ -1,5 +1,8 @@
 const demoExperiments = [
-    { id: 1, name: 'Experiment 1', projectId: 1, description: 'This is experiment 1', createdOn: new Date(), tags: ['Experimental', 'Disapproved'] },
+    { id: 1, name: 'Experiment 1', projectId: 1, description: 'This is experiment 1', createdOn: new Date(),
+        tags: ['HTS', 'Pilot'],
+        properties: [ { key: "Prop1", value: "Value 1" }, { key: "Prop2", value: "Value 2" } ]
+    },
     { id: 2, name: 'Experiment 2', projectId: 1, description: 'This is experiment 2', createdOn: new Date() },
     { id: 3, name: 'Experiment 3', projectId: 1, description: 'This is experiment 3', createdOn: new Date() },
     { id: 4, name: 'Experiment 4', projectId: 2, description: 'This is experiment 4', createdOn: new Date(), tags: ['Experimental'] },

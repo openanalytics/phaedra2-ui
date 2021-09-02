@@ -27,7 +27,11 @@
                     <div class="row">
                         <div class="col-3 text-weight-bold">Tags:</div>
                         <div class="col">
-                            <q-badge color="orange" text-color="white" label="Experimental" />
+                            <div class="tag-icon flex inline" v-for="tag in project.tags" :key="tag.value">
+                                <q-badge color="green">
+                                    {{ tag }}
+                                </q-badge>
+                            </div>
                         </div>
                     </div>
                 </div>

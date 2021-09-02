@@ -1,5 +1,5 @@
 const demoProjects = [
-    { id: 1, name: 'Project A', team: 'Team X', properties: [ { key: "Prop1", value: "Value 1" }, { key: "Prop2", value: "Value 2" } ] },
+    { id: 1, name: 'Project A', team: 'Team X', tags: ['Experimental'], properties: [ { key: "Prop1", value: "Value 1" }, { key: "Prop2", value: "Value 2" } ] },
     { id: 2, name: 'Project B', team: 'Team X' },
     { id: 3, name: 'Project C', team: 'Team Y' }
 ]
