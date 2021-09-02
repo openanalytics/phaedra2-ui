@@ -16,12 +16,12 @@
                 </template>
             </q-input>
         </template>
-        <template v-slot:body-cell-name="props">
+        <template v-slot:body-cell-barcode="props">
             <q-td :props="props">
                 <router-link :to="{ name: 'plate', params: { id: props.row.id } }" class="nav-link">
                     <div class="row items-center cursor-pointer">
-                        <q-icon name="folder" class="icon q-pr-sm" />
-                        {{ props.row.name }}
+                        <q-icon name="view_module" class="icon q-pr-sm" />
+                        {{ props.row.barcode }}
                     </div>
                 </router-link>
             </q-td>
@@ -42,6 +42,16 @@
         </template>
     </q-table>
 </template>
+
+<style scoped>
+    .tag-icon {
+        margin-right: 5px;
+    }
+    .nav-link {
+        color: black;
+        text-decoration: none;
+    }
+</style>
 
 <script>
     import { ref, computed, onUnmounted } from 'vue'

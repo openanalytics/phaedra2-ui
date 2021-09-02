@@ -1,4 +1,9 @@
 <template>
+    <q-breadcrumbs class="breadcrumb" v-if="experiment && project">
+        <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}" />
+        <q-breadcrumbs-el :label="project.name" icon="folder" :to="{ name: 'project', params: { id: experiment.projectId } }" />
+        <q-breadcrumbs-el :label="experiment.name" icon="folder" />
+    </q-breadcrumbs>
     <q-card class="experiment-header" v-if="!experiment">
         <q-card-section>
             <div class="text-h6 text-primary">Loading experiment...</div>
@@ -68,6 +73,9 @@
 </template>
 
 <style>
+    .breadcrumb {
+        margin: 10px;
+    }
     .experiment-header {
         margin: 10px;
     }
@@ -106,9 +114,12 @@
                 store.dispatch('experiments/loadById', experimentId)
             }
 
+            const project = computed(() => store.getters['projects/getById'](experiment.value.projectId))
+
             return {
                 experimentId,
                 experiment,
+                project,
                 propertyColumns
             }
         }
