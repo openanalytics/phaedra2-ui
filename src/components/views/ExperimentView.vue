@@ -4,6 +4,7 @@
         <q-breadcrumbs-el :label="project.name" icon="folder" :to="{ name: 'project', params: { id: experiment.projectId } }" />
         <q-breadcrumbs-el :label="experiment.name" icon="science" />
     </q-breadcrumbs>
+    <q-separator />
     <q-card class="experiment-header" v-if="!experiment">
         <q-card-section>
             <div class="text-h6 text-primary">Loading experiment...</div>
@@ -11,7 +12,7 @@
     </q-card>
     <q-card class="experiment-header" v-else>
         <q-card-section>
-            <div class="text-h6">{{experiment.name}}</div>
+            <div class="text-h6 row items-center"><q-icon name="science" size="28px" class="q-mr-sm" /> {{experiment.name}}</div>
         </q-card-section>
         <q-separator />
         <q-card-section>

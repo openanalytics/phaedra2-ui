@@ -5,6 +5,7 @@
         <q-breadcrumbs-el :label="experiment.name" icon="science" :to="{ name: 'experiment', params: { id: experiment.id } }" />
         <q-breadcrumbs-el :label="plate.barcode" icon="view_module" />
     </q-breadcrumbs>
+    <q-separator />
     <q-card class="plate-header" v-if="!plate">
         <q-card-section>
             <div class="text-h6 text-primary">Loading plate...</div>
@@ -12,7 +13,7 @@
     </q-card>
     <q-card class="plate-header" v-else>
         <q-card-section>
-            <div class="text-h6">{{plate.barcode}}</div>
+            <div class="text-h6 row items-center"><q-icon name="view_module" size="28px" class="q-mr-sm" /> {{plate.barcode}}</div>
         </q-card-section>
         <q-separator />
         <q-card-section>
@@ -98,7 +99,7 @@
 </style>
 
 <script>
-    import { computed } from 'vue'
+    import { computed, watch } from 'vue'
     import { useStore } from 'vuex'
     import { useRoute } from 'vue-router'
 
@@ -119,15 +120,20 @@
             const route = useRoute()
 
             const plateId = parseInt(route.params.id);
+
             const plate = computed(() => store.getters['plates/getById'](plateId))
+            const experiment = computed(() => store.getters['experiments/getById'](plate.value.experimentId))
+            const project = computed(() => store.getters['projects/getById'](experiment.value.projectId))
+
+            // Once the plate has loaded, make sure the parent experiment gets loaded too.
+            watch(plate, (plate) => {
+                if (!store.getters['experiments/isLoaded'](plate.experimentId)) {
+                    store.dispatch('experiments/loadById', plate.experimentId)
+                }
+            })
             if (!store.getters['plates/isLoaded'](plateId)) {
                 store.dispatch('plates/loadById', plateId)
             }
-            //TODO Only works if experiment and project are already cached
-            const experiment = computed(() => store.getters['experiments/getById'](plate.value.experimentId))
-            const project = computed(() => store.getters['projects/getById'](experiment.value.projectId))
-            // const experiment = ref({ id: 1 })
-            // const project = ref({ id: 1 })
 
             return {
                 plate,

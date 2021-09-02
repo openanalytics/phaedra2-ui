@@ -12,7 +12,7 @@
         margin: 1px;
         width: v-bind(wellSizePx);
         height: v-bind(wellSizePx);
-        font-size: 75%;
+        font-size: 65%;
         text-align: center;
         background-color: v-bind(wellTypeColor);
     }

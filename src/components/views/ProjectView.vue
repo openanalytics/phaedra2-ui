@@ -3,6 +3,7 @@
         <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}" />
         <q-breadcrumbs-el :label="project.name" icon="folder" />
     </q-breadcrumbs>
+    <q-separator />
     <q-card class="project-header" v-if="!project">
         <q-card-section>
             <div class="text-h6 text-primary">Loading project...</div>
@@ -10,7 +11,7 @@
     </q-card>
     <q-card class="project-header" v-else>
         <q-card-section>
-            <div class="text-h6">{{project.name}}</div>
+            <div class="text-h6 row items-center"><q-icon name="folder" size="28px" class="q-mr-sm" /> {{project.name}}</div>
         </q-card-section>
         <q-separator />
         <q-card-section>

@@ -22,7 +22,7 @@
             WellSlot
         },
         setup(props) {
-            const wellSize = 50
+            const wellSize = 40
 
             return {
                 wellSize,
