@@ -2,7 +2,7 @@
     <q-breadcrumbs class="breadcrumb" v-if="experiment && project">
         <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}" />
         <q-breadcrumbs-el :label="project.name" icon="folder" :to="{ name: 'project', params: { id: experiment.projectId } }" />
-        <q-breadcrumbs-el :label="experiment.name" icon="folder" />
+        <q-breadcrumbs-el :label="experiment.name" icon="science" />
     </q-breadcrumbs>
     <q-card class="experiment-header" v-if="!experiment">
         <q-card-section>
@@ -60,19 +60,19 @@
                 <div class="col-2">
                 </div>
                 <div class="col-2">
-                    <div class="row plate-button"><q-btn size="sm" rounded color="primary" label="Edit" /></div>
-                    <div class="row plate-button"><q-btn size="sm" rounded color="primary" label="Delete" /></div>
-                    <div class="row plate-button"><q-btn size="sm" rounded color="primary" icon="more_horiz" /></div>
+                    <div class="row action-button"><q-btn size="sm" rounded color="primary" label="Edit" /></div>
+                    <div class="row action-button"><q-btn size="sm" rounded color="primary" label="Delete" /></div>
+                    <div class="row action-button"><q-btn size="sm" rounded color="primary" icon="more_horiz" /></div>
                 </div>
             </div>
         </q-card-section>
     </q-card>
-    <q-card class="project-body">
+    <q-card class="experiment-body">
         <PlateList :experimentId="experimentId"></PlateList>
     </q-card>
 </template>
 
-<style>
+<style scoped>
     .breadcrumb {
         margin: 10px;
     }
@@ -81,6 +81,9 @@
     }
     .experiment-body {
         margin: 10px;
+    }
+    .action-button {
+        margin: 3px;
     }
     .tag-icon {
         margin-right: 5px;

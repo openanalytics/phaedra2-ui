@@ -63,9 +63,9 @@
                 <div class="col-2">
                 </div>
                 <div class="col-2">
-                    <div class="row plate-button"><q-btn size="sm" rounded color="primary" label="Edit" /></div>
-                    <div class="row plate-button"><q-btn size="sm" rounded color="primary" label="Delete" /></div>
-                    <div class="row plate-button"><q-btn size="sm" rounded color="primary" icon="more_horiz" /></div>
+                    <div class="row action-button"><q-btn size="sm" rounded color="primary" label="Edit" /></div>
+                    <div class="row action-button"><q-btn size="sm" rounded color="primary" label="Delete" /></div>
+                    <div class="row action-button"><q-btn size="sm" rounded color="primary" icon="more_horiz" /></div>
                 </div>
             </div>
         </q-card-section>
@@ -75,12 +75,18 @@
     </q-card>
 </template>
 
-<style>
+<style scoped>
+    .breadcrumb {
+        margin: 10px;
+    }
     .project-header {
         margin: 10px;
     }
     .project-body {
         margin: 10px;
+    }
+    .action-button {
+        margin: 3px;
     }
 </style>
 

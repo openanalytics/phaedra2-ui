@@ -20,7 +20,7 @@
             <q-td :props="props">
                 <router-link :to="{ name: 'experiment', params: { id: props.row.id } }" class="nav-link">
                     <div class="row items-center cursor-pointer">
-                        <q-icon name="folder" class="icon q-pr-sm" />
+                        <q-icon name="science" class="icon q-pr-sm" />
                         {{ props.row.name }}
                         <ExperimentContextMenu></ExperimentContextMenu>
                     </div>
