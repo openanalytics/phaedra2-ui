@@ -62,8 +62,8 @@
             </div>
         </q-card-section>
     </q-card>
-    <q-card class="project-body" v-if="project">
-        <ExperimentList :experiments="experiments" ></ExperimentList>
+    <q-card class="project-body">
+        <ExperimentList :projectId="projectId" ></ExperimentList>
     </q-card>
 </template>
 
@@ -97,18 +97,15 @@
             const store = useStore()
             const route = useRoute()
 
-            const projectId = route.params.id;
+            const projectId = parseInt(route.params.id);
             const project = computed(() => store.getters['projects/getById'](projectId))
             if (!store.getters['projects/isLoaded'](projectId)) {
                 store.dispatch('projects/loadById', projectId)
             }
 
-            const experiments = computed(() => store.getters['experiments/getByProjectId'](projectId))
-            store.dispatch('experiments/loadByProjectId', projectId)
-
             return {
+                projectId,
                 project,
-                experiments,
                 propertyColumns
             }
         }

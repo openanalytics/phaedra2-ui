@@ -7,6 +7,7 @@
         :pagination="{ rowsPerPage: 10 }"
         :filter="filter"
         :filter-method="filterMethod"
+        :loading="loading"
     >
         <template v-slot:top-right>
             <q-input outlined rounded dense debounce="300" v-model="filter" placeholder="Search">
@@ -54,7 +55,9 @@
 </style>
 
 <script>
-    import { ref } from 'vue'
+    import { ref, computed, onUnmounted } from 'vue'
+    import { useStore } from 'vuex'
+    
     import ExperimentContextMenu from "@/components/widgets/ExperimentContextMenu.vue"
 
     const columns = [
@@ -77,16 +80,31 @@
 
     export default {
         props: {
-            experiments: Object
+            projectId: Number
         },
         components: {
             ExperimentContextMenu
         },
-        setup() {
+        setup(props) {
+            const store = useStore()
+            const loading = ref(true)
+            
+            const experiments = computed(() => store.getters['experiments/getByProjectId'](props.projectId))
+            store.dispatch('experiments/loadByProjectId', props.projectId)
+            
+            const unsubscribe = store.subscribe(() => {
+                loading.value = false
+            })
+            onUnmounted(() => {
+                unsubscribe()
+            })
+            
             return {
                 columns,
                 filter: ref(''),
-                filterMethod
+                filterMethod,
+                loading,
+                experiments
             }
         }
     }

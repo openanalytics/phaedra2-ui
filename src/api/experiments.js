@@ -14,7 +14,7 @@ export default {
     },
     async getExperimentsByProjectId(id) {
       console.log('Mocking a backend call...')
-      await wait(300)
+      await wait(1000)
       return demoExperiments.filter(exp => exp.projectId == id)
     }
 }
