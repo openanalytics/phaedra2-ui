@@ -92,8 +92,10 @@
             const experiments = computed(() => store.getters['experiments/getByProjectId'](props.projectId))
             store.dispatch('experiments/loadByProjectId', props.projectId)
             
-            const unsubscribe = store.subscribe(() => {
-                loading.value = false
+            const unsubscribe = store.subscribe((mutation) => {
+                if (mutation.type == "experiments/cacheExperiments") {
+                    loading.value = false
+                }
             })
             onUnmounted(() => {
                 unsubscribe()
