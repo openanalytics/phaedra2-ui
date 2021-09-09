@@ -26,6 +26,10 @@
                 <router-link :to="{ name: 'project', params: { id: prop.node.id } }" class="nav-link">{{ prop.node.label }}</router-link>
                 <span v-if="prop.node.owner" class="text-green">&nbsp; [{{prop.node.owner}}]</span>
             </template>
+            <template v-slot:header-protocol="prop">
+                <router-link :to="{ name: 'protocol', params: { id: prop.node.id } }" class="nav-link">{{ prop.node.label }}</router-link>
+                <span v-if="prop.node.version" class="text-green">&nbsp; [{{prop.node.version}}]</span>
+            </template>
         </q-tree>
     </q-drawer>
 </template>
@@ -33,6 +37,7 @@
 <style scoped>
     .nav-link {
         text-decoration: none;
+        color: black;
     }
 </style>
 
@@ -59,6 +64,12 @@ export default {
                 id: project.id,
                 owner: project.team
             }})
+            const protocols = store.getters['protocols/getAll']().map(protocol => { return {
+                header: "protocol",
+                label: protocol.name,
+                id: protocol.id,
+                version: protocol.version
+            }})
             return [
                 {
                     label: "Dashboard",
@@ -68,10 +79,16 @@ export default {
                     label: "Projects",
                     header: "category",
                     children: projects
+                },
+                {
+                    label: "Protocols",
+                    header: "category",
+                    children: protocols
                 }
             ]
         })
         store.dispatch('projects/loadAll')
+        store.dispatch('protocols/loadAll')
 
         return {
             drawerIcons: {

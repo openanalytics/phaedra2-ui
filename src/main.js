@@ -7,12 +7,14 @@ import Dashboard from '@/components/views/Dashboard.vue'
 import ProjectView from '@/components/views/ProjectView.vue'
 import ExperimentView from '@/components/views/ExperimentView.vue'
 import PlateView from '@/components/views/PlateView.vue'
+import ProtocolView from '@/components/views/ProtocolView.vue'
 
 const routes = [
     { name: "dashboard", path: "/", component: Dashboard },
     { name: "project", path: "/project/:id", component: ProjectView },
     { name: "experiment", path: "/experiment/:id", component: ExperimentView },
     { name: "plate", path: "/plate/:id", component: PlateView },
+    { name: "protocol", path: "/protocol/:id", component: ProtocolView },
 ]
 const router = createRouter({
     history: createWebHistory(),
