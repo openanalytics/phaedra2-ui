@@ -1,6 +1,6 @@
 <template>
     <q-table
-        title="Plates"
+        table-header-class="text-grey"
         :rows="plates"
         :columns="columns"
         row-key="id"
@@ -25,7 +25,22 @@
                     </div>
                 </router-link>
             </q-td>
-        </template>    
+        </template>
+        <template v-slot:body-cell-status-validated="props">
+            <q-td :props="props">
+                <q-icon name="check_circle" color="positive" />
+            </q-td>
+        </template>
+        <template v-slot:body-cell-status-approved="props">
+            <q-td :props="props">
+                <q-icon name="check_circle" color="positive" />
+            </q-td>
+        </template>
+        <template v-slot:body-cell-layout="props">
+            <q-td :props="props">
+                {{props.row.rows}} x {{props.row.columns}}
+            </q-td>
+        </template>
         <template v-slot:body-cell-tags="props">
             <q-td :props="props">
                 <div class="tag-icon flex inline" v-for="tag in props.row.tags" :key="tag.value">
@@ -61,6 +76,9 @@
         { name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true },
         { name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true },
         { name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true },
+        { name: 'status-validated', align: 'left', label: 'Validated', field: 'status-validated', sortable: true },
+        { name: 'status-approved', align: 'left', label: 'Approved', field: 'status-approved', sortable: true },
+        { name: 'layout', align: 'left', label: 'Layout', field: 'layout', sortable: true },
         { name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: val => `${val.toLocaleString()}` },
         { name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true }
     ]

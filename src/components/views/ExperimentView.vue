@@ -69,6 +69,16 @@
         </q-card-section>
     </q-card>
     <q-card class="experiment-body">
+        <q-tabs
+            v-model="activeTab"
+            inline-label dense no-caps
+            align="left"
+            class="bg-primary text-white shadow-2"
+        >
+            <q-tab name="plate_overview" icon="table_rows" label="Plate Overview" />
+            <q-tab name="plate_statistics" icon="functions" label="Plate Statistics" />
+            <q-tab name="plate_heatmaps" icon="view_module" label="Plate Heatmaps" />
+        </q-tabs>
         <PlateList :experimentId="experimentId"></PlateList>
     </q-card>
 </template>
@@ -92,7 +102,7 @@
 </style>
 
 <script>
-    import { computed } from 'vue'
+    import { ref, computed } from 'vue'
     import { useStore } from 'vuex'
     import { useRoute } from 'vue-router'
 
@@ -124,7 +134,8 @@
                 experimentId,
                 experiment,
                 project,
-                propertyColumns
+                propertyColumns,
+                activeTab: ref('plate_overview')
             }
         }
     }

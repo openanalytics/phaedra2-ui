@@ -1,6 +1,7 @@
 <template>
     <q-table
         title="Experiments"
+        table-header-class="text-grey"
         :rows="experiments"
         :columns="columns"
         row-key="id"
