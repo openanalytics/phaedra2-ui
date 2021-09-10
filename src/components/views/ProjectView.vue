@@ -10,7 +10,7 @@
         </q-card-section>
     </q-card>
     <q-card class="project-header" v-else>
-        <q-card-section>
+        <q-card-section class="bg-primary text-white q-pa-sm">
             <div class="text-h6 row items-center"><q-icon name="folder" size="28px" class="q-mr-sm" /> {{project.name}}</div>
         </q-card-section>
         <q-separator />

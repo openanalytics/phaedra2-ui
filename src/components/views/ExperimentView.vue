@@ -11,7 +11,7 @@
         </q-card-section>
     </q-card>
     <q-card class="experiment-header" v-else>
-        <q-card-section>
+        <q-card-section class="bg-primary text-white q-pa-sm">
             <div class="text-h6 row items-center"><q-icon name="science" size="28px" class="q-mr-sm" /> {{experiment.name}}</div>
         </q-card-section>
         <q-separator />

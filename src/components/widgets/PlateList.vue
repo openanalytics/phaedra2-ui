@@ -18,7 +18,7 @@
         </template>
         <template v-slot:body-cell-barcode="props">
             <q-td :props="props">
-                <router-link :to="{ name: 'plate', params: { id: props.row.id } }" class="nav-link">
+                <router-link :to="'/plate/' + props.row.id" class="nav-link">
                     <div class="row items-center cursor-pointer">
                         <q-icon name="view_module" class="icon q-pr-sm" />
                         {{ props.row.barcode }}

@@ -12,7 +12,7 @@
         </q-card-section>
     </q-card>
     <q-card class="plate-header" v-else>
-        <q-card-section>
+        <q-card-section class="bg-primary text-white q-pa-sm">
             <div class="text-h6 row items-center"><q-icon name="view_module" size="28px" class="q-mr-sm" /> {{plate.barcode}}</div>
         </q-card-section>
         <q-separator />
