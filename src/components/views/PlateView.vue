@@ -81,12 +81,16 @@
             class="bg-primary text-white shadow-2"
         >
             <q-tab name="plate_layout" icon="view_module" label="Layout" />
+            <q-tab name="plate_measurements" icon="text_snippet" label="Measurements" />
             <q-tab name="plate_heatmap" icon="view_module" label="Heatmap" />
             <q-tab name="plate_welldata" icon="table_rows" label="Well List" />
         </q-tabs>
         <q-tab-panels v-model="activeTab" animated>
             <q-tab-panel name="plate_layout">
                 <WellGrid :plate="plate"></WellGrid>
+            </q-tab-panel>
+            <q-tab-panel name="plate_measurements">
+                <MeasList :plate="plate"></MeasList>
             </q-tab-panel>
             <q-tab-panel name="plate_heatmap">
                 <WellGrid :plate="plate"></WellGrid>
@@ -124,6 +128,7 @@
 
     import WellGrid from "@/components/widgets/WellGrid.vue"
     import WellList from "@/components/widgets/WellList.vue"
+    import MeasList from "@/components/widgets/MeasList.vue"
 
     const propertyColumns = [
         { name: 'key', align: 'left', label: 'Name', field: 'key', sortable: true },
@@ -134,7 +139,8 @@
         name: 'Plate',
         components: {
             WellGrid,
-            WellList
+            WellList,
+            MeasList
         },
         setup() {
             const store = useStore()

@@ -1,7 +1,8 @@
 const demoPlates = [
     { id: 1, barcode: '111111111', experimentId: 1, description: 'This is test plate 1', rows: 16, columns: 24, createdOn: new Date(), createdBy: 'TestUser',
         tags: ['RefPlate'],
-        properties: [ { key: "Prop1", value: "Value 1" }, { key: "Prop2", value: "Value 2" } ]
+        properties: [ { key: "Prop1", value: "Value 1" }, { key: "Prop2", value: "Value 2" } ],
+        measurementIds: [ 1, 2, 3 ]
     },
     { id: 2, barcode: '222222222', experimentId: 1, description: 'This is test plate 2', rows: 16, columns: 24, createdOn: new Date(), createdBy: 'TestUser' },
     { id: 3, barcode: '333333333', experimentId: 1, description: 'This is test plate 3', rows: 16, columns: 24, createdOn: new Date(), createdBy: 'TestUser' },
