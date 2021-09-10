@@ -75,30 +75,16 @@
     </q-card>
     <q-card class="plate-body" v-if="plate">
         <q-tabs
-            v-model="activeTab"
             inline-label dense no-caps
             align="left"
             class="bg-primary text-white shadow-2"
         >
-            <q-tab name="plate_layout" icon="view_module" label="Layout" />
-            <q-tab name="plate_measurements" icon="text_snippet" label="Measurements" />
-            <q-tab name="plate_heatmap" icon="view_module" label="Heatmap" />
-            <q-tab name="plate_welldata" icon="table_rows" label="Well List" />
+            <q-route-tab :to="'/plate/' + plate.id" icon="view_module" label="Layout" />
+            <q-route-tab :to="'/plate/' + plate.id + '/measurements'" icon="text_snippet" label="Measurements" />
+            <q-route-tab :to="'/plate/' + plate.id + '/heatmap'" icon="view_module" label="Heatmap" />
+            <q-route-tab :to="'/plate/' + plate.id + '/wells'" icon="table_rows" label="Well List" />
         </q-tabs>
-        <q-tab-panels v-model="activeTab" animated>
-            <q-tab-panel name="plate_layout">
-                <WellGrid :plate="plate"></WellGrid>
-            </q-tab-panel>
-            <q-tab-panel name="plate_measurements">
-                <MeasList :plate="plate"></MeasList>
-            </q-tab-panel>
-            <q-tab-panel name="plate_heatmap">
-                <WellGrid :plate="plate"></WellGrid>
-            </q-tab-panel>
-            <q-tab-panel name="plate_welldata">
-                <WellList :plate="plate"></WellList>
-            </q-tab-panel>
-        </q-tab-panels>
+        <router-view class="router-view" :plate="plate"></router-view>
     </q-card>
 </template>
 
@@ -119,16 +105,15 @@
     .tag-icon {
         margin-right: 5px;
     }
+    .router-view {
+        margin: 10px;
+    }
 </style>
 
 <script>
     import { computed, watch, ref } from 'vue'
     import { useStore } from 'vuex'
     import { useRoute } from 'vue-router'
-
-    import WellGrid from "@/components/widgets/WellGrid.vue"
-    import WellList from "@/components/widgets/WellList.vue"
-    import MeasList from "@/components/widgets/MeasList.vue"
 
     const propertyColumns = [
         { name: 'key', align: 'left', label: 'Name', field: 'key', sortable: true },
@@ -137,11 +122,6 @@
 
     export default {
         name: 'Plate',
-        components: {
-            WellGrid,
-            WellList,
-            MeasList
-        },
         setup() {
             const store = useStore()
             const route = useRoute()

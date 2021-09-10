@@ -9,11 +9,22 @@ import ExperimentView from '@/components/views/ExperimentView.vue'
 import PlateView from '@/components/views/PlateView.vue'
 import ProtocolView from '@/components/views/ProtocolView.vue'
 
+import WellGrid from "@/components/widgets/WellGrid.vue"
+import WellList from "@/components/widgets/WellList.vue"
+import MeasList from "@/components/widgets/MeasList.vue"
+
 const routes = [
     { name: "dashboard", path: "/", component: Dashboard },
     { name: "project", path: "/project/:id", component: ProjectView },
     { name: "experiment", path: "/experiment/:id", component: ExperimentView },
-    { name: "plate", path: "/plate/:id", component: PlateView },
+    { name: "plate", path: "/plate/:id", component: PlateView,
+        children: [
+            { path: '', component: WellGrid },
+            { path: 'measurements', component: MeasList },
+            { path: 'heatmap', component: WellGrid },
+            { path: 'wells', component: WellList }
+        ]
+    },
     { name: "protocol", path: "/protocol/:id", component: ProtocolView },
 ]
 const router = createRouter({
