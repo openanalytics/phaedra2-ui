@@ -100,7 +100,8 @@
 
 <style scoped>
     .breadcrumb {
-        margin: 10px;
+        margin: 12px;
+        margin-bottom: 13px;
     }
     .plate-header {
         margin: 10px;

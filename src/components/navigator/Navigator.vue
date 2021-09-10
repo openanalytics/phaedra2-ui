@@ -7,7 +7,11 @@
             <q-btn dense flat round icon="settings" v-show="drawerOpen" />
             <q-btn dense flat round :icon="drawerIcon" @click="toggleDrawer" />
         </q-toolbar>
-        <q-tree :nodes="navTree" node-key="label" v-model:selected="selected" selected-color="primary">
+        <q-tree
+            :nodes="navTree"
+            node-key="label"
+            v-show="drawerOpen"
+            >
             <template v-slot:header-link="prop">
                 <div class="row items-center" style="padding-left: 8px;">
                     <q-icon name="home" color="primary" size="28px" class="q-mr-sm" />
