@@ -1,7 +1,12 @@
 <template>
-  <div class="gridContainer">
-      <WellSlot :well="well" :wellSize="wellSize" v-for="well in plate.wells" :key="well.nr"></WellSlot>
-  </div>
+    <div class="row">
+        <div class="gridContainer">
+            <WellSlot :well="well" :wellSize="wellSize" v-for="well in plate.wells" :key="well.nr"></WellSlot>
+        </div>
+        <div class="q-pl-md q-pt-sm" v-show="showSettings">
+            <FeatureSelector></FeatureSelector>
+        </div>
+    </div>
 </template>
 
 <style scoped>
@@ -13,13 +18,16 @@
 
 <script>
     import WellSlot from "@/components/widgets/WellSlot.vue"
+    import FeatureSelector from "@/components/widgets/FeatureSelector.vue"
 
     export default {
         props: {
-            plate: Object
+            plate: Object,
+            showSettings: Boolean
         },
         components: {
-            WellSlot
+            WellSlot,
+            FeatureSelector
         },
         setup(props) {
             const wellSize = 40

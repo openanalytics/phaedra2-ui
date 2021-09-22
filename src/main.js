@@ -21,7 +21,7 @@ const routes = [
         children: [
             { path: '', component: WellGrid },
             { path: 'measurements', component: MeasList },
-            { path: 'heatmap', component: WellGrid },
+            { path: 'heatmap', component: WellGrid, props: { showSettings: true } },
             { path: 'wells', component: WellList }
         ]
     },
