@@ -19,9 +19,9 @@ const routes = [
     { name: "experiment", path: "/experiment/:id", component: ExperimentView },
     { name: "plate", path: "/plate/:id", component: PlateView,
         children: [
-            { path: '', component: WellGrid },
+            { path: '', component: WellGrid, props: { gridType: WellGrid.GRID_TYPE_LAYOUT } },
             { path: 'measurements', component: MeasList },
-            { path: 'heatmap', component: WellGrid, props: { showSettings: true } },
+            { path: 'heatmap', component: WellGrid, props: { gridType: WellGrid.GRID_TYPE_HEATMAP } },
             { path: 'wells', component: WellList }
         ]
     },
