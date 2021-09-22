@@ -13,8 +13,6 @@
     .well {
         border: 1px solid black;
         margin: 1px;
-        width: v-bind(wellSizePx);
-        height: v-bind(wellSizePx);
         font-size: 65%;
         text-align: center;
         background-color: v-bind(wellTypeColor);
@@ -37,7 +35,6 @@
     export default {
         props: {
             well: Object,
-            wellSize: Number,
             selectedWells: Array,
             wellColorFunction: Function,
             wellLabelFunctions: Array
@@ -45,7 +42,6 @@
         emits: [ 'wellSelection' ],
         setup(props) {
             return {
-                wellSizePx: props.wellSize + "px",
                 isSelected: computed(() => props.selectedWells.indexOf(props.well.nr) >= 0)
             }
         }

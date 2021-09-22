@@ -1,19 +1,18 @@
 <template>
     <div class="row">
-        <div class="gridContainer">
+        <div class="col gridContainer">
             <WellSlot v-for="well in plate.wells" :key="well.nr"
                 :well="well"
-                :wellSize="wellSize"
                 :wellColorFunction="wellColorFunction"
                 :wellLabelFunctions="wellLabelFunctions"
                 @wellSelection="handleWellSelection"
                 :selectedWells="selectedWells"
             ></WellSlot>
         </div>
-        <div class="q-pl-md q-pt-sm" v-if="gridType == GRID_TYPE_LAYOUT">
+        <div class="col-3 q-pl-md q-pt-sm" v-if="gridType == GRID_TYPE_LAYOUT">
             <WellTypeLegend :plate=plate></WellTypeLegend>
         </div>
-        <div class="q-pl-md q-pt-sm" v-if="gridType == GRID_TYPE_HEATMAP">
+        <div class="col-3 q-pl-md q-pt-sm" v-if="gridType == GRID_TYPE_HEATMAP">
             <FeatureSelector></FeatureSelector>
         </div>
     </div>
@@ -68,7 +67,6 @@
                 return demoGradients[index]
             }
             
-            const wellSize = 40
             const selectedWells = ref([])
 
             return {
@@ -76,7 +74,6 @@
                 GRID_TYPE_HEATMAP,
                 GRID_TYPE_IMAGES,
 
-                wellSize,
                 wellColorFunction: (props.gridType === GRID_TYPE_LAYOUT) ? wellTypeColorFunction : featureValueColorFunction,
                 wellLabelFunctions: [
                     function(well) { return WellUtils.getWellCoordinate(well.row, well.column) },
@@ -89,7 +86,7 @@
                     selectedWells.value.splice(0)
                     selectedWells.value.push(well.nr)
                 },
-                gridColumnStyle: "repeat(" + props.plate.columns + ", " + (wellSize + 2) + "px)"
+                gridColumnStyle: "repeat(" + props.plate.columns + ", 1fr)"
             }
         },
     }
