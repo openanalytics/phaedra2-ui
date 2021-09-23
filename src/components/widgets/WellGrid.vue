@@ -68,7 +68,7 @@
         },
         setup(props) {
             const store = useStore()
-            const loading = ref(true)
+            const loading = ref(props.gridType === GRID_TYPE_HEATMAP)
             
             const selectedFeature = ref(null)
             watch(selectedFeature, () => {
