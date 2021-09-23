@@ -1,38 +1,52 @@
 import resultdataAPI from '@/api/resultdata.js'
 
 const state = () => ({
-    resultSets: []
+    resultSets: [],
+    resultDatas: []
 })
 
 const getters = {
-    getById: (state) => (id) => {
+    getResultSetById: (state) => (id) => {
         return state.resultSets.find(rs => rs.id == id)
     },
-    getAll: (state) => () => {
+    getResultDataById: (state) => (resultSetId, featureId) => {
+        return state.resultDatas.find(rd => rd.resultSetId == resultSetId && rd.featureId == featureId)
+    },
+    getAllResultSets: (state) => () => {
         return state.resultSets
     },
-    isLoaded: (state) => (id) => {
+    isResultSetLoaded: (state) => (id) => {
         return state.resultSets.find(rs => rs.id == id) != null
     }
 }
 
 const actions = {
-    async loadById(ctx, id) {
-        const rs = await resultdataAPI.getById(id)
-        ctx.commit('cacheOne', rs)
+    async loadResultSetById(ctx, id) {
+        const rs = await resultdataAPI.getResultSetById(id)
+        ctx.commit('cacheResultSet', rs)
     },
-    async loadAll(ctx) {
-        const all = await resultdataAPI.getAll()
-        ctx.commit('cacheAll', all)
+    async loadResultDataById(ctx, args) {
+        const rd = await resultdataAPI.getResultDataById(args.resultSetId, args.featureId)
+        ctx.commit('cacheResultData', rd)
+    },
+    async loadAllResultSets(ctx) {
+        const all = await resultdataAPI.getAllResultSets()
+        ctx.commit('cacheAllResultSets', all)
     }
 }
 
 const mutations = {
-    cacheOne (state, rs) {
+    cacheResultSet (state, rs) {
         let index = state.resultSets.indexOf(rs)
-        if (index === -1) state.resultSets.push(rs)
+        if (index >= 0) state.resultSets.splice(index, 1)
+        state.resultSets.push(rs)
     },
-    cacheAll (state, all) {
+    cacheResultData (state, rd) {
+        let index = state.resultDatas.indexOf(rd)
+        if (index >= 0) state.resultDatas.splice(index, 1)
+        state.resultDatas.push(rd)
+    },
+    cacheAllResultSets (state, all) {
         state.resultSets = all;
     }
 }

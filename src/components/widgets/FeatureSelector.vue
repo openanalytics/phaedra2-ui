@@ -81,7 +81,7 @@
                 onMeasSelectionChanged()
             })
             const onMeasSelectionChanged = () => {
-                store.dispatch('resultdata/loadAll', props.plate.measurementIds)
+                store.dispatch('resultdata/loadAllResultSets', props.plate.measurementIds)
             }
 
             // ResultSet selection handling
@@ -90,7 +90,7 @@
                 if (!measModel.value) return []
                 const plateId = props.plate.id
                 const measId = measModel.value.id
-                return store.getters['resultdata/getAll']().filter(rs => rs.plateId == plateId && rs.measId == measId)
+                return store.getters['resultdata/getAllResultSets']().filter(rs => rs.plateId == plateId && rs.measId == measId)
             })
             watch(resList, (resList) => {
                 resModel.value = resList[0]

@@ -1,6 +1,9 @@
 <template>
     <div class="row">
         <div class="col gridContainer">
+            <div class="loadingAnimation" v-if="loading">
+                <q-spinner-pie color="info" size="10em" />
+            </div>
             <WellSlot v-for="well in plate.wells" :key="well.nr"
                 :well="well"
                 :wellColorFunction="wellColorFunction"
@@ -22,6 +25,12 @@
 </template>
 
 <style scoped>
+    .loadingAnimation {
+        position: absolute;
+        z-index: 10;
+        justify-self: center;
+        align-self: center;
+    }
     .gridContainer {
         display: grid;
         grid-template-columns: v-bind(gridColumnStyle);
@@ -29,7 +38,8 @@
 </style>
 
 <script>
-    import { ref, computed } from 'vue'
+    import { ref, computed, watch } from 'vue'
+    import { useStore } from 'vuex'
 
     import WellUtils from "@/lib/WellUtils.js"
     import ColorUtils from "@/lib/ColorUtils.js"
@@ -57,16 +67,20 @@
             FeatureSelector
         },
         setup(props) {
+            const store = useStore()
+            const loading = ref(true)
+            
             const selectedFeature = ref(null)
+            watch(selectedFeature, () => {
+                if (selectedFeature.value) store.dispatch('resultdata/loadResultDataById', { resultSetId: 1, featureId: selectedFeature.value.id })
+            })
+            
             const selectedFeatureData = computed(() => {
-                const wellCount = props.plate.wells.length;
-                const values = [];
-                for (var i=0; i<wellCount; i++) {
-                    if (selectedFeature.value) values.push(Math.random())
-                    // if (selectedFeature.value) values.push(i)
-                    else values.push(NaN)
-                }
-                return values;
+                if (!selectedFeature.value) return undefined
+                return store.getters['resultdata/getResultDataById'](1, selectedFeature.value.id)
+            })
+            watch(selectedFeatureData, () => {
+                if (selectedFeatureData.value) loading.value = false
             })
 
             // WellSlot colors and labels
@@ -79,17 +93,19 @@
                 { red: 150, green: 50, blue: 50}
             ], 200)
             const featureValueColorFunction = function(well) {
-                let value = selectedFeatureData.value[well.nr - 1]
-                let index = ColorUtils.findGradientIndex(value, selectedFeatureData.value, heatmapGradients)
+                if (!selectedFeatureData.value) return WellUtils.getWellTypeColor("EMPTY")
+                let value = selectedFeatureData.value.values[well.nr - 1]
+                let index = ColorUtils.findGradientIndex(value, selectedFeatureData.value.values, heatmapGradients)
                 if (index == -1) return WellUtils.getWellTypeColor("EMPTY")
                 return heatmapGradients[index]
             }
             const wellColorFunction = (props.gridType === GRID_TYPE_LAYOUT) ? wellTypeColorFunction : featureValueColorFunction
+
             const wellLabelFunctions = [
                 function(well) { return WellUtils.getWellCoordinate(well.row, well.column) },
                 (props.gridType === GRID_TYPE_LAYOUT) ?
                     function(well) { return well.wellType } :
-                    function(well) { return well.nr }
+                    function(well) { return (selectedFeatureData.value) ? (Math.round(selectedFeatureData.value.values[well.nr - 1] * 100) / 100) : "" }
             ]
 
             // Well selection handling
@@ -102,12 +118,14 @@
             // Feature selection handling
             const handleFeatureSelection = function(feature) {
                 selectedFeature.value = feature
+                loading.value = true
             }
 
             return {
                 GRID_TYPE_LAYOUT,
                 GRID_TYPE_HEATMAP,
                 GRID_TYPE_IMAGES,
+                loading,
                 wellColorFunction,
                 wellLabelFunctions,
                 selectedWells,
