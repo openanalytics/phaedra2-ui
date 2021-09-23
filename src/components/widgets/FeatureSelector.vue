@@ -10,6 +10,8 @@
             <q-select
                 outlined dense options-dense
                 v-model="measModel" :options="measList"
+                option-label="name" option-value="id"
+                @update:model-value="onMeasSelectionChanged"
                 class="selectBox">
                 <template v-slot:prepend>
                     <q-icon name="text_snippet" />
@@ -19,6 +21,8 @@
             <q-select
                 outlined dense options-dense
                 v-model="resModel" :options="resList"
+                :option-label="resultSetLabelProvider"
+                @update:model-value="onResSelectionChanged"
                 class="selectBox">
                 <template v-slot:prepend>
                     <q-icon name="find_in_page" />
@@ -29,6 +33,8 @@
                 outlined dense options-dense
                 v-model="featureModel" :options="featureList"
                 use-input input-debounce="0" @filter="filterFeature"
+                option-label="name" option-value="id"
+                @update:model-value="onFeatureSelectionChanged"
                 class="selectBox">
                 <template v-slot:prepend>
                     <q-icon name="biotech" />
@@ -50,53 +56,93 @@
 </style>
 
 <script>
-    import { ref } from 'vue'
+    import { ref, computed, watch } from 'vue'
+    import { useStore } from 'vuex'
 
     import ColorLegend from "@/components/widgets/ColorLegend.vue"
 
     export default {
+        props: {
+            plate: Object,
+        },
         components: {
             ColorLegend
         },
-        setup () {
-            const fullMeasList = [ "MeasA", "MeasB", "MeasC" ]
-            const fullResList = [ "Protocol X 22/09/21 12:43" ]
-            const fullFeatureList = []
-            for (var i=1; i<100; i++) {
-                fullFeatureList.push("Feature " + i)
+        emits: [ 'featureSelection' ],
+        setup(props, context) {
+            const store = useStore()
+
+            // Measurement selection handling
+            const measModel = ref(null)
+            const measList = computed(() => store.getters['measurements/getByIds'](props.plate.measurementIds))
+            store.dispatch('measurements/loadByIds', props.plate.measurementIds)
+            watch(measList, (measList) => {
+                measModel.value = measList[0]
+                onMeasSelectionChanged()
+            })
+            const onMeasSelectionChanged = () => {
+                store.dispatch('resultdata/loadAll', props.plate.measurementIds)
             }
 
-            const measList = ref(fullMeasList)
-            const resList = ref(fullResList)
-            const featureList = ref(fullFeatureList)
+            // ResultSet selection handling
+            const resModel = ref(null)
+            const resList = computed(() => {
+                if (!measModel.value) return []
+                const plateId = props.plate.id
+                const measId = measModel.value.id
+                return store.getters['resultdata/getAll']().filter(rs => rs.plateId == plateId && rs.measId == measId)
+            })
+            watch(resList, (resList) => {
+                resModel.value = resList[0]
+                onResSelectionChanged()
+            })
+            const onResSelectionChanged = () => {
+                if (resModel.value) store.dispatch('features/loadByProtocolId', resModel.value.protocolId)
+            }
+            const resultSetLabelProvider = (rs) => {
+                return (rs === null) ? "NULL" : ("RS " + rs.id + " @ " + rs.executionDate.toLocaleString())
+            }
 
-            const measModel = ref(measList.value[0])
-            const resModel = ref(resList.value[0])
-            const featureModel = ref(featureList.value[0])
-
-            const filterFunction = function(val, update, list, fullList) {
-                if (val === '') {
-                    update(() => {
-                        list.value = fullList
-                    })
-                    return
-                }
-                update(() => {
-                    list.value = fullList.filter(v => v.toLowerCase().indexOf(val.toLowerCase()) > -1)
-                })
+            // Feature selection handling
+            const featureModel = ref(null)
+            const fullFeatureList = computed(() => {
+                if (!resModel.value) return []
+                return store.getters['features/getByProtocolId'](resModel.value.protocolId)
+            })
+            const featureList = ref(fullFeatureList.value)
+            watch(fullFeatureList, (fullFeatureList) => {
+                featureModel.value = fullFeatureList[0]
+                onFeatureSelectionChanged(featureModel.value)
+            })
+            const onFeatureSelectionChanged = (value) => {
+                context.emit('featureSelection', value)
             }
 
             return {
                 measList,
                 measModel,
+                onMeasSelectionChanged,
+
                 resList,
                 resModel,
+                onResSelectionChanged,
+                resultSetLabelProvider,
+                
                 featureList,
                 featureModel,
+                onFeatureSelectionChanged,
 
-                filterMeas: function(val, update) { filterFunction(val, update, measList, fullMeasList); },
-                filterRes: function(val, update) { filterFunction(val, update, resList, fullResList); },
-                filterFeature: function(val, update) { filterFunction(val, update, featureList, fullFeatureList); }
+                filterFeature: function(val, update) {
+                    if (val === '') {
+                        update(() => {
+                            featureList.value = fullFeatureList.value
+                        })
+                        return
+                    }
+                    update(() => {
+                        featureList.value = fullFeatureList.value.filter(v => v.name.toLowerCase().indexOf(val.toLowerCase()) > -1)
+                    })
+                }
             }
         }
     }

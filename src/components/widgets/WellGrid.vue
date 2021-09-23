@@ -13,7 +13,10 @@
             <WellTypeLegend :plate=plate></WellTypeLegend>
         </div>
         <div class="col-3 q-pl-md q-pt-sm" v-if="gridType == GRID_TYPE_HEATMAP">
-            <FeatureSelector></FeatureSelector>
+            <FeatureSelector
+                :plate=plate
+                @featureSelection="handleFeatureSelection"
+            ></FeatureSelector>
         </div>
     </div>
 </template>
@@ -26,7 +29,7 @@
 </style>
 
 <script>
-    import { ref } from 'vue'
+    import { ref, computed } from 'vue'
 
     import WellUtils from "@/lib/WellUtils.js"
     import ColorUtils from "@/lib/ColorUtils.js"
@@ -54,38 +57,62 @@
             FeatureSelector
         },
         setup(props) {
+            const selectedFeature = ref(null)
+            const selectedFeatureData = computed(() => {
+                const wellCount = props.plate.wells.length;
+                const values = [];
+                for (var i=0; i<wellCount; i++) {
+                    if (selectedFeature.value) values.push(Math.random())
+                    // if (selectedFeature.value) values.push(i)
+                    else values.push(NaN)
+                }
+                return values;
+            })
+
+            // WellSlot colors and labels
             const wellTypeColorFunction = function(well) {
                 return WellUtils.getWellTypeColor(well.wellType)
             }
-            const demoGradients = ColorUtils.createGradients([
+            const heatmapGradients = ColorUtils.createMultiGradients([
                 { red: 50, green: 50, blue: 150},
                 { red: 255, green: 255, blue: 255},
                 { red: 150, green: 50, blue: 50}
             ], 200)
             const featureValueColorFunction = function(well) {
-                let index = Math.ceil((well.nr / props.plate.wells.length) * demoGradients.length) - 1
-                return demoGradients[index]
+                let value = selectedFeatureData.value[well.nr - 1]
+                let index = ColorUtils.findGradientIndex(value, selectedFeatureData.value, heatmapGradients)
+                if (index == -1) return WellUtils.getWellTypeColor("EMPTY")
+                return heatmapGradients[index]
             }
-            
+            const wellColorFunction = (props.gridType === GRID_TYPE_LAYOUT) ? wellTypeColorFunction : featureValueColorFunction
+            const wellLabelFunctions = [
+                function(well) { return WellUtils.getWellCoordinate(well.row, well.column) },
+                (props.gridType === GRID_TYPE_LAYOUT) ?
+                    function(well) { return well.wellType } :
+                    function(well) { return well.nr }
+            ]
+
+            // Well selection handling
             const selectedWells = ref([])
+            const handleWellSelection = function(well) {
+                selectedWells.value.splice(0)
+                selectedWells.value.push(well.nr)
+            }
+
+            // Feature selection handling
+            const handleFeatureSelection = function(feature) {
+                selectedFeature.value = feature
+            }
 
             return {
                 GRID_TYPE_LAYOUT,
                 GRID_TYPE_HEATMAP,
                 GRID_TYPE_IMAGES,
-
-                wellColorFunction: (props.gridType === GRID_TYPE_LAYOUT) ? wellTypeColorFunction : featureValueColorFunction,
-                wellLabelFunctions: [
-                    function(well) { return WellUtils.getWellCoordinate(well.row, well.column) },
-                    (props.gridType === GRID_TYPE_LAYOUT) ?
-                        function(well) { return well.wellType } :
-                        function(well) { return well.nr }
-                ],
+                wellColorFunction,
+                wellLabelFunctions,
                 selectedWells,
-                handleWellSelection: function(well) {
-                    selectedWells.value.splice(0)
-                    selectedWells.value.push(well.nr)
-                },
+                handleWellSelection,
+                handleFeatureSelection,
                 gridColumnStyle: "repeat(" + props.plate.columns + ", 1fr)"
             }
         },

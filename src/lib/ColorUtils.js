@@ -1,5 +1,4 @@
-function createGradient(start, end, values) {
-    let steps = values - 1
+function createGradients(start, end, steps) {
     let red = (start.red - end.red) / steps
     let green = (start.green - end.green) / steps
     let blue = (start.blue - end.blue) / steps
@@ -15,26 +14,40 @@ function createGradient(start, end, values) {
     return colors
 }
 
-function createGradients(colorSteps, steps) {
+function createMultiGradients(colorSteps, steps) {
     let colorBlocks = colorSteps.length - 1
     let colorsPerBlock = steps / colorBlocks;
     
     let colors = []
     for (var i=0; i<colorBlocks; i++) {
-        let subset = createGradient(colorSteps[i], colorSteps[i+1], colorsPerBlock)
-        for (var j=0; j<colorsPerBlock; j++) {
+        let subset = createGradients(colorSteps[i], colorSteps[i+1], colorsPerBlock - 1)
+        for (var j=0; j<subset.length; j++) {
             colors.push(subset[j])
         }
     }
     
-    // Can happen if values / colorBlocks rounds down.
+    // Can happen if steps / colorBlocks rounds down.
     if (colorsPerBlock * colorBlocks < steps) {
         colors[steps-1] = colors[steps-2]
     }
+
     return colors;
 }
 
+function findGradientIndex(value, values, gradients) {
+    if (isNaN(value)) return -1
+
+    let min = Math.min(...values)
+    let max = Math.max(...values)
+    let valueRange = max - min
+
+    let scale = ((gradients.length - 1) / valueRange)
+    let index = Math.floor(value * scale)
+    return index;
+}
+
 export default {
-    createGradient,
-    createGradients
+    createGradients,
+    createMultiGradients,
+    findGradientIndex
 }
