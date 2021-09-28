@@ -76,20 +76,18 @@
     </q-card>
 </template>
 
-<style scoped>
-    .breadcrumb {
-        margin: 12px;
-        margin-bottom: 13px;
-    }
-    .project-header {
-        margin: 10px;
-    }
-    .project-body {
-        margin: 10px;
-    }
-    .action-button {
-        margin: 3px;
-    }
+<style scoped lang="sass">
+    @import "src/css/quasar.variables"
+
+    .breadcrumb
+        margin: 12px
+        margin-bottom: 13px
+    .project-header
+        margin: 10px
+    .project-body
+        margin: 10px
+    .action-button
+        margin: 3px
 </style>
 
 <script>

@@ -13,6 +13,9 @@ const getters = {
     },
     isLoaded: (state) => (id) => {
         return state.projects.find(project => project.id == id) != null
+    },
+    getRecentProjects: (state) => (n) => {
+        return state.projects.slice(0, n)
     }
 }
 
@@ -24,15 +27,19 @@ const actions = {
     async loadAll(ctx) {
         const projects = await projectAPI.getAllProjects()
         ctx.commit('cacheAllProjects', projects)
+    },
+    async loadRecentProjects(ctx) {
+        const projects = projectAPI.getNRecentProjects(3)
+        ctx.commit('cacheNRecentProjects', projects)
     }
 }
 
 const mutations = {
-    cacheProject (state, project) {
+    cacheProject(state, project) {
         let index = state.projects.indexOf(project)
         if (index === -1) state.projects.push(project)
     },
-    cacheAllProjects (state, projects) {
+    cacheAllProjects(state, projects) {
         state.projects = projects;
     }
 }

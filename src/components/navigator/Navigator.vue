@@ -14,7 +14,7 @@
             >
             <template v-slot:header-link="prop">
                 <div class="row items-center" style="padding-left: 8px;">
-                    <q-icon name="home" color="primary" size="28px" class="q-mr-sm" />
+                    <q-icon name="home" size="28px" class="q-mr-sm" style="color: #32A6D3"/>
                     <div class="text-weight-bold">
                         <router-link :to="{ name: 'dashboard'}" class="nav-link">{{ prop.node.label }}</router-link>
                     </div>
@@ -22,7 +22,7 @@
             </template>
             <template v-slot:header-category="prop">
                 <div class="row items-center">
-                    <q-icon name="folder" color="primary" size="28px" class="q-mr-sm" />
+                    <q-icon name="folder" size="28px" class="q-mr-sm" style="color: #32A6D3"/>
                     <div class="text-weight-bold">{{ prop.node.label }}</div>
                 </div>
             </template>
@@ -60,7 +60,7 @@ export default {
     },
     setup() {
         const store = useStore()
-        
+
         const navTree = computed(() => {
             const projects = store.getters['projects/getAll']().map(project => { return {
                 header: "project",
