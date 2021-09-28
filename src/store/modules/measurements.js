@@ -30,12 +30,14 @@ const actions = {
 const mutations = {
     cacheMeasurement (state, meas) {
         let index = state.measurements.indexOf(meas)
-        if (index === -1) state.measurements.push(meas)
+        if (index >= 0) state.measurements.splice(index, 1)
+        state.measurements.push(meas)
     },
     cacheMeasurements(state, measurements) {
         measurements.forEach(meas => {
             let index = state.measurements.indexOf(meas)
-            if (index === -1) state.measurements.push(meas)
+            if (index >= 0) state.measurements.splice(index, 1)
+            state.measurements.push(meas)
         });
     }
 }

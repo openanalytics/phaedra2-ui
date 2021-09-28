@@ -1,12 +1,12 @@
 <template>
   <q-layout view="hHh lpR fFf">
 
-    <q-header elevated>
+    <q-header elevated class="bg-primary text-white" height-hint="98">
       <q-toolbar class="header">
-<!--        <q-btn dense flat round icon="menu" />-->
+        <!--        <q-btn dense flat round icon="menu" />-->
         <q-icon name="img:/OALogo.png" type="image/png" size="40px"/>
         <q-toolbar-title>
-          Phaedra 2
+          Phaedra 2.0
         </q-toolbar-title>
         <q-btn flat round dense icon="person" />
         <span>TestUser</span>
