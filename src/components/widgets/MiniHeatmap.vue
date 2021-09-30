@@ -72,10 +72,10 @@
             }
 
             onMounted(() => {
-                draw();
+                setTimeout(draw, 0)
             });
             onUpdated(() => {
-                draw();
+                setTimeout(draw, 0)
             });
 
             return {
