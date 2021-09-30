@@ -94,14 +94,14 @@
 
     export default {
         props: {
-            experimentId: Number
+            experiment: Object
         },
         setup(props) {
             const store = useStore()
             const loading = ref(true)
             
-            const plates = computed(() => store.getters['plates/getByExperimentId'](props.experimentId))
-            store.dispatch('plates/loadByExperimentId', props.experimentId)
+            const plates = computed(() => store.getters['plates/getByExperimentId'](props.experiment.id))
+            store.dispatch('plates/loadByExperimentId', props.experiment.id)
             
             const unsubscribe = store.subscribe((mutation) => {
                 if (mutation.type == "plates/cachePlates") {

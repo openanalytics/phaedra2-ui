@@ -68,18 +68,17 @@
             </div>
         </q-card-section>
     </q-card>
-    <q-card class="experiment-body">
+    <q-card class="experiment-body" v-if="experiment">
         <q-tabs
-            v-model="activeTab"
             inline-label dense no-caps
             align="left"
             class="bg-primary text-white shadow-2"
         >
-            <q-tab name="plate_overview" icon="table_rows" label="Plate Overview" />
-            <q-tab name="plate_statistics" icon="functions" label="Plate Statistics" />
-            <q-tab name="plate_heatmaps" icon="view_module" label="Plate Heatmaps" />
+            <q-route-tab :to="'/experiment/' + experiment.id" icon="table_rows" label="Overview" />
+            <q-route-tab :to="'/experiment/' + experiment.id + '/statistics'" icon="functions" label="Statistics" />
+            <q-route-tab :to="'/experiment/' + experiment.id + '/heatmaps'" icon="view_module" label="Heatmaps" />
         </q-tabs>
-        <PlateList :experimentId="experimentId"></PlateList>
+        <router-view class="router-view" :experiment="experiment"></router-view>
     </q-card>
 </template>
 
@@ -107,8 +106,6 @@
     import { useStore } from 'vuex'
     import { useRoute } from 'vue-router'
 
-    import PlateList from "@/components/widgets/PlateList.vue"
-
     const propertyColumns = [
         { name: 'key', align: 'left', label: 'Name', field: 'key', sortable: true },
         { name: 'value', align: 'left', label: 'Value', field: 'value', sortable: true }
@@ -116,9 +113,6 @@
 
     export default {
         name: 'Experiment',
-        components: {
-            PlateList
-        },
         setup() {
             const store = useStore()
             const route = useRoute()

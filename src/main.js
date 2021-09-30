@@ -9,6 +9,9 @@ import ExperimentView from '@/components/views/ExperimentView.vue'
 import PlateView from '@/components/views/PlateView.vue'
 import ProtocolView from '@/components/views/ProtocolView.vue'
 
+import PlateList from "@/components/widgets/PlateList.vue"
+import PlateGrid from "@/components/widgets/PlateGrid.vue"
+
 import WellGrid from "@/components/widgets/WellGrid.vue"
 import WellList from "@/components/widgets/WellList.vue"
 import MeasList from "@/components/widgets/MeasList.vue"
@@ -16,7 +19,13 @@ import MeasList from "@/components/widgets/MeasList.vue"
 const routes = [
     { name: "dashboard", path: "/", component: Dashboard },
     { name: "project", path: "/project/:id", component: ProjectView },
-    { name: "experiment", path: "/experiment/:id", component: ExperimentView },
+    { name: "experiment", path: "/experiment/:id", component: ExperimentView,
+        children: [
+            { path: '', component: PlateList },
+            { path: 'statistics', component: PlateList },
+            { path: 'heatmaps', component: PlateGrid }
+        ]
+    },
     { name: "plate", path: "/plate/:id", component: PlateView,
         children: [
             { path: '', component: WellGrid, props: { gridType: WellGrid.GRID_TYPE_LAYOUT } },
