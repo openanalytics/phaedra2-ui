@@ -8,7 +8,6 @@
         :pagination="{ rowsPerPage: 10 }"
         :filter="filter"
         :filter-method="filterMethod"
-        :loading="loading"
     >
         <template v-slot:top-right>
             <q-input outlined rounded dense debounce="300" v-model="filter" placeholder="Search">
@@ -27,7 +26,7 @@
                     </div>
                 </router-link>
             </q-td>
-        </template>    
+        </template>
         <template v-slot:body-cell-tags="props">
             <q-td :props="props">
                 <div class="tag-icon flex inline" v-for="tag in props.row.tags" :key="tag.value">
@@ -56,9 +55,9 @@
 </style>
 
 <script>
-    import { ref, computed, onUnmounted } from 'vue'
+    import { ref, computed } from 'vue'
     import { useStore } from 'vuex'
-    
+
     import ExperimentContextMenu from "@/components/widgets/ExperimentContextMenu.vue"
 
     const columns = [
@@ -71,7 +70,7 @@
 
     const filterMethod = function(rows, term) {
         return rows.filter(row => {
-            return (row.id == term
+            return (row.id === term
                 || row.name.toLowerCase().includes(term)
                 || row.description.toLowerCase().includes(term)
                 || (row.tags && row.tags.some(tag => tag.toLowerCase().includes(term))))
@@ -87,25 +86,25 @@
         },
         setup(props) {
             const store = useStore()
-            const loading = ref(true)
-            
+            // const loading = ref(true)
+
             const experiments = computed(() => store.getters['experiments/getByProjectId'](props.projectId))
             store.dispatch('experiments/loadByProjectId', props.projectId)
-            
-            const unsubscribe = store.subscribe((mutation) => {
-                if (mutation.type == "experiments/cacheExperiments") {
-                    loading.value = false
-                }
-            })
-            onUnmounted(() => {
-                unsubscribe()
-            })
-            
+
+            // const unsubscribe = store.subscribe((mutation) => {
+            //     if (mutation.type == "experiments/cacheExperiments") {
+            //         loading.value = false
+            //     }
+            // })
+            // onUnmounted(() => {
+            //     unsubscribe()
+            // })
+
             return {
                 columns,
                 filter: ref(''),
                 filterMethod,
-                loading,
+                // loading,
                 experiments
             }
         }

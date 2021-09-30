@@ -14,11 +14,11 @@ const demoProjects = [
     },
     {
         id: 3, name: 'Project C', team: 'Team Y', createdBy: 'Frederick',
-        createOn: new Date(2021, 7, 21)
+        createOn: new Date(2021, 8, 2)
     },
     {
         id: 4, name: 'Project D', team: 'Team Z', tags: ['Test', 'door', 'Saša'], createdBy: 'Saša',
-        createOn: new Date(2021, 8, 2)
+        createOn: new Date(2021, 7, 21)
     },
     {
         id: 5, name: 'Project E', team: 'Team Z', tags: ['Test', 'door', 'Saša'], createdBy: 'Saša',
@@ -30,16 +30,15 @@ export default {
     async getProjectById(id) {
         console.log('Mocking a backend call...')
         await wait(100)
-        return demoProjects.find(project => project.id == id)
+        return demoProjects.find(project => project.id === id)
     },
     async getAllProjects() {
         console.log('Mocking a backend call...')
         await wait(100)
         return demoProjects
     },
-    async getNRecentProjects(n) {
+    getNRecentProjects(n) {
         console.log('Mocking a backend call...')
-        await wait(100)
         demoProjects.sort((p1, p2) => {
             return p1.createOn.getTime() - p2.createOn.getTime();
         })

@@ -1,21 +1,22 @@
 import projectAPI from '@/api/projects.js'
 
 const state = () => ({
-    projects: []
+    projects: [],
+    recentProjects: []
 })
 
 const getters = {
     getById: (state) => (id) => {
-        return state.projects.find(project => project.id == id)
+        return state.projects.find(project => project.id === id)
     },
     getAll: (state) => () => {
         return state.projects
     },
     isLoaded: (state) => (id) => {
-        return state.projects.find(project => project.id == id) != null
+        return state.projects.find(project => project.id === id)
     },
-    getRecentProjects: (state) => (n) => {
-        return state.projects.slice(0, n)
+    getRecentProjects: (state) => () => {
+        return state.recentProjects
     }
 }
 
@@ -28,7 +29,7 @@ const actions = {
         const projects = await projectAPI.getAllProjects()
         ctx.commit('cacheAllProjects', projects)
     },
-    async loadRecentProjects(ctx) {
+    loadRecentProjects(ctx) {
         const projects = projectAPI.getNRecentProjects(3)
         ctx.commit('cacheNRecentProjects', projects)
     }
@@ -41,6 +42,9 @@ const mutations = {
     },
     cacheAllProjects(state, projects) {
         state.projects = projects;
+    },
+    cacheNRecentProjects(state, projects) {
+        state.recentProjects = projects
     }
 }
 

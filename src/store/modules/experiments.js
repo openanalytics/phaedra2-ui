@@ -1,30 +1,38 @@
 import experimentAPI from '@/api/experiments.js'
 
 const state = () => ({
-    experiments: []
+    experiments: [],
+    recentExperiments: []
 })
 
 const getters = {
     getByProjectId: (state) => (id) => {
-        return state.experiments.filter(exp => exp.projectId == id);
+        return state.experiments.filter(exp => exp.projectId === id);
     },
     getById: (state) => (id) => {
-        return state.experiments.find(exp => exp.id == id)
+        return state.experiments.find(exp => exp.id === id)
     },
     isLoaded: (state) => (id) => {
-        return state.experiments.find(exp => exp.id == id) != null
+        return state.experiments.find(exp => exp.id === id)
+    },
+    getRecentExperiments: (state) => () => {
+        return state.recentExperiments
     }
 }
 
 const actions = {
-    async loadByProjectId(ctx, id) {
-        const experiments = await experimentAPI.getExperimentsByProjectId(id)
+    loadByProjectId(ctx, id) {
+        const experiments = experimentAPI.getExperimentsByProjectId(id)
         ctx.commit('cacheExperiments', experiments)
     },
     async loadById(ctx, id) {
         const experiment = await experimentAPI.getExperimentById(id)
         ctx.commit('cacheExperiment', experiment)
     },
+    loadRecentExperiments(ctx) {
+        const experiments = experimentAPI.getRecentExperiments()
+        ctx.commit('cacheRecentExperiments', experiments)
+    }
 }
 
 const mutations = {
@@ -37,6 +45,12 @@ const mutations = {
             let index = state.experiments.indexOf(exp)
             if (index === -1) state.experiments.push(exp)
         });
+    },
+    cacheRecentExperiments(state, recentExperiments) {
+        recentExperiments.forEach(rexp => {
+            let index = state.recentExperiments.indexOf(rexp)
+            if (index === -1) state.recentExperiments.push(rexp)
+        })
     }
 }
 

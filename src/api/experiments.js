@@ -23,12 +23,17 @@ export default {
     async getExperimentById(id) {
         console.log('Mocking a backend call...')
         await wait(100)
-        return demoExperiments.find(exp => exp.id == id)
+        return demoExperiments.find(exp => exp.id === id)
     },
-    async getExperimentsByProjectId(id) {
+    getExperimentsByProjectId(id) {
         console.log('Mocking a backend call...')
-        await wait(1000)
-        return demoExperiments.filter(exp => exp.projectId == id)
+        return demoExperiments.filter(exp => exp.projectId === id)
+    },
+    getRecentExperiments() {
+        console.log('Mocking a backend call...')
+        return demoExperiments.sort((e1, e2) => {
+            return e1.createdOn.getTime() - e2.createdOn.getTime();
+        })
     }
 }
 

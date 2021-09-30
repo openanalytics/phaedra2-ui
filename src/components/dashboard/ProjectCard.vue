@@ -32,8 +32,9 @@ export default {
   },
   setup(props) {
     const store = useStore()
-    const experiments = computed(() => store.getters['experiments/getByProjectId'](props.project.id))
     store.dispatch('experiments/loadByProjectId', props.project.id)
+
+    const experiments = computed(() => store.getters['experiments/getByProjectId'](props.project.id))
 
     const total = experiments.value.length;
     const open = experiments.value.filter(e => e.closed === false).length;
@@ -49,5 +50,23 @@ export default {
 </script>
 
 <style scoped>
+
+.project-stats {
+  border-style: solid;
+  border-color: #32A6D3;
+  display: flex;
+  justify-content: center;
+}
+
+.project-stat {
+  background-color: #E6E6E6;
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 80px;
+  height: 60px;
+  margin: 1%;
+}
 
 </style>
