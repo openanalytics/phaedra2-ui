@@ -16,12 +16,7 @@
                 </template>
             </q-input>
         </template>
-        <template v-slot:body-cell-coordinate="props">
-            <q-td :props="props">
-                {{ WellUtils.getWellCoordinate(props.row.row, props.row.column) }}
-            </q-td>
-        </template>
-        <template v-slot:body-cell-status-accepted="props">
+        <template v-slot:body-cell-status="props">
             <q-td :props="props">
                 <q-icon v-if="props.row.status === 'ACCEPTED'" name="check_circle" color="positive" />
                 <q-icon v-else name="cancel" color="negative" />
@@ -40,12 +35,6 @@
     
     import WellUtils from "@/lib/WellUtils.js"
 
-    const columns = [
-        { name: 'coordinate', align: 'left', label: 'Coordinate', field: 'coordinate', sortable: true },
-        { name: 'wellType', align: 'left', label: 'Well Type', field: 'wellType', sortable: true },
-        { name: 'status-accepted', align: 'left', label: 'Status', field: 'status-accepted', sortable: true },
-    ]
-
     const filterMethod = function(rows, term) {
         return rows.filter(row => {
             return (row.id == term
@@ -59,7 +48,21 @@
         props: {
             plate: Object
         },
-        setup() {
+        setup(props) {
+
+            const columns = [
+                { name: 'coordinate', align: 'left', label: 'Coordinate', field: 'coordinate', sortable: true,
+                    format: (val, well) => (well ? WellUtils.getWellCoordinate(well.row, well.column) : "") },
+                { name: 'number', align: 'left', label: 'Number', field: 'number', sortable: true,
+                    format: (val, well) => (well ? WellUtils.getWellNr(well.row, well.column, props.plate.columns) : "") },
+                { name: 'status', align: 'left', label: 'Status', field: 'status', sortable: true },
+                { name: 'wellType', align: 'left', label: 'Well Type', field: 'wellType', sortable: true },
+                { name: 'substance', align: 'left', label: 'Substance', field: 'substance', sortable: true,
+                    format: (val, well) => (well.substance.name ? well.substance.name: "") },
+                { name: 'concentration', align: 'left', label: 'Concentration', field: 'concentration', sortable: true,
+                    format: (val, well) => (well.substance.concentration ? well.substance.concentration.toExponential(3) : "") },
+            ]
+
             return {
                 columns,
                 filter: ref(''),
