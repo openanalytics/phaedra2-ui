@@ -46,8 +46,44 @@ function findGradientIndex(value, values, gradients) {
     return index;
 }
 
+function calculateTextColor(backgroundColor) {
+    if (!backgroundColor) return "#000000"
+    let bg = asRGBColor(backgroundColor)
+    let avg = (bg.red + bg.green + bg.blue) / 3
+    if (avg > 127) return "#000000"
+    else return "#DDDDDD"
+}
+
+function asCSSColor(colorRGB) {
+    return "#" + colorRGB.red.toString(16) + colorRGB.green.toString(16) + colorRGB.blue.toString(16)
+}
+
+function asRGBColor(color) {
+    if (color.red && color.green && color.blue) {
+        return color
+    }
+    else if (typeof color === "string" && color.charAt(0) == "#") {
+        return {
+            red: parseInt(color.substring(1, 3), 16),
+            green: parseInt(color.substring(3, 5), 16),
+            blue: parseInt(color.substring(5, 7), 16)
+        }
+    }
+    else if (typeof color === "number") {
+        return {
+            red: (color >> 16) & 0xFF,
+            green: (color >> 8) & 0xFF,
+            blue: color & 0xFF
+        }
+    }
+    return color
+}
+
 export default {
     createGradients,
     createMultiGradients,
-    findGradientIndex
+    findGradientIndex,
+    calculateTextColor,
+    asCSSColor,
+    asRGBColor
 }

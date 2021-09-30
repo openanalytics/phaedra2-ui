@@ -4,7 +4,7 @@ const demoPlates = [
         properties: [ { key: "Prop1", value: "Value 1" }, { key: "Prop2", value: "Value 2" } ],
         measurementIds: [ 1, 2, 3 ]
     },
-    { id: 2, barcode: '222222222', experimentId: 1, description: 'This is test plate 2', rows: 16, columns: 24, createdOn: new Date(), createdBy: 'TestUser' },
+    { id: 2, barcode: '222222222', experimentId: 1, description: 'This is test plate 2', rows: 32, columns: 48, createdOn: new Date(), createdBy: 'TestUser' },
     { id: 3, barcode: '333333333', experimentId: 1, description: 'This is test plate 3', rows: 16, columns: 24, createdOn: new Date(), createdBy: 'TestUser' },
     { id: 4, barcode: '444444444', experimentId: 1, description: 'This is test plate 4', rows: 16, columns: 24, createdOn: new Date(), createdBy: 'TestUser' },
     { id: 5, barcode: '555555555', experimentId: 1, description: 'This is test plate 5', rows: 16, columns: 24, createdOn: new Date(), createdBy: 'TestUser' },
@@ -15,7 +15,7 @@ demoPlates.forEach(plate => {
   plate.wells = []
   for (var r = 1; r <= plate.rows; r++) {
       for (var c = 1; c <= plate.columns; c++) {
-          let wellType = (c < 3) ? "NC": (c > 22 ? "PC" : "SAMPLE")
+          let wellType = (c < 3) ? "NC": (c > (plate.columns - 2) ? "PC" : "SAMPLE")
           plate.wells.push({
               nr: WellUtils.getWellNr(r, c, plate.columns),
               row: r,
