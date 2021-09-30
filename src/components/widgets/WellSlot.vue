@@ -42,7 +42,7 @@
         emits: [ 'wellSelection' ],
         setup(props) {
             return {
-                isSelected: computed(() => props.selectedWells.indexOf(props.well.nr) >= 0)
+                isSelected: computed(() => props.selectedWells.indexOf(props.well) >= 0)
             }
         }
     }

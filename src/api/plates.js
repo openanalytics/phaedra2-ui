@@ -12,16 +12,18 @@ const demoPlates = [
 
 import WellUtils from "@/lib/WellUtils.js"
 demoPlates.forEach(plate => {
-  plate.wells = [];
+  plate.wells = []
   for (var r = 1; r <= plate.rows; r++) {
       for (var c = 1; c <= plate.columns; c++) {
+          let wellType = (c < 3) ? "NC": (c > 22 ? "PC" : "SAMPLE")
           plate.wells.push({
               nr: WellUtils.getWellNr(r, c, plate.columns),
               row: r,
               column: c,
-              wellType: ((c < 3) ? "NC": (c > 22 ? "PC" : "SAMPLE")),
-              substance: {}
-          });
+              wellType: wellType,
+              substance: (wellType === "SAMPLE") ? { type: "Compound", name: "C-" + r, concentration: Math.random() * 0.0001 } : {},
+              status: ((Math.random() < 0.9) ? "ACCEPTED" : "REJECTED")
+          })
       }
   }
 })

@@ -23,7 +23,8 @@
         </template>
         <template v-slot:body-cell-status-accepted="props">
             <q-td :props="props">
-                <q-icon name="check_circle" color="positive" />
+                <q-icon v-if="props.row.status === 'ACCEPTED'" name="check_circle" color="positive" />
+                <q-icon v-else name="cancel" color="negative" />
             </q-td>
         </template>
         <template v-slot:no-data>
@@ -42,7 +43,7 @@
     const columns = [
         { name: 'coordinate', align: 'left', label: 'Coordinate', field: 'coordinate', sortable: true },
         { name: 'wellType', align: 'left', label: 'Well Type', field: 'wellType', sortable: true },
-        { name: 'status-accepted', align: 'left', label: 'Accepted', field: 'status-accepted', sortable: true },
+        { name: 'status-accepted', align: 'left', label: 'Status', field: 'status-accepted', sortable: true },
     ]
 
     const filterMethod = function(rows, term) {

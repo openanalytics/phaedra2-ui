@@ -13,7 +13,12 @@
             ></WellSlot>
         </div>
         <div class="col-3 q-pl-md q-pt-sm" v-if="gridType == GRID_TYPE_LAYOUT">
-            <WellTypeLegend :plate=plate></WellTypeLegend>
+            <div class="q-pb-sm">
+                <WellTypeLegend :plate=plate></WellTypeLegend>
+            </div>
+            <div>
+                <WellInspector :wells=selectedWells></WellInspector>
+            </div>
         </div>
         <div class="col-3 q-pl-md q-pt-sm" v-if="gridType == GRID_TYPE_HEATMAP">
             <FeatureSelector
@@ -47,6 +52,7 @@
     import WellSlot from "@/components/widgets/WellSlot.vue"
     import FeatureSelector from "@/components/widgets/FeatureSelector.vue"
     import WellTypeLegend from "@/components/widgets/WellTypeLegend.vue"
+    import WellInspector from "@/components/widgets/WellInspector.vue"
 
     const GRID_TYPE_HEATMAP = "heatmap"
     const GRID_TYPE_LAYOUT = "layout"
@@ -64,7 +70,8 @@
         components: {
             WellSlot,
             WellTypeLegend,
-            FeatureSelector
+            FeatureSelector,
+            WellInspector
         },
         setup(props) {
             const store = useStore()
@@ -108,11 +115,32 @@
                     function(well) { return (selectedFeatureData.value) ? (Math.round(selectedFeatureData.value.values[well.nr - 1] * 100) / 100) : "" }
             ]
 
+            const onKeyNav = function(event) {
+                if (selectedWells.value.length == 0) return
+                let currentWell = selectedWells.value[0]
+                switch (event.key) {
+                    case "ArrowUp":
+                        handleWellSelection(WellUtils.getWell(props.plate, currentWell.row - 1, currentWell.column))
+                        break
+                    case "ArrowDown":
+                        handleWellSelection(WellUtils.getWell(props.plate, currentWell.row + 1, currentWell.column))
+                        break
+                    case "ArrowLeft":
+                        handleWellSelection(WellUtils.getWell(props.plate, currentWell.row, currentWell.column - 1))
+                        break
+                    case "ArrowRight":
+                        handleWellSelection(WellUtils.getWell(props.plate, currentWell.row, currentWell.column + 1))
+                        break
+                }
+            }
+            window.addEventListener('keyup', onKeyNav)
+
             // Well selection handling
             const selectedWells = ref([])
             const handleWellSelection = function(well) {
+                if (!well) return
                 selectedWells.value.splice(0)
-                selectedWells.value.push(well.nr)
+                selectedWells.value.push(well)
             }
 
             // Feature selection handling
@@ -131,6 +159,7 @@
                 selectedWells,
                 handleWellSelection,
                 handleFeatureSelection,
+                onKeyNav,
                 gridColumnStyle: "repeat(" + props.plate.columns + ", 1fr)"
             }
         },
