@@ -1,24 +1,24 @@
 <template>
-  <div class="col projects-recent">
-    <div>
-      <div class="q-px-sm projects-recent-title">{{ project.name }}</div>
+  <div class="col justify-start q-pa-md">
+    <div class="q-px-sm oa-section-title">
+      <div class="text-h8">{{ project.name }}</div>
     </div>
-    <div class="row q-gutter-sm q-pa-md project-stats">
-      <div class="project-stat">
+    <q-card class="oa-project-card row justify-center q-pa-md">
+      <div class="project-stat-total">
         <div>TOTAL</div>
         <div>{{ total }}</div>
       </div>
       <q-space/>
-      <div class="project-stat">
+      <div class="project-stat-open">
         <div>OPEN</div>
         <div>{{ open }}</div>
       </div>
       <q-space/>
-      <div class="project-stat">
+      <div class="project-stat-closed">
         <div>CLOSED</div>
         <div>{{ closed }}</div>
       </div>
-    </div>
+    </q-card>
   </div>
 </template>
 
@@ -34,11 +34,9 @@ export default {
     const store = useStore()
     store.dispatch('experiments/loadByProjectId', props.project.id)
 
-    const experiments = computed(() => store.getters['experiments/getByProjectId'](props.project.id))
-
-    const total = experiments.value.length;
-    const open = experiments.value.filter(e => e.closed === false).length;
-    const closed = total - open;
+    const total = computed(() => store.getters['experiments/getNrOfExperiments'](props.project.id));
+    const open = computed(() => store.getters['experiments/getNrOfOpenExperiments'](props.project.id));
+    const closed = computed(() => store.getters['experiments/getNrOfClosedExperiments'](props.project.id));
 
     return {
       total,
@@ -49,24 +47,33 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss">
 
-.project-stats {
-  border-style: solid;
-  border-color: #32A6D3;
-  display: flex;
-  justify-content: center;
+.oa-project-card {
+  border-radius: 0px;
+  border: 1px solid #32A6D3;
 }
 
-.project-stat {
-  background-color: #E6E6E6;
+@mixin project-stat {
   display: grid;
-  justify-content: center;
   align-items: center;
   text-align: center;
   width: 80px;
   height: 60px;
-  margin: 1%;
 }
 
+.project-stat-total {
+  @include project-stat;
+  background-color: darkgrey;
+}
+
+.project-stat-open {
+  @include project-stat;
+  background-color: #E6E6E6;
+}
+
+.project-stat-closed {
+  @include project-stat;
+  background-color: lightgray;
+}
 </style>

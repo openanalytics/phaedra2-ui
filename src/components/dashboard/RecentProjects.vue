@@ -1,11 +1,11 @@
 <template>
-  <div class="col q-pa-md">
-    <div class="q-px-sm projects-recent-title">
+  <div class="q-pa-md">
+    <div class="q-px-sm oa-section-title">
       <div class="text-h6">Recent Projects</div>
     </div>
-    <q-card class="row">
+    <div class="row col-4 q-pa-lg" style="background-color: white">
       <ProjectCard :project="project" v-for="project in projects" :key="project.id"/>
-    </q-card>
+    </div>
   </div>
 </template>
 
@@ -23,6 +23,6 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss">
 
 </style>

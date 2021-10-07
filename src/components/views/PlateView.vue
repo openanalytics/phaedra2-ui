@@ -34,10 +34,11 @@
                     <div class="row">
                         <div class="col-3 text-weight-bold">Tags:</div>
                         <div class="col">
-                            <div class="tag-icon flex inline" v-for="tag in plate.tags" :key="tag.value">
-                                <q-badge color="green">
-                                    {{ tag }}
-                                </q-badge>
+                            <div class="tag-icon flex inline" v-for="tag in plate.tags" :key="tag.tag">
+                              <Tag :tagInfo="tag"></Tag>
+<!--                                <q-badge color="green">-->
+<!--                                    {{ tag }}-->
+<!--                                </q-badge>-->
                             </div>
                         </div>
                     </div>
@@ -68,7 +69,7 @@
                 <div class="col-2">
                     <div class="row action-button"><q-btn size="sm" rounded color="primary" label="Edit" /></div>
                     <div class="row action-button"><q-btn size="sm" rounded color="primary" label="Delete" /></div>
-                    <div class="row action-button"><q-btn size="sm" rounded color="primary" icon="more_horiz" /></div>
+                    <div class="row action-button"><q-btn size="sm" rounded color="primary" label="Add Tag" @click="prompt = true"/></div>
                 </div>
             </div>
         </q-card-section>
@@ -86,6 +87,23 @@
         </q-tabs>
         <router-view class="router-view" :plate="plate"></router-view>
     </q-card>
+
+  <q-dialog v-model="prompt" persistent>
+    <q-card>
+      <q-card-section style="min-width: 350px">
+        <div class="text-h6">Tag:</div>
+      </q-card-section>
+
+      <q-card-section>
+        <q-input dense v-model="plateTag" autofocus @keyup.enter="prompt = false"/>
+      </q-card-section>
+
+      <q-card-actions align="right" class="text-primary">
+        <q-btn flat label="Cancel" v-close-popup/>
+        <q-btn flat label="Add tag" v-close-popup @click="onClick"/>
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
 
 <style scoped>
@@ -116,6 +134,8 @@
     import { useStore } from 'vuex'
     import { useRoute } from 'vue-router'
 
+    import Tag from "@/components/tag/Tag";
+
     const propertyColumns = [
         { name: 'key', align: 'left', label: 'Name', field: 'key', sortable: true },
         { name: 'value', align: 'left', label: 'Value', field: 'value', sortable: true }
@@ -123,6 +143,20 @@
 
     export default {
         name: 'Plate',
+        components: {
+          Tag
+        },
+        methods: {
+          onClick() {
+            const tagInfo = {
+              objectId: this.plate.id,
+              objectClass: "PLATE",
+              tag: this.plateTag
+            }
+
+            this.$store.dispatch('plates/tagPlate', tagInfo)
+          }
+        },
         setup() {
             const store = useStore()
             const route = useRoute()
@@ -142,6 +176,7 @@
             if (!store.getters['plates/isLoaded'](plateId)) {
                 store.dispatch('plates/loadById', plateId)
             }
+            store.dispatch('plates/loadPlateTags', plateId)
 
             return {
                 plate,
@@ -150,6 +185,12 @@
                 propertyColumns,
                 activeTab: ref('plate_layout')
             }
+        },
+        data() {
+          return {
+            plateTag: ref(""),
+            prompt: ref(false)
+          }
         }
     }
 </script>

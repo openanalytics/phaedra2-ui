@@ -32,10 +32,8 @@
                     <div class="row">
                         <div class="col-3 text-weight-bold">Tags:</div>
                         <div class="col">
-                            <div class="tag-icon flex inline" v-for="tag in project.tags" :key="tag.value">
-                                <q-badge color="green">
-                                    {{ tag }}
-                                </q-badge>
+                            <div class="tag-icon flex inline" v-for="tag in project.tags" :key="tag.tag">
+                              <Tag :tagInfo="tag" ></Tag>
                             </div>
                         </div>
                     </div>
@@ -66,7 +64,7 @@
                 <div class="col-2">
                     <div class="row action-button"><q-btn size="sm" rounded color="primary" label="Edit" /></div>
                     <div class="row action-button"><q-btn size="sm" rounded color="primary" label="Delete" /></div>
-                    <div class="row action-button"><q-btn size="sm" rounded color="primary" icon="more_horiz" /></div>
+                    <div class="row action-button"><q-btn size="sm" rounded color="primary" label="Add Tag" @click="prompt = true"/></div>
                 </div>
             </div>
         </q-card-section>
@@ -74,6 +72,23 @@
     <q-card class="project-body">
         <ExperimentList :projectId="projectId" ></ExperimentList>
     </q-card>
+
+    <q-dialog v-model="prompt" persistent>
+      <q-card>
+        <q-card-section style="min-width: 350px">
+          <div class="text-h6">Tag:</div>
+        </q-card-section>
+
+        <q-card-section>
+          <q-input dense v-model="projectTag" autofocus @keyup.enter="prompt = false" />
+        </q-card-section>
+
+        <q-card-actions align="right" class="text-primary">
+          <q-btn flat label="Cancel" v-close-popup />
+          <q-btn flat label="Add tag" v-close-popup @click="onClick" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
 </template>
 
 <style scoped lang="sass">
@@ -91,37 +106,57 @@
 </style>
 
 <script>
-    import { computed } from 'vue'
-    import { useStore } from 'vuex'
-    import { useRoute } from 'vue-router'
+import {computed, ref} from 'vue'
+import {useStore} from 'vuex'
+import {useRoute} from 'vue-router'
 
-    import ExperimentList from "@/components/widgets/ExperimentList.vue"
+import ExperimentList from "@/components/widgets/ExperimentList.vue"
+import Tag from "@/components/tag/Tag"
 
-    const propertyColumns = [
-        { name: 'key', align: 'left', label: 'Name', field: 'key', sortable: true },
-        { name: 'value', align: 'left', label: 'Value', field: 'value', sortable: true }
-    ]
+const propertyColumns = [
+  {name: 'key', align: 'left', label: 'Name', field: 'key', sortable: true},
+  {name: 'value', align: 'left', label: 'Value', field: 'value', sortable: true}
+]
 
-    export default {
-        name: 'Project',
-        components: {
-            ExperimentList
-        },
-        setup() {
-            const store = useStore()
-            const route = useRoute()
+export default {
+  name: 'Project',
+  components: {
+    ExperimentList,
+    Tag
+  },
+  setup() {
+    const store = useStore()
+    const route = useRoute()
 
-            const projectId = parseInt(route.params.id);
-            const project = computed(() => store.getters['projects/getById'](projectId))
-            if (!store.getters['projects/isLoaded'](projectId)) {
-                store.dispatch('projects/loadById', projectId)
-            }
-
-            return {
-                projectId,
-                project,
-                propertyColumns
-            }
-        }
+    const projectId = parseInt(route.params.id);
+    const project = computed(() => store.getters['projects/getById'](projectId))
+    if (!store.getters['projects/isLoaded'](projectId)) {
+      store.dispatch('projects/loadById', projectId)
     }
+    store.dispatch('projects/loadProjectsTags', projectId)
+
+    return {
+      projectId,
+      project,
+      propertyColumns
+    }
+  },
+  data() {
+    return {
+      projectTag: ref(""),
+      prompt: ref(false)
+    }
+  },
+  methods: {
+    onClick() {
+      const tagInfo = {
+        objectId: this.project.id,
+        objectClass: "PROJECT",
+        tag: this.projectTag
+      }
+
+      this.$store.dispatch('projects/tagProject', tagInfo)
+    }
+  }
+}
 </script>

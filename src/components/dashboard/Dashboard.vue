@@ -1,12 +1,11 @@
 <template>
-  <div style="background-color: #E6E6E6; height: fit-content">
+  <div style="background-color: lightgray; height: 1000px">
     <RecentProjects :projects="recentProjects"></RecentProjects>
-
     <div class="q-pa-md">
-      <div class="q-px-sm projects-recent-title">
+      <div class="q-px-sm oa-section-title">
         <div class="text-h6">Recent Experiments</div>
       </div>
-      <q-table :columns="columns" :rows="recentExperiments">
+      <q-table :columns="columns" :rows="recentExperiments" style="border-radius: 0px">
         <template v-slot:body="props">
           <q-tr :props="props">
             <q-td key="name" :props="props">
@@ -69,78 +68,6 @@ const columns = [
   {name: 'createdBy', label: 'Created By', align: 'left', field: 'createdBy'},
   {name: 'project', label: 'Project', align: 'left', field: 'project'}
 ]
-// const rows = [
-//   {
-//     name: 'Experiment 1',
-//     tags: ['example'],
-//     description: 'Test',
-//     nrOfPlates: 12,
-//     nrOfPlatesCalculated: 10,
-//     nrOfPlatesValidated: 10,
-//     nrOfPlatesApproved: 5,
-//     drc: 120,
-//     sdp: 120,
-//     createdOn: '17/09/2021',
-//     createdBy: 'sberberovic',
-//     project: 'Project 1'
-//   },
-//   {
-//     name: 'Experiment 1',
-//     tags: ['example', 'test'],
-//     description: 'Test',
-//     nrOfPlates: 12,
-//     nrOfPlatesCalculated: 10,
-//     nrOfPlatesValidated: 10,
-//     nrOfPlatesApproved: 5,
-//     drc: 120,
-//     sdp: 120,
-//     createdOn: '17/09/2021',
-//     createdBy: 'sberberovic',
-//     project: 'Project 2'
-//   },
-//   {
-//     name: 'Experiment 1',
-//     tags: ['example'],
-//     description: 'Test',
-//     nrOfPlates: 12,
-//     nrOfPlatesCalculated: 10,
-//     nrOfPlatesValidated: 10,
-//     nrOfPlatesApproved: 5,
-//     drc: 120,
-//     sdp: 120,
-//     createdOn: '17/09/2021',
-//     createdBy: 'sberberovic',
-//     project: 'Project 1'
-//   },
-//   {
-//     name: 'Experiment 1',
-//     tags: ['example', 'test'],
-//     description: 'Test',
-//     nrOfPlates: 12,
-//     nrOfPlatesCalculated: 10,
-//     nrOfPlatesValidated: 10,
-//     nrOfPlatesApproved: 5,
-//     drc: 120,
-//     sdp: 120,
-//     createdOn: '17/09/2021',
-//     createdBy: 'sberberovic',
-//     project: 'Project 2'
-//   },
-//   {
-//     name: 'Experiment 1',
-//     tags: ['example', 'test'],
-//     description: 'Test',
-//     nrOfPlates: 12,
-//     nrOfPlatesCalculated: 10,
-//     nrOfPlatesValidated: 10,
-//     nrOfPlatesApproved: 5,
-//     drc: 120,
-//     sdp: 120,
-//     createdOn: '17/09/2021',
-//     createdBy: 'sberberovic',
-//     project: 'Project 3'
-//   }
-// ]
 
 import RecentProjects from "@/components/dashboard/RecentProjects";
 import {useStore} from "vuex";
@@ -156,7 +83,7 @@ export default {
     store.dispatch('projects/loadRecentProjects');
     store.dispatch('experiments/loadRecentExperiments');
 
-    const recentProjects = computed(() => store.getters['projects/getRecentProjects']());
+    const recentProjects = computed(() => store.getters['projects/getNRecentProjects'](3));
     const recentExperiments = computed(() => store.getters['experiments/getRecentExperiments']());
 
     return {
@@ -168,12 +95,13 @@ export default {
 }
 </script>
 
-<style>
-.projects-recent-title {
-  background-color: #32A6D3;
-  color: #E6E6E6;
-  width: fit-content;
-  /*padding-left: 10px;*/
-  /*padding-right: 10px;*/
-}
+<style lang="scss">
+  @import "src/css/quasar.variables";
+
+  .oa-section-title {
+    background-color: #32A6D3;
+    color: #E6E6E6;
+    width: fit-content;
+    height: fit-content;
+  }
 </style>

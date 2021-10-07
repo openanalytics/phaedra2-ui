@@ -38,10 +38,11 @@ export default {
         return demoProjects
     },
     getNRecentProjects(n) {
-        console.log('Mocking a backend call...')
-        demoProjects.sort((p1, p2) => {
-            return p1.createOn.getTime() - p2.createOn.getTime();
-        })
+        console.log('Get most recent project ... ')
+
+        // demoProjects.sort((p1, p2) => {
+        //     return p1.createOn.getTime() - p2.createOn.getTime();
+        // })
         return demoProjects.slice(0, n)
     }
 }

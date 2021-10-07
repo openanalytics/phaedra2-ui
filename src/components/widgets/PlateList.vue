@@ -43,9 +43,9 @@
         </template>
         <template v-slot:body-cell-tags="props">
             <q-td :props="props">
-                <div class="tag-icon flex inline" v-for="tag in props.row.tags" :key="tag.value">
+                <div class="tag-icon flex inline" v-for="tag in props.row.tags" :key="tag.tag">
                     <q-badge color="green">
-                        {{ tag }}
+                        {{ tag.tag }}
                     </q-badge>
                 </div>
             </q-td>
@@ -71,7 +71,7 @@
 <script>
     import { ref, computed, onUnmounted } from 'vue'
     import { useStore } from 'vuex'
-    
+
     const columns = [
         { name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true },
         { name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true },
@@ -99,10 +99,10 @@
         setup(props) {
             const store = useStore()
             const loading = ref(true)
-            
+
             const plates = computed(() => store.getters['plates/getByExperimentId'](props.experimentId))
             store.dispatch('plates/loadByExperimentId', props.experimentId)
-            
+
             const unsubscribe = store.subscribe((mutation) => {
                 if (mutation.type == "plates/cachePlates") {
                     loading.value = false
@@ -111,7 +111,7 @@
             onUnmounted(() => {
                 unsubscribe()
             })
-            
+
             return {
                 columns,
                 filter: ref(''),

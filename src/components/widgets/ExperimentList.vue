@@ -29,9 +29,9 @@
         </template>
         <template v-slot:body-cell-tags="props">
             <q-td :props="props">
-                <div class="tag-icon flex inline" v-for="tag in props.row.tags" :key="tag.value">
+                <div class="tag-icon flex inline" v-for="tag in props.row.tags" :key="tag.tag">
                     <q-badge color="green">
-                        {{ tag }}
+                        {{ tag.tag }}
                     </q-badge>
                 </div>
             </q-td>
@@ -64,7 +64,7 @@
         { name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true },
         { name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true },
         { name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true },
-        { name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: val => `${val.toLocaleString()}` },
+        { name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: val => `${val?.toLocaleString()}` },
         { name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true }
     ]
 
