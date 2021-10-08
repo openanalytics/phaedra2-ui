@@ -1,11 +1,11 @@
 <template>
-  <div style="background-color: lightgray; height: 1000px">
+  <q-page class="oa-root-div">
     <RecentProjects :projects="recentProjects"></RecentProjects>
     <div class="q-pa-md">
       <div class="q-px-sm oa-section-title">
         <div class="text-h6">Recent Experiments</div>
       </div>
-      <q-table :columns="columns" :rows="recentExperiments" style="border-radius: 0px">
+      <q-table :columns="columns" :rows="recentExperiments">
         <template v-slot:body="props">
           <q-tr :props="props">
             <q-td key="name" :props="props">
@@ -50,7 +50,7 @@
         </template>
       </q-table>
     </div>
-  </div>
+  </q-page>
 </template>
 
 <script>
@@ -96,12 +96,5 @@ export default {
 </script>
 
 <style lang="scss">
-  @import "src/css/quasar.variables";
-
-  .oa-section-title {
-    background-color: #32A6D3;
-    color: #E6E6E6;
-    width: fit-content;
-    height: fit-content;
-  }
+@import 'src/css/oa.global';
 </style>

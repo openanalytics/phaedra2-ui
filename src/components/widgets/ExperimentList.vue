@@ -1,16 +1,17 @@
 <template>
+  <div class="q-px-sm oa-section-title">
+    <div class="text-h6">Experiments</div>
+  </div>
     <q-table
-        title="Experiments"
-        table-header-class="text-grey"
-        :rows="experiments"
         :columns="columns"
+        :rows="experiments"
         row-key="id"
         :pagination="{ rowsPerPage: 10 }"
         :filter="filter"
         :filter-method="filterMethod"
     >
         <template v-slot:top-right>
-            <q-input outlined rounded dense debounce="300" v-model="filter" placeholder="Search">
+            <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
                 <template v-slot:append>
                     <q-icon name="search" />
                 </template>

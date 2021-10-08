@@ -36,8 +36,13 @@
         <span v-if="prop.node.owner" class="text-green">&nbsp; [{{ prop.node.owner }}]</span>
       </template>
       <template v-slot:header-protocol="prop">
-        <router-link :to="{ name: 'protocol', params: { id: prop.node.id } }" class="nav-link">{{ prop.node.label }}
+        <router-link v-if="prop.node.id === 'new'" :to="{ name: 'newProtocol', params: { id: prop.node.id } }" class="nav-link">
+          {{ prop.node.label }}
         </router-link>
+        <router-link v-else :to="{ name: 'protocol', params: { id: prop.node.id } }" class="nav-link">
+          {{ prop.node.label }}
+        </router-link>
+        <span v-if="prop.node.owner" class="text-green">&nbsp; [{{ prop.node.owner }}]</span>
         <span v-if="prop.node.version" class="text-green">&nbsp; [{{ prop.node.version }}]</span>
       </template>
     </q-tree>
@@ -88,13 +93,24 @@ export default {
         projects.push(prj);
       })
 
-      const protocols = store.getters['protocols/getAll']().map(protocol => {
+
+      let protocols = [];
+      let newProtocol = {
+        header: "protocol",
+        label: "New protocol ...",
+        id: "new",
+      }
+      protocols.push(newProtocol)
+      const allProtocols = store.getters['protocols/getAll']().map(protocol => {
         return {
           header: "protocol",
           label: protocol.name,
           id: protocol.id,
           version: protocol.version
         }
+      })
+      allProtocols?.forEach(prot => {
+        protocols.push(prot);
       })
       return [
         {

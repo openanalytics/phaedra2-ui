@@ -3,7 +3,7 @@
     <div class="q-px-sm oa-section-title">
       <div class="text-h6">Recent Projects</div>
     </div>
-    <div class="row col-4 q-pa-lg" style="background-color: white">
+    <div class="row col-4 q-pa-lg oa-section">
       <ProjectCard :project="project" v-for="project in projects" :key="project.id"/>
     </div>
   </div>
@@ -24,5 +24,6 @@ export default {
 </script>
 
 <style lang="scss">
+  @import "src/css/oa.global";
 
 </style>

@@ -1,24 +1,32 @@
-const demoProtocols = [
-    { id: 1, name: 'Protocol X', version: 'v1.2' },
-    { id: 2, name: 'Protocol Y', version: 'v1.0' },
-    { id: 3, name: 'Protocol Z', version: 'v2.0' }
-]
+import axios from "axios";
 
 export default {
-    async getProtocolById(id) {
-      console.log('Mocking a backend call...')
-      await wait(100)
-      return demoProtocols.find(protocol => protocol.id == id)
+    async getProtocolById(protocolId) {
+      console.log('Making a backend call...');
+      let result = null;
+      await axios.get('http://localhost:6030/phaedra/protocol-service/protocols/' + protocolId)
+          .then(response => {
+              result = response.data;
+          })
+      return result;
     },
     async getAllProtocols() {
-      console.log('Mocking a backend call...')
-      await wait(100)
-      return demoProtocols
+      console.log('Makeing a backend call...')
+        let result = null;
+        await axios.get('http://localhost:6030/phaedra/protocol-service/protocols')
+            .then(response => {
+                result = response.data;
+            })
+        return result;
+    },
+    async createNewProtocol(newProtocol) {
+        console.log('Making a backend call...')
+        let result = null;
+        await axios.post('http://localhost:6030/phaedra/protocol-service/protocols', newProtocol)
+            .then(response => {
+                if (response.status === 201)
+                    result = response.data;
+            })
+        return result;
     }
-}
-
-function wait (ms) {
-    return new Promise(resolve => {
-      setTimeout(resolve, ms)
-    })
 }

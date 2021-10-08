@@ -24,13 +24,20 @@ const actions = {
     async loadAll(ctx) {
         const protocols = await protocolAPI.getAllProtocols()
         ctx.commit('cacheAllProtocols', protocols)
+    },
+    async saveProtocol(ctx, protocol) {
+        if (protocol.id !== undefined) {
+            const newProtocol = await protocolAPI.createNewProtocol(protocol)
+            ctx.commit('cacheProtocol', newProtocol)
+        }
     }
 }
 
 const mutations = {
     cacheProtocol (state, protocol) {
         let index = state.protocols.indexOf(protocol)
-        if (index === -1) state.protocols.push(protocol)
+        if (index === -1)
+            state.protocols.push(protocol)
     },
     cacheAllProtocols (state, protocols) {
         state.protocols = protocols;

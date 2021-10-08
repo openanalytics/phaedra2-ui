@@ -1,0 +1,24 @@
+@import "quasar.variables";
+
+.oa-header {
+  background-color: $dark;
+  color: $secondary;
+  size: 50px;
+}
+
+.oa-root-div {
+  background-color: $secondary;
+  height: 100%;
+}
+
+.oa-section-title {
+  background-color: $primary;
+  color: $secondary;
+  width: fit-content;
+  height: fit-content;
+}
+
+.oa-section {
+  background-color: white;
+  box-shadow: 0 1px 5px rgb(0 0 0 / 20%), 0 2px 2px rgb(0 0 0 / 14%), 0 3px 1px -2px rgb(0 0 0 / 12%);
+}

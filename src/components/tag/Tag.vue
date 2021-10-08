@@ -1,6 +1,6 @@
 <template>
   <q-badge color="green">
-    {{ tagInfo.tag }} <q-btn label="x" size="xs" flat dense round @click="removeTag(tagInfo.tag)"/>
+    {{ tagInfo.tag }} <q-btn size="xs" flat dense icon-right="close" @click="removeTag(tagInfo.tag)"/>
   </q-badge>
 </template>
 

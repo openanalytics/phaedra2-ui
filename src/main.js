@@ -3,13 +3,13 @@
 
 import { createWebHistory, createRouter } from "vue-router"
 
-import Dashboard from '@/components/dashboard/Dashboard.vue'
-import ProjectView from '@/components/views/ProjectView.vue'
-import NewProjectView from '@/components/views/NewProjectView.vue'
-import ExperimentView from '@/components/views/ExperimentView.vue'
-import NewExperimentView from '@/components/views/NewExperimentView.vue'
-import PlateView from '@/components/views/PlateView.vue'
-import ProtocolView from '@/components/views/ProtocolView.vue'
+import Dashboard from '@/pages/Dashboard.vue'
+import ProjectView from '@/pages/project/ProjectView.vue'
+import NewProjectView from '@/pages/project/NewProjectView.vue'
+import ExperimentView from '@/pages/experiment/ExperimentView.vue'
+import NewExperimentView from '@/pages/experiment/NewExperimentView.vue'
+import PlateView from '@/pages/PlateView.vue'
+import ProtocolView from '@/pages/protocol/ProtocolView.vue'
 
 import WellGrid from "@/components/widgets/WellGrid.vue"
 import WellList from "@/components/widgets/WellList.vue"
@@ -30,6 +30,7 @@ const routes = [
         ]
     },
     { name: "protocol", path: "/protocol/:id", component: ProtocolView },
+    { name: "newProtocol", path: "/protocol/new", component: NewProtocolView },
 ]
 const router = createRouter({
     history: createWebHistory(),
@@ -52,9 +53,25 @@ import 'material-icons/iconfont/material-icons.css';
 // --------------------------------------------------------------------
 import { createApp } from "vue"
 import App from "./App.vue"
+import NewProtocolView from "@/pages/protocol/NewProtocolView";
 
-createApp(App)
-    .use(router)
-    .use(store)
-    .use(Quasar)
-    .mount("#app")
+const app = createApp(App)
+app.use(router)
+app.use(store)
+app.use(Quasar, {
+    config: {
+        brand: {
+            primary: '#32a6d3',
+            secondary: '#e6e6e6',
+            accent: '#e52323',
+
+            dark: '#222222',
+
+            positive: '#21ba45',
+            negative: '#C10015',
+            info: '#31CCEC',
+            warning: '#F2C037',
+        }
+    }
+})
+app.mount("#app")
