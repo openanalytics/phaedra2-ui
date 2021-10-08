@@ -1,6 +1,6 @@
 <template>
     <div class="column well" :class="{ blink: isSelected }" v-ripple
-        :style="{ color: fgColorFunction(wellColorFunction(well)), backgroundColor: wellColorFunction(well) }"
+        :style="{ color: fgColor, backgroundColor: bgColor }"
         @click="$emit('wellSelection', well)"
         >
         <div v-if="well.status === 'REJECTED'" class="absolute-center">
@@ -12,7 +12,7 @@
         <div v-for="wellLabelFunction in wellLabelFunctions" :key="wellLabelFunction" class="wellLabel">
             {{wellLabelFunction(well)}}
         </div>
-        <q-tooltip :delay="500" class="bg-secondary q-pa-xs">
+        <q-tooltip :delay="1000" class="bg-secondary q-pa-xs">
             <div class="tooltipContainer">
                 <WellInspector minimal :wells="[well]"></WellInspector>
             </div>
@@ -63,12 +63,14 @@
         },
         emits: [ 'wellSelection' ],
         setup(props) {
-            const fgColorFunction = (bgColor) => {
-                return ColorUtils.calculateTextColor(bgColor)
-            }
+            const bgColor = computed(() => props.wellColorFunction(props.well))
+            const fgColor = computed(() => ColorUtils.calculateTextColor(bgColor.value))
+            const isSelected = computed(() => props.selectedWells.indexOf(props.well) >= 0)
+
             return {
-                fgColorFunction,
-                isSelected: computed(() => props.selectedWells.indexOf(props.well) >= 0)
+                bgColor,
+                fgColor,
+                isSelected
             }
         }
     }
