@@ -1,11 +1,11 @@
 <template>
   <div>
     <q-card>
-        <q-card-section class="bg-primary text-white q-pa-sm">
+        <q-card-section class="bg-primary text-white q-pa-sm" v-if="!minimal">
             <div class="row items-center"><q-icon name="view_module" size="24px" class="q-mr-sm" />Well Inspector</div>
         </q-card-section>
         <q-separator />
-        <q-card-section>
+        <q-card-section :class=cardClass>
             <div v-if="wells.length == 0" class="text-info">
                 No well selected
             </div>
@@ -30,10 +30,10 @@
                     <div class="col-4 text-weight-bold">Status:</div>
                     <div class="col-8">
                         <div v-if="well.status === 'ACCEPTED'">
-                            <q-icon name="check_circle" color="positive" />Accepted
+                            <q-icon name="check_circle" color="positive" :size=statusIconSize />Accepted
                         </div>
                         <div v-else>
-                            <q-icon name="cancel" color="negative" />Rejected
+                            <q-icon name="cancel" color="negative" :size=statusIconSize />Rejected
                         </div>
                     </div>
                 </div>
@@ -43,19 +43,19 @@
   </div>
 </template>
 
-<style scoped>
-</style>
-
 <script>
     import WellUtils from "@/lib/WellUtils.js"
 
     export default {
         props: {
-            wells: Array
+            wells: Array,
+            minimal: Boolean
         },
-        setup () {
+        setup (props) {
             return {
-                WellUtils
+                WellUtils,
+                cardClass: props.minimal ? "text-black" : "",
+                statusIconSize: props.minimal ? "xs" : "sm"
             }
         }
     }

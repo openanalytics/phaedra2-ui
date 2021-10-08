@@ -12,6 +12,11 @@
         <div v-for="wellLabelFunction in wellLabelFunctions" :key="wellLabelFunction" class="wellLabel">
             {{wellLabelFunction(well)}}
         </div>
+        <q-tooltip :delay="500" class="bg-secondary q-pa-xs">
+            <div class="tooltipContainer">
+                <WellInspector minimal :wells="[well]"></WellInspector>
+            </div>
+        </q-tooltip>
     </div>
 </template>
 
@@ -35,11 +40,16 @@
     .wellLabel {
         z-index: 1;
     }
+    .tooltipContainer {
+        width: 200px;
+    }
 </style>
 
 <script>
     import { computed } from 'vue'
     import ColorUtils from "@/lib/ColorUtils.js"
+
+    import WellInspector from "@/components/widgets/WellInspector.vue"
 
     export default {
         props: {
@@ -47,6 +57,9 @@
             selectedWells: Array,
             wellColorFunction: Function,
             wellLabelFunctions: Array
+        },
+        components: {
+            WellInspector
         },
         emits: [ 'wellSelection' ],
         setup(props) {
