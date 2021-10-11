@@ -1,10 +1,10 @@
 <template>
-    <div class="row">
-        <div class="col gridContainer">
+    <div class="row" ref="rootElement">
+        <div class="col gridContainer" @mousedown="selectionBoxSupport.dragStart" @mouseup="selectionBoxSupport.dragEnd" @mousemove="selectionBoxSupport.dragMove">
             <div class="loadingAnimation" v-if="loading">
                 <q-spinner-pie color="info" size="10em" />
             </div>
-            <WellSlot v-for="well in plate.wells" :key="well.nr"
+            <WellSlot :ref="refWellSlot" v-for="well in plate.wells" :key="well.nr"
                 :well="well"
                 :wellColorFunction="wellColorFunction"
                 :wellLabelFunctions="wellLabelFunctions"
@@ -48,6 +48,7 @@
 
     import WellUtils from "@/lib/WellUtils.js"
     import ColorUtils from "@/lib/ColorUtils.js"
+    import SelectionBoxHelper from "@/lib/SelectionBoxHelper.js"
 
     import WellSlot from "@/components/widgets/WellSlot.vue"
     import FeatureSelector from "@/components/widgets/FeatureSelector.vue"
@@ -149,6 +150,19 @@
                 loading.value = true
             }
 
+            // Well multi-selection
+            const rootElement = ref(null)
+            const wellSlots = ref([])
+            const refWellSlot = function(slot) {
+                wellSlots.value.push(slot)
+            }
+            const selectionBoxSupport = SelectionBoxHelper.addSelectionBoxSupport(rootElement, wellSlots, wells => {
+                selectedWells.value.splice(0)
+                wells.forEach(well => {
+                    selectedWells.value.push(well)
+                })
+            });
+            
             return {
                 GRID_TYPE_LAYOUT,
                 GRID_TYPE_HEATMAP,
@@ -160,7 +174,11 @@
                 handleWellSelection,
                 handleFeatureSelection,
                 onKeyNav,
-                gridColumnStyle: "repeat(" + props.plate.columns + ", 1fr)"
+                gridColumnStyle: "repeat(" + props.plate.columns + ", 1fr)",
+                rootElement,
+                wellSlots,
+                refWellSlot,
+                selectionBoxSupport
             }
         },
     }
