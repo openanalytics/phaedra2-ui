@@ -176,7 +176,6 @@
                 onKeyNav,
                 gridColumnStyle: "repeat(" + props.plate.columns + ", 1fr)",
                 rootElement,
-                wellSlots,
                 refWellSlot,
                 selectionBoxSupport
             }
