@@ -16,6 +16,11 @@ export default {
       console.log('Mocking a backend call...')
       await wait(100)
       return demoFeatures.filter(f => f.protocolId == protocolId)
+    },
+    async getByProtocolIds(protocolIds) {
+      console.log('Mocking a backend call...')
+      await wait(100)
+      return demoFeatures.filter(f => protocolIds && protocolIds.includes(f.protocolId))
     }
 }
 

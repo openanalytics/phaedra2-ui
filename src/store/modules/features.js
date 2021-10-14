@@ -11,6 +11,9 @@ const getters = {
     getByProtocolId: (state) => (protocolId) => {
         return state.features.filter(f => f.protocolId == protocolId)
     },
+    getByProtocolIds: (state) => (protocolIds) => {
+        return state.features.filter(f => protocolIds && protocolIds.includes(f.protocolId))
+    },
     isLoaded: (state) => (id) => {
         return state.features.find(f => f.id == id) != null
     }
@@ -23,6 +26,10 @@ const actions = {
     },
     async loadByProtocolId(ctx, protocolId) {
         const features = await featuresAPI.getByProtocolId(protocolId)
+        ctx.commit('cacheMany', features)
+    },
+    async loadByProtocolIds(ctx, protocolIds) {
+        const features = await featuresAPI.getByProtocolIds(protocolIds)
         ctx.commit('cacheMany', features)
     }
 }

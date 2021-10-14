@@ -10,6 +10,7 @@ import PlateView from '@/components/views/PlateView.vue'
 import ProtocolView from '@/components/views/ProtocolView.vue'
 
 import PlateList from "@/components/widgets/PlateList.vue"
+import PlateStatsList from "@/components/widgets/PlateStatsList.vue"
 import PlateGrid from "@/components/widgets/PlateGrid.vue"
 
 import WellGrid from "@/components/widgets/WellGrid.vue"
@@ -22,7 +23,7 @@ const routes = [
     { name: "experiment", path: "/experiment/:id", component: ExperimentView,
         children: [
             { path: '', component: PlateList },
-            { path: 'statistics', component: PlateList },
+            { path: 'statistics', component: PlateStatsList },
             { path: 'heatmaps', component: PlateGrid }
         ]
     },

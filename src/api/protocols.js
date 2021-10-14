@@ -10,6 +10,11 @@ export default {
       await wait(100)
       return demoProtocols.find(protocol => protocol.id == id)
     },
+    async getProtocolsByIds(ids) {
+      console.log('Mocking a backend call...')
+      await wait(100)
+      return demoProtocols.filter(protocol => ids && ids.includes(protocol.id))
+    },
     async getAllProtocols() {
       console.log('Mocking a backend call...')
       await wait(100)
