@@ -1,7 +1,6 @@
 <template>
     <q-table
-        table-header-class="text-grey"
-        :rows="plates"
+        :rows="rows"
         :columns="columns"
         row-key="id"
         :pagination="{ rowsPerPage: 10 }"
@@ -17,6 +16,16 @@
                 </template>
             </q-input>
         </template>
+        <template v-slot:header="props">
+            <q-tr :props="props">
+                <q-th v-for="col in props.cols"
+                    :key="col.name"
+                    :props="props"
+                    class="text-grey">
+                    {{ col.label }}<br/>{{ col.label2 }}
+                </q-th>
+            </q-tr>
+        </template>
         <template v-slot:body-cell-barcode="props">
             <q-td :props="props">
                 <router-link :to="'/plate/' + props.row.id" class="nav-link">
@@ -25,6 +34,15 @@
                         {{ props.row.barcode }}
                     </div>
                 </router-link>
+            </q-td>
+        </template>
+        <template v-slot:body-cell="props">
+            <q-td :props="props">
+                <q-linear-progress rounded size="20px" :value="Number.isNaN(props.row[props.col.name])? 0 : props.row[props.col.name]" color="positive">
+                    <div class="absolute-full flex flex-center">
+                        <q-badge color="white" text-color="black" :label="props.row[props.col.name]" />
+                    </div>
+                </q-linear-progress>
             </q-td>
         </template>
         <template v-slot:no-data>
@@ -66,6 +84,7 @@
             const store = useStore()
             const loading = ref(true)
 
+            const rows = ref([])
             const plates = computed(() => store.getters['plates/getByExperimentId'](props.experiment.id))
             const measurements = ref([])
             const resultsets = ref([])
@@ -105,24 +124,35 @@
 
             })
 
+            let getStatValue = function(plateId, featureId) {
+                let rs = resultsets.value.find(rs => rs.plateId == plateId)
+                if (!rs) return NaN
+                let stat = stats.value.find(s => s.resultSetId == rs.id && s.featureId == featureId)
+                let value = stat.plateLevelStats.find(s => s.name == 'zprime').value
+                return Math.round(value * 100) / 100
+            }
+
             let updateColumns = function() {
                 if (features.value.length == 0 || protocols.value.length == 0) return
 
                 features.value.forEach(f => {
-                    let protocol = protocols.value.find(pr => pr.id == f.protocolId)
                     columns.push({
-                        name: protocol.id + '-' + f.id, 
-                        label: protocol.name + ' ' + f.name,
-                        format: (val, row) => {
-                            let rs = resultsets.value.find(rs => rs.plateId == row.id)
-                            if (!rs) return ''
-                            let stat = stats.value.find(s => s.resultSetId == rs.id && s.featureId == f.id)
-                            let value = stat.plateLevelStats.find(s => s.name == 'zprime').value
-                            return Math.round(value * 100) / 100
-                        }
+                        name: 'feature' + f.id,
+                        label: f.name,
+                        label2: 'Z-Prime'
                     })
                 })
 
+                plates.value.forEach(plate => {
+                    let row = {
+                        id: plate.id,
+                        barcode: plate.barcode
+                    }
+                    features.value.forEach(f => {
+                        row['feature' + f.id] = getStatValue(plate.id, f.id)
+                    })
+                    rows.value.push(row)
+                })
                 loading.value = false
                 tableKey.value++
             }
@@ -133,12 +163,12 @@
             ]
 
             return {
+                rows,
                 columns,
                 tableKey,
                 filter: ref(''),
                 filterMethod,
-                loading,
-                plates
+                loading
             }
         }
     }
