@@ -4,10 +4,7 @@
         @click="$emit('wellSelection', well)"
         >
         <div v-if="well.status === 'REJECTED'" class="absolute-center">
-            <div class="absolute-center">
-                <q-icon name="highlight_off" color="black" style="left: -1px; top: -1px;" />
-            </div>
-            <q-icon name="highlight_off" color="yellow" />
+            <img src="/rejected_cross.svg" class="vertical-middle" style="width: 100%; height: 100%;" />
         </div>
         <div v-for="wellLabelFunction in wellLabelFunctions" :key="wellLabelFunction" class="wellLabel">
             {{wellLabelFunction(well)}}
