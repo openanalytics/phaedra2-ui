@@ -23,18 +23,46 @@
 </style>
 
 <script>
-    import { ref, onMounted, onUpdated } from 'vue'
+    import { ref, watch, toRefs, onMounted, onUpdated } from 'vue'
+    import { useStore } from 'vuex'
 
     import WellUtils from "@/lib/WellUtils.js"
+    import ColorUtils from "@/lib/ColorUtils.js"
 
     export default {
         props: {
-            plate: Object
+            plate: Object,
+            feature: Object
         },
         setup(props) {
-            const canvas = ref(null)
+            const store = useStore()
 
+            const rsData = ref(null)
+            const wellColorFunction =  (well) => {
+                if (!rsData.value) return WellUtils.getWellTypeColor("EMPTY")
+                let value = rsData.value.values[well.nr - 1]
+                let index = ColorUtils.findGradientIndex(value, rsData.value.values, ColorUtils.defaultHeatmapGradients)
+                if (index == -1) return WellUtils.getWellTypeColor("EMPTY")
+                return ColorUtils.defaultHeatmapGradients[index]
+            }
+            watch(toRefs(props).feature, () => {
+                let rs = store.getters['resultdata/getResultSetsByPlateIds']([ props.plate.id ])[0]
+                if (!rs) return
+
+                if (store.getters['resultdata/isResultDataLoaded'](rs.id, props.feature.id)) {
+                    rsData.value = store.getters['resultdata/getResultDataById'](rs.id, props.feature.id)
+                } else {
+                    store.dispatch('resultdata/loadResultDataById', { resultSetId: rs.id, featureId: props.feature.id }).then(() => {
+                        rsData.value = store.getters['resultdata/getResultDataById'](rs.id, props.feature.id)
+                        setTimeout(draw, 0)
+                    })
+                }
+            })
+
+            const canvas = ref(null)
             function draw() {
+                console.log("MiniHeatmap Draw")
+                
                 let ctx = canvas.value.getContext('2d')
 
                 let parent = canvas.value.parentElement
@@ -55,7 +83,7 @@
                         let x = c * (wellSize[0] + 2)
                         let y = r * (wellSize[1] + 2)
 
-                        ctx.fillStyle = WellUtils.getWellTypeColor(well.wellType)
+                        ctx.fillStyle = wellColorFunction(well)
                         ctx.fillRect(x, y, wellSize[0], wellSize[1])
 
                         if (well.status == "REJECTED") {

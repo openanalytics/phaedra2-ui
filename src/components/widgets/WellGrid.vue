@@ -22,7 +22,7 @@
         </div>
         <div class="col-3 q-pl-md q-pt-sm" v-if="gridType == GRID_TYPE_HEATMAP">
             <FeatureSelector
-                :plate=plate
+                :protocols=protocols
                 @featureSelection="handleFeatureSelection"
             ></FeatureSelector>
         </div>
@@ -78,6 +78,17 @@
             const store = useStore()
             const loading = ref(props.gridType === GRID_TYPE_HEATMAP)
             
+            const protocols = ref([])
+            if (props.gridType === GRID_TYPE_HEATMAP) {
+                store.dispatch('resultdata/loadResultSetsByPlateIds', [ props.plate.id ]).then(() => {
+                    let resultsets = store.getters['resultdata/getResultSetsByPlateIds']([ props.plate.id ])
+                    let protocolIds = [... new Set(resultsets.map(rs => rs.protocolId))]
+                    store.dispatch('protocols/loadByIds', protocolIds).then(() => {
+                        protocols.value = store.getters['protocols/getByIds'](protocolIds)
+                    })
+                })
+            }
+
             const selectedFeature = ref(null)
             watch(selectedFeature, () => {
                 if (selectedFeature.value) store.dispatch('resultdata/loadResultDataById', { resultSetId: 1, featureId: selectedFeature.value.id })
@@ -95,17 +106,12 @@
             const wellTypeColorFunction = function(well) {
                 return WellUtils.getWellTypeColor(well.wellType)
             }
-            const heatmapGradients = ColorUtils.createMultiGradients([
-                { red: 50, green: 50, blue: 150},
-                { red: 255, green: 255, blue: 255},
-                { red: 150, green: 50, blue: 50}
-            ], 200)
             const featureValueColorFunction = function(well) {
                 if (!selectedFeatureData.value) return WellUtils.getWellTypeColor("EMPTY")
                 let value = selectedFeatureData.value.values[well.nr - 1]
-                let index = ColorUtils.findGradientIndex(value, selectedFeatureData.value.values, heatmapGradients)
+                let index = ColorUtils.findGradientIndex(value, selectedFeatureData.value.values, ColorUtils.defaultHeatmapGradients)
                 if (index == -1) return WellUtils.getWellTypeColor("EMPTY")
-                return heatmapGradients[index]
+                return ColorUtils.defaultHeatmapGradients[index]
             }
             const wellColorFunction = (props.gridType === GRID_TYPE_LAYOUT) ? wellTypeColorFunction : featureValueColorFunction
 
@@ -171,6 +177,7 @@
                 wellColorFunction,
                 wellLabelFunctions,
                 selectedWells,
+                protocols,
                 handleWellSelection,
                 handleFeatureSelection,
                 onKeyNav,

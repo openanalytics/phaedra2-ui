@@ -22,6 +22,9 @@ const getters = {
     getResultDataById: (state) => (resultSetId, featureId) => {
         return state.resultDatas.find(rd => rd.resultSetId == resultSetId && rd.featureId == featureId)
     },
+    isResultDataLoaded: (state) => (resultSetId, featureId) => {
+        return state.resultDatas.find(rd => rd.resultSetId == resultSetId && rd.featureId == featureId) != null
+    },
     getStatsByResultSetIds: (state) => (resultSetIds, featureIds) => {
         return state.resultDataStats.filter(stats => resultSetIds.includes(stats.resultSetId) && featureIds.includes(stats.featureId))
     },

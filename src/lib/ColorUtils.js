@@ -79,11 +79,18 @@ function asRGBColor(color) {
     return color
 }
 
+const defaultHeatmapGradients = createMultiGradients([
+    { red: 50, green: 50, blue: 150},
+    { red: 255, green: 255, blue: 255},
+    { red: 150, green: 50, blue: 50}
+], 200)
+
 export default {
     createGradients,
     createMultiGradients,
     findGradientIndex,
     calculateTextColor,
     asCSSColor,
-    asRGBColor
+    asRGBColor,
+    defaultHeatmapGradients
 }
