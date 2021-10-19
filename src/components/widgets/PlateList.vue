@@ -69,7 +69,7 @@
 </style>
 
 <script>
-    import { ref, computed, onUnmounted } from 'vue'
+    import { ref, computed} from 'vue'
     import { useStore } from 'vuex'
     
     const columns = [
@@ -79,7 +79,7 @@
         { name: 'status-validated', align: 'left', label: 'Validated', field: 'status-validated', sortable: true },
         { name: 'status-approved', align: 'left', label: 'Approved', field: 'status-approved', sortable: true },
         { name: 'layout', align: 'left', label: 'Layout', field: 'layout', sortable: true },
-        { name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: val => `${val.toLocaleString()}` },
+        { name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: val => val !== undefined ? `${val.toLocaleString()}`: '' },
         { name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true }
     ]
 
@@ -101,17 +101,8 @@
             const loading = ref(true)
             
             const plates = computed(() => store.getters['plates/getByExperimentId'](props.experiment.id))
-            store.dispatch('plates/loadByExperimentId', props.experiment.id)
-            
-            const unsubscribe = store.subscribe((mutation) => {
-                if (mutation.type == "plates/cachePlates") {
-                    loading.value = false
-                }
-            })
-            onUnmounted(() => {
-                unsubscribe()
-            })
-            
+            store.dispatch('plates/loadByExperimentId', props.experiment.id).then(() => {loading.value = false})
+
             return {
                 columns,
                 filter: ref(''),
