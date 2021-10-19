@@ -1,31 +1,23 @@
-const demoFeatures = [
-    { id: 1, name: 'Feature 1', protocolId: 1 },
-    { id: 2, name: 'Feature 2', protocolId: 1 },
-    { id: 3, name: 'Feature 3', protocolId: 1 },
-    { id: 4, name: 'Feature 4', protocolId: 1 },
-    { id: 5, name: 'Feature 5', protocolId: 1 }
-]
+import axios from "axios";
 
 export default {
-    async getById(id) {
-      console.log('Mocking a backend call...')
-      await wait(100)
-      return demoFeatures.find(f => f.id == id)
+    async getByIds(ids) {
+        try {
+            const idsString = ids.join(",");
+            const response = await axios.get(`http://localhost:3001/phaedra/protocol-service/features?ids=${idsString}`);
+            return response.data;
+        } catch (error) {
+            // TODO
+            console.error(error);
+        }
     },
     async getByProtocolId(protocolId) {
-      console.log('Mocking a backend call...')
-      await wait(100)
-      return demoFeatures.filter(f => f.protocolId == protocolId)
-    },
-    async getByProtocolIds(protocolIds) {
-      console.log('Mocking a backend call...')
-      await wait(100)
-      return demoFeatures.filter(f => protocolIds && protocolIds.includes(f.protocolId))
+        try {
+            const response = await axios.get(`http://localhost:3001/phaedra/protocol-service/protocols/${protocolId}/features`);
+            return response.data;
+        } catch (error) {
+            // TODO
+            console.error(error);
+        }
     }
-}
-
-function wait (ms) {
-    return new Promise(resolve => {
-      setTimeout(resolve, ms)
-    })
 }
