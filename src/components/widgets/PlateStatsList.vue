@@ -12,16 +12,16 @@
         <template v-slot:top-right>
             <q-input outlined rounded dense debounce="300" v-model="filter" placeholder="Search">
                 <template v-slot:append>
-                    <q-icon name="search" />
+                    <q-icon name="search"/>
                 </template>
             </q-input>
         </template>
         <template v-slot:header="props">
             <q-tr :props="props">
                 <q-th v-for="col in props.cols"
-                    :key="col.name"
-                    :props="props"
-                    class="text-grey">
+                      :key="col.name"
+                      :props="props"
+                      class="text-grey">
                     {{ col.label }}<br/>{{ col.label2 }}
                 </q-th>
             </q-tr>
@@ -30,7 +30,7 @@
             <q-td :props="props">
                 <router-link :to="'/plate/' + props.row.id" class="nav-link">
                     <div class="row items-center cursor-pointer">
-                        <q-icon name="view_module" class="icon q-pr-sm" />
+                        <q-icon name="view_module" class="icon q-pr-sm"/>
                         {{ props.row.barcode }}
                     </div>
                 </router-link>
@@ -38,9 +38,11 @@
         </template>
         <template v-slot:body-cell="props">
             <q-td :props="props">
-                <q-linear-progress rounded size="20px" :value="Number.isNaN(props.row[props.col.name])? 0 : props.row[props.col.name]" color="positive">
+                <q-linear-progress rounded size="20px"
+                                   :value="Number.isNaN(props.row[props.col.name])? 0 : props.row[props.col.name]"
+                                   color="positive">
                     <div class="absolute-full flex flex-center">
-                        <q-badge color="white" text-color="black" :label="props.row[props.col.name]" />
+                        <q-badge color="white" text-color="black" :label="props.row[props.col.name]"/>
                     </div>
                 </q-linear-progress>
             </q-td>
@@ -57,6 +59,7 @@
     .tag-icon {
         margin-right: 5px;
     }
+
     .nav-link {
         color: black;
         text-decoration: none;
@@ -64,10 +67,10 @@
 </style>
 
 <script>
-    import { ref, computed } from 'vue'
-    import { useStore } from 'vuex'
-    
-    const filterMethod = function(rows, term) {
+    import {ref} from 'vue'
+    import {useStore} from 'vuex'
+
+    const filterMethod = function (rows, term) {
         return rows.filter(row => {
             return (row.id == term
                 || row.barcode.toLowerCase().includes(term)
@@ -83,59 +86,60 @@
         setup(props) {
             const store = useStore()
             const loading = ref(true)
-
             const rows = ref([])
-            const plates = computed(() => store.getters['plates/getByExperimentId'](props.experiment.id))
-            const measurements = ref([])
-            const resultsets = ref([])
-            const protocols = ref([])
-            const features = ref([])
-            const stats = ref([])
+            const tableKey = ref(0)
 
-            //TODO This chain of API calls must be optimized
+            const columns = [
+                {name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true}
+            ]
 
-            store.dispatch('plates/loadByExperimentId', props.experiment.id).then(() => {
-                let measIds = plates.value.flatMap(plate => plate.measurementIds || [] )
-                store.dispatch('measurements/loadByIds', measIds).then(() => {
-                    measurements.value = store.getters['measurements/getByIds'](measIds)
-                })
-
-                let plateIds = plates.value.map(plate => plate.id)
-                store.dispatch('resultdata/loadResultSetsByPlateIds', plateIds).then(() => {
-                    resultsets.value = store.getters['resultdata/getResultSetsByPlateIds'](plateIds)
-
-                    let protocolIds = resultsets.value.map(rs => rs.protocolId).filter((value, index, self) => self.indexOf(value) === index)
-                    store.dispatch('protocols/loadByIds', protocolIds).then(() => {
-                        protocols.value = store.getters['protocols/getByIds'](protocolIds)
-                    })
-
-                    store.dispatch('features/loadByProtocolIds', protocolIds).then(() => {
-                        features.value = store.getters['features/getByProtocolIds'](protocolIds)
-
-                        let resultSetIds = resultsets.value.map(rs => rs.id)
-                        let featureIds = features.value.map(f => f.id)
-
-                        store.dispatch('resultdata/loadStatsByResultSetIds', { resultSetIds: resultSetIds, featureIds: featureIds }).then(() => {
-                            stats.value = store.getters['resultdata/getStatsByResultSetIds'](resultSetIds, featureIds)
-                            updateColumns()
-                        })
-                    })
-                })
-
-            })
-
-            let getStatValue = function(plateId, featureId) {
-                let rs = resultsets.value.find(rs => rs.plateId == plateId)
-                if (!rs) return NaN
-                let stat = stats.value.find(s => s.resultSetId == rs.id && s.featureId == featureId)
-                let value = stat.plateLevelStats.find(s => s.name == 'zprime').value
-                return Math.round(value * 100) / 100
+            let getZPrimeValue = function (resultData) {
+                if (resultData.resultFeatureStats == null) {
+                    // calculation still in progress? TODO only show success
+                    return NaN
+                }
+                let stat = resultData.resultFeatureStats.find(it => it.statisticName === "zprime");
+                if (!stat) {
+                    return NaN
+                }
+                return Math.round(stat.value * 100) / 100
             }
 
-            let updateColumns = function() {
-                if (features.value.length == 0 || protocols.value.length == 0) return
+            async function load() {
+                const plateResults = {}
+                const featureIds = new Set()
 
-                features.value.forEach(f => {
+                // 1. load plates
+                await store.dispatch('plates/loadByExperimentId', props.experiment.id);
+                const plates = store.getters['plates/getByExperimentId'](props.experiment.id);
+                const plateIds = plates.map(plate => plate.id)
+
+                // 2. load all PlateResults
+                const reqs = [];
+                for (const plateId of plateIds) {
+                    reqs.push(store.dispatch('resultdata/loadLatestPlateResult', {plateId}).then(() => {
+                        const plateResult = store.getters['resultdata/getLatestPlateResult'](plateId)
+                        plateResults[plateId] = plateResult;
+                        for (const protocol of Object.values((plateResult.protocols))) {
+                            // note: we assume that only one measurement is loaded for each plate
+                            if (Object.values(protocol.measurements).length === 0) {
+                                continue
+                            }
+                            const measurement = Object.values(protocol.measurements)[0];
+                            for (let resultData of measurement.resultData) {
+                                featureIds.add(resultData.featureId);
+                            }
+                        }
+                    }))
+                }
+
+                // 3. wait for all PlateResults to be loaded
+                await Promise.all(reqs);
+
+                // 4. create a column for each feature
+                await store.dispatch('features/loadByIds', featureIds);
+                const features = store.getters['features/getByIds'](Array.from(featureIds));
+                features.forEach(f => {
                     columns.push({
                         name: 'feature' + f.id,
                         label: f.name,
@@ -143,24 +147,29 @@
                     })
                 })
 
-                plates.value.forEach(plate => {
+                // 5. create a row for each plate
+                for (let plate of plates) {
+                    let plateResult = plateResults[plate.id]
                     let row = {
                         id: plate.id,
                         barcode: plate.barcode
                     }
-                    features.value.forEach(f => {
-                        row['feature' + f.id] = getStatValue(plate.id, f.id)
-                    })
+
+                    for (let protocol of Object.values(plateResult.protocols)) {
+                        // note: we assume that only one measurement is loaded for each plate
+                        const measurement = Object.values(protocol.measurements)[0];
+                        for (let resultData of measurement.resultData) {
+                            row['feature' + resultData.featureId] = getZPrimeValue(resultData)
+                        }
+                    }
                     rows.value.push(row)
-                })
+                }
+
                 loading.value = false
                 tableKey.value++
             }
 
-            const tableKey = ref(0)
-            const columns = [
-                { name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true }
-            ]
+            load();
 
             return {
                 rows,
