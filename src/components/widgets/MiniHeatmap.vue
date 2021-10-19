@@ -23,8 +23,7 @@
 </style>
 
 <script>
-    import { ref, watch, toRefs, onMounted, onUpdated } from 'vue'
-    import { useStore } from 'vuex'
+    import {ref, onMounted, onUpdated} from 'vue'
 
     import WellUtils from "@/lib/WellUtils.js"
     import ColorUtils from "@/lib/ColorUtils.js"
@@ -32,36 +31,29 @@
     export default {
         props: {
             plate: Object,
+            plateResult: Object,
             feature: Object
         },
         setup(props) {
-            const store = useStore()
-
-            const rsData = ref(null)
-            const wellColorFunction =  (well) => {
-                if (!rsData.value) return WellUtils.getWellTypeColor("EMPTY")
-                let value = rsData.value.values[well.nr - 1]
-                let index = ColorUtils.findGradientIndex(value, rsData.value.values, ColorUtils.defaultHeatmapGradients)
-                if (index == -1) return WellUtils.getWellTypeColor("EMPTY")
+            const wellColorFunction = (well) => {
+                if (!props.plateResult || !props.feature) return WellUtils.getWellTypeColor("EMPTY")
+                const selectedProtocol = props.plateResult.protocols[props.feature.protocolId];
+                if (!selectedProtocol) return WellUtils.getWellTypeColor("EMPTY")
+                const selectedMeasurement = Object.values(selectedProtocol.measurements)[0].resultData // pick the resultData of first measurement
+                const rsData = selectedMeasurement.find(it => it.featureId === props.feature.id)
+                const wellNr = WellUtils.getWellNr(well.row, well.column, 8) // TODO
+                let value = rsData.values[wellNr - 1]
+                let index = ColorUtils.findGradientIndex(value, rsData.values, ColorUtils.defaultHeatmapGradients)
+                if (index === -1) return WellUtils.getWellTypeColor("EMPTY")
                 return ColorUtils.defaultHeatmapGradients[index]
             }
-            watch(toRefs(props).feature, () => {
-                let rs = store.getters['resultdata/getResultSetsByPlateIds']([ props.plate.id ])[0]
-                if (!rs) return
-
-                if (store.getters['resultdata/isResultDataLoaded'](rs.id, props.feature.id)) {
-                    rsData.value = store.getters['resultdata/getResultDataById'](rs.id, props.feature.id)
-                } else {
-                    store.dispatch('resultdata/loadResultDataById', { resultSetId: rs.id, featureId: props.feature.id }).then(() => {
-                        rsData.value = store.getters['resultdata/getResultDataById'](rs.id, props.feature.id)
-                        setTimeout(draw, 0)
-                    })
-                }
-            })
 
             const canvas = ref(null)
             function draw() {
                 console.log("MiniHeatmap Draw")
+                if (canvas.value === null) {
+                    return;
+                }
                 
                 let ctx = canvas.value.getContext('2d')
 
@@ -100,10 +92,10 @@
             }
 
             onMounted(() => {
-                setTimeout(draw, 0)
+                draw();
             });
             onUpdated(() => {
-                setTimeout(draw, 0)
+                draw();
             });
 
             return {
