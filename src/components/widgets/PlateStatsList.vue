@@ -125,7 +125,8 @@
                             if (Object.values(protocol.measurements).length === 0) {
                                 continue
                             }
-                            const measurement = Object.values(protocol.measurements)[0];
+                            // get first measurement and first resultSet (only the latest ResultSet is returned)
+                            const measurement = Object.values(protocol.measurements)[0][0];
                             for (let resultData of measurement.resultData) {
                                 featureIds.add(resultData.featureId);
                             }
@@ -157,7 +158,7 @@
 
                     for (let protocol of Object.values(plateResult.protocols)) {
                         // note: we assume that only one measurement is loaded for each plate
-                        const measurement = Object.values(protocol.measurements)[0];
+                        const measurement = Object.values(protocol.measurements)[0][0];
                         for (let resultData of measurement.resultData) {
                             row['feature' + resultData.featureId] = getZPrimeValue(resultData)
                         }

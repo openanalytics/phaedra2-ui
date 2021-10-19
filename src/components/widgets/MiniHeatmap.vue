@@ -39,7 +39,7 @@
                 if (!props.plateResult || !props.feature) return WellUtils.getWellTypeColor("EMPTY")
                 const selectedProtocol = props.plateResult.protocols[props.feature.protocolId];
                 if (!selectedProtocol) return WellUtils.getWellTypeColor("EMPTY")
-                const selectedMeasurement = Object.values(selectedProtocol.measurements)[0].resultData // pick the resultData of first measurement
+                const selectedMeasurement = Object.values(selectedProtocol.measurements)[0][0].resultData // pick the resultData of first measurement
                 const rsData = selectedMeasurement.find(it => it.featureId === props.feature.id)
                 const wellNr = WellUtils.getWellNr(well.row, well.column, 8) // TODO
                 let value = rsData.values[wellNr - 1]
