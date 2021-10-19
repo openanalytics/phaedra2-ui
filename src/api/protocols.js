@@ -1,29 +1,18 @@
-const demoProtocols = [
-    { id: 1, name: 'Protocol X', version: 'v1.2' },
-    { id: 2, name: 'Protocol Y', version: 'v1.0' },
-    { id: 3, name: 'Protocol Z', version: 'v2.0' }
-]
+import axios from "axios";
 
 export default {
-    async getProtocolById(id) {
-      console.log('Mocking a backend call...')
-      await wait(100)
-      return demoProtocols.find(protocol => protocol.id == id)
-    },
     async getProtocolsByIds(ids) {
-      console.log('Mocking a backend call...')
-      await wait(100)
-      return demoProtocols.filter(protocol => ids && ids.includes(protocol.id))
+        try {
+            const idsString = ids.join(",");
+            const response = await axios.get(`http://localhost:3001/phaedra/protocol-service/protocols?ids=${idsString}`);
+            return response.data;
+        } catch (error) {
+            // TODO
+            console.error(error);
+        }
     },
     async getAllProtocols() {
-      console.log('Mocking a backend call...')
-      await wait(100)
-      return demoProtocols
+        // TODO
+        return [];
     }
-}
-
-function wait (ms) {
-    return new Promise(resolve => {
-      setTimeout(resolve, ms)
-    })
 }

@@ -9,6 +9,8 @@ const getters = {
         return state.protocols.find(protocol => protocol.id == id)
     },
     getByIds: (state) => (ids) => {
+        console.log(JSON.stringify(state.protocols));
+        console.log(ids);
         return state.protocols.filter(protocol => ids && ids.includes(protocol.id))
     },
     getAll: (state) => () => {
@@ -16,16 +18,21 @@ const getters = {
     },
     isLoaded: (state) => (id) => {
         return state.protocols.find(protocol => protocol.id == id) != null
+    },
+    getLoadedIds: (state) => () => {
+        return new Set(state.protocols.map(f => f.id))
     }
 }
 
 const actions = {
-    async loadById(ctx, id) {
-        const protocol = await protocolAPI.getProtocolById(id)
-        ctx.commit('cacheProtocol', protocol)
-    },
     async loadByIds(ctx, ids) {
-        const protocols = await protocolAPI.getProtocolsByIds(ids)
+        const loadedIds = ctx.getters['getLoadedIds']()
+        const missingIds = Array.from(ids).filter(id => !loadedIds.has(id))
+        if (missingIds.length === 0) {
+            return
+        }
+        const protocols = await protocolAPI.getProtocolsByIds(missingIds)
+        console.log(protocols);
         ctx.commit('cacheProtocols', protocols)
     },
     async loadAll(ctx) {
@@ -41,9 +48,11 @@ const mutations = {
     },
     cacheProtocols (state, protocols) {
         protocols.forEach(protocol => {
+            // TODO broken
             let index = state.protocols.indexOf(protocol)
             if (index >= 0) state.protocols.splice(index, 1)
             state.protocols.push(protocol)
+            console.log(JSON.stringify(state.protocols))
         });
     },
     cacheAllProtocols (state, protocols) {
