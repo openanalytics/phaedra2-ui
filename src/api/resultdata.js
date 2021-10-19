@@ -1,3 +1,5 @@
+import axios from "axios";
+
 const demoResultSets = [
     { id: 1, protocolId: 1, plateId: 1, measId: 1, executionDate: new Date(), outcome: 'Error' },
     { id: 2, protocolId: 1, plateId: 1, measId: 1, executionDate: new Date(), outcome: 'OK' },
@@ -78,6 +80,15 @@ export default {
             })
         })
         return allStats
+    },
+    async getLatestPlateResult(plateId) {
+        try {
+            const response = await axios.get(`http://localhost:3009/phaedra/resultdata-service/plate-results/${plateId}/latest`);
+            return response.data;
+        } catch (error) {
+            // TODO
+            console.error(error);
+        }
     }
 }
 

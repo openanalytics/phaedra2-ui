@@ -3,7 +3,8 @@ import resultdataAPI from '@/api/resultdata.js'
 const state = () => ({
     resultSets: [],
     resultDatas: [],
-    resultDataStats: []
+    resultDataStats: [],
+    latestPlateResult: {}
 })
 
 const getters = {
@@ -28,6 +29,12 @@ const getters = {
     getStatsByResultSetIds: (state) => (resultSetIds, featureIds) => {
         return state.resultDataStats.filter(stats => resultSetIds.includes(stats.resultSetId) && featureIds.includes(stats.featureId))
     },
+    getLatestPlateResult: (state) => (plateId) => {
+        return state.latestPlateResult[plateId];
+    },
+    isPlateResultLoaded: (state) => (plateId) => {
+        return state.latestPlateResult[plateId] !== undefined;
+    }
 }
 
 const actions = {
@@ -50,6 +57,13 @@ const actions = {
     async loadAllResultSets(ctx) {
         const all = await resultdataAPI.getAllResultSets()
         ctx.commit('cacheAllResultSets', all)
+    },
+    async loadLatestPlateResult(ctx, args) {
+        if (ctx.getters['isPlateResultLoaded'](args.plateId)) {
+            return;
+        }
+        const plateResult = await resultdataAPI.getLatestPlateResult(args.plateId);
+        ctx.commit('cacheLatestPlateResult', {plateId: args.plateId, plateResult});
     }
 }
 
@@ -78,6 +92,9 @@ const mutations = {
     },
     cacheAllResultSets (state, all) {
         state.resultSets = all;
+    },
+    cacheLatestPlateResult (state, args) {
+        state.latestPlateResult[args.plateId] = args.plateResult;
     }
 }
 
