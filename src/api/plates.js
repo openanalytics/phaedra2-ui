@@ -1,3 +1,5 @@
+import axios from "axios";
+
 const demoPlates = [
     { id: 1, barcode: '111111111', experimentId: 1, description: 'This is test plate 1', rows: 16, columns: 24, createdOn: new Date(), createdBy: 'TestUser',
         tags: ['RefPlate'],
@@ -35,9 +37,13 @@ export default {
       return demoPlates.find(plate => plate.id == id)
     },
     async getPlatesByExperimentId(id) {
-      console.log('Mocking a backend call...')
-      await wait(1000)
-      return demoPlates.filter(plate => plate.experimentId == id)
+        try {
+            const response = await axios.get(`http://localhost:3003/phaedra/plate-service/plate?experimentId=${id}`);
+            return response.data;
+        } catch (error) {
+            // TODO
+            console.error(error);
+        }
     }
 }
 
