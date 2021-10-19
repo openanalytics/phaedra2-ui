@@ -2,7 +2,7 @@
     <div class="row">
         <div class="col-10 gridContainer">
             <div v-for="plate in plates" :key="plate.id" class="q-pa-sm">
-                <MiniHeatmap :plate=plate :feature=selectedFeature></MiniHeatmap>
+                <MiniHeatmap :plate=plate :feature=selectedFeature :plate-result="plateResult(plate.id)"></MiniHeatmap>
             </div>
         </div>
         <div class="col-2 q-pa-sm">
@@ -39,18 +39,36 @@
         setup(props) {
             const store = useStore()
             
-            const protocols = ref([])
             const plates = computed(() => store.getters['plates/getByExperimentId'](props.experiment.id))
-            store.dispatch('plates/loadByExperimentId', props.experiment.id).then(() => {
-                let plateIds = plates.value.map(p => p.id)
-                store.dispatch('resultdata/loadResultSetsByPlateIds', plateIds).then(() => {
-                    let resultsets = store.getters['resultdata/getResultSetsByPlateIds'](plateIds)
-                    let protocolIds = [... new Set(resultsets.map(rs => rs.protocolId))]
-                    store.dispatch('protocols/loadByIds', protocolIds).then(() => {
-                        protocols.value = store.getters['protocols/getByIds'](protocolIds)
-                    })
-                })
-            })
+            const plateResult = (plateId) => plateResults[plateId]
+            const protocols = ref([])
+            const plateResults = {}
+
+            // helper function to asynchronous load all data
+            async function load() {
+                // 1. get plates
+                await store.dispatch('plates/loadByExperimentId', props.experiment.id);
+                const plateIds = plates.value.map(plate => plate.id)
+                const protocolIds = [];
+
+                // 2. get PlatResults in order to get protocolIds (PlateResults are re-used for the heatmaps)
+                const reqs = [];
+                for (const plateId of plateIds) {
+                    reqs.push(store.dispatch('resultdata/loadLatestPlateResult', {plateId}).then(() => {
+                        const plateResult = store.getters['resultdata/getLatestPlateResult'](plateId)
+                        plateResults[plateId] = plateResult;
+                        protocolIds.push(...Object.keys(plateResult.protocols));
+                    }))
+                }
+
+                // 3. load protocols once we got all ids
+                await Promise.all(reqs);
+                const uniqueProtocolIds = Array.from(new Set(protocolIds)).map(f =>parseInt(f))
+                await store.dispatch('protocols/loadByIds', uniqueProtocolIds);
+                protocols.value = store.getters['protocols/getByIds'](uniqueProtocolIds);
+            }
+
+            load();
 
             const selectedFeature = ref(null)
             const handleFeatureSelection = function(feature) {
@@ -60,6 +78,7 @@
             return {
                 protocols,
                 plates,
+                plateResult,
                 gridColumnStyle: "repeat(3, 1fr)",
                 selectedFeature,
                 handleFeatureSelection
