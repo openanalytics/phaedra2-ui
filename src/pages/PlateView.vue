@@ -1,8 +1,8 @@
 <template>
     <q-breadcrumbs class="breadcrumb" v-if="plate && experiment && project">
         <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}" />
-        <q-breadcrumbs-el :label="project.name" icon="folder" :to="{ name: 'project', params: { id: project.id } }" />
-        <q-breadcrumbs-el :label="experiment.name" icon="science" :to="{ name: 'experiment', params: { id: experiment.id } }" />
+        <q-breadcrumbs-el :label="project.name" icon="folder" :to="'/project/' + project.id" />
+        <q-breadcrumbs-el :label="experiment.name" icon="science" :to="'/experiment/' + experiment.id" />
         <q-breadcrumbs-el :label="plate.barcode" icon="view_module" />
     </q-breadcrumbs>
     <q-separator />

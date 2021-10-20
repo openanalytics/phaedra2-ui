@@ -6,35 +6,24 @@
         </q-card-section>
         <q-separator />
         <q-card-section>
-            Measurement:
+            Protocol:
             <q-select
                 outlined dense options-dense
-                v-model="measModel" :options="measList"
+                v-model="selectedProtocol" :options="protocols"
                 option-label="name" option-value="id"
-                @update:model-value="onMeasSelectionChanged"
+                @update:model-value="onProtocolSelected"
                 class="selectBox">
                 <template v-slot:prepend>
                     <q-icon name="text_snippet" />
                 </template>
             </q-select>
-            ResultSet:
-            <q-select
-                outlined dense options-dense
-                v-model="resModel" :options="resList"
-                :option-label="resultSetLabelProvider"
-                @update:model-value="onResSelectionChanged"
-                class="selectBox">
-                <template v-slot:prepend>
-                    <q-icon name="find_in_page" />
-                </template>
-            </q-select>
             Feature:
             <q-select
                 outlined dense options-dense
-                v-model="featureModel" :options="featureList"
-                use-input input-debounce="0" @filter="filterFeature"
+                v-model="selectedFeature" :options="filteredFeatures"
+                use-input input-debounce="0" @filter="applyFeatureFilter"
                 option-label="name" option-value="id"
-                @update:model-value="onFeatureSelectionChanged"
+                @update:model-value="onFeatureSelected"
                 class="selectBox">
                 <template v-slot:prepend>
                     <q-icon name="biotech" />
@@ -56,14 +45,14 @@
 </style>
 
 <script>
-    import { ref, computed, watch } from 'vue'
+    import { ref, watch, toRefs } from 'vue'
     import { useStore } from 'vuex'
 
     import ColorLegend from "@/components/widgets/ColorLegend.vue"
 
     export default {
         props: {
-            plate: Object,
+            protocols: Array
         },
         components: {
             ColorLegend
@@ -72,77 +61,50 @@
         setup(props, context) {
             const store = useStore()
 
-            // Measurement selection handling
-            const measModel = ref(null)
-            const measList = computed(() => store.getters['measurements/getByIds'](props.plate.measurementIds))
-            store.dispatch('measurements/loadByIds', props.plate.measurementIds)
-            watch(measList, (measList) => {
-                measModel.value = measList[0]
-                onMeasSelectionChanged()
+            watch(toRefs(props).protocols, () => {
+                selectedProtocol.value = props.protocols[0]
+                onProtocolSelected()
             })
-            const onMeasSelectionChanged = () => {
-                store.dispatch('resultdata/loadAllResultSets', props.plate.measurementIds)
+            
+            // Protocol selection
+            const selectedProtocol = ref(null)
+            const onProtocolSelected = () => {
+                store.dispatch('features/loadByProtocolId', selectedProtocol.value.id).then(() => {
+                    allFeatures.value = store.getters['features/getByProtocolId'](selectedProtocol.value.id)
+                    if (allFeatures.value && allFeatures.value.length > 0) {
+                        selectedFeature.value = allFeatures.value[0]
+                        onFeatureSelected(selectedFeature.value)
+                    }
+                })
             }
 
-            // ResultSet selection handling
-            const resModel = ref(null)
-            const resList = computed(() => {
-                if (!measModel.value) return []
-                const plateId = props.plate.id
-                const measId = measModel.value.id
-                return store.getters['resultdata/getAllResultSets']().filter(rs => rs.plateId == plateId && rs.measId == measId)
-            })
-            watch(resList, (resList) => {
-                resModel.value = resList[0]
-                onResSelectionChanged()
-            })
-            const onResSelectionChanged = () => {
-                if (resModel.value) store.dispatch('features/loadByProtocolId', resModel.value.protocolId)
-            }
-            const resultSetLabelProvider = (rs) => {
-                return (rs === null) ? "NULL" : ("RS " + rs.id + " @ " + rs.executionDate.toLocaleString())
-            }
-
-            // Feature selection handling
-            const featureModel = ref(null)
-            const fullFeatureList = computed(() => {
-                if (!resModel.value) return []
-                return store.getters['features/getByProtocolId'](resModel.value.protocolId)
-            })
-            const featureList = ref(fullFeatureList.value)
-            watch(fullFeatureList, (fullFeatureList) => {
-                featureModel.value = fullFeatureList[0]
-                onFeatureSelectionChanged(featureModel.value)
-            })
-            const onFeatureSelectionChanged = (value) => {
+            // Feature selection
+            const allFeatures = ref([])
+            const filteredFeatures = ref(allFeatures.value)
+            const selectedFeature = ref(null)
+            const onFeatureSelected = (value) => {
                 context.emit('featureSelection', value)
+            }
+            const applyFeatureFilter = (val, update) => {
+               if (val === '') {
+                    update(() => {
+                        filteredFeatures.value = allFeatures.value
+                    })
+                    return
+                }
+                update(() => {
+                    filteredFeatures.value = allFeatures.value.filter(v => v.name.toLowerCase().indexOf(val.toLowerCase()) > -1)
+                })
             }
 
             return {
-                measList,
-                measModel,
-                onMeasSelectionChanged,
+                selectedProtocol,
+                onProtocolSelected,
 
-                resList,
-                resModel,
-                onResSelectionChanged,
-                resultSetLabelProvider,
-                
-                featureList,
-                featureModel,
-                onFeatureSelectionChanged,
-
-                filterFeature: function(val, update) {
-                    if (val === '') {
-                        update(() => {
-                            featureList.value = fullFeatureList.value
-                        })
-                        return
-                    }
-                    update(() => {
-                        featureList.value = fullFeatureList.value.filter(v => v.name.toLowerCase().indexOf(val.toLowerCase()) > -1)
-                    })
-                }
+                filteredFeatures,
+                selectedFeature,
+                onFeatureSelected,
+                applyFeatureFilter
             }
         }
     }

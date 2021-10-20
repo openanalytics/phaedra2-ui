@@ -2,13 +2,23 @@ import axios from "axios";
 
 export default {
     async getProtocolById(protocolId) {
-      console.log('Making a backend call...');
-      let result = null;
-      await axios.get('http://localhost:6030/phaedra/protocol-service/protocols/' + protocolId)
-          .then(response => {
-              result = response.data;
-          })
-      return result;
+        console.log('Making a backend call...');
+        let result = null;
+        await axios.get('http://localhost:6030/phaedra/protocol-service/protocols/' + protocolId)
+            .then(response => {
+                result = response.data;
+            })
+        return result;
+    },
+    async getProtocolsByIds(ids) {
+        try {
+            const idsString = ids.join(",");
+            const response = await axios.get(`http://localhost:6030/phaedra/protocol-service/protocols?ids=${idsString}`);
+            return response.data;
+        } catch (error) {
+            // TODO
+            console.error(error);
+        }
     },
     async getAllProtocols() {
       console.log('Makeing a backend call...')

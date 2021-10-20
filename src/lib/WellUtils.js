@@ -15,8 +15,13 @@ function getWellNr(row, column, colCount) {
     return ((row-1) * colCount) + column;
 }
 
+function getWell(plate, row, column) {
+    return plate.wells.find(w => w.row == row && w.column == column)
+}
+
 export default {
     getWellTypeColor,
     getWellCoordinate,
-    getWellNr
+    getWellNr,
+    getWell
 }

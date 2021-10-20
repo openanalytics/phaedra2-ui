@@ -43,9 +43,9 @@
         </template>
         <template v-slot:body-cell-tags="props">
             <q-td :props="props">
-                <div class="tag-icon flex inline" v-for="tag in props.row.tags" :key="tag.tag">
+                <div class="tag-icon flex inline" v-for="tag in props.row.tags" :key="tag.value">
                     <q-badge color="green">
-                        {{ tag.tag }}
+                        {{ tag }}
                     </q-badge>
                 </div>
             </q-td>
@@ -79,7 +79,7 @@
         { name: 'status-validated', align: 'left', label: 'Validated', field: 'status-validated', sortable: true },
         { name: 'status-approved', align: 'left', label: 'Approved', field: 'status-approved', sortable: true },
         { name: 'layout', align: 'left', label: 'Layout', field: 'layout', sortable: true },
-        { name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: val => `${val.toLocaleString()}` },
+        { name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: val => val !== undefined ? `${val.toLocaleString()}`: '' },
         { name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true }
     ]
 
@@ -94,23 +94,14 @@
 
     export default {
         props: {
-            experimentId: Number
+            experiment: Object
         },
         setup(props) {
             const store = useStore()
             const loading = ref(true)
 
-            const plates = computed(() => store.getters['plates/getByExperimentId'](props.experimentId))
-            store.dispatch('plates/loadByExperimentId', props.experimentId)
-
-            const unsubscribe = store.subscribe((mutation) => {
-                if (mutation.type == "plates/cachePlates") {
-                    loading.value = false
-                }
-            })
-            onUnmounted(() => {
-                unsubscribe()
-            })
+            const plates = computed(() => store.getters['plates/getByExperimentId'](props.experiment.id))
+            store.dispatch('plates/loadByExperimentId', props.experiment.id).then(() => {loading.value = false})
 
             return {
                 columns,
