@@ -44,6 +44,8 @@ export default {
       axios.post('http://localhost:6030/phaedra/protocol-service/protocols', this.newProtocol)
           .then(response => {
             this.$store.commit('protocols/cacheProtocol', response.data)
+            const protocolId = response.data.id
+            this.$router.push({ name: 'protocol', params: { id: protocolId } })
           })
     },
     onReset() {

@@ -16,6 +16,8 @@ export default {
         this.$store.dispatch('projects/removeTag', this.tagInfo)
       else if (this.tagInfo.objectClass === 'EXPERIMENT')
         this.$store.dispatch('experiments/removeTag', this.tagInfo)
+      else if (this.tagInfo.objectClass === 'PROTOCOL')
+        this.$store.dispatch('protocols/removeTag', this.tagInfo)
     },
     setup() {
     }
