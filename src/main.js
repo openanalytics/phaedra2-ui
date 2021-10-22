@@ -3,7 +3,7 @@
 
 import { createWebHistory, createRouter } from "vue-router"
 
-import Dashboard from '@/pages/Dashboard.vue'
+import Dashboard from '@/pages/dashboard/Dashboard.vue'
 import ProjectView from '@/pages/project/ProjectView.vue'
 import NewProjectView from '@/pages/project/NewProjectView.vue'
 import ExperimentView from '@/pages/experiment/ExperimentView.vue'

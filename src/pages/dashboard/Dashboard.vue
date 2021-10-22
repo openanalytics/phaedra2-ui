@@ -69,7 +69,7 @@ const columns = [
   {name: 'project', label: 'Project', align: 'left', field: 'project'}
 ]
 
-import RecentProjects from "@/components/dashboard/RecentProjects";
+import RecentProjects from "@/pages/dashboard/RecentProjects";
 import {useStore} from "vuex";
 import {computed} from "vue";
 

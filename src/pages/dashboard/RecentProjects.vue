@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import ProjectCard from "@/components/dashboard/ProjectCard";
+import ProjectCard from "@/pages/dashboard/ProjectCard";
 
 export default {
   props: {
