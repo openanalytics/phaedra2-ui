@@ -10,7 +10,7 @@
         Create new protocol
       </div>
 
-      <div class="row q-pa-lg oa-section">
+      <div class="row q-pa-lg oa-section-body">
         <q-form action="" class="col col-4" @submit="onSubmit" @reset="onReset">
           <q-input label="Name of the project" v-model="newProject.name"/>
           <!--                     lazy-rules :rules="[ val => val && val.length > 0 || 'Project name is required!']"/>-->

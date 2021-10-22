@@ -1,6 +1,6 @@
 <template>
-    <div class="row" ref="rootElement">
-        <div class="col gridContainer" @mousedown="selectionBoxSupport.dragStart" @mouseup="selectionBoxSupport.dragEnd" @mousemove="selectionBoxSupport.dragMove">
+    <div class="row" ref="rootElement" style="width: 100%">
+        <div class="col gridContainer oa-section" @mousedown="selectionBoxSupport.dragStart" @mouseup="selectionBoxSupport.dragEnd" @mousemove="selectionBoxSupport.dragMove">
             <div class="loadingAnimation" v-if="loading">
                 <q-spinner-pie color="info" size="10em" />
             </div>
@@ -12,13 +12,9 @@
                 :selectedWells="selectedWells"
             ></WellSlot>
         </div>
-        <div class="col-3 q-pl-md q-pt-sm" v-if="gridType == GRID_TYPE_LAYOUT">
-            <div class="q-pb-sm">
-                <WellTypeLegend :plate=plate></WellTypeLegend>
-            </div>
-            <div>
-                <WellInspector :wells=selectedWells></WellInspector>
-            </div>
+        <div class="col-3 q-pa-sm" v-if="gridType == GRID_TYPE_LAYOUT">
+            <WellTypeLegend :plate=plate></WellTypeLegend>
+            <WellInspector :wells=selectedWells></WellInspector>
         </div>
         <div class="col-3 q-pl-md q-pt-sm" v-if="gridType == GRID_TYPE_HEATMAP">
             <FeatureSelector
@@ -77,7 +73,7 @@
         setup(props) {
             const store = useStore()
             const loading = ref(props.gridType === GRID_TYPE_HEATMAP)
-            
+
             const protocols = ref([])
             if (props.gridType === GRID_TYPE_HEATMAP) {
                 store.dispatch('resultdata/loadResultSetsByPlateIds', [ props.plate.id ]).then(() => {
@@ -93,7 +89,7 @@
             watch(selectedFeature, () => {
                 if (selectedFeature.value) store.dispatch('resultdata/loadResultDataById', { resultSetId: 1, featureId: selectedFeature.value.id })
             })
-            
+
             const selectedFeatureData = computed(() => {
                 if (!selectedFeature.value) return undefined
                 return store.getters['resultdata/getResultDataById'](1, selectedFeature.value.id)
@@ -104,7 +100,7 @@
 
             // WellSlot colors and labels
             const wellTypeColorFunction = function(well) {
-                return WellUtils.getWellTypeColor(well.wellType)
+                return WellUtils.getWellTypeColor(well.welltype)
             }
             const featureValueColorFunction = function(well) {
                 if (!selectedFeatureData.value) return WellUtils.getWellTypeColor("EMPTY")
@@ -118,7 +114,7 @@
             const wellLabelFunctions = [
                 function(well) { return WellUtils.getWellCoordinate(well.row, well.column) },
                 (props.gridType === GRID_TYPE_LAYOUT) ?
-                    function(well) { return well.wellType } :
+                    function(well) { return well.welltype } :
                     function(well) { return (selectedFeatureData.value) ? (Math.round(selectedFeatureData.value.values[well.nr - 1] * 100) / 100) : "" }
             ]
 
@@ -168,7 +164,7 @@
                     selectedWells.value.push(well)
                 })
             });
-            
+
             return {
                 GRID_TYPE_LAYOUT,
                 GRID_TYPE_HEATMAP,

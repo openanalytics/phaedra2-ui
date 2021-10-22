@@ -8,6 +8,7 @@
         :pagination="{ rowsPerPage: 50 }"
         :filter="filter"
         :filter-method="filterMethod"
+        style="width: 100%"
     >
         <template v-slot:top-right>
             <q-input outlined rounded dense debounce="300" v-model="filter" placeholder="Search">
@@ -18,7 +19,7 @@
         </template>
         <template v-slot:body-cell-status="props">
             <q-td :props="props">
-                <q-icon v-if="props.row.status === 'ACCEPTED'" name="check_circle" color="positive" />
+                <q-icon v-if="props.row.status === 'ACCEPTED_DEFAULT'" name="check_circle" color="positive" />
                 <q-icon v-else name="cancel" color="negative" />
             </q-td>
         </template>
@@ -32,7 +33,7 @@
 
 <script>
     import { ref } from 'vue'
-    
+
     import WellUtils from "@/lib/WellUtils.js"
 
     const filterMethod = function(rows, term) {
@@ -56,11 +57,11 @@
                 { name: 'number', align: 'left', label: 'Number', field: 'number', sortable: true,
                     format: (val, well) => (well ? WellUtils.getWellNr(well.row, well.column, props.plate.columns) : "") },
                 { name: 'status', align: 'left', label: 'Status', field: 'status', sortable: true },
-                { name: 'wellType', align: 'left', label: 'Well Type', field: 'wellType', sortable: true },
+                { name: 'wellType', align: 'left', label: 'Well Type', field: 'welltype', sortable: true },
                 { name: 'substance', align: 'left', label: 'Substance', field: 'substance', sortable: true,
-                    format: (val, well) => (well.substance.name ? well.substance.name: "") },
+                    format: (val, well) => (well.substance?.name ? well.substance?.name: "") },
                 { name: 'concentration', align: 'left', label: 'Concentration', field: 'concentration', sortable: true,
-                    format: (val, well) => (well.substance.concentration ? well.substance.concentration.toExponential(3) : "") },
+                    format: (val, well) => (well.substance?.concentration ? well.substance?.concentration.toExponential(3) : "") },
             ]
 
             return {

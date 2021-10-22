@@ -8,6 +8,7 @@
         :filter="filter"
         :filter-method="filterMethod"
         :loading="loading"
+        style="width: 100%"
     >
         <template v-slot:top-right>
             <q-input outlined rounded dense debounce="300" v-model="filter" placeholder="Search">
@@ -69,8 +70,8 @@
 </style>
 
 <script>
-    import { ref, computed, onUnmounted } from 'vue'
     import { useStore } from 'vuex'
+    import {computed, ref} from "vue";
 
     const columns = [
         { name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true },

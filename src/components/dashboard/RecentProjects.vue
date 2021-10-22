@@ -3,7 +3,7 @@
     <div class="q-px-sm oa-section-title">
       <div class="text-h6">Recent Projects</div>
     </div>
-    <div class="row col-4 q-pa-lg oa-section">
+    <div class="row col-4 q-pa-lg oa-section-body">
       <ProjectCard :project="project" v-for="project in projects" :key="project.id"/>
     </div>
   </div>

@@ -50,7 +50,7 @@ export default {
     },
     async getStatsByResultSetIds(resultSetIds, featureIds) {
         console.log('Mocking a backend call...')
-        await wait(500)
+        // await wait(500)
         let allStats = []
         resultSetIds.forEach(rs => {
             featureIds.forEach(fId => {
@@ -82,13 +82,19 @@ export default {
         return allStats
     },
     async getLatestPlateResult(plateId) {
-        try {
-            const response = await axios.get(`http://localhost:3009/phaedra/resultdata-service/plate-results/${plateId}/latest`);
-            return response.data;
-        } catch (error) {
-            // TODO
-            console.error(error);
-        }
+        // try {
+            let result = null;
+            const requestUrl = 'http://localhost:6050/phaedra/resultdata-service/plate-results/' + plateId + '/latest';
+            await axios.get(requestUrl)
+                .then(response => {
+                    if (response.status === 201)
+                        result = response.data;
+                });
+            return result;
+        // } catch (error) {
+        //     TODO
+            // console.error(error);
+        // }
     }
 }
 

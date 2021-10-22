@@ -11,14 +11,32 @@
   height: 100%;
 }
 
+.oa-section {
+  box-shadow: 0 1px 5px rgb(0 0 0 / 20%), 0 2px 2px rgb(0 0 0 / 14%), 0 3px 1px -2px rgb(0 0 0 / 12%);
+}
+
+.oa-section-body {
+  background-color: white;
+  box-shadow: 0 1px 5px rgb(0 0 0 / 20%), 0 2px 2px rgb(0 0 0 / 14%), 0 3px 1px -2px rgb(0 0 0 / 12%);
+}
+
 .oa-section-title {
   background-color: $primary;
   color: $secondary;
   width: fit-content;
   height: fit-content;
+  box-shadow: 0 1px 5px rgb(0 0 0 / 20%), 0 2px 2px rgb(0 0 0 / 14%), 0 3px 1px -2px rgb(0 0 0 / 12%);
 }
 
-.oa-section {
-  background-color: white;
+.oa-section-title2 {
+  background-color: $secondary;
+  color: $dark;
+  width: 100%;
+  height: fit-content;
   box-shadow: 0 1px 5px rgb(0 0 0 / 20%), 0 2px 2px rgb(0 0 0 / 14%), 0 3px 1px -2px rgb(0 0 0 / 12%);
+}
+
+.oa-nav-link {
+  color: $dark;
+  text-decoration: none;
 }

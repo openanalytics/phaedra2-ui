@@ -8,16 +8,16 @@ import ProjectView from '@/pages/project/ProjectView.vue'
 import NewProjectView from '@/pages/project/NewProjectView.vue'
 import ExperimentView from '@/pages/experiment/ExperimentView.vue'
 import NewExperimentView from '@/pages/experiment/NewExperimentView.vue'
-import PlateView from '@/pages/PlateView.vue'
+import PlateView from '@/pages/plate/PlateView.vue'
 import ProtocolView from '@/pages/protocol/ProtocolView.vue'
 
-import PlateList from "@/components/widgets/PlateList.vue"
-import PlateStatsList from "@/components/widgets/PlateStatsList.vue"
-import PlateGrid from "@/components/widgets/PlateGrid.vue"
+import PlateList from "@/pages/experiment/PlateList.vue"
+import PlateStatsList from "@/pages/experiment/PlateStatsList.vue"
+import PlateGrid from "@/pages/experiment/PlateGrid.vue"
 
-import WellGrid from "@/components/widgets/WellGrid.vue"
-import WellList from "@/components/widgets/WellList.vue"
-import MeasList from "@/components/widgets/MeasList.vue"
+import WellGrid from "@/pages/plate/WellGrid.vue"
+import WellList from "@/pages/plate/WellList.vue"
+import MeasList from "@/pages/plate/MeasList.vue"
 
 const routes = [
     { name: "dashboard", path: "/", component: Dashboard },

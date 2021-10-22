@@ -27,9 +27,10 @@ const actions = {
         if (ctx.getters['isExperimentLoaded'](id)) {
             return;
         }
-        const plates = await plateAPI.getPlatesByExperimentId(id)
-        ctx.commit('cachePlates', plates)
-        ctx.commit('cachePlatesInExperiment', {experimentId: id, plates})
+        await plateAPI.getPlatesByExperimentId(id).then(plates => {
+            ctx.commit('cachePlates', plates)
+            ctx.commit('cachePlatesInExperiment', {experimentId: id, plates})
+        })
     },
     async loadById(ctx, id) {
         const plate = await plateAPI.getPlateById(id)
@@ -68,7 +69,7 @@ const mutations = {
         if (index === -1) state.plates.push(plate)
     },
     cachePlates(state, plates) {
-        plates.forEach(plate => {
+        plates?.forEach(plate => {
             if (!state.plates.find(it => it.id === plate.id)) {
                 state.plates.push(plate)
             }
@@ -82,12 +83,12 @@ const mutations = {
         }
     },
     addTag(state, tagInfo) {
-        var plate = state.experiments.find(p => p.id === tagInfo.objectId);
+        var plate = state.plates.find(p => p.id === tagInfo.objectId);
         if (!containsTagInfo(plate, tagInfo))
             plate.tags !== undefined ? plate.tags.push(tagInfo) : plate.tags = [ tagInfo ];
     },
     removeTag(state, tagInfo) {
-        var plate = state.experiments.find(p => p.id === tagInfo.objectId)
+        var plate = state.plates.find(p => p.id === tagInfo.objectId)
         if (containsTagInfo(plate, tagInfo)) {
             var i = plate.tags.findIndex(t => t.tag === tagInfo.tag);
             plate.tags.splice(i, 1);

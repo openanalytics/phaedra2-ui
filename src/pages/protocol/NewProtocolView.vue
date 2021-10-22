@@ -10,7 +10,7 @@
         <div class="text-h6">Create new protocol</div>
       </div>
 
-      <div class="row q-pa-lg oa-section">
+      <div class="row q-pa-lg oa-section-body">
         <q-form class="col col-4" @submit="onSubmit" @reset="onReset">
           <q-input v-model="newProtocol.name" label="Name: "></q-input>
           <q-input v-model="newProtocol.description" label="Description: "></q-input>

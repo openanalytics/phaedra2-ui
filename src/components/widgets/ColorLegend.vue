@@ -1,12 +1,12 @@
 <template>
     <div class="row justify-center">
-        <q-card class="legendBar"></q-card>
+        <div class="legendBar oa-section"></div>
         <div class="legendLabels column q-ml-sm">
-            <div class="text-secondary col-2">Max: {{maxValue}}</div>
+            <div class="text-dark col-2">Max: {{maxValue}}</div>
             <div class="col-3"></div>
-            <div class="text-secondary col-2">Mean: {{meanValue}}</div>
+            <div class="text-dark col-2">Mean: {{meanValue}}</div>
             <div class="col-3"></div>
-            <div class="text-secondary col-2">Min: {{minValue}}</div>
+            <div class="text-dark col-2">Min: {{minValue}}</div>
         </div>
     </div>
 </template>

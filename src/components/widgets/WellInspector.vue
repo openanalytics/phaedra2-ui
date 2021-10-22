@@ -1,22 +1,19 @@
 <template>
-  <div>
-    <q-card>
-        <q-card-section class="bg-primary text-white q-pa-sm" v-if="!minimal">
+    <div class="q-pa-xs">
+        <div class="oa-section-title2" v-if="!minimal">
             <div class="row items-center">
                 <div class="col-8"><q-icon name="view_module" size="24px" class="q-mr-sm" />Well Inspector</div>
                 <div class="col-4">Selected: {{wells.length}}</div>
             </div>
-
-        </q-card-section>
-        <q-separator />
-        <q-card-section :class=cardClass v-if="wells.length == 0">
+        </div>
+        <div class="oa-section-body" v-if="wells.length == 0">
             <div v-if="wells.length == 0" class="text-info">
                 No well selected
             </div>
-        </q-card-section>
-        <q-card-section :class=cardClass v-else class="q-pa-none">
+        </div>
+        <div v-else class="q-pa-none oa-section-body">
             <div style="overflow: auto;" :style="minimal ? '':'max-height: 200px'">
-                <div v-for="well in wells" :key="well.nr">
+                <div v-for="well in wells" :key="well.id">
                     <div class="q-pa-sm">
                         <div class="row">
                             <div class="col-4 text-weight-bold">Well:</div>
@@ -24,19 +21,19 @@
                         </div>
                         <div class="row">
                             <div class="col-4 text-weight-bold">Well Type:</div>
-                            <div class="col-8">{{well.wellType}}</div>
+                            <div class="col-8">{{well?.welltype}}</div>
                         </div>
-                        <div class="row" v-show="well.substance.type">
+                        <div class="row" v-show="well.substance?.type">
                             <div class="col-4 text-weight-bold">Substance:</div>
                             <div class="col-8">
-                                <div class="row">{{well.substance.type}} {{well.substance.name}}</div>
-                                <div class="row">{{well.substance.concentration ? well.substance.concentration.toExponential(3) : ""}}</div>
+                                <div class="row">{{well.substance?.type}} {{well.substance?.name}}</div>
+                                <div class="row">{{well.substance?.concentration ? well.substance?.concentration.toExponential(3) : ""}}</div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-4 text-weight-bold">Status:</div>
                             <div class="col-8">
-                                <div v-if="well.status === 'ACCEPTED'">
+                                <div v-if="well.status === 'ACCEPTED_DEFAULT'">
                                     <q-icon name="check_circle" color="positive" :size=statusIconSize />Accepted
                                 </div>
                                 <div v-else>
@@ -48,9 +45,8 @@
                     <q-separator v-if="wells.length > 1"/>
                 </div>
             </div>
-        </q-card-section>
-    </q-card>
-  </div>
+        </div>
+    </div>
 </template>
 
 <script>

@@ -7,6 +7,7 @@
         row-key="id"
         hide-bottom
         :loading="loading"
+        style="width: 100%"
     >
         <template v-slot:body-cell="props">
             <q-td :props="props" :class="isActiveMeas(props.row.id) ? 'text-black' : 'text-grey'">
@@ -54,7 +55,7 @@
         setup(props) {
             const store = useStore()
             const loading = ref(true)
-            
+
             const measurements = computed(() => store.getters['measurements/getByIds'](props.plate.measurementIds))
             store.dispatch('measurements/loadByIds', props.plate.measurementIds)
 

@@ -10,7 +10,7 @@
         <div class="text-h6">{{ protocol.name }}</div>
       </div>
 
-      <div class="row col-4 q-pa-lg oa-section">
+      <div class="row col-4 q-pa-lg oa-section-body">
         <div class="col col-6">
           <div class="row">
             <div class="col-3 text-weight-bold">ID:</div>

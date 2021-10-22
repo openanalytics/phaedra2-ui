@@ -13,7 +13,8 @@
         <div class="row text-h6 items-center q-px-sm oa-section-title">
           <q-icon name="folder" class="q-pr-sm"/>{{ project.name }}
         </div>
-        <div class="row col-4 q-pa-lg oa-section">
+
+        <div class="row col-4 q-pa-lg oa-section-body">
             <div class="col col-4">
               <div class="row">
                 <div class="col-3 text-weight-bold">ID:</div>
@@ -36,6 +37,7 @@
                 </div>
               </div>
             </div>
+
             <div class="col col-4">
               <div class="row">
                 <div class="col-2 text-weight-bold">Properties:</div>
@@ -57,6 +59,7 @@
                 </div>
               </div>
             </div>
+
             <div class="col col-4">
               <div class="row justify-end action-button">
                 <q-btn size="sm" rounded color="primary" label="Edit"/>
@@ -114,7 +117,7 @@ import {computed, ref} from 'vue'
 import {useStore} from 'vuex'
 import {useRoute} from 'vue-router'
 
-import ExperimentList from "@/components/widgets/ExperimentList.vue"
+import ExperimentList from "@/pages/experiment/ExperimentList.vue"
 import Tag from "@/components/tag/Tag"
 
 const propertyColumns = [

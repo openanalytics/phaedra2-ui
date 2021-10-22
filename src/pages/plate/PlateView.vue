@@ -1,35 +1,39 @@
 <template>
-  <q-breadcrumbs class="breadcrumb" v-if="experiment && project">
+  <q-breadcrumbs class="breadcrumb" v-if="plate && experiment && project">
     <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
-    <q-breadcrumbs-el :label="project.name" icon="folder"
-                      :to="{ name: 'project', params: { id: experiment.projectId } }"/>
-    <q-breadcrumbs-el :label="experiment.name" icon="science"/>
+    <q-breadcrumbs-el :label="project.name" icon="folder" :to="'/project/' + project.id"/>
+    <q-breadcrumbs-el :label="experiment.name" icon="science" :to="'/experiment/' + experiment.id"/>
+    <q-breadcrumbs-el :label="plate.barcode" icon="view_module"/>
   </q-breadcrumbs>
 
   <q-page class="oa-root-div">
     <div class="q-pa-md">
-      <div class="text-h6 q-px-sm oa-section-title" v-if="!experiment">
-        Loading experiment...
+      <div class="text-h6 q-px-sm oa-section-title" v-if="!plate">
+        Loading plate...
       </div>
       <div v-else>
         <div class="row text-h6 items-center q-px-sm oa-section-title">
-          <q-icon name="science" class="q-pr-sm"/>
-          {{ experiment.name }}
+          <q-icon name="view_module" class="q-mr-sm"/>
+          {{ plate.barcode }}
         </div>
         <div class="row col-4 q-pa-lg oa-section-body">
           <div class="col col-4">
             <div class="row">
               <div class="col-3 text-weight-bold">ID:</div>
-              <div class="col">{{ experiment.id }}</div>
+              <div class="col">{{ plate.id }}</div>
+            </div>
+            <div class="row">
+              <div class="col-3 text-weight-bold">Dimensions:</div>
+              <div class="col">{{ plate.rows }} x {{ plate.columns }} ({{ plate.rows * plate.columns }} wells)</div>
             </div>
             <div class="row">
               <div class="col-3 text-weight-bold">Description:</div>
-              <div class="col">{{ experiment.description }}</div>
+              <div class="col">{{ plate.description }}</div>
             </div>
             <div class="row">
               <div class="col-3 text-weight-bold">Tags:</div>
               <div class="col">
-                <div class="tag-icon flex inline" v-for="tag in experiment.tags" :key="tag.tag">
+                <div class="tag-icon flex inline" v-for="tag in plate.tags" :key="tag.tag">
                   <Tag :tagInfo="tag"></Tag>
                 </div>
               </div>
@@ -42,7 +46,7 @@
               <div class="col">
                 <q-table
                     dense
-                    :rows="experiment.properties"
+                    :rows="plate.properties"
                     :columns="propertyColumns"
                     table-header-class="text-grey"
                     row-key="key"
@@ -73,19 +77,19 @@
       </div>
     </div>
 
-    <div class="q-pa-md">
+    <div class="q-pa-md" v-if="plate">
       <q-tabs
-          v-model="activeTab"
           inline-label dense no-caps
           align="left"
           class="q-px-sm oa-section-title"
       >
-        <q-route-tab :to="'/experiment/' + experiment.id" icon="table_rows" label="Overview"/>
-        <q-route-tab :to="'/experiment/' + experiment.id + '/statistics'" icon="functions" label="Statistics"/>
-        <q-route-tab :to="'/experiment/' + experiment.id + '/heatmaps'" icon="view_module" label="Heatmaps"/>
+        <q-route-tab :to="'/plate/' + plate.id" icon="view_module" label="Layout"/>
+        <q-route-tab :to="'/plate/' + plate.id + '/measurements'" icon="text_snippet" label="Measurements"/>
+        <q-route-tab :to="'/plate/' + plate.id + '/heatmap'" icon="view_module" label="Heatmap"/>
+        <q-route-tab :to="'/plate/' + plate.id + '/wells'" icon="table_rows" label="Well List"/>
       </q-tabs>
       <div class="row oa-section-body">
-        <router-view class="router-view" :experiment="experiment"></router-view>
+        <router-view class="router-view" :plate="plate"></router-view>
       </div>
     </div>
 
@@ -96,7 +100,7 @@
         </q-card-section>
 
         <q-card-section>
-          <q-input dense v-model="experimentTag" autofocus @keyup.enter="prompt = false"/>
+          <q-input dense v-model="plateTag" autofocus @keyup.enter="prompt = false"/>
         </q-card-section>
 
         <q-card-actions align="right" class="text-primary">
@@ -108,18 +112,17 @@
   </q-page>
 </template>
 
-<style lang="scss">
-
+<style scoped>
 .breadcrumb {
   margin: 12px;
   margin-bottom: 13px;
 }
 
-.experiment-header {
+.plate-header {
   margin: 10px;
 }
 
-.experiment-body {
+.plate-body {
   margin: 10px;
 }
 
@@ -130,10 +133,15 @@
 .tag-icon {
   margin-right: 5px;
 }
+
+.router-view {
+  margin: 10px;
+  padding-bottom: 10px;
+}
 </style>
 
 <script>
-import {ref, computed} from 'vue'
+import {computed, watch, ref} from 'vue'
 import {useStore} from 'vuex'
 import {useRoute} from 'vue-router'
 
@@ -145,45 +153,53 @@ const propertyColumns = [
 ]
 
 export default {
-  name: 'Experiment',
+  name: 'Plate',
   components: {
     Tag
   },
   methods: {
     onClick() {
       const tagInfo = {
-        objectId: this.experiment.id,
-        objectClass: "EXPERIMENT",
-        tag: this.experimentTag
+        objectId: this.plate.id,
+        objectClass: "PLATE",
+        tag: this.plateTag
       }
 
-      this.$store.dispatch('experiments/tagExperiment', tagInfo)
+      this.$store.dispatch('plates/tagPlate', tagInfo)
     }
   },
   setup() {
     const store = useStore()
     const route = useRoute()
 
-    const experimentId = parseInt(route.params.id);
-    const experiment = computed(() => store.getters['experiments/getById'](experimentId))
-    if (!store.getters['experiments/isLoaded'](experimentId)) {
-      store.dispatch('experiments/loadById', experimentId)
-    }
-    store.dispatch('experiments/loadExperimentTags', experimentId)
+    const plateId = parseInt(route.params.id);
 
+    const plate = computed(() => store.getters['plates/getById'](plateId))
+    const experiment = computed(() => store.getters['experiments/getById'](plate.value.experimentId))
     const project = computed(() => store.getters['projects/getById'](experiment.value.projectId))
 
+    // Once the plate has loaded, make sure the parent experiment gets loaded too.
+    watch(plate, (plate) => {
+      if (!store.getters['experiments/isLoaded'](plate.experimentId)) {
+        store.dispatch('experiments/loadById', plate.experimentId)
+      }
+    })
+    if (!store.getters['plates/isLoaded'](plateId)) {
+      store.dispatch('plates/loadById', plateId)
+    }
+    store.dispatch('plates/loadPlateTags', plateId)
+
     return {
-      experimentId,
+      plate,
       experiment,
       project,
       propertyColumns,
-      activeTab: ref('plate_overview')
+      activeTab: ref('plate_layout')
     }
   },
   data() {
     return {
-      experimentTag: ref(""),
+      plateTag: ref(""),
       prompt: ref(false)
     }
   }
