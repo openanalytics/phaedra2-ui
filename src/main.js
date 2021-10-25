@@ -85,4 +85,17 @@ app.use(Quasar, {
         }
     }
 })
+
+app.mixin({
+    methods: {
+        /**
+         * Modifies the minHeight property of the q-page to take the breadcrumbs into account.
+         * See: https://quasar.dev/layout/page#style-fn
+         */
+        pageStyleFnForBreadcrumbs(offset) {
+            return { minHeight: offset ? `calc(100vh - ${offset}px - 50px)` : '100vh' }
+        }
+    }
+})
+
 app.mount("#app")

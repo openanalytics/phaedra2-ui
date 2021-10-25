@@ -4,7 +4,7 @@
     <q-breadcrumbs-el label="New project" icon="folder" />
   </q-breadcrumbs>
 
-  <q-page class="oa-root-div">
+  <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
     <div class="q-pa-md">
       <div class="text-h6 items-center q-px-sm oa-section-title">
         Create new protocol

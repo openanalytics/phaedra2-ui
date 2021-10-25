@@ -4,7 +4,7 @@
     <q-breadcrumbs-el :label="protocol.name" icon="folder" />
   </q-breadcrumbs>
 
-  <q-page class="oa-root-div">
+  <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
     <div class="q-pa-md">
       <div class="q-px-sm oa-section-title">
         <div class="text-h6">{{ protocol.name }}</div>

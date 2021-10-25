@@ -6,7 +6,7 @@
     <q-breadcrumbs-el :label="experiment.name" icon="science"/>
   </q-breadcrumbs>
 
-  <q-page class="oa-root-div">
+  <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
     <div class="q-pa-md">
       <div class="text-h6 q-px-sm oa-section-title" v-if="!experiment">
         Loading experiment...

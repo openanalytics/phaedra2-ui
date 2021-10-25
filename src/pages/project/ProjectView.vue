@@ -1,10 +1,10 @@
-<template>
+<template >
     <q-breadcrumbs class="breadcrumb" v-if="project">
         <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}" />
         <q-breadcrumbs-el :label="project.name" icon="folder" />
     </q-breadcrumbs>
 
-  <q-page class="oa-root-div">
+  <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
     <div class="q-pa-md">
       <div class="text-h6 q-px-sm oa-section-title" v-if="!project">
           Loading project...
