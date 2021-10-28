@@ -10,6 +10,7 @@ import ExperimentView from '@/pages/experiment/ExperimentView.vue'
 import NewExperimentView from '@/pages/experiment/NewExperimentView.vue'
 import PlateView from '@/pages/plate/PlateView.vue'
 import ProtocolView from '@/pages/protocol/ProtocolView.vue'
+import CaptureJobsView from '@/pages/datacapture/CaptureJobsView.vue'
 
 import PlateList from "@/pages/experiment/PlateList.vue"
 import PlateStatsList from "@/pages/experiment/PlateStatsList.vue"
@@ -42,6 +43,7 @@ const routes = [
     },
     { name: "protocol", path: "/protocol/:id", component: ProtocolView },
     { name: "newProtocol", path: "/protocol/new", component: NewProtocolView },
+    { name: "dataCaptureJobs", path: "/datacapture/jobs", component: CaptureJobsView },
 ]
 const router = createRouter({
     history: createWebHistory(),
