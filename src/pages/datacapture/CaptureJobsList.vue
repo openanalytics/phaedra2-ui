@@ -1,11 +1,11 @@
 <template>
     <q-table
         table-header-class="text-grey"
-        dense flat
+        flat
         :rows="jobs"
         :columns="columns"
         row-key="id"
-        :pagination="{ rowsPerPage: 50 }"
+        :pagination="{ rowsPerPage: 50, sortBy: 'createDate', descending: true }"
         class="full-width"
     >
         <template v-slot:body-cell-statusCode="props">
@@ -42,9 +42,14 @@
                 { name: 'statusCode', label: 'Status', field: 'statusCode', sortable: true },
             ]
 
+            const refreshJobs = () => {
+                store.dispatch('datacapture/loadAllJobs')
+            }
+
             return {
                 jobs,
-                columns
+                columns,
+                refreshJobs
             }
         }
     }

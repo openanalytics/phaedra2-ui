@@ -9,5 +9,11 @@ export default {
                 result = response.data;
             })
         return result;
+    },
+    async postJob(newJob) {
+        const response = await axios.post('http://localhost:6060/phaedra/datacapture/job', newJob.captureConfig, {
+            params: { sourcePath: newJob.sourcePath }
+        })
+        return response.data;
     }
 }
