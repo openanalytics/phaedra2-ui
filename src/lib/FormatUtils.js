@@ -4,6 +4,14 @@ const formatDate = function(date) {
     return date.toLocaleString();
 }
 
+const formatJSON = function(json) {
+    if (!json) return '';
+    let jsonObject = json;
+    if (typeof json === 'string') jsonObject = JSON.parse(json)
+    return JSON.stringify(jsonObject, null, 4)
+}
+
 export default {
-    formatDate
+    formatDate,
+    formatJSON
 }

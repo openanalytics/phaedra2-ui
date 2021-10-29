@@ -5,9 +5,18 @@
         :rows="jobs"
         :columns="columns"
         row-key="id"
-        :pagination="{ rowsPerPage: 20, sortBy: 'createDate', descending: true }"
         class="full-width"
+        :pagination="{ rowsPerPage: 20, sortBy: 'createDate', descending: true }"
+        :filter="filter"
+        :filter-method="filterMethod"
     >
+        <template v-slot:top-left>
+            <q-input outlined rounded dense debounce="300" v-model="filter" placeholder="Search">
+                <template v-slot:append>
+                    <q-icon name="search" />
+                </template>
+            </q-input>
+        </template>
         <template v-slot:body-cell-statusCode="props">
             <q-td :props="props">
                 <q-badge :color="ColorUtils.getCaptureJobStatusColor(props.row.statusCode)">{{props.row.statusCode}}</q-badge>
@@ -69,6 +78,17 @@
                 showJobDetails.value = true
             }
 
+            const filter = ref('')
+            const filterMethod = function(rows, term) {
+                return rows.filter(row => {
+                    return (row.id == term
+                        || (row.createdBy && row.createdBy.toLowerCase().includes(term))
+                        || (row.statusMessage && row.statusMessage.toLowerCase().includes(term))
+                        || (row.sourcePath && row.sourcePath.toLowerCase().includes(term))
+                    )
+                })
+            }
+
             return {
                 jobs,
                 columns,
@@ -76,6 +96,8 @@
                 showJobDetails,
                 jobDetails,
                 doShowJobDetails,
+                filter,
+                filterMethod,
                 ColorUtils
             }
         }
