@@ -14,9 +14,9 @@
     >
       <template v-slot:header-link="prop">
         <div class="row items-center" style="padding-left: 8px;">
-          <q-icon name="home" size="28px" class="q-mr-sm" style="color: #32A6D3"/>
+          <q-icon :name="prop.node.icon" size="28px" class="q-mr-sm" style="color: #32A6D3"/>
           <div class="text-weight-bold">
-            <router-link :to="{ name: 'dashboard'}" class="nav-link">{{ prop.node.label }}</router-link>
+            <router-link :to="{ name: prop.node.route }" class="nav-link">{{ prop.node.label }}</router-link>
           </div>
         </div>
       </template>
@@ -116,6 +116,8 @@ export default {
         {
           label: "Dashboard",
           header: "link",
+          route: 'dashboard',
+          icon: 'home'
         },
         {
           label: "Projects",
@@ -126,7 +128,13 @@ export default {
           label: "Protocols",
           header: "category",
           children: protocols
-        }
+        },
+        {
+          label: "DataCapture",
+          header: "link",
+          route: 'dataCaptureJobs',
+          icon: 'scanner'
+        },
       ]
     })
     store.dispatch('projects/loadAll')
