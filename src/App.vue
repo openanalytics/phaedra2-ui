@@ -16,28 +16,26 @@
     <Navigator></Navigator>
 
     <q-page-container>
-      <router-view style="background-color: #E6E6E6" :key="$route.fullPath"></router-view>
+      <router-view :key="$route.fullPath"></router-view>
     </q-page-container>
   </q-layout>
 </template>
 
-<script>
-import Navigator from "@/components/navigator/Navigator.vue"
-import {useStore} from "vuex";
-
-export default {
-  components: {
-    Navigator
-  },
-  setup() {
-    const store = useStore()
-    store.dispatch('calculations/getAllFormulas')
-  }
-}
-</script>
-
 <style lang="scss">
-@import 'src/css/oa.global';
-
-
+  @import 'src/css/oa.global';
 </style>
+
+<script>
+  import Navigator from "@/components/navigator/Navigator.vue"
+  import {useStore} from "vuex";
+
+  export default {
+    components: {
+      Navigator
+    },
+    setup() {
+      const store = useStore()
+      store.dispatch('calculations/getAllFormulas')
+    }
+  }
+</script>

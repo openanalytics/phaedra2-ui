@@ -1,6 +1,6 @@
 <template>
-  <div class="q-px-sm oa-section-title">
-    <div class="text-h6">Experiments</div>
+  <div class="row text-h6 items-center q-px-md oa-section-title">
+    <q-icon name="science" class="on-left"/>Experiments
   </div>
   <q-table
       :columns="columns"
@@ -9,6 +9,7 @@
       :pagination="{ rowsPerPage: 10 }"
       :filter="filter"
       :filter-method="filterMethod"
+      square
   >
     <template v-slot:top-right>
       <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
@@ -46,77 +47,72 @@
 </template>
 
 <style scoped>
-.tag-icon {
-  margin-right: 5px;
-}
+  .tag-icon {
+    margin-right: 5px;
+  }
 
-.nav-link {
-  color: black;
-  text-decoration: none;
-}
+  .nav-link {
+    color: black;
+    text-decoration: none;
+  }
 </style>
 
 <script>
-import {ref, computed, onUnmounted} from 'vue'
-import {useStore} from 'vuex'
+  import {ref, computed} from 'vue'
+  import {useStore} from 'vuex'
 
-import ExperimentContextMenu from "@/components/widgets/ExperimentContextMenu.vue"
+  import ExperimentContextMenu from "@/components/widgets/ExperimentContextMenu.vue"
 
-const columns = [
-  {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
-  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
-  {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-  {
-    name: 'createdOn',
-    align: 'left',
-    label: 'Created On',
-    field: 'createdOn',
-    sortable: true,
-    format: val => `${val?.toLocaleString()}`
-  },
-  {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true}
-]
+  import FormatUtils from "@/lib/FormatUtils.js"
 
-const filterMethod = function (rows, term) {
-  return rows.filter(row => {
-    return (row.id === term
-        || row.name.toLowerCase().includes(term)
-        || row.description.toLowerCase().includes(term)
-        || (row.tags && row.tags.some(tag => tag.toLowerCase().includes(term))))
-  })
-}
+  const columns = [
+    {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
+    {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
+    {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
+    {
+      name: 'createdOn',
+      align: 'left',
+      label: 'Created On',
+      field: 'createdOn',
+      sortable: true,
+      format: FormatUtils.formatDate
+    },
+    {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true}
+  ]
 
-export default {
-  props: {
-    projectId: Number
-  },
-  components: {
-    ExperimentContextMenu
-  },
-  setup(props) {
-    const store = useStore()
-    const loading = ref(true)
-
-    const experiments = computed(() => store.getters['experiments/getByProjectId'](props.projectId))
-    store.dispatch('experiments/loadByProjectId', props.projectId)
-
-    const unsubscribe = store.subscribe((mutation) => {
-        if (mutation.type == "experiments/cacheExperiments") {
-            loading.value = false
-        }
+  const filterMethod = function (rows, term) {
+    return rows.filter(row => {
+      return (row.id === term
+          || row.name.toLowerCase().includes(term)
+          || row.description.toLowerCase().includes(term)
+          || (row.tags && row.tags.some(tag => tag.toLowerCase().includes(term))))
     })
-    onUnmounted(() => {
-        unsubscribe()
-    })
+  }
 
-    return {
-      columns,
-      filter: ref(''),
-      filterMethod,
-      loading,
-      experiments
+  export default {
+    props: {
+      projectId: Number
+    },
+    components: {
+      ExperimentContextMenu
+    },
+    setup(props) {
+      const store = useStore()
+      const loading = ref(true)
+
+      const experiments = computed(() => store.getters['experiments/getByProjectId'](props.projectId))
+      store.dispatch('experiments/loadByProjectId', props.projectId).then(() => {
+        loading.value = false
+      })
+
+      return {
+        columns,
+        filter: ref(''),
+        filterMethod,
+        loading,
+        experiments,
+        FormatUtils
+      }
     }
   }
-}
-
 </script>

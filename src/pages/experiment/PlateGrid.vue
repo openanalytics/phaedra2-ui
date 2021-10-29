@@ -15,10 +15,10 @@
 </template>
 
 <style scoped>
-.gridContainer {
-  display: grid;
-  grid-template-columns: v-bind(gridColumnStyle);
-}
+  .gridContainer {
+    display: grid;
+    grid-template-columns: v-bind(gridColumnStyle);
+  }
 </style>
 
 <script>
