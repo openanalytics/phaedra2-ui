@@ -10,6 +10,7 @@ import ExperimentView from '@/pages/experiment/ExperimentView.vue'
 import NewExperimentView from '@/pages/experiment/NewExperimentView.vue'
 import PlateView from '@/pages/plate/PlateView.vue'
 import ProtocolView from '@/pages/protocol/ProtocolView.vue'
+import NewProtocolView from "@/pages/protocol/NewProtocolView";
 import CaptureJobsView from '@/pages/datacapture/CaptureJobsView.vue'
 
 import PlateList from "@/pages/experiment/PlateList.vue"
@@ -66,7 +67,6 @@ import 'material-icons/iconfont/material-icons.css';
 // --------------------------------------------------------------------
 import { createApp } from "vue"
 import App from "./App.vue"
-import NewProtocolView from "@/pages/protocol/NewProtocolView";
 
 const app = createApp(App)
 app.use(router)

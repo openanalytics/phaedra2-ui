@@ -6,7 +6,7 @@
         :columns="columns"
         row-key="id"
         :pagination="{ rowsPerPage: 50 }"
-        style="width: 100%"
+        class="full-width"
     >
         <template v-slot:body-cell-statusCode="props">
             <q-td :props="props">
@@ -24,6 +24,8 @@
     import { computed } from 'vue'
     import { useStore } from 'vuex'
 
+    import FormatUtils from "@/lib/FormatUtils.js"
+
     export default {
         setup() {
             const store = useStore()
@@ -33,7 +35,7 @@
 
             const columns = [
                 { name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true },
-                { name: 'createDate', align: 'left', label: 'Created On', field: 'createDate', sortable: true },
+                { name: 'createDate', align: 'left', label: 'Created On', field: 'createDate', sortable: true, format: FormatUtils.formatDate },
                 { name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true },
                 { name: 'sourcePath', align: 'left', label: 'Source Path', field: 'sourcePath', sortable: true },
                 { name: 'statusMessage', align: 'left', label: 'Message', field: 'statusMessage', sortable: true },
