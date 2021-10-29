@@ -7,13 +7,14 @@
             </div>
             <div class="row q-pa-lg oa-section-body">
                 <div class="row col-12 q-pb-md justify-end">
+                    <q-btn color="primary" icon="refresh" @click="refreshJobListAction" class="on-left" />
                     <q-btn color="primary" label="Submit New Job..." @click="submitNewJob = true"/>
                 </div>
                 <CaptureJobsList ref="jobList"></CaptureJobsList>
                 <q-dialog v-model="submitNewJob">
                     <q-card style="width: 700px; max-width: 80vw;">
                         <q-card-section class="bg-primary text-white">
-                            <div class="text-h6">Submit New DataCapture Job</div>
+                            <div class="text-h6"><q-icon name="scanner" class="q-mr-sm"/>Submit New DataCapture Job</div>
                         </q-card-section>
                         <q-card-section class="q-pa-sm q-gutter-sm">
                             <q-input v-model="newJob.sourcePath" label="Source Path" />
@@ -52,13 +53,17 @@
                 submitNewJob.value = false;
                 jobList.value.refreshJobs();
             };
+            const refreshJobListAction = () => {
+                jobList.value.refreshJobs();
+            };
             const jobList = ref(null);
 
             return {
                 submitNewJob,
                 newJob,
                 submitJobAction,
-                jobList
+                jobList,
+                refreshJobListAction
             }
         }
     }
