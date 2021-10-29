@@ -18,7 +18,7 @@
                         </q-card-section>
                         <q-card-section class="q-pa-sm q-gutter-sm">
                             <q-input v-model="newJob.sourcePath" label="Source Path" />
-                            <q-input v-model="newJob.captureConfig" type="textarea" label="Capture Configuration" />
+                            <q-input v-model="newJob.captureConfig" type="textarea" autogrow label="Capture Configuration" />
                         </q-card-section>
                         <q-card-section class="row q-pa-sm q-gutter-sm justify-end">
                             <q-btn color="info" label="Cancel" @click="submitNewJob = false"/>
@@ -42,14 +42,14 @@
         },
         setup() {
             const submitNewJob = ref(false);
-            const newJob = {
+            const newJob = ref({
                 sourcePath: '',
                 captureConfig: JSON.stringify({})
-            };
+            });
             const submitJobAction = async () => {
-                if (newJob.sourcePath == '') alert('No source path specified!')
+                if (newJob.value.sourcePath == '') alert('No source path specified!')
                 //TODO error handling
-                await datacaptureAPI.postJob(newJob);
+                await datacaptureAPI.postJob(newJob.value);
                 submitNewJob.value = false;
                 jobList.value.refreshJobs();
             };
