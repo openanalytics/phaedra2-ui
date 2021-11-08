@@ -12,6 +12,9 @@
       square
   >
     <template v-slot:top-right>
+      <div class="row action-button on-left">
+        <q-btn size="sm" color="primary" icon="add" label="New Experiment" @click="showNewExperimentDialog = true"/>
+      </div>
       <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
         <template v-slot:append>
           <q-icon name="search"/>
@@ -44,6 +47,29 @@
       </div>
     </template>
   </q-table>
+
+  <q-dialog v-model="showNewExperimentDialog">
+    <q-card style="min-width: 30vw">
+      <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
+        Create New Experiment
+      </q-card-section>
+      <q-card-section>
+        <div class="row">
+            <div class="col-2 row items-center">
+              <q-avatar icon="edit" color="primary" text-color="white" />
+            </div>
+            <div class="col-10">
+              <span>New Experiment Name:</span><br/>
+              <q-input dense v-model="newExperimentName" autofocus />
+            </div>
+        </div>
+      </q-card-section>
+      <q-card-actions align="right">
+        <q-btn flat label="Cancel" color="primary" v-close-popup />
+        <q-btn label="Create" color="primary" v-close-popup @click="doCreateNewExperiment"/>
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
 
 <style scoped>
@@ -105,13 +131,27 @@
         loading.value = false
       })
 
+      const showNewExperimentDialog = ref(false)
+      const newExperimentName = ref('')
+      const doCreateNewExperiment = function() {
+        store.dispatch('experiments/createNewExperiment', {
+          projectId: props.projectId,
+          name: newExperimentName.value,
+          status: 'OPEN'
+        })
+      }
+
       return {
         columns,
         filter: ref(''),
         filterMethod,
         loading,
         experiments,
-        FormatUtils
+        FormatUtils,
+
+        showNewExperimentDialog,
+        newExperimentName,
+        doCreateNewExperiment
       }
     }
   }

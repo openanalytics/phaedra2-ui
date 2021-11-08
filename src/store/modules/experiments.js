@@ -50,6 +50,12 @@ const actions = {
                 ctx.commit('addTags', response.data)
             })
     },
+    async createNewExperiment(ctx, newExperiment) {
+        const response = await axios.post('http://localhost:6010/phaedra/plate-service/experiment', newExperiment)
+        const createdExperiment = response.data
+        ctx.commit('cacheExperiment', createdExperiment)
+        return createdExperiment
+    },
     tagExperiment(ctx, tagInfo) {
         axios.post('http://localhost:6020/phaedra/metadata-service/tags', tagInfo)
             .then(response => {
