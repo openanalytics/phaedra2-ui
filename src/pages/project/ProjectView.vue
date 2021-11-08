@@ -16,15 +16,19 @@
           <q-icon name="folder" class="q-pr-sm"/>{{ project.name }}
         </div>
 
-        <div class="row q-pa-lg oa-section-body">
+        <div class="row q-pa-md oa-section-body">
             <div class="col-4 q-gutter-xs">
               <div class="row">
                 <div class="col-3 text-weight-bold">ID:</div>
                 <div class="col">{{ project.id }}</div>
               </div>
               <div class="row">
-                <div class="col-3 text-weight-bold">Team:</div>
-                <div class="col">{{ project.team }}</div>
+                <div class="col-3 text-weight-bold">Created On:</div>
+                <div class="col">{{ FormatUtils.formatDate(project.createdOn) }}</div>
+              </div>
+              <div class="row">
+                <div class="col-3 text-weight-bold">Created By:</div>
+                <div class="col">{{ project.createdBy }}</div>
               </div>
               <div class="row">
                 <div class="col-3 text-weight-bold">Description:</div>
@@ -64,13 +68,10 @@
 
             <div class="col-4">
               <div class="row justify-end action-button">
-                <q-btn size="sm" color="primary" label="Edit"/>
+                <q-btn size="sm" color="primary" icon="sell" label="Add Tag" @click="showAddTagDialog = true"/>
               </div>
               <div class="row justify-end action-button">
-                <q-btn size="sm" color="primary" label="Delete"/>
-              </div>
-              <div class="row justify-end action-button">
-                <q-btn size="sm" color="primary" label="Add Tag" @click="prompt = true"/>
+                <q-btn size="sm" color="primary" icon="delete" label="Delete" @click="showDeleteDialog = true"/>
               </div>
             </div>
           </div>
@@ -81,19 +82,40 @@
       <ExperimentList :projectId="projectId"></ExperimentList>
     </div>
 
-    <q-dialog v-model="prompt" persistent>
+    <q-dialog v-model="showAddTagDialog">
       <q-card>
         <q-card-section style="min-width: 350px">
-          <div class="text-h6">Tag:</div>
+          <div class="text-h6">Add New Tag:</div>
         </q-card-section>
 
         <q-card-section>
-          <q-input dense v-model="projectTag" autofocus @keyup.enter="prompt = false" />
+          <q-input dense v-model="newProjectTag" autofocus @keyup.enter="showAddTagDialog = false" />
         </q-card-section>
 
         <q-card-actions align="right" class="text-primary">
           <q-btn flat label="Cancel" v-close-popup />
-          <q-btn flat label="Add tag" v-close-popup @click="onClick" />
+          <q-btn label="Add tag" v-close-popup color="primary" @click="doAddTag" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="showDeleteDialog">
+      <q-card>
+        <q-card-section>
+          <div class="row">
+              <div class="col-2 row items-center">
+                <q-avatar icon="delete" color="primary" text-color="white" />
+              </div>
+              <div class="col-10">
+                <span>Are you sure you want to delete the project <b>{{project.name}}</b>?</span><br/>
+                <span class="text-weight-bold text-negative">WARNING: All experiments, plates and associated data will be deleted!</span>
+              </div>
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Cancel" color="primary" v-close-popup />
+          <q-btn label="Delete" color="negative" v-close-popup @click="doDeleteProject"/>
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -103,10 +125,12 @@
 <script>
   import {computed, ref} from 'vue'
   import {useStore} from 'vuex'
-  import {useRoute} from 'vue-router'
+  import {useRoute, useRouter} from 'vue-router'
 
   import ExperimentList from "@/pages/experiment/ExperimentList.vue"
   import Tag from "@/components/tag/Tag"
+
+  import FormatUtils from "@/lib/FormatUtils.js"
 
   const propertyColumns = [
     {name: 'key', align: 'left', label: 'Name', field: 'key', sortable: true},
@@ -114,38 +138,52 @@
   ]
 
   export default {
-    name: 'Project',
     components: {
       ExperimentList,
       Tag
     },
+
     setup() {
       const store = useStore()
       const route = useRoute()
+      const router = useRouter()
 
       const projectId = parseInt(route.params.id);
       const project = computed(() => store.getters['projects/getById'](projectId))
       store.dispatch('projects/loadById', projectId)
       store.dispatch('projects/loadProjectsTags', projectId)
-      const projectTag = ref('')
-      const prompt = ref(false)
 
-      const onClick = function() {
+      const showAddTagDialog = ref(false)
+      const newProjectTag = ref('')
+      const doAddTag = function() {
         const tagInfo = {
-          objectId: this.project.id,
+          objectId: project.value.id,
           objectClass: "PROJECT",
-          tag: this.projectTag
+          tag: newProjectTag.value
         }
         store.dispatch('projects/tagProject', tagInfo)
+      }
+
+      const showDeleteDialog = ref(false)
+      const doDeleteProject = function() {
+        store.dispatch('projects/deleteProject', projectId).then(() => {
+            router.push({ name: 'dashboard' })
+          })
       }
 
       return {
         projectId,
         project,
-        projectTag,
-        prompt,
         propertyColumns,
-        onClick
+
+        showAddTagDialog,
+        newProjectTag,
+        doAddTag,
+
+        showDeleteDialog,
+        doDeleteProject,
+
+        FormatUtils
       }
     }
   }
