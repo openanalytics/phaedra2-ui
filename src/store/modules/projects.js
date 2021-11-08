@@ -62,6 +62,10 @@ const actions = {
                 ctx.commit('uncacheProject', projectId)
             })
     },
+    async renameProject(ctx, args) {
+        await axios.put('http://localhost:6010/phaedra/plate-service/project', args)
+        ctx.commit('updateProject', args)
+    },
     tagProject(ctx, tagInfo) {
         axios.post('http://localhost:6020/phaedra/metadata-service/tags', tagInfo)
             .then(response => {
@@ -90,6 +94,10 @@ const mutations = {
     uncacheProject(state, projectId) {
         let match = state.projects.find(p => p.id === projectId)
         if (match) state.projects.splice(state.projects.indexOf(match), 1)
+    },
+    updateProject(state, args) {
+        let project = state.projects.find(p => p.id === args.id)
+        if (project) project.name = args.name
     },
     cacheAllProjects(state, projects) {
         state.projects = projects;

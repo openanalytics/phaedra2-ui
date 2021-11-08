@@ -71,7 +71,10 @@
                 <q-btn size="sm" color="primary" icon="sell" label="Add Tag" @click="showAddTagDialog = true"/>
               </div>
               <div class="row justify-end action-button">
-                <q-btn size="sm" color="primary" icon="delete" label="Delete" @click="showDeleteDialog = true"/>
+                <q-btn size="sm" color="primary" icon="edit" label="Rename Project" @click="showRenameDialog = true"/>
+              </div>
+              <div class="row justify-end action-button">
+                <q-btn size="sm" color="primary" icon="delete" label="Delete Project" @click="showDeleteDialog = true"/>
               </div>
             </div>
           </div>
@@ -83,15 +86,21 @@
     </div>
 
     <q-dialog v-model="showAddTagDialog">
-      <q-card>
-        <q-card-section style="min-width: 350px">
-          <div class="text-h6">Add New Tag:</div>
+      <q-card style="min-width: 30vw">
+        <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
+          Add Tag
         </q-card-section>
-
         <q-card-section>
-          <q-input dense v-model="newProjectTag" autofocus @keyup.enter="showAddTagDialog = false" />
+          <div class="row">
+              <div class="col-2 row items-center">
+                <q-avatar icon="sell" color="primary" text-color="white" />
+              </div>
+              <div class="col-10">
+                <span>New Tag Name:</span><br/>
+                <q-input dense v-model="newProjectTag" autofocus @keyup.enter="showAddTagDialog = false" />
+              </div>
+          </div>
         </q-card-section>
-
         <q-card-actions align="right" class="text-primary">
           <q-btn flat label="Cancel" v-close-popup />
           <q-btn label="Add tag" v-close-popup color="primary" @click="doAddTag" />
@@ -99,8 +108,34 @@
       </q-card>
     </q-dialog>
 
+    <q-dialog v-model="showRenameDialog">
+      <q-card style="min-width: 30vw">
+        <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
+          Rename Project
+        </q-card-section>
+        <q-card-section>
+          <div class="row">
+              <div class="col-2 row items-center">
+                <q-avatar icon="edit" color="primary" text-color="white" />
+              </div>
+              <div class="col-10">
+                <span>New Project Name:</span><br/>
+                <q-input dense v-model="newProjectName" autofocus />
+              </div>
+          </div>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn flat label="Cancel" color="primary" v-close-popup />
+          <q-btn label="Rename" color="primary" v-close-popup @click="doRenameProject"/>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
     <q-dialog v-model="showDeleteDialog">
-      <q-card>
+      <q-card style="min-width: 30vw">
+        <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
+          Delete Project
+        </q-card-section>
         <q-card-section>
           <div class="row">
               <div class="col-2 row items-center">
@@ -112,7 +147,6 @@
               </div>
           </div>
         </q-card-section>
-
         <q-card-actions align="right">
           <q-btn flat label="Cancel" color="primary" v-close-popup />
           <q-btn label="Delete" color="negative" v-close-popup @click="doDeleteProject"/>
@@ -164,6 +198,15 @@
         store.dispatch('projects/tagProject', tagInfo)
       }
 
+      const showRenameDialog = ref(false)
+      const newProjectName = ref(project.value ? project.value.name : '')
+      const doRenameProject = function() {
+        store.dispatch('projects/renameProject', {
+          id: projectId,
+          name: newProjectName.value
+        })
+      }
+
       const showDeleteDialog = ref(false)
       const doDeleteProject = function() {
         store.dispatch('projects/deleteProject', projectId).then(() => {
@@ -179,6 +222,10 @@
         showAddTagDialog,
         newProjectTag,
         doAddTag,
+
+        showRenameDialog,
+        newProjectName,
+        doRenameProject,
 
         showDeleteDialog,
         doDeleteProject,
