@@ -14,6 +14,16 @@
         node-key="label"
         v-show="drawerOpen"
     >
+      <!-- Default template -->
+      <template v-slot:default-header="prop">
+        <div class="row items-center" style="padding-left: 8px;">
+          <q-icon :name="prop.node.icon" size="28px" class="q-mr-sm text-primary" />
+          <div>
+            <router-link :to="{ name: prop.node.route }" class="nav-link">{{ prop.node.label }}</router-link>
+          </div>
+        </div>
+      </template>
+
       <!-- Template for links (header: "link") -->
       <template v-slot:header-link="prop">
         <div class="row items-center" style="padding-left: 8px;">
@@ -144,7 +154,6 @@
             children: [
               {
                 label: "Capture Jobs",
-                header: "link",
                 icon: 'list_alt',
                 route: 'dataCaptureJobs',
               }
