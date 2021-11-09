@@ -57,17 +57,7 @@
       </div>
     </div>
 
-    <div class="q-pa-md">
-      <div class="q-px-sm oa-section-title">
-        <div class="text-h6">Features</div>
-      </div>
-      <q-table>
-        <template v-slot:top-right>
-          <q-btn dense color="primary" label="Add feature" @click="openFeatureDialog = true">
-          </q-btn>
-        </template>
-      </q-table>
-    </div>
+    <FeatureList :protocol="protocol"></FeatureList>
 
     <q-dialog v-model="prompt" persistent>
       <q-card>
@@ -126,10 +116,12 @@ import {useRoute} from "vue-router";
 import {computed, ref} from "vue";
 
 import Tag from "@/components/tag/Tag";
+import FeatureList from "@/pages/protocol/FeatureList";
 
 export default {
   name: "ProtocolView",
   components: {
+    FeatureList,
     Tag
   },
   setup() {

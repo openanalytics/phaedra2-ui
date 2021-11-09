@@ -1,23 +1,23 @@
 import axios from "axios";
 
-const demoResultSets = [
-    { id: 1, protocolId: 1, plateId: 1, measId: 1, executionDate: new Date(), outcome: 'Error' },
-    { id: 2, protocolId: 1, plateId: 1, measId: 1, executionDate: new Date(), outcome: 'OK' },
-    { id: 3, protocolId: 1, plateId: 1, measId: 2, executionDate: new Date(), outcome: 'OK' }
-]
+// const demoResultSets = [
+//     {id: 1, protocolId: 1, plateId: 1, measId: 1, executionDate: new Date(), outcome: 'Error'},
+//     {id: 2, protocolId: 1, plateId: 1, measId: 1, executionDate: new Date(), outcome: 'OK'},
+//     {id: 3, protocolId: 1, plateId: 1, measId: 2, executionDate: new Date(), outcome: 'OK'}
+// ]
+//
+// const demoStatNames = {
+//     plateLevel: ['zprime', 'min', 'mean', 'max'],
+//     wellTypeLevel: ['sb', 'sn', '%cv']
+// }
 
-const demoStatNames = {
-    plateLevel: [ 'zprime', 'min', 'mean', 'max' ],
-    wellTypeLevel: [ 'sb', 'sn', '%cv' ]
-}
-
-function generateRandomStatValue() {
-    return Math.random()
-}
+// function generateRandomStatValue() {
+//     return Math.random()
+// }
 
 function generateRandomResultData(size) {
     let data = [];
-    for (var i=0; i<size; i++) {
+    for (var i = 0; i < size; i++) {
         data.push(Math.random())
     }
     return data
@@ -25,19 +25,32 @@ function generateRandomResultData(size) {
 
 export default {
     async getResultSetById(id) {
-        console.log('Mocking a backend call...')
-        await wait(100)
-        return demoResultSets.find(rs => rs.id == id)
+        console.log('Mocking a backend call...');
+        let result = null;
+        const requestUrl = 'http://localhost:6050/phaedra/resultdata-service/resultset/' + id;
+        await axios.get(requestUrl)
+            .then(response => {
+                if (response.status === 201)
+                    result = response.data;
+            });
+        return result;
     },
     async getResultSetsByPlateIds(plateIds) {
-        console.log('Mocking a backend call...')
-        await wait(100)
-        return demoResultSets.filter(rs => plateIds && plateIds.includes(rs.plateId))
+        console.log('Mocking a backend call...');
+        let result = null;
+        const requestUrl = 'http://localhost:6050/phaedra/resultdata-service/resultset/' + plateIds;
+        await axios.get(requestUrl)
+            .then(response => {
+                if (response.status === 201)
+                    result = response.data;
+            });
+        return result;
     },
     async getAllResultSets() {
-        console.log('Mocking a backend call...')
-        await wait(100)
-        return demoResultSets
+
+        // console.log('Mocking a backend call...')
+        // await wait(100)
+        // return demoResultSets
     },
     async getResultDataById(resultSetId, featureId) {
         console.log('Mocking a backend call...')
@@ -60,45 +73,40 @@ export default {
                     plateLevelStats: [],
                     wellTypeLevelStats: []
                 }
-                demoStatNames.plateLevel.forEach(stat => {
-                    stats.plateLevelStats.push({
-                        name: stat,
-                        value: generateRandomStatValue()
-                    })
-                })
-                demoStatNames.wellTypeLevel.forEach(stat => {
-                    let wellTypes = [ 'LC', 'SAMPLE', 'HC' ]
-                    wellTypes.forEach(wt => {
-                        stats.wellTypeLevelStats.push({
-                            name: stat,
-                            wellType: wt,
-                            value: generateRandomStatValue()
-                        })
-                    })
-                })
+                // demoStatNames.plateLevel.forEach(stat => {
+                //     stats.plateLevelStats.push({
+                //         name: stat,
+                //         value: generateRandomStatValue()
+                //     })
+                // })
+                // demoStatNames.wellTypeLevel.forEach(stat => {
+                //     let wellTypes = ['LC', 'SAMPLE', 'HC']
+                //     wellTypes.forEach(wt => {
+                //         stats.wellTypeLevelStats.push({
+                //             name: stat,
+                //             wellType: wt,
+                //             value: generateRandomStatValue()
+                //         })
+                //     })
+                // })
                 allStats.push(stats)
             })
         })
         return allStats
     },
     async getLatestPlateResult(plateId) {
-        // try {
-            let result = null;
-            const requestUrl = 'http://localhost:6050/phaedra/resultdata-service/plate-results/' + plateId + '/latest';
-            await axios.get(requestUrl)
-                .then(response => {
-                    if (response.status === 201)
-                        result = response.data;
-                });
-            return result;
-        // } catch (error) {
-        //     TODO
-            // console.error(error);
-        // }
+        let result = null;
+        const requestUrl = 'http://localhost:6050/phaedra/resultdata-service/plate-results/' + plateId + '/latest';
+        await axios.get(requestUrl)
+            .then(response => {
+                if (response.status === 201)
+                    result = response.data;
+            });
+        return result;
     }
 }
 
-function wait (ms) {
+function wait(ms) {
     return new Promise(resolve => {
         setTimeout(resolve, ms)
     })

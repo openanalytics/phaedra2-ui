@@ -166,6 +166,15 @@ export default {
       }
 
       this.$store.dispatch('plates/tagPlate', tagInfo)
+    },
+    addMeasurement() {
+      const plateMeasurement = {
+        plateId: this.plate,
+        measurementId: this.selectedMeas.id,
+        linkedBy: 'sberberovic',
+        linkedOn: new Date()
+      }
+      this.$store.dispatch('plates/addMeasurement', plateMeasurement)
     }
   },
   setup() {
@@ -173,21 +182,19 @@ export default {
     const route = useRoute()
 
     const plateId = parseInt(route.params.id);
+    store.dispatch('plates/loadById', plateId);
 
-    const plate = computed(() => store.getters['plates/getById'](plateId))
-    const experiment = computed(() => store.getters['experiments/getById'](plate.value.experimentId))
-    const project = computed(() => store.getters['projects/getById'](experiment.value.projectId))
+    const plate = computed(() => store.getters['plates/getCurrentPlate']());
+    const experiment = computed(() => store.getters['experiments/getById'](plate.value.experimentId));
+    const project = computed(() => store.getters['projects/getById'](experiment.value.projectId));
 
     // Once the plate has loaded, make sure the parent experiment gets loaded too.
     watch(plate, (plate) => {
       if (!store.getters['experiments/isLoaded'](plate.experimentId)) {
-        store.dispatch('experiments/loadById', plate.experimentId)
+        store.dispatch('experiments/loadById', plate.experimentId);
       }
     })
-    if (!store.getters['plates/isLoaded'](plateId)) {
-      store.dispatch('plates/loadById', plateId)
-    }
-    store.dispatch('plates/loadPlateTags', plateId)
+
 
     return {
       plate,

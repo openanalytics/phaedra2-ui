@@ -1,15 +1,14 @@
 <template>
     <q-table
-        table-header-class="text-grey"
-        dense flat
+        table-header-class="text-dark"
+        flat square
         :rows="plate.wells"
         :columns="columns"
         row-key="id"
         :pagination="{ rowsPerPage: 50 }"
         :filter="filter"
         :filter-method="filterMethod"
-        style="width: 100%"
-    >
+        class="oa-section-body">
         <template v-slot:top-right>
             <q-input outlined rounded dense debounce="300" v-model="filter" placeholder="Search">
                 <template v-slot:append>

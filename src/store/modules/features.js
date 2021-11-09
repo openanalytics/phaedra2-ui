@@ -55,7 +55,7 @@ const mutations = {
         if (index === -1) state.features.push(feature)
     },
     cacheMany (state, features) {
-        features.forEach(feature => {
+        features?.forEach(feature => {
             let index = state.features.indexOf(feature)
             if (index === -1) state.features.push(feature)
         });
