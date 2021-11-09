@@ -4,7 +4,7 @@
     <q-breadcrumbs-el :label="'New protocol'" />
   </q-breadcrumbs>
 
-  <q-page class="oa-root-div">
+  <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
     <div class="q-pa-md">
       <div class="q-px-sm oa-section-title">
         <div class="text-h6">Create new protocol</div>

@@ -10,6 +10,8 @@ import ExperimentView from '@/pages/experiment/ExperimentView.vue'
 import NewExperimentView from '@/pages/experiment/NewExperimentView.vue'
 import PlateView from '@/pages/plate/PlateView.vue'
 import ProtocolView from '@/pages/protocol/ProtocolView.vue'
+import NewProtocolView from "@/pages/protocol/NewProtocolView";
+import CaptureJobsView from '@/pages/datacapture/CaptureJobsView.vue'
 
 import PlateList from "@/pages/experiment/PlateList.vue"
 import PlateStatsList from "@/pages/experiment/PlateStatsList.vue"
@@ -42,6 +44,7 @@ const routes = [
     },
     { name: "protocol", path: "/protocol/:id", component: ProtocolView },
     { name: "newProtocol", path: "/protocol/new", component: NewProtocolView },
+    { name: "dataCaptureJobs", path: "/datacapture/jobs", component: CaptureJobsView },
 ]
 const router = createRouter({
     history: createWebHistory(),
@@ -64,7 +67,6 @@ import 'material-icons/iconfont/material-icons.css';
 // --------------------------------------------------------------------
 import { createApp } from "vue"
 import App from "./App.vue"
-import NewProtocolView from "@/pages/protocol/NewProtocolView";
 
 const app = createApp(App)
 app.use(router)
@@ -85,4 +87,17 @@ app.use(Quasar, {
         }
     }
 })
+
+app.mixin({
+    methods: {
+        /**
+         * Modifies the minHeight property of the q-page to take the breadcrumbs into account.
+         * See: https://quasar.dev/layout/page#style-fn
+         */
+        pageStyleFnForBreadcrumbs(offset) {
+            return { minHeight: offset ? `calc(100vh - ${offset}px - 50px)` : '100vh' }
+        }
+    }
+})
+
 app.mount("#app")

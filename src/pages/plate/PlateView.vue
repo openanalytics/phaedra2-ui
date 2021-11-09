@@ -6,7 +6,7 @@
     <q-breadcrumbs-el :label="plate.barcode" icon="view_module"/>
   </q-breadcrumbs>
 
-  <q-page class="oa-root-div">
+  <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
     <div class="q-pa-md">
       <div class="text-h6 q-px-sm oa-section-title" v-if="!plate">
         Loading plate...

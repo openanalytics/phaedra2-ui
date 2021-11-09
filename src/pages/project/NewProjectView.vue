@@ -1,24 +1,23 @@
 <template>
   <q-breadcrumbs class="breadcrumb">
     <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}" />
-    <q-breadcrumbs-el label="New project" icon="folder" />
+    <q-breadcrumbs-el label="New Project" icon="folder" />
   </q-breadcrumbs>
 
-  <q-page class="oa-root-div">
+  <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
     <div class="q-pa-md">
-      <div class="text-h6 items-center q-px-sm oa-section-title">
-        Create new protocol
+      <div class="row text-h6 items-center q-px-md oa-section-title">
+        <q-icon name="folder" class="q-pr-sm"/>New Project
       </div>
 
-      <div class="row q-pa-lg oa-section-body">
-        <q-form action="" class="col col-4" @submit="onSubmit" @reset="onReset">
-          <q-input label="Name of the project" v-model="newProject.name"/>
-          <!--                     lazy-rules :rules="[ val => val && val.length > 0 || 'Project name is required!']"/>-->
-          <q-input label="Project's description" v-model="newProject.description"/>
-
+      <div class="row q-pa-md oa-section-body">
+        <q-form action="" class="full-width" @submit="onSubmit" @reset="onReset">
+          <q-input class="row" label="Project Name" v-model="newProject.name"/>
+          <!-- lazy-rules :rules="[ val => val && val.length > 0 || 'Project name is required!']"/>-->
+          <q-input class="row" label="Project Description" v-model="newProject.description"/>
           <div class="row justify-end q-pt-md">
             <q-btn label="Submit" type="submit" color="primary"/>
-            <q-btn label="Cancel" type="reset" color="primary" flat class="a-ml-sm"/>
+            <q-btn label="Cancel" type="reset" color="primary" flat class="on-right"/>
           </div>
         </q-form>
       </div>
@@ -27,49 +26,41 @@
 </template>
 
 <script>
-import axios from "axios";
+  import {useStore} from "vuex";
+  import {useRouter} from 'vue-router'
 
-export default {
-  name: "NewProjectView",
-  data() {
-     return {
-       newProject: {
-         name: null,
-         description: null,
-         createdOn: null,
-         createdBy: null,
-       }
-     }
-  },
-  methods: {
-    onSubmit() {
-      this.newProject.createdOn = new Date();
-      this.newProject.createdBy = 'sasa.berberovic';
-      axios.post('http://localhost:6010/phaedra/plate-service/project', this.newProject)
-          .then(response => {
-            this.$store.commit('projects/cacheProject', response.data)
-          })
-    },
-    onReset() {
-      this.newProject.name = null
-      this.newProject.description = null
-      this.newProject.createdOn = null
-      this.newProject.createdBy = null
+  export default {
+    setup() {
+      const store = useStore();
+      const router = useRouter()
+
+      const onSubmit = () => {
+        newProject.createdOn = new Date();
+        newProject.createdBy = 'TestUser';
+        store.dispatch('projects/createNewProject', newProject).then(createdProject => {
+          router.push({ path: '/project/' + createdProject.id })
+        })
+      }
+
+      const onReset = () => {
+        newProject.name = null
+        newProject.description = null
+        newProject.createdOn = null
+        newProject.createdBy = null
+      }
+
+      const newProject = {
+        name: null,
+        description: null,
+        createdOn: null,
+        createdBy: null,
+      }
+
+      return {
+        newProject,
+        onSubmit,
+        onReset
+      }
     }
   }
-}
 </script>
-
-<style scoped lang="sass">
-  @import "src/css/quasar.variables"
-  //
-  //.breadcrumb
-  //  margin: 12px
-  //  margin-bottom: 13px
-  //.project-header
-  //  margin: 10px
-  //.project-body
-  //  margin: 10px
-  //.action-button
-  //  margin: 3px
-</style>

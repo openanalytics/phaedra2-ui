@@ -1,6 +1,6 @@
 <template>
-  <div class="q-px-sm oa-section-title">
-    <div class="text-h6">Experiments</div>
+  <div class="row text-h6 items-center q-px-md oa-section-title">
+    <q-icon name="science" class="on-left"/>Experiments
   </div>
   <q-table
       :columns="columns"
@@ -9,8 +9,12 @@
       :pagination="{ rowsPerPage: 10 }"
       :filter="filter"
       :filter-method="filterMethod"
+      square
   >
     <template v-slot:top-right>
+      <div class="row action-button on-left">
+        <q-btn size="sm" color="primary" icon="add" label="New Experiment" @click="showNewExperimentDialog = true"/>
+      </div>
       <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
         <template v-slot:append>
           <q-icon name="search"/>
@@ -43,80 +47,112 @@
       </div>
     </template>
   </q-table>
+
+  <q-dialog v-model="showNewExperimentDialog">
+    <q-card style="min-width: 30vw">
+      <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
+        Create New Experiment
+      </q-card-section>
+      <q-card-section>
+        <div class="row">
+            <div class="col-2 row items-center">
+              <q-avatar icon="edit" color="primary" text-color="white" />
+            </div>
+            <div class="col-10">
+              <span>New Experiment Name:</span><br/>
+              <q-input dense v-model="newExperimentName" autofocus />
+            </div>
+        </div>
+      </q-card-section>
+      <q-card-actions align="right">
+        <q-btn flat label="Cancel" color="primary" v-close-popup />
+        <q-btn label="Create" color="primary" v-close-popup @click="doCreateNewExperiment"/>
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
 
 <style scoped>
-.tag-icon {
-  margin-right: 5px;
-}
+  .tag-icon {
+    margin-right: 5px;
+  }
 
-.nav-link {
-  color: black;
-  text-decoration: none;
-}
+  .nav-link {
+    color: black;
+    text-decoration: none;
+  }
 </style>
 
 <script>
-import {ref, computed, onUnmounted} from 'vue'
-import {useStore} from 'vuex'
+  import {ref, computed} from 'vue'
+  import {useStore} from 'vuex'
 
-import ExperimentContextMenu from "@/components/widgets/ExperimentContextMenu.vue"
+  import ExperimentContextMenu from "@/components/widgets/ExperimentContextMenu.vue"
 
-const columns = [
-  {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
-  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
-  {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-  {
-    name: 'createdOn',
-    align: 'left',
-    label: 'Created On',
-    field: 'createdOn',
-    sortable: true,
-    format: val => `${val?.toLocaleString()}`
-  },
-  {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true}
-]
+  import FormatUtils from "@/lib/FormatUtils.js"
 
-const filterMethod = function (rows, term) {
-  return rows.filter(row => {
-    return (row.id === term
-        || row.name.toLowerCase().includes(term)
-        || row.description.toLowerCase().includes(term)
-        || (row.tags && row.tags.some(tag => tag.toLowerCase().includes(term))))
-  })
-}
+  const columns = [
+    {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
+    {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
+    {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
+    {
+      name: 'createdOn',
+      align: 'left',
+      label: 'Created On',
+      field: 'createdOn',
+      sortable: true,
+      format: FormatUtils.formatDate
+    },
+    {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true}
+  ]
 
-export default {
-  props: {
-    projectId: Number
-  },
-  components: {
-    ExperimentContextMenu
-  },
-  setup(props) {
-    const store = useStore()
-    const loading = ref(true)
-
-    const experiments = computed(() => store.getters['experiments/getByProjectId'](props.projectId))
-    store.dispatch('experiments/loadByProjectId', props.projectId)
-
-    const unsubscribe = store.subscribe((mutation) => {
-        if (mutation.type == "experiments/cacheExperiments") {
-            loading.value = false
-        }
+  const filterMethod = function (rows, term) {
+    return rows.filter(row => {
+      return (row.id === term
+          || row.name.toLowerCase().includes(term)
+          || row.description.toLowerCase().includes(term)
+          || (row.tags && row.tags.some(tag => tag.toLowerCase().includes(term))))
     })
-    onUnmounted(() => {
-        unsubscribe()
-    })
+  }
 
-    return {
-      columns,
-      filter: ref(''),
-      filterMethod,
-      loading,
-      experiments
+  export default {
+    props: {
+      projectId: Number
+    },
+    components: {
+      ExperimentContextMenu
+    },
+    setup(props) {
+      const store = useStore()
+      const loading = ref(true)
+
+      const experiments = computed(() => store.getters['experiments/getByProjectId'](props.projectId))
+      store.dispatch('experiments/loadByProjectId', props.projectId).then(() => {
+        loading.value = false
+      })
+
+      const showNewExperimentDialog = ref(false)
+      const newExperimentName = ref('')
+      const doCreateNewExperiment = function() {
+        store.dispatch('experiments/createNewExperiment', {
+          projectId: props.projectId,
+          name: newExperimentName.value,
+          status: 'OPEN'
+        })
+      }
+
+      return {
+        columns,
+        filter: ref(''),
+        filterMethod,
+        loading,
+        experiments,
+        FormatUtils,
+
+        showNewExperimentDialog,
+        newExperimentName,
+        doCreateNewExperiment
+      }
     }
   }
-}
-
 </script>

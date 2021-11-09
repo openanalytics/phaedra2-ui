@@ -15,7 +15,13 @@ function addSelectionBoxSupport(rootElement, wellSlots, selectionHandler) {
 
             this.dragInProgress = true
             this.dragStartPosition = { x: event.pageX, y: event.pageY }
-            this.rootOffset = rootElement.value.parentNode.getBoundingClientRect()
+
+            let parentBounds = rootElement.value.parentNode.getBoundingClientRect()
+            let rootStyle = window.getComputedStyle(rootElement.value)
+            this.rootOffset = {
+                left: parentBounds.left + parseInt(rootStyle.marginLeft),
+                top: parentBounds.top + parseInt(rootStyle.marginTop)
+            }
 
             let box = document.createElement('div')
             box.className = 'selectionBox'

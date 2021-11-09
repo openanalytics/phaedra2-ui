@@ -1,17 +1,17 @@
 <template>
   <q-breadcrumbs class="breadcrumb" v-if="protocol">
     <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}" />
-    <q-breadcrumbs-el :label="protocol.name" icon="folder" />
+    <q-breadcrumbs-el :label="protocol.name" icon="ballot" />
   </q-breadcrumbs>
 
-  <q-page class="oa-root-div">
+  <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
     <div class="q-pa-md">
-      <div class="q-px-sm oa-section-title">
-        <div class="text-h6">{{ protocol.name }}</div>
+      <div class="row text-h6 items-center q-px-md oa-section-title">
+        <q-icon name="ballot" class="q-pr-sm"/>{{ protocol.name }}
       </div>
 
-      <div class="row col-4 q-pa-lg oa-section-body">
-        <div class="col col-6">
+      <div class="row col-4 q-pa-md oa-section-body">
+        <div class="col col-6 q-gutter-xs">
           <div class="row">
             <div class="col-3 text-weight-bold">ID:</div>
             <div class="col">{{ protocol.id }}</div>
@@ -45,18 +45,33 @@
         </div>
         <div class="col col-6">
           <div class="row justify-end action-button">
-            <q-btn size="sm" rounded color="primary" label="Edit"/>
+            <q-btn size="sm" color="primary" label="Edit"/>
           </div>
           <div class="row justify-end action-button">
-            <q-btn size="sm" rounded color="primary" label="Delete"/>
+            <q-btn size="sm" color="primary" label="Delete"/>
           </div>
           <div class="row justify-end action-button">
-            <q-btn size="sm" rounded color="primary" label="Add Tag" @click="prompt = true"/>
+            <q-btn size="sm" color="primary" label="Add Tag" @click="prompt = true"/>
           </div>
         </div>
       </div>
     </div>
 
+<!--    <div class="q-pa-md">-->
+<!--      <div class="row text-h6 items-center q-px-md oa-section-title">-->
+<!--        <q-icon name="functions" class="q-pr-sm"/>Features-->
+<!--      </div>-->
+<!--      <q-table square>-->
+<!--        <template v-slot:top-right>-->
+<!--          <q-btn color="primary" label="Add Feature..." @click="openFeatureDialog = true"></q-btn>-->
+<!--        </template>-->
+<!--        <template v-slot:no-data>-->
+<!--            <div class="full-width row text-info">-->
+<!--                <span>No features to show.</span>-->
+<!--            </div>-->
+<!--        </template>-->
+<!--      </q-table>-->
+<!--    </div>-->
     <FeatureList :protocol="protocol"></FeatureList>
 
     <q-dialog v-model="prompt" persistent>
@@ -78,9 +93,9 @@
 
     <q-dialog v-model="openFeatureDialog" persistent class="q-gutter-sm">
       <q-card style="min-width: 800px">
-        <p-card-section>
+        <q-card-section>
           <div class="text-h6">Add new feature: </div>
-        </p-card-section>
+        </q-card-section>
 
         <q-card-section class="row">
           <div class="col col-7">
@@ -116,12 +131,10 @@ import {useRoute} from "vue-router";
 import {computed, ref} from "vue";
 
 import Tag from "@/components/tag/Tag";
-import FeatureList from "@/pages/protocol/FeatureList";
 
 export default {
   name: "ProtocolView",
   components: {
-    FeatureList,
     Tag
   },
   setup() {

@@ -85,6 +85,15 @@ const defaultHeatmapGradients = createMultiGradients([
     { red: 150, green: 50, blue: 50}
 ], 200)
 
+function getCaptureJobStatusColor(statusCode) {
+    switch (statusCode) {
+        case 'Completed': return 'green'
+        case 'Cancelled': return 'blue'
+        case 'Error': return 'red'
+        default: return 'grey'
+    }
+}
+
 export default {
     createGradients,
     createMultiGradients,
@@ -92,5 +101,6 @@ export default {
     calculateTextColor,
     asCSSColor,
     asRGBColor,
-    defaultHeatmapGradients
+    defaultHeatmapGradients,
+    getCaptureJobStatusColor
 }

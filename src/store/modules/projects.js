@@ -30,7 +30,6 @@ const actions = {
             .then(response => {
                 ctx.commit('cacheProject', response.data)
             })
-
     },
     async loadAll(ctx) {
         await axios.get('http://localhost:6010/phaedra/plate-service/projects')
@@ -50,6 +49,22 @@ const actions = {
             .then(response => {
                 ctx.commit('addTags', response.data)
             })
+    },
+    async createNewProject(ctx, newProject) {
+        const response = await axios.post('http://localhost:6010/phaedra/plate-service/project', newProject)
+        const createdProject = response.data
+        ctx.commit('cacheProject', createdProject)
+        return createdProject
+    },
+    async deleteProject(ctx, projectId) {
+        await axios.delete('http://localhost:6010/phaedra/plate-service/project/' + projectId)
+            .then(() => {
+                ctx.commit('uncacheProject', projectId)
+            })
+    },
+    async renameProject(ctx, args) {
+        await axios.put('http://localhost:6010/phaedra/plate-service/project', args)
+        ctx.commit('updateProject', args)
     },
     tagProject(ctx, tagInfo) {
         axios.post('http://localhost:6020/phaedra/metadata-service/tags', tagInfo)
@@ -75,6 +90,14 @@ const mutations = {
     cacheProject(state, project) {
         if (!containsProject(state, project))
             state.projects.push(project)
+    },
+    uncacheProject(state, projectId) {
+        let match = state.projects.find(p => p.id === projectId)
+        if (match) state.projects.splice(state.projects.indexOf(match), 1)
+    },
+    updateProject(state, args) {
+        let project = state.projects.find(p => p.id === args.id)
+        if (project) project.name = args.name
     },
     cacheAllProjects(state, projects) {
         state.projects = projects;

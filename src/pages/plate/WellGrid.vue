@@ -1,5 +1,5 @@
 <template>
-    <div class="row" ref="rootElement" style="width: 100%">
+    <div class="row relative-position" ref="rootElement" style="width: 100%;">
         <div class="col gridContainer oa-section" @mousedown="selectionBoxSupport.dragStart" @mouseup="selectionBoxSupport.dragEnd" @mousemove="selectionBoxSupport.dragMove">
             <div class="loadingAnimation" v-if="loading">
                 <q-spinner-pie color="info" size="10em" />
@@ -35,6 +35,7 @@
     .gridContainer {
         display: grid;
         grid-template-columns: v-bind(gridColumnStyle);
+        min-height: 400px;
     }
 </style>
 

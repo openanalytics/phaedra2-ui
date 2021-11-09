@@ -6,18 +6,21 @@
     <q-breadcrumbs-el :label="experiment.name" icon="science"/>
   </q-breadcrumbs>
 
-  <q-page class="oa-root-div">
+  <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
     <div class="q-pa-md">
+      
       <div class="text-h6 q-px-sm oa-section-title" v-if="!experiment">
         Loading experiment...
       </div>
+
       <div v-else>
         <div class="row text-h6 items-center q-px-sm oa-section-title">
-          <q-icon name="science" class="q-pr-sm"/>
-          {{ experiment.name }}
+          <q-icon name="science" class="on-left"/>{{ experiment.name }}
         </div>
-        <div class="row col-4 q-pa-lg oa-section-body">
-          <div class="col col-4">
+
+        <div class="row q-pa-md oa-section-body">
+
+          <div class="col-4 q-gutter-xs">
             <div class="row">
               <div class="col-3 text-weight-bold">ID:</div>
               <div class="col">{{ experiment.id }}</div>
@@ -36,7 +39,7 @@
             </div>
           </div>
 
-          <div class="col col-4">
+          <div class="col-4">
             <div class="row">
               <div class="col-2 text-weight-bold">Properties:</div>
               <div class="col">
@@ -58,17 +61,18 @@
             </div>
           </div>
 
-          <div class="col col-4">
+          <div class="col-4">
             <div class="row justify-end action-button">
-              <q-btn size="sm" rounded color="primary" label="Edit"/>
+              <q-btn size="sm" color="primary" label="Edit"/>
             </div>
             <div class="row justify-end action-button">
-              <q-btn size="sm" rounded color="primary" label="Delete"/>
+              <q-btn size="sm" color="primary" label="Delete"/>
             </div>
             <div class="row justify-end action-button">
-              <q-btn size="sm" rounded color="primary" label="Add Tag" @click="prompt = true"/>
+              <q-btn size="sm" color="primary" label="Add Tag" @click="prompt = true"/>
             </div>
           </div>
+
         </div>
       </div>
     </div>
