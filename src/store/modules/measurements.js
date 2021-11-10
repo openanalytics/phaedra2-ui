@@ -2,7 +2,7 @@ import measAPI from '@/api/measurements.js'
 
 const state = () => ({
     measurements: [],
-    measurementsInPlate: {}
+    measurementsInPlate: []
 })
 
 const getters = {
@@ -13,10 +13,13 @@ const getters = {
         return state.measurements?.find(meas => meas.id == id)
     },
     getByIds: (state) => (ids) => {
-        return state.measurements?.filter(meas => ids && ids.includes(meas.id))
+        return state.measurements?.filter(meas => ids[meas.id] ? true : false)
     },
     isLoaded: (state) => (id) => {
         return state.measurements?.find(meas => meas.id == id) != null
+    },
+    getPlateMeasurements: (state) => () => {
+        return state.measurementsInPlate;
     }
 }
 
@@ -26,6 +29,17 @@ const actions = {
             .then(result => {
                 ctx.commit('cacheMeasurements', result);
             });
+    },
+    async loadPlateMeasurements(ctx, plate) {
+        plate.measurements?.forEach(pm => {
+            measAPI.getMeasurementById(pm.measurementId)
+                .then(response => {
+                    let plateMeas = {};
+                    plateMeas = response;
+                    plateMeas['active'] = pm.active;
+                    ctx.commit('cacheMeasurementsInPlate', plateMeas)
+                })
+        })
     },
     async loadById(ctx, id) {
         const meas = await measAPI.getMeasurementById(id)
@@ -54,8 +68,10 @@ const mutations = {
                 state.measurements.push(meas)
         });
     },
-    cacheMeasurementsInPlate(state, args) {
-        state.measurementsInPlate[args.plateId] = args.measurements;
+    cacheMeasurementsInPlate(state, plateMeasurement) {
+        const plateMeas = state.measurementsInPlate.find(pm => pm.id === plateMeasurement.id);
+        if (plateMeas === undefined)
+            state.measurementsInPlate.push(plateMeasurement);
     }
 }
 

@@ -12,18 +12,18 @@
       </q-btn>
     </template>
     <template v-slot:body-cell="props">
-      <q-td :props="props" :class="isActiveMeas(props.row.id) ? 'text-dark' : 'text-grey'">
+      <q-td :props="props" :class="props.row.active ? 'text-dark' : 'text-grey'">
         {{ props.value }}
       </q-td>
     </template>
     <template v-slot:body-cell-active="props">
       <q-td :props="props">
-<!--        <q-icon name="link" v-show="isActiveMeas(props.row.id)"/>-->
-        <q-toggle v-model="props.row.active"/>
+        <q-icon name="link" v-show="props.row.active"/>
+<!--        <q-toggle v-model="props.row.active"/>-->
       </q-td>
     </template>
     <template v-slot:body-cell-dimensions="props">
-      <q-td :props="props" :class="isActiveMeas(props.row.id) ? 'text-dark' : 'text-grey'">
+      <q-td :props="props" :class="props.row.active ? 'text-dark' : 'text-grey'">
         {{ props.row.rows }} x {{ props.row.columns }}
       </q-td>
     </template>
@@ -97,11 +97,15 @@ export default {
 
     const availableMeasurements = computed(() => store.getters['measurements/getAll']());
     store.dispatch('measurements/loadAll');
+    store.dispatch('measurements/loadPlateMeasurements', props.plate);
 
     // const plateMeasurements = computed(() => store.getters['plates/getCurrentPlateMeasurements']);
-    const plateMeasIds = props.plate.measurements.map(pm => pm.measurementId);
-    const measurements = computed(() => store.getters['measurements/getByIds'](plateMeasIds))
-    store.dispatch('measurements/loadByIds', plateMeasIds);
+    let plateMeasIds = {};
+    props.plate.measurements.forEach( pm => {
+      plateMeasIds[pm.measurementId] = pm.active;
+    });
+    const measurements = computed(() => store.getters['measurements/getPlateMeasurements']())
+    // store.dispatch('measurements/loadByIds', plateMeasIds);
 
 
     const unsubscribe = store.subscribe((mutation) => {
@@ -113,16 +117,11 @@ export default {
         unsubscribe()
     })
 
-    const isActiveMeas = function(measId) {
-      return props.plate?.measurements?.find(m => m.measurementId === measId)?.active;
-    }
-
     return {
       columns,
       measurements,
       availableMeasurements,
       loading,
-      isActiveMeas
     }
   },
   data() {
