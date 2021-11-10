@@ -7,7 +7,7 @@ const state = () => ({
 
 const getters = {
     getById: (state) => (id) => {
-        return state.features.find(f => f.id == id)
+        return state.features.find(f => f.id === id)
     },
     getByIds: (state) => (ids) => {
         return state.features.filter(f => ids.includes(f.id))
@@ -19,7 +19,7 @@ const getters = {
         return state.features.filter(f => protocolIds && protocolIds.includes(f.protocolId))
     },
     isLoaded: (state) => (id) => {
-        return state.features.find(f => f.id == id) != null
+        return state.features.find(f => f.id === id) != null
     },
     getLoadedIds: (state) => () => {
         return new Set(state.features.map(f => f.id))
@@ -55,7 +55,7 @@ const mutations = {
         if (index === -1) state.features.push(feature)
     },
     cacheMany (state, features) {
-        features.forEach(feature => {
+        features?.forEach(feature => {
             let index = state.features.indexOf(feature)
             if (index === -1) state.features.push(feature)
         });
