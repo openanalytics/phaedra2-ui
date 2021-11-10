@@ -23,7 +23,7 @@
 <script>
   import {computed} from "vue";
   import {useStore} from "vuex";
-  import RecentProjects from "@/components/dashboard/RecentProjects";
+  import RecentProjects from "@/pages/dashboard/RecentProjects";
   import FormatUtils from "@/lib/FormatUtils.js";
 
   export default {
