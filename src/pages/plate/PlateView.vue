@@ -64,13 +64,13 @@
 
           <div class="col col-4">
             <div class="row justify-end action-button">
-              <q-btn size="sm" color="primary" style="width: 100px" label="Edit"/>
+              <q-btn size="sm" color="primary" class="oa-button-edit" label="Edit"/>
             </div>
             <div class="row justify-end action-button">
-              <q-btn size="sm" color="primary" style="width: 100px" label="Delete"/>
+              <q-btn size="sm" color="primary" class="oa-button-delete" label="Delete"/>
             </div>
             <div class="row justify-end action-button">
-              <q-btn size="sm" color="primary" style="width: 100px" label="Add Tag" @click="prompt = true"/>
+              <q-btn size="sm" color="primary" class="oa-button-tag" label="Add Tag" @click="prompt = true"/>
             </div>
           </div>
         </div>
