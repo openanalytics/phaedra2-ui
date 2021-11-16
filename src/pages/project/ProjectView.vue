@@ -143,13 +143,15 @@
               </div>
               <div class="col-10">
                 <span>Are you sure you want to delete the project <b>{{project.name}}</b>?</span><br/>
+                <span>Type <b>{{project.name}}</b> and press the button to confirm.</span>
+                <q-input dense v-model="projectName" autofocus/><br>
                 <span class="text-weight-bold text-negative">WARNING: All experiments, plates and associated data will be deleted!</span>
               </div>
           </div>
         </q-card-section>
         <q-card-actions align="right">
           <q-btn flat label="Cancel" color="primary" v-close-popup />
-          <q-btn label="Delete" color="negative" v-close-popup @click="doDeleteProject"/>
+          <q-btn label="Delete" color="negative" v-if="project.name == projectName" v-close-popup @click="doDeleteProject"/>
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -231,6 +233,11 @@
         doDeleteProject,
 
         FormatUtils
+      }
+    },
+    data(){
+      return {
+        projectName: ref(""),
       }
     }
   }
