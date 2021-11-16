@@ -8,14 +8,15 @@
 
   <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
     <div class="q-pa-md">
-      
+
       <div class="text-h6 q-px-sm oa-section-title" v-if="!experiment">
         Loading experiment...
       </div>
 
       <div v-else>
         <div class="row text-h6 items-center q-px-sm oa-section-title">
-          <q-icon name="science" class="on-left"/>{{ experiment.name }}
+          <q-icon name="science" class="on-left"/>
+          {{ experiment.name }}
         </div>
 
         <div class="row q-pa-md oa-section-body">
@@ -77,7 +78,7 @@
       </div>
     </div>
 
-    <div class="q-pa-md">
+    <div class="q-pa-md" v-if="experiment">
       <q-tabs
           v-model="activeTab"
           inline-label dense no-caps
@@ -118,17 +119,20 @@
         <q-card-section>
           <div class="row">
             <div class="col-2 row items-center">
-              <q-avatar icon="delete" color="primary" text-color="white" />
+              <q-avatar icon="delete" color="primary" text-color="white"/>
             </div>
             <div class="col-10">
-              <span>Type <span style="font-weight: bold">{{experiment.name}}</span> and press the button to confirm:</span><br/>
-              <q-input dense v-model="experimentName" autofocus />
+              <span>Type <span
+                  style="font-weight: bold">{{ experiment.name }}</span> and press the button to confirm:</span><br/>
+              <q-input dense v-model="experimentName" autofocus/><br>
+              <span class="text-accent">WARNING: The experiment, plates and associated data will be deleted!</span>
             </div>
           </div>
         </q-card-section>
         <q-card-actions align="right" class="text-primary">
           <q-btn flat label="Cancel" v-close-popup/>
-          <q-btn label="Delete experiment" color="accent" v-if="experiment.name==experimentName" v-close-popup @click="deleteExperiment"/>
+          <q-btn label="Delete experiment" color="accent" v-if="experiment.name==experimentName" v-close-popup
+                 @click="deleteExperiment"/>
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -187,10 +191,12 @@ export default {
       this.$store.dispatch('experiments/tagExperiment', tagInfo)
     },
     deleteExperiment() {
-      console.log(this.experimentId)
-      //this.router.push(window.location.origin + '/project/' + this.project.id)
-      this.$store.dispatch('experiments/deleteExperiment',this.experimentId)
-      console.log(window.location.origin + '/project/' + this.project.id)
+      const id = this.project.id
+      //disable experiment to stop page from loading experiment data and causing undefined errors
+      this.experiment = false
+      this.$store.dispatch('experiments/deleteExperiment', this.experimentId).then(() => {
+        this.$router.push({name: 'project', params: {id: id}})
+      })
     }
   },
   setup() {
