@@ -1,13 +1,14 @@
 <template>
   <q-breadcrumbs class="breadcrumb" v-if="protocol">
-    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}" />
-    <q-breadcrumbs-el :label="protocol.name" icon="ballot" />
+    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
+    <q-breadcrumbs-el :label="protocol.name" icon="ballot"/>
   </q-breadcrumbs>
 
   <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
     <div class="q-pa-md">
       <div class="row text-h6 items-center q-px-md oa-section-title">
-        <q-icon name="ballot" class="q-pr-sm"/>{{ protocol.name }}
+        <q-icon name="ballot" class="q-pr-sm"/>
+        {{ protocol.name }}
       </div>
 
       <div class="row col-4 q-pa-md oa-section-body">
@@ -57,20 +58,52 @@
       </div>
     </div>
 
-    <div class="q-pa-md">
+    <div class="q-pa-md" v-if="!newFeatureTab">
       <div class="row text-h6 items-center q-px-md oa-section-title">
-        <q-icon name="functions" class="q-pr-sm"/>Features
+        <q-icon name="functions" class="q-pr-sm"/>
+        Features
       </div>
       <q-table square>
         <template v-slot:top-right>
-          <q-btn color="primary" label="Add Feature..." @click="openFeatureDialog = true"></q-btn>
+          <q-btn color="primary" label="Add Feature..." @click="newFeatureTab = true"></q-btn>
         </template>
         <template v-slot:no-data>
-            <div class="full-width row text-info">
-                <span>No features to show.</span>
-            </div>
+          <div class="full-width row text-info">
+            <span>No features to show.</span>
+          </div>
         </template>
       </q-table>
+    </div>
+
+    <div class="q-pa-md" v-if="newFeatureTab">
+      <div class="row text-h6 items-center q-px-md oa-section-title">
+        <q-icon name="edit" class="q-pr-sm"/>
+        New Feature
+      </div>
+      <div class="row col-12 q-pa-md oa-section-body">
+        <q-card-section class="row" style="min-width: 100vw">
+          <div class="col col-5">
+            <q-input v-model="newFeature.name" square autofocus label="Name"></q-input>
+            <q-input v-model="newFeature.alias" square label="Alias"></q-input>
+            <q-input v-model="newFeature.description" square label="Description"></q-input>
+            <q-input v-model="newFeature.format" square label="Format" placeholder="#.##"
+                     style="width: 100px"></q-input><br>
+            <q-btn flat label="Cancel" color="primary" @click="newFeatureTab = false"/>
+
+          </div>
+          <div class="col col-1">
+
+          </div>
+          <div class="col col-4">
+            <q-select v-model="newFeature.type" square label="Type" :options="featureTypes"></q-select>
+            <q-input v-model="newFeature.sequence" square label="Sequence"></q-input>
+            <q-select v-model="newFeature.formulaId" square label="Formula" :options="formulas" option-value="id"
+                      option-label="name"></q-select>
+            <q-input v-model="newFeature.trigger" square label="Trigger"></q-input><br>
+            <q-btn align="right" label="Add feature" v-close-popup color="primary" @click="addFeature"/>
+          </div>
+        </q-card-section>
+      </div>
     </div>
 
     <q-dialog v-model="prompt" persistent>
@@ -80,20 +113,20 @@
         </q-card-section>
 
         <q-card-section>
-          <q-input dense v-model="protocolTag" autofocus @keyup.enter="prompt = false" />
+          <q-input dense v-model="protocolTag" autofocus @keyup.enter="prompt = false"/>
         </q-card-section>
 
         <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="Cancel" v-close-popup />
-          <q-btn flat label="Add tag" v-close-popup @click="onClick" />
+          <q-btn flat label="Cancel" v-close-popup/>
+          <q-btn flat label="Add tag" v-close-popup @click="onClick"/>
         </q-card-actions>
       </q-card>
     </q-dialog>
 
-    <q-dialog v-model="openFeatureDialog" persistent class="q-gutter-sm">
+    <!--<q-dialog v-model="openFeatureDialog" persistent class="q-gutter-sm">
       <q-card style="min-width: 800px">
         <q-card-section>
-          <div class="text-h6">Add new feature: </div>
+          <div class="text-h6">Add new feature:</div>
         </q-card-section>
 
         <q-card-section class="row">
@@ -101,7 +134,8 @@
             <q-input v-model="newFeature.name" square autofocus label="Name"></q-input>
             <q-input v-model="newFeature.alias" square label="Alias"></q-input>
             <q-input v-model="newFeature.description" square label="Description"></q-input>
-            <q-input v-model="newFeature.format" square label="Format" placeholder="#.##" style="width: 100px"></q-input>
+            <q-input v-model="newFeature.format" square label="Format" placeholder="#.##"
+                     style="width: 100px"></q-input>
           </div>
           <div class="col col-1">
 
@@ -109,17 +143,18 @@
           <div class="col col-4">
             <q-select v-model="newFeature.type" square label="Type" :options="featureTypes"></q-select>
             <q-input v-model="newFeature.sequence" square label="Sequence"></q-input>
-            <q-select v-model="newFeature.formulaId" square label="Formula" :options="formulas" option-value="id" option-label="name"></q-select>
+            <q-select v-model="newFeature.formulaId" square label="Formula" :options="formulas" option-value="id"
+                      option-label="name"></q-select>
             <q-input v-model="newFeature.trigger" square label="Trigger"></q-input>
           </div>
         </q-card-section>
 
         <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="Cancel" v-close-popup color="primary" />
-          <q-btn label="Add feature" v-close-popup color="primary" @click="addFeature" />
+          <q-btn flat label="Cancel" v-close-popup color="primary"/>
+          <q-btn label="Add feature" v-close-popup color="primary" @click="addFeature"/>
         </q-card-actions>
       </q-card>
-    </q-dialog>
+    </q-dialog>-->
 
   </q-page>
 </template>
@@ -171,7 +206,8 @@ export default {
         protocolId: this.protocolId,
         formulaId: null,
         trigger: null
-      }
+      },
+      newFeatureTab: false
     }
   },
   methods: {
@@ -186,6 +222,7 @@ export default {
     },
     addFeature() {
       this.$store.dispatch('protocols/addNewFeature', this.newFeature)
+      this.newFeatureTab = true
     }
   }
 
@@ -193,6 +230,6 @@ export default {
 </script>
 
 <style lang="scss">
-  @import "src/css/oa.global";
+@import "src/css/oa.global";
 
 </style>
