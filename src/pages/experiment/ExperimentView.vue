@@ -66,7 +66,7 @@
               <q-btn size="sm" color="primary" label="Edit"/>
             </div>
             <div class="row justify-end action-button">
-              <q-btn size="sm" color="primary" label="Delete"/>
+              <q-btn size="sm" color="primary" label="Delete" @click="deletedialog = true"/>
             </div>
             <div class="row justify-end action-button">
               <q-btn size="sm" color="primary" label="Add Tag" @click="prompt = true"/>
@@ -106,6 +106,29 @@
         <q-card-actions align="right" class="text-primary">
           <q-btn flat label="Cancel" v-close-popup/>
           <q-btn flat label="Add tag" v-close-popup @click="onClick"/>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="deletedialog" persistent>
+      <q-card style="min-width: 30vw">
+        <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
+          Delete Experiment
+        </q-card-section>
+        <q-card-section>
+          <div class="row">
+            <div class="col-2 row items-center">
+              <q-avatar icon="delete" color="primary" text-color="white" />
+            </div>
+            <div class="col-10">
+              <span>Type <span style="font-weight: bold">{{experiment.name}}</span> and press the button to confirm:</span><br/>
+              <q-input dense v-model="experimentName" autofocus />
+            </div>
+          </div>
+        </q-card-section>
+        <q-card-actions align="right" class="text-primary">
+          <q-btn flat label="Cancel" v-close-popup/>
+          <q-btn label="Delete experiment" color="accent" v-if="experiment.name==experimentName" v-close-popup @click="deleteExperiment"/>
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -162,6 +185,12 @@ export default {
       }
 
       this.$store.dispatch('experiments/tagExperiment', tagInfo)
+    },
+    deleteExperiment() {
+      console.log(this.experimentId)
+      //this.router.push(window.location.origin + '/project/' + this.project.id)
+      this.$store.dispatch('experiments/deleteExperiment',this.experimentId)
+      console.log(window.location.origin + '/project/' + this.project.id)
     }
   },
   setup() {
@@ -188,7 +217,9 @@ export default {
   data() {
     return {
       experimentTag: ref(""),
-      prompt: ref(false)
+      prompt: ref(false),
+      experimentName: ref(""),
+      deletedialog: ref(false)
     }
   }
 }

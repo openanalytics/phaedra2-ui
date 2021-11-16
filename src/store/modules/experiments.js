@@ -79,7 +79,15 @@ const actions = {
             .then(response => {
                 ctx.commit('cacheRecentExperiments', response.data)
             })
+    },
+    async deleteExperiment(ctx,id) {
+        await axios.delete('http://localhost:6010/phaedra/plate-service/experiment/' + id)
+            .then(response => {
+                console.log(response.data)
+                ctx.commit('deleteExperiment',id)
+            })
     }
+
 }
 
 const mutations = {
@@ -93,6 +101,9 @@ const mutations = {
     },
     cacheRecentExperiments(state, recentExperiments) {
         state.recentExperiments = recentExperiments
+    },
+    deleteExperiment(state, id){
+        state.experiments = state.experiments.filter(exp => exp.id !== id)
     },
     addTags(state, tags) {
         for (let i = 0; i < tags.length; i++) {
