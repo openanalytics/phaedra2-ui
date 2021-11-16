@@ -201,6 +201,10 @@ export default {
         linkedOn: new Date()
       }
       this.$store.dispatch('plates/addMeasurement', plateMeasurement)
+    },
+    //Change delete onclick to this function to let it work
+    deletePlate() {
+      this.$store.dispatch('plates/deletePlate', this.plate)
     }
   },
   setup() {
