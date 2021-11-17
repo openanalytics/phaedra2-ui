@@ -185,6 +185,7 @@ export default {
     store.dispatch('plates/loadById', plateId);
 
     const plate = computed(() => store.getters['plates/getCurrentPlate']());
+    store.dispatch('plates/loadPlateTags', plateId)
     const experiment = computed(() => store.getters['experiments/getById'](plate.value.experimentId));
     const project = computed(() => store.getters['projects/getById'](experiment.value.projectId));
 
