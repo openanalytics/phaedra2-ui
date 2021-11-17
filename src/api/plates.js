@@ -39,5 +39,18 @@ export default {
                     result = response.data;
             });
         return result;
+    },
+    async addPlate(plate){
+        console.log('Making a backend call ...');
+        let result = null;
+        const requestUrl = 'http://localhost:6010/phaedra/plate-service/plate';
+        await axios.post(requestUrl, plate)
+            .then(response => {
+                if (response.status === 200)
+                    result = response.data;
+            });
+        console.log(result)
+        return result;
     }
+
 }

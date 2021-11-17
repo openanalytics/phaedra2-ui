@@ -77,7 +77,7 @@
       </div>
     </div>
 
-    <div class="q-pa-md">
+    <div class="q-pa-md" v-if="!newPlateTab">
       <q-tabs
           v-model="activeTab"
           inline-label dense no-caps
@@ -89,7 +89,32 @@
         <q-route-tab :to="'/experiment/' + experiment.id + '/heatmaps'" icon="view_module" label="Heatmaps"/>
       </q-tabs>
       <div class="row oa-section-body">
-        <router-view class="router-view" :experiment="experiment"></router-view>
+        <router-view class="router-view" :experiment="experiment" @message="newPlateTab=true"></router-view>
+      </div>
+    </div>
+
+    <div class="q-pa-md" v-if="newPlateTab">
+      <div class="row text-h6 items-center q-px-md oa-section-title">
+        <q-icon name="edit" class="q-pr-sm"/>
+        New Plate
+      </div>
+      <div class="row col-12 q-pa-md oa-section-body">
+        <div class="row" style="min-width: 90vw">
+          <div class="col col-5">
+            <q-input v-model="newPlate.barcode" square autofocus label="Barcode"></q-input>
+            <q-input v-model="newPlate.description" square label="Description"></q-input><br>
+            <q-btn flat label="Cancel" color="primary" @click="newPlateTab = false"/>
+
+          </div>
+          <div class="col col-1">
+
+          </div>
+          <div class="col col-4">
+            <q-input v-model="newPlate.rows" square label="Rows"></q-input>
+            <q-input v-model="newPlate.columns" square label="Columns"></q-input><br>
+            <q-btn align="right" label="Add plate" v-close-popup color="primary" @click="createNewPlate"/>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -161,6 +186,12 @@ export default {
       }
 
       this.$store.dispatch('experiments/tagExperiment', tagInfo)
+    },
+    createNewPlate(){
+      this.newPlate.sequence = "1"
+      this.newPlate.experimentId = this.experimentId
+      this.$store.dispatch('plates/createNewPlate',this.newPlate)
+      this.newPlateTab = false
     }
   },
   setup() {
@@ -187,7 +218,16 @@ export default {
   data() {
     return {
       experimentTag: ref(""),
-      prompt: ref(false)
+      prompt: ref(false),
+      newPlateTab: ref(false),
+      newPlate: {
+        barcode: null,
+        description: null,
+        rows: null,
+        columns: null,
+        sequence: null,
+        experimentId: null
+      }
     }
   }
 }
