@@ -134,13 +134,10 @@
     <q-dialog v-model="showDeleteDialog">
       <q-card style="min-width: 30vw">
         <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
-          Delete Project
+          <q-avatar icon="delete" color="primary" text-color="white"/> Delete Project
         </q-card-section>
         <q-card-section>
           <div class="row">
-              <div class="col-2 row items-center">
-                <q-avatar icon="delete" color="primary" text-color="white" />
-              </div>
               <div class="col-10">
                 <span>Are you sure you want to delete the project <b>{{project.name}}</b>?</span><br/>
                 <span>Type <b>{{project.name}}</b> and press the button to confirm.</span>

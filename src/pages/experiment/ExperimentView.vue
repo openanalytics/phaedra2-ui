@@ -113,14 +113,12 @@
     <q-dialog v-model="deletedialog" persistent>
       <q-card style="min-width: 30vw">
         <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
-          Delete Experiment
+          <q-avatar icon="delete" color="primary" text-color="white"/> Delete Experiment
         </q-card-section>
         <q-card-section>
           <div class="row">
-            <div class="col-2 row items-center">
-              <q-avatar icon="delete" color="primary" text-color="white"/>
-            </div>
             <div class="col-10">
+              <span>Are you sure you want to delete the experiment <b>{{experiment.name}}</b>?</span><br/>
               <span>Type <span
                   style="font-weight: bold">{{ experiment.name }}</span> and press the button to confirm:</span><br/>
               <q-input dense v-model="experimentName" autofocus/><br>

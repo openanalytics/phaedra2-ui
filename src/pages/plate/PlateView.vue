@@ -113,14 +113,12 @@
     <q-dialog v-model="deletedialog" persistent>
       <q-card style="min-width: 30vw">
         <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
-          Delete Plate
+          <q-avatar icon="delete" color="primary" text-color="white"/> Delete Plate
         </q-card-section>
         <q-card-section>
           <div class="row">
-            <div class="col-2 row items-center">
-              <q-avatar icon="delete" color="primary" text-color="white"/>
-            </div>
             <div class="col-10">
+              <span>Are you sure you want to delete the plate <b>{{plate.name}}</b>?</span><br/>
               <span>Type <span style="font-weight: bold">{{plate.barcode }}</span> and press the button to confirm:</span><br/>
               <q-input dense v-model="plateName" autofocus/>
               <br>
@@ -131,7 +129,7 @@
         <q-card-actions align="right" class="text-primary">
           <q-btn flat label="Cancel" v-close-popup/>
           <q-btn label="Delete experiment" color="accent" v-if="plate.barcode==plateName" v-close-popup
-                 @click="deleteExperiment"/>
+                 @click="deletePlate"/>
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -204,7 +202,10 @@ export default {
     },
     //Change delete onclick to this function to let it work
     deletePlate() {
-      this.$store.dispatch('plates/deletePlate', this.plate)
+      console.log(this.plate)
+      this.$store.dispatch('plates/deletePlate', this.plate.id).then( () => {
+        this.$router.push({name: 'experiment', params: {id: this.experiment.id}})
+      })
     }
   },
   setup() {
