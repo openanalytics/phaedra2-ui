@@ -45,40 +45,35 @@
             </div>
 
             <div class="col-4">
-              <div class="row">
-                <div class="col-2 text-weight-bold">Properties:</div>
-                <div class="col">
-                  <q-table
-                      dense
-                      :rows="project.properties"
-                      :columns="propertyColumns"
-                      table-header-class="text-grey"
-                      row-key="key"
-                      hide-pagination
-                  >
-                    <template v-slot:no-data>
-                      <div class="full-width row text-info">
-                        <span>No properties</span>
-                      </div>
-                    </template>
-                  </q-table>
-                  <div class="row">
-                    <q-btn label="Add"/>
-                    <q-btn label="Delete"/>
-                  </div>
+              <div class="row q-pb-sm text-weight-bold">Properties:</div>
+              <div class="row-cols-auto q-pb-sm ful">
+                <q-table :rows="properties"
+                         :columns="propertyColumns"
+                         class="full-width"
+                         table-header-class="text-grey"
+                         row-key="propertyName"
+                         selection="multiple"
+                         v-model:selected="selectedProperties"
+                         no-data-label="No properties"
+                         hide-pagination
+                         dense
+                />
                 </div>
-              </div>
+              <div class="row justify-end">
+                  <q-btn label="Add" size="sm" class="oa-button-tag" @click="showNewPropertyDialog = true"/>
+                  <q-btn label="Delete" size="sm" class="oa-button-delete"/>
+                </div>
             </div>
 
             <div class="col-4">
               <div class="row justify-end action-button">
-                <q-btn size="sm" color="primary" icon="sell" label="Add Tag" style="width: 180px" @click="showAddTagDialog = true"/>
+                <q-btn size="sm" icon="sell" label="Add Tag" class="oa-button" @click="showAddTagDialog = true"/>
               </div>
               <div class="row justify-end action-button">
-                <q-btn size="sm" color="primary" icon="edit" label="Rename Project" style="width: 180px" @click="showRenameDialog = true"/>
+                <q-btn size="sm" icon="edit" label="Rename" class="oa-button" @click="showRenameDialog = true"/>
               </div>
               <div class="row justify-end action-button">
-                <q-btn size="sm" color="primary" icon="delete" label="Delete Project" style="width: 180px" @click="showDeleteDialog = true"/>
+                <q-btn size="sm" icon="delete" label="Delete" class="oa-button" @click="showDeleteDialog = true"/>
               </div>
             </div>
           </div>
@@ -108,6 +103,31 @@
         <q-card-actions align="right" class="text-primary">
           <q-btn flat label="Cancel" v-close-popup />
           <q-btn label="Add tag" v-close-popup color="primary" @click="doAddTag" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="showNewPropertyDialog">
+      <q-card style="min-width: 30vw">
+        <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
+          Add new project property
+        </q-card-section>
+        <q-card-section>
+          <div class="row">
+<!--            <div class="col-2 row items-center">-->
+<!--              <q-avatar icon="pr" color="primary" text-color="white" />-->
+<!--            </div>-->
+            <div class="col full-width">
+              <span>Property name:</span><br/>
+              <q-input dense v-model="newProperty.name" @keyup.enter="showNewPropertyDialog = false" />
+              <span>Property value:</span><br/>
+              <q-input dense v-model="newProperty.value" @keyup.enter="showNewPropertyDialog = false" />
+            </div>
+          </div>
+        </q-card-section>
+        <q-card-actions align="right" class="text-primary">
+          <q-btn label="Cancel" v-close-popup flat/>
+          <q-btn label="Save" v-close-popup class="oa-button" @click="doAddProperty" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -171,9 +191,18 @@
   import FormatUtils from "@/lib/FormatUtils.js"
 
   const propertyColumns = [
-    {name: 'key', align: 'left', label: 'Name', field: 'key', sortable: true},
-    {name: 'value', align: 'left', label: 'Value', field: 'value', sortable: true}
+    {name: 'propertyName', align: 'left', label: 'Name', field: 'propertyName', sortable: true},
+    {name: 'propertyValue', align: 'left', label: 'Value', field: 'propertyValue', sortable: true}
   ]
+
+  const properties = [
+    {propertyName: "Property 1", propertyValue: "property 1 value"},
+    {propertyName: "Property 2", propertyValue: "property 2 value"},
+    {propertyName: "Property 3", propertyValue: "property 3 value"},
+    {propertyName: "Property 4", propertyValue: "property 4 value"}
+  ]
+
+  const selectedProperties = ref([]);
 
   export default {
     components: {
@@ -182,24 +211,37 @@
     },
 
     setup() {
-      const store = useStore()
-      const route = useRoute()
-      const router = useRouter()
+      const store = useStore();
+      const route = useRoute();
+      const router = useRouter();
 
       const projectId = parseInt(route.params.id);
-      const project = computed(() => store.getters['projects/getById'](projectId))
-      store.dispatch('projects/loadById', projectId)
-      store.dispatch('projects/loadProjectsTags', projectId)
+      const project = computed(() => store.getters['projects/getById'](projectId));
+      store.dispatch('projects/loadById', projectId);
+      store.dispatch('projects/loadProjectsTags', projectId);
 
-      const showAddTagDialog = ref(false)
-      const newProjectTag = ref('')
+      const showAddTagDialog = ref(false);
+      const newProjectTag = ref('');
       const doAddTag = function() {
         const tagInfo = {
           objectId: project.value.id,
           objectClass: "PROJECT",
           tag: newProjectTag.value
         }
-        store.dispatch('projects/tagProject', tagInfo)
+        store.dispatch('projects/tagProject', tagInfo);
+      }
+
+      const showNewPropertyDialog = ref(false);
+      const newProperty = ref({name: '', value: ''});
+      const doAddProperty = function () {
+        const propertyInfo = {
+          objectId: project.value.id,
+          objectClass: "PROJECT",
+          propertyName: newProperty.value.name,
+          propertyValue: newProperty.value.value
+        }
+        properties.push(propertyInfo);
+        // store.dispatch('projects/addNewProperty', propertyInfo);
       }
 
       const showRenameDialog = ref(false)
@@ -222,10 +264,16 @@
         projectId,
         project,
         propertyColumns,
+        properties,
+        selectedProperties,
 
         showAddTagDialog,
         newProjectTag,
         doAddTag,
+
+        showNewPropertyDialog,
+        newProperty,
+        doAddProperty,
 
         showRenameDialog,
         newProjectName,

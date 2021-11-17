@@ -46,6 +46,12 @@
   text-decoration: none;
 }
 
+.oa-button {
+  background-color: $primary;
+  color: $secondary;
+  width: 150px;
+}
+
 .oa-button-edit, .oa-button-delete, .oa-button-tag {
-  width: 100px;
+  @extend .oa-button;
 }
