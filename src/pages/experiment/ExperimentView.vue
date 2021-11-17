@@ -8,15 +8,14 @@
 
   <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
     <div class="q-pa-md">
-
+      
       <div class="text-h6 q-px-sm oa-section-title" v-if="!experiment">
         Loading experiment...
       </div>
 
       <div v-else>
         <div class="row text-h6 items-center q-px-sm oa-section-title">
-          <q-icon name="science" class="on-left"/>
-          {{ experiment.name }}
+          <q-icon name="science" class="on-left"/>{{ experiment.name }}
         </div>
 
         <div class="row q-pa-md oa-section-body">
@@ -64,13 +63,13 @@
 
           <div class="col-4">
             <div class="row justify-end action-button">
-              <q-btn size="sm" color="primary" label="Edit"/>
+              <q-btn size="sm" color="primary" class="oa-button-edit" label="Edit"/>
             </div>
             <div class="row justify-end action-button">
-              <q-btn size="sm" color="primary" label="Delete" @click="deletedialog = true"/>
+              <q-btn size="sm" color="primary" class="oa-button-delete" label="Delete" @click="deletedialog = true"/>
             </div>
             <div class="row justify-end action-button">
-              <q-btn size="sm" color="primary" label="Add Tag" @click="prompt = true"/>
+              <q-btn size="sm" color="primary" class="oa-button-tag" label="Add Tag" @click="prompt = true"/>
             </div>
           </div>
 
@@ -78,7 +77,7 @@
       </div>
     </div>
 
-    <div class="q-pa-md" v-if="experiment">
+    <div class="q-pa-md">
       <q-tabs
           v-model="activeTab"
           inline-label dense no-caps
