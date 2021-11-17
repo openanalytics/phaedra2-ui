@@ -6,7 +6,7 @@
 
   <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
     <div class="q-pa-md">
-      
+
       <div class="text-h6 q-px-sm oa-section-title" v-if="!project">
           Loading project...
       </div>
@@ -62,6 +62,10 @@
                       </div>
                     </template>
                   </q-table>
+                  <div class="row">
+                    <q-btn label="Add"/>
+                    <q-btn label="Delete"/>
+                  </div>
                 </div>
               </div>
             </div>
