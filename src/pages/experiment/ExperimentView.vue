@@ -95,7 +95,7 @@
 
     <div class="q-pa-md" v-if="newPlateTab">
       <div class="row text-h6 items-center q-px-md oa-section-title">
-        <q-icon name="edit" class="q-pr-sm"/>
+        <q-icon name="add" class="q-pr-sm"/>
         New Plate
       </div>
       <div class="row col-12 q-pa-md oa-section-body">
