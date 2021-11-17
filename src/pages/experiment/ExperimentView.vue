@@ -63,13 +63,13 @@
 
           <div class="col-4">
             <div class="row justify-end action-button">
-              <q-btn size="sm" color="primary" label="Edit"/>
+              <q-btn size="sm" color="primary" class="oa-button-edit" label="Edit"/>
             </div>
             <div class="row justify-end action-button">
-              <q-btn size="sm" color="primary" label="Delete"/>
+              <q-btn size="sm" color="primary" class="oa-button-delete" label="Delete"/>
             </div>
             <div class="row justify-end action-button">
-              <q-btn size="sm" color="primary" label="Add Tag" @click="prompt = true"/>
+              <q-btn size="sm" color="primary" class="oa-button-tag" label="Add Tag" @click="prompt = true"/>
             </div>
           </div>
 
@@ -126,7 +126,6 @@
 .experiment-body {
   margin: 10px;
 }
-
 .action-button {
   margin: 3px;
 }
