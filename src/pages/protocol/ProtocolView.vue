@@ -221,6 +221,7 @@ export default {
       this.$store.dispatch('protocols/tagProtocol', tagInfo)
     },
     addFeature() {
+      this.newFeature.formulaId = 0
       this.$store.dispatch('protocols/addNewFeature', this.newFeature)
       this.newFeatureTab = true
     }
