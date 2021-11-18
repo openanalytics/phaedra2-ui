@@ -68,13 +68,13 @@
 
             <div class="col-4">
               <div class="row justify-end action-button">
-                <q-btn size="sm" color="primary" icon="sell" label="Add Tag" style="width: 180px" @click="showAddTagDialog = true"/>
+                <q-btn size="sm" color="primary" icon="edit" align="between" class="oa-button-edit" label="Rename Project" @click="showRenameDialog = true"/>
               </div>
               <div class="row justify-end action-button">
-                <q-btn size="sm" color="primary" icon="edit" label="Rename Project" style="width: 180px" @click="showRenameDialog = true"/>
+                <q-btn size="sm" color="primary" icon="delete" align="between" class="oa-button-delete" label="Delete Project" @click="showDeleteDialog = true"/>
               </div>
               <div class="row justify-end action-button">
-                <q-btn size="sm" color="primary" icon="delete" label="Delete Project" style="width: 180px" @click="showDeleteDialog = true"/>
+                <q-btn size="sm" color="primary" icon="sell" align="between" class="oa-button-tag" label="Add Tag" @click="showAddTagDialog = true"/>
               </div>
             </div>
           </div>
