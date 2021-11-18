@@ -200,10 +200,8 @@ export default {
       }
       this.$store.dispatch('plates/addMeasurement', plateMeasurement)
     },
-    //Change delete onclick to this function to let it work
     deletePlate() {
-      console.log(this.plate)
-      this.$store.dispatch('plates/deletePlate', this.plate.id).then( () => {
+      this.$store.dispatch('plates/deletePlate', this.plate).then( () => {
         this.$router.push({name: 'experiment', params: {id: this.experiment.id}})
       })
     }
