@@ -118,7 +118,7 @@
         <q-card-section>
           <div class="row">
             <div class="col-10">
-              <span>Are you sure you want to delete the plate <b>{{plate.name}}</b>?</span><br/>
+              <span>Are you sure you want to delete the plate <b>{{plate.barcode}}</b>?</span><br/>
               <span>Type <span style="font-weight: bold">{{plate.barcode }}</span> and press the button to confirm:</span><br/>
               <q-input dense v-model="plateName" autofocus/>
               <br>
@@ -128,8 +128,10 @@
         </q-card-section>
         <q-card-actions align="right" class="text-primary">
           <q-btn flat label="Cancel" v-close-popup/>
-          <q-btn label="Delete experiment" color="accent" v-if="plate.barcode==plateName" v-close-popup
+          <router-link :to="'/experiment/' + experiment.id" class="nav-link">
+            <q-btn label="Delete experiment" color="accent" v-if="plate.barcode==plateName" v-close-popup
                  @click="deletePlate"/>
+          </router-link>
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -201,9 +203,7 @@ export default {
       this.$store.dispatch('plates/addMeasurement', plateMeasurement)
     },
     deletePlate() {
-      this.$store.dispatch('plates/deletePlate', this.plate).then( () => {
-        this.$router.push({name: 'experiment', params: {id: this.experiment.id}})
-      })
+      this.$store.dispatch('plates/deletePlate', this.plate)
     }
   },
   setup() {
