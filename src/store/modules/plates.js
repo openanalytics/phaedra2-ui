@@ -99,7 +99,10 @@ const mutations = {
         });
     },
     cacheNewPlate(state, plate){
-        if(!containsPlate(state,plate)) state.plates.push(plate)
+        if(!containsPlate(state,plate)) {
+            state.plates.push(plate)
+            state.platesInExperiment[plate.experimentId].push(plate)
+        }
     },
     addTags(state, tags) {
         for (let i = 0; i < tags.length; i++) {
