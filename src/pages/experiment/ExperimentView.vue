@@ -77,7 +77,7 @@
       </div>
     </div>
 
-    <div class="q-pa-md" v-if="!newPlateTab">
+    <div class="q-pa-md">
       <q-tabs
           v-model="activeTab"
           inline-label dense no-caps

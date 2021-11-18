@@ -44,10 +44,12 @@ const actions = {
         ctx.commit('cachePlate', plate)
     },
     async createNewPlate(ctx, plate) {
-        await plateAPI.addPlate(plate);
-        let plates = await plateAPI.getPlatesByExperimentId(plate.experimentId)
-        let loadedPlate = getPlateByBarcode(plates,plate)
-        ctx.commit('cacheNewPlate', loadedPlate)
+        //const newPlate = await plateAPI.addPlate(plate)
+        //console.log(newPlate)
+        const response = await axios.post('http://localhost:6010/phaedra/plate-service/plate', plate)
+        const newPlate = response.data
+        ctx.commit('cacheNewPlate', newPlate)
+        return newPlate
     },
     async loadPlateTags(ctx, plateId) {
         await axios.get('http://localhost:6020/phaedra/metadata-service/tagged_objects/PLATE',
@@ -97,7 +99,7 @@ const mutations = {
         });
     },
     cacheNewPlate(state, plate){
-        state.plates.push(plate)
+        if(!containsPlate(state,plate)) state.plates.push(plate)
     },
     addTags(state, tags) {
         for (let i = 0; i < tags.length; i++) {
@@ -130,14 +132,14 @@ function containsTagInfo(plate, tagInfo) {
     return plate.tags !== undefined && plate.tags.findIndex(t => t.tag === tagInfo.tag) > -1;
 }
 
-function getPlateByBarcode(plates, plate) {
-    for (var i = 0; i < plates.length; i++){
-        console.log(plates[i].id)
-        if (plates[i].barcode === plate.barcode) {
-            return plates[i];
+function containsPlate(state, plate) {
+    for (var i = 0; i < state.plates.length; i++){
+        console.log(plate)
+        if (state.plates[i].id === plate.id) {
+            return true;
         }
     }
-    return null;
+    return false;
 }
 
 export default {

@@ -46,11 +46,11 @@ export default {
         const requestUrl = 'http://localhost:6010/phaedra/plate-service/plate';
         await axios.post(requestUrl, plate)
             .then(response => {
-                if (response.status === 200)
+                if (response.status === 201)
                     result = response.data;
+                    console.log(result)
+                    return result
             });
-        console.log(result)
-        return result;
     }
 
 }
