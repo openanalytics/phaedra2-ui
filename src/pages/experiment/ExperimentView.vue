@@ -77,7 +77,7 @@
       </div>
     </div>
 
-    <div class="q-pa-md">
+    <div class="q-pa-md" v-if="!newPlateTab">
       <q-tabs
           v-model="activeTab"
           inline-label dense no-caps
@@ -184,7 +184,6 @@ export default {
         objectClass: "EXPERIMENT",
         tag: this.experimentTag
       }
-
       this.$store.dispatch('experiments/tagExperiment', tagInfo)
     },
     createNewPlate(){
