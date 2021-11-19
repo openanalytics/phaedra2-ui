@@ -50,7 +50,7 @@
                 <q-table :rows="properties"
                          :columns="propertyColumns"
                          class="full-width"
-                         table-header-class="text-grey"
+                         table-header-class="bg-secondary"
                          row-key="propertyName"
                          selection="multiple"
                          v-model:selected="selectedProperties"
