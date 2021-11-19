@@ -129,7 +129,7 @@
         <q-card-actions align="right" class="text-primary">
           <q-btn flat label="Cancel" v-close-popup/>
           <router-link :to="'/experiment/' + experiment.id" class="nav-link">
-            <q-btn label="Delete experiment" color="accent" v-if="plate.barcode==plateName" v-close-popup
+            <q-btn label="Delete plate" color="accent" v-if="plate.barcode==plateName" v-close-popup
                  @click="deletePlate"/>
           </router-link>
         </q-card-actions>

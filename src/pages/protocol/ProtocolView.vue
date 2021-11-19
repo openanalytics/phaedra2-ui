@@ -126,7 +126,7 @@
     <q-dialog v-model="deletedialog" persistent>
       <q-card style="min-width: 30vw">
         <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
-          <q-avatar icon="delete" color="primary" text-color="white"/> Delete Experiment
+          <q-avatar icon="delete" color="primary" text-color="white"/> Delete Protocol
         </q-card-section>
         <q-card-section>
           <div class="row">
@@ -141,7 +141,7 @@
         </q-card-section>
         <q-card-actions align="right" class="text-primary">
           <q-btn flat label="Cancel" v-close-popup/>
-          <q-btn label="Delete experiment" color="accent" v-if="protocol.name==protocolName" v-close-popup
+          <q-btn label="Delete protocol" color="accent" v-if="protocol.name==protocolName" v-close-popup
                  @click="deleteProtocol"/>
         </q-card-actions>
       </q-card>
