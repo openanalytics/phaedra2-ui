@@ -43,9 +43,7 @@ export default {
     async deletePlateById(plateId) {
         console.log('Making a backend call...');
         let result = null;
-        console.log(plateId)
         const requestUrl = 'http://localhost:6010/phaedra/plate-service/plate/' + plateId;
-        console.log(requestUrl)
         await axios.delete(requestUrl)
             .then(response => {
                 if (response.status === 200)

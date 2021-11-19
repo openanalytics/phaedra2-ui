@@ -49,7 +49,7 @@
             <q-btn size="sm" color="primary" class="oa-button-edit" label="Edit"/>
           </div>
           <div class="row justify-end action-button">
-            <q-btn size="sm" color="primary" class="oa-button-delete" label="Delete"/>
+            <q-btn size="sm" color="primary" class="oa-button-delete" label="Delete" @click="deletedialog=true"/>
           </div>
           <div class="row justify-end action-button">
             <q-btn size="sm" color="primary" class="oa-button-tag" label="Add Tag" @click="prompt = true"/>
@@ -119,6 +119,30 @@
         <q-card-actions align="right" class="text-primary">
           <q-btn flat label="Cancel" v-close-popup/>
           <q-btn flat label="Add tag" v-close-popup @click="onClick"/>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="deletedialog" persistent>
+      <q-card style="min-width: 30vw">
+        <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
+          <q-avatar icon="delete" color="primary" text-color="white"/> Delete Experiment
+        </q-card-section>
+        <q-card-section>
+          <div class="row">
+            <div class="col-10">
+              <span>Are you sure you want to delete the protocol <b>{{protocol.name}}</b>?</span><br/>
+              <span>Type <span
+                  style="font-weight: bold">{{ protocol.name }}</span> and press the button to confirm:</span><br/>
+              <q-input dense v-model="protocolName" autofocus/><br>
+              <span class="text-accent">WARNING: The protocol, features and associated data will be deleted!</span>
+            </div>
+          </div>
+        </q-card-section>
+        <q-card-actions align="right" class="text-primary">
+          <q-btn flat label="Cancel" v-close-popup/>
+          <q-btn label="Delete experiment" color="accent" v-if="protocol.name==protocolName" v-close-popup
+                 @click="deleteProtocol"/>
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -207,7 +231,9 @@ export default {
         formulaId: null,
         trigger: null
       },
-      newFeatureTab: false
+      newFeatureTab: false,
+      protocolName: ref(""),
+      deletedialog: ref(false),
     }
   },
   methods: {
@@ -224,6 +250,11 @@ export default {
       this.newFeature.formulaId = 0
       this.$store.dispatch('protocols/addNewFeature', this.newFeature)
       this.newFeatureTab = true
+    },
+    deleteProtocol() {
+      this.$store.dispatch('protocols/deleteProtocol', this.protocol).then(() => {
+        this.$router.push({name: 'dashboard'})
+      })
     }
   }
 
