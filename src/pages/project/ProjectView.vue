@@ -134,22 +134,21 @@
     <q-dialog v-model="showDeleteDialog">
       <q-card style="min-width: 30vw">
         <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
-          Delete Project
+          <q-avatar icon="delete" color="primary" text-color="white"/> Delete Project
         </q-card-section>
         <q-card-section>
           <div class="row">
-              <div class="col-2 row items-center">
-                <q-avatar icon="delete" color="primary" text-color="white" />
-              </div>
               <div class="col-10">
                 <span>Are you sure you want to delete the project <b>{{project.name}}</b>?</span><br/>
+                <span>Type <b>{{project.name}}</b> and press the button to confirm.</span>
+                <q-input dense v-model="projectName" autofocus/><br>
                 <span class="text-weight-bold text-negative">WARNING: All experiments, plates and associated data will be deleted!</span>
               </div>
           </div>
         </q-card-section>
         <q-card-actions align="right">
           <q-btn flat label="Cancel" color="primary" v-close-popup />
-          <q-btn label="Delete" color="negative" v-close-popup @click="doDeleteProject"/>
+          <q-btn label="Delete project" color="negative" v-if="project.name == projectName" v-close-popup @click="doDeleteProject"/>
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -231,6 +230,11 @@
         doDeleteProject,
 
         FormatUtils
+      }
+    },
+    data(){
+      return {
+        projectName: ref(""),
       }
     }
   }

@@ -80,6 +80,12 @@ const actions = {
                     ctx.commit('addMeasurement', response.data);
                 }
             });
+    },
+    async deletePlate(ctx, plate) {
+        await plateAPI.deletePlateById(plate.id)
+            .then(() => {
+                ctx.commit('deletePlate', plate)
+            })
     }
 }
 
@@ -124,7 +130,12 @@ const mutations = {
     },
     addMeasurement(state, plateMeasurement) {
         state.currentPlate?.measurements ? state.currentPlate.measurements.push(plateMeasurement) : state.currentPlate.measurements = [plateMeasurement];
-    }
+    },
+    deletePlate(state, pl){
+        state.plates = state.plates.filter(plate => plate.id !== pl.id)
+        let i = state.platesInExperiment[pl.experimentId].findIndex(t => t.id === pl.id);
+        state.platesInExperiment[pl.experimentId].splice(i, 1);
+    },
 }
 
 function containsTagInfo(plate, tagInfo) {

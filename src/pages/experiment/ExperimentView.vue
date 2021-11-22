@@ -66,7 +66,7 @@
               <q-btn size="sm" color="primary" icon="edit" class="oa-button-edit" label="Edit"/>
             </div>
             <div class="row justify-end action-button">
-              <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete"/>
+              <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete" @click="deletedialog = true"/>
             </div>
             <div class="row justify-end action-button">
               <q-btn size="sm" color="primary" icon="sell" class="oa-button-tag" label="Add Tag" @click="prompt = true"/>
@@ -77,7 +77,7 @@
       </div>
     </div>
 
-    <div class="q-pa-md" v-if="!newPlateTab">
+    <div class="q-pa-md" v-if="experiment">
       <q-tabs
           v-model="activeTab"
           inline-label dense no-caps
@@ -134,6 +134,30 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <q-dialog v-model="deletedialog" persistent>
+      <q-card style="min-width: 30vw">
+        <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
+          <q-avatar icon="delete" color="primary" text-color="white"/> Delete Experiment
+        </q-card-section>
+        <q-card-section>
+          <div class="row">
+            <div class="col-10">
+              <span>Are you sure you want to delete the experiment <b>{{experiment.name}}</b>?</span><br/>
+              <span>Type <span
+                  style="font-weight: bold">{{ experiment.name }}</span> and press the button to confirm:</span><br/>
+              <q-input dense v-model="experimentName" autofocus/><br>
+              <span class="text-accent">WARNING: The experiment, plates and associated data will be deleted!</span>
+            </div>
+          </div>
+        </q-card-section>
+        <q-card-actions align="right" class="text-primary">
+          <q-btn flat label="Cancel" v-close-popup/>
+          <q-btn label="Delete experiment" color="accent" v-if="experiment.name==experimentName" v-close-popup
+                 @click="deleteExperiment"/>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -151,6 +175,7 @@
 .experiment-body {
   margin: 10px;
 }
+
 .action-button {
   margin: 3px;
 }
@@ -184,6 +209,7 @@ export default {
         objectClass: "EXPERIMENT",
         tag: this.experimentTag
       }
+
       this.$store.dispatch('experiments/tagExperiment', tagInfo)
     },
     createNewPlate(){
@@ -191,6 +217,14 @@ export default {
       this.newPlate.experimentId = this.experimentId
       this.$store.dispatch('plates/createNewPlate',this.newPlate)
       this.newPlateTab = false
+    },
+    deleteExperiment() {
+      const id = this.project.id
+      //disable experiment to stop page from loading experiment data and causing undefined errors
+      this.experiment = false
+      this.$store.dispatch('experiments/deleteExperiment', this.experimentId).then(() => {
+        this.$router.push({name: 'project', params: {id: id}})
+      })
     }
   },
   setup() {
@@ -226,7 +260,9 @@ export default {
         columns: null,
         sequence: null,
         experimentId: null
-      }
+      },
+      experimentName: ref(""),
+      deletedialog: ref(false),
     }
   }
 }
