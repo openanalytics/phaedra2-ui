@@ -59,6 +59,19 @@ export default {
                 console.log(error);
             });
         return result;
+    },
+    async editPlate(newPlate) {
+        console.log('Making a backend call...');
+        let result = null;
+        await axios.put('http://localhost:6010/phaedra/plate-service/plate/', newPlate)
+            .then(response => {
+                if (response.status === 200)
+                    result = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result;
     }
 
 }
