@@ -40,6 +40,12 @@ export default {
             });
         return result;
     },
+    async addPlate(plate){
+        console.log('Making a backend call ...');
+        const response = await axios.post('http://localhost:6010/phaedra/plate-service/plate', plate)
+        const newPlate = response.data
+        return newPlate
+    },
     async deletePlateById(plateId) {
         console.log('Making a backend call...');
         let result = null;

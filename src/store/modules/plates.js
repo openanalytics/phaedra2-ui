@@ -43,6 +43,10 @@ const actions = {
         plate.measurements = await plateAPI.getPlateMeasurementsByPlateId(id);
         ctx.commit('cachePlate', plate)
     },
+    async createNewPlate(ctx, plate) {
+        const newPlate = await plateAPI.addPlate(plate)
+        ctx.commit('cacheNewPlate', newPlate)
+    },
     async loadPlateTags(ctx, plateId) {
         await axios.get('http://localhost:6020/phaedra/metadata-service/tagged_objects/PLATE',
             {params: {objectId: plateId}})
@@ -96,6 +100,12 @@ const mutations = {
             }
         });
     },
+    cacheNewPlate(state, plate){
+        if(!containsPlate(state,plate)) {
+            state.plates.push(plate)
+            state.platesInExperiment[plate.experimentId].push(plate)
+        }
+    },
     addTags(state, tags) {
         for (let i = 0; i < tags.length; i++) {
             var plate = state.plates.find(p => p.id === tags[i].objectId);
@@ -130,6 +140,15 @@ const mutations = {
 
 function containsTagInfo(plate, tagInfo) {
     return plate.tags !== undefined && plate.tags.findIndex(t => t.tag === tagInfo.tag) > -1;
+}
+
+function containsPlate(state, plate) {
+    for (var i = 0; i < state.plates.length; i++){
+        if (state.plates[i].id === plate.id) {
+            return true;
+        }
+    }
+    return false;
 }
 
 export default {
