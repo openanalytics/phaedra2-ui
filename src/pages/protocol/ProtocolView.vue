@@ -96,9 +96,9 @@
           </div>
           <div class="col col-4">
             <q-select v-model="newFeature.type" square label="Type" :options="featureTypes"></q-select>
-            <q-input v-model="newFeature.sequence" square label="Sequence"></q-input>
-            <q-select v-model="newFeature.formulaId" square label="Formula" :options="formulas" option-value="id"
+            <q-select v-model="newFeature.formulaId" square label="Formula" :options="formulas.filter(formula => formula.category === newFeature.type)" option-value="id"
                       option-label="name"></q-select>
+            <q-input v-model="newFeature.sequence" square label="Sequence"></q-input>
             <q-input v-model="newFeature.trigger" square label="Trigger"></q-input><br>
             <q-btn align="right" label="Add feature" v-close-popup color="primary" @click="addFeature"/>
           </div>
@@ -207,7 +207,7 @@ export default {
     store.dispatch('protocols/loadProtocolsTags', protocolId)
 
     const formulas = computed(() => store.getters['calculations/getFormulas']())
-
+    console.log(formulas)
     return {
       protocolId,
       protocol,
@@ -247,9 +247,9 @@ export default {
       this.$store.dispatch('protocols/tagProtocol', tagInfo)
     },
     addFeature() {
-      this.newFeature.formulaId = 0
+      this.newFeature.formulaId = this.newFeature.formulaId.id
       this.$store.dispatch('protocols/addNewFeature', this.newFeature)
-      this.newFeatureTab = true
+      this.newFeatureTab = false
     },
     deleteProtocol() {
       this.$store.dispatch('protocols/deleteProtocol', this.protocol).then(() => {
