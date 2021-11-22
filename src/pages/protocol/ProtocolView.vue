@@ -1,13 +1,14 @@
 <template>
   <q-breadcrumbs class="breadcrumb" v-if="protocol">
-    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}" />
-    <q-breadcrumbs-el :label="protocol.name" icon="ballot" />
+    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
+    <q-breadcrumbs-el :label="protocol.name" icon="ballot"/>
   </q-breadcrumbs>
 
   <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
     <div class="q-pa-md">
       <div class="row text-h6 items-center q-px-md oa-section-title">
-        <q-icon name="ballot" class="q-pr-sm"/>{{ protocol.name }}
+        <q-icon name="ballot" class="q-pr-sm"/>
+        {{ protocol.name }}
       </div>
 
       <div class="row col-4 q-pa-md oa-section-body">
@@ -48,7 +49,7 @@
             <q-btn size="sm" color="primary" class="oa-button-edit" label="Edit"/>
           </div>
           <div class="row justify-end action-button">
-            <q-btn size="sm" color="primary" class="oa-button-delete" label="Delete"/>
+            <q-btn size="sm" color="primary" class="oa-button-delete" label="Delete" @click="deletedialog=true"/>
           </div>
           <div class="row justify-end action-button">
             <q-btn size="sm" color="primary" class="oa-button-tag" label="Add Tag" @click="prompt = true"/>
@@ -57,20 +58,52 @@
       </div>
     </div>
 
-    <div class="q-pa-md">
+    <div class="q-pa-md" v-if="!newFeatureTab">
       <div class="row text-h6 items-center q-px-md oa-section-title">
-        <q-icon name="functions" class="q-pr-sm"/>Features
+        <q-icon name="functions" class="q-pr-sm"/>
+        Features
       </div>
       <q-table square>
         <template v-slot:top-right>
-          <q-btn color="primary" label="Add Feature..." @click="openFeatureDialog = true"></q-btn>
+          <q-btn color="primary" label="Add Feature..." @click="newFeatureTab = true"></q-btn>
         </template>
         <template v-slot:no-data>
-            <div class="full-width row text-info">
-                <span>No features to show.</span>
-            </div>
+          <div class="full-width row text-info">
+            <span>No features to show.</span>
+          </div>
         </template>
       </q-table>
+    </div>
+
+    <div class="q-pa-md" v-if="newFeatureTab">
+      <div class="row text-h6 items-center q-px-md oa-section-title">
+        <q-icon name="edit" class="q-pr-sm"/>
+        New Feature
+      </div>
+      <div class="row col-12 q-pa-md oa-section-body">
+        <q-card-section class="row" style="min-width: 100vw">
+          <div class="col col-5">
+            <q-input v-model="newFeature.name" square autofocus label="Name"></q-input>
+            <q-input v-model="newFeature.alias" square label="Alias"></q-input>
+            <q-input v-model="newFeature.description" square label="Description"></q-input>
+            <q-input v-model="newFeature.format" square label="Format" placeholder="#.##"
+                     style="width: 100px"></q-input><br>
+            <q-btn flat label="Cancel" color="primary" @click="newFeatureTab = false"/>
+
+          </div>
+          <div class="col col-1">
+
+          </div>
+          <div class="col col-4">
+            <q-select v-model="newFeature.type" square label="Type" :options="featureTypes"></q-select>
+            <q-input v-model="newFeature.sequence" square label="Sequence"></q-input>
+            <q-select v-model="newFeature.formulaId" square label="Formula" :options="formulas" option-value="id"
+                      option-label="name"></q-select>
+            <q-input v-model="newFeature.trigger" square label="Trigger"></q-input><br>
+            <q-btn align="right" label="Add feature" v-close-popup color="primary" @click="addFeature"/>
+          </div>
+        </q-card-section>
+      </div>
     </div>
 
     <q-dialog v-model="prompt" persistent>
@@ -80,20 +113,44 @@
         </q-card-section>
 
         <q-card-section>
-          <q-input dense v-model="protocolTag" autofocus @keyup.enter="prompt = false" />
+          <q-input dense v-model="protocolTag" autofocus @keyup.enter="prompt = false"/>
         </q-card-section>
 
         <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="Cancel" v-close-popup />
-          <q-btn flat label="Add tag" v-close-popup @click="onClick" />
+          <q-btn flat label="Cancel" v-close-popup/>
+          <q-btn flat label="Add tag" v-close-popup @click="onClick"/>
         </q-card-actions>
       </q-card>
     </q-dialog>
 
-    <q-dialog v-model="openFeatureDialog" persistent class="q-gutter-sm">
+    <q-dialog v-model="deletedialog" persistent>
+      <q-card style="min-width: 30vw">
+        <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
+          <q-avatar icon="delete" color="primary" text-color="white"/> Delete Protocol
+        </q-card-section>
+        <q-card-section>
+          <div class="row">
+            <div class="col-10">
+              <span>Are you sure you want to delete the protocol <b>{{protocol.name}}</b>?</span><br/>
+              <span>Type <span
+                  style="font-weight: bold">{{ protocol.name }}</span> and press the button to confirm:</span><br/>
+              <q-input dense v-model="protocolName" autofocus/><br>
+              <span class="text-accent">WARNING: The protocol, features and associated data will be deleted!</span>
+            </div>
+          </div>
+        </q-card-section>
+        <q-card-actions align="right" class="text-primary">
+          <q-btn flat label="Cancel" v-close-popup/>
+          <q-btn label="Delete protocol" color="accent" v-if="protocol.name==protocolName" v-close-popup
+                 @click="deleteProtocol"/>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <!--<q-dialog v-model="openFeatureDialog" persistent class="q-gutter-sm">
       <q-card style="min-width: 800px">
         <q-card-section>
-          <div class="text-h6">Add new feature: </div>
+          <div class="text-h6">Add new feature:</div>
         </q-card-section>
 
         <q-card-section class="row">
@@ -101,7 +158,8 @@
             <q-input v-model="newFeature.name" square autofocus label="Name"></q-input>
             <q-input v-model="newFeature.alias" square label="Alias"></q-input>
             <q-input v-model="newFeature.description" square label="Description"></q-input>
-            <q-input v-model="newFeature.format" square label="Format" placeholder="#.##" style="width: 100px"></q-input>
+            <q-input v-model="newFeature.format" square label="Format" placeholder="#.##"
+                     style="width: 100px"></q-input>
           </div>
           <div class="col col-1">
 
@@ -109,17 +167,18 @@
           <div class="col col-4">
             <q-select v-model="newFeature.type" square label="Type" :options="featureTypes"></q-select>
             <q-input v-model="newFeature.sequence" square label="Sequence"></q-input>
-            <q-select v-model="newFeature.formulaId" square label="Formula" :options="formulas" option-value="id" option-label="name"></q-select>
+            <q-select v-model="newFeature.formulaId" square label="Formula" :options="formulas" option-value="id"
+                      option-label="name"></q-select>
             <q-input v-model="newFeature.trigger" square label="Trigger"></q-input>
           </div>
         </q-card-section>
 
         <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="Cancel" v-close-popup color="primary" />
-          <q-btn label="Add feature" v-close-popup color="primary" @click="addFeature" />
+          <q-btn flat label="Cancel" v-close-popup color="primary"/>
+          <q-btn label="Add feature" v-close-popup color="primary" @click="addFeature"/>
         </q-card-actions>
       </q-card>
-    </q-dialog>
+    </q-dialog>-->
 
   </q-page>
 </template>
@@ -171,7 +230,10 @@ export default {
         protocolId: this.protocolId,
         formulaId: null,
         trigger: null
-      }
+      },
+      newFeatureTab: false,
+      protocolName: ref(""),
+      deletedialog: ref(false),
     }
   },
   methods: {
@@ -185,7 +247,14 @@ export default {
       this.$store.dispatch('protocols/tagProtocol', tagInfo)
     },
     addFeature() {
+      this.newFeature.formulaId = 0
       this.$store.dispatch('protocols/addNewFeature', this.newFeature)
+      this.newFeatureTab = true
+    },
+    deleteProtocol() {
+      this.$store.dispatch('protocols/deleteProtocol', this.protocol).then(() => {
+        this.$router.push({name: 'dashboard'})
+      })
     }
   }
 
@@ -193,6 +262,6 @@ export default {
 </script>
 
 <style lang="scss">
-  @import "src/css/oa.global";
+@import "src/css/oa.global";
 
 </style>

@@ -67,7 +67,7 @@
               <q-btn size="sm" color="primary" class="oa-button-edit" label="Edit"/>
             </div>
             <div class="row justify-end action-button">
-              <q-btn size="sm" color="primary" class="oa-button-delete" label="Delete"/>
+              <q-btn size="sm" color="primary" class="oa-button-delete" label="Delete" @click="deletedialog = true"/>
             </div>
             <div class="row justify-end action-button">
               <q-btn size="sm" color="primary" class="oa-button-tag" label="Add Tag" @click="prompt = true"/>
@@ -106,6 +106,32 @@
         <q-card-actions align="right" class="text-primary">
           <q-btn flat label="Cancel" v-close-popup/>
           <q-btn flat label="Add tag" v-close-popup @click="onClick"/>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="deletedialog" persistent>
+      <q-card style="min-width: 30vw">
+        <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
+          <q-avatar icon="delete" color="primary" text-color="white"/> Delete Plate
+        </q-card-section>
+        <q-card-section>
+          <div class="row">
+            <div class="col-10">
+              <span>Are you sure you want to delete the plate <b>{{plate.barcode}}</b>?</span><br/>
+              <span>Type <span style="font-weight: bold">{{plate.barcode }}</span> and press the button to confirm:</span><br/>
+              <q-input dense v-model="plateName" autofocus/>
+              <br>
+              <span class="text-accent">WARNING: The plate and associated data will be deleted!</span>
+            </div>
+          </div>
+        </q-card-section>
+        <q-card-actions align="right" class="text-primary">
+          <q-btn flat label="Cancel" v-close-popup/>
+          <router-link :to="'/experiment/' + experiment.id" class="nav-link">
+            <q-btn label="Delete plate" color="accent" v-if="plate.barcode==plateName" v-close-popup
+                 @click="deletePlate"/>
+          </router-link>
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -175,6 +201,9 @@ export default {
         linkedOn: new Date()
       }
       this.$store.dispatch('plates/addMeasurement', plateMeasurement)
+    },
+    deletePlate() {
+      this.$store.dispatch('plates/deletePlate', this.plate)
     }
   },
   setup() {
@@ -207,7 +236,9 @@ export default {
   data() {
     return {
       plateTag: ref(""),
-      prompt: ref(false)
+      prompt: ref(false),
+      plateName: ref(""),
+      deletedialog: ref(false)
     }
   }
 }
