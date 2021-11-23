@@ -63,7 +63,7 @@
 
           <div class="col-4">
             <div class="row justify-end action-button">
-              <q-btn size="sm" color="primary" icon="edit" class="oa-button-edit" label="Edit"/>
+              <q-btn size="sm" color="primary" icon="edit" class="oa-button-edit" label="Edit" @click="editdialog = true"/>
             </div>
             <div class="row justify-end action-button">
               <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete" @click="deletedialog = true"/>
@@ -158,6 +158,31 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <q-dialog v-model="editdialog" persistent class="q-gutter-sm">
+      <q-card style="min-width: 800px">
+        <q-card-section>
+          <div class="text-h6">Edit experiment:</div>
+        </q-card-section>
+
+        <q-card-section class="row">
+          <div class="col col-6">
+            <q-input v-model="editedExperiment.name" square autofocus label="Name"></q-input>
+          </div>
+          <div class="col col-1">
+
+          </div>
+          <div class="col col-5">
+            <q-input v-model="editedExperiment.description" square label="Description"></q-input>
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right" class="text-primary">
+          <q-btn flat label="Cancel" v-close-popup color="primary"/>
+          <q-btn label="Edit plate" v-close-popup color="primary" @click="editExperiment"/>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -225,6 +250,10 @@ export default {
       this.$store.dispatch('experiments/deleteExperiment', this.experimentId).then(() => {
         this.$router.push({name: 'project', params: {id: id}})
       })
+    },
+    editExperiment() {
+      this.editedExperiment.id = this.experimentId
+      this.$store.dispatch('experiments/editExperiment', this.editedExperiment)
     }
   },
   setup() {
@@ -263,6 +292,11 @@ export default {
       },
       experimentName: ref(""),
       deletedialog: ref(false),
+      editdialog:ref(false),
+      editedExperiment: {
+        name: null,
+        description: null
+      }
     }
   }
 }

@@ -1,4 +1,4 @@
-// import experimentAPI from '@/api/experiments.js'
+import experimentAPI from '@/api/experiments.js'
 import axios from "axios";
 
 const state = () => ({
@@ -85,6 +85,16 @@ const actions = {
             .then(response => {
                 console.log(response.data)
                 ctx.commit('deleteExperiment',id)
+            })
+    },
+    async editExperiment(ctx, experiment) {
+        await experimentAPI.editExperiment(experiment)
+            .then(() =>{
+                ctx.commit('deleteExperiment',experiment.id)
+            })
+        await experimentAPI.getExperiment(experiment.id)
+            .then(result => {
+                ctx.commit('cacheExperiment',result)
             })
     }
 

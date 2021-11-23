@@ -1,3 +1,5 @@
+import axios from "axios";
+
 const demoExperiments = [
     {
         id: 1, name: 'Experiment 1', projectId: 1, description: 'This is experiment 1', createdOn: new Date(),
@@ -34,7 +36,34 @@ export default {
         return demoExperiments.sort((e1, e2) => {
             return e1.createdOn.getTime() - e2.createdOn.getTime();
         })
+    },
+    async editExperiment(newExperiment) {
+        console.log('Making a backend call...');
+        let result = null;
+        await axios.put('http://localhost:6010/phaedra/plate-service/experiment/', newExperiment)
+            .then(response => {
+                if (response.status === 200)
+                    result = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result;
+    },
+    async getExperiment(id) {
+        console.log('Making a backend call...');
+        let result = null;
+        await axios.get('http://localhost:6010/phaedra/plate-service/experiment/' + id)
+            .then(response => {
+                if (response.status === 200)
+                    result = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result;
     }
+
 }
 
 function wait(ms) {
