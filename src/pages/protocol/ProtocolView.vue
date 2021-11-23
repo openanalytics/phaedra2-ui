@@ -46,7 +46,7 @@
         </div>
         <div class="col col-6">
           <div class="row justify-end action-button">
-            <q-btn size="sm" color="primary" icon="edit" class="oa-button-edit" label="Edit"/>
+            <q-btn size="sm" color="primary" icon="edit" class="oa-button-edit" label="Edit" @click="editdialog = true"/>
           </div>
           <div class="row justify-end action-button">
             <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete" @click="deletedialog = true"/>
@@ -147,6 +147,33 @@
       </q-card>
     </q-dialog>
 
+    <q-dialog v-model="editdialog" persistent class="q-gutter-sm">
+      <q-card style="min-width: 800px">
+        <q-card-section>
+          <div class="text-h6">Edit protocol:</div>
+        </q-card-section>
+
+        <q-card-section class="row">
+          <div class="col col-6">
+            <q-input v-model="editedProtocol.name" square autofocus label="Name"></q-input>
+          </div>
+          <div class="col col-1">
+
+          </div>
+          <div class="col col-5">
+            <q-input v-model="editedProtocol.description" square label="Description"></q-input>
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right" class="text-primary">
+          <q-btn flat label="Cancel" v-close-popup color="primary"/>
+          <router-link :to="'/protocol/' + protocol.id" class="nav-link">
+            <q-btn label="Edit protocol" v-close-popup color="primary" @click="editProtocol" />
+          </router-link>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
     <!--<q-dialog v-model="openFeatureDialog" persistent class="q-gutter-sm">
       <q-card style="min-width: 800px">
         <q-card-section>
@@ -234,6 +261,11 @@ export default {
       newFeatureTab: false,
       protocolName: ref(""),
       deletedialog: ref(false),
+      editdialog: ref(false),
+      editedProtocol: {
+        name: null,
+        description: null
+      }
     }
   },
   methods: {
@@ -255,6 +287,15 @@ export default {
       this.$store.dispatch('protocols/deleteProtocol', this.protocol).then(() => {
         this.$router.push({name: 'dashboard'})
       })
+    },
+    editProtocol() {
+      //Should pass full protocol for put request
+      this.editedProtocol.id = this.protocol.id
+      this.editedProtocol.editable = this.protocol.editable
+      this.editedProtocol.inDevelopment = this.protocol.inDevelopment
+      this.editedProtocol.lowWelltype = this.protocol.lowWelltype
+      this.editedProtocol.highWelltype = this.protocol.highWelltype
+      this.$store.dispatch('protocols/editProtocol', this.editedProtocol)
     }
   }
 
