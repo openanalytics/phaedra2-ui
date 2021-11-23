@@ -40,6 +40,7 @@ const actions = {
     async loadById(ctx, id) {
         await axios.get('http://localhost:6010/phaedra/plate-service/experiment/' + id)
             .then(response => {
+                console.log('loadbyid')
                 ctx.commit('cacheExperiment', response.data)
             })
     },
@@ -91,10 +92,7 @@ const actions = {
         await experimentAPI.editExperiment(experiment)
             .then(() =>{
                 ctx.commit('deleteExperiment',experiment.id)
-            })
-        await experimentAPI.getExperiment(experiment.id)
-            .then(result => {
-                ctx.commit('cacheExperiment',result)
+                ctx.commit('cacheExperiment',experiment)
             })
     }
 

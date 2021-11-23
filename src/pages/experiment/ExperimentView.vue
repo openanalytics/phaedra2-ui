@@ -179,7 +179,9 @@
 
         <q-card-actions align="right" class="text-primary">
           <q-btn flat label="Cancel" v-close-popup color="primary"/>
-          <q-btn label="Edit plate" v-close-popup color="primary" @click="editExperiment"/>
+          <router-link :to="'/experiment/' + experiment.id" class="nav-link">
+            <q-btn label="Edit plate" v-close-popup color="primary" @click="editExperiment" />
+          </router-link>
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -253,6 +255,7 @@ export default {
     },
     editExperiment() {
       this.editedExperiment.id = this.experimentId
+      this.editedExperiment.projectId = this.experiment.projectId
       this.$store.dispatch('experiments/editExperiment', this.editedExperiment)
     }
   },
