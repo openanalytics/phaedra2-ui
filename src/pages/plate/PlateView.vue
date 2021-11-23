@@ -64,7 +64,7 @@
 
           <div class="col col-4">
             <div class="row justify-end action-button">
-              <q-btn size="sm" color="primary" icon="edit" class="oa-button-edit" label="Edit" @click="editdialog = true"/>
+              <q-btn size="sm" color="primary" icon="edit" class="oa-button-edit" label="Edit" @click.stop="editdialog = true"/>
             </div>
             <div class="row justify-end action-button">
               <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete" @click="deletedialog = true"/>
@@ -136,7 +136,8 @@
       </q-card>
     </q-dialog>
 
-    <q-dialog v-model="editdialog" persistent class="q-gutter-sm">
+    <plateEdit :visible="editdialog" @close="editdialog=false"></plateEdit>
+    <!--<q-dialog v-model="editdialog" persistent class="q-gutter-sm">
       <q-card style="min-width: 800px">
         <q-card-section>
           <div class="text-h6">Edit plate:</div>
@@ -159,7 +160,7 @@
           <q-btn label="Edit plate" v-close-popup color="primary" @click="editPlate"/>
         </q-card-actions>
       </q-card>
-    </q-dialog>
+    </q-dialog>-->
   </q-page>
 </template>
 
@@ -197,6 +198,7 @@ import {useStore} from 'vuex'
 import {useRoute} from 'vue-router'
 
 import Tag from "@/components/tag/Tag";
+import plateEdit from "./plateEdit";
 
 const propertyColumns = [
   {name: 'key', align: 'left', label: 'Name', field: 'key', sortable: true},
@@ -206,7 +208,8 @@ const propertyColumns = [
 export default {
   name: 'Plate',
   components: {
-    Tag
+    Tag,
+    plateEdit
   },
   methods: {
     onClick() {
@@ -271,7 +274,7 @@ export default {
       prompt: ref(false),
       plateName: ref(""),
       deletedialog: ref(false),
-      editdialog: ref(false),
+      editdialog: false,
       editedPlate: {
         barcode: null,
         description: null
