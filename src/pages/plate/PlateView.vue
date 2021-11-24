@@ -11,7 +11,7 @@
       <div class="text-h6 q-px-sm oa-section-title" v-if="!plate">
         Loading plate...
       </div>
-      <div v-else>
+      <div v-if="plate && !editdialog">
         <div class="row text-h6 items-center q-px-sm oa-section-title">
           <q-icon name="view_module" class="q-mr-sm"/>
           {{ plate.barcode }}
@@ -77,6 +77,8 @@
       </div>
     </div>
 
+    <plateEdit v-model:show="editdialog" v-model:plate="plate"></plateEdit>
+
     <div class="q-pa-md" v-if="plate">
       <q-tabs
           inline-label dense no-caps
@@ -135,7 +137,6 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-    <plateEdit v-model:show="editdialog"></plateEdit>
   </q-page>
 </template>
 
