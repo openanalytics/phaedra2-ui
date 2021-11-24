@@ -5,7 +5,7 @@
   </q-breadcrumbs>
 
   <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
-    <div class="q-pa-md">
+    <div class="q-pa-md" v-if="!editdialog">
       <div class="row text-h6 items-center q-px-md oa-section-title">
         <q-icon name="ballot" class="q-pr-sm"/>
         {{ protocol.name }}
@@ -57,6 +57,8 @@
         </div>
       </div>
     </div>
+
+    <ProtocolEdit v-model:show="editdialog" v-model:protocol="protocol"></ProtocolEdit>
 
     <div class="q-pa-md" v-if="!newFeatureTab">
       <div class="row text-h6 items-center q-px-md oa-section-title">
@@ -146,67 +148,6 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-
-    <q-dialog v-model="editdialog" persistent class="q-gutter-sm">
-      <q-card style="min-width: 800px">
-        <q-card-section>
-          <div class="text-h6">Edit protocol:</div>
-        </q-card-section>
-
-        <q-card-section class="row">
-          <div class="col col-6">
-            <q-input v-model="editedProtocol.name" square autofocus label="Name"></q-input>
-          </div>
-          <div class="col col-1">
-
-          </div>
-          <div class="col col-5">
-            <q-input v-model="editedProtocol.description" square label="Description"></q-input>
-          </div>
-        </q-card-section>
-
-        <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="Cancel" v-close-popup color="primary"/>
-          <router-link :to="'/protocol/' + protocol.id" class="nav-link">
-            <q-btn label="Edit protocol" v-close-popup color="primary" @click="editProtocol" />
-          </router-link>
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-
-    <!--<q-dialog v-model="openFeatureDialog" persistent class="q-gutter-sm">
-      <q-card style="min-width: 800px">
-        <q-card-section>
-          <div class="text-h6">Add new feature:</div>
-        </q-card-section>
-
-        <q-card-section class="row">
-          <div class="col col-7">
-            <q-input v-model="newFeature.name" square autofocus label="Name"></q-input>
-            <q-input v-model="newFeature.alias" square label="Alias"></q-input>
-            <q-input v-model="newFeature.description" square label="Description"></q-input>
-            <q-input v-model="newFeature.format" square label="Format" placeholder="#.##"
-                     style="width: 100px"></q-input>
-          </div>
-          <div class="col col-1">
-
-          </div>
-          <div class="col col-4">
-            <q-select v-model="newFeature.type" square label="Type" :options="featureTypes"></q-select>
-            <q-input v-model="newFeature.sequence" square label="Sequence"></q-input>
-            <q-select v-model="newFeature.formulaId" square label="Formula" :options="formulas" option-value="id"
-                      option-label="name"></q-select>
-            <q-input v-model="newFeature.trigger" square label="Trigger"></q-input>
-          </div>
-        </q-card-section>
-
-        <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="Cancel" v-close-popup color="primary"/>
-          <q-btn label="Add feature" v-close-popup color="primary" @click="addFeature"/>
-        </q-card-actions>
-      </q-card>
-    </q-dialog>-->
-
   </q-page>
 </template>
 
@@ -216,11 +157,13 @@ import {useRoute} from "vue-router";
 import {computed, ref} from "vue";
 
 import Tag from "@/components/tag/Tag";
+import ProtocolEdit from "./ProtocolEdit";
 
 export default {
   name: "ProtocolView",
   components: {
-    Tag
+    Tag,
+    ProtocolEdit
   },
   setup() {
     const store = useStore()
@@ -262,10 +205,6 @@ export default {
       protocolName: ref(""),
       deletedialog: ref(false),
       editdialog: ref(false),
-      editedProtocol: {
-        name: null,
-        description: null
-      }
     }
   },
   methods: {
@@ -287,15 +226,6 @@ export default {
       this.$store.dispatch('protocols/deleteProtocol', this.protocol).then(() => {
         this.$router.push({name: 'dashboard'})
       })
-    },
-    editProtocol() {
-      //Should pass full protocol for put request
-      this.editedProtocol.id = this.protocol.id
-      this.editedProtocol.editable = this.protocol.editable
-      this.editedProtocol.inDevelopment = this.protocol.inDevelopment
-      this.editedProtocol.lowWelltype = this.protocol.lowWelltype
-      this.editedProtocol.highWelltype = this.protocol.highWelltype
-      this.$store.dispatch('protocols/editProtocol', this.editedProtocol)
     }
   }
 
