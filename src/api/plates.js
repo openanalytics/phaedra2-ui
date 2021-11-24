@@ -39,5 +39,26 @@ export default {
                     result = response.data;
             });
         return result;
+    },
+    async addPlate(plate){
+        console.log('Making a backend call ...');
+        const response = await axios.post('http://localhost:6010/phaedra/plate-service/plate', plate)
+        const newPlate = response.data
+        return newPlate
+    },
+    async deletePlateById(plateId) {
+        console.log('Making a backend call...');
+        let result = null;
+        const requestUrl = 'http://localhost:6010/phaedra/plate-service/plate/' + plateId;
+        await axios.delete(requestUrl)
+            .then(response => {
+                if (response.status === 200)
+                    result = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result;
     }
+
 }

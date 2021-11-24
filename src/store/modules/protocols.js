@@ -76,13 +76,19 @@ const actions = {
                 console.log(response)
             })
     },
-    addNewFeature(ctx, newFeature) {
+    async addNewFeature(ctx, newFeature) {
         axios.post('http://localhost:6030/phaedra/protocol-service/features', newFeature)
             .then(response => {
                 if (response.status === 201) {
                     ctx.commit('addFeature', response.data);
                 }
                 console.log(response)
+            })
+    },
+    async deleteProtocol(ctx, protocol){
+        await protocolAPI.deleteProtocol(protocol)
+            .then(() => {
+                ctx.commit('deleteProtocol', protocol)
             })
     }
 }
@@ -128,6 +134,9 @@ const mutations = {
         const protocol = state.protocols.find(protocol => protocol.id === feature.protocolId)
         if (containsFeature(protocol, feature))
             protocol.features !== undefined ? protocol.features.push(feature) : protocol.features = [feature];
+    },
+    deleteProtocol(state, pr){
+        state.protocols = state.protocols.filter(protocol => protocol.id !== pr.id)
     }
 }
 

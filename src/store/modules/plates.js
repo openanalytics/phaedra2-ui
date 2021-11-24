@@ -43,6 +43,10 @@ const actions = {
         plate.measurements = await plateAPI.getPlateMeasurementsByPlateId(id);
         ctx.commit('cachePlate', plate)
     },
+    async createNewPlate(ctx, plate) {
+        const newPlate = await plateAPI.addPlate(plate)
+        ctx.commit('cacheNewPlate', newPlate)
+    },
     async loadPlateTags(ctx, plateId) {
         await axios.get('http://localhost:6020/phaedra/metadata-service/tagged_objects/PLATE',
             {params: {objectId: plateId}})
@@ -77,6 +81,12 @@ const actions = {
                 }
             });
     },
+    async deletePlate(ctx, plate) {
+        await plateAPI.deletePlateById(plate.id)
+            .then(() => {
+                ctx.commit('deletePlate', plate)
+            })
+    }
 }
 
 const mutations = {
@@ -89,6 +99,12 @@ const mutations = {
                 state.plates.push(plate)
             }
         });
+    },
+    cacheNewPlate(state, plate){
+        if(!containsPlate(state,plate)) {
+            state.plates.push(plate)
+            state.platesInExperiment[plate.experimentId].push(plate)
+        }
     },
     addTags(state, tags) {
         for (let i = 0; i < tags.length; i++) {
@@ -117,11 +133,25 @@ const mutations = {
     },
     addMeasurement(state, plateMeasurement) {
         state.currentPlate?.measurements ? state.currentPlate.measurements.push(plateMeasurement) : state.currentPlate.measurements = [plateMeasurement];
-    }
+    },
+    deletePlate(state, pl){
+        state.plates = state.plates.filter(plate => plate.id !== pl.id)
+        let i = state.platesInExperiment[pl.experimentId].findIndex(t => t.id === pl.id);
+        state.platesInExperiment[pl.experimentId].splice(i, 1);
+    },
 }
 
 function containsTagInfo(plate, tagInfo) {
     return plate.tags !== undefined && plate.tags.findIndex(t => t.tag === tagInfo.tag) > -1;
+}
+
+function containsPlate(state, plate) {
+    for (var i = 0; i < state.plates.length; i++){
+        if (state.plates[i].id === plate.id) {
+            return true;
+        }
+    }
+    return false;
 }
 
 export default {
