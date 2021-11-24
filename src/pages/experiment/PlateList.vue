@@ -33,12 +33,16 @@
     </template>
     <template v-slot:body-cell-status-validated="props">
       <q-td :props="props">
-        <q-icon name="check_circle" color="positive"/>
+        <q-icon v-if="validated===null" name="horizontal_rule"></q-icon>
+        <q-icon v-else-if="validated" name="check_circle" color="positive"/>
+        <q-icon v-else-if="!validated" name="cancel" color="negative"/>
       </q-td>
     </template>
     <template v-slot:body-cell-status-approved="props">
       <q-td :props="props">
-        <q-icon name="check_circle" color="positive"/>
+        <q-icon v-if="approved===null" name="horizontal_rule"></q-icon>
+        <q-icon v-else-if="approved" name="check_circle" color="positive"/>
+        <q-icon v-else-if="!approved" name="cancel" color="negative"/>
       </q-td>
     </template>
     <template v-slot:body-cell-layout="props">
@@ -52,6 +56,53 @@
           <q-badge color="green">
             {{ tag }}
           </q-badge>
+        </div>
+      </q-td>
+    </template>
+    <template v-slot:body-cell-menu="props">
+      <q-td :props="props">
+        <div class="row items-center cursor-pointer">
+          <q-btn flat round icon="more_horiz" style="border-radius: 50%;">
+            <q-menu fit>
+              <q-list style="min-width: 100px">
+                <q-item clickable v-if="!approved">
+                  <q-item-section>Validation</q-item-section>
+                  <q-item-section side>
+                    <q-icon name="keyboard_arrow_right" />
+                  </q-item-section>
+
+                  <q-menu anchor="top end" self="top start">
+                    <q-list>
+                      <q-item clickable @click="validated=true">
+                        <q-item-section>Validate</q-item-section>
+                      </q-item>
+                      <q-item clickable @click="validated=false">
+                        <q-item-section>Unvalidate</q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-menu>
+                </q-item>
+                <q-item v-if="validated" clickable>
+                  <q-item-section>Approval</q-item-section>
+                  <q-item-section side>
+                    <q-icon name="keyboard_arrow_right" />
+                  </q-item-section>
+
+                  <q-menu anchor="top end" self="top start">
+                    <q-list>
+                      <q-item clickable @click="approved=true">
+                        <q-item-section>Approve</q-item-section>
+                      </q-item>
+                      <q-item clickable @click="approved=false">
+                        <q-item-section>Unapprove</q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-menu>
+
+                </q-item>
+              </q-list>
+            </q-menu>
+          </q-btn>
         </div>
       </q-td>
     </template>
@@ -93,7 +144,8 @@ const columns = [
     sortable: true,
     format: val => val !== undefined ? `${val.toLocaleString()}` : ''
   },
-  {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true}
+  {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
+  {name: 'menu', align: 'left', field: 'menu', sortable: false}
 ]
 
 const filterMethod = function (rows, term) {
@@ -128,6 +180,12 @@ export default {
       filterMethod,
       loading,
       plates
+    }
+  },
+  data() {
+    return {
+      validated: null,
+      approved: null
     }
   }
 }
