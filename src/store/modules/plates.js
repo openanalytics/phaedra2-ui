@@ -91,8 +91,12 @@ const actions = {
         await plateAPI.editPlate(plate)
             .then(() => {
                 ctx.commit('deletePlate', plate)
-                ctx.commit('cacheNewPlate', plate)
-                ctx.commit('cachePlate', plate)
+            })
+        //To get all wells again, fetch plate from database
+        await plateAPI.getPlateById(plate.id)
+            .then(newPlate => {
+                ctx.commit('cacheNewPlate', newPlate)
+                ctx.commit('cachePlate', newPlate)
             })
     }
 }
