@@ -64,7 +64,7 @@
 
           <div class="col col-4">
             <div class="row justify-end action-button">
-              <q-btn size="sm" color="primary" icon="edit" class="oa-button-edit" label="Edit" @click.stop="editdialog = true"/>
+              <q-btn size="sm" color="primary" icon="edit" class="oa-button-edit" label="Edit" @click="editdialog = true"/>
             </div>
             <div class="row justify-end action-button">
               <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete" @click="deletedialog = true"/>
@@ -135,32 +135,7 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-
-    <plateEdit :visible="editdialog" @close="editdialog=false"></plateEdit>
-    <!--<q-dialog v-model="editdialog" persistent class="q-gutter-sm">
-      <q-card style="min-width: 800px">
-        <q-card-section>
-          <div class="text-h6">Edit plate:</div>
-        </q-card-section>
-
-        <q-card-section class="row">
-          <div class="col col-6">
-            <q-input v-model="editedPlate.barcode" square autofocus label="Barcode"></q-input>
-          </div>
-          <div class="col col-1">
-
-          </div>
-          <div class="col col-5">
-            <q-input v-model="editedPlate.description" square label="Description"></q-input>
-          </div>
-        </q-card-section>
-
-        <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="Cancel" v-close-popup color="primary"/>
-          <q-btn label="Edit plate" v-close-popup color="primary" @click="editPlate"/>
-        </q-card-actions>
-      </q-card>
-    </q-dialog>-->
+    <plateEdit v-model:show="editdialog"></plateEdit>
   </q-page>
 </template>
 
@@ -198,7 +173,7 @@ import {useStore} from 'vuex'
 import {useRoute} from 'vue-router'
 
 import Tag from "@/components/tag/Tag";
-import plateEdit from "./plateEdit";
+import PlateEdit from "./PlateEdit";
 
 const propertyColumns = [
   {name: 'key', align: 'left', label: 'Name', field: 'key', sortable: true},
@@ -209,7 +184,7 @@ export default {
   name: 'Plate',
   components: {
     Tag,
-    plateEdit
+    PlateEdit
   },
   methods: {
     onClick() {
@@ -232,13 +207,6 @@ export default {
     },
     deletePlate() {
       this.$store.dispatch('plates/deletePlate', this.plate)
-    },
-    editPlate() {
-      this.editedPlate.id = this.plate.id
-      this.editedPlate.experimentId = this.plate.experimentId
-      console.log(this.editedPlate)
-      this.$store.dispatch('plates/editPlate', this.editedPlate)
-      console.log(this.plate)
     }
   },
   setup() {
@@ -259,7 +227,6 @@ export default {
       }
     })
 
-
     return {
       plate,
       experiment,
@@ -275,10 +242,6 @@ export default {
       plateName: ref(""),
       deletedialog: ref(false),
       editdialog: false,
-      editedPlate: {
-        barcode: null,
-        description: null
-      }
     }
   }
 }

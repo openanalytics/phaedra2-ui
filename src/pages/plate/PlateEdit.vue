@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="editdialog" persistent class="q-gutter-sm">
+  <q-dialog v-model="props.show" persistent class="q-gutter-sm">
     <q-card style="min-width: 800px">
       <q-card-section>
         <div class="text-h6">Edit plate:</div>
@@ -16,9 +16,8 @@
           <q-input v-model="editedPlate.description" square label="Description"></q-input>
         </div>
       </q-card-section>
-
       <q-card-actions align="right" class="text-primary">
-        <q-btn flat label="Cancel" v-close-popup color="primary" @click.stop="editdialog=false"/>
+        <q-btn flat label="Cancel" v-close-popup color="primary" @click="$emit('update:show',false)"/>
         <q-btn label="Edit plate" v-close-popup color="primary" @click="editPlate"/>
       </q-card-actions>
     </q-card>
@@ -37,17 +36,18 @@ export default {
     editPlate() {
       this.editedPlate.id = this.plate.id
       this.editedPlate.experimentId = this.plate.experimentId
-      console.log(this.editedPlate)
       this.$store.dispatch('plates/editPlate', this.editedPlate)
-      console.log(this.plate)
-    }
+      this.$emit('update:show',false)
+    },
+    /*close() {
+      this.$emit('update:editdialog', false)
+    }*/
   },
-  setup() {
+  setup(props) {
     const store = useStore()
     const route = useRoute()
 
     const plateId = parseInt(route.params.id);
-    console.log('IDDDDD ' + plateId)
     store.dispatch('plates/loadById', plateId);
 
     const plate = computed(() => store.getters['plates/getCurrentPlate']());
@@ -60,7 +60,8 @@ export default {
     })
 
     return {
-      plate
+      plate,
+      props
     }
   },
   data() {
@@ -69,8 +70,10 @@ export default {
         barcode: null,
         description: null
       },
-      editdialog: true
+      editdialog: this.props.show
     }
-  }
+  },
+  props: ['show'],
+  emits: ['update:show']
 }
 </script>
