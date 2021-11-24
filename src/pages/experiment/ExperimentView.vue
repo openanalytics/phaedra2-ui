@@ -259,7 +259,9 @@ export default {
         rows: null,
         columns: null,
         sequence: null,
-        experimentId: null
+        experimentId: null,
+        validationStatus: "VALIDATION_NOT_SET",
+        approvalStatus: "APPROVAL_NOT_SET",
       },
       experimentName: ref(""),
       deletedialog: ref(false),
