@@ -166,16 +166,16 @@ export default {
       this.$emit("message")
     },
     validate(){
-
+      //put validationStatus: VALIDATED
     },
     unvalidate(){
-
+      //put validationStatus: UNVALIDATED
     },
     approve(){
-
+      //put approvalStatus: APPROVED
     },
     unapprove(){
-
+      //put approvalStatus: UNAPPROVED
     }
   },
   setup(props) {
