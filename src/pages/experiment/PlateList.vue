@@ -33,16 +33,16 @@
     </template>
     <template v-slot:body-cell-status-validated="props">
       <q-td :props="props">
-        <q-icon v-if="validated===null" name="horizontal_rule"></q-icon>
-        <q-icon v-else-if="validated" name="check_circle" color="positive"/>
-        <q-icon v-else-if="!validated" name="cancel" color="negative"/>
+        <q-icon v-if="props.row.validationStatus==='VALIDATION_NOT_SET'" name="horizontal_rule"></q-icon>
+        <q-icon v-else-if="props.row.validationStatus==='VALIDATED'" name="check_circle" color="positive"/>
+        <q-icon v-else-if="props.row.validationStatus==='INVALIDATED'" name="cancel" color="negative"/>
       </q-td>
     </template>
     <template v-slot:body-cell-status-approved="props">
       <q-td :props="props">
-        <q-icon v-if="approved===null" name="horizontal_rule"></q-icon>
-        <q-icon v-else-if="approved" name="check_circle" color="positive"/>
-        <q-icon v-else-if="!approved" name="cancel" color="negative"/>
+        <q-icon v-if="props.row.approvalStatus==='APPROVAL_NOT_SET'" name="horizontal_rule"></q-icon>
+        <q-icon v-else-if="props.row.approvalStatus==='APPROVED'" name="check_circle" color="positive"/>
+        <q-icon v-else-if="props.row.approvalStatus==='DISAPPROVED'" name="cancel" color="negative"/>
       </q-td>
     </template>
     <template v-slot:body-cell-layout="props">
