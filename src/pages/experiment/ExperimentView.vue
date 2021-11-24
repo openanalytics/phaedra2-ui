@@ -7,7 +7,7 @@
   </q-breadcrumbs>
 
   <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
-    <div class="q-pa-md">
+    <div class="q-pa-md" v-if="!editdialog">
       
       <div class="text-h6 q-px-sm oa-section-title" v-if="!experiment">
         Loading experiment...
@@ -76,6 +76,8 @@
         </div>
       </div>
     </div>
+
+    <experiment-edit v-model:show="editdialog" v-model:experiment="experiment"></experiment-edit>
 
     <div class="q-pa-md" v-if="experiment">
       <q-tabs
@@ -158,33 +160,6 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-
-    <q-dialog v-model="editdialog" persistent class="q-gutter-sm">
-      <q-card style="min-width: 800px">
-        <q-card-section>
-          <div class="text-h6">Edit experiment:</div>
-        </q-card-section>
-
-        <q-card-section class="row">
-          <div class="col col-6">
-            <q-input v-model="editedExperiment.name" square autofocus label="Name"></q-input>
-          </div>
-          <div class="col col-1">
-
-          </div>
-          <div class="col col-5">
-            <q-input v-model="editedExperiment.description" square label="Description"></q-input>
-          </div>
-        </q-card-section>
-
-        <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="Cancel" v-close-popup color="primary"/>
-          <router-link :to="'/experiment/' + experiment.id" class="nav-link">
-            <q-btn label="Edit experiment" v-close-popup color="primary" @click="editExperiment" />
-          </router-link>
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
   </q-page>
 </template>
 
@@ -218,6 +193,7 @@ import {useStore} from 'vuex'
 import {useRoute} from 'vue-router'
 
 import Tag from "@/components/tag/Tag";
+import ExperimentEdit from "./ExperimentEdit";
 
 const propertyColumns = [
   {name: 'key', align: 'left', label: 'Name', field: 'key', sortable: true},
@@ -227,7 +203,8 @@ const propertyColumns = [
 export default {
   name: 'Experiment',
   components: {
-    Tag
+    Tag,
+    ExperimentEdit
   },
   methods: {
     onClick() {
@@ -252,11 +229,6 @@ export default {
       this.$store.dispatch('experiments/deleteExperiment', this.experimentId).then(() => {
         this.$router.push({name: 'project', params: {id: id}})
       })
-    },
-    editExperiment() {
-      this.editedExperiment.id = this.experimentId
-      this.editedExperiment.projectId = this.experiment.projectId
-      this.$store.dispatch('experiments/editExperiment', this.editedExperiment)
     }
   },
   setup() {
@@ -295,11 +267,7 @@ export default {
       },
       experimentName: ref(""),
       deletedialog: ref(false),
-      editdialog:ref(false),
-      editedExperiment: {
-        name: null,
-        description: null
-      }
+      editdialog:ref(false)
     }
   }
 }
