@@ -31,6 +31,7 @@
 
 .oa-section-title2 {
   background-color: $secondary;
+  border-radius: 0px;
   color: $dark;
   width: 100%;
   height: fit-content;
@@ -50,6 +51,7 @@
   background-color: $primary;
   color: $secondary;
   width: 150px;
+  border-radius: 0px;
 }
 
 .oa-button-edit, .oa-button-delete, .oa-button-tag {
