@@ -1,7 +1,7 @@
 <template>
   <div class="q-pa-md" v-if="props.show">
-    <div class="text-h6 q-px-sm oa-section-title">
-      <q-icon name="edit" class="q-pr-sm"/>
+    <div class="row text-h6 items-center q-px-sm oa-section-title">
+      <q-icon name="edit" class="q-mr-sm"/>
       Edit Plate
     </div>
     <div class="row col-12 q-pa-md oa-section-body">

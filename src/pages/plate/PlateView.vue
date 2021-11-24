@@ -7,11 +7,11 @@
   </q-breadcrumbs>
 
   <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
-    <div class="q-pa-md">
+    <div class="q-pa-md" v-if="!editdialog">
       <div class="text-h6 q-px-sm oa-section-title" v-if="!plate">
         Loading plate...
       </div>
-      <div v-if="plate && !editdialog">
+      <div v-else>
         <div class="row text-h6 items-center q-px-sm oa-section-title">
           <q-icon name="view_module" class="q-mr-sm"/>
           {{ plate.barcode }}
