@@ -77,7 +77,7 @@
       </div>
     </div>
 
-    <experiment-edit v-model:show="editdialog" v-model:experiment="experiment"></experiment-edit>
+    <edit-experiment v-model:show="editdialog" v-model:experiment="experiment"></edit-experiment>
 
     <div class="q-pa-md" v-if="experiment">
       <q-tabs
@@ -193,7 +193,7 @@ import {useStore} from 'vuex'
 import {useRoute} from 'vue-router'
 
 import Tag from "@/components/tag/Tag";
-import ExperimentEdit from "./ExperimentEdit";
+import EditExperiment from "./EditExperiment";
 
 const propertyColumns = [
   {name: 'key', align: 'left', label: 'Name', field: 'key', sortable: true},
@@ -204,7 +204,7 @@ export default {
   name: 'Experiment',
   components: {
     Tag,
-    ExperimentEdit
+    EditExperiment
   },
   methods: {
     onClick() {

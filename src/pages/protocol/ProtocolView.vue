@@ -58,7 +58,7 @@
       </div>
     </div>
 
-    <ProtocolEdit v-model:show="editdialog" v-model:protocol="protocol"></ProtocolEdit>
+    <EditProtocol v-model:show="editdialog" v-model:protocol="protocol"></EditProtocol>
 
     <div class="q-pa-md" v-if="!newFeatureTab">
       <div class="row text-h6 items-center q-px-md oa-section-title">
@@ -157,13 +157,12 @@ import {useRoute} from "vue-router";
 import {computed, ref} from "vue";
 
 import Tag from "@/components/tag/Tag";
-import ProtocolEdit from "./ProtocolEdit";
-
+import EditProtocol from "./EditProtocol";
 export default {
   name: "ProtocolView",
   components: {
     Tag,
-    ProtocolEdit
+    EditProtocol
   },
   setup() {
     const store = useStore()

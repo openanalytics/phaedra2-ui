@@ -77,7 +77,7 @@
       </div>
     </div>
 
-    <plateEdit v-model:show="editdialog" v-model:plate="plate"></plateEdit>
+    <edit-plate v-model:show="editdialog" v-model:plate="plate"></edit-plate>
 
     <div class="q-pa-md" v-if="plate">
       <q-tabs
@@ -174,7 +174,7 @@ import {useStore} from 'vuex'
 import {useRoute} from 'vue-router'
 
 import Tag from "@/components/tag/Tag";
-import PlateEdit from "./PlateEdit";
+import EditPlate from "./EditPlate";
 
 const propertyColumns = [
   {name: 'key', align: 'left', label: 'Name', field: 'key', sortable: true},
@@ -185,7 +185,7 @@ export default {
   name: 'Plate',
   components: {
     Tag,
-    PlateEdit
+    EditPlate
   },
   methods: {
     onClick() {

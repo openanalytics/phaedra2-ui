@@ -27,7 +27,7 @@
 <script>
 
 export default {
-  name: 'ProtocolEdit',
+  name: 'EditProtocol',
   methods: {
     editProtocol() {
       //Should pass full protocol for put request
