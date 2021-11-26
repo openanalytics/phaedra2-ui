@@ -52,9 +52,16 @@ export default {
     },
     async getExperiment(id) {
         console.log('Making a backend call...');
-        //For some reason returns an 302 status code and does not stop the await
-        const response = await axios.get('http://localhost:6010/phaedra/plate-service/experiment/' + id)
-        return response.data
+        let result = null;
+        await axios.get('http://localhost:6010/phaedra/plate-service/experiment/' + id)
+            .then(response => {
+                if (response.status === 200 || response.status === 302)
+                    result = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result;
     }
 
 }
