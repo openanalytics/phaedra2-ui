@@ -1,4 +1,4 @@
-// import experimentAPI from '@/api/experiments.js'
+import experimentAPI from '@/api/experiments.js'
 import axios from "axios";
 
 const state = () => ({
@@ -40,6 +40,7 @@ const actions = {
     async loadById(ctx, id) {
         await axios.get('http://localhost:6010/phaedra/plate-service/experiment/' + id)
             .then(response => {
+                console.log('loadbyid')
                 ctx.commit('cacheExperiment', response.data)
             })
     },
@@ -85,6 +86,13 @@ const actions = {
             .then(response => {
                 console.log(response.data)
                 ctx.commit('deleteExperiment',id)
+            })
+    },
+    async editExperiment(ctx, experiment) {
+        await experimentAPI.editExperiment(experiment)
+            .then(() =>{
+                ctx.commit('deleteExperiment',experiment.id)
+                ctx.commit('cacheExperiment',experiment)
             })
     }
 
