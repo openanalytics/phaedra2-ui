@@ -5,7 +5,7 @@
   </q-breadcrumbs>
 
   <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
-    <div class="q-pa-md">
+    <div class="q-pa-md" v-if="!editdialog">
       <div class="row text-h6 items-center q-px-md oa-section-title">
         <q-icon name="ballot" class="q-pr-sm"/>
         {{ protocol.name }}
@@ -46,7 +46,7 @@
         </div>
         <div class="col col-6">
           <div class="row justify-end action-button">
-            <q-btn size="sm" color="primary" icon="edit" class="oa-button-edit" label="Edit"/>
+            <q-btn size="sm" color="primary" icon="edit" class="oa-button-edit" label="Edit" @click="editdialog = true"/>
           </div>
           <div class="row justify-end action-button">
             <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete" @click="deletedialog = true"/>
@@ -57,6 +57,8 @@
         </div>
       </div>
     </div>
+
+    <EditProtocol v-model:show="editdialog" v-model:protocol="protocol"></EditProtocol>
 
     <div class="q-pa-md" v-if="!newFeatureTab">
       <div class="row text-h6 items-center q-px-md oa-section-title">
@@ -96,9 +98,9 @@
           </div>
           <div class="col col-4">
             <q-select v-model="newFeature.type" square label="Type" :options="featureTypes"></q-select>
-            <q-input v-model="newFeature.sequence" square label="Sequence"></q-input>
-            <q-select v-model="newFeature.formulaId" square label="Formula" :options="formulas" option-value="id"
+            <q-select v-model="newFeature.formulaId" square label="Formula" :options="formulas.filter(formula => formula.category === newFeature.type)" option-value="id"
                       option-label="name"></q-select>
+            <q-input v-model="newFeature.sequence" square label="Sequence"></q-input>
             <q-input v-model="newFeature.trigger" square label="Trigger"></q-input><br>
             <q-btn align="right" label="Add feature" v-close-popup color="primary" @click="addFeature"/>
           </div>
@@ -146,40 +148,6 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-
-    <!--<q-dialog v-model="openFeatureDialog" persistent class="q-gutter-sm">
-      <q-card style="min-width: 800px">
-        <q-card-section>
-          <div class="text-h6">Add new feature:</div>
-        </q-card-section>
-
-        <q-card-section class="row">
-          <div class="col col-7">
-            <q-input v-model="newFeature.name" square autofocus label="Name"></q-input>
-            <q-input v-model="newFeature.alias" square label="Alias"></q-input>
-            <q-input v-model="newFeature.description" square label="Description"></q-input>
-            <q-input v-model="newFeature.format" square label="Format" placeholder="#.##"
-                     style="width: 100px"></q-input>
-          </div>
-          <div class="col col-1">
-
-          </div>
-          <div class="col col-4">
-            <q-select v-model="newFeature.type" square label="Type" :options="featureTypes"></q-select>
-            <q-input v-model="newFeature.sequence" square label="Sequence"></q-input>
-            <q-select v-model="newFeature.formulaId" square label="Formula" :options="formulas" option-value="id"
-                      option-label="name"></q-select>
-            <q-input v-model="newFeature.trigger" square label="Trigger"></q-input>
-          </div>
-        </q-card-section>
-
-        <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="Cancel" v-close-popup color="primary"/>
-          <q-btn label="Add feature" v-close-popup color="primary" @click="addFeature"/>
-        </q-card-actions>
-      </q-card>
-    </q-dialog>-->
-
   </q-page>
 </template>
 
@@ -189,11 +157,12 @@ import {useRoute} from "vue-router";
 import {computed, ref} from "vue";
 
 import Tag from "@/components/tag/Tag";
-
+import EditProtocol from "./EditProtocol";
 export default {
   name: "ProtocolView",
   components: {
-    Tag
+    Tag,
+    EditProtocol
   },
   setup() {
     const store = useStore()
@@ -207,7 +176,7 @@ export default {
     store.dispatch('protocols/loadProtocolsTags', protocolId)
 
     const formulas = computed(() => store.getters['calculations/getFormulas']())
-
+    console.log(formulas)
     return {
       protocolId,
       protocol,
@@ -234,6 +203,7 @@ export default {
       newFeatureTab: false,
       protocolName: ref(""),
       deletedialog: ref(false),
+      editdialog: ref(false),
     }
   },
   methods: {
@@ -247,9 +217,9 @@ export default {
       this.$store.dispatch('protocols/tagProtocol', tagInfo)
     },
     addFeature() {
-      this.newFeature.formulaId = 0
+      this.newFeature.formulaId = this.newFeature.formulaId.id
       this.$store.dispatch('protocols/addNewFeature', this.newFeature)
-      this.newFeatureTab = true
+      this.newFeatureTab = false
     },
     deleteProtocol() {
       this.$store.dispatch('protocols/deleteProtocol', this.protocol).then(() => {

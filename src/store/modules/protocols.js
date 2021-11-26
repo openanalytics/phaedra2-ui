@@ -90,6 +90,13 @@ const actions = {
             .then(() => {
                 ctx.commit('deleteProtocol', protocol)
             })
+    },
+    async editProtocol(ctx, protocol) {
+        await protocolAPI.editProtocol(protocol)
+            .then(() => {
+                ctx.commit('deleteProtocol', protocol)
+                ctx.commit('cacheProtocol', protocol)
+            })
     }
 }
 

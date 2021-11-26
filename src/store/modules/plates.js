@@ -86,6 +86,18 @@ const actions = {
             .then(() => {
                 ctx.commit('deletePlate', plate)
             })
+    },
+    async editPlate(ctx, plate) {
+        await plateAPI.editPlate(plate)
+            .then(() => {
+                ctx.commit('deletePlate', plate)
+            })
+        //To get all wells again, fetch plate from database
+        await plateAPI.getPlateById(plate.id)
+            .then(newPlate => {
+                ctx.commit('cacheNewPlate', newPlate)
+                ctx.commit('cachePlate', newPlate)
+            })
     }
 }
 
@@ -131,7 +143,7 @@ const mutations = {
     addMeasurement(state, plateMeasurement) {
         state.currentPlate?.measurements ? state.currentPlate.measurements.push(plateMeasurement) : state.currentPlate.measurements = [plateMeasurement];
     },
-    deletePlate(state, pl){
+    deletePlate(state, pl) {
         state.plates = state.plates.filter(plate => plate.id !== pl.id)
         let i = state.platesInExperiment[pl.experimentId].findIndex(t => t.id === pl.id);
         state.platesInExperiment[pl.experimentId].splice(i, 1);
