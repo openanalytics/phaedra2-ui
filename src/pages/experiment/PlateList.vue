@@ -65,35 +65,36 @@
           <q-btn flat round icon="more_horiz" style="border-radius: 50%;">
             <q-menu fit>
               <q-list style="min-width: 100px">
-                <q-item clickable v-if="props.row.approvalStatus==='APPROVAL_NOT_SET' && props.row.validationStatus!=='VALIDATED'">
+                <q-item clickable
+                        v-if="props.row.approvalStatus==='APPROVAL_NOT_SET'">
                   <q-item-section>Validation</q-item-section>
                   <q-item-section side>
-                    <q-icon name="keyboard_arrow_right" />
+                    <q-icon name="keyboard_arrow_right"/>
                   </q-item-section>
 
                   <q-menu anchor="top end" self="top start">
                     <q-list>
-                      <q-item clickable @click="validate">
+                      <q-item clickable v-if="props.row.validationStatus!=='VALIDATED'" @click="validate(props.row.id, props.row.experimentId)">
                         <q-item-section>Validate</q-item-section>
                       </q-item>
-                      <q-item clickable @click="unvalidate">
+                      <q-item clickable v-if="props.row.validationStatus==='VALIDATED'" @click="unvalidate(props.row.id, props.row.experimentId)">
                         <q-item-section>Unvalidate</q-item-section>
                       </q-item>
                     </q-list>
                   </q-menu>
                 </q-item>
-                <q-item v-if="props.row.validationStatus==='VALIDATED'" clickable>
+                <q-item v-if="props.row.validationStatus==='VALIDATED' && props.row.approvalStatus!=='DISAPPROVED'" clickable>
                   <q-item-section>Approval</q-item-section>
                   <q-item-section side>
-                    <q-icon name="keyboard_arrow_right" />
+                    <q-icon name="keyboard_arrow_right"/>
                   </q-item-section>
 
                   <q-menu anchor="top end" self="top start">
                     <q-list>
-                      <q-item clickable @click="approve">
+                      <q-item clickable v-if="props.row.approvalStatus!=='APPROVED'" @click="approve(props.row.id, props.row.experimentId)">
                         <q-item-section>Approve</q-item-section>
                       </q-item>
-                      <q-item clickable @click="unapprove">
+                      <q-item clickable v-if="props.row.approvalStatus==='APPROVED'" @click="disapprove(props.row.id, props.row.experimentId)">
                         <q-item-section>Unapprove</q-item-section>
                       </q-item>
                     </q-list>
@@ -162,20 +163,25 @@ export default {
     experiment: Object
   },
   methods: {
-    openNewPlateTab(){
+    openNewPlateTab() {
       this.$emit("message")
     },
-    validate(){
+    validate(id, experimentId) {
       //put validationStatus: VALIDATED
+      console.log('VALIDATED')
+      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, validationStatus: 'VALIDATED'})
     },
-    unvalidate(){
-      //put validationStatus: UNVALIDATED
+    unvalidate(id, experimentId) {
+      //put validationStatus: INVALIDATED
+      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, validationStatus: 'INVALIDATED'})
     },
-    approve(){
+    approve(id, experimentId) {
       //put approvalStatus: APPROVED
+      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, approvalStatus: 'APPROVED'})
     },
-    unapprove(){
-      //put approvalStatus: UNAPPROVED
+    disapprove(id, experimentId) {
+      //put approvalStatus: DISAPPROVED
+      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, approvalStatus: 'DISAPPROVED'})
     }
   },
   setup(props) {
