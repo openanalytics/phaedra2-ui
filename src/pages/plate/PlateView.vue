@@ -7,7 +7,7 @@
   </q-breadcrumbs>
 
   <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
-    <div class="q-pa-md">
+    <div class="q-pa-md" v-if="!editdialog">
       <div class="text-h6 q-px-sm oa-section-title" v-if="!plate">
         Loading plate...
       </div>
@@ -64,7 +64,7 @@
 
           <div class="col col-4">
             <div class="row justify-end action-button">
-              <q-btn size="sm" color="primary" icon="edit" class="oa-button-edit" label="Edit"/>
+              <q-btn size="sm" color="primary" icon="edit" class="oa-button-edit" label="Edit" @click="editdialog = true"/>
             </div>
             <div class="row justify-end action-button">
               <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete" @click="deletedialog = true"/>
@@ -76,6 +76,8 @@
         </div>
       </div>
     </div>
+
+    <edit-plate v-model:show="editdialog" v-model:plate="plate"></edit-plate>
 
     <div class="q-pa-md" v-if="plate">
       <q-tabs
@@ -172,6 +174,7 @@ import {useStore} from 'vuex'
 import {useRoute} from 'vue-router'
 
 import Tag from "@/components/tag/Tag";
+import EditPlate from "./EditPlate";
 
 const propertyColumns = [
   {name: 'key', align: 'left', label: 'Name', field: 'key', sortable: true},
@@ -181,7 +184,8 @@ const propertyColumns = [
 export default {
   name: 'Plate',
   components: {
-    Tag
+    Tag,
+    EditPlate
   },
   methods: {
     onClick() {
@@ -225,7 +229,6 @@ export default {
       }
     })
 
-
     return {
       plate,
       experiment,
@@ -239,7 +242,8 @@ export default {
       plateTag: ref(""),
       prompt: ref(false),
       plateName: ref(""),
-      deletedialog: ref(false)
+      deletedialog: ref(false),
+      editdialog: false,
     }
   }
 }

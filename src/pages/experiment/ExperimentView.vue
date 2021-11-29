@@ -7,7 +7,7 @@
   </q-breadcrumbs>
 
   <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
-    <div class="q-pa-md">
+    <div class="q-pa-md" v-if="!editdialog">
       
       <div class="text-h6 q-px-sm oa-section-title" v-if="!experiment">
         Loading experiment...
@@ -63,7 +63,7 @@
 
           <div class="col-4">
             <div class="row justify-end action-button">
-              <q-btn size="sm" color="primary" icon="edit" class="oa-button-edit" label="Edit"/>
+              <q-btn size="sm" color="primary" icon="edit" class="oa-button-edit" label="Edit" @click="editdialog = true"/>
             </div>
             <div class="row justify-end action-button">
               <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete" @click="deletedialog = true"/>
@@ -76,6 +76,8 @@
         </div>
       </div>
     </div>
+
+    <edit-experiment v-model:show="editdialog" v-model:experiment="experiment"></edit-experiment>
 
     <div class="q-pa-md" v-if="experiment">
       <q-tabs
@@ -191,6 +193,7 @@ import {useStore} from 'vuex'
 import {useRoute} from 'vue-router'
 
 import Tag from "@/components/tag/Tag";
+import EditExperiment from "./EditExperiment";
 
 const propertyColumns = [
   {name: 'key', align: 'left', label: 'Name', field: 'key', sortable: true},
@@ -200,7 +203,8 @@ const propertyColumns = [
 export default {
   name: 'Experiment',
   components: {
-    Tag
+    Tag,
+    EditExperiment
   },
   methods: {
     onClick() {
@@ -259,10 +263,13 @@ export default {
         rows: null,
         columns: null,
         sequence: null,
-        experimentId: null
+        experimentId: null,
+        validationStatus: "VALIDATION_NOT_SET",
+        approvalStatus: "APPROVAL_NOT_SET",
       },
       experimentName: ref(""),
       deletedialog: ref(false),
+      editdialog:ref(false)
     }
   }
 }
