@@ -12,7 +12,7 @@
       class="oa-section-body">
     <template v-slot:top-right>
       <div class="row action-button on-left">
-        <q-btn size="sm" color="primary" icon="edit" label="Change Table Configuration" @click="testMethod"/>
+        <q-btn size="sm" color="primary" icon="edit" label="Change Table Configuration" @click="configdialog=true"/>
       </div>
       <q-input outlined rounded dense debounce="300" v-model="filter" placeholder="Search">
         <template v-slot:append>
@@ -89,10 +89,6 @@ export default {
     }
   },
   methods: {
-    testMethod(){
-      console.log(this.visibleColumns)
-      this.configdialog = true
-    }
   }
 }
 

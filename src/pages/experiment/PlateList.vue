@@ -8,11 +8,13 @@
       :filter="filter"
       :filter-method="filterMethod"
       :loading="loading"
+      :visible-columns="visibleColumns"
       class="full-width"
       square
   >
     <template v-slot:top-right>
-      <div class="row action-button on-left">
+      <div class="col action-button on-left">
+        <q-btn size="sm" color="primary" icon="edit" label="Change Table Configuration" @click="configdialog=true"/><hr style="height:1pt; visibility:hidden;" />
         <q-btn size="sm" color="primary" icon="add" label="New Plate" @click="openNewPlateTab"/>
       </div>
       <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
@@ -61,6 +63,7 @@
       </div>
     </template>
   </q-table>
+  <table-config v-model:show="configdialog" v-model:visibleColumns="visibleColumns" v-model:columnsList="columnsList"></table-config>
 </template>
 
 <style scoped>
@@ -77,6 +80,7 @@
 <script>
 import {useStore} from 'vuex'
 import {computed, ref} from "vue";
+import TableConfig from "../../components/table/TableConfig";
 
 const columns = [
   {name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
@@ -106,6 +110,8 @@ const filterMethod = function (rows, term) {
 }
 
 export default {
+  components: {TableConfig},
+
   props: {
     experiment: Object
   },
@@ -127,7 +133,10 @@ export default {
       filter: ref(''),
       filterMethod,
       loading,
-      plates
+      plates,
+      visibleColumns: columns.map(a => a.name),
+      columnsList: columns.map(a => a.name),
+      configdialog: ref(false)
     }
   }
 }
