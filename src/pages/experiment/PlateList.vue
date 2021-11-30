@@ -128,6 +128,17 @@ export default {
     store.dispatch('plates/loadByExperimentId', props.experiment.id).then(() => {
       loading.value = false
     })
+
+    let columnsList = []
+    columns.forEach(function (col) {
+      columnsList.push({column: col.name})
+    })
+    columnsList.forEach(function (col) {
+      //Dummy data
+      col.dataType = (Math.random() + 1).toString(36).substring(7)
+      col.description = (Math.random() + 1).toString(36).substring(2)
+    })
+
     return {
       columns,
       filter: ref(''),
@@ -135,7 +146,7 @@ export default {
       loading,
       plates,
       visibleColumns: columns.map(a => a.name),
-      columnsList: columns.map(a => a.name),
+      columnsList,
       configdialog: ref(false)
     }
   }
