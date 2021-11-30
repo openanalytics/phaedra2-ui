@@ -11,14 +11,14 @@
       :visible-columns="visibleColumns"
       class="oa-section-body">
     <template v-slot:top-right>
-      <div class="row action-button on-left">
-        <q-btn size="sm" color="primary" icon="edit" label="Change Table Configuration" @click="configdialog=true"/>
+      <div class="row">
+        <q-input outlined rounded dense debounce="300" v-model="filter" placeholder="Search">
+          <template v-slot:append>
+            <q-icon name="search"/>
+          </template>
+        </q-input>
+        <q-btn flat round color="primary" icon="settings" style="border-radius: 50%;" @click="configdialog=true"/>
       </div>
-      <q-input outlined rounded dense debounce="300" v-model="filter" placeholder="Search">
-        <template v-slot:append>
-          <q-icon name="search"/>
-        </template>
-      </q-input>
     </template>
     <template v-slot:body-cell-status="props">
       <q-td :props="props">

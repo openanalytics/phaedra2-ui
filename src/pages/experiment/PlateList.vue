@@ -14,14 +14,16 @@
   >
     <template v-slot:top-right>
       <div class="col action-button on-left">
-        <q-btn size="sm" color="primary" icon="edit" label="Change Table Configuration" @click="configdialog=true"/><hr style="height:1pt; visibility:hidden;" />
         <q-btn size="sm" color="primary" icon="add" label="New Plate" @click="openNewPlateTab"/>
       </div>
-      <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
-        <template v-slot:append>
-          <q-icon name="search"/>
-        </template>
-      </q-input>
+      <div class="row">
+        <q-input outlined rounded dense debounce="300" v-model="filter" placeholder="Search">
+          <template v-slot:append>
+            <q-icon name="search"/>
+          </template>
+        </q-input>
+        <q-btn flat round color="primary" icon="settings" style="border-radius: 50%;" @click="configdialog=true"/>
+      </div>
     </template>
     <template v-slot:body-cell-barcode="props">
       <q-td :props="props">

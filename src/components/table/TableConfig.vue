@@ -2,7 +2,7 @@
   <q-dialog v-model="props.show" persistent>
     <q-card style="min-width: 40vw">
       <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
-        <q-avatar icon="edit" color="primary" text-color="white"/>
+        <q-avatar icon="settings" color="primary" text-color="white"/>
         Configure Columns
       </q-card-section>
       <q-card-section>
