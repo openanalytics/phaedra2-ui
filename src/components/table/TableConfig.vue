@@ -11,17 +11,26 @@
             <span>Configure the displayed columns of the table.</span><br><br>
           </div>
         </div>
+        <div class="row">
+          <div class="col-10">
+            <q-table
+                table-header-class="text-grey"
+                :rows="columnsList"
+                row-key="column"
+                :pagination="{ rowsPerPage: 10 }"
+                class="full-width"
+                square
+                selection="multiple"
+                v-model:selected="colslist"
+            />
+          </div>
+          <q-card-actions align="center" vertical class="col-2 text-primary">
+            <q-btn flat label="Fill1" v-close-popup @click="$emit('update:show',false)"/>
+            <q-btn flat label="Fill2" v-close-popup @click="$emit('update:show',false)"/>
+            <q-btn flat label="Fill3" v-close-popup @click="$emit('update:show',false)"/>
+          </q-card-actions>
+        </div>
 
-        <q-table
-            table-header-class="text-grey"
-            :rows="columnsList"
-            row-key="column"
-            :pagination="{ rowsPerPage: 10 }"
-            class="full-width"
-            square
-            selection="multiple"
-            v-model:selected="colslist"
-        />
       </q-card-section>
       <q-card-actions align="right" class="text-primary">
         <q-btn flat label="Cancel" v-close-popup @click="$emit('update:show',false)"/>
