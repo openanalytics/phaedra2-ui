@@ -9,17 +9,21 @@
       :pagination="{ rowsPerPage: 10 }"
       :filter="filter"
       :filter-method="filterMethod"
+      :visible-columns="visibleColumns"
       square
   >
     <template v-slot:top-right>
       <div class="row action-button on-left">
         <q-btn size="sm" color="primary" icon="add" label="New Experiment" @click="showNewExperimentDialog = true"/>
       </div>
-      <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
-        <template v-slot:append>
-          <q-icon name="search"/>
-        </template>
-      </q-input>
+      <div class="row">
+        <q-input outlined rounded dense debounce="300" v-model="filter" placeholder="Search">
+          <template v-slot:append>
+            <q-icon name="search"/>
+          </template>
+        </q-input>
+        <q-btn flat round color="primary" icon="settings" style="border-radius: 50%;" @click="configdialog=true"/>
+      </div>
     </template>
     <template v-slot:body-cell-name="props">
       <q-td :props="props">
@@ -70,6 +74,9 @@
       </q-card-actions>
     </q-card>
   </q-dialog>
+
+  <table-config v-model:show="configdialog" v-model:visibleColumns="visibleColumns"
+                v-model:columnsList="columnsList"></table-config>
 </template>
 
 <style scoped>
@@ -88,6 +95,7 @@
   import {useStore} from 'vuex'
 
   import ExperimentContextMenu from "@/components/widgets/ExperimentContextMenu.vue"
+  import TableConfig from "../../components/table/TableConfig";
 
   import FormatUtils from "@/lib/FormatUtils.js"
 
@@ -120,7 +128,8 @@
       projectId: Number
     },
     components: {
-      ExperimentContextMenu
+      ExperimentContextMenu,
+      TableConfig
     },
     setup(props) {
       const store = useStore()
@@ -129,6 +138,17 @@
       const experiments = computed(() => store.getters['experiments/getByProjectId'](props.projectId))
       store.dispatch('experiments/loadByProjectId', props.projectId).then(() => {
         loading.value = false
+      })
+
+      //Load columnList for config in setup
+      let columnsList = []
+      columns.forEach(function (col) {
+        columnsList.push({column: col.name})
+      })
+      columnsList.forEach(function (col) {
+        //Dummy data
+        col.dataType = (Math.random() + 1).toString(36).substring(7)
+        col.description = (Math.random() + 1).toString(36).substring(2)
       })
 
       const showNewExperimentDialog = ref(false)
@@ -148,6 +168,9 @@
         loading,
         experiments,
         FormatUtils,
+        visibleColumns: columns.map(a => a.name),
+        columnsList,
+        configdialog: ref(false),
 
         showNewExperimentDialog,
         newExperimentName,
