@@ -32,7 +32,8 @@
       </div>
     </template>
   </q-table>
-  <table-config v-model:show="configdialog" v-model:visibleColumns="visibleColumns" v-model:columnsList="columnsList"></table-config>
+  <table-config v-model:show="configdialog" v-model:visibleColumns="visibleColumns"
+                v-model:columnsList="columnsList"></table-config>
 </template>
 
 <script>
@@ -78,18 +79,28 @@ export default {
       },
     ]
 
+    //Load columnList for config in setup
+    let columnsList = []
+    columns.forEach(function (col) {
+      columnsList.push({column: col.name})
+    })
+    columnsList.forEach(function (col) {
+      //Dummy data
+      col.dataType = (Math.random() + 1).toString(36).substring(7)
+      col.description = (Math.random() + 1).toString(36).substring(2)
+    })
+
     return {
       columns,
       filter: ref(''),
       filterMethod,
       WellUtils,
       visibleColumns: columns.map(a => a.name),
-      columnsList: columns.map(a => a.name),
+      columnsList,
       configdialog: ref(false)
     }
   },
-  methods: {
-  }
+  methods: {}
 }
 
 </script>

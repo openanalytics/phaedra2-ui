@@ -1,24 +1,32 @@
 <template>
   <q-dialog v-model="props.show" persistent>
-    <q-card style="min-width: 30vw">
+    <q-card style="min-width: 40vw">
       <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
-        <q-avatar icon="edit" color="primary" text-color="white"/> Configure Table
+        <q-avatar icon="edit" color="primary" text-color="white"/>
+        Configure Columns
       </q-card-section>
       <q-card-section>
         <div class="row">
           <div class="col-10">
-            <span>Toggle the columns that have to be displayed/hidden.</span><br/>
+            <span>Configure the displayed columns of the table.</span><br><br>
           </div>
         </div>
-        <div class="col">
-          <template v-for="cols in props.columnsList" :key="cols">
-            <q-toggle v-model="colslist" :val="cols" />{{cols}}<br>
-          </template>
-        </div>
+
+        <q-table
+            table-header-class="text-grey"
+            :rows="columnsList"
+            row-key="column"
+            :pagination="{ rowsPerPage: 10 }"
+            class="full-width"
+            square
+            selection="multiple"
+            v-model:selected="colslist"
+        />
       </q-card-section>
       <q-card-actions align="right" class="text-primary">
         <q-btn flat label="Cancel" v-close-popup @click="$emit('update:show',false)"/>
-        <q-btn flat label="Update" v-close-popup @click="$emit('update:visibleColumns',colslist); $emit('update:show',false)"/>
+        <q-btn flat label="Update" v-close-popup
+               @click="$emit('update:visibleColumns',colslist.map(a => a.column)); $emit('update:show',false)"/>
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -30,28 +38,31 @@ export default {
   /**
    * Component to toggle visibility of table columns
    * @props.show boolean to open and close configuration dialog
-   * @props.columnsList list with all column names
+   * @props.columnsList list with all column names, data types, and description
    * @props.visibleColumns list with visible table columns
    */
   name: 'TableConfig',
-  methods: {
-  },
+  methods: {},
   setup(props) {
+
+    const columns = [
+      {name: 'column', align: 'left', label: 'Column', field: 'column', sortable: true},
+      {name: 'dataType', align: 'left', label: 'Data Type', field: 'dataType', sortable: true},
+      {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
+    ]
+
     return {
-      props
+      props,
+      columns
     }
   },
   data() {
     return {
-      editedPlate: {
-        barcode: null,
-        description: null
-      },
       configdialog: this.props.show,
       colslist: this.props.columnsList
     }
   },
   props: ['show', 'visibleColumns', 'columnsList'],
-  emits: ['update:visibleColumns','update:show']
+  emits: ['update:visibleColumns', 'update:show']
 }
 </script>
