@@ -29,7 +29,7 @@
               <template v-slot:body-cell-up="props">
                 <q-td :props="props">
                   <div class="row items-center cursor-pointer">
-                    <q-btn v-if="this.columnsList.indexOf(props.row)>0" flat round size="sm" icon="arrow_upward" style="border-radius: 50%;">
+                    <q-btn v-if="this.colslist.indexOf(props.row)>0" flat round size="sm" icon="arrow_upward" style="border-radius: 50%;" @click="moveUp(props.row)">
                     </q-btn>
                   </div>
                 </q-td>
@@ -37,7 +37,7 @@
               <template v-slot:body-cell-down="props">
                 <q-td :props="props">
                   <div class="row items-center cursor-pointer">
-                    <q-btn v-if="this.columnsList.indexOf(props.row)<this.columnsList.length-1" flat round size="sm" icon="arrow_downward" style="border-radius: 50%;">
+                    <q-btn v-if="this.colslist.indexOf(props.row)<this.colslist.length-1" flat round size="sm" icon="arrow_downward" style="border-radius: 50%;" @click="moveDown(props.row)">
                     </q-btn>
                   </div>
                 </q-td>
@@ -73,13 +73,34 @@ export default {
   name: 'TableConfig',
   methods: {
     moveUp(row){
-      const index = this.columnsList.indexOf(row)
-      let orderedList = null
-      for (let i = 0; i < index)
+      const index = this.colslist.indexOf(row)
+      const length = this.colslist.length
+      let orderedList = []
+      for (let i = 0; i < length-1; i++){
+        if(i===index-1){
+          const temp = this.colslist.shift()
+          orderedList.push(this.colslist.shift())
+          orderedList.push(temp)
+          continue
+        }
+        orderedList.push(this.colslist.shift())
+      }
       this.colslist = orderedList
     },
-    moveDown(){
-
+    moveDown(row){
+      const index = this.colslist.indexOf(row)
+      const length = this.colslist.length
+      let orderedList = []
+      for (let i = 0; i < length-1; i++){
+        if(i===index){
+          const temp = this.colslist.shift()
+          orderedList.push(this.colslist.shift())
+          orderedList.push(temp)
+          continue
+        }
+        orderedList.push(this.colslist.shift())
+      }
+      this.colslist = orderedList
     }
   },
   setup(props) {
