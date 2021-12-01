@@ -76,16 +76,19 @@
 
                   <q-menu anchor="top end" self="top start">
                     <q-list>
-                      <q-item clickable v-if="props.row.validationStatus!=='VALIDATED'" @click="validate(props.row.id, props.row.experimentId)">
+                      <q-item clickable v-if="props.row.validationStatus==='VALIDATION_NOT_SET'" @click="validate(props.row.id, props.row.experimentId)">
                         <q-item-section>Validate</q-item-section>
                       </q-item>
-                      <q-item clickable v-if="props.row.validationStatus==='VALIDATED'" @click="invalidate(props.row.id, props.row.experimentId)">
-                        <q-item-section>Unvalidate</q-item-section>
+                      <q-item clickable v-if="props.row.validationStatus==='VALIDATION_NOT_SET'" @click="invalidate(props.row.id, props.row.experimentId)">
+                        <q-item-section>Invalidate</q-item-section>
+                      </q-item>
+                      <q-item clickable v-if="props.row.validationStatus!=='VALIDATION_NOT_SET'" @click="resetValidation(props.row.id, props.row.experimentId)">
+                        <q-item-section>Reset Validation</q-item-section>
                       </q-item>
                     </q-list>
                   </q-menu>
                 </q-item>
-                <q-item v-if="props.row.validationStatus==='VALIDATED' && props.row.approvalStatus!=='DISAPPROVED'" clickable>
+                <q-item clickable v-if="props.row.validationStatus!=='INVALIDATED' || props.row.approvalStatus!=='APPROVAL_NOT_SET'" >
                   <q-item-section>Approval</q-item-section>
                   <q-item-section side>
                     <q-icon name="keyboard_arrow_right"/>
@@ -93,11 +96,14 @@
 
                   <q-menu anchor="top end" self="top start">
                     <q-list>
-                      <q-item clickable v-if="props.row.approvalStatus!=='APPROVED'" @click="approve(props.row.id, props.row.experimentId)">
+                      <q-item clickable v-if="props.row.approvalStatus==='APPROVAL_NOT_SET'" @click="approve(props.row.id, props.row.experimentId)">
                         <q-item-section>Approve</q-item-section>
                       </q-item>
-                      <q-item clickable v-if="props.row.approvalStatus==='APPROVED'" @click="disapprove(props.row.id, props.row.experimentId)">
-                        <q-item-section>Unapprove</q-item-section>
+                      <q-item clickable v-if="props.row.approvalStatus==='APPROVAL_NOT_SET'" @click="disapprove(props.row.id, props.row.experimentId)">
+                        <q-item-section>Disapprove</q-item-section>
+                      </q-item>
+                      <q-item clickable v-if="props.row.approvalStatus!=='APPROVAL_NOT_SET'" @click="resetApproval(props.row.id, props.row.experimentId)">
+                        <q-item-section>Reset Approval</q-item-section>
                       </q-item>
                     </q-list>
                   </q-menu>
@@ -182,7 +188,7 @@ export default {
       this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, validationStatus: 'INVALIDATED'})
     },
     resetValidation(id, experimentId) {
-      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, validationStatus: 'INVALIDATED'})
+      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, validationStatus: 'VALIDATION_NOT_SET'})
     },
     approve(id, experimentId) {
       //put approvalStatus: APPROVED
@@ -193,7 +199,7 @@ export default {
       this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, approvalStatus: 'DISAPPROVED'})
     },
     resetApproval(id, experimentId) {
-      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, approvalStatus: 'DISAPPROVED'})
+      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, approvalStatus: 'APPROVAL_NOT_SET'})
     }
   },
   setup(props) {
