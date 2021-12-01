@@ -5,7 +5,7 @@
   </q-breadcrumbs>
 
   <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
-    <div class="q-pa-md" v-if="!editdialog">
+    <div class="q-pa-md" v-if="!editdialog && protocol">
       <div class="row text-h6 items-center q-px-md oa-section-title">
         <q-icon name="ballot" class="q-pr-sm"/>
         {{ protocol.name }}
@@ -65,9 +65,19 @@
         <q-icon name="functions" class="q-pr-sm"/>
         Features
       </div>
-      <q-table square>
+      <q-table :rows="features" :columns="columns" :loading="loading" square>
         <template v-slot:top-right>
           <q-btn color="primary" label="Add Feature..." @click="newFeatureTab = true"></q-btn>
+        </template>
+        <template v-slot:body-cell-formulaId="props">
+          <q-td :props="props">
+            {{formulas.find(formula => {return formula.id === props.row.formulaId}).name}}
+          </q-td>
+        </template>
+        <template v-slot:body-cell-protocolId="props">
+          <q-td :props="props">
+            {{protocol.name}}
+          </q-td>
         </template>
         <template v-slot:no-data>
           <div class="full-width row text-info">
@@ -158,6 +168,19 @@ import {computed, ref} from "vue";
 
 import Tag from "@/components/tag/Tag";
 import EditProtocol from "./EditProtocol";
+
+const columns = [
+  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
+  {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
+  {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
+  {name: 'format', align: 'left', label: 'Format', field: 'format', sortable: true},
+  {name: 'type', align: 'left', label: 'Type', field: 'type', sortable: true},
+  {name: 'sequence', align: 'left', label: 'Sequence', field: 'sequence', sortable: true},
+  {name: 'protocolId', align: 'left', label: 'Protocol', field: 'protocolId', sortable: true},
+  {name: 'formulaId', align: 'left', label: 'Formula', field: 'formulaId', sortable: true},
+  {name: 'trigger', align: 'left', label: 'Trigger', field: 'trigger', sortable: true},
+
+    ]
 export default {
   name: "ProtocolView",
   components: {
@@ -167,7 +190,7 @@ export default {
   setup() {
     const store = useStore()
     const route = useRoute()
-
+    const loading = ref(false)
     const protocolId = parseInt(route.params.id);
     const protocol = computed(() => store.getters['protocols/getById'](protocolId))
     if (!store.getters['protocols/isLoaded'](protocolId)) {
@@ -175,13 +198,22 @@ export default {
     }
     store.dispatch('protocols/loadProtocolsTags', protocolId)
 
+    const  features = computed(() => store.getters['features/getByProtocolId'](protocolId))
+    if(!store.getters['features/isProtocolLoaded'](protocolId)) {
+      store.dispatch('features/loadByProtocolId', protocolId)
+      loading.value = false
+    }
+
     const formulas = computed(() => store.getters['calculations/getFormulas']())
     console.log(formulas)
     return {
       protocolId,
       protocol,
       featureTypes: ['CALCULATION', 'NORMALIZATION', 'RAW'],
-      formulas
+      formulas,
+      features,
+      loading,
+      columns
     }
   },
   data() {
