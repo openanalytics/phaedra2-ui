@@ -15,7 +15,7 @@
           <div class="col-10 q-pa-md">
             <q-table
                 table-header-class="text-white bg-primary"
-                :rows="columnsList"
+                :rows="colslist"
                 :columns="columns"
                 row-key="column"
                 :pagination="{ rowsPerPage: 10 }"
@@ -24,7 +24,7 @@
                 flat
                 dense
                 selection="multiple"
-                v-model:selected="colslist"
+                v-model:selected="selected"
             >
               <template v-slot:body-cell-up="props">
                 <q-td :props="props">
@@ -55,7 +55,7 @@
       <q-card-actions align="right" class="text-primary">
         <q-btn flat label="Cancel" v-close-popup @click="$emit('update:show',false)"/>
         <q-btn flat label="Update" v-close-popup
-               @click="$emit('update:visibleColumns',colslist.map(a => a.column)); $emit('update:show',false)"/>
+               @click="$emit('update:visibleColumns',selected.map(a => a.column)); $emit('update:show',false)"/>
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -71,7 +71,17 @@ export default {
    * @props.visibleColumns list with visible table columns
    */
   name: 'TableConfig',
-  methods: {},
+  methods: {
+    moveUp(row){
+      const index = this.columnsList.indexOf(row)
+      let orderedList = null
+      for (let i = 0; i < index)
+      this.colslist = orderedList
+    },
+    moveDown(){
+
+    }
+  },
   setup(props) {
 
     const columns = [
@@ -90,7 +100,8 @@ export default {
   data() {
     return {
       configdialog: this.props.show,
-      colslist: this.props.columnsList
+      colslist: this.props.columnsList,
+      selected: this.props.columnsList
     }
   },
   props: ['show', 'visibleColumns', 'columnsList'],
