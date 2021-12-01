@@ -47,7 +47,7 @@
             <div class="col-4">
               <div class="row q-pb-sm text-weight-bold">Properties:</div>
               <div class="row-cols-auto q-pb-sm ful">
-                <q-table :rows="properties"
+                <q-table :rows="project.properties"
                          :columns="propertyColumns"
                          class="full-width"
                          table-header-class="bg-secondary"
@@ -60,23 +60,25 @@
                 />
                 </div>
               <div class="row justify-end">
-                  <q-btn label="Add" size="sm" class="oa-button-tag" @click="showNewPropertyDialog = true"/>
-                  <q-btn label="Delete" size="sm" class="oa-button-delete"/>
+                  <q-btn label="Add" size="sm" icon="add" class="oa-button-tag" @click="showNewPropertyDialog = true"/>
+                  <q-btn label="Delete" size="sm" icon="delete" class="oa-button-delete"/>
                 </div>
             </div>
 
             <div class="col-4">
               <div class="row justify-end action-button">
-                <q-btn size="sm" icon="sell" label="Add Tag" class="oa-button" @click="showAddTagDialog = true"/>
-                <q-btn size="sm" color="primary" icon="edit" align="between" class="oa-button-edit" label="Rename Project" @click="showRenameDialog = true"/>
+                <q-btn size="sm" icon="edit" label="Rename" class="oa-button" @click="showRenameDialog = true"/>
+<!--                <q-btn size="sm" icon="sell" label="Add Tag" class="oa-button" @click="showAddTagDialog = true"/>-->
+<!--                <q-btn size="sm" color="primary" icon="edit" align="between" class="oa-button-edit" label="Rename Project" @click="showRenameDialog = true"/>-->
               </div>
               <div class="row justify-end action-button">
-                <q-btn size="sm" icon="edit" label="Rename" class="oa-button" @click="showRenameDialog = true"/>
-                <q-btn size="sm" color="primary" icon="delete" align="between" class="oa-button-delete" label="Delete Project" @click="showDeleteDialog = true"/>
+                <q-btn size="sm" icon="sell" label="Add Tag" class="oa-button" @click="showAddTagDialog = true"/>
+<!--                <q-btn size="sm" icon="edit" label="Rename" class="oa-button" @click="showRenameDialog = true"/>-->
+<!--                <q-btn size="sm" color="primary" icon="delete" align="between" class="oa-button-delete" label="Delete Project" @click="showDeleteDialog = true"/>-->
               </div>
               <div class="row justify-end action-button">
                 <q-btn size="sm" icon="delete" label="Delete" class="oa-button" @click="showDeleteDialog = true"/>
-                <q-btn size="sm" color="primary" icon="sell" align="between" class="oa-button-tag" label="Add Tag" @click="showAddTagDialog = true"/>
+<!--                <q-btn size="sm" color="primary" icon="sell" align="between" class="oa-button-tag" label="Add Tag" @click="showAddTagDialog = true"/>-->
               </div>
             </div>
           </div>
@@ -197,12 +199,12 @@
     {name: 'propertyValue', align: 'left', label: 'Value', field: 'propertyValue', sortable: true}
   ]
 
-  const properties = [
-    {propertyName: "Property 1", propertyValue: "property 1 value"},
-    {propertyName: "Property 2", propertyValue: "property 2 value"},
-    {propertyName: "Property 3", propertyValue: "property 3 value"},
-    {propertyName: "Property 4", propertyValue: "property 4 value"}
-  ]
+  // const properties = [
+  //   {propertyName: "Property 1", propertyValue: "property 1 value"},
+  //   {propertyName: "Property 2", propertyValue: "property 2 value"},
+  //   {propertyName: "Property 3", propertyValue: "property 3 value"},
+  //   {propertyName: "Property 4", propertyValue: "property 4 value"}
+  // ]
 
   const selectedProperties = ref([]);
 
@@ -218,7 +220,7 @@
       const router = useRouter();
 
       const projectId = parseInt(route.params.id);
-      const project = computed(() => store.getters['projects/getById'](projectId));
+      const project = computed(() => store.getters['projects/getCurrentProject']());
       store.dispatch('projects/loadById', projectId);
       store.dispatch('projects/loadProjectsTags', projectId);
 
@@ -242,8 +244,8 @@
           propertyName: newProperty.value.name,
           propertyValue: newProperty.value.value
         }
-        properties.push(propertyInfo);
-        // store.dispatch('projects/addNewProperty', propertyInfo);
+        // properties.push(propertyInfo);
+        store.dispatch('projects/addProperty', propertyInfo);
       }
 
       const showRenameDialog = ref(false)
@@ -266,7 +268,7 @@
         projectId,
         project,
         propertyColumns,
-        properties,
+        // properties,
         selectedProperties,
 
         showAddTagDialog,

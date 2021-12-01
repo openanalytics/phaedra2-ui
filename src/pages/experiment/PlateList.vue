@@ -79,7 +79,7 @@
                       <q-item clickable v-if="props.row.validationStatus!=='VALIDATED'" @click="validate(props.row.id, props.row.experimentId)">
                         <q-item-section>Validate</q-item-section>
                       </q-item>
-                      <q-item clickable v-if="props.row.validationStatus==='VALIDATED'" @click="unvalidate(props.row.id, props.row.experimentId)">
+                      <q-item clickable v-if="props.row.validationStatus==='VALIDATED'" @click="invalidate(props.row.id, props.row.experimentId)">
                         <q-item-section>Unvalidate</q-item-section>
                       </q-item>
                     </q-list>
@@ -177,8 +177,11 @@ export default {
       console.log('VALIDATED')
       this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, validationStatus: 'VALIDATED'})
     },
-    unvalidate(id, experimentId) {
+    invalidate(id, experimentId) {
       //put validationStatus: INVALIDATED
+      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, validationStatus: 'INVALIDATED'})
+    },
+    resetValidation(id, experimentId) {
       this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, validationStatus: 'INVALIDATED'})
     },
     approve(id, experimentId) {
@@ -187,6 +190,9 @@ export default {
     },
     disapprove(id, experimentId) {
       //put approvalStatus: DISAPPROVED
+      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, approvalStatus: 'DISAPPROVED'})
+    },
+    resetApproval(id, experimentId) {
       this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, approvalStatus: 'DISAPPROVED'})
     }
   },
