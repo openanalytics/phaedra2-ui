@@ -16,6 +16,7 @@
             <q-table
                 table-header-class="text-white bg-primary"
                 :rows="columnsList"
+                :columns="columns"
                 row-key="column"
                 :pagination="{ rowsPerPage: 10 }"
                 class="full-width"
@@ -24,7 +25,24 @@
                 dense
                 selection="multiple"
                 v-model:selected="colslist"
-            />
+            >
+              <template v-slot:body-cell-up="props">
+                <q-td :props="props">
+                  <div class="row items-center cursor-pointer">
+                    <q-btn v-if="this.columnsList.indexOf(props.row)>0" flat round size="sm" icon="arrow_upward" style="border-radius: 50%;">
+                    </q-btn>
+                  </div>
+                </q-td>
+              </template>
+              <template v-slot:body-cell-down="props">
+                <q-td :props="props">
+                  <div class="row items-center cursor-pointer">
+                    <q-btn v-if="this.columnsList.indexOf(props.row)<this.columnsList.length-1" flat round size="sm" icon="arrow_downward" style="border-radius: 50%;">
+                    </q-btn>
+                  </div>
+                </q-td>
+              </template>
+            </q-table>
           </div>
           <q-card-actions align="center" vertical class="col-2 text-primary">
             <q-btn flat label="Fill1" v-close-popup @click="$emit('update:show',false)"/>
@@ -60,6 +78,8 @@ export default {
       {name: 'column', align: 'left', label: 'Column', field: 'column', sortable: true},
       {name: 'dataType', align: 'left', label: 'Data Type', field: 'dataType', sortable: true},
       {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
+      {name: 'up', align: 'left', field: 'up', sortable: false},
+      {name: 'down', align: 'left', field: 'down', sortable: false}
     ]
 
     return {
