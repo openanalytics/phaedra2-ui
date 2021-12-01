@@ -12,14 +12,16 @@
           </div>
         </div>
         <div class="row">
-          <div class="col-10">
+          <div class="col-10 q-pa-md">
             <q-table
-                table-header-class="text-grey"
+                table-header-class="text-white bg-primary"
                 :rows="columnsList"
                 row-key="column"
                 :pagination="{ rowsPerPage: 10 }"
                 class="full-width"
                 square
+                flat
+                dense
                 selection="multiple"
                 v-model:selected="colslist"
             />
