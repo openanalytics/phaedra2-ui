@@ -33,7 +33,7 @@
     </template>
   </q-table>
   <table-config v-model:show="configdialog" v-model:visibleColumns="visibleColumns"
-                v-model:columnsList="columnsList" v-model:orderedColumns="columns"></table-config>
+                v-model:columnsList="columnsList" v-model:columnOrder="columnOrder"></table-config>
 </template>
 
 <script>
@@ -58,31 +58,31 @@ export default {
   },
   setup(props) {
 
-    const columns = [
-      {
+    const columns = {
+      coordinate: {
         name: 'coordinate', align: 'left', label: 'Coordinate', field: 'coordinate', sortable: true,
         format: (val, well) => (well ? WellUtils.getWellCoordinate(well.row, well.column) : "")
       },
-      {
+      number: {
         name: 'number', align: 'left', label: 'Number', field: 'number', sortable: true,
         format: (val, well) => (well ? WellUtils.getWellNr(well.row, well.column, props.plate.columns) : "")
       },
-      {name: 'status', align: 'left', label: 'Status', field: 'status', sortable: true},
-      {name: 'wellType', align: 'left', label: 'Well Type', field: 'welltype', sortable: true},
-      {
+      status: {name: 'status', align: 'left', label: 'Status', field: 'status', sortable: true},
+      wellType: {name: 'wellType', align: 'left', label: 'Well Type', field: 'welltype', sortable: true},
+      substance: {
         name: 'substance', align: 'left', label: 'Substance', field: 'substance', sortable: true,
         format: (val, well) => (well.substance?.name ? well.substance?.name : "")
       },
-      {
+      concentration:{
         name: 'concentration', align: 'left', label: 'Concentration', field: 'concentration', sortable: true,
         format: (val, well) => (well.substance?.concentration ? well.substance?.concentration.toExponential(3) : "")
       },
-    ]
-
+    }
+    let columnOrder = ['coordinate','number','status','wellType','substance','concentration']
     //Load columnList for config in setup
     let columnsList = []
-    columns.forEach(function (col) {
-      columnsList.push({column: col.name})
+    columnOrder.forEach(function (col) {
+      columnsList.push({column: col})
     })
     columnsList.forEach(function (col) {
       //Dummy data
@@ -95,16 +95,21 @@ export default {
       filter: ref(''),
       filterMethod,
       WellUtils,
-      visibleColumns: columns.map(a => a.name),
+      visibleColumns: ['coordinate','number','status','wellType','substance','concentration'],
       columnsList,
       configdialog: ref(false),
-      columnsTest: [{name:'coordinate'},{name:'status'}],
+      columnOrder
     }
   },
   methods: {
     getColumns(){
-      console.log('cols:',this.columns)
-      return this.columns
+      let newOrder = []
+      let tempList = this.columnOrder.slice()
+      while (tempList.length>0){
+        const shift = tempList.shift()
+        newOrder.push(this.columns[shift])
+      }
+      return newOrder
     }
   }
 }

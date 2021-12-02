@@ -106,17 +106,19 @@ export default {
       //Update orderedColumns
       console.log('COLUMNS',this.colslist)
       let newOrder = []
-      let oldOrder = this.props.orderedColumns
-      while (oldOrder.length>0){
+      //let oldOrder = this.props.columnOrder
+      console.log(this.props.columnOrder)
+      while (this.colslist.length>0){
         const shift = this.colslist.shift()
         console.log(shift)
-        console.log(this.props.orderedColumns)
-        const i = oldOrder.findIndex(row => row.name === shift.column)
+        /*const i = oldOrder.findIndex(row => row.name === shift.column)
         console.log(i)
-        newOrder.push(oldOrder.splice(i,1))
+        newOrder.push(oldOrder.splice(i,1))*/
+        newOrder.push(shift.column)
       }
       console.log('Neworder',newOrder)
-      this.$emit('update:orderedColumns',newOrder)
+      this.$emit('update:columnOrder',newOrder)
+      this.$emit('update:columnsList', this.props.columnsList)
       this.$emit('update:visibleColumns',this.selected.map(a => a.column));
       this.$emit('update:show',false)
     }
@@ -139,11 +141,11 @@ export default {
   data() {
     return {
       configdialog: this.props.show,
-      colslist: this.props.columnsList,
-      selected: this.props.columnsList
+      colslist: this.props.columnsList.slice(),
+      selected: this.props.columnsList.slice()
     }
   },
-  props: ['show', 'visibleColumns', 'columnsList', 'orderedColumns'],
-  emits: ['update:visibleColumns', 'update:orderedColumns', 'update:show']
+  props: ['show', 'visibleColumns', 'columnsList', 'columnOrder'],
+  emits: ['update:visibleColumns', 'update:columnOrder','update:columnsList', 'update:show']
 }
 </script>
