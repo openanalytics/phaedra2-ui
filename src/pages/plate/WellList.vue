@@ -3,7 +3,7 @@
       table-header-class="text-dark"
       flat square
       :rows="plate.wells"
-      :columns="columns"
+      :columns="getColumns()"
       row-key="id"
       :pagination="{ rowsPerPage: 50 }"
       :filter="filter"
@@ -58,7 +58,7 @@ export default {
   },
   setup(props) {
 
-    let columns = [
+    const columns = [
       {
         name: 'coordinate', align: 'left', label: 'Coordinate', field: 'coordinate', sortable: true,
         format: (val, well) => (well ? WellUtils.getWellCoordinate(well.row, well.column) : "")
@@ -97,10 +97,16 @@ export default {
       WellUtils,
       visibleColumns: columns.map(a => a.name),
       columnsList,
-      configdialog: ref(false)
+      configdialog: ref(false),
+      columnsTest: [{name:'coordinate'},{name:'status'}],
     }
   },
-  methods: {}
+  methods: {
+    getColumns(){
+      console.log('cols:',this.columns)
+      return this.columns
+    }
+  }
 }
 
 </script>

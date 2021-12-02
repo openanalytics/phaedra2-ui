@@ -104,17 +104,18 @@ export default {
     },
     update(){
       //Update orderedColumns
+      console.log('COLUMNS',this.colslist)
       let newOrder = []
       let oldOrder = this.props.orderedColumns
       while (oldOrder.length>0){
         const shift = this.colslist.shift()
         console.log(shift)
         console.log(this.props.orderedColumns)
-        const i = oldOrder.findIndex(row => row.column === shift.column)
+        const i = oldOrder.findIndex(row => row.name === shift.column)
         console.log(i)
         newOrder.push(oldOrder.splice(i,1))
       }
-      console.log(newOrder)
+      console.log('Neworder',newOrder)
       this.$emit('update:orderedColumns',newOrder)
       this.$emit('update:visibleColumns',this.selected.map(a => a.column));
       this.$emit('update:show',false)
