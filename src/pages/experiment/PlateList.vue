@@ -239,7 +239,7 @@ export default {
       filterMethod,
       loading,
       plates,
-      visibleColumns: ['barcode','id','description','status-validated','status-approved','layout','createdOn','tags'],
+      visibleColumns: ['barcode','id','description','status-validated','status-approved','layout','createdOn','tags','menu'],
       columnsList,
       configdialog: ref(false),
       columnOrder
