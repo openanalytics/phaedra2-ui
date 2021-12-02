@@ -205,9 +205,8 @@ export default {
     }
 
     const formulas = computed(() => store.getters['calculations/getFormulas']())
-    if(!store.getters['calculations/areFormulasLoaded']){
-      store.dispatch('calculations/getAllFormulas')
-    }
+    store.dispatch('calculations/getAllFormulas')
+
     return {
       protocolId,
       protocol,
@@ -262,6 +261,7 @@ export default {
     },
     getFormulaName(id){
       const formula = this.formulas.find(formula => {return formula.id === id})
+      console.log(this.formulas)
       if(formula){
         return formula.name
       }
