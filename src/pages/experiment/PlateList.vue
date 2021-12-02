@@ -2,7 +2,7 @@
   <q-table
       table-header-class="text-grey"
       :rows="plates"
-      :columns="columns"
+      :columns="getColumns()"
       row-key="id"
       :pagination="{ rowsPerPage: 10 }"
       :filter="filter"
@@ -65,7 +65,7 @@
       </div>
     </template>
   </q-table>
-  <table-config v-model:show="configdialog" v-model:visibleColumns="visibleColumns" v-model:columnsList="columnsList"></table-config>
+  <table-config v-model:show="configdialog" v-model:visibleColumns="visibleColumns" v-model:columnsList="columnsList" v-model:columnOrder="columnOrder"></table-config>
 </template>
 
 <style scoped>
@@ -84,14 +84,14 @@ import {useStore} from 'vuex'
 import {computed, ref} from "vue";
 import TableConfig from "../../components/table/TableConfig";
 
-const columns = [
-  {name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
-  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
-  {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-  {name: 'status-validated', align: 'left', label: 'Validated', field: 'status-validated', sortable: true},
-  {name: 'status-approved', align: 'left', label: 'Approved', field: 'status-approved', sortable: true},
-  {name: 'layout', align: 'left', label: 'Layout', field: 'layout', sortable: true},
-  {
+const columns = {
+  barcode:{name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
+  id:{name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
+  description:{name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
+  'status-validated':{name: 'status-validated', align: 'left', label: 'Validated', field: 'status-validated', sortable: true},
+  'status-approved':{name: 'status-approved', align: 'left', label: 'Approved', field: 'status-approved', sortable: true},
+  layout:{name: 'layout', align: 'left', label: 'Layout', field: 'layout', sortable: true},
+  createdOn:{
     name: 'createdOn',
     align: 'left',
     label: 'Created On',
@@ -99,8 +99,8 @@ const columns = [
     sortable: true,
     format: val => val !== undefined ? `${val.toLocaleString()}` : ''
   },
-  {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true}
-]
+  tags:{name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true}
+}
 
 const filterMethod = function (rows, term) {
   return rows.filter(row => {
@@ -120,6 +120,15 @@ export default {
   methods: {
     openNewPlateTab(){
       this.$emit("message")
+    },
+    getColumns(){
+      let newOrder = []
+      let tempList = this.columnOrder.slice()
+      while (tempList.length>0){
+        const shift = tempList.shift()
+        newOrder.push(this.columns[shift])
+      }
+      return newOrder
     }
   },
   setup(props) {
@@ -131,9 +140,10 @@ export default {
       loading.value = false
     })
 
+    let columnOrder = ['barcode','id','description','status-validated','status-approved','layout','createdOn','tags']
     let columnsList = []
-    columns.forEach(function (col) {
-      columnsList.push({column: col.name})
+    columnOrder.forEach(function (col) {
+      columnsList.push({column: col})
     })
     columnsList.forEach(function (col) {
       //Dummy data
@@ -147,9 +157,10 @@ export default {
       filterMethod,
       loading,
       plates,
-      visibleColumns: columns.map(a => a.name),
+      visibleColumns: ['barcode','id','description','status-validated','status-approved','layout','createdOn','tags'],
       columnsList,
-      configdialog: ref(false)
+      configdialog: ref(false),
+      columnOrder
     }
   }
 }
