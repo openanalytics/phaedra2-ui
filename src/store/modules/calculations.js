@@ -7,13 +7,18 @@ const state = () => ({
 const getters = {
     getFormulas: (state) => () => {
         return state.formulas
+    },
+    areFormulasLoaded: (state) => () => {
+        return state.formulas.length>1
     }
 }
 
 const actions = {
     async getAllFormulas(ctx) {
-        const formulas = await calculationsAPI.getAllFormulas()
-        ctx.commit('getAllFormulas', formulas)
+        await calculationsAPI.getAllFormulas().then( formulas => {
+            ctx.commit('getAllFormulas', formulas)
+        })
+
     }
 }
 

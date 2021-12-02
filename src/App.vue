@@ -27,15 +27,12 @@
 
 <script>
   import Navigator from "@/components/navigator/Navigator.vue"
-  import {useStore} from "vuex";
 
   export default {
     components: {
       Navigator
     },
     setup() {
-      const store = useStore()
-      store.dispatch('calculations/getAllFormulas')
     }
   }
 </script>

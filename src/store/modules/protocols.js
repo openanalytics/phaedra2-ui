@@ -2,8 +2,7 @@ import protocolAPI from '@/api/protocols.js'
 import axios from "axios";
 
 const state = () => ({
-    protocols: [],
-    formulas: []
+    protocols: []
 })
 
 const getters = {
