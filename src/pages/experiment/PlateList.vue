@@ -37,12 +37,16 @@
     </template>
     <template v-slot:body-cell-status-validated="props">
       <q-td :props="props">
-        <q-icon name="check_circle" color="positive"/>
+        <q-icon v-if="props.row.validationStatus==='VALIDATION_NOT_SET'" name="horizontal_rule"></q-icon>
+        <q-icon v-else-if="props.row.validationStatus==='VALIDATED'" name="check_circle" color="positive"/>
+        <q-icon v-else-if="props.row.validationStatus==='INVALIDATED'" name="cancel" color="negative"/>
       </q-td>
     </template>
     <template v-slot:body-cell-status-approved="props">
       <q-td :props="props">
-        <q-icon name="check_circle" color="positive"/>
+        <q-icon v-if="props.row.approvalStatus==='APPROVAL_NOT_SET'" name="horizontal_rule"></q-icon>
+        <q-icon v-else-if="props.row.approvalStatus==='APPROVED'" name="check_circle" color="positive"/>
+        <q-icon v-else-if="props.row.approvalStatus==='DISAPPROVED'" name="cancel" color="negative"/>
       </q-td>
     </template>
     <template v-slot:body-cell-layout="props">
@@ -56,6 +60,60 @@
           <q-badge color="green">
             {{ tag }}
           </q-badge>
+        </div>
+      </q-td>
+    </template>
+    <template v-slot:body-cell-menu="props">
+      <q-td :props="props">
+        <div class="row items-center cursor-pointer">
+          <q-btn flat round icon="more_horiz" style="border-radius: 50%;">
+            <q-menu fit>
+              <q-list style="min-width: 100px">
+                <q-item clickable
+                        v-if="props.row.approvalStatus==='APPROVAL_NOT_SET'">
+                  <q-item-section>Validation</q-item-section>
+                  <q-item-section side>
+                    <q-icon name="keyboard_arrow_right"/>
+                  </q-item-section>
+
+                  <q-menu anchor="top end" self="top start">
+                    <q-list>
+                      <q-item clickable v-if="props.row.validationStatus==='VALIDATION_NOT_SET'" @click="validate(props.row.id, props.row.experimentId)">
+                        <q-item-section>Validate</q-item-section>
+                      </q-item>
+                      <q-item clickable v-if="props.row.validationStatus==='VALIDATION_NOT_SET'" @click="invalidate(props.row.id, props.row.experimentId)">
+                        <q-item-section>Invalidate</q-item-section>
+                      </q-item>
+                      <q-item clickable v-if="props.row.validationStatus!=='VALIDATION_NOT_SET'" @click="resetValidation(props.row.id, props.row.experimentId)">
+                        <q-item-section>Reset Validation</q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-menu>
+                </q-item>
+                <q-item clickable v-if="props.row.validationStatus!=='INVALIDATED' || props.row.approvalStatus!=='APPROVAL_NOT_SET'" >
+                  <q-item-section>Approval</q-item-section>
+                  <q-item-section side>
+                    <q-icon name="keyboard_arrow_right"/>
+                  </q-item-section>
+
+                  <q-menu anchor="top end" self="top start">
+                    <q-list>
+                      <q-item clickable v-if="props.row.approvalStatus==='APPROVAL_NOT_SET'" @click="approve(props.row.id, props.row.experimentId)">
+                        <q-item-section>Approve</q-item-section>
+                      </q-item>
+                      <q-item clickable v-if="props.row.approvalStatus==='APPROVAL_NOT_SET'" @click="disapprove(props.row.id, props.row.experimentId)">
+                        <q-item-section>Disapprove</q-item-section>
+                      </q-item>
+                      <q-item clickable v-if="props.row.approvalStatus!=='APPROVAL_NOT_SET'" @click="resetApproval(props.row.id, props.row.experimentId)">
+                        <q-item-section>Reset Approval</q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-menu>
+
+                </q-item>
+              </q-list>
+            </q-menu>
+          </q-btn>
         </div>
       </q-td>
     </template>
@@ -99,7 +157,8 @@ const columns = {
     sortable: true,
     format: val => val !== undefined ? `${val.toLocaleString()}` : ''
   },
-  tags:{name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true}
+  tags:{name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
+  menu:{name: 'menu', align: 'left', field: 'menu', sortable: false}
 }
 
 const filterMethod = function (rows, term) {
@@ -118,8 +177,31 @@ export default {
     experiment: Object
   },
   methods: {
-    openNewPlateTab(){
+    openNewPlateTab() {
       this.$emit("message")
+    },
+    validate(id, experimentId) {
+      //put validationStatus: VALIDATED
+      console.log('VALIDATED')
+      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, validationStatus: 'VALIDATED'})
+    },
+    invalidate(id, experimentId) {
+      //put validationStatus: INVALIDATED
+      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, validationStatus: 'INVALIDATED'})
+    },
+    resetValidation(id, experimentId) {
+      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, validationStatus: 'VALIDATION_NOT_SET'})
+    },
+    approve(id, experimentId) {
+      //put approvalStatus: APPROVED
+      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, approvalStatus: 'APPROVED'})
+    },
+    disapprove(id, experimentId) {
+      //put approvalStatus: DISAPPROVED
+      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, approvalStatus: 'DISAPPROVED'})
+    },
+    resetApproval(id, experimentId) {
+      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, approvalStatus: 'APPROVAL_NOT_SET'})
     },
     getColumns(){
       let newOrder = []
@@ -140,7 +222,7 @@ export default {
       loading.value = false
     })
 
-    let columnOrder = ['barcode','id','description','status-validated','status-approved','layout','createdOn','tags']
+    let columnOrder = ['barcode','id','description','status-validated','status-approved','layout','createdOn','tags','menu']
     let columnsList = []
     columnOrder.forEach(function (col) {
       columnsList.push({column: col})

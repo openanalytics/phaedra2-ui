@@ -63,11 +63,11 @@ const actions = {
                 console.log(response)
             })
     },
-    removeTag(ctx, projectTag) {
-        axios.delete('http://localhost:6020/phaedra/metadata-service/tags', {data: projectTag})
+    removeTag(ctx, plateTag) {
+        axios.delete('http://localhost:6020/phaedra/metadata-service/tags', {data: plateTag})
             .then(response => {
                 if (response.status === 200) {
-                    ctx.commit('removeTag', projectTag);
+                    ctx.commit('removeTag', plateTag);
                 }
                 console.log(response)
             })
@@ -120,18 +120,21 @@ const mutations = {
     },
     addTags(state, tags) {
         for (let i = 0; i < tags.length; i++) {
-            var plate = state.plates.find(p => p.id === tags[i].objectId);
+            // var plate = state.plates.find(p => p.id === tags[i].objectId);
+            let plate = state.currentPlate || state.plates.find(p => p.id === tags[i].objectId);
             if (!containsTagInfo(plate, tags[i]))
                 plate.tags !== undefined ? plate.tags.push(tags[i]) : plate.tags = [tags[i]];
         }
     },
     addTag(state, tagInfo) {
-        var plate = state.plates.find(p => p.id === tagInfo.objectId);
+        // var plate = state.plates.find(p => p.id === tagInfo.objectId);
+        let plate = state.currentPlate || state.plates.find(p => p.id === tagInfo.objectId);
         if (!containsTagInfo(plate, tagInfo))
             plate.tags !== undefined ? plate.tags.push(tagInfo) : plate.tags = [tagInfo];
     },
     removeTag(state, tagInfo) {
-        let plate = state.plates.find(p => p.id === tagInfo.objectId)
+        // let plate = state.plates.find(p => p.id === tagInfo.objectId)
+        let plate = state.currentPlate || state.plates.find(p => p.id === tagInfo.objectId);
         if (containsTagInfo(plate, tagInfo)) {
             let i = plate.tags.findIndex(t => t.tag === tagInfo.tag);
             plate.tags.splice(i, 1);

@@ -44,8 +44,10 @@ const actions = {
             return;
         }
         const features = await featuresAPI.getByProtocolId(protocolId)
-        ctx.commit('cacheMany', features)
-        ctx.commit('cacheFeaturesInProtocol', {protocolId, features})
+        if(features){
+            ctx.commit('cacheMany', features)
+            ctx.commit('cacheFeaturesInProtocol', {protocolId, features})
+        }
     }
 }
 
