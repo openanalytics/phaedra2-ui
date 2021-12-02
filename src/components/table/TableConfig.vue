@@ -69,6 +69,7 @@ export default {
    * @props.show boolean to open and close configuration dialog
    * @props.columnsList list with all column names, data types, and description
    * @props.visibleColumns list with visible table columns
+   * @props.columnOrder list with order of columns
    */
   name: 'TableConfig',
   methods: {
@@ -103,22 +104,13 @@ export default {
       this.colslist = orderedList
     },
     update(){
-      //Update orderedColumns
-      console.log('COLUMNS',this.colslist)
       let newOrder = []
-      //let oldOrder = this.props.columnOrder
-      console.log(this.props.columnOrder)
-      while (this.colslist.length>0){
-        const shift = this.colslist.shift()
-        console.log(shift)
-        /*const i = oldOrder.findIndex(row => row.name === shift.column)
-        console.log(i)
-        newOrder.push(oldOrder.splice(i,1))*/
+      let tempList = this.colslist.slice()
+      while (tempList.length>0){
+        const shift = tempList.shift()
         newOrder.push(shift.column)
       }
-      console.log('Neworder',newOrder)
       this.$emit('update:columnOrder',newOrder)
-      this.$emit('update:columnsList', this.props.columnsList)
       this.$emit('update:visibleColumns',this.selected.map(a => a.column));
       this.$emit('update:show',false)
     }
@@ -145,7 +137,7 @@ export default {
       selected: this.props.columnsList.slice()
     }
   },
-  props: ['show', 'visibleColumns', 'columnsList', 'columnOrder'],
-  emits: ['update:visibleColumns', 'update:columnOrder','update:columnsList', 'update:show']
+  props: ['show', 'columnsList', 'columnOrder'],
+  emits: ['update:visibleColumns', 'update:columnOrder', 'update:show']
 }
 </script>
