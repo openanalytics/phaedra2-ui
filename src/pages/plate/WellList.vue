@@ -33,7 +33,7 @@
     </template>
   </q-table>
   <table-config v-model:show="configdialog" v-model:visibleColumns="visibleColumns"
-                v-model:columnsList="columnsList"></table-config>
+                v-model:columnsList="columnsList" v-model:orderedColumns="columns"></table-config>
 </template>
 
 <script>
@@ -58,7 +58,7 @@ export default {
   },
   setup(props) {
 
-    const columns = [
+    let columns = [
       {
         name: 'coordinate', align: 'left', label: 'Coordinate', field: 'coordinate', sortable: true,
         format: (val, well) => (well ? WellUtils.getWellCoordinate(well.row, well.column) : "")

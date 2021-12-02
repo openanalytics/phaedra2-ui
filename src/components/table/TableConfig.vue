@@ -55,7 +55,7 @@
       <q-card-actions align="right" class="text-primary">
         <q-btn flat label="Cancel" v-close-popup @click="$emit('update:show',false)"/>
         <q-btn flat label="Update" v-close-popup
-               @click="$emit('update:visibleColumns',selected.map(a => a.column)); $emit('update:show',false)"/>
+               @click="update"/>
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -101,6 +101,23 @@ export default {
         orderedList.push(this.colslist.shift())
       }
       this.colslist = orderedList
+    },
+    update(){
+      //Update orderedColumns
+      let newOrder = []
+      let oldOrder = this.props.orderedColumns
+      while (oldOrder.length>0){
+        const shift = this.colslist.shift()
+        console.log(shift)
+        console.log(this.props.orderedColumns)
+        const i = oldOrder.findIndex(row => row.column === shift.column)
+        console.log(i)
+        newOrder.push(oldOrder.splice(i,1))
+      }
+      console.log(newOrder)
+      this.$emit('update:orderedColumns',newOrder)
+      this.$emit('update:visibleColumns',this.selected.map(a => a.column));
+      this.$emit('update:show',false)
     }
   },
   setup(props) {
@@ -125,7 +142,7 @@ export default {
       selected: this.props.columnsList
     }
   },
-  props: ['show', 'visibleColumns', 'columnsList'],
-  emits: ['update:visibleColumns', 'update:show']
+  props: ['show', 'visibleColumns', 'columnsList', 'orderedColumns'],
+  emits: ['update:visibleColumns', 'update:orderedColumns', 'update:show']
 }
 </script>
