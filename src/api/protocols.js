@@ -66,5 +66,20 @@ export default {
                 console.log(error);
             });
         return result;
+    },
+    async addNewFeature(newFeature) {
+        console.log('Making a backend call...');
+        let result = null;
+        const requestUrl = 'http://localhost:6030/phaedra/protocol-service/features'
+        axios.post(requestUrl, newFeature)
+            .then(response => {
+                if (response.status === 201) {
+                    result = response.data
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result
     }
 }
