@@ -26,40 +26,33 @@
 </template>
 
 <script>
-  import {useStore} from "vuex";
-  import {useRouter} from 'vue-router'
-
   export default {
     setup() {
-      const store = useStore();
-      const router = useRouter()
 
-      const onSubmit = () => {
-        newProject.createdOn = new Date();
-        newProject.createdBy = 'TestUser';
-        store.dispatch('projects/createNewProject', newProject).then(createdProject => {
-          router.push({ path: '/project/' + createdProject.id })
+    },
+    methods: {
+      onSubmit() {
+        this.newProject.createdOn = new Date();
+        this.newProject.createdBy = 'TestUser';
+        this.$store.dispatch('projects/createNewProject', this.newProject).then(createdProject => {
+          this.$router.push({ path: '/project/' + createdProject.id })
         })
+      },
+      onReset() {
+          this.newProject.name = null
+          this.newProject.description = null
+          this.newProject.createdOn = null
+          this.newProject.createdBy = null
       }
-
-      const onReset = () => {
-        newProject.name = null
-        newProject.description = null
-        newProject.createdOn = null
-        newProject.createdBy = null
-      }
-
-      const newProject = {
-        name: null,
-        description: null,
-        createdOn: null,
-        createdBy: null,
-      }
-
+    },
+    data() {
       return {
-        newProject,
-        onSubmit,
-        onReset
+        newProject: {
+          name: null,
+          description: null,
+          createdOn: null,
+          createdBy: null,
+        }
       }
     }
   }

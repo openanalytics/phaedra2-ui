@@ -1,3 +1,5 @@
+import axios from "axios";
+
 const demoProjects = [
     {
         id: 1,
@@ -27,16 +29,6 @@ const demoProjects = [
 ]
 
 export default {
-    async getProjectById(id) {
-        console.log('Mocking a backend call...')
-        await wait(100)
-        return demoProjects.find(project => project.id === id)
-    },
-    async getAllProjects() {
-        console.log('Mocking a backend call...')
-        await wait(100)
-        return demoProjects
-    },
     getNRecentProjects(n) {
         console.log('Get most recent project ... ')
 
@@ -44,11 +36,89 @@ export default {
         //     return p1.createOn.getTime() - p2.createOn.getTime();
         // })
         return demoProjects.slice(0, n)
-    }
-}
-
-function wait(ms) {
-    return new Promise(resolve => {
-        setTimeout(resolve, ms)
-    })
+    },
+    async getProjectById(id) {
+        console.log('Making a backend call...');
+        let result = null;
+        const requestUrl = 'http://localhost:6010/phaedra/plate-service/project/' + id
+        await axios.get(requestUrl)
+            .then(response => {
+                if (response.status === 200)
+                    result = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result;
+    },
+    async getAllProjects() {
+        console.log('Making a backend call...');
+        let result = null;
+        const requestUrl = 'http://localhost:6010/phaedra/plate-service/projects'
+        await axios.get(requestUrl)
+            .then(response => {
+                if (response.status === 200)
+                    result = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result;
+    },
+    async loadRecentProjects() {
+        console.log('Making a backend call...');
+        let result = null;
+        const requestUrl = 'http://localhost:6010/phaedra/plate-service/projects'
+        await axios.get(requestUrl)
+            .then(response => {
+                if (response.status === 200)
+                    result = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result;
+    },
+    async deleteProject(id) {
+        console.log('Making a backend call...');
+        let result = null;
+        const requestUrl = 'http://localhost:6010/phaedra/plate-service/project/' + id
+        await axios.delete(requestUrl)
+            .then(response => {
+                if (response.status === 200)
+                    result = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result;
+    },
+    async editProject(args) {
+        console.log('Making a backend call...');
+        let result = null;
+        const requestUrl = 'http://localhost:6010/phaedra/plate-service/project/'
+        await axios.put(requestUrl,args)
+            .then(response => {
+                if (response.status === 200)
+                    result = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result;
+    },
+    async createNewProject(newProject) {
+        console.log('Making a backend call...');
+        let result = null;
+        const requestUrl = 'http://localhost:6010/phaedra/plate-service/project/'
+        await axios.post(requestUrl,newProject)
+            .then(response => {
+                if (response.status === 200 || response.status === 201)
+                    result = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result;
+    },
 }
