@@ -23,31 +23,37 @@
                 square
                 flat
                 dense
-                selection="multiple"
+                selection="single"
                 v-model:selected="selected"
             >
-              <template v-slot:body-cell-up="props">
-                <q-td :props="props">
-                  <div class="row items-center cursor-pointer">
-                    <q-btn v-if="this.colslist.indexOf(props.row)>0" flat round size="sm" icon="arrow_upward" style="border-radius: 50%;" @click="moveUp(props.row)">
-                    </q-btn>
-                  </div>
-                </q-td>
+              <template v-slot:header="props">
+                <q-tr :props="props" class="text-white bg-primary">
+                  <q-th v-for="col in props.cols" :key="col.name" :props="props">
+                    {{ col.label }}
+                  </q-th>
+                </q-tr>
               </template>
-              <template v-slot:body-cell-down="props">
-                <q-td :props="props">
-                  <div class="row items-center cursor-pointer">
-                    <q-btn v-if="this.colslist.indexOf(props.row)<this.colslist.length-1" flat round size="sm" icon="arrow_downward" style="border-radius: 50%;" @click="moveDown(props.row)">
-                    </q-btn>
-                  </div>
-                </q-td>
+              <template v-slot:body="props">
+                <q-tr class="cursor-pointer" :props="props" @click="props.selected = !props.selected">
+                  <q-td v-for="col in props.cols" :key="col.name" :props="props">
+                    <span v-if="!(col.name === 'select')">{{col.value }}</span>
+                    <q-checkbox v-if="col.name==='select'" v-model="visible" :val="props.row.column">
+                    </q-checkbox>
+                  </q-td>
+                </q-tr>
               </template>
             </q-table>
           </div>
           <q-card-actions align="center" vertical class="col-2 text-primary">
-            <q-btn flat label="Fill1" v-close-popup @click="$emit('update:show',false)"/>
-            <q-btn flat label="Fill2" v-close-popup @click="$emit('update:show',false)"/>
-            <q-btn flat label="Fill3" v-close-popup @click="$emit('update:show',false)"/>
+            <q-btn flat label="Hide All" v-close-popup disable v-if="visible.length===0"/>
+            <q-btn flat label="Hide All" v-close-popup v-if="!(visible.length===0)" @click="visible=[]"/>
+            <q-btn flat label="Show All" v-close-popup disable v-if="visible.length===props.columnOrder.length"/>
+            <q-btn flat label="Show All" v-close-popup v-if="!(visible.length===props.columnOrder.length)" @click="visible=props.columnOrder.slice()"/><br>
+
+            <q-btn flat label="Move up" v-close-popup disable v-if="selected.length===0" @click="moveUp(selected[0])"/>
+            <q-btn flat label="Move up" v-close-popup v-if="selected.length>0" @click="moveUp(selected[0])"/>
+            <q-btn flat label="Move down" v-close-popup disable v-if="selected.length===0" @click="moveDown(selected[0])"/>
+            <q-btn flat label="Move down" v-close-popup v-if="selected.length>0" @click="moveDown(selected[0])"/>
           </q-card-actions>
         </div>
 
@@ -111,18 +117,17 @@ export default {
         newOrder.push(shift.column)
       }
       this.$emit('update:columnOrder',newOrder)
-      this.$emit('update:visibleColumns',this.selected.map(a => a.column));
+      this.$emit('update:visibleColumns',this.visible);
       this.$emit('update:show',false)
     }
   },
   setup(props) {
 
     const columns = [
+      {name: 'select', align: 'center',label: 'Visible', field: 'select', sortable: false},
       {name: 'column', align: 'left', label: 'Column', field: 'column', sortable: true},
       {name: 'dataType', align: 'left', label: 'Data Type', field: 'dataType', sortable: true},
       {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-      {name: 'up', align: 'left', field: 'up', sortable: false},
-      {name: 'down', align: 'left', field: 'down', sortable: false}
     ]
 
     return {
@@ -134,7 +139,8 @@ export default {
     return {
       configdialog: this.props.show,
       colslist: this.props.columnsList.slice(),
-      selected: this.props.columnsList.slice()
+      selected: [],
+      visible: this.props.columnOrder.slice()
     }
   },
   props: ['show', 'columnsList', 'columnOrder'],
