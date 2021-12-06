@@ -2,7 +2,7 @@
   <q-table
       table-header-class="text-grey"
       :rows="plates"
-      :columns="columns"
+      :columns="getColumns()"
       row-key="id"
       :pagination="{ rowsPerPage: 10 }"
       :filter="filter"
@@ -14,14 +14,16 @@
   >
     <template v-slot:top-right>
       <div class="col action-button on-left">
-        <q-btn size="sm" color="primary" icon="edit" label="Change Table Configuration" @click="configdialog=true"/><hr style="height:1pt; visibility:hidden;" />
         <q-btn size="sm" color="primary" icon="add" label="New Plate" @click="openNewPlateTab"/>
       </div>
-      <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
-        <template v-slot:append>
-          <q-icon name="search"/>
-        </template>
-      </q-input>
+      <div class="row">
+        <q-input outlined rounded dense debounce="300" v-model="filter" placeholder="Search">
+          <template v-slot:append>
+            <q-icon name="search"/>
+          </template>
+        </q-input>
+        <q-btn flat round color="primary" icon="settings" style="border-radius: 50%;" @click="configdialog=true"/>
+      </div>
     </template>
     <template v-slot:body-cell-barcode="props">
       <q-td :props="props">
@@ -121,7 +123,7 @@
       </div>
     </template>
   </q-table>
-  <table-config v-model:show="configdialog" v-model:visibleColumns="visibleColumns" v-model:columnsList="columnsList"></table-config>
+  <table-config v-model:show="configdialog" v-model:visibleColumns="visibleColumns" v-model:columnsList="columnsList" v-model:columnOrder="columnOrder"></table-config>
 </template>
 
 <style scoped>
@@ -140,14 +142,14 @@ import {useStore} from 'vuex'
 import {computed, ref} from "vue";
 import TableConfig from "../../components/table/TableConfig";
 
-const columns = [
-  {name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
-  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
-  {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-  {name: 'status-validated', align: 'left', label: 'Validated', field: 'status-validated', sortable: true},
-  {name: 'status-approved', align: 'left', label: 'Approved', field: 'status-approved', sortable: true},
-  {name: 'layout', align: 'left', label: 'Layout', field: 'layout', sortable: true},
-  {
+const columns = {
+  barcode:{name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
+  id:{name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
+  description:{name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
+  'status-validated':{name: 'status-validated', align: 'left', label: 'Validated', field: 'status-validated', sortable: true},
+  'status-approved':{name: 'status-approved', align: 'left', label: 'Approved', field: 'status-approved', sortable: true},
+  layout:{name: 'layout', align: 'left', label: 'Layout', field: 'layout', sortable: true},
+  createdOn:{
     name: 'createdOn',
     align: 'left',
     label: 'Created On',
@@ -155,9 +157,9 @@ const columns = [
     sortable: true,
     format: val => val !== undefined ? `${val.toLocaleString()}` : ''
   },
-  {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
-  {name: 'menu', align: 'left', field: 'menu', sortable: false}
-]
+  tags:{name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
+  menu:{name: 'menu', align: 'left', field: 'menu', sortable: false}
+}
 
 const filterMethod = function (rows, term) {
   return rows.filter(row => {
@@ -200,6 +202,15 @@ export default {
     },
     resetApproval(id, experimentId) {
       this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, approvalStatus: 'APPROVAL_NOT_SET'})
+    },
+    getColumns(){
+      let newOrder = []
+      let tempList = this.columnOrder.slice()
+      while (tempList.length>0){
+        const shift = tempList.shift()
+        newOrder.push(this.columns[shift])
+      }
+      return newOrder
     }
   },
   setup(props) {
@@ -210,15 +221,28 @@ export default {
     store.dispatch('plates/loadByExperimentId', props.experiment.id).then(() => {
       loading.value = false
     })
+
+    let columnOrder = ['barcode','id','description','status-validated','status-approved','layout','createdOn','tags','menu']
+    let columnsList = []
+    columnOrder.forEach(function (col) {
+      columnsList.push({column: col})
+    })
+    columnsList.forEach(function (col) {
+      //Dummy data
+      col.dataType = (Math.random() + 1).toString(36).substring(7)
+      col.description = (Math.random() + 1).toString(36).substring(2)
+    })
+
     return {
       columns,
       filter: ref(''),
       filterMethod,
       loading,
       plates,
-      visibleColumns: columns.map(a => a.name),
-      columnsList: columns.map(a => a.name),
-      configdialog: ref(false)
+      visibleColumns: ['barcode','id','description','status-validated','status-approved','layout','createdOn','tags','menu'],
+      columnsList,
+      configdialog: ref(false),
+      columnOrder
     }
   }
 }

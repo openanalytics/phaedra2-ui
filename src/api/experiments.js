@@ -7,8 +7,22 @@ const demoExperiments = [
         properties: [{key: "Prop1", value: "Value 1"}, {key: "Prop2", value: "Value 2"}],
         closed: false
     },
-    {id: 2, name: 'Experiment 2', projectId: 1, description: 'This is experiment 2', createdOn: new Date(), closed: true},
-    {id: 3, name: 'Experiment 3', projectId: 1, description: 'This is experiment 3', createdOn: new Date(), closed: false},
+    {
+        id: 2,
+        name: 'Experiment 2',
+        projectId: 1,
+        description: 'This is experiment 2',
+        createdOn: new Date(),
+        closed: true
+    },
+    {
+        id: 3,
+        name: 'Experiment 3',
+        projectId: 1,
+        description: 'This is experiment 3',
+        createdOn: new Date(),
+        closed: false
+    },
     {
         id: 4,
         name: 'Experiment 4',
@@ -18,7 +32,14 @@ const demoExperiments = [
         tags: ['Experimental'],
         closed: false
     },
-    {id: 5, name: 'Experiment 5', projectId: 2, description: 'This is experiment 5', createdOn: new Date(), closed: true}
+    {
+        id: 5,
+        name: 'Experiment 5',
+        projectId: 2,
+        description: 'This is experiment 5',
+        createdOn: new Date(),
+        closed: true
+    }
 ]
 
 export default {
@@ -37,6 +58,34 @@ export default {
             return e1.createdOn.getTime() - e2.createdOn.getTime();
         })
     },
+    async loadByProjectId(id) {
+        console.log('Making a backend call...');
+        let result = null;
+        const requestUrl = 'http://localhost:6010/phaedra/plate-service/project/' + id + '/experiments'
+        await axios.get(requestUrl)
+            .then(response => {
+                if (response.status === 200)
+                    result = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result;
+    },
+    async loadById(id) {
+        console.log('Making a backend call...');
+        let result = null;
+        const requestUrl = 'http://localhost:6010/phaedra/plate-service/experiment/' + id
+        await axios.get(requestUrl)
+            .then(response => {
+                if (response.status === 200)
+                    result = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result;
+    },
     async editExperiment(newExperiment) {
         console.log('Making a backend call...');
         let result = null;
@@ -50,19 +99,29 @@ export default {
             });
         return result;
     },
-    async getExperiment(id) {
+    async loadRecentExperiments() {
         console.log('Making a backend call...');
         let result = null;
-        await axios.get('http://localhost:6010/phaedra/plate-service/experiment/' + id)
+        const requestUrl = 'http://localhost:6010/phaedra/plate-service/experiment'
+        await axios.get(requestUrl)
             .then(response => {
-                if (response.status === 200 || response.status === 302)
+                if (response.status === 200)
                     result = response.data;
             })
             .catch(function (error) {
                 console.log(error);
             });
         return result;
-    }
+    },
+    async deleteExperiment(id) {
+        console.log('Making a backend call...');
+        const requestUrl = 'http://localhost:6010/phaedra/plate-service/experiment/' + id
+        await axios.delete(requestUrl)
+            .then(() => {})
+            .catch(function (error) {
+                console.log(error);
+            });
+    },
 
 }
 

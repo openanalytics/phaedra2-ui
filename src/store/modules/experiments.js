@@ -32,16 +32,15 @@ const getters = {
 
 const actions = {
     async loadByProjectId(ctx, id) {
-        await axios.get('http://localhost:6010/phaedra/plate-service/project/' + id + '/experiments')
+        await experimentAPI.loadByProjectId(id)
             .then(response => {
-                ctx.commit('cacheExperiments', response.data)
+                ctx.commit('cacheExperiments', response)
             })
     },
     async loadById(ctx, id) {
-        await axios.get('http://localhost:6010/phaedra/plate-service/experiment/' + id)
+        await experimentAPI.loadById(id)
             .then(response => {
-                console.log('loadbyid')
-                ctx.commit('cacheExperiment', response.data)
+                ctx.commit('cacheExperiment', response)
             })
     },
     async loadExperimentTags(ctx, experimentId) {
@@ -76,23 +75,22 @@ const actions = {
             })
     },
     async loadRecentExperiments(ctx) {
-        await axios.get('http://localhost:6010/phaedra/plate-service/experiment')
+        await experimentAPI.loadRecentExperiments()
             .then(response => {
-                ctx.commit('cacheRecentExperiments', response.data)
+                ctx.commit('cacheRecentExperiments', response)
             })
     },
-    async deleteExperiment(ctx,id) {
-        await axios.delete('http://localhost:6010/phaedra/plate-service/experiment/' + id)
-            .then(response => {
-                console.log(response.data)
-                ctx.commit('deleteExperiment',id)
+    async deleteExperiment(ctx, id) {
+        await experimentAPI.deleteExperiment(id)
+            .then(() => {
+                ctx.commit('deleteExperiment', id)
             })
     },
     async editExperiment(ctx, experiment) {
         await experimentAPI.editExperiment(experiment)
-            .then(() =>{
-                ctx.commit('deleteExperiment',experiment.id)
-                ctx.commit('cacheExperiment',experiment)
+            .then(() => {
+                ctx.commit('deleteExperiment', experiment.id)
+                ctx.commit('cacheExperiment', experiment)
             })
     }
 
@@ -110,20 +108,20 @@ const mutations = {
     cacheRecentExperiments(state, recentExperiments) {
         state.recentExperiments = recentExperiments
     },
-    deleteExperiment(state, id){
+    deleteExperiment(state, id) {
         state.experiments = state.experiments.filter(exp => exp.id !== id)
     },
     addTags(state, tags) {
         for (let i = 0; i < tags.length; i++) {
             var experiment = state.experiments.find(exp => exp.id === tags[i].objectId);
             if (!containsTagInfo(experiment, tags[i]))
-                experiment.tags !== undefined ? experiment.tags.push(tags[i]) : experiment.tags = [ tags[i] ];
+                experiment.tags !== undefined ? experiment.tags.push(tags[i]) : experiment.tags = [tags[i]];
         }
     },
     addTag(state, tagInfo) {
         var experiment = state.experiments.find(exp => exp.id === tagInfo.objectId);
         if (!containsTagInfo(experiment, tagInfo))
-            experiment.tags !== undefined ? experiment.tags.push(tagInfo) : experiment.tags = [ tagInfo ];
+            experiment.tags !== undefined ? experiment.tags.push(tagInfo) : experiment.tags = [tagInfo];
     },
     removeTag(state, tagInfo) {
         var experiment = state.experiments.find(experiment => experiment.id === tagInfo.objectId)
@@ -135,7 +133,7 @@ const mutations = {
 }
 
 function containsExperiment(state, experiment) {
-    for (var i = 0; i < state.experiments.length; i++){
+    for (var i = 0; i < state.experiments.length; i++) {
         if (state.experiments[i].id === experiment.id) {
             return true;
         }
