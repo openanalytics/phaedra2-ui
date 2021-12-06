@@ -81,6 +81,7 @@ export default {
   methods: {
     moveUp(row){
       const index = this.colslist.indexOf(row)
+      if (index===0) return
       const length = this.colslist.length
       let orderedList = []
       for (let i = 0; i < length-1; i++){
@@ -97,6 +98,7 @@ export default {
     moveDown(row){
       const index = this.colslist.indexOf(row)
       const length = this.colslist.length
+      if (index===length-1) return
       let orderedList = []
       for (let i = 0; i < length-1; i++){
         if(i===index){
