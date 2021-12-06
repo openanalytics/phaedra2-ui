@@ -8,18 +8,30 @@
 export default {
   name: "Tag",
   props: {
-    tagInfo: Object
+    tagInfo: Object,
+    objectInfo: Object,
+    objectClass: String
   },
   methods: {
     removeTag() {
-      if (this.tagInfo.objectClass === 'PROJECT')
-        this.$store.dispatch('projects/removeTag', this.tagInfo);
-      else if (this.tagInfo.objectClass === 'EXPERIMENT')
-        this.$store.dispatch('experiments/removeTag', this.tagInfo);
-      else if (this.tagInfo.objectClass === 'PROTOCOL')
-        this.$store.dispatch('protocols/removeTag', this.tagInfo);
-      else if (this.tagInfo.objectClass === 'PLATE')
-        this.$store.dispatch('plates/removeTag', this.tagInfo);
+      let taggedObject = {
+        tag: this.tagInfo.tag,
+        objectId: this.objectInfo.id,
+        objectClass: this.objectClass,
+      }
+
+      if (this.objectClass === 'PROJECT')
+        this.$store.dispatch('projects/removeTag', taggedObject);
+      else if (this.objectClass === 'EXPERIMENT')
+        this.$store.dispatch('experiments/removeTag', taggedObject);
+      else if (this.objectClass === 'PLATE')
+        this.$store.dispatch('plates/removeTag', taggedObject);
+      else if (this.objectClass === 'WELL')
+        this.$store.dispatch('plates/removeTag', taggedObject);
+      else if (this.objectClass === 'PROTOCOL')
+        this.$store.dispatch('protocols/removeTag', taggedObject);
+      else if (this.objectClass === 'FEATURE')
+        this.$store.dispatch('features/removeTag', taggedObject);
     },
     setup() {
     }

@@ -1,4 +1,5 @@
 import axios from "axios";
+import metadataAPI from '@/api/metadata.js'
 
 const state = () => ({
     currentPorject: {},
@@ -29,20 +30,23 @@ const getters = {
 }
 
 const actions = {
-    async loadById(ctx, projectId) {
+    loadById(ctx, projectId) {
         // Load project by id
-        await axios.get('http://localhost:6010/phaedra/plate-service/project/' + projectId)
+        axios.get('http://localhost:6010/phaedra/plate-service/project/' + projectId)
             .then(response => {
                 ctx.commit('loadProject', response.data)
             })
 
         // Load all properties if any
+        metadataAPI.getObjectProperties(projectId, 'PROJECT')
+            .then(result => {
+                ctx.commit('loadProperties', result);
+            })
 
         // Load all tags if any
-        await axios.get('http://localhost:6020/phaedra/metadata-service/tags',
-            {params: {objectId: projectId, objectClass: 'PROJECT'}})
-            .then(response => {
-                ctx.commit('addTags', response.data)
+        metadataAPI.getObjectTags(projectId, 'PROJECT')
+            .then(result => {
+                ctx.commit('loadTags', result);
             })
     },
     async loadAll(ctx) {
@@ -74,22 +78,18 @@ const actions = {
         ctx.commit('updateProject', args)
     },
     tagProject(ctx, tag) {
-        axios.post('http://localhost:6020/phaedra/metadata-service/tag', tag)
-            .then(response => {
-                if (response.status === 201) {
-                    ctx.commit('addTag', tag);
-                }
-                console.log(response)
+        metadataAPI.addTag(tag)
+            .then(result => {
+                const isCreated = result;
+                isCreated ? ctx.commit('addTag', tag) : console.log("TODO: Show error message");
             })
     },
     removeTag(ctx, tag) {
-        axios.delete('http://localhost:6020/phaedra/metadata-service/tag', { data : tag })
-            .then(response => {
-                if (response.status === 200) {
-                    ctx.commit('removeTag', tag);
-                }
-                console.log(response)
-            })
+        metadataAPI.removeTag(tag)
+            .then(result => {
+                const isDeleted = result;
+                isDeleted ? ctx.commit('removeTag', tag) : console.log("TODO: Show error message");
+            });
     },
     addProperty(ctx, property) {
         axios.post('http://localhost:6020/phaedra/metadata-service/property', property)
@@ -99,6 +99,13 @@ const actions = {
                 }
                 console.log(response)
             })
+    },
+    removeProperty(ctx, property) {
+        metadataAPI.removeProperty(property)
+            .then(result => {
+                const isDeleted = result;
+                isDeleted ? ctx.commit('removeProperty', property) : console.log("TODO: Show error message");
+            });
     }
 }
 
@@ -108,7 +115,6 @@ const mutations = {
         // if (!containsProject(state, project))
         //     state.projects.push(project)
     },
-
     uncacheProject(state, projectId) {
         let match = state.projects.find(p => p.id === projectId)
         if (match) state.projects.splice(state.projects.indexOf(match), 1)
@@ -123,20 +129,18 @@ const mutations = {
     cacheNRecentProjects(state, projects) {
         state.recentProjects = projects
     },
-    addTags(state, tags) {
+    loadTags(state, tags) {
         for (let i = 0; i < tags.length; i++) {
-            // var project = state.projects.find(project => project.id === tags[i].objectId);
             if (!containsTag(state.currentPorject, tags[i]))
-                state.currentPorject.tags !== undefined ? state.currentPorject.tags.push(tags[i]) : state.currentPorject.tags = [ tags[i] ];
+                state.currentPorject.tags !== undefined ? state.currentPorject.tags.push(tags[i]) : state.currentPorject.tags = [tags[i]];
         }
     },
-    addTag(state, tagInfo) {
+    addTag(state, tag) {
         // var project = state.projects.find(project => project.id === tagInfo.objectId);
-        if (!containsTag(state.currentPorject, tagInfo))
-            state.currentPorject.tags !== undefined ? state.currentPorject.tags.push(tagInfo) : state.currentPorject.tags = [ tagInfo ];
+        if (!containsTag(state.currentPorject, tag))
+            state.currentPorject.tags !== undefined ? state.currentPorject.tags.push(tag) : state.currentPorject.tags = [tag];
     },
     removeTag(state, tagInfo) {
-        // var project = state.projects.find(project => project.id === tagInfo.objectId)
         if (containsTag(state.currentPorject, tagInfo)) {
             let i = state.currentPorject.tags.findIndex(t => t.tag === tagInfo.tag);
             state.currentPorject.tags.splice(i, 1);
@@ -144,13 +148,13 @@ const mutations = {
     },
     addProperty(state, propertyInfo) {
         if (!containsPropertyInfo(state.currentPorject, propertyInfo)) {
-            state.currentPorject.properties !== undefined ? state.currentPorject.properties.push(propertyInfo) : state.currentPorject.properties = [ propertyInfo ];
+            state.currentPorject.properties !== undefined ? state.currentPorject.properties.push(propertyInfo) : state.currentPorject.properties = [propertyInfo];
         }
     },
-    addProperties(state, properties) {
+    loadProperties(state, properties) {
         for (let i = 0; i < properties.length; i++) {
             if (!containsPropertyInfo(state.currentPorject, properties[i])) {
-                state.currentPorject.properties !== undefined ? state.currentPorject.properties.push(properties[i]) : state.currentPorject.properties = [ properties[i] ];
+                state.currentPorject.properties !== undefined ? state.currentPorject.properties.push(properties[i]) : state.currentPorject.properties = [properties[i]];
             }
         }
     },
@@ -161,15 +165,6 @@ const mutations = {
         }
     }
 }
-
-// function containsProject(state, project) {
-//     for (var i = 0; i < state.projects.length; i++) {
-//         if (state.projects[i].id === project.id) {
-//             return true;
-//         }
-//     }
-//     return false;
-// }
 
 function containsTag(project, tagInfo) {
     return project.tags !== undefined
