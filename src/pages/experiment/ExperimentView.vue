@@ -8,7 +8,7 @@
 
   <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
     <div class="q-pa-md" v-if="!editdialog">
-      
+
       <div class="text-h6 q-px-sm oa-section-title" v-if="!experiment">
         Loading experiment...
       </div>
@@ -32,33 +32,15 @@
             <div class="row">
               <div class="col-3 text-weight-bold">Tags:</div>
               <div class="col">
-                <div class="tag-icon flex inline" v-for="tag in experiment.tags" :key="tag.tag">
-                  <Tag :tagInfo="tag"></Tag>
+                <div class="tag-icon flex inline" v-for="tag in experiment.tags" :key="tag">
+                  <Tag :tagInfo="tag" :objectInfo="experiment" :objectClass="'EXPERIMENT'"/>
                 </div>
               </div>
             </div>
           </div>
 
           <div class="col-4">
-            <div class="row">
-              <div class="col-2 text-weight-bold">Properties:</div>
-              <div class="col">
-                <q-table
-                    dense
-                    :rows="experiment.properties"
-                    :columns="propertyColumns"
-                    table-header-class="text-grey"
-                    row-key="key"
-                    hide-pagination
-                >
-                  <template v-slot:no-data>
-                    <div class="full-width row text-info">
-                      <span>No properties</span>
-                    </div>
-                  </template>
-                </q-table>
-              </div>
-            </div>
+            <PropertyTable :objectInfo="experiment" :objectClass="'EXPERIMENT'"/>
           </div>
 
           <div class="col-4">
@@ -194,17 +176,14 @@ import {useRoute} from 'vue-router'
 
 import Tag from "@/components/tag/Tag";
 import EditExperiment from "./EditExperiment";
-
-const propertyColumns = [
-  {name: 'key', align: 'left', label: 'Name', field: 'key', sortable: true},
-  {name: 'value', align: 'left', label: 'Value', field: 'value', sortable: true}
-]
+import PropertyTable from "@/components/property/PropertyTable";
 
 export default {
   name: 'Experiment',
   components: {
     Tag,
-    EditExperiment
+    EditExperiment,
+    PropertyTable
   },
   methods: {
     onClick() {
@@ -236,11 +215,8 @@ export default {
     const route = useRoute()
 
     const experimentId = parseInt(route.params.id);
-    const experiment = computed(() => store.getters['experiments/getById'](experimentId))
-    if (!store.getters['experiments/isLoaded'](experimentId)) {
-      store.dispatch('experiments/loadById', experimentId)
-    }
-    store.dispatch('experiments/loadExperimentTags', experimentId)
+    const experiment = computed(() => store.getters['experiments/getCurrentExperiment']())
+    store.dispatch('experiments/loadById', experimentId)
 
     const project = computed(() => store.getters['projects/getById'](experiment.value.projectId))
 
@@ -248,7 +224,6 @@ export default {
       experimentId,
       experiment,
       project,
-      propertyColumns,
       activeTab: ref('plate_overview')
     }
   },
