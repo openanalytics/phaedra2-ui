@@ -14,7 +14,7 @@
   >
     <template v-slot:top-right>
       <div class="col action-button on-left">
-        <q-btn size="sm" color="primary" icon="add" label="New Plate" @click="openNewPlateTab"/>
+        <q-btn size="sm" color="primary" icon="add" label="New Plate" @click="openNewPlateTab()"/>
       </div>
       <div class="row">
         <q-input outlined rounded dense debounce="300" v-model="filter" placeholder="Search">
@@ -187,12 +187,12 @@ const filterMethod = function (rows, term) {
 export default {
   components: {TableConfig, PlateCalculateDialog},
 
-  props: {
-    experiment: Object
-  },
+  props: ['experiment','newPlateTab'],
+  emits: ['update:newPlateTab'],
   methods: {
     openNewPlateTab() {
-      this.$emit("message")
+      console.log('clicked')
+      this.$emit('update:newPlateTab',true)
     },
     validate(id, experimentId) {
       //put validationStatus: VALIDATED

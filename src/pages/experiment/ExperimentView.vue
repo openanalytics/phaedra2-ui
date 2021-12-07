@@ -91,7 +91,7 @@
         <q-route-tab :to="'/experiment/' + experiment.id + '/heatmaps'" icon="view_module" label="Heatmaps"/>
       </q-tabs>
       <div class="row oa-section-body">
-        <router-view class="router-view" :experiment="experiment" @message="newPlateTab=true"></router-view>
+        <router-view v-model:experiment="experiment" v-model:newPlateTab="newPlateTab"></router-view>
       </div>
     </div>
 
