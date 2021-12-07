@@ -32,10 +32,10 @@
     },
     setup() {
       const store = useStore();
-      store.dispatch('projects/loadRecentProjects');
+      store.dispatch('projects/loadRecentProjects',3);
       store.dispatch('experiments/loadRecentExperiments');
 
-      const recentProjects = computed(() => store.getters['projects/getNRecentProjects'](3));
+      const recentProjects = computed(() => store.getters['projects/getNRecentProjects']());
       const recentExperiments = computed(() => store.getters['experiments/getRecentExperiments']());
 
       const columns = [
