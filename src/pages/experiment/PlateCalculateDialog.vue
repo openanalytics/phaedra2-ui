@@ -2,13 +2,13 @@
   <q-dialog v-model="props.show" persistent>
     <q-card style="min-width: 50vw">
       <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
-        <q-avatar icon="settings" color="primary" text-color="white"/>
-        Configure Columns
+        <q-avatar icon="calculate" color="primary" text-color="white"/>
+        Start Plate Calculation
       </q-card-section>
       <q-card-section>
         <div class="row">
           <div class="col-10">
-            <span>Configure the displayed columns of the table.</span><br><br>
+            <span>Select the protocol that will be used for the calculation.</span><br><br>
           </div>
         </div>
           <div class="q-pa-md">
