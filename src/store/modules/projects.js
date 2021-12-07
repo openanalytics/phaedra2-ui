@@ -1,8 +1,9 @@
+import projectAPI from '@/api/projects.js'
 import axios from "axios";
 import metadataAPI from '@/api/metadata.js'
 
 const state = () => ({
-    currentPorject: {},
+    currentProject: {},
     projects: [],
     recentProjects: []
 })
@@ -12,7 +13,7 @@ const getters = {
         return state.projects.find(project => project.id === id)
     },
     getCurrentProject: (state) => () => {
-        return state.currentPorject;
+        return state.currentProject;
     },
     getAll: (state) => () => {
         return state.projects
@@ -28,9 +29,9 @@ const getters = {
 const actions = {
     loadById(ctx, projectId) {
         // Load project by id
-        axios.get('http://localhost:6010/phaedra/plate-service/project/' + projectId)
+        projectAPI.getProjectById(id)
             .then(response => {
-                ctx.commit('loadProject', response.data)
+                ctx.commit('loadProject', response)
             })
 
         // Load all properties if any
@@ -45,32 +46,34 @@ const actions = {
                 ctx.commit('loadTags', result);
             })
     },
-    loadAll(ctx) {
-        axios.get('http://localhost:6010/phaedra/plate-service/projects')
+
+    async loadAll(ctx) {
+        await projectAPI.getAllProjects()
             .then(response => {
-                ctx.commit('cacheAllProjects', response.data)
+                ctx.commit('cacheAllProjects', response)
             })
     },
-    loadRecentProjects(ctx) {
-        axios.get('http://localhost:6010/phaedra/plate-service/projects')
+    async loadRecentProjects(ctx) {
+        await projectAPI.loadRecentProjects()
             .then(response => {
-                ctx.commit('cacheNRecentProjects', response.data)
+                ctx.commit('cacheNRecentProjects', response)
             })
     },
     async createNewProject(ctx, newProject) {
-        const response = await axios.post('http://localhost:6010/phaedra/plate-service/project', newProject)
-        const createdProject = response.data
-        ctx.commit('loadProject', createdProject)
-        return createdProject
+        await projectAPI.createNewProject(newProject)
+            .then((response) => {
+                ctx.commit('cacheProject', response)
+                return response
+            })
     },
     async deleteProject(ctx, projectId) {
-        await axios.delete('http://localhost:6010/phaedra/plate-service/project/' + projectId)
+        await projectAPI.deleteProject(projectId)
             .then(() => {
                 ctx.commit('uncacheProject', projectId)
             })
     },
     async renameProject(ctx, args) {
-        await axios.put('http://localhost:6010/phaedra/plate-service/project', args)
+        await projectAPI.editProject(args)
         ctx.commit('updateProject', args)
     },
     tagProject(ctx, tag) {
@@ -107,7 +110,7 @@ const actions = {
 
 const mutations = {
     loadProject(state, project) {
-        state.currentPorject = project;
+        state.currentProject = project;
         // if (!containsProject(state, project))
         //     state.projects.push(project)
     },
@@ -117,7 +120,10 @@ const mutations = {
     },
     updateProject(state, args) {
         let project = state.projects.find(p => p.id === args.id)
-        if (project) project.name = args.name
+        if (project) {
+            project.name = args.name
+            state.currentProject = project
+        }
     },
     cacheAllProjects(state, projects) {
         state.projects = projects;
@@ -131,37 +137,37 @@ const mutations = {
     },
     loadTags(state, tags) {
         for (let i = 0; i < tags.length; i++) {
-            if (!containsTag(state.currentPorject, tags[i]))
-                state.currentPorject.tags !== undefined ? state.currentPorject.tags.push(tags[i]) : state.currentPorject.tags = [tags[i]];
+            if (!containsTag(state.currentProject, tags[i]))
+                state.currentProject.tags !== undefined ? state.currentProject.tags.push(tags[i]) : state.currentProject.tags = [tags[i]];
         }
     },
     addTag(state, tag) {
         // var project = state.projects.find(project => project.id === tagInfo.objectId);
-        if (!containsTag(state.currentPorject, tag))
-            state.currentPorject.tags !== undefined ? state.currentPorject.tags.push(tag) : state.currentPorject.tags = [tag];
+        if (!containsTag(state.currentProject, tag))
+            state.currentProject.tags !== undefined ? state.currentProject.tags.push(tag) : state.currentProject.tags = [tag];
     },
     removeTag(state, tagInfo) {
-        if (containsTag(state.currentPorject, tagInfo)) {
-            let i = state.currentPorject.tags.findIndex(t => t.tag === tagInfo.tag);
-            state.currentPorject.tags.splice(i, 1);
+        if (containsTag(state.currentProject, tagInfo)) {
+            let i = state.currentProject.tags.findIndex(t => t.tag === tagInfo.tag);
+            state.currentProject.tags.splice(i, 1);
         }
     },
     addProperty(state, propertyInfo) {
-        if (!containsPropertyInfo(state.currentPorject, propertyInfo)) {
-            state.currentPorject.properties !== undefined ? state.currentPorject.properties.push(propertyInfo) : state.currentPorject.properties = [propertyInfo];
+        if (!containsPropertyInfo(state.currentProject, propertyInfo)) {
+            state.currentProject.properties !== undefined ? state.currentProject.properties.push(propertyInfo) : state.currentProject.properties = [propertyInfo];
         }
     },
     loadProperties(state, properties) {
         for (let i = 0; i < properties.length; i++) {
-            if (!containsPropertyInfo(state.currentPorject, properties[i])) {
-                state.currentPorject.properties !== undefined ? state.currentPorject.properties.push(properties[i]) : state.currentPorject.properties = [properties[i]];
+            if (!containsPropertyInfo(state.currentProject, properties[i])) {
+                state.currentProject.properties !== undefined ? state.currentProject.properties.push(properties[i]) : state.currentProject.properties = [ properties[i] ];
             }
         }
     },
     removeProperty(state, propertyInfo) {
-        if (containsPropertyInfo(state.currentPorject, propertyInfo)) {
-            let i = state.currentPorject.properties.findIndex(p => p.propertyName === propertyInfo.propertyName);
-            state.currentPorject.properties.splice(i, 1);
+        if (containsPropertyInfo(state.currentProject, propertyInfo)) {
+            let i = state.currentProject.properties.findIndex(p => p.propertyName === propertyInfo.propertyName);
+            state.currentProject.properties.splice(i, 1);
         }
     }
 }

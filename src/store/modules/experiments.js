@@ -37,9 +37,9 @@ const getters = {
 
 const actions = {
     async loadByProjectId(ctx, id) {
-        await axios.get('http://localhost:6010/phaedra/plate-service/project/' + id + '/experiments')
+        await experimentAPI.loadByProjectId(id)
             .then(response => {
-                ctx.commit('cacheExperiments', response.data)
+                ctx.commit('cacheExperiments', response)
             })
     },
     loadById(ctx, experimentId) {
@@ -86,16 +86,15 @@ const actions = {
             });
     },
     async loadRecentExperiments(ctx) {
-        await axios.get('http://localhost:6010/phaedra/plate-service/experiment')
+        await experimentAPI.loadRecentExperiments()
             .then(response => {
-                ctx.commit('cacheRecentExperiments', response.data)
+                ctx.commit('cacheRecentExperiments', response)
             })
     },
-    async deleteExperiment(ctx,id) {
-        await axios.delete('http://localhost:6010/phaedra/plate-service/experiment/' + id)
-            .then(response => {
-                console.log(response.data)
-                ctx.commit('deleteExperiment',id)
+    async deleteExperiment(ctx, id) {
+        await experimentAPI.deleteExperiment(id)
+            .then(() => {
+                ctx.commit('deleteExperiment', id)
             })
     },
     async editExperiment(ctx, experiment) {
@@ -135,7 +134,7 @@ const mutations = {
     cacheRecentExperiments(state, recentExperiments) {
         state.recentExperiments = recentExperiments
     },
-    deleteExperiment(state, id){
+    deleteExperiment(state, id) {
         state.experiments = state.experiments.filter(exp => exp.id !== id)
     },
     loadTags(state, tags) {
@@ -175,7 +174,7 @@ const mutations = {
 }
 
 function containsExperiment(state, experiment) {
-    for (var i = 0; i < state.experiments.length; i++){
+    for (var i = 0; i < state.experiments.length; i++) {
         if (state.experiments[i].id === experiment.id) {
             return true;
         }

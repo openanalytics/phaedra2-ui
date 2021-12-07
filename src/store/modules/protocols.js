@@ -2,8 +2,7 @@ import protocolAPI from '@/api/protocols.js'
 import axios from "axios";
 
 const state = () => ({
-    protocols: [],
-    formulas: []
+    protocols: []
 })
 
 const getters = {
@@ -77,12 +76,10 @@ const actions = {
             })
     },
     async addNewFeature(ctx, newFeature) {
-        axios.post('http://localhost:6030/phaedra/protocol-service/features', newFeature)
-            .then(response => {
-                if (response.status === 201) {
-                    ctx.commit('addFeature', response.data);
-                }
-                console.log(response)
+        await protocolAPI.addNewFeature(newFeature)
+            .then(() => {
+                ctx.commit('addFeature', newFeature);
+                ctx.commit('features/cacheInProtocol', newFeature, { root: true })
             })
     },
     async deleteProtocol(ctx, protocol){
@@ -139,7 +136,7 @@ const mutations = {
     },
     addFeature(state, feature) {
         const protocol = state.protocols.find(protocol => protocol.id === feature.protocolId)
-        if (containsFeature(protocol, feature))
+        if (!containsFeature(protocol, feature))
             protocol.features !== undefined ? protocol.features.push(feature) : protocol.features = [feature];
     },
     deleteProtocol(state, pr){

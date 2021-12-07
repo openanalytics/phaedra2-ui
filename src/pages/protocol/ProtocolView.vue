@@ -4,8 +4,8 @@
     <q-breadcrumbs-el :label="protocol.name" icon="ballot"/>
   </q-breadcrumbs>
 
-  <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
-    <div class="q-pa-md" v-if="!editdialog && protocol">
+  <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs" v-if="protocol">
+    <div class="q-pa-md" v-if="!editdialog">
       <div class="row text-h6 items-center q-px-md oa-section-title">
         <q-icon name="ballot" class="q-pr-sm"/>
         {{ protocol.name }}
@@ -60,7 +60,7 @@
 
     <EditProtocol v-model:show="editdialog" v-model:protocol="protocol"></EditProtocol>
 
-    <div class="q-pa-md" v-if="!newFeatureTab">
+    <div class="q-pa-md" v-if="!newFeatureTab && formulas">
       <div class="row text-h6 items-center q-px-md oa-section-title">
         <q-icon name="functions" class="q-pr-sm"/>
         Features
@@ -69,9 +69,9 @@
         <template v-slot:top-right>
           <q-btn color="primary" label="Add Feature..." @click="newFeatureTab = true"></q-btn>
         </template>
-        <template v-slot:body-cell-formulaId="props">
+        <template v-slot:body-cell-formulaId="props" >
           <q-td :props="props">
-            {{formulas.find(formula => {return formula.id === props.row.formulaId}).name}}
+            {{getFormulaName(props.row.formulaId)}}
           </q-td>
         </template>
         <template v-slot:body-cell-protocolId="props">
@@ -205,7 +205,8 @@ export default {
     }
 
     const formulas = computed(() => store.getters['calculations/getFormulas']())
-    console.log(formulas)
+    store.dispatch('calculations/getAllFormulas')
+
     return {
       protocolId,
       protocol,
@@ -257,6 +258,14 @@ export default {
       this.$store.dispatch('protocols/deleteProtocol', this.protocol).then(() => {
         this.$router.push({name: 'dashboard'})
       })
+    },
+    getFormulaName(id){
+      const formula = this.formulas.find(formula => {return formula.id === id})
+      console.log(this.formulas)
+      if(formula){
+        return formula.name
+      }
+      else return 'NOT_IN_DB'
     }
   }
 
