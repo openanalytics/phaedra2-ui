@@ -1,8 +1,9 @@
 import plateAPI from '@/api/plates.js'
 import axios from "axios";
+import metadataAPI from "@/api/metadata";
 
 const state = () => ({
-    currentPlate: null,
+    currentPlate: {},
     plates: [],
     platesInExperiment: {}
 })
@@ -38,39 +39,66 @@ const actions = {
             ctx.commit('cachePlatesInExperiment', {experimentId: id, plates})
         })
     },
-    async loadById(ctx, id) {
-        let plate = await plateAPI.getPlateById(id);
-        plate.measurements = await plateAPI.getPlateMeasurementsByPlateId(id);
-        ctx.commit('cachePlate', plate)
+    loadById(ctx, plateId) {
+        // Load plate by id
+        plateAPI.getPlateById(plateId)
+            .then(result => {
+                console.log('Load plate by id')
+                ctx.commit('loadPlate', result)
+            });
+
+        // Load plate properties
+        metadataAPI.getObjectProperties(plateId, 'PLATE')
+            .then(result => {
+                console.log('Load plate properties');
+                ctx.commit('loadProperties', result);
+            })
+
+        // Load plate tags
+        metadataAPI.getObjectTags(plateId, 'PLATE')
+            .then(result => {
+                console.log('Load plate tags');
+                ctx.commit('loadTags', result);
+            })
+
+        plateAPI.getPlateMeasurementsByPlateId(plateId)
+            .then(result => {
+                console.log('Load plate measurements');
+                ctx.commit('loadMeasurements', result);
+            });
     },
     async createNewPlate(ctx, plate) {
         const newPlate = await plateAPI.addPlate(plate)
         ctx.commit('cacheNewPlate', newPlate)
     },
-    async loadPlateTags(ctx, plateId) {
-        await axios.get('http://localhost:6020/phaedra/metadata-service/tagged_objects/PLATE',
-            {params: {objectId: plateId}})
-            .then(response => {
-                ctx.commit('addTags', response.data)
+    tagPlate(ctx, tag) {
+        metadataAPI.addTag(tag)
+            .then(result => {
+                const isCreated = result;
+                isCreated ? ctx.commit('addTag', tag) : console.log("TODO: Show error message");
             })
     },
-    tagPlate(ctx, tagInfo) {
-        axios.post('http://localhost:6020/phaedra/metadata-service/tags', tagInfo)
+    removeTag(ctx, tag) {
+        metadataAPI.removeTag(tag)
+            .then(result => {
+                const isDeleted = result;
+                isDeleted ? ctx.commit('removeTag', tag) : console.log("TODO: Show error message");
+            });
+    },
+    addProperty(ctx, property) {
+        axios.post('http://localhost:6020/phaedra/metadata-service/property', property)
             .then(response => {
                 if (response.status === 201) {
-                    ctx.commit('addTag', tagInfo);
+                    ctx.commit('addProperty', property);
                 }
-                console.log(response)
             })
     },
-    removeTag(ctx, plateTag) {
-        axios.delete('http://localhost:6020/phaedra/metadata-service/tags', {data: plateTag})
-            .then(response => {
-                if (response.status === 200) {
-                    ctx.commit('removeTag', plateTag);
-                }
-                console.log(response)
-            })
+    removeProperty(ctx, property) {
+        metadataAPI.removeProperty(property)
+            .then(result => {
+                const isDeleted = result;
+                isDeleted ? ctx.commit('removeProperty', property) : console.log("TODO: Show error message");
+            });
     },
     async addMeasurement(ctx, plateMeasurement) {
         const requestUrl = 'http://localhost:6010/phaedra/plate-service/plate/' + plateMeasurement.plateId + '/measurement';
@@ -96,14 +124,15 @@ const actions = {
         await plateAPI.getPlateById(plate.id)
             .then(newPlate => {
                 ctx.commit('cacheNewPlate', newPlate)
-                ctx.commit('cachePlate', newPlate)
+                ctx.commit('loadPlate', newPlate)
             })
     }
 }
 
 const mutations = {
-    cachePlate(state, plate) {
-        state.currentPlate = plate;
+    loadPlate(state, plate) {
+        if (state.currentPlate && state.currentPlate.id !== plate.id)
+            state.currentPlate = plate;
     },
     cachePlates(state, plates) {
         plates?.forEach(plate => {
@@ -118,30 +147,52 @@ const mutations = {
             state.platesInExperiment[plate.experimentId].push(plate)
         }
     },
-    addTags(state, tags) {
+    loadTags(state, tags) {
         for (let i = 0; i < tags.length; i++) {
-            // var plate = state.plates.find(p => p.id === tags[i].objectId);
-            let plate = state.currentPlate || state.plates.find(p => p.id === tags[i].objectId);
-            if (!containsTagInfo(plate, tags[i]))
-                plate.tags !== undefined ? plate.tags.push(tags[i]) : plate.tags = [tags[i]];
+            // let plate = state.currentPlate || state.plates.find(p => p.id === tags[i].objectId);
+            if (!containsTag(state.currentPlate, tags[i]))
+                state.currentPlate.tags !== undefined ? state.currentPlate.tags.push(tags[i]) : state.currentPlate.tags = [tags[i]];
         }
     },
     addTag(state, tagInfo) {
         // var plate = state.plates.find(p => p.id === tagInfo.objectId);
-        let plate = state.currentPlate || state.plates.find(p => p.id === tagInfo.objectId);
-        if (!containsTagInfo(plate, tagInfo))
-            plate.tags !== undefined ? plate.tags.push(tagInfo) : plate.tags = [tagInfo];
+        // let plate = state.currentPlate || state.plates.find(p => p.id === tagInfo.objectId);
+        if (!containsTag(state.currentPlate, tagInfo))
+            state.currentPlate.tags !== undefined ? state.currentPlate.tags.push(tagInfo) : state.currentPlate.tags = [tagInfo];
     },
     removeTag(state, tagInfo) {
         // let plate = state.plates.find(p => p.id === tagInfo.objectId)
-        let plate = state.currentPlate || state.plates.find(p => p.id === tagInfo.objectId);
-        if (containsTagInfo(plate, tagInfo)) {
-            let i = plate.tags.findIndex(t => t.tag === tagInfo.tag);
-            plate.tags.splice(i, 1);
+        // let plate = state.currentPlate || state.plates.find(p => p.id === tagInfo.objectId);
+        if (containsTag(state.currentPlate, tagInfo)) {
+            let i = state.currentPlate.tags.findIndex(t => t.tag === tagInfo.tag);
+            state.currentPlate.tags.splice(i, 1);
+        }
+    },
+    addProperty(state, propertyInfo) {
+        if (!containsPropertyInfo(state.currentPlate, propertyInfo)) {
+            state.currentPlate.properties !== undefined ? state.currentPlate.properties.push(propertyInfo) : state.currentPlate.properties = [propertyInfo];
+        }
+    },
+    loadProperties(state, properties) {
+        for (let i = 0; i < properties.length; i++) {
+            if (!containsPropertyInfo(state.currentPlate, properties[i])) {
+                state.currentPlate.properties !== undefined ? state.currentPlate.properties.push(properties[i]) : state.currentPlate.properties = [properties[i]];
+            }
+        }
+    },
+    removeProperty(state, propertyInfo) {
+        if (containsPropertyInfo(state.currentPlate, propertyInfo)) {
+            let i = state.currentPlate.properties.findIndex(p => p.propertyName === propertyInfo.propertyName);
+            state.currentPlate.properties.splice(i, 1);
         }
     },
     cachePlatesInExperiment(state, args) {
         state.platesInExperiment[args.experimentId] = args.plates;
+    },
+    loadMeasurements(state, measurements) {
+        for (let i = 0; i < measurements.length; i++) {
+            state.currentPlate?.measurements ? state.currentPlate.measurements.push(measurements[i]) : state.currentPlate.measurements = [measurements[i]];
+        }
     },
     addMeasurement(state, plateMeasurement) {
         state.currentPlate?.measurements ? state.currentPlate.measurements.push(plateMeasurement) : state.currentPlate.measurements = [plateMeasurement];
@@ -153,8 +204,13 @@ const mutations = {
     },
 }
 
-function containsTagInfo(plate, tagInfo) {
+function containsTag(plate, tagInfo) {
     return plate.tags !== undefined && plate.tags.findIndex(t => t.tag === tagInfo.tag) > -1;
+}
+
+function containsPropertyInfo(plate, propertyInfo) {
+    return plate.properties !== undefined
+        && plate.properties.findIndex(p => p.propertyName === propertyInfo.propertyName) > -1;
 }
 
 function containsPlate(state, plate) {

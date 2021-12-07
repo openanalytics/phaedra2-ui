@@ -81,6 +81,8 @@ export default {
         store.dispatch('projects/addProperty', propertyInfo);
       else if (props.objectClass === 'EXPERIMENT')
         store.dispatch('experiments/addProperty', propertyInfo);
+      else if (props.objectClass === 'PLATE')
+        store.dispatch('plates/addProperty', propertyInfo);
     }
 
     const doRemoveProperty = function () {
@@ -97,6 +99,8 @@ export default {
             store.dispatch('projects/removeProperty', propertyInfo);
           else if (props.objectClass === 'EXPERIMENT')
             store.dispatch('experiments/removeProperty', propertyInfo);
+          else if (props.objectClass === 'PLATE')
+            store.dispatch('plates/removeProperty', propertyInfo);
 
           removedIndex.push(index);
         });

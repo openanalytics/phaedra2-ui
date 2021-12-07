@@ -21,11 +21,7 @@ const getters = {
         return state.projects.find(project => project.id === id)
     },
     getNRecentProjects: (state) => (n) => {
-        return state.recentProjects.sort((p1, p2) => {
-            let p1Time = new Date(p1.createdOn).getTime()
-            let p2Time = new Date(p2.createdOn).getTime()
-            return p1Time - p2Time;
-        }).slice(0, n)
+        return state.recentProjects.slice(0, n)
     }
 }
 
@@ -49,14 +45,14 @@ const actions = {
                 ctx.commit('loadTags', result);
             })
     },
-    async loadAll(ctx) {
-        await axios.get('http://localhost:6010/phaedra/plate-service/projects')
+    loadAll(ctx) {
+        axios.get('http://localhost:6010/phaedra/plate-service/projects')
             .then(response => {
                 ctx.commit('cacheAllProjects', response.data)
             })
     },
-    async loadRecentProjects(ctx) {
-        await axios.get('http://localhost:6010/phaedra/plate-service/projects')
+    loadRecentProjects(ctx) {
+        axios.get('http://localhost:6010/phaedra/plate-service/projects')
             .then(response => {
                 ctx.commit('cacheNRecentProjects', response.data)
             })
@@ -127,7 +123,11 @@ const mutations = {
         state.projects = projects;
     },
     cacheNRecentProjects(state, projects) {
-        state.recentProjects = projects
+        state.recentProjects = projects.sort((p1, p2) => {
+            let p1Time = new Date(p1.createdOn).getTime()
+            let p2Time = new Date(p2.createdOn).getTime()
+            return p1Time - p2Time;
+        });
     },
     loadTags(state, tags) {
         for (let i = 0; i < tags.length; i++) {

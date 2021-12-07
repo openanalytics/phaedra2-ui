@@ -72,13 +72,6 @@ const actions = {
         return createdExperiment
     },
     tagExperiment(ctx, tag) {
-        // axios.post('http://localhost:6020/phaedra/metadata-service/tag', tagInfo)
-        //     .then(response => {
-        //         if (response.status === 201) {
-        //             ctx.commit('loadTags', tagInfo);
-        //         }
-        //         console.log(response)
-        //     })
         metadataAPI.addTag(tag)
             .then(result => {
                 const isCreated = result;
@@ -86,13 +79,6 @@ const actions = {
             })
     },
     removeTag(ctx, tag) {
-        // axios.delete('http://localhost:6020/phaedra/metadata-service/tag', {data: projectTag})
-        //     .then(response => {
-        //         if (response.status === 200) {
-        //             ctx.commit('removeTag', projectTag);
-        //         }
-        //         console.log(response)
-        //     })
         metadataAPI.removeTag(tag)
             .then(result => {
                 const isDeleted = result;
@@ -125,7 +111,6 @@ const actions = {
                 if (response.status === 201) {
                     ctx.commit('addProperty', property);
                 }
-                console.log(response)
             })
     },
     removeProperty(ctx, property) {

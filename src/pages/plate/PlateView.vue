@@ -34,32 +34,33 @@
               <div class="col-3 text-weight-bold">Tags:</div>
               <div class="col">
                 <div class="tag-icon flex inline" v-for="tag in plate.tags" :key="tag.tag">
-                  <Tag :tagInfo="tag"></Tag>
+                  <Tag :tagInfo="tag" :objectInfo="plate" :objectClass="'PLATE'"></Tag>
                 </div>
               </div>
             </div>
           </div>
 
           <div class="col col-4">
-            <div class="row">
-              <div class="col-2 text-weight-bold">Properties:</div>
-              <div class="col">
-                <q-table
-                    dense
-                    :rows="plate.properties"
-                    :columns="propertyColumns"
-                    table-header-class="text-grey"
-                    row-key="key"
-                    hide-pagination
-                >
-                  <template v-slot:no-data>
-                    <div class="full-width row text-info">
-                      <span>No properties</span>
-                    </div>
-                  </template>
-                </q-table>
-              </div>
-            </div>
+            <PropertyTable :objectInfo="plate" :objectClass="'PLATE'"/>
+<!--            <div class="row">-->
+<!--              <div class="col-2 text-weight-bold">Properties:</div>-->
+<!--              <div class="col">-->
+<!--                <q-table-->
+<!--                    dense-->
+<!--                    :rows="plate.properties"-->
+<!--                    :columns="propertyColumns"-->
+<!--                    table-header-class="text-grey"-->
+<!--                    row-key="key"-->
+<!--                    hide-pagination-->
+<!--                >-->
+<!--                  <template v-slot:no-data>-->
+<!--                    <div class="full-width row text-info">-->
+<!--                      <span>No properties</span>-->
+<!--                    </div>-->
+<!--                  </template>-->
+<!--                </q-table>-->
+<!--              </div>-->
+<!--            </div>-->
           </div>
 
           <div class="col col-4">
@@ -169,23 +170,25 @@
 </style>
 
 <script>
-import {computed, watch, ref} from 'vue'
+import {computed, ref} from 'vue'
 import {useStore} from 'vuex'
 import {useRoute} from 'vue-router'
 
 import Tag from "@/components/tag/Tag";
 import EditPlate from "./EditPlate";
+import PropertyTable from "@/components/property/PropertyTable";
 
-const propertyColumns = [
-  {name: 'key', align: 'left', label: 'Name', field: 'key', sortable: true},
-  {name: 'value', align: 'left', label: 'Value', field: 'value', sortable: true}
-]
+// const propertyColumns = [
+//   {name: 'key', align: 'left', label: 'Name', field: 'key', sortable: true},
+//   {name: 'value', align: 'left', label: 'Value', field: 'value', sortable: true}
+// ]
 
 export default {
   name: 'Plate',
   components: {
     Tag,
-    EditPlate
+    EditPlate,
+    PropertyTable
   },
   methods: {
     onClick() {
@@ -215,25 +218,23 @@ export default {
     const route = useRoute()
 
     const plateId = parseInt(route.params.id);
+    const plate = computed(() => store.getters['plates/getCurrentPlate']());
+    const experiment = computed(() => store.getters['experiments/getCurrentExperiment']());
+    const project = computed(() => store.getters['projects/getCurrentProject']());
     store.dispatch('plates/loadById', plateId);
 
-    const plate = computed(() => store.getters['plates/getCurrentPlate']());
-    store.dispatch('plates/loadPlateTags', plateId)
-    const experiment = computed(() => store.getters['experiments/getById'](plate.value.experimentId));
-    const project = computed(() => store.getters['projects/getById'](experiment.value.projectId));
-
     // Once the plate has loaded, make sure the parent experiment gets loaded too.
-    watch(plate, (plate) => {
-      if (!store.getters['experiments/isLoaded'](plate.experimentId)) {
-        store.dispatch('experiments/loadById', plate.experimentId);
-      }
-    })
+    // watch(plate, (plate) => {
+    //   if (!store.getters['experiments/isLoaded'](plate.experimentId)) {
+    //     store.dispatch('experiments/loadById', plate.experimentId);
+    //   }
+    // })
 
     return {
       plate,
       experiment,
       project,
-      propertyColumns,
+      // propertyColumns,
       activeTab: ref('plate_layout')
     }
   },
