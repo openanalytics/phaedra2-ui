@@ -64,6 +64,7 @@ export default {
       this.calculation.measId = this.activeMeasurement.measurementId
       this.calculation.plateId = this.plateId
       this.calculation.protocolId = this.selected[0].id
+      this.$store.dispatch('calculations/startCalculation',this.calculation)
       this.$emit('update:show',false)
     },
     checkDimensions(){
