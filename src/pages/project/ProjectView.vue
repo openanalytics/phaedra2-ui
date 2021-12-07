@@ -67,7 +67,7 @@
 
             <div class="col-4">
               <div class="row justify-end action-button">
-                <q-btn size="sm" icon="edit" label="Rename" class="oa-button" @click="showRenameDialog = true"/>
+                <q-btn size="sm" icon="edit" label="Rename" class="oa-button" @click="newProjectName = project.name; showRenameDialog = true"/>
 <!--                <q-btn size="sm" icon="sell" label="Add Tag" class="oa-button" @click="showAddTagDialog = true"/>-->
 <!--                <q-btn size="sm" color="primary" icon="edit" align="between" class="oa-button-edit" label="Rename Project" @click="showRenameDialog = true"/>-->
               </div>
@@ -177,7 +177,7 @@
         </q-card-section>
         <q-card-actions align="right">
           <q-btn flat label="Cancel" color="primary" v-close-popup />
-          <q-btn label="Delete project" color="negative" v-if="project.name == projectName" v-close-popup @click="doDeleteProject"/>
+          <q-btn label="Delete project" color="negative" v-if="project.name === projectName" v-close-popup @click="doDeleteProject"/>
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -249,13 +249,6 @@
       }
 
       const showRenameDialog = ref(false)
-      const newProjectName = ref(project.value ? project.value.name : '')
-      const doRenameProject = function() {
-        store.dispatch('projects/renameProject', {
-          id: projectId,
-          name: newProjectName.value
-        })
-      }
 
       const showDeleteDialog = ref(false)
       const doDeleteProject = function() {
@@ -280,8 +273,7 @@
         doAddProperty,
 
         showRenameDialog,
-        newProjectName,
-        doRenameProject,
+        newProjectName: null,
 
         showDeleteDialog,
         doDeleteProject,
@@ -292,6 +284,14 @@
     data(){
       return {
         projectName: ref(""),
+      }
+    },
+    methods: {
+      doRenameProject() {
+        this.$store.dispatch('projects/renameProject', {
+          id: this.projectId,
+          name: this.newProjectName
+        })
       }
     }
   }

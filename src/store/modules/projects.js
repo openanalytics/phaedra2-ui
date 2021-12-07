@@ -104,7 +104,7 @@ const actions = {
 const mutations = {
     cacheProject(state, project) {
         state.currentProject = project;
-        if (!containsProject(state, project)) state.projects.push(project)
+        if (!containsProject(state,project)) state.projects.push(project)
     },
 
     uncacheProject(state, projectId) {
@@ -172,7 +172,7 @@ const mutations = {
 //     return false;
 // }
 
-function containsProject(project) {
+function containsProject(state,project) {
     return state.projects !== undefined
         && state.projects.findIndex(t => t.id === project.id) > -1;
 }

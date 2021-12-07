@@ -39,10 +39,10 @@ export default {
             })
         return result;
     },
-    async deleteProtocol(protocolId) {
+    async deleteProtocol(protocol) {
         console.log('Making a backend call...');
         let result = null;
-        const requestUrl = 'http://localhost:6030/phaedra/protocol-service/protocols/' + protocolId;
+        const requestUrl = 'http://localhost:6030/phaedra/protocol-service/protocols/' + protocol.id;
         await axios.delete(requestUrl)
             .then(response => {
                 if (response.status === 200)
