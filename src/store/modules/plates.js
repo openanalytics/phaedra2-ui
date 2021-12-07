@@ -2,7 +2,7 @@ import plateAPI from '@/api/plates.js'
 import axios from "axios";
 
 const state = () => ({
-    currentPlate: null,
+    currentPlate: {},
     plates: [],
     platesInExperiment: {}
 })
@@ -25,6 +25,9 @@ const getters = {
     },
     getCurrentPlateMeasurements: (state) => () => {
         return state.currentPlate.measurements;
+    },
+    getActiveMeasurement: (state) => () => {
+        if(state.currentPlate.measurements) return state.currentPlate.measurements.find(meas => meas.active === true)
     }
 }
 
