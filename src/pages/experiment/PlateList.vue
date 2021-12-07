@@ -35,6 +35,14 @@
         </router-link>
       </q-td>
     </template>
+    <template v-slot:body-cell-status-calculation="props">
+      <q-td :props="props">
+        <q-icon v-if="props.row.calculationStatus==='CALCULATION_NEEDED'" name="horizontal_rule"></q-icon>
+        <q-icon v-else-if="props.row.approvalStatus==='CALCULATION_OK'" name="check_circle" color="positive"/>
+        <q-icon v-else-if="props.row.approvalStatus==='CALCULATION_NOT_POSSIBLE'" name="cancel" color="negative"/>
+        <q-icon v-else-if="props.row.approvalStatus==='CALCULATION_ERROR'" name="cancel" color="negative"/>
+      </q-td>
+    </template>
     <template v-slot:body-cell-status-validated="props">
       <q-td :props="props">
         <q-icon v-if="props.row.validationStatus==='VALIDATION_NOT_SET'" name="horizontal_rule"></q-icon>
@@ -210,7 +218,6 @@ export default {
       this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, approvalStatus: 'APPROVAL_NOT_SET'})
     },
     calculatePlate(id){
-      console.log(id)
       this.selectedPlateId = id
       this.calculateDialog = true
     },

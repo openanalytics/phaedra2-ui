@@ -264,6 +264,7 @@ export default {
         columns: null,
         sequence: null,
         experimentId: null,
+        calculationStatus: "CALCULATION_NEEDED",
         validationStatus: "VALIDATION_NOT_SET",
         approvalStatus: "APPROVAL_NOT_SET",
       },
