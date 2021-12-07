@@ -69,7 +69,7 @@ export default {
     },
     checkDimensions(){
       if (this.activeMeasurement) {
-        const meas = this.store.getters['measurements/getById'](this.activeMeasurement.id)
+        const meas = this.store.getters['measurements/getById'](this.activeMeasurement.measurementId)
         if (meas&&meas.rows===this.plate.rows&&meas.columns===this.plate.columns){
           return true
         }
@@ -87,7 +87,7 @@ export default {
 
     const activeMeasurement = computed(() => store.getters['plates/getActiveMeasurement']())
     const plate = computed(() => store.getters['plates/getCurrentPlate']())
-    store.dispatch('measurements/loadPlateMeasurements',plate)
+    store.dispatch('measurements/loadAll')
     return {
       props,
       protocols,
