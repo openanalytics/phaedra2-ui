@@ -41,11 +41,12 @@
             </q-table>
         </div>
         <span v-if="!activeMeasurement" class="text-accent">This plate has no active measurement.</span>
+        <span v-if="!checkDimensions()" class="text-accent">The plate and measurement dimensions are different.</span>
       </q-card-section>
       <q-card-actions align="right" class="text-primary">
         <q-btn flat label="Cancel" v-close-popup @click="$emit('update:show',false)"/>
-        <q-btn flat label="Calculate" disable v-if="!activeMeasurement||!selected.length>0" v-close-popup/>
-        <q-btn flat label="Calculate" v-if="activeMeasurement&&selected.length>0" @click="calculatePlate" v-close-popup/>
+        <q-btn flat label="Calculate" disable v-if="!activeMeasurement||!selected.length>0||!checkDimensions()" v-close-popup/>
+        <q-btn flat label="Calculate" v-if="activeMeasurement&&selected.length>0&&checkDimensions()" @click="calculatePlate" v-close-popup/>
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -63,9 +64,18 @@ export default {
       this.calculation.measId = this.activeMeasurement.measurementId
       this.calculation.plateId = this.plateId
       this.calculation.protocolId = this.selected[0].id
-      console.log(this.calculation)
       this.$emit('update:show',false)
     },
+    checkDimensions(){
+      if (this.activeMeasurement) {
+        const meas = this.store.getters['measurements/getById'](this.activeMeasurement.id)
+        if (meas&&meas.rows===this.plate.rows&&meas.columns===this.plate.columns){
+          return true
+        }
+        return false
+      }
+      return true
+    }
   },
   setup(props) {
     const store = useStore()
@@ -75,12 +85,14 @@ export default {
     }
 
     const activeMeasurement = computed(() => store.getters['plates/getActiveMeasurement']())
-
+    const plate = computed(() => store.getters['plates/getCurrentPlate']())
+    store.dispatch('measurements/loadPlateMeasurements',plate)
     return {
       props,
       protocols,
       activeMeasurement,
-      store
+      store,
+      plate
     }
   },
   data() {
