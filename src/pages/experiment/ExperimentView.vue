@@ -68,12 +68,23 @@
           align="left"
           class="q-px-sm oa-section-title"
       >
-        <q-route-tab :to="'/experiment/' + experiment.id" icon="table_rows" label="Overview"/>
-        <q-route-tab :to="'/experiment/' + experiment.id + '/statistics'" icon="functions" label="Statistics"/>
-        <q-route-tab :to="'/experiment/' + experiment.id + '/heatmaps'" icon="view_module" label="Heatmaps"/>
+        <q-tab name="overview" icon="table_rows" label="Overview"/>
+        <q-tab name="statistics" icon="functions" label="Statistics"/>
+        <q-tab name="heatmaps" icon="view_module" label="Heatmaps"/>
       </q-tabs>
       <div class="row oa-section-body">
-        <router-view class="router-view" :experiment="experiment" @message="newPlateTab=true"></router-view>
+<!--        <router-view class="router-view" :experiment="experiment" @message="newPlateTab=true"></router-view>-->
+        <q-tab-panels v-model="activeTab" animated style="width: 100%">
+          <q-tab-panel name="overview">
+            <PlateList :experiment="experiment"/>
+          </q-tab-panel>
+          <q-tab-panel name="statistics">
+            <PlateStatsList :experiment="experiment"/>
+          </q-tab-panel>
+          <q-tab-panel name="heatmaps">
+            <PlateGrid :experiment="experiment"/>
+          </q-tab-panel>
+        </q-tab-panels>
       </div>
     </div>
 
@@ -177,13 +188,19 @@ import {useRoute} from 'vue-router'
 import Tag from "@/components/tag/Tag";
 import EditExperiment from "./EditExperiment";
 import PropertyTable from "@/components/property/PropertyTable";
+import PlateList from "@/pages/experiment/PlateList";
+import PlateStatsList from "@/pages/experiment/PlateStatsList";
+import PlateGrid from "@/pages/experiment/PlateGrid";
 
 export default {
   name: 'Experiment',
   components: {
     Tag,
     EditExperiment,
-    PropertyTable
+    PropertyTable,
+    PlateList,
+    PlateStatsList,
+    PlateGrid
   },
   methods: {
     onClick() {
@@ -216,15 +233,16 @@ export default {
 
     const experimentId = parseInt(route.params.id);
     const experiment = computed(() => store.getters['experiments/getCurrentExperiment']())
-    store.dispatch('experiments/loadById', experimentId)
-
+    if (!experiment.value || experiment.value.id !== experimentId) {
+      store.dispatch('experiments/loadById', experimentId);
+    }
     const project = computed(() => store.getters['projects/getById'](experiment.value.projectId))
 
     return {
       experimentId,
       experiment,
       project,
-      activeTab: ref('plate_overview')
+      activeTab: ref('overview')
     }
   },
   data() {
