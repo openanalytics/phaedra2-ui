@@ -8,7 +8,7 @@
       :filter-method="filterMethod"
       :loading="loading"
       :key="tableKey"
-      style="width: 100%"
+      flat square
   >
     <template v-slot:top-right>
       <q-input outlined rounded dense debounce="300" v-model="filter" placeholder="Search">
@@ -68,8 +68,8 @@
 </style>
 
 <script>
-import {computed, ref} from 'vue'
-import {useStore} from 'vuex'
+import {ref} from 'vue'
+// import {useStore} from 'vuex'
 
 const filterMethod = function (rows, term) {
   return rows.filter(row => {
@@ -85,7 +85,7 @@ export default {
     experiment: Object
   },
   setup(props) {
-    const store = useStore()
+    // const store = useStore()
     const loading = ref(true)
     const rows = ref([])
     const tableKey = ref(0)
@@ -94,85 +94,7 @@ export default {
       {name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true}
     ]
 
-    let getZPrimeValue = function (resultData) {
-      if (resultData.resultFeatureStats == null) {
-        // calculation still in progress? TODO only show success
-        return NaN
-      }
-      let stat = resultData.resultFeatureStats.find(it => it.statisticName === "zprime");
-      if (!stat) {
-        return NaN
-      }
-      return Math.round(stat.value * 100) / 100
-    }
-
-    async function load() {
-      const plateResults = {}
-
-      // 1. load plates
-      await store.dispatch('plates/loadByExperimentId', props.experiment.id);
-      const plates = computed(() => store.getters['plates/getByExperimentId'](props.experiment.id));
-      const plateIds = plates.value.map(plate => plate.id)
-
-      // 2. load all PlateResults
-      // const reqs = [];
-      for (const plateId of plateIds) {
-        store.dispatch('resultdata/loadLatestPlateResult', {plateId});
-        const plateResult = store.getters['resultdata/getLatestPlateResult'](plateId);
-        plateResults[plateId] = plateResult;
-      }
-      //   const plateResult = computed(() => store.getters['resultdata/getLatestPlateResult'](plateId))
-      //   plateResults[plateId] = plateResult.value;
-      //   for (const protocol of Object.values((plateResult?.value.protocols))) {
-      //     // note: we assume that only one measurement is loaded for each plate
-      //     if (Object.values(protocol.measurements).length === 0) {
-      //       continue
-      //     }
-      //     // get first measurement and first resultSet (only the latest ResultSet is returned)
-      //     const measurement = Object.values(protocol.measurements)[0][0];
-      //     for (let resultData of measurement.resultData) {
-      //       featureIds.add(resultData.featureId);
-      //     }
-      //   }
-      // }
-      const featureIds = computed(() => store.getters['resultdata/getLatestPlateResultFeatureIds'](plateIds));
-      // 3. wait for all PlateResults to be loaded
-      // await Promise.all(reqs);
-
-      // 4. create a column for each feature
-      await store.dispatch('features/loadByIds', featureIds.value);
-      const features = store.getters['features/getByIds'](featureIds.value);
-      for (const feature of features) {
-        columns.push({
-          name: 'feature' + feature.id,
-          label: feature.name,
-          label2: 'Z-Prime'
-        });
-      }
-
-      // 5. create a row for each plate
-      for (let plate of plates.value) {
-        let plateResult = plateResults[plate.id]
-        let row = {
-          id: plate.id,
-          barcode: plate.barcode
-        }
-
-        for (let protocol of Object.values(plateResult.protocols)) {
-          // note: we assume that only one measurement is loaded for each plate
-          const measurement = Object.values(protocol.measurements)[0][0];
-          for (let resultData of measurement.resultData) {
-            row['feature' + resultData.featureId] = getZPrimeValue(resultData)
-          }
-        }
-        rows.value.push(row)
-      }
-
-      loading.value = false
-      tableKey.value++
-    }
-
-    load();
+    props.experiment ? loading.value = false : console('Experiment is undefined.')
 
     return {
       rows,
@@ -184,5 +106,4 @@ export default {
     }
   }
 }
-
 </script>

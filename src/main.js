@@ -13,13 +13,13 @@ import ProtocolView from '@/pages/protocol/ProtocolView.vue'
 import NewProtocolView from "@/pages/protocol/NewProtocolView";
 import CaptureJobsView from '@/pages/datacapture/CaptureJobsView.vue'
 
-import PlateList from "@/pages/experiment/PlateList.vue"
-import PlateStatsList from "@/pages/experiment/PlateStatsList.vue"
-import PlateGrid from "@/pages/experiment/PlateGrid.vue"
-
-import WellGrid from "@/pages/plate/WellGrid.vue"
-import WellList from "@/pages/plate/WellList.vue"
-import MeasList from "@/pages/plate/MeasList.vue"
+// import PlateList from "@/pages/experiment/PlateList.vue"
+// import PlateStatsList from "@/pages/experiment/PlateStatsList.vue"
+// import PlateGrid from "@/pages/experiment/PlateGrid.vue"
+//
+// import WellGrid from "@/pages/plate/WellGrid.vue"
+// import WellList from "@/pages/plate/WellList.vue"
+// import MeasList from "@/pages/plate/MeasList.vue"
 
 const routes = [
     { name: "dashboard", path: "/", component: Dashboard },
@@ -28,19 +28,19 @@ const routes = [
     { name: "experiment", path: "/experiment/:id", component: ExperimentView },
     { name: "newExperiment", path: "/experiment/new", component: NewExperimentView },
     { name: "experiment", path: "/experiment/:id", component: ExperimentView,
-        children: [
-            { path: '', component: PlateList },
-            { path: 'statistics', component: PlateStatsList },
-            { path: 'heatmaps', component: PlateGrid }
-        ]
+        // children: [
+        //     { path: '', component: PlateList },
+        //     { path: 'statistics', component: PlateStatsList },
+        //     { path: 'heatmaps', component: PlateGrid }
+        // ]
     },
     { name: "plate", path: "/plate/:id", component: PlateView,
-        children: [
-            { path: '', component: WellGrid, props: { gridType: WellGrid.GRID_TYPE_LAYOUT } },
-            { path: 'measurements', component: MeasList },
-            { path: 'heatmap', component: WellGrid, props: { gridType: WellGrid.GRID_TYPE_HEATMAP } },
-            { path: 'wells', component: WellList }
-        ]
+        // children: [
+        //     { path: '', component: WellGrid, props: { gridType: WellGrid.GRID_TYPE_LAYOUT } },
+        //     { path: 'measurements', component: MeasList },
+        //     { path: 'heatmap', component: WellGrid, props: { gridType: WellGrid.GRID_TYPE_HEATMAP } },
+        //     { path: 'wells', component: WellList }
+        // ]
     },
     { name: "protocol", path: "/protocol/:id", component: ProtocolView },
     { name: "newProtocol", path: "/protocol/new", component: NewProtocolView },

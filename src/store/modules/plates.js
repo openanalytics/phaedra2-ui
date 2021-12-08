@@ -39,33 +39,44 @@ const actions = {
             ctx.commit('cachePlatesInExperiment', {experimentId: id, plates})
         })
     },
-    loadById(ctx, plateId) {
+    async loadById(ctx, plateId) {
+        const plate = ctx.getters.getById(plateId);
         // Load plate by id
-        plateAPI.getPlateById(plateId)
-            .then(result => {
-                console.log('Load plate by id')
-                ctx.commit('loadPlate', result)
-            });
+        if (plate) {
+            ctx.commit('loadPlate', plate);
+        } else {
+            await plateAPI.getPlateById(plateId)
+                .then(result => {
+                    console.log('Load plate by id')
+                    ctx.commit('loadPlate', result)
+                });
+        }
 
-        // Load plate properties
-        metadataAPI.getObjectProperties(plateId, 'PLATE')
-            .then(result => {
-                console.log('Load plate properties');
-                ctx.commit('loadProperties', result);
-            })
+        if (plate && !plate.properties) {
+            // Load plate properties
+            await metadataAPI.getObjectProperties(plateId, 'PLATE')
+                .then(result => {
+                    console.log('Load plate properties');
+                    ctx.commit('loadProperties', result);
+                })
+        }
 
-        // Load plate tags
-        metadataAPI.getObjectTags(plateId, 'PLATE')
-            .then(result => {
-                console.log('Load plate tags');
-                ctx.commit('loadTags', result);
-            })
+        if (plate && !plate.tags) {
+            // Load plate tags
+            await metadataAPI.getObjectTags(plateId, 'PLATE')
+                .then(result => {
+                    console.log('Load plate tags');
+                    ctx.commit('loadTags', result);
+                })
+        }
 
-        plateAPI.getPlateMeasurementsByPlateId(plateId)
-            .then(result => {
-                console.log('Load plate measurements');
-                ctx.commit('loadMeasurements', result);
-            });
+        if (plate && !plate.measurements) {
+            await plateAPI.getPlateMeasurementsByPlateId(plateId)
+                .then(result => {
+                    console.log('Load plate measurements');
+                    ctx.commit('loadMeasurements', result);
+                });
+        }
     },
     async createNewPlate(ctx, plate) {
         const newPlate = await plateAPI.addPlate(plate)

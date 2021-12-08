@@ -42,28 +42,36 @@ const actions = {
                 ctx.commit('cacheExperiments', response)
             })
     },
-    loadById(ctx, experimentId) {
+    async loadById(ctx, experimentId) {
         // Load experiment by id
-        experimentAPI.getExperiment(experimentId)
-            .then(result => {
-                console.log('Load experiment by id');
-                ctx.commit('loadExperiment', result)
-            });
+        const experiment = ctx.getters.getById(experimentId);
+        if (experiment) {
+            ctx.commit('loadExperiment', experiment);
+        } else {
+            await experimentAPI.loadById(experimentId)
+                .then(result => {
+                    console.log('Load experiment by id');
+                    ctx.commit('loadExperiment', result);
+                });
+        }
 
         // Load experiment properties
-        metadataAPI.getObjectProperties(experimentId, 'EXPERIMENT')
-            .then(result => {
-                console.log('Load experiment properties');
-                ctx.commit('loadProperties', result);
-            })
+        if (experiment && !experiment.properties) {
+            await metadataAPI.getObjectProperties(experimentId, 'EXPERIMENT')
+                .then(result => {
+                    console.log('Load experiment properties');
+                    ctx.commit('loadProperties', result);
+                })
+        }
 
         // Load experiment tags
-        metadataAPI.getObjectTags(experimentId, 'EXPERIMENT')
-            .then(result => {
-                console.log('Load experiment tags');
-                ctx.commit('loadTags', result);
-            })
-
+        if (experiment && !experiment.tags) {
+            await metadataAPI.getObjectTags(experimentId, 'EXPERIMENT')
+                .then(result => {
+                    console.log('Load experiment tags');
+                    ctx.commit('loadTags', result);
+                })
+        }
     },
     async createNewExperiment(ctx, newExperiment) {
         const response = await axios.post('http://localhost:6010/phaedra/plate-service/experiment', newExperiment)

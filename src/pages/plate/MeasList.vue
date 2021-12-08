@@ -6,7 +6,7 @@
       :columns="columns"
       row-key="id"
       no-data-label="No measurements associated with this plate"
-      class="oa-section-body">
+  >
     <template v-slot:top-right>
       <q-btn dense color="primary" label="Add measurement" @click="openMeasDialog = true">
       </q-btn>

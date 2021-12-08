@@ -9,8 +9,7 @@
       :filter-method="filterMethod"
       :loading="loading"
       :visible-columns="visibleColumns"
-      class="full-width"
-      square
+      flat square
   >
     <template v-slot:top-right>
       <div class="col action-button on-left">

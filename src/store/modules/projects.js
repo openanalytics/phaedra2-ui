@@ -27,24 +27,33 @@ const getters = {
 }
 
 const actions = {
-    loadById(ctx, projectId) {
+    async loadById(ctx, projectId) {
         // Load project by id
-        projectAPI.getProjectById(id)
-            .then(response => {
-                ctx.commit('loadProject', response)
-            })
+        const project = ctx.getters.getById(projectId);
+        if (project) {
+            ctx.commit('loadProject', project)
+        } else {
+            await projectAPI.getProjectById(projectId)
+                .then(result => {
+                    ctx.commit('loadProject', result)
+                })
+        }
 
         // Load all properties if any
-        metadataAPI.getObjectProperties(projectId, 'PROJECT')
-            .then(result => {
-                ctx.commit('loadProperties', result);
-            })
+        if (project && !project.properties) {
+            await metadataAPI.getObjectProperties(projectId, 'PROJECT')
+                .then(result => {
+                    ctx.commit('loadProperties', result);
+                })
+        }
 
         // Load all tags if any
-        metadataAPI.getObjectTags(projectId, 'PROJECT')
-            .then(result => {
-                ctx.commit('loadTags', result);
-            })
+        if (project && !project.tags) {
+            await metadataAPI.getObjectTags(projectId, 'PROJECT')
+                .then(result => {
+                    ctx.commit('loadTags', result);
+                })
+        }
     },
 
     async loadAll(ctx) {
