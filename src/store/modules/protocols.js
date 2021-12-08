@@ -1,7 +1,9 @@
 import protocolAPI from '@/api/protocols.js'
 import axios from "axios";
+import metadataAPI from "@/api/metadata";
 
 const state = () => ({
+    currentProtocol: {},
     protocols: []
 })
 
@@ -26,9 +28,17 @@ const getters = {
 }
 
 const actions = {
-    async loadById(ctx, id) {
-        const protocol = await protocolAPI.getProtocolById(id)
-        ctx.commit('cacheProtocol', protocol)
+    async loadById(ctx, protocolId) {
+        // Load protocol by id
+        const protocol = ctx.getters.getById(protocolId);
+        if (protocol) {
+            ctx.commit('loadProtocol', protocol)
+        } else {
+            await protocolAPI.getProtocolById(protocolId)
+                .then(result => {
+                    ctx.commit('loadProtocol', result)
+                })
+        }
     },
     async loadByIds(ctx, ids) {
         const loadedIds = ctx.getters['getLoadedIds']()
@@ -47,7 +57,7 @@ const actions = {
     async saveProtocol(ctx, protocol) {
         if (protocol.id !== undefined) {
             const newProtocol = await protocolAPI.createNewProtocol(protocol)
-            ctx.commit('cacheProtocol', newProtocol)
+            ctx.commit('loadProtocol', newProtocol)
         }
     },
     async loadProtocolsTags(ctx, protocolId) {
@@ -57,23 +67,19 @@ const actions = {
                 ctx.commit('addTags', response.data)
             })
     },
-    tagProtocol(ctx, tagInfo) {
-        axios.post('http://localhost:6020/phaedra/metadata-service/tags', tagInfo)
-            .then(response => {
-                if (response.status === 201) {
-                    ctx.commit('addTag', tagInfo);
-                }
-                console.log(response)
+    tagProtocol(ctx, tag) {
+        metadataAPI.addTag(tag)
+            .then(result => {
+                const isCreated = result;
+                isCreated ? ctx.commit('addTag', tag) : console.log("TODO: Show error message");
             })
     },
-    removeTag(ctx, protocolTag) {
-        axios.delete('http://localhost:6020/phaedra/metadata-service/tags', {data: protocolTag})
-            .then(response => {
-                if (response.status === 200) {
-                    ctx.commit('removeTag', protocolTag);
-                }
-                console.log(response)
-            })
+    removeTag(ctx, tag) {
+        metadataAPI.removeTag(tag)
+            .then(result => {
+                const isDeleted = result;
+                isDeleted ? ctx.commit('removeTag', tag) : console.log("TODO: Show error message");
+            });
     },
     async addNewFeature(ctx, newFeature) {
         await protocolAPI.addNewFeature(newFeature)
@@ -92,13 +98,13 @@ const actions = {
         await protocolAPI.editProtocol(protocol)
             .then(() => {
                 ctx.commit('deleteProtocol', protocol)
-                ctx.commit('cacheProtocol', protocol)
+                ctx.commit('loadProtocol', protocol)
             })
     }
 }
 
 const mutations = {
-    cacheProtocol(state, protocol) {
+    loadProtocol(state, protocol) {
         let index = state.protocols.indexOf(protocol)
         if (index === -1)
             state.protocols.push(protocol)

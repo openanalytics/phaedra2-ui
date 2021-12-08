@@ -39,7 +39,7 @@
             <div class="col-3 text-weight-bold">Tags:</div>
             <div class="col">
               <div class="tag-icon flex inline" v-for="tag in protocol.tags" :key="tag.tag">
-                <Tag :tagInfo="tag"></Tag>
+                <Tag :tagInfo="tag" :objectInfo="protocol" :objectClass="'PROTOCOL'"></Tag>
               </div>
             </div>
           </div>
