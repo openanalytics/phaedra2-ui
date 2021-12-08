@@ -5,8 +5,7 @@
       :rows="measurements"
       :columns="columns"
       row-key="id"
-      no-data-label="No measurements associated with this plate"
-      class="oa-section-body">
+      no-data-label="No measurements associated with this plate">
     <template v-slot:top-right>
       <q-btn dense color="primary" label="Add measurement" @click="openMeasDialog = true">
       </q-btn>
@@ -69,7 +68,7 @@ const columns = [
     label: 'Created On',
     field: 'createdOn',
     sortable: true,
-    format: val => `${val.toLocaleString()}`
+    format: val => `${val?.toLocaleString()}`
   },
   {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true}
 ]
@@ -99,14 +98,11 @@ export default {
     store.dispatch('measurements/loadAll');
     store.dispatch('measurements/loadPlateMeasurements', props.plate);
 
-    // const plateMeasurements = computed(() => store.getters['plates/getCurrentPlateMeasurements']);
     let plateMeasIds = {};
-    props.plate.measurements.forEach( pm => {
+    props.plate.measurements?.forEach( pm => {
       plateMeasIds[pm.measurementId] = pm.active;
     });
-    const measurements = computed(() => store.getters['measurements/getPlateMeasurements']())
-    // store.dispatch('measurements/loadByIds', plateMeasIds);
-
+    const measurements = computed(() => store.getters['measurements/getPlateMeasurements'](props.plate.id))
 
     const unsubscribe = store.subscribe((mutation) => {
         if (mutation.type == "measurements/cacheMeasurements") {

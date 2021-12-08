@@ -2,7 +2,7 @@ import measAPI from '@/api/measurements.js'
 
 const state = () => ({
     measurements: [],
-    measurementsInPlate: []
+    measurementsInPlate: {}
 })
 
 const getters = {
@@ -18,8 +18,8 @@ const getters = {
     isLoaded: (state) => (id) => {
         return state.measurements?.find(meas => meas.id === id) != null
     },
-    getPlateMeasurements: (state) => () => {
-        return state.measurementsInPlate;
+    getPlateMeasurements: (state) => (plateId) => {
+        return state.measurementsInPlate[plateId];
     }
 }
 
@@ -31,14 +31,19 @@ const actions = {
             });
     },
     async loadPlateMeasurements(ctx, plate) {
-        plate.measurements?.forEach(pm => {
-            measAPI.getMeasurementById(pm.measurementId)
-                .then(response => {
-                    let plateMeas = response;
-                    plateMeas['active'] = pm.active;
-                    ctx.commit('cacheMeasurementsInPlate', plateMeas)
-                })
-        })
+        if (plate.measurements) {
+            plate.measurements.forEach(pm => {
+                measAPI.getMeasurementById(pm.measurementId)
+                    .then(response => {
+                        let plateMeas = response;
+                        plateMeas['active'] = pm.active;
+                        ctx.commit('cacheMeasurementsInPlate', { plateMeas: plateMeas, plateId: plate.id })
+                    })
+            })
+        } else {
+            ctx.commit('cacheMeasurementsInPlate', { plateId: plate.id })
+        }
+
     },
     async loadById(ctx, id) {
         const meas = await measAPI.getMeasurementById(id)
@@ -67,10 +72,15 @@ const mutations = {
                 state.measurements.push(meas)
         });
     },
-    cacheMeasurementsInPlate(state, plateMeasurement) {
-        const plateMeas = state.measurementsInPlate.find(pm => pm.id === plateMeasurement.id);
-        if (plateMeas === undefined)
-            state.measurementsInPlate.push(plateMeasurement);
+    cacheMeasurementsInPlate(state, params) {
+        // const plateMeas = state.measurementsInPlate.find(pm => pm.id === plateMeasurement.id);
+        if (state.measurementsInPlate[params.plateId]) {
+            const plateMeas = state.measurementsInPlate[params.plateId].find(pm => pm.id === params.plateMeas.id);
+            if (plateMeas === undefined)
+                state.measurementsInPlate[params.plateId].push(params.plateMeas);
+        } else {
+            if (params.plateMeas) state.measurementsInPlate[params.plateId] = [params.plateMeas];
+        }
     }
 }
 
