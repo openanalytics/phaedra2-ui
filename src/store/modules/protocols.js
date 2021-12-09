@@ -33,14 +33,16 @@ const getters = {
 const actions = {
     async loadById(ctx, protocolId) {
         // Load protocol by id
-        const protocol = ctx.getters.getById(protocolId);
+        let protocol = ctx.getters.getById(protocolId);
         if (protocol) {
             ctx.commit('loadProtocol', protocol)
         } else {
-            await protocolAPI.getProtocolById(protocolId)
-                .then(result => {
-                    ctx.commit('loadProtocol', result)
-                })
+            try {
+                protocol = await protocolAPI.getProtocolById(protocolId);
+                ctx.commit('loadProtocol', protocol)
+            }catch (err) {
+                console.error(err);
+            }
         }
 
         // Load protocol tags
@@ -71,13 +73,6 @@ const actions = {
             ctx.commit('loadProtocol', newProtocol)
         }
     },
-    // async loadProtocolsTags(ctx, protocolId) {
-    //     await axios.get('http://localhost:6020/phaedra/metadata-service/tagged_objects/PROTOCOL',
-    //         {params: {objectId: protocolId}})
-    //         .then(response => {
-    //             ctx.commit('loadTags', response.data)
-    //         })
-    // },
     tagProtocol(ctx, tag) {
         metadataAPI.addTag(tag)
             .then(result => {

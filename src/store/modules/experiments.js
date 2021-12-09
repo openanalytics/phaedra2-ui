@@ -44,20 +44,22 @@ const actions = {
     },
     async loadById(ctx, experimentId) {
         // Load experiment by id
-        const experiment = ctx.getters.getById(experimentId);
+        let experiment = ctx.getters.getById(experimentId);
         if (experiment) {
             ctx.commit('loadExperiment', experiment);
         } else {
-            await experimentAPI.loadById(experimentId)
-                .then(result => {
-                    console.log('Load experiment by id');
-                    ctx.commit('loadExperiment', result);
-                });
+            try {
+                experiment = await experimentAPI.loadById(experimentId);
+                ctx.commit('loadExperiment', experiment);
+            } catch (err) {
+                console.error(err);
+            }
+
         }
 
         // Load experiment properties
         if (experiment && !experiment.properties) {
-            await metadataAPI.getObjectProperties(experimentId, 'EXPERIMENT')
+            metadataAPI.getObjectProperties(experimentId, 'EXPERIMENT')
                 .then(result => {
                     console.log('Load experiment properties');
                     ctx.commit('loadProperties', result);
@@ -66,7 +68,7 @@ const actions = {
 
         // Load experiment tags
         if (experiment && !experiment.tags) {
-            await metadataAPI.getObjectTags(experimentId, 'EXPERIMENT')
+            metadataAPI.getObjectTags(experimentId, 'EXPERIMENT')
                 .then(result => {
                     console.log('Load experiment tags');
                     ctx.commit('loadTags', result);

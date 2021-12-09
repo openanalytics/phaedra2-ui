@@ -40,21 +40,23 @@ const actions = {
         })
     },
     async loadById(ctx, plateId) {
-        const plate = ctx.getters.getById(plateId);
         // Load plate by id
+        let plate = ctx.getters.getById(plateId);
         if (plate) {
             ctx.commit('loadPlate', plate);
         } else {
-            await plateAPI.getPlateById(plateId)
-                .then(result => {
-                    console.log('Load plate by id')
-                    ctx.commit('loadPlate', result)
-                });
+            try {
+                plate = await plateAPI.getPlateById(plateId);
+                console.log('Load plate by id');
+                ctx.commit('loadPlate', plate);
+            } catch (err) {
+                console.error(err);
+            }
         }
 
         if (plate && !plate.properties) {
             // Load plate properties
-            await metadataAPI.getObjectProperties(plateId, 'PLATE')
+            metadataAPI.getObjectProperties(plateId, 'PLATE')
                 .then(result => {
                     console.log('Load plate properties');
                     ctx.commit('loadProperties', result);
@@ -63,7 +65,7 @@ const actions = {
 
         if (plate && !plate.tags) {
             // Load plate tags
-            await metadataAPI.getObjectTags(plateId, 'PLATE')
+            metadataAPI.getObjectTags(plateId, 'PLATE')
                 .then(result => {
                     console.log('Load plate tags');
                     ctx.commit('loadTags', result);
@@ -71,7 +73,7 @@ const actions = {
         }
 
         if (plate && !plate.measurements) {
-            await plateAPI.getPlateMeasurementsByPlateId(plateId)
+            plateAPI.getPlateMeasurementsByPlateId(plateId)
                 .then(result => {
                     console.log('Load plate measurements');
                     ctx.commit('loadMeasurements', result);
