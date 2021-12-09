@@ -40,7 +40,7 @@
 </style>
 
 <script>
-    import { ref, computed, watch } from 'vue'
+    import { ref, computed } from 'vue'
     import { useStore } from 'vuex'
 
     import WellUtils from "@/lib/WellUtils.js"
@@ -75,28 +75,25 @@
             const store = useStore()
             const loading = ref(props.gridType === GRID_TYPE_HEATMAP)
 
+            const plateResults = ref([])
             const protocols = ref([])
+            const selectedFeature = ref(null)
+
+            // Initiate loading of resultdata
             if (props.gridType === GRID_TYPE_HEATMAP) {
-                store.dispatch('resultdata/loadResultSetsByPlateIds', [ props.plate.id ]).then(() => {
-                    let resultsets = store.getters['resultdata/getResultSetsByPlateIds']([ props.plate.id ])
-                    let protocolIds = [... new Set(resultsets.map(rs => rs.protocolId))]
+                store.dispatch('resultdata/loadPlateResults', {plateId: props.plate.id}).then(() => {
+                    plateResults.value = store.getters['resultdata/getPlateResults'](props.plate.id)
+                    let protocolIds = [... new Set(plateResults.value.map(rs => rs.protocolId))]
                     store.dispatch('protocols/loadByIds', protocolIds).then(() => {
                         protocols.value = store.getters['protocols/getByIds'](protocolIds)
+                        loading.value = false
                     })
                 })
             }
 
-            const selectedFeature = ref(null)
-            watch(selectedFeature, () => {
-                if (selectedFeature.value) store.dispatch('resultdata/loadResultDataById', { resultSetId: 1, featureId: selectedFeature.value.id })
-            })
-
             const selectedFeatureData = computed(() => {
                 if (!selectedFeature.value) return undefined
-                return store.getters['resultdata/getResultDataById'](1, selectedFeature.value.id)
-            })
-            watch(selectedFeatureData, () => {
-                if (selectedFeatureData.value) loading.value = false
+                return plateResults.value.find(rs => (rs.featureId == selectedFeature.value.id));
             })
 
             // WellSlot colors and labels
@@ -105,7 +102,7 @@
             }
             const featureValueColorFunction = function(well) {
                 if (!selectedFeatureData.value) return WellUtils.getWellTypeColor("EMPTY")
-                let value = selectedFeatureData.value.values[well.nr - 1]
+                let value = selectedFeatureData.value.values[WellUtils.getWellNr(well.row, well.column, props.plate.columns) - 1]
                 let index = ColorUtils.findGradientIndex(value, selectedFeatureData.value.values, ColorUtils.defaultHeatmapGradients)
                 if (index == -1) return WellUtils.getWellTypeColor("EMPTY")
                 return ColorUtils.defaultHeatmapGradients[index]
@@ -116,7 +113,10 @@
                 function(well) { return WellUtils.getWellCoordinate(well.row, well.column) },
                 (props.gridType === GRID_TYPE_LAYOUT) ?
                     function(well) { return well.welltype } :
-                    function(well) { return (selectedFeatureData.value) ? (Math.round(selectedFeatureData.value.values[well.nr - 1] * 100) / 100) : "" }
+                    function(well) { 
+                        let wellNr = WellUtils.getWellNr(well.row, well.column, props.plate.columns);
+                        return (selectedFeatureData.value) ? (Math.round(selectedFeatureData.value.values[wellNr - 1] * 100) / 100) : "" 
+                    }
             ]
 
             const onKeyNav = function(event) {
@@ -150,7 +150,7 @@
             // Feature selection handling
             const handleFeatureSelection = function(feature) {
                 selectedFeature.value = feature
-                loading.value = true
+                // loading.value = true
             }
 
             // Well multi-selection
