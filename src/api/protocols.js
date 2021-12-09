@@ -30,56 +30,43 @@ export default {
         return result;
     },
     async createNewProtocol(newProtocol) {
-        console.log('Making a backend call...')
-        let result = null;
-        await axios.post('http://localhost:6030/phaedra/protocol-service/protocols', newProtocol)
-            .then(response => {
-                if (response.status === 201)
-                    result = response.data;
-            })
-        return result;
+        try {
+            console.log('Making a backend call...')
+            const requestUrl = 'http://localhost:6030/phaedra/protocol-service/protocols';
+            const response = await axios.post(requestUrl, newProtocol);
+            return response.data;
+        } catch (err) {
+            console.error(err);
+        }
     },
     async deleteProtocol(protocolId) {
-        console.log('Making a backend call...');
-        let result = null;
-        const requestUrl = 'http://localhost:6030/phaedra/protocol-service/protocols/' + protocolId;
-        await axios.delete(requestUrl)
-            .then(response => {
-                if (response.status === 200)
-                    result = response.data;
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
-        return result;
+        try {
+            console.log('Making a backend call...');
+            const requestUrl = 'http://localhost:6030/phaedra/protocol-service/protocols/' + protocolId;
+            const response = await axios.delete(requestUrl);
+            return response.data;
+        } catch (err) {
+            console.error(err);
+        }
     },
     async editProtocol(protocol) {
-        console.log('Making a backend call...');
-        let result = null;
-        const requestUrl = 'http://localhost:6030/phaedra/protocol-service/protocols/'
-        await axios.put(requestUrl,protocol)
-            .then(response => {
-                if (response.status === 200)
-                    result = response.data;
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
-        return result;
+        try {
+            console.log('Making a backend call...');
+            const requestUrl = 'http://localhost:6030/phaedra/protocol-service/protocols/'
+            const response = await axios.put(requestUrl,protocol)
+            return response.data;
+        } catch (err) {
+            console.error(err);
+        }
     },
     async addNewFeature(newFeature) {
-        console.log('Making a backend call...');
-        let result = null;
-        const requestUrl = 'http://localhost:6030/phaedra/protocol-service/features'
-        axios.post(requestUrl, newFeature)
-            .then(response => {
-                if (response.status === 201) {
-                    result = response.data
-                }
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
-        return result
+        try {
+            console.log('Making a backend call...');
+            const requestUrl = 'http://localhost:6030/phaedra/protocol-service/features'
+            const response = await axios.post(requestUrl, newFeature);
+            return response.data;
+        } catch (err) {
+            console.error(err);
+        }
     }
 }

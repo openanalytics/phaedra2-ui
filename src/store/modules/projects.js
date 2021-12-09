@@ -29,19 +29,21 @@ const getters = {
 const actions = {
     async loadById(ctx, projectId) {
         // Load project by id
-        const project = ctx.getters.getById(projectId);
+        let project = ctx.getters.getById(projectId);
         if (project) {
             ctx.commit('loadProject', project)
         } else {
-            await projectAPI.getProjectById(projectId)
-                .then(result => {
-                    ctx.commit('loadProject', result)
-                })
+            try {
+                project = await projectAPI.getProjectById(projectId);
+                ctx.commit('loadProject', project)
+            } catch (err) {
+                console.error(err);
+            }
         }
 
         // Load all properties if any
         if (project && !project.properties) {
-            await metadataAPI.getObjectProperties(projectId, 'PROJECT')
+            metadataAPI.getObjectProperties(projectId, 'PROJECT')
                 .then(result => {
                     ctx.commit('loadProperties', result);
                 })
@@ -49,7 +51,7 @@ const actions = {
 
         // Load all tags if any
         if (project && !project.tags) {
-            await metadataAPI.getObjectTags(projectId, 'PROJECT')
+            metadataAPI.getObjectTags(projectId, 'PROJECT')
                 .then(result => {
                     ctx.commit('loadTags', result);
                 })

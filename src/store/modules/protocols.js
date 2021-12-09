@@ -1,5 +1,5 @@
 import protocolAPI from '@/api/protocols.js'
-import axios from "axios";
+// import axios from "axios";
 import metadataAPI from "@/api/metadata";
 
 const state = () => ({
@@ -8,6 +8,9 @@ const state = () => ({
 })
 
 const getters = {
+    getCurrentProtocol: (state) => () => {
+        return state.currentProtocol;
+    },
     getById: (state) => (id) => {
         return state.protocols.find(protocol => protocol.id == id)
     },
@@ -39,6 +42,14 @@ const actions = {
                     ctx.commit('loadProtocol', result)
                 })
         }
+
+        // Load protocol tags
+        if (protocol && !protocol.tags) {
+            await metadataAPI.getObjectTags(protocolId, 'PROTOCOL')
+                .then(tags => {
+                    ctx.commit('loadTags', tags);
+                })
+        }
     },
     async loadByIds(ctx, ids) {
         const loadedIds = ctx.getters['getLoadedIds']()
@@ -60,13 +71,13 @@ const actions = {
             ctx.commit('loadProtocol', newProtocol)
         }
     },
-    async loadProtocolsTags(ctx, protocolId) {
-        await axios.get('http://localhost:6020/phaedra/metadata-service/tagged_objects/PROTOCOL',
-            {params: {objectId: protocolId}})
-            .then(response => {
-                ctx.commit('addTags', response.data)
-            })
-    },
+    // async loadProtocolsTags(ctx, protocolId) {
+    //     await axios.get('http://localhost:6020/phaedra/metadata-service/tagged_objects/PROTOCOL',
+    //         {params: {objectId: protocolId}})
+    //         .then(response => {
+    //             ctx.commit('loadTags', response.data)
+    //         })
+    // },
     tagProtocol(ctx, tag) {
         metadataAPI.addTag(tag)
             .then(result => {
@@ -83,9 +94,9 @@ const actions = {
     },
     async addNewFeature(ctx, newFeature) {
         await protocolAPI.addNewFeature(newFeature)
-            .then(() => {
-                ctx.commit('addFeature', newFeature);
-                ctx.commit('features/cacheInProtocol', newFeature, { root: true })
+            .then((result) => {
+                ctx.commit('addFeature', result);
+                ctx.commit('features/cacheInProtocol', result, { root: true })
             })
     },
     async deleteProtocol(ctx, protocol){
@@ -94,10 +105,11 @@ const actions = {
                 ctx.commit('deleteProtocol', protocol)
             })
     },
-    async editProtocol(ctx, protocol) {
+    async editProtocol(ctx, data) {
+        ctx.commit('editProtocol', data);
+        const protocol = ctx.getters.getCurrentProtocol();
         await protocolAPI.editProtocol(protocol)
             .then(() => {
-                ctx.commit('deleteProtocol', protocol)
                 ctx.commit('loadProtocol', protocol)
             })
     }
@@ -105,9 +117,7 @@ const actions = {
 
 const mutations = {
     loadProtocol(state, protocol) {
-        let index = state.protocols.indexOf(protocol)
-        if (index === -1)
-            state.protocols.push(protocol)
+        state.currentProtocol = protocol;
     },
     cacheProtocols (state, protocols) {
         protocols.forEach(protocol => {
@@ -121,21 +131,25 @@ const mutations = {
     cacheAllProtocols (state, protocols) {
         state.protocols = protocols;
     },
-    addTags(state, tags) {
+    loadTags(state, tags) {
         for (let i = 0; i < tags.length; i++) {
-            const protocol = state.protocols.find(protocol => protocol.id === tags[i].objectId);
-            if (!containsTagInfo(protocol, tags[i]))
-                protocol.tags !== undefined ? protocol.tags.push(tags[i]) : protocol.tags = [tags[i]];
+            if (!containsTag(state.currentProtocol, tags[i]))
+                state.currentProtocol.tags ? state.currentProtocol.tags.push(tags[i]) : state.currentProtocol.tags = [tags[i]];
         }
+        // for (let i = 0; i < tags.length; i++) {
+        //     const protocol = state.protocols.find(protocol => protocol.id === tags[i].objectId);
+        //     if (!containsTagInfo(protocol, tags[i]))
+        //         protocol.tags !== undefined ? protocol.tags.push(tags[i]) : protocol.tags = [tags[i]];
+        // }
     },
     addTag(state, tagInfo) {
         const protocol = state.protocols.find(protocol => protocol.id === tagInfo.objectId);
-        if (!containsTagInfo(protocol, tagInfo))
+        if (!containsTag(protocol, tagInfo))
             protocol.tags !== undefined ? protocol.tags.push(tagInfo) : protocol.tags = [tagInfo];
     },
     removeTag(state, tagInfo) {
         const protocol = state.protocols.find(protocol => protocol.id === tagInfo.objectId)
-        if (containsTagInfo(protocol, tagInfo)) {
+        if (containsTag(protocol, tagInfo)) {
             const i = protocol.tags.findIndex(t => t.tag === tagInfo.tag);
             protocol.tags.splice(i, 1);
         }
@@ -145,12 +159,14 @@ const mutations = {
         if (!containsFeature(protocol, feature))
             protocol.features !== undefined ? protocol.features.push(feature) : protocol.features = [feature];
     },
-    deleteProtocol(state, pr){
-        state.protocols = state.protocols.filter(protocol => protocol.id !== pr.id)
+    editProtocol(state, data) {
+        state.currentProtocol.name = data.name;
+        state.currentProtocol.description = data.description;
+        // state.protocols = state.protocols.filter(protocol => protocol.id !== pr.id)
     }
 }
 
-function containsTagInfo(protocol, tagInfo) {
+function containsTag(protocol, tagInfo) {
     return protocol.tags !== undefined && protocol.tags.findIndex(t => t.tag === tagInfo.tag) > -1;
 }
 
