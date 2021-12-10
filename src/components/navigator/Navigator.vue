@@ -129,6 +129,14 @@
           protocols.push(prot);
         })
 
+        // Templates
+        let templates = [{
+          header: "template",
+          label: "New Template...",
+          id: "new",
+          icon: "add"
+        }]
+
         return [
           {
             label: "Dashboard",
@@ -146,6 +154,19 @@
             header: "category",
             icon: 'ballot',
             children: protocols
+          },
+          {
+            label: "Plate Layouts",
+            header: "category",
+            icon: "border_all",
+            children: [
+              {
+                label: "Templates",
+                header: "category",
+                icon: "border_outer",
+                children: templates
+              }
+            ]
           },
           {
             label: "Data Capture",
