@@ -1,5 +1,5 @@
 import experimentAPI from '@/api/experiments.js'
-import axios from "axios";
+import metadataAPI from '@/api/metadata.js'
 
 const state = () => ({
     experiments: [],
@@ -44,35 +44,21 @@ const actions = {
             })
     },
     async loadExperimentTags(ctx, experimentId) {
-        await axios.get('http://localhost:6020/phaedra/metadata-service/tagged_objects/EXPERIMENT',
-            {params: {objectId: experimentId}})
-            .then(response => {
-                ctx.commit('addTags', response.data)
-            })
+        const tags = await metadataAPI.getObjectTags('EXPERIMENT', experimentId)
+        ctx.commit('addTags', tags)
     },
     async createNewExperiment(ctx, newExperiment) {
-        const response = await axios.post('http://localhost:6010/phaedra/plate-service/experiment', newExperiment)
-        const createdExperiment = response.data
+        const createdExperiment = await experimentAPI.createExperiment(newExperiment);
         ctx.commit('cacheExperiment', createdExperiment)
         return createdExperiment
     },
-    tagExperiment(ctx, tagInfo) {
-        axios.post('http://localhost:6020/phaedra/metadata-service/tags', tagInfo)
-            .then(response => {
-                if (response.status === 201) {
-                    ctx.commit('addTag', tagInfo);
-                }
-                console.log(response)
-            })
+    async tagExperiment(ctx, tagInfo) {
+        await metadataAPI.addObjectTag(tagInfo);
+        ctx.commit('addTag', tagInfo);
     },
-    removeTag(ctx, projectTag) {
-        axios.delete('http://localhost:6020/phaedra/metadata-service/tags', {data: projectTag})
-            .then(response => {
-                if (response.status === 200) {
-                    ctx.commit('removeTag', projectTag);
-                }
-                console.log(response)
-            })
+    async removeTag(ctx, experimentTag) {
+        await metadataAPI.removeObjectTag(experimentTag);
+        ctx.commit('removeTag', experimentTag);
     },
     async loadRecentExperiments(ctx) {
         await experimentAPI.loadRecentExperiments()

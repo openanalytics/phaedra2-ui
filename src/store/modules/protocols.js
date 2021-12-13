@@ -1,5 +1,5 @@
 import protocolAPI from '@/api/protocols.js'
-import axios from "axios";
+import metadataAPI from '@/api/metadata.js'
 
 const state = () => ({
     protocols: []
@@ -51,29 +51,16 @@ const actions = {
         }
     },
     async loadProtocolsTags(ctx, protocolId) {
-        await axios.get('http://localhost:6020/phaedra/metadata-service/tagged_objects/PROTOCOL',
-            {params: {objectId: protocolId}})
-            .then(response => {
-                ctx.commit('addTags', response.data)
-            })
+        const tags = await metadataAPI.getObjectTags('PROTOCOL', protocolId)
+        ctx.commit('addTags', tags)
     },
-    tagProtocol(ctx, tagInfo) {
-        axios.post('http://localhost:6020/phaedra/metadata-service/tags', tagInfo)
-            .then(response => {
-                if (response.status === 201) {
-                    ctx.commit('addTag', tagInfo);
-                }
-                console.log(response)
-            })
+    async tagProtocol(ctx, tagInfo) {
+        await metadataAPI.addObjectTag(tagInfo);
+        ctx.commit('addTag', tagInfo);
     },
-    removeTag(ctx, protocolTag) {
-        axios.delete('http://localhost:6020/phaedra/metadata-service/tags', {data: protocolTag})
-            .then(response => {
-                if (response.status === 200) {
-                    ctx.commit('removeTag', protocolTag);
-                }
-                console.log(response)
-            })
+    async removeTag(ctx, protocolTag) {
+        await metadataAPI.removeObjectTag(protocolTag);
+        ctx.commit('removeTag', protocolTag);
     },
     async addNewFeature(ctx, newFeature) {
         await protocolAPI.addNewFeature(newFeature)

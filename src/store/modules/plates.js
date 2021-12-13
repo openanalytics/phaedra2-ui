@@ -1,5 +1,5 @@
 import plateAPI from '@/api/plates.js'
-import axios from "axios";
+import metadataAPI from '@/api/metadata.js'
 
 const state = () => ({
     currentPlate: null,
@@ -48,38 +48,20 @@ const actions = {
         ctx.commit('cacheNewPlate', newPlate)
     },
     async loadPlateTags(ctx, plateId) {
-        await axios.get('http://localhost:6020/phaedra/metadata-service/tagged_objects/PLATE',
-            {params: {objectId: plateId}})
-            .then(response => {
-                ctx.commit('addTags', response.data)
-            })
+        const tags = await metadataAPI.getObjectTags('PLATE', plateId)
+        ctx.commit('addTags', tags)
     },
-    tagPlate(ctx, tagInfo) {
-        axios.post('http://localhost:6020/phaedra/metadata-service/tags', tagInfo)
-            .then(response => {
-                if (response.status === 201) {
-                    ctx.commit('addTag', tagInfo);
-                }
-                console.log(response)
-            })
+    async tagPlate(ctx, tagInfo) {
+        await metadataAPI.addObjectTag(tagInfo)
+        ctx.commit('addTag', tagInfo);
     },
-    removeTag(ctx, plateTag) {
-        axios.delete('http://localhost:6020/phaedra/metadata-service/tags', {data: plateTag})
-            .then(response => {
-                if (response.status === 200) {
-                    ctx.commit('removeTag', plateTag);
-                }
-                console.log(response)
-            })
+    async removeTag(ctx, plateTag) {
+        await metadataAPI.removeObjectTag(plateTag)
+        ctx.commit('removeTag', plateTag);
     },
     async addMeasurement(ctx, plateMeasurement) {
-        const requestUrl = 'http://localhost:6010/phaedra/plate-service/plate/' + plateMeasurement.plateId + '/measurement';
-        await axios.post(requestUrl, plateMeasurement)
-            .then(response => {
-                if (response.status === 200) {
-                    ctx.commit('addMeasurement', response.data);
-                }
-            });
+        const meas = await plateAPI.linkMeasurement(plateMeasurement.plateId, plateMeasurement);
+        ctx.commit('addMeasurement', meas);
     },
     async deletePlate(ctx, plate) {
         await plateAPI.deletePlateById(plate.id)

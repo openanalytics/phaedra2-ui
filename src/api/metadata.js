@@ -1,21 +1,19 @@
-// import axios from "axios";
+import axios from "axios";
 
-// export default {
-//     async getTagsByPlateId(plateId) {
-//         let result = null;
-//         await axios.get('http://localhost:6020/phaedra/metadata-service/tagged_objects/PLATE',
-//             {params: {objectId: plateId}})
-//             .then(response => {
-//                 result = response.data;
-//             });
-//         return result;
-//     },
-//     addTag(tagInfo) {
-//         axios.post('http://localhost:6020/phaedra/metadata-service/tags', tagInfo)
-//             .then(response => {
-//                 if (response.status === 201) {
-//                     console.log(response)
-//                 }
-//             });
-//     }
-// }
+const apiURL = process.env.VUE_APP_API_BASE_URL + '/metadata-service';
+
+export default {
+    async getObjectTags(objectType, objectId) {
+        let response = await axios.get(apiURL + '/tagged_objects/' + objectType, {params: {objectId: objectId}});
+        return response.data;
+    },
+    async addObjectTag(tagInfo) {
+        await axios.post(apiURL + '/tags', tagInfo);
+    },
+    async removeObjectTag(tagInfo) {
+        await axios.delete(apiURL + '/tags', {data: tagInfo});
+    },
+    async addObjectProperty(propertyInfo) {
+        await axios.post(apiURL + '/properties', propertyInfo);
+    },
+}

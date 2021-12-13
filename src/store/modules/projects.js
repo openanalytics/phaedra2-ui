@@ -1,5 +1,5 @@
 import projectAPI from '@/api/projects.js'
-import axios from "axios";
+import metadataAPI from '@/api/metadata.js'
 
 const state = () => ({
     currentProject: {},
@@ -49,11 +49,8 @@ const actions = {
             })
     },
     async loadProjectsTags(ctx, projectId) {
-        await axios.get('http://localhost:6020/phaedra/metadata-service/tagged_objects/PROJECT',
-            {params: {objectId: projectId}})
-            .then(response => {
-                ctx.commit('addTags', response.data)
-            })
+        const tags = await metadataAPI.getObjectTags('PROJECT', projectId)
+        ctx.commit('addTags', tags)
     },
     async createNewProject(ctx, newProject) {
         await projectAPI.createNewProject(newProject)
@@ -72,32 +69,17 @@ const actions = {
         await projectAPI.editProject(args)
         ctx.commit('updateProject', args)
     },
-    tagProject(ctx, tagInfo) {
-        axios.post('http://localhost:6020/phaedra/metadata-service/tags', tagInfo)
-            .then(response => {
-                if (response.status === 201) {
-                    ctx.commit('addTag', tagInfo);
-                }
-                console.log(response)
-            })
+    async tagProject(ctx, tagInfo) {
+        await metadataAPI.addObjectTag(tagInfo);
+        ctx.commit('addTag', tagInfo);
     },
-    removeTag(ctx, projectTag) {
-        axios.delete('http://localhost:6020/phaedra/metadata-service/tags', { data : projectTag })
-            .then(response => {
-                if (response.status === 200) {
-                    ctx.commit('removeTag', projectTag);
-                }
-                console.log(response)
-            })
+    async removeTag(ctx, projectTag) {
+        await metadataAPI.removeObjectTag(projectTag);
+        ctx.commit('removeTag', projectTag);
     },
-    addProperty(ctx, propertyInfo) {
-        axios.post('http://localhost:6020/phaedra/metadata-service/properties', propertyInfo)
-            .then(response => {
-                if (response.status === 201) {
-                    ctx.commit('addProperty', propertyInfo);
-                }
-                console.log(response)
-            })
+    async addProperty(ctx, propertyInfo) {
+        await metadataAPI.addObjectProperty(propertyInfo);
+        ctx.commit('addProperty', propertyInfo);
     }
 }
 
