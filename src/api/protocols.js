@@ -1,10 +1,11 @@
 import axios from "axios";
 
+const apiURL = process.env.VUE_APP_API_BASE_URL + '/protocol-service';
+
 export default {
     async getProtocolById(protocolId) {
-        console.log('Making a backend call...');
         let result = null;
-        await axios.get('http://localhost:6030/phaedra/protocol-service/protocols/' + protocolId)
+        await axios.get(apiURL + '/protocols/' + protocolId)
             .then(response => {
                 result = response.data;
             })
@@ -13,60 +14,64 @@ export default {
     async getProtocolsByIds(ids) {
         try {
             const idsString = ids.join(",");
-            const response = await axios.get(`http://localhost:6030/phaedra/protocol-service/protocols?ids=${idsString}`);
+            const response = await axios.get(apiURL + `/protocols?ids=${idsString}`);
             return response.data;
         } catch (error) {
-            // TODO
             console.error(error);
         }
     },
     async getAllProtocols() {
-      console.log('Makeing a backend call...')
         let result = null;
-        await axios.get('http://localhost:6030/phaedra/protocol-service/protocols')
+        await axios.get(apiURL + '/protocols')
             .then(response => {
                 result = response.data;
             })
         return result;
     },
     async createNewProtocol(newProtocol) {
-        try {
-            console.log('Making a backend call...')
-            const requestUrl = 'http://localhost:6030/phaedra/protocol-service/protocols';
-            const response = await axios.post(requestUrl, newProtocol);
-            return response.data;
-        } catch (err) {
-            console.error(err);
-        }
+        let result = null;
+        await axios.post(apiURL + '/protocols', newProtocol)
+            .then(response => {
+                if (response.status === 201)
+                    result = response.data;
+            })
+        return result;
     },
     async deleteProtocol(protocolId) {
-        try {
-            console.log('Making a backend call...');
-            const requestUrl = 'http://localhost:6030/phaedra/protocol-service/protocols/' + protocolId;
-            const response = await axios.delete(requestUrl);
-            return response.data;
-        } catch (err) {
-            console.error(err);
-        }
+        let result = null;
+        await axios.delete(apiURL + '/protocols/' + protocolId)
+            .then(response => {
+                if (response.status === 200)
+                    result = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result;
     },
     async editProtocol(protocol) {
-        try {
-            console.log('Making a backend call...');
-            const requestUrl = 'http://localhost:6030/phaedra/protocol-service/protocols/'
-            const response = await axios.put(requestUrl,protocol)
-            return response.data;
-        } catch (err) {
-            console.error(err);
-        }
+        let result = null;
+        await axios.put(apiURL + '/protocols', protocol)
+            .then(response => {
+                if (response.status === 200)
+                    result = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result;
     },
     async addNewFeature(newFeature) {
-        try {
-            console.log('Making a backend call...');
-            const requestUrl = 'http://localhost:6030/phaedra/protocol-service/features'
-            const response = await axios.post(requestUrl, newFeature);
-            return response.data;
-        } catch (err) {
-            console.error(err);
-        }
+        let result = null;
+        axios.post(apiURL + '/features', newFeature)
+            .then(response => {
+                if (response.status === 201) {
+                    result = response.data
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result
     }
 }

@@ -1,6 +1,5 @@
 import experimentAPI from '@/api/experiments.js'
-import axios from "axios";
-import metadataAPI from "@/api/metadata";
+import metadataAPI from '@/api/metadata.js'
 
 const state = () => ({
     currentExperiment: {},
@@ -76,24 +75,17 @@ const actions = {
         }
     },
     async createNewExperiment(ctx, newExperiment) {
-        const response = await axios.post('http://localhost:6010/phaedra/plate-service/experiment', newExperiment)
-        const createdExperiment = response.data
-        ctx.commit('loadExperiment', createdExperiment)
+        const createdExperiment = await experimentAPI.createExperiment(newExperiment);
+        ctx.commit('cacheExperiment', createdExperiment)
         return createdExperiment
     },
-    tagExperiment(ctx, tag) {
-        metadataAPI.addTag(tag)
-            .then(result => {
-                const isCreated = result;
-                isCreated ? ctx.commit('addTag', tag) : console.log("TODO: Show error message");
-            })
+    async tagExperiment(ctx, tagInfo) {
+        await metadataAPI.addObjectTag(tagInfo);
+        ctx.commit('addTag', tagInfo);
     },
-    removeTag(ctx, tag) {
-        metadataAPI.removeTag(tag)
-            .then(result => {
-                const isDeleted = result;
-                isDeleted ? ctx.commit('removeTag', tag) : console.log("TODO: Show error message");
-            });
+    async removeTag(ctx, experimentTag) {
+        await metadataAPI.removeObjectTag(experimentTag);
+        ctx.commit('removeTag', experimentTag);
     },
     async loadRecentExperiments(ctx) {
         await experimentAPI.loadRecentExperiments()

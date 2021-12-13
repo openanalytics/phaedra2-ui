@@ -1,5 +1,7 @@
 import axios from "axios";
 
+const apiURL = process.env.VUE_APP_API_BASE_URL + '/plate-service';
+
 const demoProjects = [
     {
         id: 1,
@@ -38,10 +40,8 @@ export default {
         return demoProjects.slice(0, n)
     },
     async getProjectById(id) {
-        console.log('Making a backend call...');
         let result = null;
-        const requestUrl = 'http://localhost:6010/phaedra/plate-service/project/' + id
-        await axios.get(requestUrl)
+        await axios.get(apiURL + '/project/' + id)
             .then(response => {
                 if (response.status === 200)
                     result = response.data;
@@ -52,10 +52,8 @@ export default {
         return result;
     },
     async getAllProjects() {
-        console.log('Making a backend call...');
         let result = null;
-        const requestUrl = 'http://localhost:6010/phaedra/plate-service/projects'
-        await axios.get(requestUrl)
+        await axios.get(apiURL + '/projects')
             .then(response => {
                 if (response.status === 200)
                     result = response.data;
@@ -66,10 +64,8 @@ export default {
         return result;
     },
     async loadRecentProjects() {
-        console.log('Making a backend call...');
         let result = null;
-        const requestUrl = 'http://localhost:6010/phaedra/plate-service/projects'
-        await axios.get(requestUrl)
+        await axios.get(apiURL + '/projects')
             .then(response => {
                 if (response.status === 200)
                     result = response.data;
@@ -80,10 +76,8 @@ export default {
         return result;
     },
     async deleteProject(id) {
-        console.log('Making a backend call...');
         let result = null;
-        const requestUrl = 'http://localhost:6010/phaedra/plate-service/project/' + id
-        await axios.delete(requestUrl)
+        await axios.delete(apiURL + '/project/' + id)
             .then(response => {
                 if (response.status === 200)
                     result = response.data;
@@ -94,10 +88,8 @@ export default {
         return result;
     },
     async editProject(args) {
-        console.log('Making a backend call...');
         let result = null;
-        const requestUrl = 'http://localhost:6010/phaedra/plate-service/project/'
-        await axios.put(requestUrl,args)
+        await axios.put(apiURL + '/project', args)
             .then(response => {
                 if (response.status === 200)
                     result = response.data;
@@ -108,10 +100,8 @@ export default {
         return result;
     },
     async createNewProject(newProject) {
-        console.log('Making a backend call...');
         let result = null;
-        const requestUrl = 'http://localhost:6010/phaedra/plate-service/project/'
-        await axios.post(requestUrl,newProject)
+        await axios.post(apiURL + '/project', newProject)
             .then(response => {
                 if (response.status === 200 || response.status === 201)
                     result = response.data;

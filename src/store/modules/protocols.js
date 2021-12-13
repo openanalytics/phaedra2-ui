@@ -1,6 +1,5 @@
 import protocolAPI from '@/api/protocols.js'
-// import axios from "axios";
-import metadataAPI from "@/api/metadata";
+import metadataAPI from '@/api/metadata.js'
 
 const state = () => ({
     currentProtocol: {},
@@ -73,15 +72,15 @@ const actions = {
             ctx.commit('loadProtocol', newProtocol)
         }
     },
-    tagProtocol(ctx, tag) {
-        metadataAPI.addTag(tag)
+    async tagProtocol(ctx, tag) {
+        await metadataAPI.addTag(tag)
             .then(result => {
                 const isCreated = result;
                 isCreated ? ctx.commit('addTag', tag) : console.log("TODO: Show error message");
             })
     },
-    removeTag(ctx, tag) {
-        metadataAPI.removeTag(tag)
+    async removeTag(ctx, tag) {
+        await metadataAPI.removeTag(tag)
             .then(result => {
                 const isDeleted = result;
                 isDeleted ? ctx.commit('removeTag', tag) : console.log("TODO: Show error message");
@@ -131,11 +130,6 @@ const mutations = {
             if (!containsTag(state.currentProtocol, tags[i]))
                 state.currentProtocol.tags ? state.currentProtocol.tags.push(tags[i]) : state.currentProtocol.tags = [tags[i]];
         }
-        // for (let i = 0; i < tags.length; i++) {
-        //     const protocol = state.protocols.find(protocol => protocol.id === tags[i].objectId);
-        //     if (!containsTagInfo(protocol, tags[i]))
-        //         protocol.tags !== undefined ? protocol.tags.push(tags[i]) : protocol.tags = [tags[i]];
-        // }
     },
     addTag(state, tagInfo) {
         const protocol = state.protocols.find(protocol => protocol.id === tagInfo.objectId);
@@ -157,7 +151,9 @@ const mutations = {
     editProtocol(state, data) {
         state.currentProtocol.name = data.name;
         state.currentProtocol.description = data.description;
-        // state.protocols = state.protocols.filter(protocol => protocol.id !== pr.id)
+    },
+    deleteProtocol(state, pr){
+        state.protocols = state.protocols.filter(protocol => protocol.id !== pr.id)
     }
 }
 

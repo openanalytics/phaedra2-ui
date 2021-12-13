@@ -1,10 +1,11 @@
 import axios from "axios";
 
+const apiURL = process.env.VUE_APP_API_BASE_URL + '/resultdata-service';
+
 export default {
     async getLatestPlateResult(plateId) {
         let result = null;
-        const requestUrl = 'http://localhost:6050/phaedra/resultdata-service/plate-results/' + plateId + '/latest';
-        await axios.get(requestUrl)
+        await axios.get(apiURL + '/plate-results/' + plateId + '/latest')
             .then(response => {
                 if (response.status === 201)
                     result = reformatPlateResults(response.data);
@@ -13,8 +14,7 @@ export default {
     },
     async getPlateResults(plateId) {
         let result = null;
-        const requestUrl = 'http://localhost:6050/phaedra/resultdata-service/plate-results/' + plateId;
-        await axios.get(requestUrl)
+        await axios.get(apiURL + '/plate-results/' + plateId)
             .then(response => {
                 if (response.status === 201)
                     result = reformatPlateResults(response.data);

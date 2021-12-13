@@ -1,5 +1,4 @@
 import projectAPI from '@/api/projects.js'
-import axios from "axios";
 import metadataAPI from '@/api/metadata.js'
 
 const state = () => ({
@@ -87,28 +86,17 @@ const actions = {
         await projectAPI.editProject(args)
         ctx.commit('updateProject', args)
     },
-    tagProject(ctx, tag) {
-        metadataAPI.addTag(tag)
-            .then(result => {
-                const isCreated = result;
-                isCreated ? ctx.commit('addTag', tag) : console.log("TODO: Show error message");
-            })
+    async tagProject(ctx, tagInfo) {
+        await metadataAPI.addObjectTag(tagInfo);
+        ctx.commit('addTag', tagInfo);
     },
-    removeTag(ctx, tag) {
-        metadataAPI.removeTag(tag)
-            .then(result => {
-                const isDeleted = result;
-                isDeleted ? ctx.commit('removeTag', tag) : console.log("TODO: Show error message");
-            });
+    async removeTag(ctx, projectTag) {
+        await metadataAPI.removeObjectTag(projectTag);
+        ctx.commit('removeTag', projectTag);
     },
-    addProperty(ctx, property) {
-        axios.post('http://localhost:6020/phaedra/metadata-service/property', property)
-            .then(response => {
-                if (response.status === 201) {
-                    ctx.commit('addProperty', property);
-                }
-                console.log(response)
-            })
+    async addProperty(ctx, propertyInfo) {
+        await metadataAPI.addObjectProperty(propertyInfo);
+        ctx.commit('addProperty', propertyInfo);
     },
     removeProperty(ctx, property) {
         metadataAPI.removeProperty(property)
