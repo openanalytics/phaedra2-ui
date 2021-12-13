@@ -82,7 +82,7 @@ const actions = {
     async tagExperiment(ctx, tag) {
         await metadataAPI.addTag(tag)
             .then(isAdded => {
-                isAdded ? ctx.commit('addTag', tagInfo) : console.log("TODO: Show error message");
+                isAdded ? ctx.commit('addTag', tag) : console.log("TODO: Show error message");
             });
     },
     async removeTag(ctx, tag) {
@@ -113,7 +113,7 @@ const actions = {
     async addProperty(ctx, property) {
         await metadataAPI.addProperty(property)
             .then(isAdded => {
-                isAdded ? ctx.commit('addProperty', propertyInfo) : console.log("TODO: Show error message");
+                isAdded ? ctx.commit('addProperty', property) : console.log("TODO: Show error message");
             });
     },
     async removeProperty(ctx, property) {
