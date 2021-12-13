@@ -98,7 +98,7 @@ const actions = {
     async addProperty(ctx, property) {
         await metadataAPI.addProperty(property)
             .then(isAdded => {
-                isAdded ? ctx.commit('addProperty', propertygit ) : console.log("TODO: Show error message");
+                isAdded ? ctx.commit('addProperty', property ) : console.log("TODO: Show error message");
             });
     },
     async removeProperty(ctx, property) {
