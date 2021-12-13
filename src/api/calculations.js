@@ -8,6 +8,8 @@ export default {
         await axios.get(apiURL + '/formulas')
             .then(response => {
                 result = response.data;
+            }).catch(function (error) {
+                console.error(error);
             })
         return result;
     }

@@ -9,7 +9,7 @@
       :filter="filter"
       :filter-method="filterMethod"
       :visible-columns="visibleColumns"
-      class="oa-section-body">
+  >
     <template v-slot:top-right>
       <div class="row">
         <q-input outlined rounded dense debounce="300" v-model="filter" placeholder="Search">

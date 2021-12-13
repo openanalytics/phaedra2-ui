@@ -7,14 +7,14 @@
     <div class="row col-12 q-pa-md oa-section-body">
       <q-card-section class="row" style="min-width: 95vw">
         <div class="col col-5">
-          <q-input v-model="editedProtocol.name" square autofocus label="Name"></q-input><br>
+          <q-input v-model="name" square autofocus label="Name"></q-input><br>
           <q-btn flat label="Cancel" color="primary" @click="$emit('update:show',false)"/>
         </div>
         <div class="col col-1">
 
         </div>
         <div class="col col-4">
-          <q-input v-model="editedProtocol.description" square label="Description"></q-input><br>
+          <q-input v-model="description" square label="Description"></q-input><br>
           <router-link :to="'/protocol/' + protocol.id" class="nav-link">
             <q-btn label="Edit protocol" v-close-popup color="primary" @click="editProtocol" />
           </router-link>
@@ -26,35 +26,37 @@
 
 <script>
 
+import {useStore} from "vuex";
+import {computed, ref} from "vue";
+
 export default {
   name: 'EditProtocol',
-  methods: {
-    editProtocol() {
-      //Should pass full protocol for put request
-      this.editedProtocol.id = this.protocol.id
-      this.editedProtocol.editable = this.protocol.editable
-      this.editedProtocol.inDevelopment = this.protocol.inDevelopment
-      this.editedProtocol.lowWelltype = this.protocol.lowWelltype
-      this.editedProtocol.highWelltype = this.protocol.highWelltype
-      this.$store.dispatch('protocols/editProtocol', this.editedProtocol)
-      this.$emit('update:show',false)
-    }
-  },
   setup(props) {
+    const store = useStore();
+
+    const protocol = computed(() => store.getters['protocols/getCurrentProtocol']());
+
+    const name = ref(protocol.value.name);
+    const description = ref(protocol.value.description);
     return {
-      props
+      props,
+      protocol,
+      name,
+      description
     }
   },
   data() {
     return {
-      editedProtocol: {
-        name: null,
-        description: null
-      },
       editdialog: this.props.show
     }
   },
-  props: ['show', 'protocol'],
+  methods: {
+    editProtocol() {
+      this.$store.dispatch('protocols/editProtocol', { name: this.name, description: this.description});
+      this.$emit('update:show',false);
+    }
+  },
+  props: ['show'],
   emits: ['update:show']
 }
 </script>

@@ -39,7 +39,7 @@
             <div class="col-3 text-weight-bold">Tags:</div>
             <div class="col">
               <div class="tag-icon flex inline" v-for="tag in protocol.tags" :key="tag.tag">
-                <Tag :tagInfo="tag"></Tag>
+                <Tag :tagInfo="tag" :objectInfo="protocol" :objectClass="'PROTOCOL'"></Tag>
               </div>
             </div>
           </div>
@@ -92,21 +92,18 @@
         <q-icon name="edit" class="q-pr-sm"/>
         New Feature
       </div>
-      <div class="row col-12 q-pa-md oa-section-body">
-        <q-card-section class="row" style="min-width: 100vw">
-          <div class="col col-5">
+      <div class="oa-section-body">
+        <q-card-section class="row">
+          <div class="col-5">
             <q-input v-model="newFeature.name" square autofocus label="Name"></q-input>
             <q-input v-model="newFeature.alias" square label="Alias"></q-input>
             <q-input v-model="newFeature.description" square label="Description"></q-input>
             <q-input v-model="newFeature.format" square label="Format" placeholder="#.##"
                      style="width: 100px"></q-input><br>
             <q-btn flat label="Cancel" color="primary" @click="newFeatureTab = false"/>
-
           </div>
-          <div class="col col-1">
-
-          </div>
-          <div class="col col-4">
+          <div class="col-1"/>
+          <div class="col-5">
             <q-select v-model="newFeature.type" square label="Type" :options="featureTypes"></q-select>
             <q-select v-model="newFeature.formulaId" square label="Formula" :options="formulas.filter(formula => formula.category === newFeature.type)" option-value="id"
                       option-label="name"></q-select>
@@ -192,11 +189,11 @@ export default {
     const route = useRoute()
     const loading = ref(false)
     const protocolId = parseInt(route.params.id);
-    const protocol = computed(() => store.getters['protocols/getById'](protocolId))
-    if (!store.getters['protocols/isLoaded'](protocolId)) {
+    const protocol = computed(() => store.getters['protocols/getCurrentProtocol']())
+    // if (!store.getters['protocols/isLoaded'](protocolId)) {
       store.dispatch('protocols/loadById', protocolId)
-    }
-    store.dispatch('protocols/loadProtocolsTags', protocolId)
+    // }
+    // store.dispatch('protocols/loadProtocolsTags', protocolId)
 
     const  features = computed(() => store.getters['features/getByProtocolId'](protocolId))
     if(!store.getters['features/isProtocolLoaded'](protocolId)) {

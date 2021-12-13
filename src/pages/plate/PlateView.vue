@@ -34,32 +34,14 @@
               <div class="col-3 text-weight-bold">Tags:</div>
               <div class="col">
                 <div class="tag-icon flex inline" v-for="tag in plate.tags" :key="tag.tag">
-                  <Tag :tagInfo="tag"></Tag>
+                  <Tag :tagInfo="tag" :objectInfo="plate" :objectClass="'PLATE'"></Tag>
                 </div>
               </div>
             </div>
           </div>
 
           <div class="col col-4">
-            <div class="row">
-              <div class="col-2 text-weight-bold">Properties:</div>
-              <div class="col">
-                <q-table
-                    dense
-                    :rows="plate.properties"
-                    :columns="propertyColumns"
-                    table-header-class="text-grey"
-                    row-key="key"
-                    hide-pagination
-                >
-                  <template v-slot:no-data>
-                    <div class="full-width row text-info">
-                      <span>No properties</span>
-                    </div>
-                  </template>
-                </q-table>
-              </div>
-            </div>
+            <PropertyTable :objectInfo="plate" :objectClass="'PLATE'"/>
           </div>
 
           <div class="col col-4">
@@ -84,14 +66,28 @@
           inline-label dense no-caps
           align="left"
           class="q-px-sm oa-section-title"
+          v-model="activeTab"
       >
-        <q-route-tab :to="'/plate/' + plate.id" icon="view_module" label="Layout"/>
-        <q-route-tab :to="'/plate/' + plate.id + '/measurements'" icon="text_snippet" label="Measurements"/>
-        <q-route-tab :to="'/plate/' + plate.id + '/heatmap'" icon="view_module" label="Heatmap"/>
-        <q-route-tab :to="'/plate/' + plate.id + '/wells'" icon="table_rows" label="Well List"/>
+        <q-tab name="layout" icon="view_module" label="Layout"/>
+        <q-tab name="measurements" icon="text_snippet" label="Measurements"/>
+        <q-tab name="heatmap" icon="view_module" label="Heatmap"/>
+        <q-tab name="wells" icon="table_rows" label="Well List"/>
       </q-tabs>
       <div class="row oa-section-body">
-        <router-view class="router-view" :plate="plate"></router-view>
+        <q-tab-panels v-model="activeTab" animated style="width: 100%">
+          <q-tab-panel name="layout" icon="view_module" label="Layout">
+            <WellGrid :plate="plate" grid-type="layout"/>
+          </q-tab-panel>
+          <q-tab-panel name="measurements" icon="view_module" label="Layout">
+            <MeasList :plate="plate" />
+          </q-tab-panel>
+          <q-tab-panel name="heatmap" icon="view_module" label="Layout">
+            <WellGrid :plate="plate" grid-type="heatmap"/>
+          </q-tab-panel>
+          <q-tab-panel name="wells" icon="view_module" label="Layout">
+            <WellList :plate="plate" />
+          </q-tab-panel>
+        </q-tab-panels>
       </div>
     </div>
 
@@ -169,23 +165,26 @@
 </style>
 
 <script>
-import {computed, watch, ref} from 'vue'
+import {computed, ref, watch} from 'vue'
 import {useStore} from 'vuex'
 import {useRoute} from 'vue-router'
 
 import Tag from "@/components/tag/Tag";
 import EditPlate from "./EditPlate";
-
-const propertyColumns = [
-  {name: 'key', align: 'left', label: 'Name', field: 'key', sortable: true},
-  {name: 'value', align: 'left', label: 'Value', field: 'value', sortable: true}
-]
+import PropertyTable from "@/components/property/PropertyTable";
+import WellGrid from "@/pages/plate/WellGrid";
+import MeasList from "@/pages/plate/MeasList";
+import WellList from "@/pages/plate/WellList";
 
 export default {
   name: 'Plate',
   components: {
+    WellList,
+    MeasList,
+    WellGrid,
     Tag,
-    EditPlate
+    EditPlate,
+    PropertyTable
   },
   methods: {
     onClick() {
@@ -215,12 +214,10 @@ export default {
     const route = useRoute()
 
     const plateId = parseInt(route.params.id);
-    store.dispatch('plates/loadById', plateId);
-
     const plate = computed(() => store.getters['plates/getCurrentPlate']());
-    store.dispatch('plates/loadPlateTags', plateId)
-    const experiment = computed(() => store.getters['experiments/getById'](plate.value.experimentId));
-    const project = computed(() => store.getters['projects/getById'](experiment.value.projectId));
+    const experiment = computed(() => store.getters['experiments/getCurrentExperiment']());
+    const project = computed(() => store.getters['projects/getCurrentProject']());
+    store.dispatch('plates/loadById', plateId);
 
     // Once the plate has loaded, make sure the parent experiment gets loaded too.
     watch(plate, (plate) => {
@@ -233,8 +230,7 @@ export default {
       plate,
       experiment,
       project,
-      propertyColumns,
-      activeTab: ref('plate_layout')
+      activeTab: ref('layout')
     }
   },
   data() {

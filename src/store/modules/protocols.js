@@ -2,10 +2,14 @@ import protocolAPI from '@/api/protocols.js'
 import metadataAPI from '@/api/metadata.js'
 
 const state = () => ({
+    currentProtocol: {},
     protocols: []
 })
 
 const getters = {
+    getCurrentProtocol: (state) => () => {
+        return state.currentProtocol;
+    },
     getById: (state) => (id) => {
         return state.protocols.find(protocol => protocol.id == id)
     },
@@ -26,9 +30,27 @@ const getters = {
 }
 
 const actions = {
-    async loadById(ctx, id) {
-        const protocol = await protocolAPI.getProtocolById(id)
-        ctx.commit('cacheProtocol', protocol)
+    async loadById(ctx, protocolId) {
+        // Load protocol by id
+        let protocol = ctx.getters.getById(protocolId);
+        if (protocol) {
+            ctx.commit('loadProtocol', protocol)
+        } else {
+            try {
+                protocol = await protocolAPI.getProtocolById(protocolId);
+                ctx.commit('loadProtocol', protocol)
+            }catch (err) {
+                console.error(err);
+            }
+        }
+
+        // Load protocol tags
+        if (protocol && !protocol.tags) {
+            await metadataAPI.getObjectTags(protocolId, 'PROTOCOL')
+                .then(tags => {
+                    ctx.commit('loadTags', tags);
+                })
+        }
     },
     async loadByIds(ctx, ids) {
         const loadedIds = ctx.getters['getLoadedIds']()
@@ -47,26 +69,28 @@ const actions = {
     async saveProtocol(ctx, protocol) {
         if (protocol.id !== undefined) {
             const newProtocol = await protocolAPI.createNewProtocol(protocol)
-            ctx.commit('cacheProtocol', newProtocol)
+            ctx.commit('loadProtocol', newProtocol)
         }
     },
-    async loadProtocolsTags(ctx, protocolId) {
-        const tags = await metadataAPI.getObjectTags('PROTOCOL', protocolId)
-        ctx.commit('addTags', tags)
+    async tagProtocol(ctx, tag) {
+        await metadataAPI.addTag(tag)
+            .then(result => {
+                const isCreated = result;
+                isCreated ? ctx.commit('addTag', tag) : console.log("TODO: Show error message");
+            })
     },
-    async tagProtocol(ctx, tagInfo) {
-        await metadataAPI.addObjectTag(tagInfo);
-        ctx.commit('addTag', tagInfo);
-    },
-    async removeTag(ctx, protocolTag) {
-        await metadataAPI.removeObjectTag(protocolTag);
-        ctx.commit('removeTag', protocolTag);
+    async removeTag(ctx, tag) {
+        await metadataAPI.removeTag(tag)
+            .then(result => {
+                const isDeleted = result;
+                isDeleted ? ctx.commit('removeTag', tag) : console.log("TODO: Show error message");
+            });
     },
     async addNewFeature(ctx, newFeature) {
         await protocolAPI.addNewFeature(newFeature)
-            .then(() => {
-                ctx.commit('addFeature', newFeature);
-                ctx.commit('features/cacheInProtocol', newFeature, { root: true })
+            .then((result) => {
+                ctx.commit('addFeature', result);
+                ctx.commit('features/cacheInProtocol', result, { root: true })
             })
     },
     async deleteProtocol(ctx, protocol){
@@ -75,20 +99,19 @@ const actions = {
                 ctx.commit('deleteProtocol', protocol)
             })
     },
-    async editProtocol(ctx, protocol) {
+    async editProtocol(ctx, data) {
+        ctx.commit('editProtocol', data);
+        const protocol = ctx.getters.getCurrentProtocol();
         await protocolAPI.editProtocol(protocol)
             .then(() => {
-                ctx.commit('deleteProtocol', protocol)
-                ctx.commit('cacheProtocol', protocol)
+                ctx.commit('loadProtocol', protocol)
             })
     }
 }
 
 const mutations = {
-    cacheProtocol(state, protocol) {
-        let index = state.protocols.indexOf(protocol)
-        if (index === -1)
-            state.protocols.push(protocol)
+    loadProtocol(state, protocol) {
+        state.currentProtocol = protocol;
     },
     cacheProtocols (state, protocols) {
         protocols.forEach(protocol => {
@@ -102,21 +125,20 @@ const mutations = {
     cacheAllProtocols (state, protocols) {
         state.protocols = protocols;
     },
-    addTags(state, tags) {
+    loadTags(state, tags) {
         for (let i = 0; i < tags.length; i++) {
-            const protocol = state.protocols.find(protocol => protocol.id === tags[i].objectId);
-            if (!containsTagInfo(protocol, tags[i]))
-                protocol.tags !== undefined ? protocol.tags.push(tags[i]) : protocol.tags = [tags[i]];
+            if (!containsTag(state.currentProtocol, tags[i]))
+                state.currentProtocol.tags ? state.currentProtocol.tags.push(tags[i]) : state.currentProtocol.tags = [tags[i]];
         }
     },
     addTag(state, tagInfo) {
         const protocol = state.protocols.find(protocol => protocol.id === tagInfo.objectId);
-        if (!containsTagInfo(protocol, tagInfo))
+        if (!containsTag(protocol, tagInfo))
             protocol.tags !== undefined ? protocol.tags.push(tagInfo) : protocol.tags = [tagInfo];
     },
     removeTag(state, tagInfo) {
         const protocol = state.protocols.find(protocol => protocol.id === tagInfo.objectId)
-        if (containsTagInfo(protocol, tagInfo)) {
+        if (containsTag(protocol, tagInfo)) {
             const i = protocol.tags.findIndex(t => t.tag === tagInfo.tag);
             protocol.tags.splice(i, 1);
         }
@@ -126,12 +148,16 @@ const mutations = {
         if (!containsFeature(protocol, feature))
             protocol.features !== undefined ? protocol.features.push(feature) : protocol.features = [feature];
     },
+    editProtocol(state, data) {
+        state.currentProtocol.name = data.name;
+        state.currentProtocol.description = data.description;
+    },
     deleteProtocol(state, pr){
         state.protocols = state.protocols.filter(protocol => protocol.id !== pr.id)
     }
 }
 
-function containsTagInfo(protocol, tagInfo) {
+function containsTag(protocol, tagInfo) {
     return protocol.tags !== undefined && protocol.tags.findIndex(t => t.tag === tagInfo.tag) > -1;
 }
 
