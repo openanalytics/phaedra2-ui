@@ -83,26 +83,27 @@ const actions = {
         const newPlate = await plateAPI.addPlate(plate)
         ctx.commit('cacheNewPlate', newPlate)
     },
-    async tagPlate(ctx, tagInfo) {
-        await metadataAPI.addObjectTag(tagInfo)
-        ctx.commit('addTag', tagInfo);
+    async tagPlate(ctx, tag) {
+        await metadataAPI.addTag(tag)
+            .then(isAdded => {
+                isAdded ? ctx.commit('addTag', tagInfo) : console.log("TODO: Show error message");
+            });
     },
-    async removeTag(ctx, plateTag) {
-        await metadataAPI.removeObjectTag(plateTag)
-        ctx.commit('removeTag', plateTag);
-    },
-    addProperty(ctx, property) {
-        axios.post('http://localhost:6020/phaedra/metadata-service/property', property)
-            .then(response => {
-                if (response.status === 201) {
-                    ctx.commit('addProperty', property);
-                }
+    async removeTag(ctx, tag) {
+        await metadataAPI.removeTag(tag)
+            .then(isDeleted => {
+                isDeleted ? ctx.commit('removeTag', tag) : console.log("TODO: Show error message");
             })
     },
-    removeProperty(ctx, property) {
-        metadataAPI.removeProperty(property)
-            .then(result => {
-                const isDeleted = result;
+    async addProperty(ctx, property) {
+        await metadataAPI.addProperty(property)
+            .then(isAdded => {
+                isAdded ? ctx.commit('addProperty', propertyInfo) : console.log("TODO: Show error message");
+            });
+    },
+    async removeProperty(ctx, property) {
+        await metadataAPI.removeProperty(property)
+            .then(isDeleted => {
                 isDeleted ? ctx.commit('removeProperty', property) : console.log("TODO: Show error message");
             });
     },

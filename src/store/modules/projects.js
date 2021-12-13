@@ -86,22 +86,27 @@ const actions = {
         await projectAPI.editProject(args)
         ctx.commit('updateProject', args)
     },
-    async tagProject(ctx, tagInfo) {
-        await metadataAPI.addObjectTag(tagInfo);
-        ctx.commit('addTag', tagInfo);
+    async tagProject(ctx, tag) {
+        await metadataAPI.addProperty(tag)
+            .then(isAdded => {
+                isAdded ? ctx.commit('addTag', tag) : console.log("TODO: Show error message");
+            });
     },
-    async removeTag(ctx, projectTag) {
-        await metadataAPI.removeObjectTag(projectTag);
-        ctx.commit('removeTag', projectTag);
+    async removeTag(ctx, tag) {
+       await metadataAPI.removeTag(tag)
+            .then(isDeleted => {
+                isDeleted ? ctx.commit('removeTag', tag) : console.log("TODO: Show error message");
+            })
     },
-    async addProperty(ctx, propertyInfo) {
-        await metadataAPI.addObjectProperty(propertyInfo);
-        ctx.commit('addProperty', propertyInfo);
+    async addProperty(ctx, property) {
+        await metadataAPI.addProperty(property)
+            .then(isAdded => {
+                isAdded ? ctx.commit('addProperty', property) : console.log("TODO: Show error message");
+            });
     },
-    removeProperty(ctx, property) {
-        metadataAPI.removeProperty(property)
-            .then(result => {
-                const isDeleted = result;
+    async removeProperty(ctx, property) {
+        await metadataAPI.removeProperty(property)
+            .then(isDeleted => {
                 isDeleted ? ctx.commit('removeProperty', property) : console.log("TODO: Show error message");
             });
     }
@@ -110,8 +115,6 @@ const actions = {
 const mutations = {
     loadProject(state, project) {
         state.currentProject = project;
-        // if (!containsProject(state, project))
-        //     state.projects.push(project)
     },
     uncacheProject(state, projectId) {
         let match = state.projects.find(p => p.id === projectId)

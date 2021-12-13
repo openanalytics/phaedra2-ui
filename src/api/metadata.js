@@ -1,8 +1,10 @@
 import axios from "axios";
 
+const apiURL = process.env.VUE_APP_API_BASE_URL + '/metadata-service';
+
 export default {
     async addTag(taggedObject) {
-        const requestUrl = 'http://localhost:6020/phaedra/metadata-service/tag';
+        const requestUrl = apiURL + '/tag';
         let result = false;
 
         await axios.post(requestUrl, taggedObject)
@@ -16,24 +18,29 @@ export default {
             });
         return result;
     },
-    async getObjectTags(objectId, objectClass) {
-        let result = []
-        await axios.get('http://localhost:6020/phaedra/metadata-service/tags',
-            {params: {objectId: objectId, objectClass: objectClass}})
+    async removeTag(taggedObject) {
+        console.log('Making a backend call ...');
+
+        const requestUrl = apiURL + '/tag';
+        let result = false;
+
+        await axios.delete(requestUrl, {data: taggedObject})
             .then(response => {
                 if (response.status === 200)
-                    result = response.data;
+                    result = true;
             })
-            .catch(function (error){
+            .catch(function (error) {
                 console.log(error);
-                result = [];
+                result = false;
             });
         return result;
     },
-    async getObjectProperties(objectId, objectClass) {
-        let result = [];
-        await axios.get('http://localhost:6020/phaedra/metadata-service/properties',
-            { params: { objectId: objectId, objectClass: objectClass }})
+    async getObjectTags(objectId, objectClass) {
+        const requestUrl = apiURL + '/tags';
+        let result = []
+
+        await axios.get(requestUrl,
+            {params: {objectId: objectId, objectClass: objectClass}})
             .then(response => {
                 if (response.status === 200)
                     result = response.data;
@@ -44,15 +51,13 @@ export default {
             });
         return result;
     },
-    async removeTag(taggedObject) {
-        console.log('Making a backend call ...');
-
-        const requestUrl = 'http://localhost:6020/phaedra/metadata-service/tag';
+    async addProperty(property) {
+        const requestUrl = apiURL + '/property';
         let result = false;
 
-        await axios.delete(requestUrl, { data: taggedObject })
+        axios.post(requestUrl, property)
             .then(response => {
-                if (response.status === 200)
+                if (response.status === 201)
                     result = true;
             })
             .catch(function (error) {
@@ -62,11 +67,15 @@ export default {
         return result;
     },
     async removeProperty(property) {
-        console.log('Making a backend call ...');
-
-        const requestUrl = 'http://localhost:6020/phaedra/metadata-service/property';
+        const requestUrl = apiURL + '/property';
         let result = false;
-        await axios.delete(requestUrl, { params: { propertyName: property.propertyName, objectId: property.objectId, objectClass: property.objectClass }})
+        await axios.delete(requestUrl, {
+            params: {
+                propertyName: property.propertyName,
+                objectId: property.objectId,
+                objectClass: property.objectClass
+            }
+        })
             .then(response => {
                 if (response.status === 200)
                     result = true;
@@ -74,6 +83,21 @@ export default {
             .catch(function (error) {
                 console.log(error);
                 result = false;
+            });
+        return result;
+    },
+    async getObjectProperties(objectId, objectClass) {
+        const requestUrl = apiURL + '/properties';
+        let result = [];
+        await axios.get(requestUrl,
+            {params: {objectId: objectId, objectClass: objectClass}})
+            .then(response => {
+                if (response.status === 200)
+                    result = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+                result = [];
             });
         return result;
     }
