@@ -50,7 +50,7 @@
 
             <div class="col-4">
               <div class="row justify-end action-button">
-                <q-btn size="sm" icon="edit" label="Rename" class="oa-button" @click="showRenameDialog = true"/>
+                <q-btn size="sm" icon="edit" label="Rename" class="oa-button" @click="newProjectName = project.name; showRenameDialog = true"/>
               </div>
               <div class="row justify-end action-button">
                 <q-btn size="sm" icon="sell" label="Add Tag" class="oa-button" @click="showAddTagDialog = true"/>
@@ -142,9 +142,9 @@
   import {useStore} from 'vuex'
   import {useRoute, useRouter} from 'vue-router'
 
-  import ExperimentList from "@/pages/experiment/ExperimentList.vue";
-  import Tag from "@/components/tag/Tag";
-  import PropertyTable from "@/components/property/PropertyTable";
+  import ExperimentList from "@/pages/experiment/ExperimentList.vue"
+  import Tag from "@/components/tag/Tag"
+  import PropertyTable from "../../components/property/PropertyTable";
 
   import FormatUtils from "@/lib/FormatUtils.js"
 
@@ -163,6 +163,7 @@
       const projectId = parseInt(route.params.id);
       const project = computed(() => store.getters['projects/getCurrentProject']());
       store.dispatch('projects/loadById', projectId);
+      store.dispatch('projects/loadProjectsTags', projectId);
 
       const showAddTagDialog = ref(false);
       const newProjectTag = ref('');

@@ -20,6 +20,9 @@ const getters = {
     },
     getPlateMeasurements: (state) => (plateId) => {
         return state.measurementsInPlate[plateId];
+    },
+    getActiveMeasurement: (state) => () => {
+        return state.measurementsInPlate.find(meas => meas.active === true)
     }
 }
 

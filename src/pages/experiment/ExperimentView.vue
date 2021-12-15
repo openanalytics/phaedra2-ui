@@ -74,6 +74,7 @@
       </q-tabs>
       <div class="row oa-section-body">
 <!--        <router-view class="router-view" :experiment="experiment" @message="newPlateTab=true"></router-view>-->
+        <!--        <router-view v-model:experiment="experiment" v-model:newPlateTab="newPlateTab"></router-view>-->
         <q-tab-panels v-model="activeTab" animated style="width: 100%">
           <q-tab-panel name="overview">
             <PlateList :experiment="experiment"/>
@@ -257,6 +258,7 @@ export default {
         columns: null,
         sequence: null,
         experimentId: null,
+        calculationStatus: "CALCULATION_NEEDED",
         validationStatus: "VALIDATION_NOT_SET",
         approvalStatus: "APPROVAL_NOT_SET",
       },

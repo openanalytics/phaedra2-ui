@@ -18,7 +18,9 @@ const actions = {
         await calculationsAPI.getAllFormulas().then( formulas => {
             ctx.commit('getAllFormulas', formulas)
         })
-
+    },
+    async startCalculation(ctx, cal){
+        await calculationsAPI.startCalculation(cal)
     }
 }
 

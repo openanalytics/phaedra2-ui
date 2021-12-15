@@ -56,17 +56,16 @@ const actions = {
                 })
         }
     },
-
     async loadAll(ctx) {
         await projectAPI.getAllProjects()
             .then(response => {
                 ctx.commit('cacheAllProjects', response)
             })
     },
-    async loadRecentProjects(ctx) {
+    async loadRecentProjects(ctx, n) {
         await projectAPI.loadRecentProjects()
             .then(response => {
-                ctx.commit('cacheNRecentProjects', response)
+                ctx.commit('cacheNRecentProjects', {projects: response,n: n})
             })
     },
     async createNewProject(ctx, newProject) {
@@ -130,12 +129,13 @@ const mutations = {
     cacheAllProjects(state, projects) {
         state.projects = projects;
     },
-    cacheNRecentProjects(state, projects) {
-        state.recentProjects = projects.sort((p1, p2) => {
+    cacheNRecentProjects(state, payload) {
+        state.recentProjects = payload.projects
+        state.recentProjects = state.recentProjects.sort((p1, p2) => {
             let p1Time = new Date(p1.createdOn).getTime()
             let p2Time = new Date(p2.createdOn).getTime()
             return p1Time - p2Time;
-        });
+        }).slice(0, payload.n)
     },
     loadTags(state, tags) {
         for (let i = 0; i < tags.length; i++) {
