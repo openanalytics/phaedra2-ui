@@ -130,7 +130,7 @@
         </q-card-section>
         <q-card-actions align="right">
           <q-btn flat label="Cancel" color="primary" v-close-popup />
-          <q-btn label="Delete project" color="negative" v-if="project.name === projectName" v-close-popup @click="doDeleteProject"/>
+          <q-btn label="Delete project" color="negative" v-if="project.name == projectName" v-close-popup @click="doDeleteProject"/>
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -142,9 +142,9 @@
   import {useStore} from 'vuex'
   import {useRoute, useRouter} from 'vue-router'
 
-  import ExperimentList from "@/pages/experiment/ExperimentList.vue";
-  import Tag from "@/components/tag/Tag";
-  import PropertyTable from "@/components/property/PropertyTable";
+  import ExperimentList from "@/pages/experiment/ExperimentList.vue"
+  import Tag from "@/components/tag/Tag"
+  import PropertyTable from "../../components/property/PropertyTable";
 
   import FormatUtils from "@/lib/FormatUtils.js"
 
@@ -163,6 +163,7 @@
       const projectId = parseInt(route.params.id);
       const project = computed(() => store.getters['projects/getCurrentProject']());
       store.dispatch('projects/loadById', projectId);
+      store.dispatch('projects/loadProjectsTags', projectId);
 
       const showAddTagDialog = ref(false);
       const newProjectTag = ref('');
@@ -176,6 +177,13 @@
       }
 
       const showRenameDialog = ref(false)
+      const newProjectName = ref(project.value ? project.value.name : '')
+      const doRenameProject = function() {
+        store.dispatch('projects/renameProject', {
+          id: projectId,
+          name: newProjectName.value
+        })
+      }
 
       const showDeleteDialog = ref(false)
       const doDeleteProject = function() {
@@ -193,7 +201,8 @@
         doAddTag,
 
         showRenameDialog,
-        newProjectName: null,
+        newProjectName,
+        doRenameProject,
 
         showDeleteDialog,
         doDeleteProject,
@@ -204,14 +213,6 @@
     data(){
       return {
         projectName: ref(""),
-      }
-    },
-    methods: {
-      doRenameProject() {
-        this.$store.dispatch('projects/renameProject', {
-          id: this.projectId,
-          name: this.newProjectName
-        })
       }
     }
   }

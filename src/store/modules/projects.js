@@ -56,7 +56,6 @@ const actions = {
                 })
         }
     },
-
     async loadAll(ctx) {
         await projectAPI.getAllProjects()
             .then(response => {

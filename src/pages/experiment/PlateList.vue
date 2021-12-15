@@ -153,7 +153,7 @@ import {useStore} from 'vuex'
 import {computed, ref} from "vue";
 import TableConfig from "../../components/table/TableConfig";
 import PlateCalculateDialog from "./PlateCalculateDialog";
-// import {useRoute} from "vue-router";
+import {useRoute} from "vue-router";
 
 const columns = {
   barcode:{name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
@@ -231,20 +231,15 @@ export default {
       return newOrder
     }
   },
-  setup(props) {
+  setup() {
     const store = useStore()
     // const route = useRoute()
 
     const loading = ref(true)
 
-    // const experimentId = parseInt(route.params.id);
-    // const plates = computed(() => store.getters['plates/getByExperimentId'](experimentId))
-    // store.dispatch('plates/loadByExperimentId', experimentId).then(() => {
-    //   loading.value = false
-    // })
-
-    const plates = computed(() => store.getters['plates/getByExperimentId'](props.experiment.id))
-    store.dispatch('plates/loadByExperimentId', props.experiment.id).then(() => {
+    const experimentId = parseInt(route.params.id);
+    const plates = computed(() => store.getters['plates/getByExperimentId'](experimentId))
+    store.dispatch('plates/loadByExperimentId', experimentId).then(() => {
       loading.value = false
     })
 
