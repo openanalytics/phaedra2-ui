@@ -55,9 +55,9 @@
     </template>
     <template v-slot:body-cell-tags="props">
       <q-td :props="props">
-        <div class="tag-icon flex inline" v-for="tag in props.row.tags" :key="tag.value">
+        <div class="tag-icon flex inline" v-for="tag in props.row.tags" :key="tag.tag">
           <q-badge color="green">
-            {{ tag }}
+            {{ tag.tag }}
           </q-badge>
         </div>
       </q-td>

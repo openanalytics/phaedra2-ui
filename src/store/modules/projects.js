@@ -87,7 +87,7 @@ const actions = {
         ctx.commit('updateProject', args)
     },
     async tagProject(ctx, tag) {
-        await metadataAPI.addProperty(tag)
+        await metadataAPI.addTag(tag)
             .then(isAdded => {
                 isAdded ? ctx.commit('addTag', tag) : console.log("TODO: Show error message");
             });

@@ -55,7 +55,7 @@ export default {
         const requestUrl = apiURL + '/property';
         let result = false;
 
-        axios.post(requestUrl, property)
+        await axios.post(requestUrl, property)
             .then(response => {
                 if (response.status === 201)
                     result = true;
@@ -89,6 +89,7 @@ export default {
     async getObjectProperties(objectId, objectClass) {
         const requestUrl = apiURL + '/properties';
         let result = [];
+
         await axios.get(requestUrl,
             {params: {objectId: objectId, objectClass: objectClass}})
             .then(response => {
