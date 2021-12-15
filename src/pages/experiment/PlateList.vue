@@ -9,12 +9,11 @@
       :filter-method="filterMethod"
       :loading="loading"
       :visible-columns="visibleColumns"
-      class="full-width"
-      square
+      flat square
   >
     <template v-slot:top-right>
       <div class="col action-button on-left">
-        <q-btn size="sm" color="primary" icon="add" label="New Plate" @click="openNewPlateTab"/>
+        <q-btn size="sm" color="primary" icon="add" label="New Plate" @click="openNewPlateTab()"/>
       </div>
       <div class="row">
         <q-input outlined rounded dense debounce="300" v-model="filter" placeholder="Search">
@@ -33,6 +32,14 @@
             {{ props.row.barcode }}
           </div>
         </router-link>
+      </q-td>
+    </template>
+    <template v-slot:body-cell-status-calculation="props">
+      <q-td :props="props">
+        <q-icon v-if="props.row.calculationStatus==='CALCULATION_NEEDED'" name="horizontal_rule"></q-icon>
+        <q-icon v-else-if="props.row.approvalStatus==='CALCULATION_OK'" name="check_circle" color="positive"/>
+        <q-icon v-else-if="props.row.approvalStatus==='CALCULATION_NOT_POSSIBLE'" name="cancel" color="negative"/>
+        <q-icon v-else-if="props.row.approvalStatus==='CALCULATION_ERROR'" name="cancel" color="negative"/>
       </q-td>
     </template>
     <template v-slot:body-cell-status-validated="props">
@@ -56,9 +63,9 @@
     </template>
     <template v-slot:body-cell-tags="props">
       <q-td :props="props">
-        <div class="tag-icon flex inline" v-for="tag in props.row.tags" :key="tag.value">
+        <div class="tag-icon flex inline" v-for="tag in props.row.tags" :key="tag.tag">
           <q-badge color="green">
-            {{ tag }}
+            {{ tag.tag }}
           </q-badge>
         </div>
       </q-td>
@@ -111,6 +118,9 @@
                   </q-menu>
 
                 </q-item>
+                <q-item clickable @click="calculatePlate(props.row.id)">
+                  <q-item-section>Calculate plate</q-item-section>
+                </q-item>
               </q-list>
             </q-menu>
           </q-btn>
@@ -124,6 +134,7 @@
     </template>
   </q-table>
   <table-config v-model:show="configdialog" v-model:visibleColumns="visibleColumns" v-model:columnsList="columnsList" v-model:columnOrder="columnOrder"></table-config>
+  <plate-calculate-dialog v-model:show="calculateDialog" v-model:plateId="selectedPlateId"></plate-calculate-dialog>
 </template>
 
 <style scoped>
@@ -141,13 +152,16 @@
 import {useStore} from 'vuex'
 import {computed, ref} from "vue";
 import TableConfig from "../../components/table/TableConfig";
+import PlateCalculateDialog from "./PlateCalculateDialog";
+import {useRoute} from "vue-router";
 
 const columns = {
   barcode:{name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
   id:{name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
   description:{name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-  'status-validated':{name: 'status-validated', align: 'left', label: 'Validated', field: 'status-validated', sortable: true},
-  'status-approved':{name: 'status-approved', align: 'left', label: 'Approved', field: 'status-approved', sortable: true},
+  'status-calculation':{name: 'status-calculation', align: 'center', label: 'C', field: 'status-calculation'},
+  'status-validated':{name: 'status-validated', align: 'center', label: 'V', field: 'status-validated'},
+  'status-approved':{name: 'status-approved', align: 'center', label: 'A', field: 'status-approved'},
   layout:{name: 'layout', align: 'left', label: 'Layout', field: 'layout', sortable: true},
   createdOn:{
     name: 'createdOn',
@@ -171,14 +185,14 @@ const filterMethod = function (rows, term) {
 }
 
 export default {
-  components: {TableConfig},
+  components: {TableConfig, PlateCalculateDialog},
 
-  props: {
-    experiment: Object
-  },
+  props: ['experiment','newPlateTab'],
+  emits: ['update:newPlateTab'],
   methods: {
     openNewPlateTab() {
-      this.$emit("message")
+      console.log('clicked')
+      this.$emit('update:newPlateTab',true)
     },
     validate(id, experimentId) {
       //put validationStatus: VALIDATED
@@ -203,6 +217,10 @@ export default {
     resetApproval(id, experimentId) {
       this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, approvalStatus: 'APPROVAL_NOT_SET'})
     },
+    calculatePlate(id){
+      this.selectedPlateId = id
+      this.calculateDialog = true
+    },
     getColumns(){
       let newOrder = []
       let tempList = this.columnOrder.slice()
@@ -213,16 +231,19 @@ export default {
       return newOrder
     }
   },
-  setup(props) {
+  setup() {
     const store = useStore()
+    const route = useRoute()
+
     const loading = ref(true)
 
-    const plates = computed(() => store.getters['plates/getByExperimentId'](props.experiment.id))
-    store.dispatch('plates/loadByExperimentId', props.experiment.id).then(() => {
+    const experimentId = parseInt(route.params.id);
+    const plates = computed(() => store.getters['plates/getByExperimentId'](experimentId))
+    store.dispatch('plates/loadByExperimentId', experimentId).then(() => {
       loading.value = false
     })
 
-    let columnOrder = ['barcode','id','description','status-validated','status-approved','layout','createdOn','tags','menu']
+    let columnOrder = ['barcode','id','description','status-calculation','status-validated','status-approved','layout','createdOn','tags','menu']
     let columnsList = []
     columnOrder.forEach(function (col) {
       columnsList.push({column: col})
@@ -239,10 +260,12 @@ export default {
       filterMethod,
       loading,
       plates,
-      visibleColumns: ['barcode','id','description','status-validated','status-approved','layout','createdOn','tags','menu'],
+      visibleColumns: ['barcode','id','description','status-calculation','status-validated','status-approved','layout','createdOn','tags','menu'],
       columnsList,
       configdialog: ref(false),
-      columnOrder
+      columnOrder,
+      selectedPlateId: null,
+      calculateDialog: ref(false)
     }
   }
 }
