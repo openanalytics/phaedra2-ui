@@ -9,8 +9,7 @@
       :filter-method="filterMethod"
       :loading="loading"
       :visible-columns="visibleColumns"
-      class="full-width"
-      square
+      flat square
   >
     <template v-slot:top-right>
       <div class="col action-button on-left">
@@ -64,9 +63,9 @@
     </template>
     <template v-slot:body-cell-tags="props">
       <q-td :props="props">
-        <div class="tag-icon flex inline" v-for="tag in props.row.tags" :key="tag.value">
+        <div class="tag-icon flex inline" v-for="tag in props.row.tags" :key="tag.tag">
           <q-badge color="green">
-            {{ tag }}
+            {{ tag.tag }}
           </q-badge>
         </div>
       </q-td>
@@ -154,6 +153,7 @@ import {useStore} from 'vuex'
 import {computed, ref} from "vue";
 import TableConfig from "../../components/table/TableConfig";
 import PlateCalculateDialog from "./PlateCalculateDialog";
+// import {useRoute} from "vue-router";
 
 const columns = {
   barcode:{name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
@@ -233,7 +233,15 @@ export default {
   },
   setup(props) {
     const store = useStore()
+    // const route = useRoute()
+
     const loading = ref(true)
+
+    // const experimentId = parseInt(route.params.id);
+    // const plates = computed(() => store.getters['plates/getByExperimentId'](experimentId))
+    // store.dispatch('plates/loadByExperimentId', experimentId).then(() => {
+    //   loading.value = false
+    // })
 
     const plates = computed(() => store.getters['plates/getByExperimentId'](props.experiment.id))
     store.dispatch('plates/loadByExperimentId', props.experiment.id).then(() => {

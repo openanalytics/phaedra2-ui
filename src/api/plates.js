@@ -1,11 +1,11 @@
 import axios from "axios";
 
+const apiURL = process.env.VUE_APP_API_BASE_URL + '/plate-service';
+
 export default {
     async getPlateById(id) {
-        console.log('Making a backend call...');
         let result = null;
-        const requestUrl = 'http://localhost:6010/phaedra/plate-service/plate/' + id;
-        await axios.get(requestUrl)
+        await axios.get(apiURL + '/plate/' + id)
             .then(response => {
                 if (response.status === 200)
                     result = response.data;
@@ -16,10 +16,8 @@ export default {
         return result;
     },
     async getPlatesByExperimentId(id) {
-        console.log('Making a backend call...')
         let result = [];
-        const requestUrl = 'http://localhost:6010/phaedra/plate-service/plate';
-        await axios.get(requestUrl, { params: {experimentId: id}})
+        await axios.get(apiURL + '/plate', { params: {experimentId: id}})
             .then(response => {
                 if (response.status === 200)
                     result = response.data;
@@ -30,27 +28,26 @@ export default {
         return result;
     },
     async getPlateMeasurementsByPlateId(plateId) {
-        console.log('Making a backend call ...');
         let result = null;
-        const requestUrl = 'http://localhost:6010/phaedra/plate-service/plate/' + plateId + '/measurements';
-        await axios.get(requestUrl)
+        await axios.get(apiURL + '/plate/' + plateId + '/measurements')
             .then(response => {
                 if (response.status === 200)
                     result = response.data;
             });
         return result;
     },
-    async addPlate(plate){
-        console.log('Making a backend call ...');
-        const response = await axios.post('http://localhost:6010/phaedra/plate-service/plate', plate)
+    async linkMeasurement(plateId, measurement) {
+        const response = await axios.post(apiURL + '/plate/' + plateId + '/measurement', measurement);
+        return response.data;
+    },
+    async addPlate(plate) {
+        const response = await axios.post(apiURL + '/plate', plate)
         const newPlate = response.data
         return newPlate
     },
     async deletePlateById(plateId) {
-        console.log('Making a backend call...');
         let result = null;
-        const requestUrl = 'http://localhost:6010/phaedra/plate-service/plate/' + plateId;
-        await axios.delete(requestUrl)
+        await axios.delete(apiURL + '/plate/' + plateId)
             .then(response => {
                 if (response.status === 200)
                     result = response.data;
@@ -61,9 +58,8 @@ export default {
         return result;
     },
     async editPlate(newPlate) {
-        console.log('Making a backend call...');
         let result = null;
-        await axios.put('http://localhost:6010/phaedra/plate-service/plate/', newPlate)
+        await axios.put(apiURL + '/plate', newPlate)
             .then(response => {
                 if (response.status === 200)
                     result = response.data;

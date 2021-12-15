@@ -50,10 +50,16 @@
 .oa-button {
   background-color: $primary;
   color: $secondary;
-  width: 150px;
+  min-width: 125px;
+  max-width: 150px;
   border-radius: 0px;
 }
 
 .oa-button-edit, .oa-button-delete, .oa-button-tag {
   @extend .oa-button;
+}
+
+.oa-properties-table {
+  border-radius: 0px;
+  max-height: 225px;
 }

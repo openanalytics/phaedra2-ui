@@ -68,13 +68,15 @@
       // Protocol selection
       const selectedProtocol = ref(null)
       const onProtocolSelected = () => {
-        store.dispatch('features/loadByProtocolId', selectedProtocol.value.id).then(() => {
-          allFeatures.value = store.getters['features/getByProtocolId'](selectedProtocol.value.id)
-          if (allFeatures.value && allFeatures.value.length > 0) {
-            selectedFeature.value = allFeatures.value[0]
-            onFeatureSelected(selectedFeature.value)
-          }
-        })
+        if (selectedProtocol.value) {
+          store.dispatch('features/loadByProtocolId', selectedProtocol.value.id).then(() => {
+            allFeatures.value = store.getters['features/getByProtocolId'](selectedProtocol.value.id)
+            if (allFeatures.value && allFeatures.value.length > 0) {
+              selectedFeature.value = allFeatures.value[0]
+              onFeatureSelected(selectedFeature.value)
+            }
+          })
+        }
       }
 
       // Feature selection
