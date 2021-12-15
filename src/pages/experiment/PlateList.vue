@@ -9,8 +9,7 @@
       :filter-method="filterMethod"
       :loading="loading"
       :visible-columns="visibleColumns"
-      class="full-width"
-      square
+      flat square
   >
     <template v-slot:top-right>
       <div class="col action-button on-left">
@@ -153,6 +152,7 @@
 import {useStore} from 'vuex'
 import {computed, ref} from "vue";
 import TableConfig from "../../components/table/TableConfig";
+import {useRoute} from "vue-router";
 import PlateCalculateDialog from "./PlateCalculateDialog";
 
 const columns = {
@@ -231,12 +231,15 @@ export default {
       return newOrder
     }
   },
-  setup(props) {
+  setup() {
     const store = useStore()
+    const route = useRoute()
+
     const loading = ref(true)
 
-    const plates = computed(() => store.getters['plates/getByExperimentId'](props.experiment.id))
-    store.dispatch('plates/loadByExperimentId', props.experiment.id).then(() => {
+    const experimentId = parseInt(route.params.id);
+    const plates = computed(() => store.getters['plates/getByExperimentId'](experimentId))
+    store.dispatch('plates/loadByExperimentId', experimentId).then(() => {
       loading.value = false
     })
 

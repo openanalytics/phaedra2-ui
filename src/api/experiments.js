@@ -1,5 +1,7 @@
 import axios from "axios";
 
+const apiURL = process.env.VUE_APP_API_BASE_URL + '/plate-service';
+
 const demoExperiments = [
     {
         id: 1, name: 'Experiment 1', projectId: 1, description: 'This is experiment 1', createdOn: new Date(),
@@ -58,11 +60,13 @@ export default {
             return e1.createdOn.getTime() - e2.createdOn.getTime();
         })
     },
+    async createExperiment(newExperiment) {
+        const response = await axios.post(apiURL + '/experiment', newExperiment);
+        return response.data;
+    },
     async loadByProjectId(id) {
-        console.log('Making a backend call...');
         let result = null;
-        const requestUrl = 'http://localhost:6010/phaedra/plate-service/project/' + id + '/experiments'
-        await axios.get(requestUrl)
+        await axios.get(apiURL + '/project/' + id + '/experiments')
             .then(response => {
                 if (response.status === 200)
                     result = response.data;
@@ -73,10 +77,8 @@ export default {
         return result;
     },
     async loadById(id) {
-        console.log('Making a backend call...');
         let result = null;
-        const requestUrl = 'http://localhost:6010/phaedra/plate-service/experiment/' + id
-        await axios.get(requestUrl)
+        await axios.get(apiURL + '/experiment/' + id)
             .then(response => {
                 if (response.status === 200)
                     result = response.data;
@@ -87,9 +89,8 @@ export default {
         return result;
     },
     async editExperiment(newExperiment) {
-        console.log('Making a backend call...');
         let result = null;
-        await axios.put('http://localhost:6010/phaedra/plate-service/experiment/', newExperiment)
+        await axios.put(apiURL + '/experiment', newExperiment)
             .then(response => {
                 if (response.status === 200)
                     result = response.data;
@@ -100,10 +101,8 @@ export default {
         return result;
     },
     async loadRecentExperiments() {
-        console.log('Making a backend call...');
         let result = null;
-        const requestUrl = 'http://localhost:6010/phaedra/plate-service/experiment'
-        await axios.get(requestUrl)
+        await axios.get(apiURL + '/experiment')
             .then(response => {
                 if (response.status === 200)
                     result = response.data;
@@ -114,9 +113,7 @@ export default {
         return result;
     },
     async deleteExperiment(id) {
-        console.log('Making a backend call...');
-        const requestUrl = 'http://localhost:6010/phaedra/plate-service/experiment/' + id
-        await axios.delete(requestUrl)
+        await axios.delete(apiURL + '/experiment/' + id)
             .then(() => {})
             .catch(function (error) {
                 console.log(error);

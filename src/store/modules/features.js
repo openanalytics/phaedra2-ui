@@ -66,7 +66,10 @@ const mutations = {
         state.featuresInProtocol[args.protocolId] = args.features
     },
     cacheInProtocol(state, feature) {
-        state.featuresInProtocol[feature.protocolId].push(feature)
+        if (state.featuresInProtocol[feature.protocolId])
+            state.featuresInProtocol[feature.protocolId].push(feature);
+        else
+            state.featuresInProtocol[feature.protocolId] = [feature];
     }
 }
 

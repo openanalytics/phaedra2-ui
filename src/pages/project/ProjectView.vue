@@ -37,48 +37,26 @@
               <div class="row">
                 <div class="col-3 text-weight-bold">Tags:</div>
                 <div class="col">
-                  <div class="tag-icon flex inline" v-for="tag in project.tags" :key="tag.tag">
-                    <Tag :tagInfo="tag"></Tag>
+                  <div class="tag-icon flex inline" v-for="tag in project.tags" :key="tag">
+                    <Tag :tagInfo="tag" :objectInfo="project" :objectClass="'PROJECT'"/>
                   </div>
                 </div>
               </div>
             </div>
 
             <div class="col-4">
-              <div class="row q-pb-sm text-weight-bold">Properties:</div>
-              <div class="row-cols-auto q-pb-sm ful">
-                <q-table :rows="project.properties"
-                         :columns="propertyColumns"
-                         class="full-width"
-                         table-header-class="bg-secondary"
-                         row-key="propertyName"
-                         selection="multiple"
-                         v-model:selected="selectedProperties"
-                         no-data-label="No properties"
-                         hide-pagination
-                         dense
-                />
-                </div>
-              <div class="row justify-end">
-                  <q-btn label="Add" size="sm" icon="add" class="oa-button-tag" @click="showNewPropertyDialog = true"/>
-                  <q-btn label="Delete" size="sm" icon="delete" class="oa-button-delete"/>
-                </div>
+              <PropertyTable :objectInfo="project" :objectClass="'PROJECT'"/>
             </div>
 
             <div class="col-4">
               <div class="row justify-end action-button">
                 <q-btn size="sm" icon="edit" label="Rename" class="oa-button" @click="newProjectName = project.name; showRenameDialog = true"/>
-<!--                <q-btn size="sm" icon="sell" label="Add Tag" class="oa-button" @click="showAddTagDialog = true"/>-->
-<!--                <q-btn size="sm" color="primary" icon="edit" align="between" class="oa-button-edit" label="Rename Project" @click="showRenameDialog = true"/>-->
               </div>
               <div class="row justify-end action-button">
                 <q-btn size="sm" icon="sell" label="Add Tag" class="oa-button" @click="showAddTagDialog = true"/>
-<!--                <q-btn size="sm" icon="edit" label="Rename" class="oa-button" @click="showRenameDialog = true"/>-->
-<!--                <q-btn size="sm" color="primary" icon="delete" align="between" class="oa-button-delete" label="Delete Project" @click="showDeleteDialog = true"/>-->
               </div>
               <div class="row justify-end action-button">
                 <q-btn size="sm" icon="delete" label="Delete" class="oa-button" @click="showDeleteDialog = true"/>
-<!--                <q-btn size="sm" color="primary" icon="sell" align="between" class="oa-button-tag" label="Add Tag" @click="showAddTagDialog = true"/>-->
               </div>
             </div>
           </div>
@@ -177,7 +155,7 @@
         </q-card-section>
         <q-card-actions align="right">
           <q-btn flat label="Cancel" color="primary" v-close-popup />
-          <q-btn label="Delete project" color="negative" v-if="project.name === projectName" v-close-popup @click="doDeleteProject"/>
+          <q-btn label="Delete project" color="negative" v-if="project.name == projectName" v-close-popup @click="doDeleteProject"/>
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -249,6 +227,13 @@
       }
 
       const showRenameDialog = ref(false)
+      const newProjectName = ref(project.value ? project.value.name : '')
+      const doRenameProject = function() {
+        store.dispatch('projects/renameProject', {
+          id: projectId,
+          name: newProjectName.value
+        })
+      }
 
       const showDeleteDialog = ref(false)
       const doDeleteProject = function() {
@@ -273,7 +258,8 @@
         doAddProperty,
 
         showRenameDialog,
-        newProjectName: null,
+        newProjectName,
+        doRenameProject,
 
         showDeleteDialog,
         doDeleteProject,
@@ -284,14 +270,6 @@
     data(){
       return {
         projectName: ref(""),
-      }
-    },
-    methods: {
-      doRenameProject() {
-        this.$store.dispatch('projects/renameProject', {
-          id: this.projectId,
-          name: this.newProjectName
-        })
       }
     }
   }

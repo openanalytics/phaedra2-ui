@@ -8,7 +8,7 @@
       :filter-method="filterMethod"
       :loading="loading"
       :key="tableKey"
-      style="width: 100%"
+      flat square
   >
     <template v-slot:top-right>
       <q-input outlined rounded dense debounce="300" v-model="filter" placeholder="Search">
@@ -184,5 +184,4 @@ export default {
     }
   }
 }
-
 </script>

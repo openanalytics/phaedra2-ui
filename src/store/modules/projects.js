@@ -1,5 +1,5 @@
 import projectAPI from '@/api/projects.js'
-import axios from "axios";
+import metadataAPI from '@/api/metadata.js'
 
 const state = () => ({
     currentProject: {},
@@ -20,17 +20,41 @@ const getters = {
     isLoaded: (state) => (id) => {
         return state.projects.find(project => project.id === id)
     },
-    getNRecentProjects: (state) => () => {
-        return state.recentProjects
+    getNRecentProjects: (state) => (n) => {
+        return state.recentProjects.slice(0, n)
     }
 }
 
 const actions = {
-    async loadById(ctx, id) {
-        await projectAPI.getProjectById(id)
-            .then(response => {
-                ctx.commit('cacheProject', response)
-            })
+    async loadById(ctx, projectId) {
+        // Load project by id
+        let project = ctx.getters.getById(projectId);
+        if (project) {
+            ctx.commit('loadProject', project)
+        } else {
+            try {
+                project = await projectAPI.getProjectById(projectId);
+                ctx.commit('loadProject', project)
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // Load all properties if any
+        if (project && !project.properties) {
+            metadataAPI.getObjectProperties(projectId, 'PROJECT')
+                .then(result => {
+                    ctx.commit('loadProperties', result);
+                })
+        }
+
+        // Load all tags if any
+        if (project && !project.tags) {
+            metadataAPI.getObjectTags(projectId, 'PROJECT')
+                .then(result => {
+                    ctx.commit('loadTags', result);
+                })
+        }
     },
     async loadAll(ctx) {
         await projectAPI.getAllProjects()
@@ -38,17 +62,10 @@ const actions = {
                 ctx.commit('cacheAllProjects', response)
             })
     },
-    async loadRecentProjects(ctx, n) {
+    async loadRecentProjects(ctx) {
         await projectAPI.loadRecentProjects()
             .then(response => {
-                ctx.commit('cacheNRecentProjects', {projects: response,n: n})
-            })
-    },
-    async loadProjectsTags(ctx, projectId) {
-        await axios.get('http://localhost:6020/phaedra/metadata-service/tagged_objects/PROJECT',
-            {params: {objectId: projectId}})
-            .then(response => {
-                ctx.commit('addTags', response.data)
+                ctx.commit('cacheNRecentProjects', response)
             })
     },
     async createNewProject(ctx, newProject) {
@@ -68,41 +85,36 @@ const actions = {
         await projectAPI.editProject(args)
         ctx.commit('updateProject', args)
     },
-    tagProject(ctx, tagInfo) {
-        axios.post('http://localhost:6020/phaedra/metadata-service/tags', tagInfo)
-            .then(response => {
-                if (response.status === 201) {
-                    ctx.commit('addTag', tagInfo);
-                }
-                console.log(response)
+    async tagProject(ctx, tag) {
+        await metadataAPI.addProperty(tag)
+            .then(isAdded => {
+                isAdded ? ctx.commit('addTag', tag) : console.log("TODO: Show error message");
+            });
+    },
+    async removeTag(ctx, tag) {
+       await metadataAPI.removeTag(tag)
+            .then(isDeleted => {
+                isDeleted ? ctx.commit('removeTag', tag) : console.log("TODO: Show error message");
             })
     },
-    removeTag(ctx, projectTag) {
-        axios.delete('http://localhost:6020/phaedra/metadata-service/tags', { data : projectTag })
-            .then(response => {
-                if (response.status === 200) {
-                    ctx.commit('removeTag', projectTag);
-                }
-                console.log(response)
-            })
+    async addProperty(ctx, property) {
+        await metadataAPI.addProperty(property)
+            .then(isAdded => {
+                isAdded ? ctx.commit('addProperty', property) : console.log("TODO: Show error message");
+            });
     },
-    addProperty(ctx, propertyInfo) {
-        axios.post('http://localhost:6020/phaedra/metadata-service/properties', propertyInfo)
-            .then(response => {
-                if (response.status === 201) {
-                    ctx.commit('addProperty', propertyInfo);
-                }
-                console.log(response)
-            })
+    async removeProperty(ctx, property) {
+        await metadataAPI.removeProperty(property)
+            .then(isDeleted => {
+                isDeleted ? ctx.commit('removeProperty', property) : console.log("TODO: Show error message");
+            });
     }
 }
 
 const mutations = {
-    cacheProject(state, project) {
+    loadProject(state, project) {
         state.currentProject = project;
-        if (!containsProject(state,project)) state.projects.push(project)
     },
-
     uncacheProject(state, projectId) {
         let match = state.projects.find(p => p.id === projectId)
         if (match) state.projects.splice(state.projects.indexOf(match), 1)
@@ -117,41 +129,38 @@ const mutations = {
     cacheAllProjects(state, projects) {
         state.projects = projects;
     },
-    cacheNRecentProjects(state, payload) {
-        state.recentProjects = payload.projects
-        state.recentProjects = state.recentProjects.sort((p1, p2) => {
+    cacheNRecentProjects(state, projects) {
+        state.recentProjects = projects.sort((p1, p2) => {
             let p1Time = new Date(p1.createdOn).getTime()
             let p2Time = new Date(p2.createdOn).getTime()
             return p1Time - p2Time;
-        }).slice(0, payload.n)
+        });
     },
-    addTags(state, tags) {
+    loadTags(state, tags) {
         for (let i = 0; i < tags.length; i++) {
-            // var project = state.projects.find(project => project.id === tags[i].objectId);
-            if (!containsTagInfo(state.currentProject, tags[i]))
-                state.currentProject.tags !== undefined ? state.currentProject.tags.push(tags[i]) : state.currentProject.tags = [ tags[i] ];
+            if (!containsTag(state.currentProject, tags[i]))
+                state.currentProject.tags !== undefined ? state.currentProject.tags.push(tags[i]) : state.currentProject.tags = [tags[i]];
         }
     },
-    addTag(state, tagInfo) {
+    addTag(state, tag) {
         // var project = state.projects.find(project => project.id === tagInfo.objectId);
-        if (!containsTagInfo(state.currentProject, tagInfo))
-            state.currentProject.tags !== undefined ? state.currentProject.tags.push(tagInfo) : state.currentProject.tags = [ tagInfo ];
+        if (!containsTag(state.currentProject, tag))
+            state.currentProject.tags !== undefined ? state.currentProject.tags.push(tag) : state.currentProject.tags = [tag];
     },
     removeTag(state, tagInfo) {
-        // var project = state.projects.find(project => project.id === tagInfo.objectId)
-        if (containsTagInfo(state.currentProject, tagInfo)) {
+        if (containsTag(state.currentProject, tagInfo)) {
             let i = state.currentProject.tags.findIndex(t => t.tag === tagInfo.tag);
             state.currentProject.tags.splice(i, 1);
         }
     },
     addProperty(state, propertyInfo) {
         if (!containsPropertyInfo(state.currentProject, propertyInfo)) {
-            state.currentProject.properties !== undefined ? state.currentProject.properties.push(propertyInfo) : state.currentProject.properties = [ propertyInfo ];
+            state.currentProject.properties !== undefined ? state.currentProject.properties.push(propertyInfo) : state.currentProject.properties = [propertyInfo];
         }
     },
-    addProperties(state, properties) {
+    loadProperties(state, properties) {
         for (let i = 0; i < properties.length; i++) {
-            if (!containsPropertyInfo(state.currentPorject, properties[i])) {
+            if (!containsPropertyInfo(state.currentProject, properties[i])) {
                 state.currentProject.properties !== undefined ? state.currentProject.properties.push(properties[i]) : state.currentProject.properties = [ properties[i] ];
             }
         }
@@ -164,21 +173,7 @@ const mutations = {
     }
 }
 
-// function containsProject(state, project) {
-//     for (var i = 0; i < state.projects.length; i++) {
-//         if (state.projects[i].id === project.id) {
-//             return true;
-//         }
-//     }
-//     return false;
-// }
-
-function containsProject(state,project) {
-    return state.projects !== undefined
-        && state.projects.findIndex(t => t.id === project.id) > -1;
-}
-
-function containsTagInfo(project, tagInfo) {
+function containsTag(project, tagInfo) {
     return project.tags !== undefined
         && project.tags.findIndex(t => t.tag === tagInfo.tag) > -1;
 }

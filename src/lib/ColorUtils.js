@@ -42,7 +42,7 @@ function findGradientIndex(value, values, gradients) {
     let valueRange = max - min
 
     let scale = ((gradients.length - 1) / valueRange)
-    let index = Math.floor(value * scale)
+    let index = Math.floor((value-min) * scale)
     return index;
 }
 
