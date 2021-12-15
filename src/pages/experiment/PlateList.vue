@@ -233,7 +233,7 @@ export default {
   },
   setup() {
     const store = useStore()
-    // const route = useRoute()
+    const route = useRoute()
 
     const loading = ref(true)
 
