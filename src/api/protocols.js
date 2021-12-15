@@ -1,10 +1,11 @@
 import axios from "axios";
 
+const apiURL = process.env.VUE_APP_API_BASE_URL + '/protocol-service';
+
 export default {
     async getProtocolById(protocolId) {
-        console.log('Making a backend call...');
         let result = null;
-        await axios.get('http://localhost:6030/phaedra/protocol-service/protocols/' + protocolId)
+        await axios.get(apiURL + '/protocols/' + protocolId)
             .then(response => {
                 result = response.data;
             })
@@ -13,35 +14,32 @@ export default {
     async getProtocolsByIds(ids) {
         try {
             const idsString = ids.join(",");
-            const response = await axios.get(`http://localhost:6030/phaedra/protocol-service/protocols?ids=${idsString}`);
+            const response = await axios.get(apiURL + `/protocols?ids=${idsString}`);
             return response.data;
         } catch (error) {
-            // TODO
             console.error(error);
         }
     },
     async getAllProtocols() {
-      console.log('Makeing a backend call...')
         let result = null;
-        await axios.get('http://localhost:6030/phaedra/protocol-service/protocols')
+        await axios.get(apiURL + '/protocols')
             .then(response => {
                 result = response.data;
             })
         return result;
     },
     async createNewProtocol(newProtocol) {
-        console.log('Making a backend call...')
         let result = null;
-        await axios.post('http://localhost:6030/phaedra/protocol-service/protocols', newProtocol)
+        await axios.post(apiURL + '/protocols', newProtocol)
             .then(response => {
                 if (response.status === 201)
                     result = response.data;
             })
         return result;
     },
-    async deleteProtocol(protocolId) {
+    async deleteProtocol(protocol) {
         let result = null;
-        await axios.delete(apiURL + '/protocols/' + protocolId)
+        await axios.delete(apiURL + '/protocols/' + protocol.id)
             .then(response => {
                 if (response.status === 200)
                     result = response.data;
@@ -52,10 +50,8 @@ export default {
         return result;
     },
     async editProtocol(protocol) {
-        console.log('Making a backend call...');
         let result = null;
-        const requestUrl = 'http://localhost:6030/phaedra/protocol-service/protocols/'
-        await axios.put(requestUrl,protocol)
+        await axios.put(apiURL + '/protocols', protocol)
             .then(response => {
                 if (response.status === 200)
                     result = response.data;
@@ -66,10 +62,8 @@ export default {
         return result;
     },
     async addNewFeature(newFeature) {
-        console.log('Making a backend call...');
         let result = null;
-        const requestUrl = 'http://localhost:6030/phaedra/protocol-service/features'
-        axios.post(requestUrl, newFeature)
+        axios.post(apiURL + '/features', newFeature)
             .then(response => {
                 if (response.status === 201) {
                     result = response.data

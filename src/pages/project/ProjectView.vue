@@ -90,31 +90,6 @@
       </q-card>
     </q-dialog>
 
-    <q-dialog v-model="showNewPropertyDialog">
-      <q-card style="min-width: 30vw">
-        <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
-          Add new project property
-        </q-card-section>
-        <q-card-section>
-          <div class="row">
-<!--            <div class="col-2 row items-center">-->
-<!--              <q-avatar icon="pr" color="primary" text-color="white" />-->
-<!--            </div>-->
-            <div class="col full-width">
-              <span>Property name:</span><br/>
-              <q-input dense v-model="newProperty.name" @keyup.enter="showNewPropertyDialog = false" />
-              <span>Property value:</span><br/>
-              <q-input dense v-model="newProperty.value" @keyup.enter="showNewPropertyDialog = false" />
-            </div>
-          </div>
-        </q-card-section>
-        <q-card-actions align="right" class="text-primary">
-          <q-btn label="Cancel" v-close-popup flat/>
-          <q-btn label="Save" v-close-popup class="oa-button" @click="doAddProperty" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-
     <q-dialog v-model="showRenameDialog">
       <q-card style="min-width: 30vw">
         <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
@@ -169,27 +144,15 @@
 
   import ExperimentList from "@/pages/experiment/ExperimentList.vue"
   import Tag from "@/components/tag/Tag"
+  import PropertyTable from "../../components/property/PropertyTable";
 
   import FormatUtils from "@/lib/FormatUtils.js"
-
-  const propertyColumns = [
-    {name: 'propertyName', align: 'left', label: 'Name', field: 'propertyName', sortable: true},
-    {name: 'propertyValue', align: 'left', label: 'Value', field: 'propertyValue', sortable: true}
-  ]
-
-  // const properties = [
-  //   {propertyName: "Property 1", propertyValue: "property 1 value"},
-  //   {propertyName: "Property 2", propertyValue: "property 2 value"},
-  //   {propertyName: "Property 3", propertyValue: "property 3 value"},
-  //   {propertyName: "Property 4", propertyValue: "property 4 value"}
-  // ]
-
-  const selectedProperties = ref([]);
 
   export default {
     components: {
       ExperimentList,
-      Tag
+      Tag,
+      PropertyTable
     },
 
     setup() {
@@ -213,19 +176,6 @@
         store.dispatch('projects/tagProject', tagInfo);
       }
 
-      const showNewPropertyDialog = ref(false);
-      const newProperty = ref({name: '', value: ''});
-      const doAddProperty = function () {
-        const propertyInfo = {
-          objectId: project.value.id,
-          objectClass: "PROJECT",
-          propertyName: newProperty.value.name,
-          propertyValue: newProperty.value.value
-        }
-        // properties.push(propertyInfo);
-        store.dispatch('projects/addProperty', propertyInfo);
-      }
-
       const showRenameDialog = ref(false)
       const newProjectName = ref(project.value ? project.value.name : '')
       const doRenameProject = function() {
@@ -245,17 +195,10 @@
       return {
         projectId,
         project,
-        propertyColumns,
-        // properties,
-        selectedProperties,
 
         showAddTagDialog,
         newProjectTag,
         doAddTag,
-
-        showNewPropertyDialog,
-        newProperty,
-        doAddProperty,
 
         showRenameDialog,
         newProjectName,
