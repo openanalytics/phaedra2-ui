@@ -15,7 +15,7 @@ const getters = {
     getCurrentPlateTemplate: (state) => () => {
         return state.currentPlateTemplate;
     },
-    getAllPlateTemplates: (state) => () => {
+    getAll: (state) => () => {
         return state.plateTemplates;
     }
 }
