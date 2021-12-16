@@ -8,6 +8,15 @@ const state = () => ({
 const getters = {
     getById: (state) => (id) => {
         return state.plateTemplates.find(plateTemplate => plateTemplate.id === id)
+    },
+    isLoaded: (state) => (id) => {
+        return state.plateTemplates.find(plateTemplate => plateTemplate.id === id) != null;
+    },
+    getCurrentPlateTemplate: (state) => () => {
+        return state.currentPlateTemplate;
+    },
+    getAllPlateTemplates: (state) => () => {
+        return state.plateTemplates;
     }
 }
 
