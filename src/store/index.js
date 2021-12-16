@@ -9,6 +9,7 @@ import measurements from './modules/measurements'
 import resultdata from './modules/resultdata'
 import calculations from './modules/calculations'
 import datacapture from './modules/datacapture'
+import templates from './modules/templates'
 
 const debug = process.env.NODE_ENV !== 'production'
 
@@ -22,7 +23,8 @@ export default createStore({
     measurements,
     resultdata,
     calculations,
-    datacapture
+    datacapture,
+    templates
   },
   strict: debug,
   plugins: debug ? [createLogger()] : []
