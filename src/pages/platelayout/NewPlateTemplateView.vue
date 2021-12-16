@@ -18,8 +18,10 @@
           <q-input v-model="newPlateTemplate.columns" label="Columns: "></q-input>
 
           <div class="row justify-end q-pt-md">
-            <q-btn label="Submit" type="submit" color="primary"></q-btn>
-            <q-btn label="Cancel" type="reset" color="primary" flat class="a-ml-sm"></q-btn>
+              <q-btn label="Submit" type="submit" color="primary"></q-btn>
+            <router-link :to="{name: 'dashboard'}" class="nav-link">
+              <q-btn label="Cancel" type="reset" color="primary" flat class="a-ml-sm"></q-btn>
+            </router-link>
           </div>
         </q-form>
       </div>

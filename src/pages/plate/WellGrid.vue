@@ -55,11 +55,13 @@
     const GRID_TYPE_HEATMAP = "heatmap"
     const GRID_TYPE_LAYOUT = "layout"
     const GRID_TYPE_IMAGES = "images"
+    const GRID_TYPE_TEMPLATE = "well-templates"
 
     export default {
         GRID_TYPE_LAYOUT,
         GRID_TYPE_HEATMAP,
         GRID_TYPE_IMAGES,
+        GRID_TYPE_TEMPLATE,
 
         props: {
             plate: Object,
@@ -170,6 +172,7 @@
                 GRID_TYPE_LAYOUT,
                 GRID_TYPE_HEATMAP,
                 GRID_TYPE_IMAGES,
+                GRID_TYPE_TEMPLATE,
                 loading,
                 wellColorFunction,
                 wellLabelFunctions,

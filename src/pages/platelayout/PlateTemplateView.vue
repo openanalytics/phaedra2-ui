@@ -2,7 +2,7 @@
   <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
     <div class="q-pa-md" v-if="!editdialog">
       <div class="text-h6 q-px-sm oa-section-title" v-if="!plateTemplate">
-        Loading plate...
+        Loading template...
       </div>
       <div v-else>
         <div class="row text-h6 items-center q-px-sm oa-section-title">
@@ -94,7 +94,7 @@
         </q-card-section>
         <q-card-actions align="right" class="text-primary">
           <q-btn flat label="Cancel" v-close-popup/>
-          <router-link :to="{ name: 'dashboard'}" class="nav-link">
+          <router-link :to="'/dashboard/'" class="nav-link">
             <q-btn label="Delete template" color="accent" v-if="plateTemplate.name==plateTemplateName" v-close-popup
                    @click="deletePlateTemplate"/>
           </router-link>
@@ -171,8 +171,8 @@ export default {
     return {
       plateTemplate,
       propertyColumns,
-      activeTab: ref('plate_layout'),
-      layout: WellGrid.GRID_TYPE_LAYOUT
+      activeTab: ref('well-template'),
+      layout: WellGrid.GRID_TYPE_TEMPLATE
     }
   },
   data() {
