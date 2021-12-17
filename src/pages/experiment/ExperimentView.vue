@@ -77,7 +77,7 @@
         <!--        <router-view v-model:experiment="experiment" v-model:newPlateTab="newPlateTab"></router-view>-->
         <q-tab-panels v-model="activeTab" animated style="width: 100%">
           <q-tab-panel name="overview">
-            <PlateList :experiment="experiment"/>
+            <PlateList :experiment="experiment" v-model:newPlateTab="newPlateTab"/>
           </q-tab-panel>
           <q-tab-panel name="statistics">
             <PlateStatsList :experiment="experiment"/>
