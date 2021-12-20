@@ -62,5 +62,17 @@ export default {
                 console.log(error);
             });
         return result;
+    },
+    async editWellTemplate(args) {
+        let result = null;
+        await axios.put(apiURL + '/well-template', args)
+            .then(response => {
+                if (response.status === 200)
+                    result = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result;
     }
 }

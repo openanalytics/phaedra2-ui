@@ -30,7 +30,6 @@ const actions = {
                 plateTemplate = await templateAPI.getPlateTemplateById(plateTemplateId)
                 console.log('Load plateTemplate by id');
                 ctx.commit('loadPlateTemplate', plateTemplate)
-                ctx.commit('cachePlateTemplate', plateTemplate)
             } catch (err) {
                 console.error(err)
             }
@@ -62,11 +61,20 @@ const actions = {
                 ctx.commit('updatePlateTemplate', args)
             })
         //To get all wellTemplates again, fetch plate from database
-        await templateAPI.getPlateById(args.id)
+        await templateAPI.getPlateTemplateById(args.id)
             .then(newPlateTemplate => {
                 ctx.commit('cachePlateTemplate', newPlateTemplate)
                 ctx.commit('loadPlateTemplate', newPlateTemplate)
             })
+    },
+    async updateWellTemplate(ctx, args) {
+        await templateAPI.editWellTemplate(args.well)
+        console.log(args)
+        if (args.last) {
+            await templateAPI.getPlateTemplateById(args.well.plateTemplateId).then((plateTemplate) => {
+                ctx.commit('cachePlateTemplate', plateTemplate)
+            })
+        }
     }
 }
 

@@ -5,12 +5,13 @@
       <div class="loadingAnimation" v-if="loading">
         <q-spinner-pie color="info" size="10em"/>
       </div>
-      <WellSlot :ref="refWellSlot" v-for="well in plate.wells" :key="well.nr"
+      <WellSlot :ref="refWellSlot" v-for="well in plate.wells" :key="well"
                 :well="well"
                 :wellColorFunction="wellColorFunction"
                 :wellLabelFunctions="wellLabelFunctions"
                 @wellSelection="handleWellSelection"
                 :selectedWells="selectedWells"
+                :gridType="gridType"
       ></WellSlot>
     </div>
     <div class="col-3 q-pa-sm" v-if="gridType == GRID_TYPE_LAYOUT">
@@ -18,6 +19,7 @@
       <WellInspector :wells=selectedWells :gridType="gridType"></WellInspector>
     </div>
     <div class="col-3 q-pa-sm" v-if="gridType == GRID_TYPE_TEMPLATE">
+      <WellEditor :wells="selectedWells" :plateId="plate.id"></WellEditor>
       <WellTypeLegend :plate=plate :gridType="gridType"></WellTypeLegend>
       <WellInspector :wells=selectedWells :gridType="gridType"></WellInspector>
     </div>
@@ -57,6 +59,7 @@ import WellSlot from "@/components/widgets/WellSlot.vue"
 import FeatureSelector from "@/components/widgets/FeatureSelector.vue"
 import WellTypeLegend from "@/components/widgets/WellTypeLegend.vue"
 import WellInspector from "@/components/widgets/WellInspector.vue"
+import WellEditor from "../../components/widgets/WellEditor";
 
 const GRID_TYPE_HEATMAP = "heatmap"
 const GRID_TYPE_LAYOUT = "layout"
@@ -74,6 +77,7 @@ export default {
     gridType: String
   },
   components: {
+    WellEditor,
     WellSlot,
     WellTypeLegend,
     FeatureSelector,
@@ -106,7 +110,7 @@ export default {
 
     // WellSlot colors and labels
     const wellTypeColorFunction = function (well) {
-      return WellUtils.getWellTypeColor(well.welltype)
+      return(props.gridType === GRID_TYPE_LAYOUT)? WellUtils.getWellTypeColor(well.welltype):WellUtils.getWellTypeColor(well.wellType)
     }
     const featureValueColorFunction = function (well) {
       if (!selectedFeatureData.value) return WellUtils.getWellTypeColor("EMPTY")
