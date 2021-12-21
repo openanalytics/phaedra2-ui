@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const apiURL = process.env.VUE_APP_API_BASE_URL + '/meas-service';
+const apiURL = process.env.VUE_APP_API_BASE_URL + '/measurement-service';
 
 export default {
     async getAllMeasurements() {
