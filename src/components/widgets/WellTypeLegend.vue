@@ -25,27 +25,17 @@
 <script>
 import WellUtils from "@/lib/WellUtils.js"
 
-const GRID_TYPE_LAYOUT = "layout"
-const GRID_TYPE_TEMPLATE = "well-templates"
-
 export default {
-  GRID_TYPE_LAYOUT,
-  GRID_TYPE_TEMPLATE,
 
   props: {
-    plate: Object,
-    gridType: String
+    plate: Object
   },
   setup(props) {
     function onlyUnique(value, index, self) {
       return self.indexOf(value) === index;
     }
 
-    var wellTypes = (props.gridType === GRID_TYPE_LAYOUT) ? props.plate?.wells?.map(w => w.welltype).filter(onlyUnique).map(wt => ({
-      code: wt,
-      color: WellUtils.getWellTypeColor(wt),
-      count: props.plate?.wells?.filter(w => w.welltype === wt).length
-    })) : props.plate?.wells?.map(w => w.wellType).filter(onlyUnique).map(wt => ({
+    var wellTypes = props.plate?.wells?.map(w => w.wellType).filter(onlyUnique).map(wt => ({
       code: wt,
       color: WellUtils.getWellTypeColor(wt),
       count: props.plate?.wells?.filter(w => w.wellType === wt).length
@@ -53,10 +43,7 @@ export default {
 
     console.log(props.plate.wells)
     return {
-      wellTypes,
-      GRID_TYPE_LAYOUT,
-      GRID_TYPE_TEMPLATE,
-
+      wellTypes
     }
   }
 }

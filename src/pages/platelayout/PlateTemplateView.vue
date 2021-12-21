@@ -72,7 +72,7 @@
         </div>
       </div>
     </div>
-    <div v-if="plateTemplate">
+    <div class="row oa-section-body" v-if="plateTemplate">
       <well-grid :plate="plateTemplate" :gridType="layout"></well-grid>
     </div>
 

@@ -58,15 +58,12 @@ import ColorUtils from "@/lib/ColorUtils.js"
 
 import WellInspector from "@/components/widgets/WellInspector.vue"
 
-const GRID_TYPE_TEMPLATE = "well-templates"
-
 export default {
   props: {
     well: Object,
     selectedWells: Array,
     wellColorFunction: Function,
-    wellLabelFunctions: Array,
-    gridType: String
+    wellLabelFunctions: Array
   },
   components: {
     WellInspector
@@ -80,8 +77,7 @@ export default {
     return {
       bgColor,
       fgColor,
-      isSelected,
-      GRID_TYPE_TEMPLATE
+      isSelected
     }
   }
 }

@@ -20,7 +20,7 @@
     </div>
     <div class="col-3 q-pa-sm" v-if="gridType == GRID_TYPE_TEMPLATE">
       <WellEditor :wells="selectedWells" :plateId="plate.id"></WellEditor>
-      <WellTypeLegend :plate=plate :gridType="gridType"></WellTypeLegend>
+      <WellTypeLegend :plate=plate ></WellTypeLegend>
       <WellInspector :wells=selectedWells :gridType="gridType"></WellInspector>
     </div>
     <div class="col-3 q-pl-md q-pt-sm" v-if="gridType == GRID_TYPE_HEATMAP">
@@ -110,7 +110,7 @@ export default {
 
     // WellSlot colors and labels
     const wellTypeColorFunction = function (well) {
-      return(props.gridType === GRID_TYPE_LAYOUT)? WellUtils.getWellTypeColor(well.welltype):WellUtils.getWellTypeColor(well.wellType)
+      return WellUtils.getWellTypeColor(well.wellType)
     }
     const featureValueColorFunction = function (well) {
       if (!selectedFeatureData.value) return WellUtils.getWellTypeColor("EMPTY")
@@ -125,15 +125,10 @@ export default {
       function (well) {
         return WellUtils.getWellCoordinate(well.row, well.column)
       },
-      (props.gridType === GRID_TYPE_LAYOUT) ?
+      (props.gridType === GRID_TYPE_LAYOUT || props.gridType === GRID_TYPE_TEMPLATE) ?
           function (well) {
-            return well.welltype
-          } :
-          (props.gridType === GRID_TYPE_TEMPLATE) ?
-              function (well) {
-                return well.wellType
-              } :
-              function (well) {
+            return well.wellType
+          } : function (well) {
                 let wellNr = WellUtils.getWellNr(well.row, well.column, props.plate.columns);
                 return (selectedFeatureData.value) ? (Math.round(selectedFeatureData.value.values[wellNr - 1] * 100) / 100) : ""
               }
