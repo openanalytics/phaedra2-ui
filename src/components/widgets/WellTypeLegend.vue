@@ -24,6 +24,7 @@
 
 <script>
 import WellUtils from "@/lib/WellUtils.js"
+import {computed} from "vue";
 
 export default {
 
@@ -35,11 +36,11 @@ export default {
       return self.indexOf(value) === index;
     }
 
-    var wellTypes = props.plate?.wells?.map(w => w.wellType).filter(onlyUnique).map(wt => ({
+    var wellTypes = computed(() => {return props.plate?.wells?.map(w => w.wellType).filter(onlyUnique).map(wt => ({
       code: wt,
       color: WellUtils.getWellTypeColor(wt),
       count: props.plate?.wells?.filter(w => w.wellType === wt).length
-    }))
+    }))})
 
     console.log(props.plate.wells)
     return {
