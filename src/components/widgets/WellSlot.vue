@@ -7,9 +7,7 @@
       <img src="/rejected_cross.svg" class="vertical-middle" style="width: 100%; height: 100%;"/>
     </div>
     <div v-for="wellLabelFunction in wellLabelFunctions" :key="wellLabelFunction" class="wellLabel">
-      <div v-if="well.skipped===false">
         {{ wellLabelFunction(well) }}
-      </div>
     </div>
     <q-tooltip :delay="1000" class="bg-secondary q-pa-xs">
       <div class="tooltipContainer">
