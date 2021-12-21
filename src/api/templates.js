@@ -63,9 +63,9 @@ export default {
             });
         return result;
     },
-    async editWellTemplate(args) {
+    async editWellTemplates(args) {
         let result = null;
-        await axios.put(apiURL + '/well-template', args)
+        await axios.put(apiURL + '/well-templates', args)
             .then(response => {
                 if (response.status === 200)
                     result = response.data;

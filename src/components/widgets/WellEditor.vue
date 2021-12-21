@@ -38,14 +38,15 @@ export default {
     updateWells() {
       //Nested deep copy
       const copy = JSON.parse(JSON.stringify(this.wells));
+      const list = []
       copy.forEach(well => {
         if (this.selectedType) {
           well.wellType = this.selectedType
         }
         well.skipped = this.skipped
-
-        this.$store.dispatch('templates/updateWellTemplate', well)
+        list.push(well)
       })
+      this.$store.dispatch('templates/updateWellTemplates', list)
     }
   },
   setup(props) {
