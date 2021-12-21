@@ -1,13 +1,15 @@
 <template>
-  <div class="column well" :class="{ blink: isSelected }" v-ripple
+  <div class="column well" :class="{ blink: isSelected, skipped: well.skipped}" v-ripple
        :style="{ color: fgColor, backgroundColor: bgColor }"
        @click="$emit('wellSelection', well)"
   >
-    <div v-if="well.status === 'REJECTED' || well.skipped === true" class="absolute-center">
+    <div v-if="well.status === 'REJECTED'" class="absolute-center">
       <img src="/rejected_cross.svg" class="vertical-middle" style="width: 100%; height: 100%;"/>
     </div>
     <div v-for="wellLabelFunction in wellLabelFunctions" :key="wellLabelFunction" class="wellLabel">
-      {{ wellLabelFunction(well) }}
+      <div v-if="well.skipped===false">
+        {{ wellLabelFunction(well) }}
+      </div>
     </div>
     <q-tooltip :delay="1000" class="bg-secondary q-pa-xs">
       <div class="tooltipContainer">
@@ -49,6 +51,16 @@
 
 .tooltipContainer {
   width: 200px;
+}
+
+.skipped {
+  background: repeating-linear-gradient(
+      -45deg,
+      #E5E5E5,
+      #E5E5E5 10px,
+      #0F0F0F 10px,
+      #0F0F0F 15px
+  );
 }
 </style>
 
