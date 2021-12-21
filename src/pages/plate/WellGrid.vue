@@ -98,7 +98,7 @@
 
             // WellSlot colors and labels
             const wellTypeColorFunction = function(well) {
-                return WellUtils.getWellTypeColor(well.welltype)
+                return WellUtils.getWellTypeColor(well.wellType)
             }
             const featureValueColorFunction = function(well) {
                 if (!selectedFeatureData.value) return WellUtils.getWellTypeColor("EMPTY")
@@ -112,10 +112,10 @@
             const wellLabelFunctions = [
                 function(well) { return WellUtils.getWellCoordinate(well.row, well.column) },
                 (props.gridType === GRID_TYPE_LAYOUT) ?
-                    function(well) { return well.welltype } :
-                    function(well) { 
+                    function(well) { return well.wellType } :
+                    function(well) {
                         let wellNr = WellUtils.getWellNr(well.row, well.column, props.plate.columns);
-                        return (selectedFeatureData.value) ? (Math.round(selectedFeatureData.value.values[wellNr - 1] * 100) / 100) : "" 
+                        return (selectedFeatureData.value) ? (Math.round(selectedFeatureData.value.values[wellNr - 1] * 100) / 100) : ""
                     }
             ]
 

@@ -21,7 +21,7 @@
                         </div>
                         <div class="row">
                             <div class="col-4 text-weight-bold">Well Type:</div>
-                            <div class="col-8">{{well?.welltype}}</div>
+                            <div class="col-8">{{well?.wellType}}</div>
                         </div>
                         <div class="row" v-show="well.substance?.type">
                             <div class="col-4 text-weight-bold">Substance:</div>

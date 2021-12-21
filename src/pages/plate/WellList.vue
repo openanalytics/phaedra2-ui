@@ -68,7 +68,7 @@ export default {
         format: (val, well) => (well ? WellUtils.getWellNr(well.row, well.column, props.plate.columns) : "")
       },
       status: {name: 'status', align: 'left', label: 'Status', field: 'status', sortable: true},
-      wellType: {name: 'wellType', align: 'left', label: 'Well Type', field: 'welltype', sortable: true},
+      wellType: {name: 'wellType', align: 'left', label: 'Well Type', field: 'wellType', sortable: true},
       substance: {
         name: 'substance', align: 'left', label: 'Substance', field: 'substance', sortable: true,
         format: (val, well) => (well.substance?.name ? well.substance?.name : "")

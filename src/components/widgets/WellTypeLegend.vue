@@ -34,10 +34,10 @@ export default {
       return self.indexOf(value) === index;
     }
 
-    var wellTypes = props.plate?.wells?.map(w => w.welltype).filter(onlyUnique).map(wt => ({
+    var wellTypes = props.plate?.wells?.map(w => w.wellType).filter(onlyUnique).map(wt => ({
       code: wt,
       color: WellUtils.getWellTypeColor(wt),
-      count: props.plate?.wells?.filter(w => w.welltype === wt).length
+      count: props.plate?.wells?.filter(w => w.wellType === wt).length
     }));
 
     return {
