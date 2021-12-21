@@ -38,18 +38,13 @@ export default {
     updateWells() {
       //Nested deep copy
       const copy = JSON.parse(JSON.stringify(this.wells));
-      copy.forEach((well, idx, arr) => {
+      copy.forEach(well => {
         if (this.selectedType) {
           well.wellType = this.selectedType
         }
         well.skipped = this.skipped
 
-        //Check if it is the last well to reload state
-        if (idx === arr.length - 1) {
-          this.$store.dispatch('templates/updateWellTemplate', {well: well, last: true})
-        } else {
-          this.$store.dispatch('templates/updateWellTemplate', {well: well, last: false})
-        }
+        this.$store.dispatch('templates/updateWellTemplate', well)
       })
     }
   },
