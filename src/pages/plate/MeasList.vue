@@ -8,7 +8,7 @@
       no-data-label="No measurements associated with this plate"
   >
     <template v-slot:top-right>
-      <q-btn dense color="primary" label="Add measurement" @click="openMeasDialog = true">
+      <q-btn dense color="primary" label="Set measurement" @click="openMeasDialog = true">
       </q-btn>
     </template>
     <template v-slot:body-cell="props">
@@ -18,8 +18,7 @@
     </template>
     <template v-slot:body-cell-active="props">
       <q-td :props="props">
-        <q-icon name="link" v-show="props.row.active"/>
-<!--        <q-toggle v-model="props.row.active"/>-->
+        <q-toggle :true-value="{ measId: props.row.id, active: true}" :false-value="{ measId: props.row.id, active: false}" @update:model-value="updateActiveState"/>
       </q-td>
     </template>
     <template v-slot:body-cell-dimensions="props">
@@ -28,6 +27,9 @@
       </q-td>
     </template>
   </q-table>
+  <div class="q-mt-md">
+    Active: {{ active }}
+  </div>
 
   <q-dialog v-model="openMeasDialog" square persistent class="q-gutter-sm">
     <q-card>
@@ -50,7 +52,6 @@
     </q-card>
   </q-dialog>
 </template>
-
 <script>
 import {ref, computed, onUnmounted} from 'vue'
 import {useStore} from 'vuex'
@@ -89,6 +90,10 @@ export default {
       };
 
       this.$store.dispatch('plates/addMeasurement', activePlateMeasurement);
+    },
+    updateActiveState(value, evt) {
+      console.log("Change active state" + evt);
+      this.$store.dispatch('plates/setActiveMeasurement', this.plate.id)
     }
   },
   setup(props) {
@@ -99,11 +104,8 @@ export default {
     store.dispatch('measurements/loadAll');
     store.dispatch('measurements/loadPlateMeasurements', props.plate);
 
-    let plateMeasIds = {};
-    props.plate.measurements?.forEach( pm => {
-      plateMeasIds[pm.measurementId] = pm.active;
-    });
     const measurements = computed(() => store.getters['measurements/getPlateMeasurements'](props.plate.id))
+    const activeMeasurement = measurements.value.filter(m => m.active === true);
 
     const unsubscribe = store.subscribe((mutation) => {
         if (mutation.type == "measurements/cacheMeasurements") {
@@ -119,12 +121,13 @@ export default {
       measurements,
       availableMeasurements,
       loading,
+      active: ref(activeMeasurement)
     }
   },
   data() {
     return {
       openMeasDialog: ref(false),
-      selectedMeasurement: ref(),
+      selectedMeasurement: ref()
     }
   }
 }

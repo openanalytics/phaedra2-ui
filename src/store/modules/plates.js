@@ -114,6 +114,9 @@ const actions = {
         const meas = await plateAPI.linkMeasurement(plateMeasurement.plateId, plateMeasurement);
         ctx.commit('addMeasurement', meas);
     },
+    async setActiveMeasurement(ctx, measActiveState) {
+        ctx.commit('plates/setMeasurementActiveState', measActiveState);
+    },
     async deletePlate(ctx, plate) {
         await plateAPI.deletePlateById(plate.id)
             .then(() => {
@@ -202,6 +205,10 @@ const mutations = {
     addMeasurement(state, plateMeasurement) {
         state.currentPlate?.measurements ? state.currentPlate.measurements.push(plateMeasurement) : state.currentPlate.measurements = [plateMeasurement];
     },
+    // },
+    // setMeasurementActiveState(state, isActive) {
+    //     state.currentPlate?.measurements?.filter(m => m.id === isActive.measId)[0].active = isActive.active;
+    // },
     deletePlate(state, pl) {
         state.plates = state.plates.filter(plate => plate.id !== pl.id)
         let i = state.platesInExperiment[pl.experimentId].findIndex(t => t.id === pl.id);

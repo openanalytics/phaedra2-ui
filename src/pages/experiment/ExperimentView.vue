@@ -234,9 +234,9 @@ export default {
 
     const experimentId = parseInt(route.params.id);
     const experiment = computed(() => store.getters['experiments/getCurrentExperiment']())
-    if (!experiment.value || experiment.value.id !== experimentId) {
+    // if (!experiment.value || experiment.value.id !== experimentId) {
       store.dispatch('experiments/loadById', experimentId);
-    }
+    // }
     const project = computed(() => store.getters['projects/getById'](experiment.value.projectId))
 
     return {

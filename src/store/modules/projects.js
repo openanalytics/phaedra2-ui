@@ -21,7 +21,7 @@ const getters = {
         return state.projects.find(project => project.id === id)
     },
     getNRecentProjects: (state) => (n) => {
-        return state.recentProjects.slice(0, n)
+        return state.recentProjects?.slice(0, n)
     }
 }
 
@@ -131,7 +131,7 @@ const mutations = {
     },
     cacheNRecentProjects(state, payload) {
         state.recentProjects = payload.projects
-        state.recentProjects = state.recentProjects.sort((p1, p2) => {
+        state.recentProjects = state.recentProjects?.sort((p1, p2) => {
             let p1Time = new Date(p1.createdOn).getTime()
             let p2Time = new Date(p2.createdOn).getTime()
             return p1Time - p2Time;
