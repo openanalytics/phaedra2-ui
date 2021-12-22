@@ -99,7 +99,8 @@ const mutations = {
     updateWellTemplates(state, wells) {
         wells.forEach(well => {
             const i = state.currentPlateTemplate.wells.findIndex((obj => obj.id === well.id))
-            state.currentPlateTemplate.wells[i] = well
+            state.currentPlateTemplate.wells[i].skipped = well.skipped
+            state.currentPlateTemplate.wells[i].wellType = well.wellType
         })
     }
 }
