@@ -56,16 +56,8 @@ const actions = {
             })
     },
     async updatePlateTemplate(ctx, args) {
-        await templateAPI.updatePlateTemplate(args)
-            .then(() => {
-                ctx.commit('updatePlateTemplate', args)
-            })
-        //To get all wellTemplates again, fetch plate from database
-        await templateAPI.getPlateTemplateById(args.id)
-            .then(newPlateTemplate => {
-                ctx.commit('cachePlateTemplate', newPlateTemplate)
-                ctx.commit('loadPlateTemplate', newPlateTemplate)
-            })
+        await templateAPI.editPlateTemplate(args)
+        ctx.commit('updatePlateTemplate',args)
     },
     async updateWellTemplates(ctx, args) {
         await templateAPI.editWellTemplates(args)
@@ -95,6 +87,15 @@ const mutations = {
     },
     deletePlateTemplate(state, plateTemplate){
         state.plateTemplates = state.plateTemplates.filter(plate => plate.id !== plateTemplate.id)
+    },
+    updatePlateTemplate(state, template) {
+        //Update plateTemplates list
+        const i = state.plateTemplates.findIndex((obj => obj.id === template.id))
+        state.plateTemplates[i].name = template.name
+        state.plateTemplates[i].description = template.description
+        //Update current currentPlateTemplate
+        state.currentPlateTemplate.name = template.name
+        state.currentPlateTemplate.description = template.description
     },
     updateWellTemplates(state, wells) {
         wells.forEach(well => {

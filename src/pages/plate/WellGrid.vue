@@ -1,11 +1,11 @@
 <template>
-  <div class="row relative-position" ref="rootElement" style="width: 100%;">
+  <div v-if="plate" class="row relative-position" ref="rootElement" style="width: 100%;">
     <div class="col gridContainer oa-section" @mousedown="selectionBoxSupport.dragStart"
          @mouseup="selectionBoxSupport.dragEnd" @mousemove="selectionBoxSupport.dragMove">
       <div class="loadingAnimation" v-if="loading">
         <q-spinner-pie color="info" size="10em"/>
       </div>
-      <WellSlot :ref="refWellSlot" v-for="well in plate.wells" :key="well"
+      <WellSlot :ref="refWellSlot" v-for="well in plate.wells" :key="well.nr"
                 :well="well"
                 :wellColorFunction="wellColorFunction"
                 :wellLabelFunctions="wellLabelFunctions"
@@ -20,8 +20,6 @@
     </div>
     <div class="col-3 q-pa-sm" v-if="gridType == GRID_TYPE_TEMPLATE">
       <WellEditor :wells="selectedWells" :plateId="plate.id"></WellEditor>
-      <WellTypeLegend :plate=plate ></WellTypeLegend>
-      <WellInspector :wells=selectedWells :gridType="gridType"></WellInspector>
     </div>
     <div class="col-3 q-pl-md q-pt-sm" v-if="gridType == GRID_TYPE_HEATMAP">
       <FeatureSelector

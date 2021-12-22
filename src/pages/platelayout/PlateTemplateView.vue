@@ -72,6 +72,7 @@
         </div>
       </div>
     </div>
+    <edit-plate-template v-model:show="editdialog"></edit-plate-template>
     <div class="row oa-section-body" v-if="plateTemplate">
       <well-grid :plate="plateTemplate" :gridType="layout"></well-grid>
     </div>
@@ -141,6 +142,7 @@ import {useStore} from 'vuex'
 import Tag from "@/components/tag/Tag";
 import WellGrid from "../plate/WellGrid";
 import {useRoute} from "vue-router";
+import EditPlateTemplate from "./EditPlateTemplate";
 const propertyColumns = [
   {name: 'key', align: 'left', label: 'Name', field: 'key', sortable: true},
   {name: 'value', align: 'left', label: 'Value', field: 'value', sortable: true}
@@ -149,6 +151,7 @@ const propertyColumns = [
 export default {
   name: 'PlateTemplate',
   components: {
+    EditPlateTemplate,
     WellGrid,
     Tag
   },
