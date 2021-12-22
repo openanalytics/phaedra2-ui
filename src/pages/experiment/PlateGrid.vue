@@ -49,22 +49,24 @@ export default {
       // 1. get plates
       await store.dispatch('plates/loadByExperimentId', props.experiment.id);
       const plateIds = plates.value.map(plate => plate.id)
-      const protocolIds = [];
 
       // 2. get PlatResults in order to get protocolIds (PlateResults are re-used for the heatmaps)
+      const protocolIds = [];
       const reqs = [];
       for (const plateId of plateIds) {
         reqs.push(store.dispatch('resultdata/loadLatestPlateResult', {plateId})
             .then(() => {
-              const plateResult = store.getters['resultdata/getLatestPlateResult'](plateId)
-              plateResults[plateId] = plateResult;
-              protocolIds?.push(...Object.keys(plateResult?.protocols));
+              plateResults[plateId] = store.getters['resultdata/getLatestPlateResult'](plateId)
+              for (const i in plateResults[plateId]) {
+                protocolIds.push(plateResults[plateId][i].protocolId)
+              }
             }))
       }
 
       // 3. load protocols once we got all ids
       await Promise.all(reqs);
       const uniqueProtocolIds = Array.from(new Set(protocolIds)).map(f => parseInt(f))
+
       await store.dispatch('protocols/loadByIds', uniqueProtocolIds);
       protocols.value = store.getters['protocols/getByIds'](uniqueProtocolIds);
     }
