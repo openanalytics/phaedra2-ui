@@ -13,9 +13,6 @@
         <q-input v-if="tab==='substance'" v-model="name" square autofocus label="Substance Name" @change="updateWells('substance_name')"></q-input>
         <q-input v-if="tab==='substance'" v-model="substanceType" square autofocus label="Substance Type" @change="updateWells('substance_type')"></q-input>
         <q-input v-if="tab==='concentration'" v-model="concentration" square autofocus label="Concentration" @change="updateWells('concentration')"></q-input>
-        <router-link :to="'/template/' + templateId" class="nav-link">
-          <q-btn flat icon="check" label="Apply" @click="updateWells"></q-btn>
-        </router-link>
       </div>
     </div>
   </div>

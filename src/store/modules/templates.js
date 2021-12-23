@@ -58,11 +58,13 @@ const actions = {
     },
     async updatePlateTemplate(ctx, args) {
         await templateAPI.editPlateTemplate(args)
-        ctx.commit('updatePlateTemplate',args)
+        ctx.commit('updatePlateTemplate', args)
     },
     async updateWellTemplates(ctx, args) {
-        //await templateAPI.editWellTemplates(args)
-        ctx.commit('updateWellTemplates',args)
+        ctx.commit('updateWellTemplates', args)
+    },
+    async savePlateTemplate(ctx) {
+        ctx.commit('savePlateTemplate')
     }
 }
 
@@ -86,7 +88,7 @@ const mutations = {
                 state.plateTemplates.push(plateTemplate)
         })
     },
-    deletePlateTemplate(state, plateTemplate){
+    deletePlateTemplate(state, plateTemplate) {
         state.plateTemplates = state.plateTemplates.filter(plate => plate.id !== plateTemplate.id)
     },
     updatePlateTemplate(state, template) {
@@ -102,14 +104,17 @@ const mutations = {
         var date1 = new Date()
         wells.forEach(well => {
             //const i = state.currentPlateTemplate.wells.findIndex((obj => obj.id === well.id))
-            const i = WellUtils.getWellNr(well.row,well.column,state.currentPlateTemplate.columns)-1
+            const i = WellUtils.getWellNr(well.row, well.column, state.currentPlateTemplate.columns) - 1
             state.currentPlateTemplate.wells[i].skipped = well.skipped
             state.currentPlateTemplate.wells[i].wellType = well.wellType
             state.currentPlateTemplate.wells[i].substanceName = well.substanceName
             state.currentPlateTemplate.wells[i].substanceType = well.substanceType
             state.currentPlateTemplate.wells[i].concentration = well.concentration
         })
-        console.log(date1-new Date())
+        console.log(date1 - new Date())
+    },
+    async savePlateTemplate(state) {
+        await templateAPI.editWellTemplates(state.currentPlateTemplate.wells)
     }
 }
 

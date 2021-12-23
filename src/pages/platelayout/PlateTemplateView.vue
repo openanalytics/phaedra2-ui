@@ -57,6 +57,10 @@
 
           <div class="col col-4">
             <div class="row justify-end action-button">
+              <q-btn size="sm" color="primary" icon="save" class="oa-button-edit" label="Save"
+                     @click="savePlateTemplate"/>
+            </div>
+            <div class="row justify-end action-button">
               <q-btn size="sm" color="primary" icon="edit" class="oa-button-edit" label="Edit"
                      @click="editdialog = true"/>
             </div>
@@ -185,6 +189,9 @@ export default {
   methods: {
     deletePlateTemplate() {
       this.$store.dispatch('templates/deletePlateTemplate', this.plateTemplate.id)
+    },
+    savePlateTemplate() {
+      this.$store.dispatch('templates/savePlateTemplate')
     }
   },
   setup() {
