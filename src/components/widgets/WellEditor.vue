@@ -10,6 +10,9 @@
       <div class="col-12 q-mb-sm">
         <q-checkbox v-if="tab==='overview'" v-model="skipped" label="Skip Wells"/>
         <q-select v-if="tab==='well-type'" v-model="selectedType" :label="previousType" :options="wellTypes"></q-select>
+        <q-input v-if="tab==='substance'" v-model="name" square autofocus label="Substance Name"></q-input>
+        <q-input v-if="tab==='substance'" v-model="type" square autofocus label="Substance Type"></q-input>
+        <q-input v-if="tab==='concentration'" v-model="type" square autofocus label="Concentration"></q-input>
         <router-link :to="'/template/' + templateId" class="nav-link">
           <q-btn flat icon="check" label="Apply" @click="updateWells"></q-btn>
         </router-link>
@@ -82,6 +85,12 @@ export default {
       previousType,
       skipped,
       templateId
+    }
+  },
+  data() {
+    return {
+      name: ref(null),
+      type: ref(null)
     }
   }
 }
