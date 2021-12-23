@@ -73,8 +73,35 @@
       </div>
     </div>
     <edit-plate-template v-model:show="editdialog"></edit-plate-template>
-    <div class="row oa-section-body" v-if="plateTemplate">
-      <well-grid :plate="plateTemplate" :gridType="layout"></well-grid>
+
+    <div class="q-pa-md" v-if="plateTemplate">
+      <q-tabs
+          inline-label dense no-caps
+          align="left"
+          class="q-px-sm oa-section-title"
+          v-model="activeTab"
+      >
+        <q-tab name="overview" icon="view_module" label="Overview"/>
+        <q-tab name="well-type" icon="text_snippet" label="Well Type"/>
+        <q-tab name="substance" icon="view_module" label="Substance"/>
+        <q-tab name="concentration" icon="table_rows" label="Concentration"/>
+      </q-tabs>
+      <div class="row oa-section-body">
+        <q-tab-panels v-model="activeTab" animated style="width: 100%">
+          <q-tab-panel name="overview" icon="view_module" label="Overview">
+            <well-grid :plate="plateTemplate" :gridType="layout" :tab="'overview'"></well-grid>
+          </q-tab-panel>
+          <q-tab-panel name="well-type" icon="view_module" label="Well Type">
+            <well-grid :plate="plateTemplate" :gridType="layout" :tab="'well-type'"></well-grid>
+          </q-tab-panel>
+          <q-tab-panel name="substance" icon="view_module" label="Substance">
+            <well-grid :plate="plateTemplate" :gridType="layout" :tab="'substance'"></well-grid>
+          </q-tab-panel>
+          <q-tab-panel name="concentration" icon="view_module" label="Concentration">
+            <well-grid :plate="plateTemplate" :gridType="layout" :tab="'concentration'"></well-grid>
+          </q-tab-panel>
+        </q-tab-panels>
+      </div>
     </div>
 
     <q-dialog v-model="deletedialog" persistent>
@@ -174,7 +201,7 @@ export default {
     return {
       plateTemplate,
       propertyColumns,
-      activeTab: ref('well-template'),
+      activeTab: ref('overview'),
       layout: WellGrid.GRID_TYPE_TEMPLATE
     }
   },

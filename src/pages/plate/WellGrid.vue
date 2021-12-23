@@ -1,6 +1,6 @@
 <template>
   <div v-if="plate" class="row relative-position" ref="rootElement" style="width: 100%;">
-    <div class="col gridContainer oa-section" @mousedown="selectionBoxSupport.dragStart"
+    <div class="col-9 gridContainer oa-section" @mousedown="selectionBoxSupport.dragStart"
          @mouseup="selectionBoxSupport.dragEnd" @mousemove="selectionBoxSupport.dragMove">
       <div class="loadingAnimation" v-if="loading">
         <q-spinner-pie color="info" size="10em"/>
@@ -19,7 +19,7 @@
       <WellInspector :wells=selectedWells :gridType="gridType"></WellInspector>
     </div>
     <div class="col-3 q-pa-sm" v-if="gridType == GRID_TYPE_TEMPLATE">
-      <WellEditor :wells="selectedWells" :plateId="plate.id"></WellEditor>
+      <WellEditor :wells="selectedWells" :plateId="plate.id" :tab="tab"></WellEditor>
     </div>
     <div class="col-3 q-pl-md q-pt-sm" v-if="gridType == GRID_TYPE_HEATMAP">
       <FeatureSelector
@@ -72,7 +72,8 @@ export default {
 
   props: {
     plate: Object,
-    gridType: String
+    gridType: String,
+    tab: String
   },
   components: {
     WellEditor,
