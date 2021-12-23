@@ -1,14 +1,14 @@
 <template>
-  <div class="column well" :class="{ blink: isSelected, skipped: well.skipped}" v-ripple
+  <div class="column well" :class="{ blink: isSelected, skipped: tab==='overview'&&well.skipped}" v-ripple
        :style="{ color: fgColor, backgroundColor: bgColor }"
        @click="$emit('wellSelection', well)"
   >
     <div v-if="well.status === 'REJECTED'" class="absolute-center">
       <img src="/rejected_cross.svg" class="vertical-middle" style="width: 100%; height: 100%;"/>
     </div>
-    <div v-for="wellLabelFunction in wellLabelFunctions" :key="wellLabelFunction" class="wellLabel">
+    <span v-for="wellLabelFunction in wellLabelFunctions" :key="wellLabelFunction" class="wellLabel" style="white-space: pre;">
         {{ wellLabelFunction(well) }}
-    </div>
+    </span>
     <q-tooltip :delay="1000" class="bg-secondary q-pa-xs">
       <div class="tooltipContainer">
         <WellInspector minimal :wells="[well]"></WellInspector>
@@ -73,7 +73,8 @@ export default {
     well: Object,
     selectedWells: Array,
     wellColorFunction: Function,
-    wellLabelFunctions: Array
+    wellLabelFunctions: Array,
+    tab: String
   },
   components: {
     WellInspector

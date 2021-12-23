@@ -12,6 +12,7 @@
                 @wellSelection="handleWellSelection"
                 :selectedWells="selectedWells"
                 :gridType="gridType"
+                :tab="tab"
       ></WellSlot>
     </div>
     <div class="col-3 q-pa-sm" v-if="gridType == GRID_TYPE_LAYOUT">
@@ -126,7 +127,13 @@ export default {
       },
       (props.gridType === GRID_TYPE_LAYOUT || props.gridType === GRID_TYPE_TEMPLATE) ?
           function (well) {
-            return well.wellType
+            //Label based on templateTab
+            switch (props.tab) {
+              case 'overview': return;
+              case 'substance': return (well.substanceName&&well.substanceType)?well.substanceName + "\n" + well.substanceType: (well.substanceName)? well.substanceName:well.substanceType;
+              case 'concentration': return well.concentration
+              default: return well.wellType;
+            }
           } : function (well) {
                 let wellNr = WellUtils.getWellNr(well.row, well.column, props.plate.columns);
                 return (selectedFeatureData.value) ? (Math.round(selectedFeatureData.value.values[wellNr - 1] * 100) / 100) : ""
