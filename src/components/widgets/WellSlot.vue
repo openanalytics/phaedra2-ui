@@ -1,6 +1,6 @@
 <template>
   <div class="column well" :class="{ blink: isSelected, skipped: tab==='overview'&&well.skipped}" v-ripple
-       :style="{ color: fgColor, backgroundColor: bgColor }"
+       :style="{ color: (tab==='overview'&&well.skipped)?'#e52323':fgColor, backgroundColor: bgColor }"
        @click="$emit('wellSelection', well)"
   >
     <div v-if="well.status === 'REJECTED'" class="absolute-center">
@@ -21,7 +21,7 @@
 .well {
   border: 1px solid black;
   margin: 1px;
-  font-size: 65%;
+  font-size: 85%;
   text-align: center;
   position: relative;
   cursor: pointer;

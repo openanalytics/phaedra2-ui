@@ -39,18 +39,13 @@ export default {
     updateWells(field) {
       //Nested deep copy
       const copy = JSON.parse(JSON.stringify(this.wells));
-      const list = []
-      copy.forEach(well => {
-        switch (field) {
-          case "skipped": well.skipped = this.skipped;break;
-          case "well-type": well.wellType = this.selectedType;break;
-          case "substance_name": well.substanceName = this.name;break;
-          case "substance_type": well.substanceType = this.substanceType;break;
-          case "concentration": well.concentration = this.concentration;
-        }
-        list.push(well)
-      })
-      this.$store.dispatch('templates/updateWellTemplates', list)
+      switch (field) {
+        case "skipped": this.$store.dispatch('templates/updateWellTemplates', {wells: copy, field:'skipped', entry: this.skipped});break;
+        case "well-type": this.$store.dispatch('templates/updateWellTemplates', {wells: copy, field:'wellType', entry: this.selectedType});break;
+        case "substance_name": this.$store.dispatch('templates/updateWellTemplates', {wells: copy, field:'substanceName', entry: this.name});break;
+        case "substance_type": this.$store.dispatch('templates/updateWellTemplates', {wells: copy, field:'substanceType', entry: this.substanceType});break;
+        case "concentration": this.$store.dispatch('templates/updateWellTemplates', {wells: copy, field:'concentration', entry: this.concentration});break;
+      }
     }
   },
   setup(props) {

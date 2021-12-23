@@ -100,21 +100,22 @@ const mutations = {
         state.currentPlateTemplate.name = template.name
         state.currentPlateTemplate.description = template.description
     },
-    updateWellTemplates(state, wells) {
+    updateWellTemplates(state, args) {
         var date1 = new Date()
-        wells.forEach(well => {
-            //const i = state.currentPlateTemplate.wells.findIndex((obj => obj.id === well.id))
+        args.wells.forEach(well => {
             const i = WellUtils.getWellNr(well.row, well.column, state.currentPlateTemplate.columns) - 1
-            state.currentPlateTemplate.wells[i].skipped = well.skipped
-            state.currentPlateTemplate.wells[i].wellType = well.wellType
-            state.currentPlateTemplate.wells[i].substanceName = well.substanceName
-            state.currentPlateTemplate.wells[i].substanceType = well.substanceType
-            state.currentPlateTemplate.wells[i].concentration = well.concentration
+            switch (args.field){
+                case 'skipped': state.currentPlateTemplate.wells[i].skipped = args.entry;break;
+                case 'wellType': state.currentPlateTemplate.wells[i].wellType = args.entry;break;
+                case 'substanceName': state.currentPlateTemplate.wells[i].substanceName = args.entry;break;
+                case 'substanceType': state.currentPlateTemplate.wells[i].substanceType = args.entry;break;
+                case 'concentration': state.currentPlateTemplate.wells[i].concentration = args.entry;break;
+            }
         })
-        console.log(date1 - new Date())
+        console.log("Time it took to update welltemplate store in ms: ",new Date()-date1)
     },
     async savePlateTemplate(state) {
-        await templateAPI.editWellTemplates(state.currentPlateTemplate.wells)
+        templateAPI.editWellTemplates(state.currentPlateTemplate.wells)
     }
 }
 
