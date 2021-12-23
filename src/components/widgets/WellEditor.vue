@@ -2,17 +2,17 @@
   <div class="q-pa-xs">
     <div class="oa-section-title2">
       <div class="row items-center">
-        <q-icon name="view_module" size="24px" class="q-mr-sm"/>
+        <q-icon name="edit" size="24px" class="q-mr-sm"/>
         Well Editor
       </div>
     </div>
     <div class="q-pa-xs oa-section-body">
       <div class="col-12 q-mb-sm">
-        <q-checkbox v-if="tab==='overview'" v-model="skipped" label="Skip Wells"/>
-        <q-select v-if="tab==='well-type'" v-model="selectedType" :label="previousType" :options="wellTypes"></q-select>
-        <q-input v-if="tab==='substance'" v-model="name" square autofocus label="Substance Name"></q-input>
-        <q-input v-if="tab==='substance'" v-model="type" square autofocus label="Substance Type"></q-input>
-        <q-input v-if="tab==='concentration'" v-model="type" square autofocus label="Concentration"></q-input>
+        <q-checkbox v-if="tab==='overview'" v-model="skipped" label="Skip Wells" @click="updateWells('skipped')"/>
+        <q-select v-if="tab==='well-type'" v-model="selectedType" :label="previousType" :options="wellTypes" @update:model-value="updateWells('well-type')"></q-select>
+        <q-input v-if="tab==='substance'" v-model="name" square autofocus label="Substance Name" @change="updateWells('substance_name')"></q-input>
+        <q-input v-if="tab==='substance'" v-model="substanceType" square autofocus label="Substance Type" @change="updateWells('substance_type')"></q-input>
+        <q-input v-if="tab==='concentration'" v-model="concentration" square autofocus label="Concentration" @change="updateWells('concentration')"></q-input>
         <router-link :to="'/template/' + templateId" class="nav-link">
           <q-btn flat icon="check" label="Apply" @click="updateWells"></q-btn>
         </router-link>
@@ -39,15 +39,18 @@ export default {
     tab: String
   },
   methods: {
-    updateWells() {
+    updateWells(field) {
       //Nested deep copy
       const copy = JSON.parse(JSON.stringify(this.wells));
       const list = []
       copy.forEach(well => {
-        if (this.selectedType) {
-          well.wellType = this.selectedType
+        switch (field) {
+          case "skipped": well.skipped = this.skipped;break;
+          case "well-type": well.wellType = this.selectedType;break;
+          case "substance_name": well.substanceName = this.name;break;
+          case "substance_type": well.substanceType = this.substanceType;break;
+          case "concentration": well.concentration = this.concentration;
         }
-        well.skipped = this.skipped
         list.push(well)
       })
       this.$store.dispatch('templates/updateWellTemplates', list)
@@ -57,7 +60,7 @@ export default {
 
     const wellTypes = ["EMPTY", "LC", "HC", "SAMPLE"]
     const selectedType = ref(null)
-    const skipped = ref(false)
+    const skipped = ref(true)
 
     //Give previous wellType
     function onlyUnique(value, index, self) {
@@ -90,7 +93,8 @@ export default {
   data() {
     return {
       name: ref(null),
-      type: ref(null)
+      substanceType: ref(null),
+      concentration: ref(null)
     }
   }
 }

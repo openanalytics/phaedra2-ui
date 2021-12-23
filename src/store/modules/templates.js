@@ -1,4 +1,5 @@
 import templateAPI from '@/api/templates.js'
+import WellUtils from "../../lib/WellUtils";
 
 const state = () => ({
     currentPlateTemplate: {},
@@ -60,7 +61,7 @@ const actions = {
         ctx.commit('updatePlateTemplate',args)
     },
     async updateWellTemplates(ctx, args) {
-        await templateAPI.editWellTemplates(args)
+        //await templateAPI.editWellTemplates(args)
         ctx.commit('updateWellTemplates',args)
     }
 }
@@ -98,11 +99,17 @@ const mutations = {
         state.currentPlateTemplate.description = template.description
     },
     updateWellTemplates(state, wells) {
+        var date1 = new Date()
         wells.forEach(well => {
-            const i = state.currentPlateTemplate.wells.findIndex((obj => obj.id === well.id))
+            //const i = state.currentPlateTemplate.wells.findIndex((obj => obj.id === well.id))
+            const i = WellUtils.getWellNr(well.row,well.column,state.currentPlateTemplate.columns)-1
             state.currentPlateTemplate.wells[i].skipped = well.skipped
             state.currentPlateTemplate.wells[i].wellType = well.wellType
+            state.currentPlateTemplate.wells[i].substanceName = well.substanceName
+            state.currentPlateTemplate.wells[i].substanceType = well.substanceType
+            state.currentPlateTemplate.wells[i].concentration = well.concentration
         })
+        console.log(date1-new Date())
     }
 }
 
