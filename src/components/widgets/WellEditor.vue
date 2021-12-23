@@ -61,7 +61,6 @@ export default {
 
     const getWellType = function () {
       const countTypes = props.wells.map(w => w.wellType).filter(onlyUnique)
-      console.log(props.wells)
       return (countTypes?.length === 1) ? props.wells[0].wellType : ""
     }
 

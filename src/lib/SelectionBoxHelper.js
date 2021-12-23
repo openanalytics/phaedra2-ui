@@ -8,10 +8,16 @@ function addSelectionBoxSupport(rootElement, wellSlots, selectionHandler) {
         dragInProgress: false,
         dragStartPosition: null,
         selectionRectangle: null,
+        scrollError: null,
 
         dragStart: function(event) {
             if (this.dragInProgress) return
             event.preventDefault()
+            //Calculate pixels moved by scrolling
+            this.scrollError = {
+                left: document.querySelector('.q-panel').scrollLeft,
+                top: document.documentElement.scrollTop
+            }
 
             this.dragInProgress = true
             this.dragStartPosition = { x: event.pageX, y: event.pageY }
@@ -19,8 +25,8 @@ function addSelectionBoxSupport(rootElement, wellSlots, selectionHandler) {
             let parentBounds = rootElement.value.parentNode.getBoundingClientRect()
             let rootStyle = window.getComputedStyle(rootElement.value)
             this.rootOffset = {
-                left: parentBounds.left + parseInt(rootStyle.marginLeft),
-                top: parentBounds.top + parseInt(rootStyle.marginTop)
+                left: parentBounds.left + parseInt(rootStyle.marginLeft) + this.scrollError.left,
+                top: parentBounds.top + parseInt(rootStyle.marginTop) + this.scrollError.top
             }
 
             let box = document.createElement('div')
@@ -45,8 +51,7 @@ function addSelectionBoxSupport(rootElement, wellSlots, selectionHandler) {
             event.preventDefault()
             this.dragInProgress = false
             this.rootElement.value.removeChild(this.selectionRectangle)
-
-            let selectedBox = calcRectangleBounds(this.dragStartPosition, { x: event.pageX, y: event.pageY })
+            let selectedBox = calcRectangleBounds({x: this.dragStartPosition.x - this.scrollError.left, y: this.dragStartPosition.y-this.scrollError.top}, { x: event.pageX- this.scrollError.left, y: event.pageY-this.scrollError.top })
             if (selectedBox.width > 5 && selectedBox.height > 5) {
                 let selectedWells = []
                 wellSlots.value.forEach(slot => {
