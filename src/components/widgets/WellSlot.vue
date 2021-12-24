@@ -11,7 +11,7 @@
     </span>
     <q-tooltip :delay="1000" class="bg-secondary q-pa-xs">
       <div class="tooltipContainer">
-        <WellInspector minimal :wells="[well]"></WellInspector>
+        <WellInspector minimal :wells="[well]" :gridType="(tab)?'well-templates':'layout'"></WellInspector>
       </div>
     </q-tooltip>
   </div>
