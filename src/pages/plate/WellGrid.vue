@@ -131,8 +131,12 @@ export default {
             //Label based on templateTab
             switch (props.tab) {
               case 'overview': return;
-              case 'substance': return (well.substanceName&&well.substanceType)?well.substanceName + "\n" + well.substanceType: (well.substanceName)? well.substanceName:well.substanceType;
-              case 'concentration': return well.concentration
+              case 'substance': {let ret="";
+                if(well.substanceName){ret=well.substanceName}
+                (well.substanceType)?(well.substanceName)?ret = ret + "\n" + well.substanceType:ret+=well.substanceType:ret+="";
+                (well.concentration)?(well.substanceName||well.substanceType)?ret = ret + "\n" + well.concentration:ret+=well.concentration:ret+="";
+                return ret
+              }
               default: return well.wellType;
             }
           } : function (well) {

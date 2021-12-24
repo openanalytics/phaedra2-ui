@@ -12,7 +12,7 @@
         <q-select v-if="tab==='well-type'" v-model="selectedType" :label="previousType" :options="wellTypes" @update:model-value="updateWells('well-type')"></q-select>
         <q-input v-if="tab==='substance'" v-model="name" square autofocus label="Substance Name" @change="updateWells('substance_name')"></q-input>
         <q-input v-if="tab==='substance'" v-model="substanceType" square autofocus label="Substance Type" @change="updateWells('substance_type')"></q-input>
-        <q-input v-if="tab==='concentration'" v-model="concentration" square autofocus label="Concentration" @change="updateWells('concentration')"></q-input>
+        <q-input v-if="tab==='substance'" v-model="concentration" square autofocus label="Concentration" @change="updateWells('concentration')"></q-input>
       </div>
     </div>
   </div>

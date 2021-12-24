@@ -88,7 +88,6 @@
         <q-tab name="overview" icon="view_module" label="Overview"/>
         <q-tab name="well-type" icon="text_snippet" label="Well Type"/>
         <q-tab name="substance" icon="view_module" label="Substance"/>
-        <q-tab name="concentration" icon="table_rows" label="Concentration"/>
       </q-tabs>
       <div class="row oa-section-body">
         <q-tab-panels v-model="activeTab" animated style="width: 100%">
@@ -100,9 +99,6 @@
           </q-tab-panel>
           <q-tab-panel name="substance" icon="view_module" label="Substance">
             <well-grid :plate="plateTemplate" :gridType="layout" :tab="'substance'"></well-grid>
-          </q-tab-panel>
-          <q-tab-panel name="concentration" icon="view_module" label="Concentration">
-            <well-grid :plate="plateTemplate" :gridType="layout" :tab="'concentration'"></well-grid>
           </q-tab-panel>
         </q-tab-panels>
       </div>
