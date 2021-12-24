@@ -1,7 +1,7 @@
 <template>
-  <div v-if="plate" class="row relative-position" ref="rootElement" style="width: 100%;">
+  <div v-if="plate" class="row" ref="rootElement" style="width: 100%;">
     <div class="col-9 gridContainer oa-section" @mousedown="selectionBoxSupport.dragStart"
-         @mouseup="selectionBoxSupport.dragEnd" @mousemove="selectionBoxSupport.dragMove">
+          @mousemove="selectionBoxSupport.dragMove">
       <div class="loadingAnimation" v-if="loading">
         <q-spinner-pie color="info" size="10em"/>
       </div>
@@ -43,6 +43,7 @@
   display: grid;
   grid-template-columns: v-bind(gridColumnStyle);
   min-height: 400px;
+  overflow: scroll;
 }
 </style>
 
@@ -186,6 +187,9 @@ export default {
         selectedWells.value.push(well)
       })
     });
+    window.addEventListener('mouseup', function(event){
+      selectionBoxSupport.dragEnd(event)
+    })
 
     return {
       GRID_TYPE_LAYOUT,

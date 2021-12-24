@@ -6,9 +6,9 @@ function addSelectionBoxSupport(rootElement, wellSlots, selectionHandler) {
         wellSlots: wellSlots,
         selectionHandler: selectionHandler,
         dragInProgress: false,
-        dragStartPosition: null,
+        dragStartPosition: {x:0,y:0},
         selectionRectangle: null,
-        scrollError: null,
+        scrollError: {left: 0,right: 0},
 
         dragStart: function(event) {
             if (this.dragInProgress) return
@@ -50,15 +50,22 @@ function addSelectionBoxSupport(rootElement, wellSlots, selectionHandler) {
         dragEnd: function(event) {
             event.preventDefault()
             this.dragInProgress = false
-            this.rootElement.value.removeChild(this.selectionRectangle)
+            //Only remove child if it is a child and parent not null
+            if(this.rootElement.value&&this.rootElement.value.contains(this.selectionRectangle)){this.rootElement.value.removeChild(this.selectionRectangle)}
+            //Check if it is on grid
+            var gridContainerCoords = document.querySelector('.gridContainer').getBoundingClientRect()
+            if(gridContainerCoords.left- this.scrollError.left>event.pageX||gridContainerCoords.right- this.scrollError.left<event.pageX||gridContainerCoords.top- this.scrollError.right>event.pageY||gridContainerCoords.bottom- this.scrollError.right<event.pageY){return}
+            //Calculate wells in selection
             let selectedBox = calcRectangleBounds({x: this.dragStartPosition.x - this.scrollError.left, y: this.dragStartPosition.y-this.scrollError.top}, { x: event.pageX- this.scrollError.left, y: event.pageY-this.scrollError.top })
             if (selectedBox.width > 5 && selectedBox.height > 5) {
                 let selectedWells = []
                 wellSlots.value.forEach(slot => {
+                    //Check if slot is not null
+                    if(slot){
                     let bounds = slot.$el.getBoundingClientRect()
                     if (boxesOverlap(bounds, selectedBox)) {
                         selectedWells.push(slot.well)
-                    }
+                    }}
                 })
                 this.selectionHandler(selectedWells)
             }
