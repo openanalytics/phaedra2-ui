@@ -1,5 +1,5 @@
 <template>
-  <div v-if="plate" class="row" ref="rootElement" style="width: 100%;">
+  <div v-if="plate" class="row" ref="rootElement" style="width: 100%;" @mouseup="selectionBoxSupport.dragEnd">
     <div class="col-9 gridContainer oa-section" @mousedown="selectionBoxSupport.dragStart"
           @mousemove="selectionBoxSupport.dragMove">
       <div class="loadingAnimation" v-if="loading">
@@ -187,9 +187,6 @@ export default {
         selectedWells.value.push(well)
       })
     });
-    window.addEventListener('mouseup', function(event){
-      selectionBoxSupport.dragEnd(event)
-    })
 
     return {
       GRID_TYPE_LAYOUT,
