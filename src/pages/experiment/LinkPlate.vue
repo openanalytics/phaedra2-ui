@@ -93,12 +93,13 @@
             </q-tr>
           </template>
         </q-table>
+        <span v-if="!checkAllDimensions()" class="text-accent">The selected template has different dimensions compared to the selected plates.</span><br>
       </q-card-section>
       <q-card-actions align="right" class="text-primary">
         <q-btn flat label="Cancel" v-close-popup @click="$emit('update:show',false)"/>
-        <q-btn flat label="Link" disable v-if="!selectedPlates.length>0||!checkPlateDimensions()"
+        <q-btn flat label="Link" disable v-if="!isTemplateSelected()||!arePlatesSelected()||!checkAllDimensions()"
                v-close-popup/>
-        <q-btn flat label="Link" v-if="selectedPlates.length>0&&checkPlateDimensions()"
+        <q-btn flat label="Link" v-if="isTemplateSelected()&&arePlatesSelected()&&checkAllDimensions()"
                @click="linkPlate" v-close-popup/>
       </q-card-actions>
     </q-card>
@@ -171,6 +172,20 @@ export default {
       if (!this.checkPlateDimensions()) return []
       const correctRows = cols.filter(row => row.rows===terms[0].rows)
       return correctRows.filter(row => row.columns===terms[0].columns)
+    },
+    checkAllDimensions(){
+      if (!this.checkPlateDimensions()) return false
+      if (!this.isTemplateSelected()) return true
+      const countRows = this.selectedPlates.filter(row => row.rows===this.selectedTemplate[0].rows).length
+      const countColumns = this.selectedPlates.filter(row => row.columns===this.selectedTemplate[0].columns).length
+      if (countRows===this.selectedPlates.length&&countColumns===this.selectedPlates.length)return true
+      return false
+    },
+    isTemplateSelected(){
+      return this.selectedTemplate.length!==0
+    },
+    arePlatesSelected(){
+      return this.selectedPlates.length!==0
     }
   }
 }
