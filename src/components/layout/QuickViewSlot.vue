@@ -1,6 +1,9 @@
 <template>
   <div class="column well" v-ripple
        :style="{ color: fgColor, backgroundColor: bgColor }">
+    <span v-for="wellLabelFunction in wellLabelFunctions" :key="wellLabelFunction" class="wellLabel" style="white-space: pre;">
+        {{ wellLabelFunction(well) }}
+    </span>
   </div>
 </template>
 
@@ -27,6 +30,7 @@ import WellUtils from "../../lib/WellUtils";
 export default {
   props: {
     well: Object,
+    wellLabelFunctions: Array,
   },
   methods: {
     wellTypeColorFunction(well) {
