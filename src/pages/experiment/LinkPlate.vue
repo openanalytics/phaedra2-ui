@@ -152,7 +152,15 @@ export default {
   emits: ['update:show'],
   methods: {
     linkPlate() {
-
+      const copy = JSON.parse(JSON.stringify(this.selectedPlates));
+      copy.forEach(plate => {
+        plate.linkStatus = 'LINKED'
+        plate.linkSource = 'layout-template'
+        plate.linkTemplateId = this.selectedTemplate[0].id
+        plate.linkedOn = new Date()
+        this.$store.dispatch('plates/editPlate', plate)
+      })
+      this.$emit('update:show',false)
     },
     checkPlateDimensions() {
       //Count occurences of rows and columns in selected plates
