@@ -121,6 +121,9 @@
                 <q-item clickable @click="calculatePlate(props.row.id)">
                   <q-item-section>Calculate plate</q-item-section>
                 </q-item>
+                <q-item clickable @click="linkDialog = true">
+                  <q-item-section>Link Plate Template</q-item-section>
+                </q-item>
               </q-list>
             </q-menu>
           </q-btn>
@@ -135,6 +138,7 @@
   </q-table>
   <table-config v-model:show="configdialog" v-model:visibleColumns="visibleColumns" v-model:columnsList="columnsList" v-model:columnOrder="columnOrder"></table-config>
   <plate-calculate-dialog v-model:show="calculateDialog" v-model:plateId="selectedPlateId"></plate-calculate-dialog>
+  <LinkPlate v-model:show="linkDialog"></LinkPlate>
 </template>
 
 <style scoped>
@@ -153,6 +157,7 @@ import {useStore} from 'vuex'
 import {computed, ref} from "vue";
 import TableConfig from "../../components/table/TableConfig";
 import PlateCalculateDialog from "./PlateCalculateDialog";
+import LinkPlate from "./LinkPlate";
 import {useRoute} from "vue-router";
 
 const columns = {
@@ -185,7 +190,7 @@ const filterMethod = function (rows, term) {
 }
 
 export default {
-  components: {TableConfig, PlateCalculateDialog},
+  components: {TableConfig, PlateCalculateDialog, LinkPlate},
 
   props: ['experiment','newPlateTab'],
   emits: ['update:newPlateTab'],
@@ -265,7 +270,8 @@ export default {
       configdialog: ref(false),
       columnOrder,
       selectedPlateId: null,
-      calculateDialog: ref(false)
+      calculateDialog: ref(false),
+      linkDialog: ref(false)
     }
   }
 }

@@ -258,6 +258,7 @@ export default {
         columns: null,
         sequence: null,
         experimentId: null,
+        linkStatus: "NOT_LINKED",
         calculationStatus: "CALCULATION_NEEDED",
         validationStatus: "VALIDATION_NOT_SET",
         approvalStatus: "APPROVAL_NOT_SET",
