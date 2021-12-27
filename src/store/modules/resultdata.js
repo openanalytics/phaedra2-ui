@@ -17,18 +17,11 @@ const getters = {
         const result = [];
         for (const plateId of plateIds) {
             const plateResult = state.latestPlateResult[plateId];
-            for (const protocol of Object.values(plateResult.protocols)) {
-                // note: we assume that only one measurement is loaded for each plate
-                if (protocol.measurements?.length === 0) {
-                    continue
-                }
-                // get first measurement and first resultSet (only the latest ResultSet is returned)
-                const measurement = Object.values(protocol.measurements)[0][0];
-                for (let resultData of measurement.resultData) {
-                    if (result.indexOf(resultData.featureId) < 0)
-                        result.push(resultData.featureId);
-                    // featureIds.add(resultData.featureId);
-                }
+            if (!plateResult) continue;
+            
+            let featureIds = [... new Set(plateResult.map(rs => rs.featureId))]
+            for (const i in featureIds) {
+                result.push(featureIds[i])
             }
         }
         return result;
@@ -44,9 +37,6 @@ const actions = {
 
     },
     async loadLatestPlateResult(ctx, args) {
-        if (ctx.getters['isPlateResultLoaded'](args.plateId)) {
-            return;
-        }
         await resultdataAPI.getLatestPlateResult(args.plateId)
             .then(plateResult => {
                 ctx.commit('cacheLatestPlateResult', { plateId: args.plateId, plateResult });

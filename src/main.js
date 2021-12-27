@@ -3,6 +3,8 @@
 
 import { createWebHistory, createRouter } from "vue-router"
 
+import { publicPath } from '../vue.config'
+
 import Dashboard from '@/pages/Dashboard.vue'
 import ProjectView from '@/pages/project/ProjectView.vue'
 import NewProjectView from '@/pages/project/NewProjectView.vue'
@@ -52,7 +54,7 @@ const routes = [
     { name: "dataCaptureJobs", path: "/datacapture/jobs", component: CaptureJobsView },
 ]
 const router = createRouter({
-    history: createWebHistory(),
+    history: createWebHistory(publicPath),
     routes
 });
 

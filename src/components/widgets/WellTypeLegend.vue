@@ -42,7 +42,6 @@ export default {
       count: props.plate?.wells?.filter(w => w.wellType === wt).length
     }))})
 
-    console.log(props.plate.wells)
     return {
       wellTypes
     }
