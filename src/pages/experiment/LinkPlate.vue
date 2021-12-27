@@ -66,7 +66,7 @@
             </div>
             <div class="action-button">
               <q-btn v-if="!selectedTemplate.length>0&&!quickView" size="sm" color="primary" icon="remove_red_eye"
-                     label="Quick view"
+                     label="Show Quick view"
                      disable/>
               <q-btn v-if="selectedTemplate.length>0&&!quickView" size="sm" color="primary" icon="remove_red_eye"
                      label="Show Quick view"

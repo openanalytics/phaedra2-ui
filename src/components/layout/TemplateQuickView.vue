@@ -6,7 +6,7 @@
         {{ plateTemplate.name }}
       </div>
 
-      <q-select class="float-right" v-model="label" label="Label:" :options="labelOptions"></q-select>
+      <q-select class="float-right" label-color="white" color="primary" v-model="label" label="Label:" :options="labelOptions"></q-select>
 
     </div>
   </div>
@@ -19,12 +19,6 @@
 </template>
 
 <style scoped>
-.loadingAnimation {
-  position: absolute;
-  z-index: 10;
-  justify-self: center;
-  align-self: center;
-}
 
 .gridContainer {
   display: grid;
