@@ -65,13 +65,13 @@
               Templates
             </div>
             <div class="action-button">
-              <q-btn v-if="!selectedTemplate.length>0" size="sm" color="primary" icon="remove_red_eye"
+              <q-btn v-if="!selectedTemplate.length>0&&!quickView" size="sm" color="primary" icon="remove_red_eye"
                      label="Quick view"
                      disable/>
               <q-btn v-if="selectedTemplate.length>0&&!quickView" size="sm" color="primary" icon="remove_red_eye"
                      label="Show Quick view"
                      @click="quickView=!quickView"/>
-              <q-btn v-if="selectedTemplate.length>0&&quickView" size="sm" color="accent" icon="remove_red_eye"
+              <q-btn v-if="quickView" size="sm" color="accent" icon="remove_red_eye"
                      label="Hide Quick view"
                      @click="quickView=!quickView"/>
             </div>
@@ -108,7 +108,8 @@
           </q-table>
           <span v-if="!checkAllDimensions()" class="text-accent">The selected template has different dimensions compared to the selected plates.</span><br>
         </div>
-        <TemplateQuickView v-if="quickView&&selectedTemplate.length>0" :plateTemplate="selectedTemplate[0]"></TemplateQuickView>
+        <TemplateQuickView v-if="quickView&&selectedTemplate.length>0"
+                           :plateTemplate="selectedTemplate[0]"></TemplateQuickView>
       </q-card-section>
       <q-card-actions align="right" class="text-primary">
         <q-btn flat label="Cancel" v-close-popup @click="$emit('update:show',false)"/>

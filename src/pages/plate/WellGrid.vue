@@ -192,6 +192,8 @@ export default {
       })
     });
 
+    const gridColumnStyle = computed(() => {return "repeat(" + props.plate.columns + ", 1fr)"})
+
     return {
       GRID_TYPE_LAYOUT,
       GRID_TYPE_HEATMAP,
@@ -205,7 +207,7 @@ export default {
       handleWellSelection,
       handleFeatureSelection,
       onKeyNav,
-      gridColumnStyle: "repeat(" + props.plate.columns + ", 1fr)",
+      gridColumnStyle,
       rootElement,
       refWellSlot,
       selectionBoxSupport

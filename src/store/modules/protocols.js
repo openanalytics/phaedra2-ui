@@ -14,8 +14,6 @@ const getters = {
         return state.protocols.find(protocol => protocol.id == id)
     },
     getByIds: (state) => (ids) => {
-        console.log(JSON.stringify(state.protocols));
-        console.log(ids);
         return state.protocols.filter(protocol => ids && ids.includes(protocol.id))
     },
     getAll: (state) => () => {
