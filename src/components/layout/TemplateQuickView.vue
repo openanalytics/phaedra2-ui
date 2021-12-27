@@ -1,6 +1,6 @@
 <template>
   <div class="row text-h6 items-center q-px-sm oa-section-title full-width">
-    <q-icon name="playlist_add" class="on-left"/>
+    <q-icon name="border_outer" class="on-left"/>
     {{ plateTemplate.name }}
   </div>
   <div class="col-9 gridContainer oa-section">

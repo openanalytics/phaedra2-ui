@@ -200,7 +200,6 @@ export default {
       return correctRows.filter(row => row.columns === terms[0].columns)
     },
     checkAllDimensions() {
-      if (!this.checkPlateDimensions()) return false
       if (!this.isTemplateSelected()) return true
       const countRows = this.selectedPlates.filter(row => row.rows === this.selectedTemplate[0].rows).length
       const countColumns = this.selectedPlates.filter(row => row.columns === this.selectedTemplate[0].columns).length
