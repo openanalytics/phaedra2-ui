@@ -76,7 +76,7 @@ const actions = {
     },
     async createNewExperiment(ctx, newExperiment) {
         const createdExperiment = await experimentAPI.createExperiment(newExperiment);
-        ctx.commit('cacheExperiment', createdExperiment)
+        ctx.commit('cacheExperiments', [createdExperiment])
         return createdExperiment
     },
     async tagExperiment(ctx, tag) {
@@ -135,7 +135,16 @@ const mutations = {
         });
     },
     cacheRecentExperiments(state, recentExperiments) {
-        state.recentExperiments = recentExperiments
+        state.recentExperiments = recentExperiments.sort((p1, p2) => {
+            let p1Time = new Date((p1.updatedOn)?p1.updatedOn:p1.createdOn).getTime()
+            let p2Time = new Date((p2.updatedOn)?p2.updatedOn:p2.createdOn).getTime()
+            //Fix sort not stopped when reached 0
+            if(!isFinite(p1Time)&&!isFinite(p2Time)) return 0
+            if(!isFinite(p1Time)) return 1
+            if(!isFinite(p2Time)) return -1
+            return  p2Time - p1Time;
+        })
+        console.log(state.recentExperiments)
     },
     deleteExperiment(state, id) {
         state.experiments = state.experiments.filter(exp => exp.id !== id)

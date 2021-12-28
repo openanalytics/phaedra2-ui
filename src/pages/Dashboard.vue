@@ -7,13 +7,30 @@
           <q-icon name="science" class="on-left"/>Recent Experiments
         </div>
       </div>
-      <q-table :columns="columns" :rows="recentExperiments" square table-header-class="text-grey" >
+      <q-table v-if="projects" :columns="columns" :rows="recentExperiments" square table-header-class="text-grey" >
         <template v-slot:body-cell-tags="props">
             <q-td key="tags" :props="props">
               <q-badge class="row" color="green" v-for="tag in props.row.tags" :key="tag.value">
                 {{ tag }}
               </q-badge>
             </q-td>
+        </template>
+        <template v-slot:body-cell-name="props">
+          <q-td :props="props">
+            <router-link :to="'/experiment/' + props.row.id" class="nav-link">
+              <div class="row items-center cursor-pointer">
+                <q-icon name="science" class="icon q-pr-sm"/>
+                {{ props.row.name }}
+              </div>
+            </router-link>
+          </q-td>
+        </template>
+        <template v-slot:body-cell-project="props" >
+          <q-td :props="props">
+            <router-link :to="{ name: 'project', params: { id: props.row.projectId } }" class="nav-link">
+              {{getProjectName(props.row.projectId)}}
+            </router-link>
+          </q-td>
         </template>
       </q-table>
     </div>
@@ -37,6 +54,7 @@
 
       const recentProjects = computed(() => store.getters['projects/getNRecentProjects'](3));
       const recentExperiments = computed(() => store.getters['experiments/getRecentExperiments']());
+      const projects = computed(() => store.getters['projects/getAll']())
 
       const columns = [
         {name: 'name', label: 'Name', align: 'left', field: 'name'},
@@ -50,13 +68,23 @@
         {name: 'sdp', label: '#SDP', align: 'left', field: 'sdp'},
         {name: 'createdOn', label: 'Created On', align: 'left', field: 'createdOn', format: FormatUtils.formatDate },
         {name: 'createdBy', label: 'Created By', align: 'left', field: 'createdBy'},
-        {name: 'project', label: 'Project', align: 'left', field: 'project'}
+        {name: 'project', label: 'Project', align: 'left', field: 'projectId'}
       ]
 
       return {
         recentProjects,
         columns,
-        recentExperiments
+        recentExperiments,
+        projects
+      }
+    },
+    methods: {
+      getProjectName(projectId){
+        const project = this.projects.find(project => {return project.id === projectId})
+        if(project){
+          return project.name
+        }
+        else return 'NOT_IN_DB'
       }
     }
   }
