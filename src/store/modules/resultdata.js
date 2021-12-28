@@ -2,7 +2,8 @@ import resultdataAPI from '@/api/resultdata.js'
 
 const state = () => ({
     plateResults: {},
-    latestPlateResult: {}
+    latestPlateResult: {},
+    recentCalculations: []
 })
 
 const getters = {
@@ -25,7 +26,10 @@ const getters = {
             }
         }
         return result;
-    }
+    },
+    getRecentCalculations: (state) => () => {
+        return state.recentCalculations;
+}
 }
 
 const actions = {
@@ -41,6 +45,13 @@ const actions = {
             .then(plateResult => {
                 ctx.commit('cacheLatestPlateResult', { plateId: args.plateId, plateResult });
             });
+    },
+    async loadRecentCalculations(ctx) {
+        await resultdataAPI.getAllResults()
+            .then(result => {
+                console.log(result)
+                ctx.commit('cacheRecentCalculations',result)
+            })
     }
 }
 
@@ -50,6 +61,14 @@ const mutations = {
     },
     cacheLatestPlateResult(state, args) {
         state.latestPlateResult[args.plateId] = args.plateResult;
+    },
+    cacheRecentCalculations(state, args) {
+        console.log(args)
+        state.recentCalculations = args.sort((p1, p2) => {
+            let p1Time = new Date((p1.executionEndTimeStamp)?p1.executionEndTimeStamp:p1.executionStartTimeStamp).getTime()
+            let p2Time = new Date((p2.executionEndTimeStamp)?p2.executionEndTimeStamp:p2.executionStartTimeStamp).getTime()
+            return  p2Time - p1Time;
+        })
     }
 }
 

@@ -34,6 +34,7 @@
         </template>
       </q-table>
     </div>
+    <RecentCalculations></RecentCalculations>
   </q-page>
 </template>
 
@@ -41,11 +42,13 @@
   import {computed} from "vue";
   import {useStore} from "vuex";
   import RecentProjects from "@/components/dashboard/RecentProjects";
+  import RecentCalculations from "../components/dashboard/RecentCalculations";
   import FormatUtils from "@/lib/FormatUtils.js";
 
   export default {
     components: {
-      RecentProjects
+      RecentProjects,
+      RecentCalculations
     },
     setup() {
       const store = useStore();
