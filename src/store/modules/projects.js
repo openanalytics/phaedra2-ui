@@ -132,10 +132,10 @@ const mutations = {
     cacheNRecentProjects(state, payload) {
         state.recentProjects = payload.projects
         state.recentProjects = state.recentProjects.sort((p1, p2) => {
-            let p1Time = new Date(p1.createdOn).getTime()
-            let p2Time = new Date(p2.createdOn).getTime()
-            return p1Time - p2Time;
-        }).slice(0, payload.n)
+            let p1Time = new Date((p1.updatedOn)?p1.updatedOn:p1.createdOn).getTime()
+            let p2Time = new Date((p2.updatedOn)?p2.updatedOn:p2.createdOn).getTime()
+            return  p2Time - p1Time;
+        })
     },
     loadTags(state, tags) {
         for (let i = 0; i < tags.length; i++) {

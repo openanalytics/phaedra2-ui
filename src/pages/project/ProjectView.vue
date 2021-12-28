@@ -163,7 +163,6 @@
       const projectId = parseInt(route.params.id);
       const project = computed(() => store.getters['projects/getCurrentProject']());
       store.dispatch('projects/loadById', projectId);
-      store.dispatch('projects/loadProjectsTags', projectId);
 
       const showAddTagDialog = ref(false);
       const newProjectTag = ref('');
