@@ -158,7 +158,8 @@
         store.dispatch('experiments/createNewExperiment', {
           projectId: props.projectId,
           name: newExperimentName.value,
-          status: 'OPEN'
+          status: 'OPEN',
+          createdOn: new Date()
         })
       }
 

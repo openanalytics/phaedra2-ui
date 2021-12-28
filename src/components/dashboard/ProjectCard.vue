@@ -1,24 +1,26 @@
 <template>
   <div class="col justify-start q-pa-md">
-    <div class="q-px-sm oa-section-title">
-      <div class="text-h8">{{ project.name }}</div>
-    </div>
-    <div class="row oa-project-card justify-center q-pa-md">
-      <div class="project-stat-total">
-        <div>TOTAL</div>
-        <div>{{ total }}</div>
+    <router-link :to="{ name: 'project', params: { id: project.id } }" class="nav-link">
+      <div class="q-px-sm oa-section-title">
+        <div class="text-h8">{{ project.name }}</div>
       </div>
-      <q-space/>
-      <div class="project-stat-open">
-        <div>OPEN</div>
-        <div>{{ open }}</div>
+      <div class="row oa-project-card justify-center q-pa-md">
+        <div class="project-stat-total">
+          <div>TOTAL</div>
+          <div>{{ total }}</div>
+        </div>
+        <q-space/>
+        <div class="project-stat-open">
+          <div>OPEN</div>
+          <div>{{ open }}</div>
+        </div>
+        <q-space/>
+        <div class="project-stat-closed">
+          <div>CLOSED</div>
+          <div>{{ closed }}</div>
+        </div>
       </div>
-      <q-space/>
-      <div class="project-stat-closed">
-        <div>CLOSED</div>
-        <div>{{ closed }}</div>
-      </div>
-    </div>
+    </router-link>
   </div>
 </template>
 

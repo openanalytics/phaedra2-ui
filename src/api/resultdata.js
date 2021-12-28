@@ -21,6 +21,25 @@ export default {
             });
         return result;
     },
+    async getAllResults() {
+        let result = [];
+        await axios.get(apiURL + '/resultset', {params: {filter:{},outcome:'SUCCESS'}})
+            .then(response => {
+                if (response.status === 200)
+                    result = result.concat(response.data.data);
+            });
+        await axios.get(apiURL + '/resultset', {params: {filter:{},outcome:'SCHEDULED'}})
+            .then(response => {
+                if (response.status === 200)
+                    result = result.concat(response.data.data);
+            });
+        await axios.get(apiURL + '/resultset', {params: {filter:{},outcome:'FAILURE'}})
+            .then(response => {
+                if (response.status === 200)
+                    result = result.concat(response.data.data);
+            });
+        return result;
+    }
 }
 
 /**
