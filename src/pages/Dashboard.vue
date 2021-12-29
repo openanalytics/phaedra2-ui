@@ -7,7 +7,7 @@
           <q-icon name="science" class="on-left"/>Recent Experiments
         </div>
       </div>
-      <q-table v-if="projects" :columns="columns" :rows="recentExperiments" square table-header-class="text-grey" >
+      <q-table :columns="columns" :rows="recentExperiments" square table-header-class="text-grey" >
         <template v-slot:body-cell-tags="props">
             <q-td key="tags" :props="props">
               <q-badge class="row" color="green" v-for="tag in props.row.tags" :key="tag.value">
@@ -32,6 +32,26 @@
             </router-link>
           </q-td>
         </template>
+        <template v-slot:body-cell-nrOfPlates="props" >
+          <q-td :props="props">
+            {{platesInExperiments[props.row.id]?.length}}
+          </q-td>
+        </template>
+        <template v-slot:body-cell-nrOfPlatesCalculated="props" >
+          <q-td :props="props">
+            {{platesInExperiments[props.row.id]?.filter(x=> x.calculationStatus==='CALCULATION_OK').length}}
+          </q-td>
+        </template>
+        <template v-slot:body-cell-nrOfPlatesValidated="props" >
+          <q-td :props="props">
+            {{platesInExperiments[props.row.id]?.filter(x=> x.validationStatus==='VALIDATED').length}}
+          </q-td>
+        </template>
+        <template v-slot:body-cell-nrOfPlatesApproved="props" >
+          <q-td :props="props">
+            {{platesInExperiments[props.row.id]?.filter(x=> x.approvalStatus==='APPROVED').length}}
+          </q-td>
+        </template>
       </q-table>
     </div>
     <RecentCalculations></RecentCalculations>
@@ -52,12 +72,14 @@
     },
     setup() {
       const store = useStore();
+      const nrOfExperiments = 10
       store.dispatch('projects/loadRecentProjects');
-      store.dispatch('experiments/loadRecentExperiments');
+      store.dispatch('experiments/loadRecentExperiments', nrOfExperiments);
 
       const recentProjects = computed(() => store.getters['projects/getNRecentProjects'](3));
       const recentExperiments = computed(() => store.getters['experiments/getRecentExperiments']());
       const projects = computed(() => store.getters['projects/getAll']())
+      const platesInExperiments = computed(() => store.getters['plates/getPlatesInExperiment']())
 
       const columns = [
         {name: 'name', label: 'Name', align: 'left', field: 'name'},
@@ -78,12 +100,13 @@
         recentProjects,
         columns,
         recentExperiments,
-        projects
+        projects,
+        platesInExperiments
       }
     },
     methods: {
       getProjectName(projectId){
-        const project = this.projects.find(project => {return project.id === projectId})
+        const project = this.projects?.find(project => {return project.id === projectId})
         if(project){
           return project.name
         }

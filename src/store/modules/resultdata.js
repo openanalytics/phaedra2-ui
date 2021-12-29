@@ -55,8 +55,8 @@ const actions = {
                     let p2Time = new Date((p2.executionEndTimeStamp)?p2.executionEndTimeStamp:p2.executionStartTimeStamp).getTime()
                     return  p2Time - p1Time;
                 }).slice(0,n)
-                //Load plates that are used in calculations to display barcode
-                list.forEach(calc => {ctx.dispatch('plates/loadPlateForCalculation', calc.plateId, { root: true })})
+                //Load plates that are used in calculations to display barcode + first check if they are in cache
+                list.forEach(calc => {if(!ctx.rootGetters["plates/isLoaded"](calc.plateId))ctx.dispatch('plates/loadPlateForCalculation', calc.plateId, { root: true })})
                 ctx.commit('cacheRecentCalculations',list)
             })
     }

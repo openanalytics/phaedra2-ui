@@ -31,7 +31,10 @@ const getters = {
     },
     getAllPlates: (state) => () => {
         return state.plates
-    }
+    },
+    getPlatesInExperiment: (state) => () => {
+        return state.platesInExperiment
+    },
 }
 
 const actions = {
@@ -157,7 +160,6 @@ const mutations = {
     },
     cacheNewPlate(state, plate){
         if(!containsPlate(state,plate)) {
-            console.log(state.platesInExperiment)
             state.plates.push(plate);
             (state.platesInExperiment[plate.experimentId])?state.platesInExperiment[plate.experimentId].push(plate):state.platesInExperiment[plate.experimentId]=[plate]
         }

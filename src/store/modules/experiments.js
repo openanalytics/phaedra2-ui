@@ -91,10 +91,20 @@ const actions = {
                 isDeleted ? ctx.commit('removeTag', tag) : console.log("TODO: Show error message");
             })
     },
-    async loadRecentExperiments(ctx) {
+    async loadRecentExperiments(ctx,n) {
         await experimentAPI.loadRecentExperiments()
             .then(response => {
-                ctx.commit('cacheRecentExperiments', response)
+                const list = response.sort((p1, p2) => {
+                    let p1Time = new Date((p1.updatedOn)?p1.updatedOn:p1.createdOn).getTime()
+                    let p2Time = new Date((p2.updatedOn)?p2.updatedOn:p2.createdOn).getTime()
+                    //Fix sort not stopped when reached 0
+                    if(!isFinite(p1Time)&&!isFinite(p2Time)) return 0
+                    if(!isFinite(p1Time)) return 1
+                    if(!isFinite(p2Time)) return -1
+                    return  p2Time - p1Time;
+                }).slice(0,n)
+                list.forEach(experiment => {console.log(experiment.id);ctx.dispatch('plates/loadByExperimentId', experiment.id, { root: true })})
+                ctx.commit('cacheRecentExperiments', list)
             })
     },
     async deleteExperiment(ctx, id) {
