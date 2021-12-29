@@ -2,7 +2,7 @@
   <q-table
       table-header-class="text-grey"
       :rows="plates"
-      :columns="getColumns()"
+      :columns="columns"
       row-key="id"
       :pagination="{ rowsPerPage: 10 }"
       :filter="filter"
@@ -133,7 +133,7 @@
       </div>
     </template>
   </q-table>
-  <table-config v-model:show="configdialog" v-model:visibleColumns="visibleColumns" v-model:columnsList="columnsList" v-model:columnOrder="columnOrder"></table-config>
+  <table-config v-model:show="configdialog" v-model:visibleColumns="visibleColumns" v-model:columns="columns"></table-config>
   <plate-calculate-dialog v-model:show="calculateDialog" v-model:plateId="selectedPlateId"></plate-calculate-dialog>
 </template>
 
@@ -155,25 +155,18 @@ import TableConfig from "../../components/table/TableConfig";
 import PlateCalculateDialog from "./PlateCalculateDialog";
 import {useRoute} from "vue-router";
 
-const columns = {
-  barcode:{name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
-  id:{name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
-  description:{name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-  'status-calculation':{name: 'status-calculation', align: 'center', label: 'C', field: 'status-calculation'},
-  'status-validated':{name: 'status-validated', align: 'center', label: 'V', field: 'status-validated'},
-  'status-approved':{name: 'status-approved', align: 'center', label: 'A', field: 'status-approved'},
-  layout:{name: 'layout', align: 'left', label: 'Layout', field: 'layout', sortable: true},
-  createdOn:{
-    name: 'createdOn',
-    align: 'left',
-    label: 'Created On',
-    field: 'createdOn',
-    sortable: true,
-    format: val => val !== undefined ? `${val.toLocaleString()}` : ''
-  },
-  tags:{name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
-  menu:{name: 'menu', align: 'left', field: 'menu', sortable: false}
-}
+let columns = [
+  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
+  {name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
+  {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
+  {name: 'status-calculation', align: 'center', label: 'C', field: 'status-calculation'},
+  {name: 'status-validated', align: 'center', label: 'V', field: 'status-validated'},
+  {name: 'status-approved', align: 'center', label: 'A', field: 'status-approved'},
+  {name: 'layout', align: 'left', label: 'Layout', field: 'layout', sortable: true},
+  {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: val => val !== undefined ? `${val.toLocaleString()}` : ''},
+  {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
+  {name: 'menu', align: 'left', field: 'menu', sortable: false}
+]
 
 const filterMethod = function (rows, term) {
   return rows.filter(row => {
@@ -220,15 +213,6 @@ export default {
     calculatePlate(id){
       this.selectedPlateId = id
       this.calculateDialog = true
-    },
-    getColumns(){
-      let newOrder = []
-      let tempList = this.columnOrder.slice()
-      while (tempList.length>0){
-        const shift = tempList.shift()
-        newOrder.push(this.columns[shift])
-      }
-      return newOrder
     }
   },
   setup() {
@@ -243,27 +227,14 @@ export default {
       loading.value = false
     })
 
-    let columnOrder = ['barcode','id','description','status-calculation','status-validated','status-approved','layout','createdOn','tags','menu']
-    let columnsList = []
-    columnOrder.forEach(function (col) {
-      columnsList.push({column: col})
-    })
-    columnsList.forEach(function (col) {
-      //Dummy data
-      col.dataType = (Math.random() + 1).toString(36).substring(7)
-      col.description = (Math.random() + 1).toString(36).substring(2)
-    })
-
     return {
       columns,
+      visibleColumns: columns.map(a => a.name),
       filter: ref(''),
       filterMethod,
       loading,
       plates,
-      visibleColumns: ['barcode','id','description','status-calculation','status-validated','status-approved','layout','createdOn','tags','menu'],
-      columnsList,
       configdialog: ref(false),
-      columnOrder,
       selectedPlateId: null,
       calculateDialog: ref(false)
     }

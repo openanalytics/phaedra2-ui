@@ -16,7 +16,7 @@
             <q-table
                 table-header-class="text-white bg-primary"
                 :rows="colslist"
-                :columns="columns"
+                :columns="dialogColumns"
                 row-key="column"
                 :pagination="{ rowsPerPage: 10 }"
                 class="full-width"
@@ -47,8 +47,8 @@
           <q-card-actions align="center" vertical class="col-2 text-primary">
             <q-btn flat label="Hide All" v-close-popup disable v-if="visible.length===0"/>
             <q-btn flat label="Hide All" v-close-popup v-if="!(visible.length===0)" @click="visible=[]"/>
-            <q-btn flat label="Show All" v-close-popup disable v-if="visible.length===props.columnOrder.length"/>
-            <q-btn flat label="Show All" v-close-popup v-if="!(visible.length===props.columnOrder.length)" @click="visible=props.columnOrder.slice()"/><br>
+            <q-btn flat label="Show All" v-close-popup disable v-if="visible.length===columnOrder.length"/>
+            <q-btn flat label="Show All" v-close-popup v-if="!(visible.length===columnOrder.length)" @click="visible=columnOrder.slice()"/><br>
 
             <q-btn flat label="Move up" v-close-popup disable v-if="selected.length===0" @click="moveUp(selected[0])"/>
             <q-btn flat label="Move up" v-close-popup v-if="selected.length>0" @click="moveUp(selected[0])"/>
@@ -114,38 +114,39 @@ export default {
     update(){
       let newOrder = []
       let tempList = this.colslist.slice()
+      let tempColumns = this.columns.slice()
       while (tempList.length>0){
         const shift = tempList.shift()
-        newOrder.push(shift.column)
+        newOrder.push(tempColumns.find(obj => obj.name === shift.column))
       }
-      this.$emit('update:columnOrder',newOrder)
+      this.$emit('update:columns',newOrder)
       this.$emit('update:visibleColumns',this.visible);
       this.$emit('update:show',false)
     }
   },
   setup(props) {
 
-    const columns = [
+    const dialogColumns = [
       {name: 'select', align: 'center',label: 'Visible', field: 'select', sortable: false},
       {name: 'column', align: 'left', label: 'Column', field: 'column', sortable: true},
       {name: 'dataType', align: 'left', label: 'Data Type', field: 'dataType', sortable: true},
       {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
     ]
-
     return {
       props,
-      columns
+      dialogColumns
     }
   },
   data() {
     return {
       configdialog: this.props.show,
-      colslist: this.props.columnsList.slice(),
       selected: [],
-      visible: this.props.columnOrder.slice()
+      columnOrder: this.props.columns.map(a => a.name),
+      visible: this.props.columns.map(a => a.name),
+      colslist: this.props.columns.map(a => ({column: a.name, dataType: (Math.random() + 1).toString(36).substring(7), description: (Math.random() + 1).toString(36).substring(2)}))
     }
   },
-  props: ['show', 'columnsList', 'columnOrder'],
-  emits: ['update:visibleColumns', 'update:columnOrder', 'update:show']
+  props: ['show', 'columns'],
+  emits: ['update:visibleColumns', 'update:columns', 'update:show']
 }
 </script>

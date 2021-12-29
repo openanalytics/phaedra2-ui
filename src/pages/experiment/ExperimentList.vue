@@ -3,7 +3,7 @@
     <q-icon name="science" class="on-left"/>Experiments
   </div>
   <q-table
-      :columns="getColumns()"
+      :columns="columns"
       :rows="experiments"
       row-key="id"
       :pagination="{ rowsPerPage: 10 }"
@@ -75,8 +75,7 @@
     </q-card>
   </q-dialog>
 
-  <table-config v-model:show="configdialog" v-model:visibleColumns="visibleColumns"
-                v-model:columnsList="columnsList" v-model:columnOrder="columnOrder"></table-config>
+  <table-config v-model:show="configdialog" v-model:columns="columns" v-model:visibleColumns="visibleColumns"></table-config>
 </template>
 
 <style scoped>
@@ -99,11 +98,11 @@
 
   import FormatUtils from "@/lib/FormatUtils.js"
 
-  const columns = {
-    name: {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
-    id: {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
-    description: {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-    createdOn: {
+  const columns = [
+    {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
+    {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
+    {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
+    {
       name: 'createdOn',
       align: 'left',
       label: 'Created On',
@@ -111,8 +110,8 @@
       sortable: true,
       format: FormatUtils.formatDate
     },
-    tags: {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true}
-  }
+    {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true}
+  ]
 
   const filterMethod = function (rows, term) {
     return rows.filter(row => {
@@ -140,18 +139,6 @@
         loading.value = false
       })
 
-      //Load columnList for config in setup
-      let columnOrder = ['name','id','description','createdOn','tags']
-      let columnsList = []
-      columnOrder.forEach(function (col) {
-        columnsList.push({column: col})
-      })
-      columnsList.forEach(function (col) {
-        //Dummy data
-        col.dataType = (Math.random() + 1).toString(36).substring(7)
-        col.description = (Math.random() + 1).toString(36).substring(2)
-      })
-
       const showNewExperimentDialog = ref(false)
       const newExperimentName = ref('')
       const doCreateNewExperiment = function() {
@@ -164,30 +151,17 @@
       }
 
       return {
-        columns,
         filter: ref(''),
         filterMethod,
         loading,
         experiments,
         FormatUtils,
-        visibleColumns: ['name','id','description','createdOn','tags'],
-        columnsList,
+        columns,
+        visibleColumns: columns.map(a => a.name),
         configdialog: ref(false),
-        columnOrder,
         showNewExperimentDialog,
         newExperimentName,
         doCreateNewExperiment
-      }
-    },
-    methods: {
-      getColumns(){
-        let newOrder = []
-        let tempList = this.columnOrder.slice()
-        while (tempList.length>0){
-          const shift = tempList.shift()
-          newOrder.push(this.columns[shift])
-        }
-        return newOrder
       }
     }
   }
