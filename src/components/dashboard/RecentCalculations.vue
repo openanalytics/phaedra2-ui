@@ -6,7 +6,7 @@
         Recent Plate Calculations
       </div>
     </div>
-    <q-table :columns="columns" :rows="calculations" square table-header-class="text-grey">
+    <q-table v-if="plates.length>0" :columns="columns" :rows="calculations" square table-header-class="text-grey">
       <template v-slot:body-cell-protocolId="props">
         <q-td :props="props">
           <router-link :to="'/protocol/' + props.row.protocolId" class="nav-link">
@@ -20,7 +20,7 @@
         <q-td :props="props">
           <router-link :to="'/plate/' + props.row.plateId" class="nav-link">
             <div class="row items-center cursor-pointer">
-              {{props.row.plateId}}
+              {{plates.find(plate => plate.id === props.row.plateId)?.barcode}}
             </div>
           </router-link>
         </q-td>
@@ -38,10 +38,12 @@ export default {
   name: 'RecentCalculations',
   setup() {
     const store = useStore();
-    store.dispatch('resultdata/loadRecentCalculations');
+
+    const nrOfCalculations = 10
+    store.dispatch('resultdata/loadRecentCalculations', nrOfCalculations);
 
     const calculations = computed(() => store.getters['resultdata/getRecentCalculations']())
-
+    const plates = computed(() => store.getters['plates/getAllPlates']())
     const columns = [
       {name: 'id', label: 'Id', align: 'left', field: 'id'},
       {name: 'protocolId', label: 'Protocol', align: 'left', field: 'protocolId'},
@@ -55,6 +57,7 @@ export default {
     return {
       calculations,
       columns,
+      plates
     }
   },
   methods: {

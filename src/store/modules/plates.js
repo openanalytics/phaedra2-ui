@@ -28,6 +28,9 @@ const getters = {
     },
     getActiveMeasurement: (state) => () => {
         if(state.currentPlate.measurements) return state.currentPlate.measurements.find(meas => meas.active === true)
+    },
+    getAllPlates: (state) => () => {
+        return state.plates
     }
 }
 
@@ -131,6 +134,12 @@ const actions = {
                 ctx.commit('cacheNewPlate', newPlate)
                 ctx.commit('loadPlate', newPlate)
             })
+    },
+    async loadPlateForCalculation(ctx, id) {
+        await plateAPI.getPlateById(id)
+            .then(plate => {
+                ctx.commit('cacheNewPlate',plate)
+            })
     }
 }
 
@@ -148,8 +157,9 @@ const mutations = {
     },
     cacheNewPlate(state, plate){
         if(!containsPlate(state,plate)) {
-            state.plates.push(plate)
-            state.platesInExperiment[plate.experimentId].push(plate)
+            console.log(state.platesInExperiment)
+            state.plates.push(plate);
+            (state.platesInExperiment[plate.experimentId])?state.platesInExperiment[plate.experimentId].push(plate):state.platesInExperiment[plate.experimentId]=[plate]
         }
     },
     loadTags(state, tags) {
