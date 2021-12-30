@@ -98,7 +98,7 @@
 
   import FormatUtils from "@/lib/FormatUtils.js"
 
-  const columns = [
+  const columns = ref([
     {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
     {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
     {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
@@ -111,7 +111,7 @@
       format: FormatUtils.formatDate
     },
     {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true}
-  ]
+  ])
 
   const filterMethod = function (rows, term) {
     return rows.filter(row => {
@@ -157,7 +157,7 @@
         experiments,
         FormatUtils,
         columns,
-        visibleColumns: columns.map(a => a.name),
+        visibleColumns: columns.value.map(a => a.name),
         configdialog: ref(false),
         showNewExperimentDialog,
         newExperimentName,

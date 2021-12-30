@@ -178,7 +178,7 @@ import Tag from "@/components/tag/Tag";
 import EditProtocol from "./EditProtocol";
 import TableConfig from "../../components/table/TableConfig";
 
-let columns = [
+let columns = ref([
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
   {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
   {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
@@ -188,7 +188,7 @@ let columns = [
   {name: 'protocolId', align: 'left', label: 'Protocol', field: 'protocolId', sortable: true},
   {name: 'formulaId', align: 'left', label: 'Formula', field: 'formulaId', sortable: true},
   {name: 'trigger', align: 'left', label: 'Trigger', field: 'trigger', sortable: true},
-    ]
+    ])
 
 const filterMethod = function (rows, term) {
   return rows.filter(row => {
@@ -234,7 +234,7 @@ export default {
       features,
       loading,
       columns,
-      visibleColumns: columns.map(a => a.name),
+      visibleColumns: columns.value.map(a => a.name),
       configdialog: ref(false),
       filter: ref(''),
       filterMethod

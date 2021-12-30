@@ -155,7 +155,7 @@ import TableConfig from "../../components/table/TableConfig";
 import PlateCalculateDialog from "./PlateCalculateDialog";
 import {useRoute} from "vue-router";
 
-let columns = [
+let columns = ref([
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
   {name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
   {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
@@ -166,7 +166,7 @@ let columns = [
   {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: val => val !== undefined ? `${val.toLocaleString()}` : ''},
   {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
   {name: 'menu', align: 'left', field: 'menu', sortable: false}
-]
+])
 
 const filterMethod = function (rows, term) {
   return rows.filter(row => {
@@ -229,7 +229,7 @@ export default {
 
     return {
       columns,
-      visibleColumns: columns.map(a => a.name),
+      visibleColumns: columns.value.map(a => a.name),
       filter: ref(''),
       filterMethod,
       loading,
