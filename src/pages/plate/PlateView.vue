@@ -72,6 +72,7 @@
         <q-tab name="measurements" icon="text_snippet" label="Measurements"/>
         <q-tab name="heatmap" icon="view_module" label="Heatmap"/>
         <q-tab name="wells" icon="table_rows" label="Well List"/>
+        <q-tab name="results" icon="table_rows" label="Results"/>
       </q-tabs>
       <div class="row oa-section-body">
         <q-tab-panels v-model="activeTab" animated style="width: 100%">
@@ -86,6 +87,9 @@
           </q-tab-panel>
           <q-tab-panel name="wells" icon="view_module" label="Layout">
             <WellList :plate="plate" />
+          </q-tab-panel>
+          <q-tab-panel name="results" icon="view_module" label="Layout">
+            <ResultSetList :plate="plate" />
           </q-tab-panel>
         </q-tab-panels>
       </div>
@@ -175,6 +179,7 @@ import PropertyTable from "@/components/property/PropertyTable";
 import WellGrid from "@/pages/plate/WellGrid";
 import MeasList from "@/pages/plate/MeasList";
 import WellList from "@/pages/plate/WellList";
+import ResultSetList from "./ResultSetList";
 
 export default {
   name: 'Plate',
@@ -184,7 +189,8 @@ export default {
     WellGrid,
     Tag,
     EditPlate,
-    PropertyTable
+    PropertyTable,
+    ResultSetList
   },
   methods: {
     onClick() {
