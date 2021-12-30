@@ -75,7 +75,7 @@ export default {
   /**
    * Component to toggle visibility of table columns
    * @props.show boolean to open and close configuration dialog
-   * @props.columnsList list with all column names, data types, and description
+   * @props.columns list with all columns
    * @props.visibleColumns list with visible table columns
    */
   name: 'TableConfig',
@@ -138,15 +138,12 @@ export default {
     let colslist = reactive({list: props.columns?.map(a => ({column: a.name, dataType: (Math.random() + 1).toString(36).substring(7), description: (Math.random() + 1).toString(36).substring(2)}))})
     //Watch for props change to update lists
     watch(props.columns, (cols) => {
-      console.log('watch', cols)
       visible.list = cols.map(a => a.name)
       colslist.list = cols.map(a => ({
         column: a.name,
         dataType: (Math.random() + 1).toString(36).substring(7),
         description: (Math.random() + 1).toString(36).substring(2)
       }))
-      console.log(visible)
-      console.log('HERE',colslist.list.map(a => a.column))
     })
     return {
       props,
