@@ -65,7 +65,7 @@
         <q-icon name="functions" class="q-pr-sm"/>
         Features
       </div>
-      <q-table :rows="features" :columns="getColumns()" :filter="filter" :filter-method="filterMethod" :loading="loading" :visible-columns="visibleColumns" square>
+      <q-table :rows="features" :columns="columns" :filter="filter" :filter-method="filterMethod" :loading="loading" :visible-columns="visibleColumns" square>
         <template v-slot:top-right>
           <div class="col action-button on-left">
             <q-btn size="sm" color="primary" icon="add" label="Add Feature..." @click="newFeatureTab = true"/>
@@ -165,7 +165,7 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-    <table-config v-model:show="configdialog" v-model:visibleColumns="visibleColumns" v-model:columnsList="columnsList" v-model:columnOrder="columnOrder"></table-config>
+    <table-config v-model:show="configdialog" v-model:visibleColumns="visibleColumns" v-model:columns="columns"></table-config>
   </q-page>
 </template>
 
@@ -178,17 +178,17 @@ import Tag from "@/components/tag/Tag";
 import EditProtocol from "./EditProtocol";
 import TableConfig from "../../components/table/TableConfig";
 
-const columns = {
-  id: {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
-  name: {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
-  description: {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-  format: {name: 'format', align: 'left', label: 'Format', field: 'format', sortable: true},
-  type: {name: 'type', align: 'left', label: 'Type', field: 'type', sortable: true},
-  sequence: {name: 'sequence', align: 'left', label: 'Sequence', field: 'sequence', sortable: true},
-  protocolId: {name: 'protocolId', align: 'left', label: 'Protocol', field: 'protocolId', sortable: true},
-  formulaId: {name: 'formulaId', align: 'left', label: 'Formula', field: 'formulaId', sortable: true},
-  trigger: {name: 'trigger', align: 'left', label: 'Trigger', field: 'trigger', sortable: true},
-    }
+let columns = ref([
+  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
+  {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
+  {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
+  {name: 'format', align: 'left', label: 'Format', field: 'format', sortable: true},
+  {name: 'type', align: 'left', label: 'Type', field: 'type', sortable: true},
+  {name: 'sequence', align: 'left', label: 'Sequence', field: 'sequence', sortable: true},
+  {name: 'protocolId', align: 'left', label: 'Protocol', field: 'protocolId', sortable: true},
+  {name: 'formulaId', align: 'left', label: 'Formula', field: 'formulaId', sortable: true},
+  {name: 'trigger', align: 'left', label: 'Trigger', field: 'trigger', sortable: true},
+    ])
 
 const filterMethod = function (rows, term) {
   return rows.filter(row => {
@@ -226,16 +226,6 @@ export default {
     const formulas = computed(() => store.getters['calculations/getFormulas']())
     store.dispatch('calculations/getAllFormulas')
 
-    let columnOrder = ['id','name','description','format','type','sequence','protocolId','formulaId','trigger']
-    let columnsList = []
-    columnOrder.forEach(function (col) {
-      columnsList.push({column: col})
-    })
-    columnsList.forEach(function (col) {
-      //Dummy data
-      col.dataType = (Math.random() + 1).toString(36).substring(7)
-      col.description = (Math.random() + 1).toString(36).substring(2)
-    })
     return {
       protocolId,
       protocol,
@@ -244,10 +234,8 @@ export default {
       features,
       loading,
       columns,
-      visibleColumns: ['id','name','description','format','type','sequence','protocolId','formulaId','trigger'],
-      columnsList,
+      visibleColumns: columns.value.map(a => a.name),
       configdialog: ref(false),
-      columnOrder,
       filter: ref(''),
       filterMethod
     }
@@ -300,15 +288,6 @@ export default {
         return formula.name
       }
       else return 'NOT_IN_DB'
-    },
-    getColumns(){
-      let newOrder = []
-      let tempList = this.columnOrder.slice()
-      while (tempList.length>0){
-        const shift = tempList.shift()
-        newOrder.push(this.columns[shift])
-      }
-      return newOrder
     }
   }
 
