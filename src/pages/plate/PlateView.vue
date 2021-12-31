@@ -72,7 +72,7 @@
         <q-tab name="measurements" icon="text_snippet" label="Measurements"/>
         <q-tab name="heatmap" icon="view_module" label="Heatmap"/>
         <q-tab name="wells" icon="table_rows" label="Well List"/>
-        <q-tab name="results" icon="table_rows" label="Results"/>
+        <q-tab name="results" icon="assignment_turned_in" label="Results"/>
       </q-tabs>
       <div class="row oa-section-body">
         <q-tab-panels v-model="activeTab" animated style="width: 100%">

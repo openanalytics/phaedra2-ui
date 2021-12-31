@@ -16,8 +16,7 @@ export default {
     async startCalculation(cal) {
         console.log('Making a backend call to calculations service');
         let result = null;
-        const requestUrl = 'http://localhost:6040/phaedra/calculation-service/calculation'
-        await axios.post(requestUrl,cal)
+        await axios.post(apiURL + '/calculation',cal)
             .then(response => {
                 result = response.data;
             })

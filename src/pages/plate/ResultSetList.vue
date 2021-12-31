@@ -1,5 +1,5 @@
 <template>
-  <q-table
+  <q-table v-if="!resultSetShow"
       table-header-class="text-dark"
       flat square
       :title="'Result Sets'"
@@ -7,9 +7,22 @@
       :columns="resultSetsColumns"
       row-key="id"
       :pagination="{ rowsPerPage: 5 }"
+      :filter="filter"
+      :filter-method="filterMethod"
+      :visible-columns="visibleColumns"
       no-data-label="No results associated with this plate"
   >
-    <template v-slot:body-cell-protocolId="props">
+    <template v-slot:top-right>
+      <div class="row">
+        <q-input outlined rounded dense debounce="300" v-model="filter" placeholder="Search">
+          <template v-slot:append>
+            <q-icon name="search"/>
+          </template>
+        </q-input>
+        <q-btn flat round color="primary" icon="settings" style="border-radius: 50%;" @click="configdialog=true"/>
+      </div>
+    </template>
+    <template v-slot:body-cell-Protocol="props">
       <q-td :props="props">
         <router-link :to="'/protocol/' + props.row.protocolId" class="nav-link">
           <div class="row items-center cursor-pointer">
@@ -18,22 +31,24 @@
         </router-link>
       </q-td>
     </template>
-    <template v-slot:body-cell-measId="props">
+    <template v-slot:body-cell-Measurement="props">
       <q-td :props="props">
           <div class="row items-center">
             {{ ($store.state.measurements.measurements.length>0)?$store.state.measurements.measurements.find(meas => meas.id == props.row.measId).name:"" }}
           </div>
       </q-td>
     </template>
-    <template v-slot:body-cell-resultSetId="props">
+    <template v-slot:body-cell-Id="props">
       <q-td :props="props" >
         <div class="row items-center cursor-pointer" @click="showResultSet(props.row.resultSetId)">
+          <q-icon name="assignment_turned_in" class="icon q-pr-sm"/>
         {{props.row.resultSetId}}
         </div>
       </q-td>
     </template>
   </q-table>
-  <ResultSetTable v-if="resultSetShow" :resultSet="resultSet"/>
+  <ResultSetTable v-if="resultSetShow" v-model:resultSet="resultSet" v-model:resultSetShow="resultSetShow"/>
+  <table-config v-model:show="configdialog" v-model:visibleColumns="visibleColumns" v-model:columns="resultSetsColumns"></table-config>
 </template>
 
 <script>
@@ -41,27 +56,20 @@ import {ref, computed} from 'vue'
 import {useStore} from 'vuex'
 import FormatUtils from "../../lib/FormatUtils";
 import ResultSetTable from "../../components/plate/ResultSetTable";
+import TableConfig from "../../components/table/TableConfig";
 
 let resultSetsColumns = ref([
-  {name: 'resultSetId', align: 'left', label: 'Id', field: 'resultSetId', sortable: true},
-  {name: 'protocolId', align: 'left', label: 'Protocol', field: 'protocolId', sortable: true},
-  {name: 'createdTimestamp', align: 'left', label: 'Created On', field: 'createdTimestamp', sortable: true, format: FormatUtils.formatDate},
-  {name: 'measId', align: 'left', label: 'Measurement', field: 'measId', sortable: true}])
-
-let resultSetColumns = ref([
-  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
-  {name: 'resultSetId', align: 'left', label: 'resultSetId', field: 'resultSetId', sortable: true},
-  {name: 'featureId', align: 'left', label: 'featureId', field: 'featureId', sortable: true},
-  {name: 'protocolId', align: 'left', label: 'protocolId', field: 'protocolId', sortable: true},
-  {name: 'createdTimestamp', align: 'left', label: 'Created On', field: 'createdTimestamp', sortable: true, format: val => val !== undefined ? `${val.toLocaleString()}` : ''},
-  {name: 'measId', align: 'left', label: 'measId', field: 'measId', sortable: true}])
+  {name: 'Id', align: 'left', label: 'Id', field: 'resultSetId', sortable: true},
+  {name: 'Protocol', align: 'left', label: 'Protocol', field: 'protocolId', sortable: true},
+  {name: 'Created On', align: 'left', label: 'Created On', field: 'createdTimestamp', sortable: true, format: FormatUtils.formatDate},
+  {name: 'Measurement', align: 'left', label: 'Measurement', field: 'measId', sortable: true}])
 
 export default {
   name: 'ResultSetList',
   props: {
     plate: Object
   },
-  components: {ResultSetTable},
+  components: {ResultSetTable, TableConfig},
   setup(props) {
     const store = useStore()
     const resultSetTable = ref(false)
@@ -70,21 +78,29 @@ export default {
     store.dispatch('resultdata/loadPlateResults',{plateId: props.plate.id});
     store.dispatch('measurements/loadAll');
     let resultSet = ref([])
-    let resultSetShow = ref(false)
     return {
       resultData,
       resultSetTable,
       resultSetsColumns,
       resultSets,
-      resultSetColumns,
       resultSet,
-      resultSetShow
-    }
+      filter: ref(''),
+      visibleColumns: resultSetsColumns.value.map(a => a.name),
+      configdialog: ref(false),
+      resultSetShow: ref(false)
+  }
   },
   methods: {
     showResultSet(resultSetId){
       this.resultSet = this.resultData.filter(a => a.resultSetId === resultSetId)
       this.resultSetShow = true
+    },
+    filterMethod(rows,term){
+      return rows.filter(row => {
+        return ((row.resultSetId+' ').includes(term.toString())
+            || this.$store.getters['protocols/getAll']().find(protocol => protocol.id == row.protocolId).name.toLowerCase().includes(term)
+            || this.$store.getters['measurements/getAll']().find(meas => meas.id == row.measId).name.toLowerCase().includes(term))
+      })
     }
   }
 }

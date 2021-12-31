@@ -6,7 +6,7 @@
         Recent Plate Calculations
       </div>
     </div>
-    <q-table v-if="plates.length>0" :columns="columns" :rows="calculations" square table-header-class="text-grey">
+    <q-table :columns="columns" :rows="calculations" square table-header-class="text-grey">
       <template v-slot:body-cell-protocolId="props">
         <q-td :props="props">
           <router-link :to="'/protocol/' + props.row.protocolId" class="nav-link">
