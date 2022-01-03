@@ -46,14 +46,22 @@
       <q-td :props="props">
         <q-icon v-if="props.row.validationStatus==='VALIDATION_NOT_SET'" name="horizontal_rule"></q-icon>
         <q-icon v-else-if="props.row.validationStatus==='VALIDATED'" name="check_circle" color="positive"/>
-        <q-icon v-else-if="props.row.validationStatus==='INVALIDATED'" name="cancel" color="negative"/>
+        <q-icon v-else-if="props.row.validationStatus==='INVALIDATED'" name="cancel" color="negative">
+          <q-tooltip>
+            {{props.row.invalidatedReason}}
+          </q-tooltip>
+        </q-icon>
       </q-td>
     </template>
     <template v-slot:body-cell-status-approved="props">
       <q-td :props="props">
         <q-icon v-if="props.row.approvalStatus==='APPROVAL_NOT_SET'" name="horizontal_rule"></q-icon>
         <q-icon v-else-if="props.row.approvalStatus==='APPROVED'" name="check_circle" color="positive"/>
-        <q-icon v-else-if="props.row.approvalStatus==='DISAPPROVED'" name="cancel" color="negative"/>
+        <q-icon v-else-if="props.row.approvalStatus==='DISAPPROVED'" name="cancel" color="negative">
+          <q-tooltip>
+            {{props.row.disapprovedReason}}
+          </q-tooltip>
+        </q-icon>
       </q-td>
     </template>
     <template v-slot:body-cell-layout="props">
@@ -135,6 +143,8 @@
   </q-table>
   <table-config v-model:show="configdialog" v-model:visibleColumns="visibleColumns" v-model:columns="columns"></table-config>
   <plate-calculate-dialog v-model:show="calculateDialog" v-model:plateId="selectedPlateId"></plate-calculate-dialog>
+  <invalidate-dialog v-model:show="invalidateDialog" v-model:plateId="selectedPlateId" v-model:experimentId="experimentId"></invalidate-dialog>
+  <disapprove-dialog v-model:show="disapproveDialog" v-model:plateId="selectedPlateId" v-model:experimentId="experimentId"></disapprove-dialog>
 </template>
 
 <style scoped>
@@ -153,6 +163,8 @@ import {useStore} from 'vuex'
 import {computed, ref} from "vue";
 import TableConfig from "../../components/table/TableConfig";
 import PlateCalculateDialog from "./PlateCalculateDialog";
+import InvalidateDialog from "../../components/plate/InvalidateDialog";
+import DisapproveDialog from "../../components/plate/DisapproveDialog";
 import {useRoute} from "vue-router";
 
 let columns = ref([
@@ -178,7 +190,7 @@ const filterMethod = function (rows, term) {
 }
 
 export default {
-  components: {TableConfig, PlateCalculateDialog},
+  components: {TableConfig, PlateCalculateDialog, InvalidateDialog, DisapproveDialog},
 
   props: ['experiment','newPlateTab'],
   emits: ['update:newPlateTab'],
@@ -194,10 +206,12 @@ export default {
     },
     invalidate(id, experimentId) {
       //put validationStatus: INVALIDATED
-      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, validationStatus: 'INVALIDATED'})
+      this.selectedPlateId = id
+      this.experimentId = experimentId
+      this.invalidateDialog = true
     },
     resetValidation(id, experimentId) {
-      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, validationStatus: 'VALIDATION_NOT_SET'})
+      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, validationStatus: 'VALIDATION_NOT_SET', invalidatedReason: ""})
     },
     approve(id, experimentId) {
       //put approvalStatus: APPROVED
@@ -205,10 +219,12 @@ export default {
     },
     disapprove(id, experimentId) {
       //put approvalStatus: DISAPPROVED
-      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, approvalStatus: 'DISAPPROVED'})
+      this.selectedPlateId = id
+      this.experimentId = experimentId
+      this.disapproveDialog = true
     },
     resetApproval(id, experimentId) {
-      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, approvalStatus: 'APPROVAL_NOT_SET'})
+      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, approvalStatus: 'APPROVAL_NOT_SET', disapprovedReason: ""})
     },
     calculatePlate(id){
       this.selectedPlateId = id
@@ -236,7 +252,10 @@ export default {
       plates,
       configdialog: ref(false),
       selectedPlateId: null,
-      calculateDialog: ref(false)
+      experimentId: null,
+      calculateDialog: ref(false),
+      invalidateDialog: ref(false),
+      disapproveDialog: ref(false)
     }
   }
 }
