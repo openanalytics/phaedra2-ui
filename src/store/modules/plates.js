@@ -129,13 +129,7 @@ const actions = {
     async editPlate(ctx, plate) {
         await plateAPI.editPlate(plate)
             .then(() => {
-                ctx.commit('deletePlate', plate)
-            })
-        //To get all wells again, fetch plate from database
-        await plateAPI.getPlateById(plate.id)
-            .then(newPlate => {
-                ctx.commit('cacheNewPlate', newPlate)
-                ctx.commit('loadPlate', newPlate)
+                ctx.commit('editPlate', plate)
             })
     },
     async loadPlateForCalculation(ctx, id) {
@@ -219,6 +213,28 @@ const mutations = {
         let i = state.platesInExperiment[pl.experimentId].findIndex(t => t.id === pl.id);
         state.platesInExperiment[pl.experimentId].splice(i, 1);
     },
+    editPlate(state, pl) {
+        //Replace properties in state.plates
+        let i = state.plates.findIndex(t => t.id === pl.id);
+        if(i){
+            for (const property in pl){
+                state.plates[i] = pl[property]
+            }
+        }
+        //Replace properties in state.currentPlate
+        if(state.currentPlate){
+            for (const property in pl){
+                state.currentPlate[property] = pl[property]
+            }
+        }
+        //Replace properties in state.platesInExperiment
+        let j = state.platesInExperiment[pl.experimentId].findIndex(t => t.id === pl.id);
+        if (j) {
+            for (const property in pl){
+                state.platesInExperiment[pl.experimentId][j][property] = pl[property]
+            }
+        }
+    }
 }
 
 function containsTag(plate, tagInfo) {

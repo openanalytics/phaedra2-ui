@@ -211,7 +211,7 @@ export default {
       this.invalidateDialog = true
     },
     resetValidation(id, experimentId) {
-      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, validationStatus: 'VALIDATION_NOT_SET', invalidatedReason: null})
+      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, validationStatus: 'VALIDATION_NOT_SET', invalidatedReason: ""})
     },
     approve(id, experimentId) {
       //put approvalStatus: APPROVED
@@ -224,7 +224,7 @@ export default {
       this.disapproveDialog = true
     },
     resetApproval(id, experimentId) {
-      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, approvalStatus: 'APPROVAL_NOT_SET', disapprovedReason: null})
+      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, approvalStatus: 'APPROVAL_NOT_SET', disapprovedReason: ""})
     },
     calculatePlate(id){
       this.selectedPlateId = id
