@@ -4,6 +4,13 @@ const formatDate = function(date) {
     return date.toLocaleString();
 }
 
+const formatTextMaxLength = function(text, maxLen) {
+    if (text && text.length > maxLen) {
+        return text.substring(0, maxLen - 3) + '...';
+    }
+    return text;
+}
+
 const formatJSON = function(json) {
     if (!json) return '';
     let jsonObject = json;
@@ -13,5 +20,6 @@ const formatJSON = function(json) {
 
 export default {
     formatDate,
+    formatTextMaxLength,
     formatJSON
 }

@@ -148,6 +148,18 @@
             children: protocols
           },
           {
+            label: "Calculation",
+            header: "category",
+            icon: 'calculate',
+            children: [
+              {
+                label: "Formulas",
+                icon: 'functions',
+                route: 'calcFormulas',
+              }
+            ]
+          },
+          {
             label: "Data Capture",
             header: "category",
             icon: 'scanner',
