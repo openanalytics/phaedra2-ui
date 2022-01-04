@@ -121,7 +121,7 @@
                 <q-item clickable @click="calculatePlate(props.row.id)">
                   <q-item-section>Calculate plate</q-item-section>
                 </q-item>
-                <q-item clickable @click="linkDialog = true">
+                <q-item clickable @click="selectedPlateId=props.row.id;linkDialog = true">
                   <q-item-section>Link Plate Template</q-item-section>
                 </q-item>
               </q-list>
@@ -138,7 +138,7 @@
   </q-table>
   <table-config v-model:show="configdialog" v-model:visibleColumns="visibleColumns" v-model:columnsList="columnsList" v-model:columnOrder="columnOrder"></table-config>
   <plate-calculate-dialog v-model:show="calculateDialog" v-model:plateId="selectedPlateId"></plate-calculate-dialog>
-  <LinkPlate v-model:show="linkDialog"></LinkPlate>
+  <LinkPlate v-model:show="linkDialog" v-model:plateId="selectedPlateId"></LinkPlate>
 </template>
 
 <style scoped>

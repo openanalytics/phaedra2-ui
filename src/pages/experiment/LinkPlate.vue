@@ -26,7 +26,7 @@
           </div>
           <q-table
               table-header-class="text-white bg-primary"
-              :rows="plates"
+              :rows="plateId?plates.filter(p => p.id === plateId):plates"
               :columns="plateColumns"
               :pagination="{ rowsPerPage: 10 }"
               class="full-width"
@@ -112,7 +112,7 @@
                            :plateTemplate="selectedTemplate[0]"></TemplateQuickView>
       </q-card-section>
       <q-card-actions align="right" class="text-primary">
-        <q-btn flat label="Cancel" v-close-popup @click="$emit('update:show',false)"/>
+        <q-btn flat label="Cancel" v-close-popup @click="quickView=false;$emit('update:show',false)"/>
         <q-btn flat label="Link" disable v-if="!isTemplateSelected()||!arePlatesSelected()||!checkAllDimensions()"
                v-close-popup/>
         <q-btn flat label="Link" v-if="isTemplateSelected()&&arePlatesSelected()&&checkAllDimensions()"
@@ -166,7 +166,7 @@ export default {
       quickView: ref(false)
     }
   },
-  props: ['show'],
+  props: ['show','plateId'],
   emits: ['update:show'],
   methods: {
     linkPlate() {
