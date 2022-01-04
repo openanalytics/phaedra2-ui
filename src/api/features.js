@@ -23,5 +23,53 @@ export default {
                 console.log(error);
             });
         return result;
+    },
+    async deleteFeature(featureId) {
+        let result = null;
+        await axios.delete(apiURL + '/features/' + featureId)
+            .then(response => {
+                if (response.status === 200)
+                    result = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result;
+    },
+    async editFeature(feature) {
+        let result = null;
+        await axios.put(apiURL + '/features/', feature)
+            .then(response => {
+                if (response.status === 200)
+                    result = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result;
+    },
+    async getFeatureStatsByFeatureId(id) {
+        let result = null;
+        await axios.get(apiURL + '/features/' + id + '/featurestat')
+            .then(response => {
+                if (response.status === 200)
+                    result = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result;
+    },
+    async deleteFeatureStat(featureId, featureStatId) {
+        let result = null;
+        await axios.delete(apiURL + '/features/' + featureId + '/featurestat/'+featureStatId)
+            .then(response => {
+                if (response.status === 200)
+                    result = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result;
     }
 }

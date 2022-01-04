@@ -216,7 +216,7 @@ const mutations = {
     editPlate(state, pl) {
         //Replace properties in state.plates
         let i = state.plates.findIndex(t => t.id === pl.id);
-        if(i){
+        if(i>-1){
             for (const property in pl){
                 state.plates[i] = pl[property]
             }
@@ -229,7 +229,7 @@ const mutations = {
         }
         //Replace properties in state.platesInExperiment
         let j = state.platesInExperiment[pl.experimentId].findIndex(t => t.id === pl.id);
-        if (j) {
+        if (j>-1) {
             for (const property in pl){
                 state.platesInExperiment[pl.experimentId][j][property] = pl[property]
             }
