@@ -33,6 +33,9 @@
                 </div>
                 <div class="q-pt-md">
                     <q-input v-model="formula.formula" label="Formula" type="textarea" outlined square :readonly=!editMode></q-input>
+                    <span class="text-grey text-caption">
+                        Input variables: {{formulaInputs.length > 0 ? formulaInputs : 'None'}}
+                    </span>
                 </div>
             </div>
         </div>
@@ -41,7 +44,7 @@
 </template>
 
 <script>
-    import {ref} from 'vue'
+    import {computed, ref} from 'vue'
     import {useStore} from 'vuex'
     import {useRoute, useRouter} from 'vue-router'
     import DeleteFormulaDialog from "@/pages/calculation/formulae/DeleteFormulaDialog.vue"
@@ -100,6 +103,9 @@
             } else {
                 store.dispatch('calculations/getFormula', formulaId).then(fetchFormulaWorkingCopy);
             }
+
+            exported.formulaInputs = computed(() => { return store.getters['calculations/getFormulaInputs'](formulaId) || [] })
+            if (formulaId > 0) store.dispatch('calculations/getFormulaInputs', formulaId);
 
             //TODO Fetch from API
             exported.categories = [ 'CALCULATION', 'HIT_CALLING', 'OUTLIER_DETECTION', 'POLISHING' ];

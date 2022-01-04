@@ -7,6 +7,10 @@ export default {
         const response = await axios.get(apiURL + '/formulas/' + id);
         return response.data;
     },
+    async getFormulaInputs(id) {
+        const response = await axios.get(apiURL + '/formulas/' + id + '/inputs');
+        return response.data;
+    },
     async getAllFormulas() {
         const response = await axios.get(apiURL + '/formulas');
         return response.data;

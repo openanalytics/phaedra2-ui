@@ -1,7 +1,8 @@
 import calculationsAPI from "@/api/calculations";
 
 const state = () => ({
-    formulas: []
+    formulas: [],
+    formulaInputs: {}
 })
 
 const getters = {
@@ -13,13 +14,20 @@ const getters = {
     },
     areFormulasLoaded: (state) => () => {
         return state.formulas.length>1
-    }
+    },
+    getFormulaInputs: (state) => (id) => {
+        return state.formulaInputs[id];
+    },
 }
 
 const actions = {
     async getFormula(ctx, id) {
         const formula = await calculationsAPI.getFormula(id);
         ctx.commit('cacheFormula', formula);
+    },
+    async getFormulaInputs(ctx, id) {
+        const formulaInputs = await calculationsAPI.getFormulaInputs(id);
+        ctx.commit('cacheFormulaInputs', { id: id, inputs: formulaInputs });
     },
     async getAllFormulas(ctx) {
         const formulas = await calculationsAPI.getAllFormulas();
@@ -55,6 +63,9 @@ const mutations = {
     uncacheFormula(state, id) {
         let i = state.formulas.findIndex(f => f.id == id);
         if (i >= 0) state.formulas.splice(i, 1);
+    },
+    cacheFormulaInputs(state, info) {
+        state.formulaInputs[info.id] = info.inputs;
     }
 }
 
