@@ -153,9 +153,9 @@
             icon: 'calculate',
             children: [
               {
-                label: "Formulae",
+                label: "Formulas",
                 icon: 'functions',
-                route: 'calcFormulae',
+                route: 'calcFormulas',
               }
             ]
           },

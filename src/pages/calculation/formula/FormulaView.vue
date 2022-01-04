@@ -47,7 +47,7 @@
     import {computed, ref} from 'vue'
     import {useStore} from 'vuex'
     import {useRoute, useRouter} from 'vue-router'
-    import DeleteFormulaDialog from "@/pages/calculation/formulae/DeleteFormulaDialog.vue"
+    import DeleteFormulaDialog from "@/pages/calculation/formula/DeleteFormulaDialog.vue"
 
     export default {
         components: {
@@ -83,7 +83,7 @@
 
             exported.cancelEditMode = () => {
                 if (formulaId == 0) {
-                    router.push("/calc/formulae");
+                    router.push("/calc/formulas");
                 } else {
                     exported.editMode.value = false;
                     fetchFormulaWorkingCopy();

@@ -3,14 +3,14 @@
         <div class="q-pa-md">
             <div class="row text-h6 items-center q-px-md oa-section-title">
                 <q-icon name="functions" class="on-left"/>
-                Calculation Formulae
+                Calculation Formulas
             </div>
             <div class="row q-pa-lg oa-section-body">
                 <q-table
                     table-header-class="text-grey"
                     class="full-width"
                     flat
-                    :rows="formulae"
+                    :rows="formulas"
                     :columns="columns"
                     row-key="id"
                     :pagination="{ rowsPerPage: 20, sortBy: 'id' }"
@@ -66,7 +66,7 @@
     import {useStore} from 'vuex'
     import {useRouter} from 'vue-router'
     import FormatUtils from "@/lib/FormatUtils.js"
-    import DeleteFormulaDialog from "@/pages/calculation/formulae/DeleteFormulaDialog.vue"
+    import DeleteFormulaDialog from "@/pages/calculation/formula/DeleteFormulaDialog.vue"
 
     export default {
         components: {
@@ -77,7 +77,7 @@
 
             const store = useStore()
             store.dispatch('calculations/getAllFormulas');
-            exported.formulae = computed(() => store.getters['calculations/getFormulas']());
+            exported.formulas = computed(() => store.getters['calculations/getFormulas']());
 
             exported.columns = [
                 {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
