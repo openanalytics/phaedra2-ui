@@ -36,10 +36,15 @@ const getters = {
 
 const actions = {
     async loadByProjectId(ctx, id) {
-        await experimentAPI.loadByProjectId(id)
-            .then(response => {
-                ctx.commit('cacheExperiments', response)
-            })
+        const experiments = await experimentAPI.loadByProjectId(id);
+        const summaries = await experimentAPI.loadExperimentSummariesByProjectId(id);
+
+        // Load and attach experiment summaries
+        for (const exp of experiments) {
+            exp.summary = summaries.find(s => s.experimentId == exp.id) || {};
+        }
+
+        ctx.commit('cacheExperiments', experiments);
     },
     async loadById(ctx, experimentId) {
         // Load experiment by id

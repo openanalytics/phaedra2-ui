@@ -45,6 +45,36 @@
         </div>
       </q-td>
     </template>
+    <template v-slot:body-cell-nrPlatesCalculated="props">
+      <q-td :props="props">
+        <q-linear-progress rounded size="20px" color="positive" 
+          :value="props.row.summary[props.col.name] ? props.row.summary[props.col.name] / props.row.summary.nrPlates : 0">
+          <div class="absolute-full flex flex-center">
+            <span class="text-black text-body2">{{props.row.summary[props.col.name] >= 0 ? props.row.summary[props.col.name] + ' / ' + props.row.summary.nrPlates : '?'}}</span>
+          </div>
+        </q-linear-progress>
+      </q-td>
+    </template>
+    <template v-slot:body-cell-nrPlatesValidated="props">
+      <q-td :props="props">
+        <q-linear-progress rounded size="20px" color="positive" 
+          :value="props.row.summary[props.col.name] ? props.row.summary[props.col.name] / props.row.summary.nrPlates : 0">
+          <div class="absolute-full flex flex-center">
+            <span class="text-black text-body2">{{props.row.summary[props.col.name] >= 0 ? props.row.summary[props.col.name] + ' / ' + props.row.summary.nrPlates : '?'}}</span>
+          </div>
+        </q-linear-progress>
+      </q-td>
+    </template>
+    <template v-slot:body-cell-nrPlatesApproved="props">
+      <q-td :props="props">
+        <q-linear-progress rounded size="20px" color="positive" 
+          :value="props.row.summary[props.col.name] ? props.row.summary[props.col.name] / props.row.summary.nrPlates : 0">
+          <div class="absolute-full flex flex-center">
+            <span class="text-black text-body2">{{props.row.summary[props.col.name] >= 0 ? props.row.summary[props.col.name] + ' / ' + props.row.summary.nrPlates : '?'}}</span>
+          </div>
+        </q-linear-progress>
+      </q-td>
+    </template>
     <template v-slot:no-data>
       <div class="full-width row text-info">
         <span>No experiments to show.</span>
@@ -102,15 +132,14 @@
     {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
     {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
     {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-    {
-      name: 'createdOn',
-      align: 'left',
-      label: 'Created On',
-      field: 'createdOn',
-      sortable: true,
-      format: FormatUtils.formatDate
-    },
-    {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true}
+    {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
+    {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
+    {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
+
+    {name: 'nrPlates', align: 'left', label: 'Plates', field: row => row.summary.nrPlates, sortable: true},
+    {name: 'nrPlatesCalculated', align: 'left', label: 'Calculated', sortable: true},
+    {name: 'nrPlatesValidated', align: 'left', label: 'Validated', sortable: true},
+    {name: 'nrPlatesApproved', align: 'left', label: 'Approved', sortable: true},
   ])
 
   const filterMethod = function (rows, term) {
