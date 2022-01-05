@@ -2,7 +2,7 @@
   <q-dialog v-model="props.show" persistent>
     <q-card style="min-width: 50vw">
       <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
-        <q-avatar icon="calculate" color="primary" text-color="white"/>
+        <q-avatar icon="cancel" color="primary" text-color="white"/>
         Invalidate Plate
       </q-card-section>
       <q-card-section>

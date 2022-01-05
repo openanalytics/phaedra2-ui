@@ -115,33 +115,7 @@
       </q-table>
     </div>
 
-    <div class="q-pa-md" v-if="newFeatureTab">
-      <div class="row text-h6 items-center q-px-md oa-section-title">
-        <q-icon name="edit" class="q-pr-sm"/>
-        New Feature
-      </div>
-      <div class="oa-section-body">
-        <q-card-section class="row">
-          <div class="col-5">
-            <q-input v-model="newFeature.name" square autofocus label="Name"></q-input>
-            <q-input v-model="newFeature.alias" square label="Alias"></q-input>
-            <q-input v-model="newFeature.description" square label="Description"></q-input>
-            <q-input v-model="newFeature.format" square label="Format" placeholder="#.##"
-                     style="width: 100px"></q-input><br>
-            <q-btn flat label="Cancel" color="primary" @click="newFeatureTab = false"/>
-          </div>
-          <div class="col-1"/>
-          <div class="col-5">
-            <q-select v-model="newFeature.type" square label="Type" :options="featureTypes"></q-select>
-            <q-select v-model="newFeature.formulaId" square label="Formula" :options="formulas.filter(formula => formula.category === newFeature.type)" option-value="id"
-                      option-label="name"></q-select>
-            <q-input v-model="newFeature.sequence" square label="Sequence"></q-input>
-            <q-input v-model="newFeature.trigger" square label="Trigger"></q-input><br>
-            <q-btn align="right" label="Add feature" v-close-popup color="primary" @click="addFeature"/>
-          </div>
-        </q-card-section>
-      </div>
-    </div>
+    <new-feature v-if="newFeatureTab" v-model:show="newFeatureTab" v-model:protocolId="protocolId"></new-feature>
     <edit-feature v-if="editFeatureSection" v-model:show="editFeatureSection" v-model:feature="selectedFeature"></edit-feature>
 
     <q-dialog v-model="prompt" persistent>
@@ -220,6 +194,7 @@ import Tag from "@/components/tag/Tag";
 import EditProtocol from "./EditProtocol";
 import TableConfig from "../../components/table/TableConfig";
 import EditFeature from "../../components/protocol/EditFeature";
+import NewFeature from "../../components/protocol/NewFeature";
 
 let columns = ref([
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
@@ -249,7 +224,8 @@ export default {
     Tag,
     EditProtocol,
     TableConfig,
-    EditFeature
+    EditFeature,
+    NewFeature
   },
   setup() {
     const store = useStore()
