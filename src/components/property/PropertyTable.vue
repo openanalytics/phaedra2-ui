@@ -1,6 +1,5 @@
 <template>
   <div>
-    <div class="row q-pb-sm text-weight-bold">Properties:</div>
     <div class="row-cols-auto q-pb-sm full-width">
       <q-table :rows="objectInfo.properties"
                :columns="propertyColumns"
@@ -8,31 +7,49 @@
                style="max-height: 250px"
                table-header-class="bg-secondary"
                row-key="propertyName"
-               selection="multiple"
-               v-model:selected="selectedProperties"
-               no-data-label="No properties"
-               virtual-scroll
+               :pagination="{ rowsPerPage: 0 }"
+               hide-pagination
                dense
-      />
-    </div>
-    <div class="row justify-end">
-      <q-btn label="Add" size="sm" icon="add" class="oa-button-tag" @click="showNewPropertyDialog = true"/>
-      <q-btn label="Delete" size="sm" icon="delete" class="oa-button-delete q-ml-sm" @click="doRemoveProperty"/>
+      >
+        <template v-slot:body-cell="props">
+            <q-td :props="props" @mouseover="toggleDeleteBtn(true, props.rowIndex)" @mouseleave="toggleDeleteBtn(false, props.rowIndex)">
+              {{props.row[props.col.name]}}
+            </q-td>
+        </template>
+        <template v-slot:header-cell-actions="props">
+            <q-th :props="props">
+                <q-btn round dense icon="add" color="primary" size="xs" @click="showNewPropertyDialog = true">
+                  <q-tooltip :delay="500" class="text-black bg-secondary">Add a new Property</q-tooltip>
+                </q-btn>
+            </q-th>
+        </template>
+        <template v-slot:body-cell-actions="props">
+            <q-td :props="props" @mouseover="toggleDeleteBtn(true, props.rowIndex)" @mouseleave="toggleDeleteBtn(false, props.rowIndex)">
+                <q-btn round dense icon="delete" size="xs" @click="doRemoveProperty(props.row)" v-show="deleteBtnShown[props.rowIndex]">
+                  <q-tooltip :delay="500" class="text-black bg-secondary">Delete this Property</q-tooltip>
+                </q-btn>
+            </q-td>
+        </template>
+        <template v-slot:no-data>
+          <div class="full-width row text-info">
+            <span>No properties</span>
+          </div>
+        </template>
+      </q-table>
     </div>
   </div>
 
   <q-dialog v-model="showNewPropertyDialog">
     <q-card style="min-width: 30vw">
       <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
-        Add new project property
+        <q-icon name="add" class="q-pr-sm"/>
+        Add new property
       </q-card-section>
       <q-card-section>
         <div class="row">
           <div class="col full-width">
-            <span>Property name:</span><br/>
-            <q-input dense v-model="newProperty.name" @keyup.enter="showNewPropertyDialog = false" />
-            <span>Property value:</span><br/>
-            <q-input dense v-model="newProperty.value" @keyup.enter="showNewPropertyDialog = false" />
+            <q-input label="Name" dense v-model="newProperty.name" @keyup.enter="showNewPropertyDialog = false" />
+            <q-input label="Value" dense v-model="newProperty.value" @keyup.enter="showNewPropertyDialog = false" />
           </div>
         </div>
       </q-card-section>
@@ -48,83 +65,62 @@
 import {ref} from "vue";
 import {useStore} from 'vuex'
 
-const propertyColumns = [
-  {name: 'propertyName', align: 'left', label: 'Name', field: 'propertyName', sortable: true},
-  {name: 'propertyValue', align: 'left', label: 'Value', field: 'propertyValue', sortable: true}
-]
-
-const selectedProperties = ref([]);
-
 export default {
   name: "PropertyTable",
   props: {
     objectInfo: Object,
     objectClass: String
   },
-  methods: {
-  },
-
   setup(props) {
+    const exported = {};
     const store = useStore();
 
-    const showNewPropertyDialog = ref(false);
-    const newProperty = ref({name: '', value: ''});
-    const doAddProperty = function () {
+    exported.propertyColumns = [
+      {name: 'propertyName', align: 'left', label: 'Property Name', field: 'propertyName', sortable: true},
+      {name: 'propertyValue', align: 'left', label: 'Value', field: 'propertyValue', sortable: true},
+      {name: 'actions'}
+    ]
+
+    exported.showNewPropertyDialog = ref(false);
+    exported.newProperty = ref({name: '', value: ''});
+
+    exported.doAddProperty = function () {
       const propertyInfo = {
         objectId: props.objectInfo.id,
         objectClass: props.objectClass,
-        propertyName: newProperty.value.name,
-        propertyValue: newProperty.value.value
+        propertyName: exported.newProperty.value.name,
+        propertyValue: exported.newProperty.value.value
       }
-
-      if (props.objectClass === 'PROJECT')
-        store.dispatch('projects/addProperty', propertyInfo);
-      else if (props.objectClass === 'EXPERIMENT')
-        store.dispatch('experiments/addProperty', propertyInfo);
-      else if (props.objectClass === 'PLATE')
-        store.dispatch('plates/addProperty', propertyInfo);
-    }
-
-    const doRemoveProperty = function () {
-      if (selectedProperties.value.length > 0) {
-        let removedIndex = [];
-        selectedProperties.value.forEach(function (item, index) {
-          const propertyInfo = {
-            objectId: props.objectInfo.id,
-            objectClass: props.objectClass,
-            propertyName: item.propertyName
-          }
-
-          if (props.objectClass === 'PROJECT')
-            store.dispatch('projects/removeProperty', propertyInfo);
-          else if (props.objectClass === 'EXPERIMENT')
-            store.dispatch('experiments/removeProperty', propertyInfo);
-          else if (props.objectClass === 'PLATE')
-            store.dispatch('plates/removeProperty', propertyInfo);
-
-          removedIndex.push(index);
-        });
-
-        if (removedIndex.length > 0) {
-          for (let i = 0; i < removedIndex.length; i++) {
-            selectedProperties.value.pop();
-          }
-        }
+      const stores = {
+        PROJECT: 'projects/addProperty',
+        EXPERIMENT: 'experiments/addProperty',
+        PLATE: 'plates/addProperty'
       }
+      store.dispatch(stores[props.objectClass], propertyInfo);
     }
 
-    return {
-      propertyColumns,
-      selectedProperties,
-      showNewPropertyDialog,
-      newProperty,
-      doAddProperty,
-      doRemoveProperty,
+    exported.doRemoveProperty = function (row) {
+      const propertyInfo = {
+        objectId: props.objectInfo.id,
+        objectClass: props.objectClass,
+        propertyName: row.propertyName
+      }
+      const stores = {
+        PROJECT: 'projects/removeProperty',
+        EXPERIMENT: 'experiments/removeProperty',
+        PLATE: 'plates/removeProperty'
+      }
+      store.dispatch(stores[props.objectClass], propertyInfo);
     }
+
+    exported.deleteBtnShown = ref([]);
+    for (const i in props.objectInfo.properties) exported.deleteBtnShown[i] = false;
+
+    exported.toggleDeleteBtn = (show, rowIndex) => {
+      exported.deleteBtnShown.value[rowIndex] = show;
+    }
+
+    return exported;
   }
 }
 </script>
-
-<style scoped>
-
-</style>
