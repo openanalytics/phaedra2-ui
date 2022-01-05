@@ -3,17 +3,17 @@
         <div class="oa-section-title2" v-if="!minimal">
             <div class="row items-center">
                 <div class="col-8"><q-icon name="view_module" size="24px" class="q-mr-sm" />Well Inspector</div>
-                <div class="col-4">Selected: {{wells.length}}</div>
+                <div class="on-right">Selected: {{wells.length}}</div>
             </div>
         </div>
         <div class="oa-section-body" v-if="wells.length == 0">
-            <div v-if="wells.length == 0" class="text-info">
+            <div v-if="wells.length == 0" class="text-info q-pa-sm">
                 No well selected
             </div>
         </div>
         <div v-else class="q-pa-none oa-section-body">
             <div style="overflow: auto;" :style="minimal ? '':'max-height: 200px'">
-                <div v-for="well in wells" :key="well.id">
+                <div v-for="well in wells" :key="well.id" class="text-black">
                     <div class="q-pa-sm">
                         <div class="row">
                             <div class="col-4 text-weight-bold">Well:</div>
@@ -60,7 +60,6 @@
         setup (props) {
             return {
                 WellUtils,
-                cardClass: props.minimal ? "text-black" : "",
                 statusIconSize: props.minimal ? "xs" : "sm"
             }
         }
