@@ -60,18 +60,5 @@ export default {
                 console.log(error);
             });
         return result;
-    },
-    async addNewFeature(newFeature) {
-        let result = null;
-        axios.post(apiURL + '/features', newFeature)
-            .then(response => {
-                if (response.status === 201) {
-                    result = response.data
-                }
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
-        return result
     }
 }

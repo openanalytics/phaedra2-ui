@@ -48,7 +48,9 @@ export default {
   name: 'NewFeature',
   methods: {
     addFeature() {
-      this.$store.dispatch('protocols/addNewFeature', this.newFeature)
+      console.log(this.newFeature)
+      this.newFeature.formulaId = this.selectedFormulaId.id
+      this.$store.dispatch('features/createFeature', this.newFeature)
       this.$emit('update:show', false)
     },
   },

@@ -24,6 +24,20 @@ export default {
             });
         return result;
     },
+    async createFeature(newFeature) {
+        let result = null;
+        await axios.post(apiURL + '/features', newFeature)
+            .then(response => {
+                if (response.status === 201) {
+                    console.log('here',response.data)
+                    result = response.data
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result
+    },
     async deleteFeature(featureId) {
         let result = null;
         await axios.delete(apiURL + '/features/' + featureId)
@@ -71,5 +85,29 @@ export default {
                 console.log(error);
             });
         return result;
-    }
+    },
+    async getCalculationInputValue(featureId) {
+        let result = null;
+        await axios.get(apiURL + '/features/' + featureId + '/calculationinputvalue')
+            .then(response => {
+                if (response.status === 200)
+                    result = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result;
+    },
+    async CalculationInputValue(featureId) {
+        let result = null;
+        await axios.get(apiURL + '/features/' + featureId + '/calculationinputvalue')
+            .then(response => {
+                if (response.status === 200)
+                    result = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result;
+    },
 }
