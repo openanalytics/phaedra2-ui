@@ -83,7 +83,11 @@ const actions = {
     },
     async renameProject(ctx, args) {
         await projectAPI.editProject(args)
-        ctx.commit('updateProject', args)
+        ctx.commit('updateProjectName', args)
+    },
+    async editProjectDescription(ctx, args) {
+        await projectAPI.editProject(args)
+        ctx.commit('updateProjectDescription', args)
     },
     async tagProject(ctx, tag) {
         await metadataAPI.addTag(tag)
@@ -119,10 +123,17 @@ const mutations = {
         let match = state.projects.find(p => p.id === projectId)
         if (match) state.projects.splice(state.projects.indexOf(match), 1)
     },
-    updateProject(state, args) {
+    updateProjectName(state, args) {
         let project = state.projects.find(p => p.id === args.id)
         if (project) {
             project.name = args.name
+            state.currentProject = project
+        }
+    },
+    updateProjectDescription(state, args) {
+        let project = state.projects.find(p => p.id === args.id)
+        if (project) {
+            project.description = args.description
             state.currentProject = project
         }
     },
