@@ -60,12 +60,12 @@
 
     <EditProtocol v-model:show="editdialog" v-model:protocol="protocol"></EditProtocol>
 
-    <div class="q-pa-md" v-if="!newFeatureTab && formulas">
+    <div class="q-pa-md" v-if="!newFeatureTab && formulas && !editFeatureSection">
       <div class="row text-h6 items-center q-px-md oa-section-title">
         <q-icon name="functions" class="q-pr-sm"/>
         Features
       </div>
-      <q-table :rows="features" :columns="columns" :filter="filter" :filter-method="filterMethod" :loading="loading" :visible-columns="visibleColumns" square>
+      <q-table :rows="features" row-key="id" :columns="columns" :filter="filter" :filter-method="filterMethod" :loading="loading" :visible-columns="visibleColumns" square>
         <template v-slot:top-right>
           <div class="col action-button on-left">
             <q-btn size="sm" color="primary" icon="add" label="Add Feature..." @click="newFeatureTab = true"/>
@@ -89,6 +89,24 @@
             {{protocol.name}}
           </q-td>
         </template>
+        <template v-slot:body-cell-menu="props">
+          <q-td :props="props">
+            <div class="row items-center cursor-pointer">
+              <q-btn flat round icon="more_horiz" style="border-radius: 50%;">
+                <q-menu fit>
+                  <q-list style="min-width: 100px">
+                    <q-item clickable @click="selectedFeature=props.row;editFeatureSection=true">
+                      <q-item-section>Edit feature</q-item-section>
+                    </q-item>
+                    <q-item clickable @click="selectedFeature=props.row;deleteFeatureDialog=true">
+                      <q-item-section>Delete feature</q-item-section>
+                    </q-item>
+                  </q-list>
+                </q-menu>
+              </q-btn>
+            </div>
+          </q-td>
+        </template>
         <template v-slot:no-data>
           <div class="full-width row text-info">
             <span>No features to show.</span>
@@ -97,33 +115,8 @@
       </q-table>
     </div>
 
-    <div class="q-pa-md" v-if="newFeatureTab">
-      <div class="row text-h6 items-center q-px-md oa-section-title">
-        <q-icon name="edit" class="q-pr-sm"/>
-        New Feature
-      </div>
-      <div class="oa-section-body">
-        <q-card-section class="row">
-          <div class="col-5">
-            <q-input v-model="newFeature.name" square autofocus label="Name"></q-input>
-            <q-input v-model="newFeature.alias" square label="Alias"></q-input>
-            <q-input v-model="newFeature.description" square label="Description"></q-input>
-            <q-input v-model="newFeature.format" square label="Format" placeholder="#.##"
-                     style="width: 100px"></q-input><br>
-            <q-btn flat label="Cancel" color="primary" @click="newFeatureTab = false"/>
-          </div>
-          <div class="col-1"/>
-          <div class="col-5">
-            <q-select v-model="newFeature.type" square label="Type" :options="featureTypes"></q-select>
-            <q-select v-model="newFeature.formulaId" square label="Formula" :options="formulas.filter(formula => formula.category === newFeature.type)" option-value="id"
-                      option-label="name"></q-select>
-            <q-input v-model="newFeature.sequence" square label="Sequence"></q-input>
-            <q-input v-model="newFeature.trigger" square label="Trigger"></q-input><br>
-            <q-btn align="right" label="Add feature" v-close-popup color="primary" @click="addFeature"/>
-          </div>
-        </q-card-section>
-      </div>
-    </div>
+    <new-feature v-if="newFeatureTab" v-model:show="newFeatureTab" v-model:protocolId="protocolId"></new-feature>
+    <edit-feature v-if="editFeatureSection" v-model:show="editFeatureSection" v-model:feature="selectedFeature"></edit-feature>
 
     <q-dialog v-model="prompt" persistent>
       <q-card>
@@ -165,6 +158,29 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <q-dialog v-model="deleteFeatureDialog" persistent>
+      <q-card style="min-width: 30vw">
+        <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
+          <q-avatar icon="delete" color="primary" text-color="white"/> Delete Feature
+        </q-card-section>
+        <q-card-section>
+          <div class="row">
+            <div class="col-10">
+              <span>Are you sure you want to delete the feature <b>{{selectedFeature.name}}</b>?</span><br/>
+              <span>Type <span
+                  style="font-weight: bold">{{ selectedFeature.name }}</span> and press the button to confirm:</span><br/>
+              <q-input dense v-model="featureName" autofocus/><br>
+              <span class="text-accent">WARNING: The feature and associated data will be deleted!</span>
+            </div>
+          </div>
+        </q-card-section>
+        <q-card-actions align="right" class="text-primary">
+          <q-btn flat label="Cancel" v-close-popup/>
+          <q-btn label="Delete feature" color="accent" v-if="selectedFeature.name==featureName" v-close-popup
+                 @click="deleteFeature"/>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
     <table-config v-model:show="configdialog" v-model:visibleColumns="visibleColumns" v-model:columns="columns"></table-config>
   </q-page>
 </template>
@@ -177,6 +193,8 @@ import {computed, ref} from "vue";
 import Tag from "@/components/tag/Tag";
 import EditProtocol from "./EditProtocol";
 import TableConfig from "../../components/table/TableConfig";
+import EditFeature from "../../components/protocol/EditFeature";
+import NewFeature from "../../components/protocol/NewFeature";
 
 let columns = ref([
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
@@ -188,6 +206,7 @@ let columns = ref([
   {name: 'protocolId', align: 'left', label: 'Protocol', field: 'protocolId', sortable: true},
   {name: 'formulaId', align: 'left', label: 'Formula', field: 'formulaId', sortable: true},
   {name: 'trigger', align: 'left', label: 'Trigger', field: 'trigger', sortable: true},
+  {name: 'menu', align: 'left', field: 'menu', sortable: false}
     ])
 
 const filterMethod = function (rows, term) {
@@ -204,7 +223,9 @@ export default {
   components: {
     Tag,
     EditProtocol,
-    TableConfig
+    TableConfig,
+    EditFeature,
+    NewFeature
   },
   setup() {
     const store = useStore()
@@ -216,13 +237,11 @@ export default {
       store.dispatch('protocols/loadById', protocolId)
     // }
     // store.dispatch('protocols/loadProtocolsTags', protocolId)
-
     const  features = computed(() => store.getters['features/getByProtocolId'](protocolId))
     if(!store.getters['features/isProtocolLoaded'](protocolId)) {
       store.dispatch('features/loadByProtocolId', protocolId)
       loading.value = false
     }
-
     const formulas = computed(() => store.getters['calculations/getFormulas']())
     store.dispatch('calculations/getAllFormulas')
 
@@ -237,7 +256,7 @@ export default {
       visibleColumns: columns.value.map(a => a.name),
       configdialog: ref(false),
       filter: ref(''),
-      filterMethod
+      filterMethod,
     }
   },
   data() {
@@ -260,6 +279,10 @@ export default {
       protocolName: ref(""),
       deletedialog: ref(false),
       editdialog: ref(false),
+      deleteFeatureDialog: ref(false),
+      editFeatureSection: ref(false),
+      featureName: ref(null),
+      selectedFeature: ref({id:9})
     }
   },
   methods: {
@@ -288,6 +311,9 @@ export default {
         return formula.name
       }
       else return 'NOT_IN_DB'
+    },
+    deleteFeature(){
+      this.$store.dispatch('features/deleteFeature',this.selectedFeature)
     }
   }
 

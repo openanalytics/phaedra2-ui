@@ -13,6 +13,8 @@ import NewExperimentView from '@/pages/experiment/NewExperimentView.vue'
 import PlateView from '@/pages/plate/PlateView.vue'
 import ProtocolView from '@/pages/protocol/ProtocolView.vue'
 import NewProtocolView from "@/pages/protocol/NewProtocolView";
+import FormulasView from "@/pages/calculation/formula/FormulasView";
+import FormulaView from "@/pages/calculation/formula/FormulaView";
 import CaptureJobsView from '@/pages/datacapture/CaptureJobsView.vue'
 
 import PlateList from "@/pages/experiment/PlateList.vue"
@@ -22,6 +24,9 @@ import PlateGrid from "@/pages/experiment/PlateGrid.vue"
 import WellGrid from "@/pages/plate/WellGrid.vue"
 import WellList from "@/pages/plate/WellList.vue"
 import MeasList from "@/pages/plate/MeasList.vue"
+
+import PlateTemplateView from "./pages/platelayout/PlateTemplateView";
+import NewPlateTemplateView from "./pages/platelayout/NewPlateTemplateView"
 
 const routes = [
     { name: "dashboard", path: "/", component: Dashboard },
@@ -46,6 +51,12 @@ const routes = [
     },
     { name: "protocol", path: "/protocol/:id", component: ProtocolView },
     { name: "newProtocol", path: "/protocol/new", component: NewProtocolView },
+    { name: "template", path: "/template/:id", component: PlateTemplateView},
+    { name: "newPlateTemplate", path: "/template/new", component: NewPlateTemplateView},
+
+    { name: "calcFormulas", path: "/calc/formulas", component: FormulasView },
+    { name: "calcFormula", path: "/calc/formula/:id", component: FormulaView },
+
     { name: "dataCaptureJobs", path: "/datacapture/jobs", component: CaptureJobsView },
 ]
 const router = createRouter({

@@ -105,7 +105,7 @@
                     </q-list>
                   </q-menu>
                 </q-item>
-                <q-item clickable v-if="props.row.validationStatus!=='INVALIDATED' || props.row.approvalStatus!=='APPROVAL_NOT_SET'" >
+                <q-item clickable v-if="props.row.approvalStatus==='APPROVAL_NOT_SET'&&props.row.validationStatus==='VALIDATED'" >
                   <q-item-section>Approval</q-item-section>
                   <q-item-section side>
                     <q-icon name="keyboard_arrow_right"/>
@@ -118,9 +118,6 @@
                       </q-item>
                       <q-item clickable v-if="props.row.approvalStatus==='APPROVAL_NOT_SET'" @click="disapprove(props.row.id, props.row.experimentId)">
                         <q-item-section>Disapprove</q-item-section>
-                      </q-item>
-                      <q-item clickable v-if="props.row.approvalStatus!=='APPROVAL_NOT_SET'" @click="resetApproval(props.row.id, props.row.experimentId)">
-                        <q-item-section>Reset Approval</q-item-section>
                       </q-item>
                     </q-list>
                   </q-menu>
@@ -145,6 +142,7 @@
   <plate-calculate-dialog v-model:show="calculateDialog" v-model:plateId="selectedPlateId"></plate-calculate-dialog>
   <invalidate-dialog v-model:show="invalidateDialog" v-model:plateId="selectedPlateId" v-model:experimentId="experimentId"></invalidate-dialog>
   <disapprove-dialog v-model:show="disapproveDialog" v-model:plateId="selectedPlateId" v-model:experimentId="experimentId"></disapprove-dialog>
+  <approve-dialog v-model:show="approveDialog" v-model:plateId="selectedPlateId" v-model:experimentId="experimentId"></approve-dialog>
 </template>
 
 <style scoped>
@@ -165,6 +163,7 @@ import TableConfig from "../../components/table/TableConfig";
 import PlateCalculateDialog from "./PlateCalculateDialog";
 import InvalidateDialog from "../../components/plate/InvalidateDialog";
 import DisapproveDialog from "../../components/plate/DisapproveDialog";
+import ApproveDialog from "../../components/plate/ApproveDialog";
 import {useRoute} from "vue-router";
 
 let columns = ref([
@@ -190,7 +189,7 @@ const filterMethod = function (rows, term) {
 }
 
 export default {
-  components: {TableConfig, PlateCalculateDialog, InvalidateDialog, DisapproveDialog},
+  components: {TableConfig, PlateCalculateDialog, InvalidateDialog, DisapproveDialog, ApproveDialog},
 
   props: ['experiment','newPlateTab'],
   emits: ['update:newPlateTab'],
@@ -215,16 +214,15 @@ export default {
     },
     approve(id, experimentId) {
       //put approvalStatus: APPROVED
-      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, approvalStatus: 'APPROVED'})
+      this.selectedPlateId = id
+      this.experimentId = experimentId
+      this.approveDialog = true
     },
     disapprove(id, experimentId) {
       //put approvalStatus: DISAPPROVED
       this.selectedPlateId = id
       this.experimentId = experimentId
       this.disapproveDialog = true
-    },
-    resetApproval(id, experimentId) {
-      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, approvalStatus: 'APPROVAL_NOT_SET', disapprovedReason: ""})
     },
     calculatePlate(id){
       this.selectedPlateId = id
@@ -255,7 +253,8 @@ export default {
       experimentId: null,
       calculateDialog: ref(false),
       invalidateDialog: ref(false),
-      disapproveDialog: ref(false)
+      disapproveDialog: ref(false),
+      approveDialog: ref(false)
     }
   }
 }
