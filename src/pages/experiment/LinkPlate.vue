@@ -22,7 +22,8 @@
         <div v-if="!quickView">
           <div class="row text-h6 items-center q-px-sm oa-section-title">
             <q-icon name="view_module" class="on-left"/>
-            Plates
+            <span v-if="plateId">Plate</span>
+            <span v-if="!plateId">Plates</span>
           </div>
           <q-table
               table-header-class="text-white bg-primary"
@@ -34,7 +35,7 @@
               flat
               dense
               selection="multiple"
-              v-model:selected="selectedPlates"
+              v-model:selected="selectedPlates.list"
           >
             <template v-slot:header="props">
               <q-tr :props="props" class="text-white bg-primary">
@@ -87,7 +88,7 @@
               dense
               selection="single"
               v-model:selected="selectedTemplate"
-              :filter="selectedPlates"
+              :filter="selectedPlates.list"
               :filter-method="filterMethod"
           >
             <template v-slot:header="props">
@@ -118,16 +119,22 @@
         <q-btn flat label="Link" v-if="isTemplateSelected()&&arePlatesSelected()&&checkAllDimensions()"
                @click="linkPlate" v-close-popup/>
       </q-card-actions>
+      {{plateId}}
     </q-card>
   </q-dialog>
 </template>
 <script>
 
 import {useStore} from "vuex";
-import {computed, ref} from "vue";
+import {computed, reactive, ref, watch} from "vue";
 import {useRoute} from "vue-router";
 import TemplateQuickView from "../../components/layout/TemplateQuickView";
 
+/**
+ * Dialog to link plate(s) to template
+ * If plateId is provided, only 1 plate is selectable in list.
+ * If plateId is null, all plates of the experiment are shown in list.
+ */
 export default {
   name: 'LinkPlate',
   components: {TemplateQuickView},
@@ -139,7 +146,12 @@ export default {
     const plates = computed(() => store.getters['plates/getByExperimentId'](experimentId))
     const allTemplates = store.getters['templates/getAll']()
 
-    const selectedPlates = ref([])
+    let selectedPlates = reactive({list : []})
+    //Watch for props change to change selectedPlates in [plateId]
+    watch(props, (p) => {
+      if(p.plateId)
+        selectedPlates.list = plates.value.filter(plate=>plate.id===p.plateId)
+    })
     const selectedTemplate = ref([])
     const source = ref('Layout Template')
     const sourceOptions = ['Layout Template']
@@ -170,7 +182,7 @@ export default {
   emits: ['update:show'],
   methods: {
     linkPlate() {
-      const copy = JSON.parse(JSON.stringify(this.selectedPlates));
+      const copy = JSON.parse(JSON.stringify(this.selectedPlates.list));
       copy.forEach(plate => {
         plate.linkStatus = 'LINKED'
         plate.linkSource = 'layout-template'
@@ -182,8 +194,8 @@ export default {
     },
     checkPlateDimensions() {
       //Count occurences of rows and columns in selected plates
-      const countRows = this.selectedPlates.map(p => p.rows).filter(this.onlyUnique).length
-      const countColumns = this.selectedPlates.map(p => p.rows).filter(this.onlyUnique).length
+      const countRows = this.selectedPlates.list.map(p => p.rows).filter(this.onlyUnique).length
+      const countColumns = this.selectedPlates.list.map(p => p.rows).filter(this.onlyUnique).length
       if (countRows > 1 || countColumns > 1) return false
       return true
     },
@@ -201,16 +213,16 @@ export default {
     },
     checkAllDimensions() {
       if (!this.isTemplateSelected()) return true
-      const countRows = this.selectedPlates.filter(row => row.rows === this.selectedTemplate[0].rows).length
-      const countColumns = this.selectedPlates.filter(row => row.columns === this.selectedTemplate[0].columns).length
-      if (countRows === this.selectedPlates.length && countColumns === this.selectedPlates.length) return true
+      const countRows = this.selectedPlates.list.filter(row => row.rows === this.selectedTemplate[0].rows).length
+      const countColumns = this.selectedPlates.list.filter(row => row.columns === this.selectedTemplate[0].columns).length
+      if (countRows === this.selectedPlates.list.length && countColumns === this.selectedPlates.list.length) return true
       return false
     },
     isTemplateSelected() {
       return this.selectedTemplate.length !== 0
     },
     arePlatesSelected() {
-      return this.selectedPlates.length !== 0
+      return this.selectedPlates.list.length !== 0
     }
   }
 }
