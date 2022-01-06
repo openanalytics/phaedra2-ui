@@ -32,7 +32,7 @@
               </div>
               <div class="row">
                 <div class="col-3 text-weight-bold">Description:</div>
-                <div class="col">{{ project.description }}</div>
+                <div class="col"><EditableField :object="project" :fieldName="'description'" @valueChanged="onDescriptionChanged" /></div>
               </div>
               <div class="row">
                 <div class="col-3 text-weight-bold">Tags:</div>
@@ -144,7 +144,8 @@
 
   import ExperimentList from "@/pages/experiment/ExperimentList.vue"
   import Tag from "@/components/tag/Tag"
-  import PropertyTable from "../../components/property/PropertyTable";
+  import PropertyTable from "@/components/property/PropertyTable";
+  import EditableField from "@/components/widgets/EditableField";
 
   import FormatUtils from "@/lib/FormatUtils.js"
 
@@ -152,7 +153,8 @@
     components: {
       ExperimentList,
       Tag,
-      PropertyTable
+      PropertyTable,
+      EditableField
     },
 
     setup() {
@@ -163,7 +165,6 @@
       const projectId = parseInt(route.params.id);
       const project = computed(() => store.getters['projects/getCurrentProject']());
       store.dispatch('projects/loadById', projectId);
-      store.dispatch('projects/loadProjectsTags', projectId);
 
       const showAddTagDialog = ref(false);
       const newProjectTag = ref('');
@@ -192,6 +193,10 @@
           })
       }
 
+      const onDescriptionChanged = (newDescription) => {
+        store.dispatch('projects/editProjectDescription', { id: projectId, description: newDescription });
+      };
+
       return {
         projectId,
         project,
@@ -207,6 +212,7 @@
         showDeleteDialog,
         doDeleteProject,
 
+        onDescriptionChanged,
         FormatUtils
       }
     },

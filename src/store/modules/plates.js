@@ -28,7 +28,13 @@ const getters = {
     },
     getActiveMeasurement: (state) => () => {
         if(state.currentPlate.measurements) return state.currentPlate.measurements.find(meas => meas.active === true)
-    }
+    },
+    getAllPlates: (state) => () => {
+        return state.plates
+    },
+    getPlatesInExperiment: (state) => () => {
+        return state.platesInExperiment
+    },
 }
 
 const actions = {
@@ -123,13 +129,13 @@ const actions = {
     async editPlate(ctx, plate) {
         await plateAPI.editPlate(plate)
             .then(() => {
-                ctx.commit('deletePlate', plate)
+                ctx.commit('editPlate', plate)
             })
-        //To get all wells again, fetch plate from database
-        await plateAPI.getPlateById(plate.id)
-            .then(newPlate => {
-                ctx.commit('cacheNewPlate', newPlate)
-                ctx.commit('loadPlate', newPlate)
+    },
+    async loadPlateForCalculation(ctx, id) {
+        await plateAPI.getPlateById(id)
+            .then(plate => {
+                ctx.commit('cacheNewPlate',plate)
             })
     }
 }
@@ -148,8 +154,8 @@ const mutations = {
     },
     cacheNewPlate(state, plate){
         if(!containsPlate(state,plate)) {
-            state.plates.push(plate)
-            state.platesInExperiment[plate.experimentId].push(plate)
+            state.plates.push(plate);
+            (state.platesInExperiment[plate.experimentId])?state.platesInExperiment[plate.experimentId].push(plate):state.platesInExperiment[plate.experimentId]=[plate]
         }
     },
     loadTags(state, tags) {
@@ -207,6 +213,28 @@ const mutations = {
         let i = state.platesInExperiment[pl.experimentId].findIndex(t => t.id === pl.id);
         state.platesInExperiment[pl.experimentId].splice(i, 1);
     },
+    editPlate(state, pl) {
+        //Replace properties in state.plates
+        let i = state.plates.findIndex(t => t.id === pl.id);
+        if(i>-1){
+            for (const property in pl){
+                state.plates[i] = pl[property]
+            }
+        }
+        //Replace properties in state.currentPlate
+        if(state.currentPlate){
+            for (const property in pl){
+                state.currentPlate[property] = pl[property]
+            }
+        }
+        //Replace properties in state.platesInExperiment
+        let j = state.platesInExperiment[pl.experimentId].findIndex(t => t.id === pl.id);
+        if (j>-1) {
+            for (const property in pl){
+                state.platesInExperiment[pl.experimentId][j][property] = pl[property]
+            }
+        }
+    }
 }
 
 function containsTag(plate, tagInfo) {

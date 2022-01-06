@@ -28,7 +28,7 @@
           <q-icon name="biotech"/>
         </template>
       </q-select>
-      <div>
+      <div class="q-py-sm">
         <ColorLegend></ColorLegend>
       </div>
     </div>

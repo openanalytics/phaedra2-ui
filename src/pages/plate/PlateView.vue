@@ -13,11 +13,11 @@
       </div>
       <div v-else>
         <div class="row text-h6 items-center q-px-sm oa-section-title">
-          <q-icon name="view_module" class="q-mr-sm"/>
+          <q-icon name="view_module" class="on-left"/>
           {{ plate.barcode }}
         </div>
-        <div class="row col-4 q-pa-lg oa-section-body">
-          <div class="col col-4">
+        <div class="row q-pa-md oa-section-body">
+          <div class="col-4 q-gutter-xs">
             <div class="row">
               <div class="col-3 text-weight-bold">ID:</div>
               <div class="col">{{ plate.id }}</div>
@@ -72,6 +72,7 @@
         <q-tab name="measurements" icon="text_snippet" label="Measurements"/>
         <q-tab name="heatmap" icon="view_module" label="Heatmap"/>
         <q-tab name="wells" icon="table_rows" label="Well List"/>
+        <q-tab name="results" icon="assignment_turned_in" label="Results"/>
       </q-tabs>
       <div class="row oa-section-body">
         <q-tab-panels v-model="activeTab" animated style="width: 100%">
@@ -86,6 +87,9 @@
           </q-tab-panel>
           <q-tab-panel name="wells" icon="view_module" label="Layout">
             <WellList :plate="plate" />
+          </q-tab-panel>
+          <q-tab-panel name="results" icon="view_module" label="Layout">
+            <ResultSetList :plate="plate" />
           </q-tab-panel>
         </q-tab-panels>
       </div>
@@ -165,7 +169,7 @@
 </style>
 
 <script>
-import {computed, ref, watch} from 'vue'
+import {computed, ref} from 'vue'
 import {useStore} from 'vuex'
 import {useRoute} from 'vue-router'
 
@@ -175,6 +179,7 @@ import PropertyTable from "@/components/property/PropertyTable";
 import WellGrid from "@/pages/plate/WellGrid";
 import MeasList from "@/pages/plate/MeasList";
 import WellList from "@/pages/plate/WellList";
+import ResultSetList from "./ResultSetList";
 
 export default {
   name: 'Plate',
@@ -184,7 +189,8 @@ export default {
     WellGrid,
     Tag,
     EditPlate,
-    PropertyTable
+    PropertyTable,
+    ResultSetList
   },
   methods: {
     onClick() {
@@ -217,14 +223,17 @@ export default {
     const plate = computed(() => store.getters['plates/getCurrentPlate']());
     const experiment = computed(() => store.getters['experiments/getCurrentExperiment']());
     const project = computed(() => store.getters['projects/getCurrentProject']());
-    store.dispatch('plates/loadById', plateId);
 
-    // Once the plate has loaded, make sure the parent experiment gets loaded too.
-    watch(plate, (plate) => {
-      if (!store.getters['experiments/isLoaded'](plate.experimentId)) {
-        store.dispatch('experiments/loadById', plate.experimentId);
+    store.dispatch('plates/loadById', plateId).then(() => {
+      // Make sure parent experiment and project are loaded too (e.g. for breadcrumb)
+      if (!experiment.value.id) {
+        store.dispatch('experiments/loadById', plate.value.experimentId).then(() => {
+          if (!project.value.id) {
+            store.dispatch('projects/loadById', experiment.value.projectId);
+          }
+        });
       }
-    })
+    });
 
     return {
       plate,

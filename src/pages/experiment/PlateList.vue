@@ -2,7 +2,7 @@
   <q-table
       table-header-class="text-grey"
       :rows="plates"
-      :columns="getColumns()"
+      :columns="columns"
       row-key="id"
       :pagination="{ rowsPerPage: 10 }"
       :filter="filter"
@@ -46,14 +46,22 @@
       <q-td :props="props">
         <q-icon v-if="props.row.validationStatus==='VALIDATION_NOT_SET'" name="horizontal_rule"></q-icon>
         <q-icon v-else-if="props.row.validationStatus==='VALIDATED'" name="check_circle" color="positive"/>
-        <q-icon v-else-if="props.row.validationStatus==='INVALIDATED'" name="cancel" color="negative"/>
+        <q-icon v-else-if="props.row.validationStatus==='INVALIDATED'" name="cancel" color="negative">
+          <q-tooltip>
+            {{props.row.invalidatedReason}}
+          </q-tooltip>
+        </q-icon>
       </q-td>
     </template>
     <template v-slot:body-cell-status-approved="props">
       <q-td :props="props">
         <q-icon v-if="props.row.approvalStatus==='APPROVAL_NOT_SET'" name="horizontal_rule"></q-icon>
         <q-icon v-else-if="props.row.approvalStatus==='APPROVED'" name="check_circle" color="positive"/>
-        <q-icon v-else-if="props.row.approvalStatus==='DISAPPROVED'" name="cancel" color="negative"/>
+        <q-icon v-else-if="props.row.approvalStatus==='DISAPPROVED'" name="cancel" color="negative">
+          <q-tooltip>
+            {{props.row.disapprovedReason}}
+          </q-tooltip>
+        </q-icon>
       </q-td>
     </template>
     <template v-slot:body-cell-layout="props">
@@ -97,7 +105,7 @@
                     </q-list>
                   </q-menu>
                 </q-item>
-                <q-item clickable v-if="props.row.validationStatus!=='INVALIDATED' || props.row.approvalStatus!=='APPROVAL_NOT_SET'" >
+                <q-item clickable v-if="props.row.approvalStatus==='APPROVAL_NOT_SET'&&props.row.validationStatus==='VALIDATED'" >
                   <q-item-section>Approval</q-item-section>
                   <q-item-section side>
                     <q-icon name="keyboard_arrow_right"/>
@@ -110,9 +118,6 @@
                       </q-item>
                       <q-item clickable v-if="props.row.approvalStatus==='APPROVAL_NOT_SET'" @click="disapprove(props.row.id, props.row.experimentId)">
                         <q-item-section>Disapprove</q-item-section>
-                      </q-item>
-                      <q-item clickable v-if="props.row.approvalStatus!=='APPROVAL_NOT_SET'" @click="resetApproval(props.row.id, props.row.experimentId)">
-                        <q-item-section>Reset Approval</q-item-section>
                       </q-item>
                     </q-list>
                   </q-menu>
@@ -136,8 +141,11 @@
       </div>
     </template>
   </q-table>
-  <table-config v-model:show="configdialog" v-model:visibleColumns="visibleColumns" v-model:columnsList="columnsList" v-model:columnOrder="columnOrder"></table-config>
+  <table-config v-model:show="configdialog" v-model:visibleColumns="visibleColumns" v-model:columns="columns"></table-config>
   <plate-calculate-dialog v-model:show="calculateDialog" v-model:plateId="selectedPlateId"></plate-calculate-dialog>
+  <invalidate-dialog v-model:show="invalidateDialog" v-model:plateId="selectedPlateId" v-model:experimentId="experimentId"></invalidate-dialog>
+  <disapprove-dialog v-model:show="disapproveDialog" v-model:plateId="selectedPlateId" v-model:experimentId="experimentId"></disapprove-dialog>
+  <approve-dialog v-model:show="approveDialog" v-model:plateId="selectedPlateId" v-model:experimentId="experimentId"></approve-dialog>
   <LinkPlate v-model:show="linkDialog" v-model:plateId="selectedPlateId"></LinkPlate>
 </template>
 
@@ -157,28 +165,24 @@ import {useStore} from 'vuex'
 import {computed, ref} from "vue";
 import TableConfig from "../../components/table/TableConfig";
 import PlateCalculateDialog from "./PlateCalculateDialog";
+import InvalidateDialog from "../../components/plate/InvalidateDialog";
+import DisapproveDialog from "../../components/plate/DisapproveDialog";
+import ApproveDialog from "../../components/plate/ApproveDialog";
 import LinkPlate from "./LinkPlate";
 import {useRoute} from "vue-router";
 
-const columns = {
-  barcode:{name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
-  id:{name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
-  description:{name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-  'status-calculation':{name: 'status-calculation', align: 'center', label: 'C', field: 'status-calculation'},
-  'status-validated':{name: 'status-validated', align: 'center', label: 'V', field: 'status-validated'},
-  'status-approved':{name: 'status-approved', align: 'center', label: 'A', field: 'status-approved'},
-  layout:{name: 'layout', align: 'left', label: 'Layout', field: 'layout', sortable: true},
-  createdOn:{
-    name: 'createdOn',
-    align: 'left',
-    label: 'Created On',
-    field: 'createdOn',
-    sortable: true,
-    format: val => val !== undefined ? `${val.toLocaleString()}` : ''
-  },
-  tags:{name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
-  menu:{name: 'menu', align: 'left', field: 'menu', sortable: false}
-}
+let columns = ref([
+  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
+  {name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
+  {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
+  {name: 'status-calculation', align: 'center', label: 'C', field: 'status-calculation'},
+  {name: 'status-validated', align: 'center', label: 'V', field: 'status-validated'},
+  {name: 'status-approved', align: 'center', label: 'A', field: 'status-approved'},
+  {name: 'layout', align: 'left', label: 'Layout', field: 'layout', sortable: true},
+  {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: val => val !== undefined ? `${val.toLocaleString()}` : ''},
+  {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
+  {name: 'menu', align: 'left', field: 'menu', sortable: false}
+])
 
 const filterMethod = function (rows, term) {
   return rows.filter(row => {
@@ -190,7 +194,7 @@ const filterMethod = function (rows, term) {
 }
 
 export default {
-  components: {TableConfig, PlateCalculateDialog, LinkPlate},
+  components: {TableConfig, PlateCalculateDialog, InvalidateDialog, DisapproveDialog, ApproveDialog, LinkPlate},
 
   props: ['experiment','newPlateTab'],
   emits: ['update:newPlateTab'],
@@ -206,34 +210,28 @@ export default {
     },
     invalidate(id, experimentId) {
       //put validationStatus: INVALIDATED
-      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, validationStatus: 'INVALIDATED'})
+      this.selectedPlateId = id
+      this.experimentId = experimentId
+      this.invalidateDialog = true
     },
     resetValidation(id, experimentId) {
-      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, validationStatus: 'VALIDATION_NOT_SET'})
+      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, validationStatus: 'VALIDATION_NOT_SET', invalidatedReason: ""})
     },
     approve(id, experimentId) {
       //put approvalStatus: APPROVED
-      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, approvalStatus: 'APPROVED'})
+      this.selectedPlateId = id
+      this.experimentId = experimentId
+      this.approveDialog = true
     },
     disapprove(id, experimentId) {
       //put approvalStatus: DISAPPROVED
-      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, approvalStatus: 'DISAPPROVED'})
-    },
-    resetApproval(id, experimentId) {
-      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, approvalStatus: 'APPROVAL_NOT_SET'})
+      this.selectedPlateId = id
+      this.experimentId = experimentId
+      this.disapproveDialog = true
     },
     calculatePlate(id){
       this.selectedPlateId = id
       this.calculateDialog = true
-    },
-    getColumns(){
-      let newOrder = []
-      let tempList = this.columnOrder.slice()
-      while (tempList.length>0){
-        const shift = tempList.shift()
-        newOrder.push(this.columns[shift])
-      }
-      return newOrder
     }
   },
   setup() {
@@ -248,29 +246,20 @@ export default {
       loading.value = false
     })
 
-    let columnOrder = ['barcode','id','description','status-calculation','status-validated','status-approved','layout','createdOn','tags','menu']
-    let columnsList = []
-    columnOrder.forEach(function (col) {
-      columnsList.push({column: col})
-    })
-    columnsList.forEach(function (col) {
-      //Dummy data
-      col.dataType = (Math.random() + 1).toString(36).substring(7)
-      col.description = (Math.random() + 1).toString(36).substring(2)
-    })
-
     return {
       columns,
+      visibleColumns: columns.value.map(a => a.name),
       filter: ref(''),
       filterMethod,
       loading,
       plates,
-      visibleColumns: ['barcode','id','description','status-calculation','status-validated','status-approved','layout','createdOn','tags','menu'],
-      columnsList,
       configdialog: ref(false),
-      columnOrder,
       selectedPlateId: null,
+      experimentId: null,
       calculateDialog: ref(false),
+      invalidateDialog: ref(false),
+      disapproveDialog: ref(false),
+      approveDialog: ref(false),
       linkDialog: ref(false)
     }
   }

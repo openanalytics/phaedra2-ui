@@ -84,13 +84,6 @@ const actions = {
                 isDeleted ? ctx.commit('removeTag', tag) : console.log("TODO: Show error message");
             });
     },
-    async addNewFeature(ctx, newFeature) {
-        await protocolAPI.addNewFeature(newFeature)
-            .then((result) => {
-                ctx.commit('addFeature', result);
-                ctx.commit('features/cacheInProtocol', result, { root: true })
-            })
-    },
     async deleteProtocol(ctx, protocol){
         await protocolAPI.deleteProtocol(protocol)
             .then(() => {
