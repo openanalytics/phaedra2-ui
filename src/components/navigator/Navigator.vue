@@ -65,6 +65,17 @@
           {{ prop.node.label }}
         </router-link>
       </template>
+      <!-- Template for templates (header: "template") -->
+      <template v-slot:header-template="prop">
+        <router-link v-if="prop.node.id === 'new'" :to="{ name: 'newPlateTemplate', params: { id: prop.node.id } }" class="nav-link">
+          <q-icon name="add" class="text-primary" />
+          {{ prop.node.label }}
+        </router-link>
+        <router-link v-else :to="{ name: 'template', params: { id: prop.node.id } }" class="nav-link">
+          <q-icon name="border_outer" class="text-primary" />
+          {{ prop.node.label }}
+        </router-link>
+      </template>
     </q-tree>
   </q-drawer>
 </template>
@@ -129,6 +140,24 @@
           protocols.push(prot);
         })
 
+        // Templates
+        let templates = [{
+          header: "template",
+          label: "New Template...",
+          id: "new",
+          icon: "add"
+        }]
+        const allTemplates = store.getters['templates/getAll']().map(template => {
+          return {
+            header: "template",
+            label: template.name,
+            id: template.id,
+          }
+        })
+        allTemplates.forEach(temp => {
+          templates.push(temp);
+        })
+
         return [
           {
             label: "Dashboard",
@@ -160,6 +189,19 @@
             ]
           },
           {
+            label: "Plate Layouts",
+            header: "category",
+            icon: "border_all",
+            children: [
+              {
+                label: "Templates",
+                header: "category",
+                icon: "border_outer",
+                children: templates
+              }
+            ]
+          },
+          {
             label: "Data Capture",
             header: "category",
             icon: 'scanner',
@@ -176,6 +218,7 @@
 
       store.dispatch('projects/loadAll')
       store.dispatch('protocols/loadAll')
+      store.dispatch('templates/loadAll')
 
       return {
         drawerIcons: {

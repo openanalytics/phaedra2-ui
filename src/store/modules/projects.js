@@ -119,6 +119,11 @@ const mutations = {
     loadProject(state, project) {
         state.currentProject = project;
     },
+    cacheProject(state, project) {
+        if(!containsProject(state,project)){
+            state.projects.push(project)
+        }
+    },
     uncacheProject(state, projectId) {
         let match = state.projects.find(p => p.id === projectId)
         if (match) state.projects.splice(state.projects.indexOf(match), 1)
@@ -183,6 +188,11 @@ const mutations = {
             state.currentProject.properties.splice(i, 1);
         }
     }
+}
+
+function containsProject(state, project) {
+    return state.projects !== undefined
+        && state.projects.findIndex(t => t.id === project.id) > -1;
 }
 
 function containsTag(project, tagInfo) {

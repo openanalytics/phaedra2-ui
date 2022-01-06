@@ -25,6 +25,9 @@ import WellGrid from "@/pages/plate/WellGrid.vue"
 import WellList from "@/pages/plate/WellList.vue"
 import MeasList from "@/pages/plate/MeasList.vue"
 
+import PlateTemplateView from "./pages/platelayout/PlateTemplateView";
+import NewPlateTemplateView from "./pages/platelayout/NewPlateTemplateView"
+
 const routes = [
     { name: "dashboard", path: "/", component: Dashboard },
     { name: "project", path: "/project/:id", component: ProjectView },
@@ -48,6 +51,8 @@ const routes = [
     },
     { name: "protocol", path: "/protocol/:id", component: ProtocolView },
     { name: "newProtocol", path: "/protocol/new", component: NewProtocolView },
+    { name: "template", path: "/template/:id", component: PlateTemplateView},
+    { name: "newPlateTemplate", path: "/template/new", component: NewPlateTemplateView},
 
     { name: "calcFormulas", path: "/calc/formulas", component: FormulasView },
     { name: "calcFormula", path: "/calc/formula/:id", component: FormulaView },
