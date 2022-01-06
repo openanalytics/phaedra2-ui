@@ -2,7 +2,7 @@
     <div class="tag-icon flex inline" v-for="tag in tags" :key="tag">
         <Tag :tagInfo="tag" :objectInfo="objectInfo" :objectClass="objectClass" :readOnly="readOnly" />
     </div>
-    <q-btn round dense icon="add" size="xs" class="on-right" v-show="!readOnly" @click="showAddTagDialog = true">
+    <q-btn round dense icon="add" size="xs" v-show="!readOnly" @click="showAddTagDialog = true">
       <q-tooltip :delay="500" class="text-black bg-secondary">Add a new Tag</q-tooltip>
     </q-btn>
 
