@@ -18,18 +18,13 @@
     </template>
     <template v-slot:body-cell-active="props">
       <q-td :props="props">
-        <q-toggle :true-value="{ measId: props.row.id, active: true}" :false-value="{ measId: props.row.id, active: false}" @update:model-value="updateActiveState"/>
-      </q-td>
-    </template>
-    <template v-slot:body-cell-dimensions="props">
-      <q-td :props="props" :class="props.row.active ? 'text-dark' : 'text-grey'">
-        {{ props.row.rows }} x {{ props.row.columns }}
+        <q-icon name="link" v-show="props.row.active"/>
+        <q-toggle
+            :model-value="props.row.active"
+            @input="() => updateActiveState()"/>
       </q-td>
     </template>
   </q-table>
-  <div class="q-mt-md">
-    Active: {{ active }}
-  </div>
 
   <q-dialog v-model="openMeasDialog" square persistent class="q-gutter-sm">
     <q-card>
@@ -53,31 +48,42 @@
   </q-dialog>
 </template>
 <script>
-import {ref, computed, onUnmounted} from 'vue'
-import {useStore} from 'vuex'
+import {ref} from 'vue'
+// import {useStore} from 'vuex'
 
 const columns = [
   {name: 'active', align: 'left', label: 'Active?', field: 'active', sortable: true},
-  {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
-  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
-  {name: 'dimensions', align: 'left', label: 'Dimensions', field: 'dimensions', sortable: true},
-  {name: 'wellColumns', align: 'left', label: 'Well Columns', field: 'wellColumns', sortable: true},
-  {name: 'subWellColumns', align: 'left', label: 'SubWell Columns', field: 'subWellColumns', sortable: true},
-  {name: 'imageChannels', align: 'left', label: 'Image Channels', field: 'imageChannels', sortable: true},
-  {
-    name: 'createdOn',
-    align: 'left',
-    label: 'Created On',
-    field: 'createdOn',
-    sortable: true,
-    format: val => `${val?.toLocaleString()}`
-  },
+  {name: 'id', align: 'left', label: 'ID', field: 'measurementId', sortable: true},
   {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true}
 ]
+
+// {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
+// {name: 'dimensions', align: 'left', label: 'Dimensions', field: 'dimensions', sortable: true},
+// {name: 'wellColumns', align: 'left', label: 'Well Columns', field: 'wellColumns', sortable: true},
+// {name: 'subWellColumns', align: 'left', label: 'SubWell Columns', field: 'subWellColumns', sortable: true},
+// {name: 'imageChannels', align: 'left', label: 'Image Channels', field: 'imageChannels', sortable: true},
+// {
+//   name: 'createdOn',
+//   align: 'left',
+//   label: 'Created On',
+//   field: 'createdOn',
+//   sortable: true,
+//   format: val => `${val?.toLocaleString()}`
+// },
 
 export default {
   props: {
     plate: Object
+  },
+  setup() {
+    return {
+      columns
+    }
+  },
+  data() {
+    return {
+      openMeasDialog: ref(false),
+    }
   },
   methods: {
     addMeasurement() {
@@ -91,44 +97,15 @@ export default {
 
       this.$store.dispatch('plates/addMeasurement', activePlateMeasurement);
     },
-    updateActiveState(value, evt) {
-      console.log("Change active state" + evt);
-      this.$store.dispatch('plates/setActiveMeasurement', this.plate.id)
+    updateActiveState() {
+      console.log("Change active state");
+      // this.$store.dispatch('plates/setActiveMeasurement', value);
     }
   },
-  setup(props) {
-    const store = useStore()
-    const loading = ref(true)
-
-    const availableMeasurements = computed(() => store.getters['measurements/getAll']());
-    store.dispatch('measurements/loadAll');
-    store.dispatch('measurements/loadPlateMeasurements', props.plate);
-
-    const measurements = computed(() => store.getters['measurements/getPlateMeasurements'](props.plate.id))
-    const activeMeasurement = measurements.value.filter(m => m.active === true);
-
-    const unsubscribe = store.subscribe((mutation) => {
-        if (mutation.type == "measurements/cacheMeasurements") {
-            loading.value = false
-        }
-    })
-    onUnmounted(() => {
-        unsubscribe()
-    })
-
-    return {
-      columns,
-      measurements,
-      availableMeasurements,
-      loading,
-      active: ref(activeMeasurement)
-    }
-  },
-  data() {
-    return {
-      openMeasDialog: ref(false),
-      selectedMeasurement: ref()
-    }
+  computed: {
+    measurements() {
+      return this.$store.getters['plates/getCurrentPlateMeasurements']();
+    },
   }
 }
 
