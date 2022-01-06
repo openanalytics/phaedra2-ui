@@ -62,23 +62,7 @@ const actions = {
             }
         }
 
-        if (plate && !plate.properties) {
-            // Load plate properties
-            metadataAPI.getObjectProperties(plateId, 'PLATE')
-                .then(result => {
-                    console.log('Load plate properties');
-                    ctx.commit('loadProperties', result);
-                })
-        }
-
-        if (plate && !plate.tags) {
-            // Load plate tags
-            metadataAPI.getObjectTags(plateId, 'PLATE')
-                .then(result => {
-                    console.log('Load plate tags');
-                    ctx.commit('loadTags', result);
-                })
-        }
+        ctx.dispatch('metadata/loadMetadata', { objectId: plateId, objectClass: 'PLATE' }, {root:true});
 
         if (plate && !plate.measurements) {
             plateAPI.getPlateMeasurementsByPlateId(plateId)

@@ -37,9 +37,7 @@
               <div class="row">
                 <div class="col-3 text-weight-bold">Tags:</div>
                 <div class="col">
-                  <div class="tag-icon flex inline" v-for="tag in project.tags" :key="tag">
-                    <Tag :tagInfo="tag" :objectInfo="project" :objectClass="'PROJECT'"/>
-                  </div>
+                  <TagList :objectInfo="project" :objectClass="'PROJECT'" />
                 </div>
               </div>
             </div>
@@ -53,9 +51,6 @@
                 <q-btn size="sm" icon="edit" label="Rename" class="oa-button" @click="newProjectName = project.name; showRenameDialog = true"/>
               </div>
               <div class="row justify-end action-button">
-                <q-btn size="sm" icon="sell" label="Add Tag" class="oa-button" @click="showAddTagDialog = true"/>
-              </div>
-              <div class="row justify-end action-button">
                 <q-btn size="sm" icon="delete" label="Delete" class="oa-button" @click="showDeleteDialog = true"/>
               </div>
             </div>
@@ -66,29 +61,6 @@
     <div class="q-pa-md">
       <ExperimentList :projectId="projectId"></ExperimentList>
     </div>
-
-    <q-dialog v-model="showAddTagDialog">
-      <q-card style="min-width: 30vw">
-        <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
-          Add Tag
-        </q-card-section>
-        <q-card-section>
-          <div class="row">
-              <div class="col-2 row items-center">
-                <q-avatar icon="sell" color="primary" text-color="white" />
-              </div>
-              <div class="col-10">
-                <span>New Tag Name:</span><br/>
-                <q-input dense v-model="newProjectTag" autofocus @keyup.enter="showAddTagDialog = false" />
-              </div>
-          </div>
-        </q-card-section>
-        <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="Cancel" v-close-popup />
-          <q-btn label="Add tag" v-close-popup color="primary" @click="doAddTag" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
 
     <q-dialog v-model="showRenameDialog">
       <q-card style="min-width: 30vw">
@@ -143,7 +115,7 @@
   import {useRoute, useRouter} from 'vue-router'
 
   import ExperimentList from "@/pages/experiment/ExperimentList.vue"
-  import Tag from "@/components/tag/Tag"
+  import TagList from "@/components/tag/TagList"
   import PropertyTable from "@/components/property/PropertyTable";
   import EditableField from "@/components/widgets/EditableField";
 
@@ -152,7 +124,7 @@
   export default {
     components: {
       ExperimentList,
-      Tag,
+      TagList,
       PropertyTable,
       EditableField
     },
@@ -165,17 +137,6 @@
       const projectId = parseInt(route.params.id);
       const project = computed(() => store.getters['projects/getCurrentProject']());
       store.dispatch('projects/loadById', projectId);
-
-      const showAddTagDialog = ref(false);
-      const newProjectTag = ref('');
-      const doAddTag = function() {
-        const tagInfo = {
-          objectId: project.value.id,
-          objectClass: "PROJECT",
-          tag: newProjectTag.value
-        }
-        store.dispatch('projects/tagProject', tagInfo);
-      }
 
       const showRenameDialog = ref(false)
       const newProjectName = ref(project.value ? project.value.name : '')
@@ -200,10 +161,6 @@
       return {
         projectId,
         project,
-
-        showAddTagDialog,
-        newProjectTag,
-        doAddTag,
 
         showRenameDialog,
         newProjectName,
