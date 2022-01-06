@@ -33,9 +33,7 @@
             <div class="row">
               <div class="col-3 text-weight-bold">Tags:</div>
               <div class="col">
-                <div class="tag-icon flex inline" v-for="tag in plate.tags" :key="tag.tag">
-                  <Tag :tagInfo="tag" :objectInfo="plate" :objectClass="'PLATE'"></Tag>
-                </div>
+                <TagList :objectInfo="plate" :objectClass="'PLATE'" />
               </div>
             </div>
           </div>
@@ -50,9 +48,6 @@
             </div>
             <div class="row justify-end action-button">
               <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete" @click="deletedialog = true"/>
-            </div>
-            <div class="row justify-end action-button">
-              <q-btn size="sm" color="primary" icon="sell" class="oa-button-tag" label="Add Tag" @click="prompt = true"/>
             </div>
           </div>
         </div>
@@ -94,23 +89,6 @@
         </q-tab-panels>
       </div>
     </div>
-
-    <q-dialog v-model="prompt" persistent>
-      <q-card>
-        <q-card-section style="min-width: 350px">
-          <div class="text-h6">Tag:</div>
-        </q-card-section>
-
-        <q-card-section>
-          <q-input dense v-model="plateTag" autofocus @keyup.enter="prompt = false"/>
-        </q-card-section>
-
-        <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="Cancel" v-close-popup/>
-          <q-btn flat label="Add tag" v-close-popup @click="onClick"/>
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
 
     <q-dialog v-model="deletedialog" persistent>
       <q-card style="min-width: 30vw">
@@ -173,7 +151,7 @@ import {computed, ref} from 'vue'
 import {useStore} from 'vuex'
 import {useRoute} from 'vue-router'
 
-import Tag from "@/components/tag/Tag";
+import TagList from "@/components/tag/TagList"
 import EditPlate from "./EditPlate";
 import PropertyTable from "@/components/property/PropertyTable";
 import WellGrid from "@/pages/plate/WellGrid";
@@ -187,21 +165,12 @@ export default {
     WellList,
     MeasList,
     WellGrid,
-    Tag,
+    TagList,
     EditPlate,
     PropertyTable,
     ResultSetList
   },
   methods: {
-    onClick() {
-      const tagInfo = {
-        objectId: this.plate.id,
-        objectClass: "PLATE",
-        tag: this.plateTag
-      }
-
-      this.$store.dispatch('plates/tagPlate', tagInfo)
-    },
     addMeasurement() {
       const plateMeasurement = {
         plateId: this.plate,
@@ -244,8 +213,6 @@ export default {
   },
   data() {
     return {
-      plateTag: ref(""),
-      prompt: ref(false),
       plateName: ref(""),
       deletedialog: ref(false),
       editdialog: false,

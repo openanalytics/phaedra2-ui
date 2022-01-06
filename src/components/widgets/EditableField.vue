@@ -1,5 +1,5 @@
 <template>
-    <div @mouseover="toggleEditBtn(true)" @mouseleave="toggleEditBtn(false)">
+    <div style="min-height: 20px;" @mouseover="toggleEditBtn(true)" @mouseleave="toggleEditBtn(false)">
         <span>
             {{object[fieldName]}}
         </span>
@@ -18,7 +18,7 @@
             </q-card-section>
 
             <q-card-actions align="right" class="text-primary">
-                <q-btn label="Cancel" v-close-popup flat/>
+                <q-btn label="Cancel" v-close-popup @click="cancelChanges" flat/>
                 <q-btn label="Save" v-close-popup class="oa-button" @click="saveChanges" />
             </q-card-actions>
         </q-card>
@@ -48,9 +48,14 @@
                 set: (newValue) => { newFieldValue.value = newValue }
             });
             
-            exported.saveChanges = () => {
-                emit('valueChanged', newFieldValue.value);
+            exported.cancelChanges = () => {
                 newFieldValue.value = null;
+            };
+            exported.saveChanges = () => {
+                if (newFieldValue.value) {
+                    emit('valueChanged', newFieldValue.value);
+                    newFieldValue.value = null;
+                }
             };
 
             return exported;
