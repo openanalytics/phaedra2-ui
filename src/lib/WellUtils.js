@@ -1,7 +1,9 @@
 function getWellTypeColor(wellType) {
     switch (wellType) {
       case "SAMPLE": return "#5050C8";
+      case "LC":
       case "NC": return "#C80000";
+      case "HC":
       case "PC": return "#00C800";
       case "LC": return "#C80000";
       case "HC": return "#00C800";

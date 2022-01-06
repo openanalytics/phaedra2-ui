@@ -76,6 +76,10 @@ export default {
             });
         return result;
     },
+    async loadExperimentSummariesByProjectId(id) {
+        const response = await axios.get(apiURL + '/project/' + id + '/experimentsummaries');
+        return response.data;
+    },
     async loadById(id) {
         let result = null;
         await axios.get(apiURL + '/experiment/' + id)

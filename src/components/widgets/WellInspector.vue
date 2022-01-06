@@ -16,7 +16,7 @@
     </div>
     <div v-else class="q-pa-none oa-section-body text-black">
       <div style="overflow: auto;" :style="minimal ? '':'max-height: 200px'">
-        <div v-for="well in wells" :key="well.id">
+        <div v-for="well in wells" :key="well.id" class="text-black">
           <div class="q-pa-sm">
             <div class="row">
               <div class="col-6 text-weight-bold">Well:</div>
@@ -88,7 +88,6 @@ export default {
   setup(props) {
     return {
       WellUtils,
-      cardClass: props.minimal ? "text-black" : "",
       statusIconSize: props.minimal ? "xs" : "sm",
       GRID_TYPE_LAYOUT,
       GRID_TYPE_TEMPLATE

@@ -36,10 +36,15 @@ const getters = {
 
 const actions = {
     async loadByProjectId(ctx, id) {
-        await experimentAPI.loadByProjectId(id)
-            .then(response => {
-                ctx.commit('cacheExperiments', response)
-            })
+        const experiments = await experimentAPI.loadByProjectId(id);
+        const summaries = await experimentAPI.loadExperimentSummariesByProjectId(id);
+
+        // Load and attach experiment summaries
+        for (const exp of experiments) {
+            exp.summary = summaries.find(s => s.experimentId == exp.id) || {};
+        }
+
+        ctx.commit('cacheExperiments', experiments);
     },
     async loadById(ctx, experimentId) {
         // Load experiment by id
@@ -76,7 +81,7 @@ const actions = {
     },
     async createNewExperiment(ctx, newExperiment) {
         const createdExperiment = await experimentAPI.createExperiment(newExperiment);
-        ctx.commit('cacheExperiment', createdExperiment)
+        ctx.commit('cacheExperiments', [createdExperiment])
         return createdExperiment
     },
     async tagExperiment(ctx, tag) {
@@ -91,10 +96,20 @@ const actions = {
                 isDeleted ? ctx.commit('removeTag', tag) : console.log("TODO: Show error message");
             })
     },
-    async loadRecentExperiments(ctx) {
+    async loadRecentExperiments(ctx,n) {
         await experimentAPI.loadRecentExperiments()
             .then(response => {
-                ctx.commit('cacheRecentExperiments', response)
+                const list = response.sort((p1, p2) => {
+                    let p1Time = new Date((p1.updatedOn)?p1.updatedOn:p1.createdOn).getTime()
+                    let p2Time = new Date((p2.updatedOn)?p2.updatedOn:p2.createdOn).getTime()
+                    //Fix sort not stopped when reached 0
+                    if(!isFinite(p1Time)&&!isFinite(p2Time)) return 0
+                    if(!isFinite(p1Time)) return 1
+                    if(!isFinite(p2Time)) return -1
+                    return  p2Time - p1Time;
+                }).slice(0,n)
+                list.forEach(experiment => {console.log(experiment.id);ctx.dispatch('plates/loadByExperimentId', experiment.id, { root: true })})
+                ctx.commit('cacheRecentExperiments', list)
             })
     },
     async deleteExperiment(ctx, id) {
@@ -135,7 +150,16 @@ const mutations = {
         });
     },
     cacheRecentExperiments(state, recentExperiments) {
-        state.recentExperiments = recentExperiments
+        state.recentExperiments = recentExperiments.sort((p1, p2) => {
+            let p1Time = new Date((p1.updatedOn)?p1.updatedOn:p1.createdOn).getTime()
+            let p2Time = new Date((p2.updatedOn)?p2.updatedOn:p2.createdOn).getTime()
+            //Fix sort not stopped when reached 0
+            if(!isFinite(p1Time)&&!isFinite(p2Time)) return 0
+            if(!isFinite(p1Time)) return 1
+            if(!isFinite(p2Time)) return -1
+            return  p2Time - p1Time;
+        })
+        console.log(state.recentExperiments)
     },
     deleteExperiment(state, id) {
         state.experiments = state.experiments.filter(exp => exp.id !== id)

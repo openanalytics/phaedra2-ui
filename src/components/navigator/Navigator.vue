@@ -177,6 +177,18 @@
             children: protocols
           },
           {
+            label: "Calculation",
+            header: "category",
+            icon: 'calculate',
+            children: [
+              {
+                label: "Formulas",
+                icon: 'functions',
+                route: 'calcFormulas',
+              }
+            ]
+          },
+          {
             label: "Plate Layouts",
             header: "category",
             icon: "border_all",
