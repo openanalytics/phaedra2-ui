@@ -1,44 +1,33 @@
 <template>
   <q-badge color="green">
-    {{ tagInfo.tag }} <q-btn size="xs" flat dense icon-right="close" @click="removeTag(tagInfo.tag)"/>
+    {{ tagInfo.tag }} <q-btn size="xs" flat dense icon-right="close" v-show="!readOnly" @click="removeTag"/>
   </q-badge>
 </template>
 
 <script>
+import {useStore} from 'vuex'
+
 export default {
   name: "Tag",
   props: {
     tagInfo: Object,
     objectInfo: Object,
-    objectClass: String
+    objectClass: String,
+    readOnly: Boolean
   },
-  methods: {
-    removeTag() {
-      let taggedObject = {
-        tag: this.tagInfo.tag,
-        objectId: this.objectInfo.id,
-        objectClass: this.objectClass,
-      }
+  setup(props) {
+    const exported = {};
+    const store = useStore();
 
-      if (this.objectClass === 'PROJECT')
-        this.$store.dispatch('projects/removeTag', taggedObject);
-      else if (this.objectClass === 'EXPERIMENT')
-        this.$store.dispatch('experiments/removeTag', taggedObject);
-      else if (this.objectClass === 'PLATE')
-        this.$store.dispatch('plates/removeTag', taggedObject);
-      else if (this.objectClass === 'WELL')
-        this.$store.dispatch('plates/removeTag', taggedObject);
-      else if (this.objectClass === 'PROTOCOL')
-        this.$store.dispatch('protocols/removeTag', taggedObject);
-      else if (this.objectClass === 'FEATURE')
-        this.$store.dispatch('features/removeTag', taggedObject);
-    },
-    setup() {
+    exported.removeTag = function() {
+      store.dispatch('metadata/removeTag', {
+        tag: props.tagInfo.tag,
+        objectId: props.objectInfo.id,
+        objectClass: props.objectClass,
+      });
     }
+    
+    return exported;
   }
 }
 </script>
-
-<style>
-
-</style>

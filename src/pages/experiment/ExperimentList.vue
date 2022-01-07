@@ -17,7 +17,7 @@
         <q-btn size="sm" color="primary" icon="add" label="New Experiment" @click="showNewExperimentDialog = true"/>
       </div>
       <div class="row">
-        <q-input outlined rounded dense debounce="300" v-model="filter" placeholder="Search">
+        <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
           <template v-slot:append>
             <q-icon name="search"/>
           </template>
@@ -38,11 +38,7 @@
     </template>
     <template v-slot:body-cell-tags="props">
       <q-td :props="props">
-        <div class="tag-icon flex inline" v-for="tag in props.row.tags" :key="tag.tag">
-          <q-badge color="green">
-            {{ tag.tag }}
-          </q-badge>
-        </div>
+        <TagList :objectInfo="props.row" :objectClass="'EXPERIMENT'" :readOnly="true" />
       </q-td>
     </template>
     <template v-slot:body-cell-nrPlatesCalculated="props">
@@ -124,7 +120,8 @@
   import {useStore} from 'vuex'
 
   import ExperimentContextMenu from "@/components/widgets/ExperimentContextMenu.vue"
-  import TableConfig from "../../components/table/TableConfig";
+  import TableConfig from "@/components/table/TableConfig";
+  import TagList from "@/components/tag/TagList";
 
   import FormatUtils from "@/lib/FormatUtils.js"
 
@@ -157,7 +154,8 @@
     },
     components: {
       ExperimentContextMenu,
-      TableConfig
+      TableConfig,
+      TagList
     },
     setup(props) {
       const store = useStore()
