@@ -122,6 +122,9 @@
                 <q-item clickable @click="calculatePlate(props.row.id)">
                   <q-item-section>Calculate plate</q-item-section>
                 </q-item>
+                <q-item clickable @click="selectedPlateId=props.row.id;linkDialog = true">
+                  <q-item-section>Link Plate Template</q-item-section>
+                </q-item>
               </q-list>
             </q-menu>
           </q-btn>
@@ -139,6 +142,7 @@
   <invalidate-dialog v-model:show="invalidateDialog" v-model:plateId="selectedPlateId" v-model:experimentId="experimentId"></invalidate-dialog>
   <disapprove-dialog v-model:show="disapproveDialog" v-model:plateId="selectedPlateId" v-model:experimentId="experimentId"></disapprove-dialog>
   <approve-dialog v-model:show="approveDialog" v-model:plateId="selectedPlateId" v-model:experimentId="experimentId"></approve-dialog>
+  <LinkPlate v-model:show="linkDialog" v-model:plateId="selectedPlateId"></LinkPlate>
 </template>
 
 <style scoped>
@@ -161,6 +165,7 @@ import PlateCalculateDialog from "./PlateCalculateDialog";
 import InvalidateDialog from "@/components/plate/InvalidateDialog";
 import DisapproveDialog from "@/components/plate/DisapproveDialog";
 import ApproveDialog from "@/components/plate/ApproveDialog";
+import LinkPlate from "./LinkPlate";
 import {useRoute} from "vue-router";
 
 let columns = ref([
@@ -186,7 +191,7 @@ const filterMethod = function (rows, term) {
 }
 
 export default {
-  components: {TableConfig, TagList, PlateCalculateDialog, InvalidateDialog, DisapproveDialog, ApproveDialog},
+  components: {TableConfig, TagList, PlateCalculateDialog, InvalidateDialog, DisapproveDialog, ApproveDialog, LinkPlate},
 
   props: ['experiment','newPlateTab'],
   emits: ['update:newPlateTab'],
@@ -251,7 +256,8 @@ export default {
       calculateDialog: ref(false),
       invalidateDialog: ref(false),
       disapproveDialog: ref(false),
-      approveDialog: ref(false)
+      approveDialog: ref(false),
+      linkDialog: ref(false)
     }
   }
 }
