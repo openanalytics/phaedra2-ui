@@ -54,17 +54,7 @@ import {computed, reactive, ref, watch} from "vue";
 
 export default {
   name: 'EditFeature',
-  methods: {
-    editFeature() {
-      this.feature.formulaId = Number.isInteger(this.feature.formulaId) ? this.feature.formulaId : this.feature.formulaId.id
-      //Did formula change? choose civs list accordingly
-      const formulaChange = this.feature.formulaId!==this.originalFormulaId
-      const civs = formulaChange?this.variables:this.previous
-      this.$store.dispatch('features/editFeature', {feature:this.feature, formulaChange: formulaChange, civs: civs.list, prev: this.previous.list})
-      this.$emit('update:show', false)
-    },
-  },
-  setup(props) {
+  setup(props, context) {
     const exported = {}
 
     const store = useStore()
@@ -102,6 +92,16 @@ export default {
     watch(formulaInputs, (f) => {
       exported.variables.list = f.map(i => {return {variableName: i,sourceMeasColName: ''}}).sort((a, b) => a.variableName.localeCompare(b.variableName))
     })
+
+    exported.editFeature = () => {
+      console.log(exported.feature)
+      exported.feature.value.formulaId = Number.isInteger(exported.feature.value.formulaId) ? exported.feature.value.formulaId : exported.feature.value.formulaId.id
+      //Did formula change? choose civs list accordingly
+      const formulaChange = exported.feature.value.formulaId!==exported.originalFormulaId.value
+      const civs = formulaChange?exported.variables:exported.previous
+      store.dispatch('features/editFeature', {feature:exported.feature.value, formulaChange: formulaChange, civs: civs.list, prev: exported.previous.list})
+      context.emit('update:show', false)
+    }
 
     //TODO fix hardcode
     exported.featureTypes =  ['CALCULATION', 'NORMALIZATION', 'RAW']

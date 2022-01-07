@@ -86,6 +86,8 @@ const actions = {
                     args.prev.forEach(c => {
                         ctx.dispatch('deleteCalculationInputValue',{featureId: args.feature.id, id: c.id})
                     })
+                    //Remove all civs for this feature from cache
+                    ctx.commit('uncacheFullCalculationInputValue', {featureId: args.feature.id})
                     args.civs.forEach(c => {
                         ctx.dispatch('createCalculationInputValue',{featureId: args.feature.id, civ: c})
                     })
@@ -119,9 +121,6 @@ const actions = {
     },
     async deleteCalculationInputValue(ctx, args){
         await featuresAPI.deleteCalculationInputValue(args.id)
-            .then(() => {
-                ctx.commit('uncacheCalculationInputValue',args)
-            })
     }
 }
 
@@ -167,7 +166,8 @@ const mutations = {
         }
     },
     cacheCalculationInputValues(state, civ) {
-        state.calculationInputValuesInFeature[civ[0].featureId] = civ;
+        if (civ)
+            state.calculationInputValuesInFeature[civ[0].featureId] = civ;
     },
     cacheCalculationInputValue(state,civ) {
         if(!state.calculationInputValuesInFeature[civ.featureId])
