@@ -54,11 +54,14 @@ const actions = {
             return features
         }
     },
-    async createFeature(ctx, newFeature) {
-        await featuresAPI.createFeature(newFeature)
+    async createFeature(ctx, args) {
+        await featuresAPI.createFeature(args.newFeature)
             .then((result) => {
                 ctx.commit('cacheOne', result);
                 ctx.commit('features/cacheInProtocol', result, {root: true})
+                args.civ.forEach(c => {
+                    ctx.dispatch('createCalculationInputValue',{featureId: result.id, civ: {variableName: c.name, sourceMeasColName: c.input}})
+                })
             })
     },
     async deleteFeature(ctx, feature) {
@@ -74,16 +77,50 @@ const actions = {
             })
         ctx.commit('deleteFeature', feature)
     },
-    async editFeature(ctx, feature) {
-        await featuresAPI.editFeature(feature)
+    async editFeature(ctx, args) {
+        await featuresAPI.editFeature(args.feature)
             .then(() => {
-                ctx.commit('editFeature', feature)
+                ctx.commit('editFeature', args.feature)
+                if (args.formulaChange){
+                    //Delete previous civs
+                    args.prev.forEach(c => {
+                        ctx.dispatch('deleteCalculationInputValue',{featureId: args.feature.id, id: c.id})
+                    })
+                    args.civs.forEach(c => {
+                        ctx.dispatch('createCalculationInputValue',{featureId: args.feature.id, civ: c})
+                    })
+                }
+                else {
+                    console.log(args)
+                    args.civs.forEach(c => {
+                        ctx.dispatch('updateCalculationInputValue',{featureId: args.feature.id, civ: c})
+                    })
+                }
             })
     },
     async getCalculationInputValue(ctx, featureId) {
         await featuresAPI.getCalculationInputValue(featureId)
             .then(response => {
+                ctx.commit('cacheCalculationInputValues', response)
+            })
+    },
+    async createCalculationInputValue(ctx, args) {
+        await featuresAPI.createCalculationInputValue(args.featureId, args.civ)
+            .then(response => {
                 ctx.commit('cacheCalculationInputValue', response)
+            })
+    },
+    async updateCalculationInputValue(ctx, args){
+        console.log(args.civ)
+        await featuresAPI.updateCalculationInputValue(args.featureId, args.civ)
+            .then((response) => {
+                ctx.commit('updateCalculationInputValue',response)
+            })
+    },
+    async deleteCalculationInputValue(ctx, args){
+        await featuresAPI.deleteCalculationInputValue(args.id)
+            .then(() => {
+                ctx.commit('uncacheCalculationInputValue',args)
             })
     }
 }
@@ -131,8 +168,27 @@ const mutations = {
             console.log(state.featuresInProtocol[feature.protocolId][j])
         }
     },
-    cacheCalculationInputValue(state, civ) {
-        state.featuresInProtocol[civ.featureId] = civ;
+    cacheCalculationInputValues(state, civ) {
+        state.calculationInputValuesInFeature[civ[0].featureId] = civ;
+    },
+    cacheCalculationInputValue(state,civ) {
+        if(!state.calculationInputValuesInFeature[civ.featureId])
+            state.calculationInputValuesInFeature[civ.featureId] = [civ]
+        else
+            state.calculationInputValuesInFeature[civ.featureId].push(civ)
+    },
+    updateCalculationInputValue(state,civ) {
+        let i = state.calculationInputValuesInFeature[civ.featureId].findIndex(t => t.id === civ.id);
+        console.log(i)
+        if (i>0) {
+            for (const property in civ) {
+                state.calculationInputValuesInFeature[civ.featureId][i][property] = civ[property]
+            }
+        }
+    },
+    uncacheCalculationInputValue(state,args) {
+        console.log(state.calculationInputValuesInFeature)
+        state.calculationInputValuesInFeature = state.calculationInputValuesInFeature[args.featureId].filter(t => t !== args.id)
     }
 }
 

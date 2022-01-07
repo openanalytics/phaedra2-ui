@@ -25,7 +25,15 @@
             <div v-if="variables.list.length>0">
               <br>
               <span class="text-primary">Formula variables:</span>
-              <q-input :key="variable.name" v-model="variable.input" v-for="variable in variables.list" :label="variable.name"></q-input>
+              <!--Previous formula variables-->
+              <div v-if="formulaId===props.feature.formulaId || formulaId.id === props.feature.formulaId">
+                <q-input :key="p.variableName" v-model="p.sourceMeasColName" v-for="p in previous.list" :label="p.variableName"></q-input>
+              </div>
+              <!--New formula variables-->
+              <div v-if="formulaId!==props.feature.formulaId && formulaId.id!==props.feature.formulaId">
+                <br>
+                <q-input :key="variable.variableName" v-model="variable.sourceMeasColName" v-for="variable in variables.list" :label="variable.variableName"></q-input>
+              </div>
             </div>
           </div>
         </div>
@@ -35,6 +43,9 @@
           <q-btn align="right" label="Edit feature" v-close-popup color="primary" @click="editFeature"/>
         </div>
       </q-card-section>
+      {{variables}}<br>
+      {{previous}}<br>
+      {{[formulaId,props.feature.formulaId]}}
     </div>
   </div>
 </template>
@@ -62,7 +73,10 @@ export default {
       if (this.sequence) editedFeature.alias = this.sequence
       if (this.trigger) editedFeature.trigger = this.trigger
 
-      this.$store.dispatch('features/editFeature', editedFeature)
+      //Did formula change? choose civs list accordingly
+      const formulaChange = this.formulaId!==this.props.feature.formulaId
+      const civs = formulaChange?this.variables:this.previous
+      this.$store.dispatch('features/editFeature', {feature:editedFeature, formulaChange: formulaChange, civs: civs.list, prev: this.previous.list})
       this.$emit('update:show', false)
     },
   },
@@ -80,16 +94,31 @@ export default {
     let trigger = ref(props.feature.alias)
     let formulaId = ref(props.feature.formulaId)
 
+    //Get calculationInputValues
+    const civs = computed(() => {
+      console.log('civs')
+      if(!store.getters['features/getCalculationInputValueByFeatureId'](props.feature.id))
+        store.dispatch('features/getCalculationInputValue',props.feature.id)
+      return store.getters['features/getCalculationInputValueByFeatureId'](props.feature.id)
+    })
+    //Get formulaInputs
     const formulaInputs = computed(() => {
       const id = Number.isInteger(formulaId.value) ? formulaId.value:formulaId.value.id
       if(!store.getters['calculations/getFormulaInputs'](id))
         store.dispatch('calculations/getFormulaInputs',id)
       return store.getters['calculations/getFormulaInputs'](id) || []
     })
+
+    //Reactive list that changes when formulaInputs changes
     let variables = reactive({list: []})
-    watch(formulaInputs, (i) =>{
-      variables.list = i.map(i => {return {name: i,input: ''}})
-    })
+    //Reactive list that changes when civs changes
+    let previous = reactive({list: []})
+    //Watch for changes and update lists accordingly
+    watch([civs,formulaInputs], ([c,f]) => {
+      console.log(c)
+      if(c)previous.list = c.map(i => {return {variableName: i.variableName, sourceMeasColName: i.sourceMeasColName, id: i.id, featureId: i.featureId}})
+      if(f)variables.list = f.map(i => {return {variableName: i,sourceMeasColName: ''}})
+    },  { deep: true })
 
     return {
       props,
@@ -103,7 +132,8 @@ export default {
       protocolId,
       formulaId,
       trigger,
-      variables
+      variables,
+      previous
     }
   },
   data() {
