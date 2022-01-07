@@ -22,16 +22,16 @@
             <q-select v-model="feature.formulaId" square label="Formula"
                       :options="formulas.filter(formula => formula.category === feature.type)" option-label="name"
                       option-value="id" map-options></q-select>
-            <div v-if="variables.list.length>0">
+            <div>
               <br>
-              <span class="text-primary">Formula variables:</span>
               <!--Previous formula variables-->
               <div v-if="feature.formulaId===originalFormulaId || feature.formulaId.id === originalFormulaId">
+                <span v-if="previous.list.length>0" class="text-primary">Formula variables:</span>
                 <q-input :key="p.variableName" v-model="p.sourceMeasColName" v-for="p in previous.list" :label="p.variableName"></q-input>
               </div>
               <!--New formula variables-->
               <div v-if="feature.formulaId!==originalFormulaId && feature.formulaId.id!==originalFormulaId">
-                <br>
+                <span v-if="variables.list.length>0" class="text-primary">Formula variables:</span>
                 <q-input :key="variable.variableName" v-model="variable.sourceMeasColName" v-for="variable in variables.list" :label="variable.variableName"></q-input>
               </div>
             </div>
@@ -43,8 +43,6 @@
           <q-btn align="right" label="Edit feature" v-close-popup color="primary" @click="editFeature"/>
         </div>
       </q-card-section>
-      {{variables}}<br>
-      {{previous}}
     </div>
   </div>
 </template>
@@ -59,12 +57,10 @@ export default {
   methods: {
     editFeature() {
       this.feature.formulaId = Number.isInteger(this.feature.formulaId) ? this.feature.formulaId : this.feature.formulaId.id
-      console.log(this.feature)
       //Did formula change? choose civs list accordingly
-      const formulaChange = this.feature.formulaId!==this.originalFeature
+      const formulaChange = this.feature.formulaId!==this.originalFormulaId
       const civs = formulaChange?this.variables:this.previous
       this.$store.dispatch('features/editFeature', {feature:this.feature, formulaChange: formulaChange, civs: civs.list, prev: this.previous.list})
-      //this.$store.dispatch('features/editFeature', this.exported.feature)
       this.$emit('update:show', false)
     },
   },
@@ -75,21 +71,24 @@ export default {
     exported.formulas = computed(() => store.getters['calculations/getFormulas']())
 
     exported.feature = ref({})
+    //Reactive list that changes when formulaInputs changes
+    exported.variables = reactive({list: []})
+    exported.previous = reactive({list: []})
+
     const fetchFeatureWorkingCopy = () => {
       let originalFeature = props.originalFeature || {}
       exported.feature.value = {...originalFeature}
       exported.originalFormulaId = ref(originalFeature.formulaId)
+      //Fetch previous formula variable names
+      store.dispatch('features/getCalculationInputValue',exported.feature.value.id).then(() => {
+        const civs = store.getters['features/getCalculationInputValueByFeatureId'](exported.feature.value.id)
+        if (civs)
+          //Make full copy of getter + sort alphabetically instead of by date modified
+          exported.previous.list = JSON.parse(JSON.stringify(civs)).sort((a, b) => a.variableName.localeCompare(b.variableName))
+      })
     }
     fetchFeatureWorkingCopy()
 
-    //Fetch and assign formula variables
-    //Get calculationInputValues
-    const civs = computed(() => {
-      if(!exported.feature.value.id) return []
-      if(!store.getters['features/getCalculationInputValueByFeatureId'](exported.feature.value.id))
-        store.dispatch('features/getCalculationInputValue',exported.feature.value.id)
-      return store.getters['features/getCalculationInputValueByFeatureId'](exported.feature.value.id)
-    })
     //Get formulaInputs
     const formulaInputs = computed(() => {
       if (!exported.feature.value.formulaId) return []
@@ -99,16 +98,10 @@ export default {
       return store.getters['calculations/getFormulaInputs'](id) || []
     })
 
-    //Reactive list that changes when formulaInputs changes
-    exported.variables = reactive({list: []})
-    //Reactive list that changes when civs changes
-    exported.previous = reactive({list: []})
     //Watch for changes and update lists accordingly
-    watch([civs,formulaInputs], ([c,f]) => {
-      console.log(c)
-      if(c)exported.previous.list = c.map(i => {return {variableName: i.variableName, sourceMeasColName: i.sourceMeasColName, id: i.id, featureId: i.featureId}})
-      if(f)exported.variables.list = f.map(i => {return {variableName: i,sourceMeasColName: ''}})
-    },  { deep: true })
+    watch(formulaInputs, (f) => {
+      exported.variables.list = f.map(i => {return {variableName: i,sourceMeasColName: ''}}).sort((a, b) => a.variableName.localeCompare(b.variableName))
+    })
 
     //TODO fix hardcode
     exported.featureTypes =  ['CALCULATION', 'NORMALIZATION', 'RAW']

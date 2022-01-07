@@ -91,7 +91,8 @@ const actions = {
                     })
                 }
                 else {
-                    console.log(args)
+                    //Remove all civs for this feature from cache
+                    ctx.commit('uncacheFullCalculationInputValue', {featureId: args.feature.id})
                     args.civs.forEach(c => {
                         ctx.dispatch('updateCalculationInputValue',{featureId: args.feature.id, civ: c})
                     })
@@ -111,10 +112,9 @@ const actions = {
             })
     },
     async updateCalculationInputValue(ctx, args){
-        console.log(args.civ)
         await featuresAPI.updateCalculationInputValue(args.featureId, args.civ)
             .then((response) => {
-                ctx.commit('updateCalculationInputValue',response)
+                ctx.commit('cacheCalculationInputValue',response)
             })
     },
     async deleteCalculationInputValue(ctx, args){
@@ -160,12 +160,10 @@ const mutations = {
         }
         //Replace properties in state.featureInProtocol
         let j = state.featuresInProtocol[feature.protocolId].findIndex(t => t.id === feature.id);
-        console.log(j)
         if (j > -1) {
             for (const property in feature) {
                 state.featuresInProtocol[feature.protocolId][j][property] = feature[property]
             }
-            console.log(state.featuresInProtocol[feature.protocolId][j])
         }
     },
     cacheCalculationInputValues(state, civ) {
@@ -179,7 +177,6 @@ const mutations = {
     },
     updateCalculationInputValue(state,civ) {
         let i = state.calculationInputValuesInFeature[civ.featureId].findIndex(t => t.id === civ.id);
-        console.log(i)
         if (i>0) {
             for (const property in civ) {
                 state.calculationInputValuesInFeature[civ.featureId][i][property] = civ[property]
@@ -187,9 +184,11 @@ const mutations = {
         }
     },
     uncacheCalculationInputValue(state,args) {
-        console.log(state.calculationInputValuesInFeature)
         state.calculationInputValuesInFeature = state.calculationInputValuesInFeature[args.featureId].filter(t => t !== args.id)
-    }
+    },
+    uncacheFullCalculationInputValue(state,args) {
+        state.calculationInputValuesInFeature = state.calculationInputValuesInFeature[args.featureId] = []
+    },
 }
 
 export default {
