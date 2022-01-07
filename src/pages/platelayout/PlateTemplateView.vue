@@ -92,13 +92,13 @@
       <div class="row oa-section-body">
         <q-tab-panels v-model="activeTab" animated style="width: 100%">
           <q-tab-panel name="overview" icon="view_module" label="Overview">
-            <well-grid :plate="plateTemplate" :gridType="layout" :tab="'overview'"></well-grid>
+            <PlateTemplateLayout :plate="plateTemplate" :tab="'overview'"></PlateTemplateLayout>
           </q-tab-panel>
           <q-tab-panel name="well-type" icon="view_module" label="Well Type">
-            <well-grid :plate="plateTemplate" :gridType="layout" :tab="'well-type'"></well-grid>
+            <PlateTemplateLayout :plate="plateTemplate" :tab="'well-type'"></PlateTemplateLayout>
           </q-tab-panel>
           <q-tab-panel name="substance" icon="view_module" label="Substance">
-            <well-grid :plate="plateTemplate" :gridType="layout" :tab="'substance'"></well-grid>
+            <PlateTemplateLayout :plate="plateTemplate" :tab="'substance'"></PlateTemplateLayout>
           </q-tab-panel>
         </q-tab-panels>
       </div>
@@ -167,7 +167,7 @@ import {computed, ref} from 'vue'
 import {useStore} from 'vuex'
 
 import Tag from "@/components/tag/Tag";
-import WellGrid from "../plate/WellGrid";
+import PlateTemplateLayout from "./PlateTemplateLayout";
 import {useRoute} from "vue-router";
 import EditPlateTemplate from "./EditPlateTemplate";
 const propertyColumns = [
@@ -179,7 +179,7 @@ export default {
   name: 'PlateTemplate',
   components: {
     EditPlateTemplate,
-    WellGrid,
+    PlateTemplateLayout,
     Tag
   },
   methods: {
@@ -205,7 +205,6 @@ export default {
       plateTemplate,
       propertyColumns,
       activeTab: ref('overview'),
-      layout: WellGrid.GRID_TYPE_TEMPLATE
     }
   },
   data() {

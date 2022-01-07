@@ -10,7 +10,14 @@ function getWellTypeColor(wellType) {
 }
 
 function getWellCoordinate(row, column) {
-    return String.fromCharCode(64 + row) + column;
+    let rowLabel = String.fromCharCode(64 + row);
+    if (row > 26) {
+        // After row Z, start with AA
+        let div = row / 26;
+        let mod = row % 26;
+        rowLabel = String.fromCharCode(64 + div) + String.fromCharCode(64 + mod);
+    }
+    return rowLabel + column;
 }
 
 function getWellNr(row, column, colCount) {
