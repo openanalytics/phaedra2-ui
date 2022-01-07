@@ -10,7 +10,18 @@ function getWellTypeColor(wellType) {
 }
 
 function getWellCoordinate(row, column) {
-    return String.fromCharCode(64 + row) + column;
+    return getWellRowLabel(row) + column;
+}
+
+function getWellRowLabel(row) {
+    let rowLabel = String.fromCharCode(64 + row);
+    if (row > 26) {
+        // After row Z, start with AA
+        let div = row / 26;
+        let mod = row % 26;
+        rowLabel = String.fromCharCode(64 + div) + String.fromCharCode(64 + mod);
+    }
+    return rowLabel;
 }
 
 function getWellNr(row, column, colCount) {
@@ -24,6 +35,7 @@ function getWell(plate, row, column) {
 export default {
     getWellTypeColor,
     getWellCoordinate,
+    getWellRowLabel,
     getWellNr,
     getWell
 }

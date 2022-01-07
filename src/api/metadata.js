@@ -4,102 +4,63 @@ const apiURL = process.env.VUE_APP_API_BASE_URL + '/metadata-service';
 
 export default {
     async addTag(taggedObject) {
-        const requestUrl = apiURL + '/tag';
-        let result = false;
-
-        await axios.post(requestUrl, taggedObject)
-            .then(response => {
-                if (response.status === 201)
-                    result = true;
-            })
-            .catch(function (error) {
-                console.log(error);
-                result = false;
-            });
-        return result;
+        try {
+            const response = await axios.post(apiURL + '/tag', taggedObject);
+            return (response.status === 201);
+        } catch (err) {
+            console.log(err);
+            return false;
+        }
     },
     async removeTag(taggedObject) {
-        console.log('Making a backend call ...');
-
-        const requestUrl = apiURL + '/tag';
-        let result = false;
-
-        await axios.delete(requestUrl, {data: taggedObject})
-            .then(response => {
-                if (response.status === 200)
-                    result = true;
-            })
-            .catch(function (error) {
-                console.log(error);
-                result = false;
-            });
-        return result;
+        try {
+            const response = await axios.delete(apiURL + '/tag', { data: taggedObject} );
+            return (response.status === 200);
+        } catch (err) {
+            console.log(err);
+            return false;
+        }
     },
     async getObjectTags(objectId, objectClass) {
-        const requestUrl = apiURL + '/tags';
-        let result = []
-
-        await axios.get(requestUrl,
-            {params: {objectId: objectId, objectClass: objectClass}})
-            .then(response => {
-                if (response.status === 200)
-                    result = response.data;
-            })
-            .catch(function (error) {
-                console.log(error);
-                result = [];
-            });
-        return result;
+        try {
+            const response = await axios.get(apiURL + '/tags', {params: {objectId: objectId, objectClass: objectClass}});
+            if (response.status === 200) return response.data;
+        } catch (err) {
+            console.log(err);
+        }
+        return [];
     },
     async addProperty(property) {
-        const requestUrl = apiURL + '/property';
-        let result = false;
-
-        await axios.post(requestUrl, property)
-            .then(response => {
-                if (response.status === 201)
-                    result = true;
-            })
-            .catch(function (error) {
-                console.log(error);
-                result = false;
-            });
-        return result;
+        try {
+            const response = await axios.post(apiURL + '/property', property);
+            return (response.status === 201);
+        } catch (err) {
+            console.log(err);
+            return false;
+        }
     },
     async removeProperty(property) {
-        const requestUrl = apiURL + '/property';
-        let result = false;
-        await axios.delete(requestUrl, {
-            params: {
-                propertyName: property.propertyName,
-                objectId: property.objectId,
-                objectClass: property.objectClass
-            }
-        })
-            .then(response => {
-                if (response.status === 200)
-                    result = true;
-            })
-            .catch(function (error) {
-                console.log(error);
-                result = false;
+        try {
+            const response = await axios.delete(apiURL + '/property', {
+                params: {
+                    propertyName: property.propertyName,
+                    objectId: property.objectId,
+                    objectClass: property.objectClass
+                }
             });
-        return result;
+            return (response.status === 200);
+        } catch (err) {
+            console.log(err);
+            return false;
+        }
     },
     async getObjectProperties(objectId, objectClass) {
-        const requestUrl = apiURL + '/properties';
-        let result = [];
-
-        await axios.get(requestUrl,
-            {params: {objectId: objectId, objectClass: objectClass}})
-            .then(response => {
-                if (response.status === 200)
-                    result = response.data;
-            })
-            .catch(function (error) {
-                console.log(error);
-                result = [];
-            });
-        return result;
+        try {
+            const response = await axios.get(apiURL + '/properties', {params: {objectId: objectId, objectClass: objectClass}});
+            if (response.status === 200) return response.data;
+        } catch (err) {
+            console.log(err);
+        }
+        return [];
     }
 }

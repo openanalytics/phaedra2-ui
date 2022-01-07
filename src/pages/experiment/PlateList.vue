@@ -71,11 +71,7 @@
     </template>
     <template v-slot:body-cell-tags="props">
       <q-td :props="props">
-        <div class="tag-icon flex inline" v-for="tag in props.row.tags" :key="tag.tag">
-          <q-badge color="green">
-            {{ tag.tag }}
-          </q-badge>
-        </div>
+        <TagList :objectInfo="props.row" :objectClass="'PLATE'" :readOnly="true" />
       </q-td>
     </template>
     <template v-slot:body-cell-menu="props">
@@ -126,6 +122,9 @@
                 <q-item clickable @click="calculatePlate(props.row.id)">
                   <q-item-section>Calculate plate</q-item-section>
                 </q-item>
+                <q-item clickable @click="selectedPlateId=props.row.id;linkDialog = true">
+                  <q-item-section>Link Plate Template</q-item-section>
+                </q-item>
               </q-list>
             </q-menu>
           </q-btn>
@@ -143,6 +142,7 @@
   <invalidate-dialog v-model:show="invalidateDialog" v-model:plateId="selectedPlateId" v-model:experimentId="experimentId"></invalidate-dialog>
   <disapprove-dialog v-model:show="disapproveDialog" v-model:plateId="selectedPlateId" v-model:experimentId="experimentId"></disapprove-dialog>
   <approve-dialog v-model:show="approveDialog" v-model:plateId="selectedPlateId" v-model:experimentId="experimentId"></approve-dialog>
+  <LinkPlate v-model:show="linkDialog" v-model:plateId="selectedPlateId"></LinkPlate>
 </template>
 
 <style scoped>
@@ -159,11 +159,13 @@
 <script>
 import {useStore} from 'vuex'
 import {computed, ref} from "vue";
-import TableConfig from "../../components/table/TableConfig";
+import TagList from "@/components/tag/TagList";
+import TableConfig from "@/components/table/TableConfig";
 import PlateCalculateDialog from "./PlateCalculateDialog";
-import InvalidateDialog from "../../components/plate/InvalidateDialog";
-import DisapproveDialog from "../../components/plate/DisapproveDialog";
-import ApproveDialog from "../../components/plate/ApproveDialog";
+import InvalidateDialog from "@/components/plate/InvalidateDialog";
+import DisapproveDialog from "@/components/plate/DisapproveDialog";
+import ApproveDialog from "@/components/plate/ApproveDialog";
+import LinkPlate from "./LinkPlate";
 import {useRoute} from "vue-router";
 
 let columns = ref([
@@ -189,7 +191,7 @@ const filterMethod = function (rows, term) {
 }
 
 export default {
-  components: {TableConfig, PlateCalculateDialog, InvalidateDialog, DisapproveDialog, ApproveDialog},
+  components: {TableConfig, TagList, PlateCalculateDialog, InvalidateDialog, DisapproveDialog, ApproveDialog, LinkPlate},
 
   props: ['experiment','newPlateTab'],
   emits: ['update:newPlateTab'],
@@ -254,7 +256,8 @@ export default {
       calculateDialog: ref(false),
       invalidateDialog: ref(false),
       disapproveDialog: ref(false),
-      approveDialog: ref(false)
+      approveDialog: ref(false),
+      linkDialog: ref(false)
     }
   }
 }

@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="row-cols-auto q-pb-sm full-width">
-      <q-table :rows="objectInfo.properties"
+      <q-table :rows="propertyRows"
                :columns="propertyColumns"
                class="oa-properties-table"
                style="max-height: 250px"
@@ -43,7 +43,7 @@
     <q-card style="min-width: 30vw">
       <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
         <q-icon name="add" class="q-pr-sm"/>
-        Add new property
+        Add Property
       </q-card-section>
       <q-card-section>
         <div class="row">
@@ -62,7 +62,7 @@
 </template>
 
 <script>
-import {ref} from "vue";
+import {ref, computed} from "vue";
 import {useStore} from 'vuex'
 
 export default {
@@ -81,36 +81,28 @@ export default {
       {name: 'actions'}
     ]
 
+    exported.propertyRows = computed(() => store.getters['metadata/getProperties']({ objectId: props.objectInfo.id, objectClass: props.objectClass }));
+    // if (props.objectInfo.id) store.dispatch('metadata/loadProperties', { objectId: props.objectInfo.id, objectClass: props.objectClass });
+    // else watch(() => props.objectInfo, () => store.dispatch('metadata/loadProperties', { objectId: props.objectInfo.id, objectClass: props.objectClass }));
+
     exported.showNewPropertyDialog = ref(false);
     exported.newProperty = ref({name: '', value: ''});
 
     exported.doAddProperty = function () {
-      const propertyInfo = {
+      store.dispatch('metadata/addProperty', {
         objectId: props.objectInfo.id,
         objectClass: props.objectClass,
         propertyName: exported.newProperty.value.name,
         propertyValue: exported.newProperty.value.value
-      }
-      const stores = {
-        PROJECT: 'projects/addProperty',
-        EXPERIMENT: 'experiments/addProperty',
-        PLATE: 'plates/addProperty'
-      }
-      store.dispatch(stores[props.objectClass], propertyInfo);
+      });
     }
 
     exported.doRemoveProperty = function (row) {
-      const propertyInfo = {
+      store.dispatch('metadata/removeProperty', {
         objectId: props.objectInfo.id,
         objectClass: props.objectClass,
         propertyName: row.propertyName
-      }
-      const stores = {
-        PROJECT: 'projects/removeProperty',
-        EXPERIMENT: 'experiments/removeProperty',
-        PLATE: 'plates/removeProperty'
-      }
-      store.dispatch(stores[props.objectClass], propertyInfo);
+      });
     }
 
     exported.deleteBtnShown = ref([]);

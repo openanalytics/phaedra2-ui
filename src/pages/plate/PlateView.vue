@@ -33,9 +33,7 @@
             <div class="row">
               <div class="col-3 text-weight-bold">Tags:</div>
               <div class="col">
-                <div class="tag-icon flex inline" v-for="tag in plate.tags" :key="tag.tag">
-                  <Tag :tagInfo="tag" :objectInfo="plate" :objectClass="'PLATE'"></Tag>
-                </div>
+                <TagList :objectInfo="plate" :objectClass="'PLATE'" />
               </div>
             </div>
           </div>
@@ -50,9 +48,6 @@
             </div>
             <div class="row justify-end action-button">
               <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete" @click="deletedialog = true"/>
-            </div>
-            <div class="row justify-end action-button">
-              <q-btn size="sm" color="primary" icon="sell" class="oa-button-tag" label="Add Tag" @click="prompt = true"/>
             </div>
           </div>
         </div>
@@ -77,13 +72,13 @@
       <div class="row oa-section-body">
         <q-tab-panels v-model="activeTab" animated style="width: 100%">
           <q-tab-panel name="layout" icon="view_module" label="Layout">
-            <WellGrid :plate="plate" grid-type="layout"/>
+            <PlateLayout :plate="plate" />
           </q-tab-panel>
           <q-tab-panel name="measurements" icon="view_module" label="Layout">
             <MeasList :plate="plate" />
           </q-tab-panel>
           <q-tab-panel name="heatmap" icon="view_module" label="Layout">
-            <WellGrid :plate="plate" grid-type="heatmap"/>
+            <PlateHeatmap :plate="plate" />
           </q-tab-panel>
           <q-tab-panel name="wells" icon="view_module" label="Layout">
             <WellList :plate="plate" />
@@ -94,23 +89,6 @@
         </q-tab-panels>
       </div>
     </div>
-
-    <q-dialog v-model="prompt" persistent>
-      <q-card>
-        <q-card-section style="min-width: 350px">
-          <div class="text-h6">Tag:</div>
-        </q-card-section>
-
-        <q-card-section>
-          <q-input dense v-model="plateTag" autofocus @keyup.enter="prompt = false"/>
-        </q-card-section>
-
-        <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="Cancel" v-close-popup/>
-          <q-btn flat label="Add tag" v-close-popup @click="onClick"/>
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
 
     <q-dialog v-model="deletedialog" persistent>
       <q-card style="min-width: 30vw">
@@ -173,10 +151,11 @@ import {computed, ref} from 'vue'
 import {useStore} from 'vuex'
 import {useRoute} from 'vue-router'
 
-import Tag from "@/components/tag/Tag";
+import TagList from "@/components/tag/TagList"
 import EditPlate from "./EditPlate";
 import PropertyTable from "@/components/property/PropertyTable";
-import WellGrid from "@/pages/plate/WellGrid";
+import PlateLayout from "@/pages/plate/PlateLayout";
+import PlateHeatmap from "@/pages/plate/PlateHeatmap";
 import MeasList from "@/pages/plate/MeasList";
 import WellList from "@/pages/plate/WellList";
 import ResultSetList from "./ResultSetList";
@@ -186,22 +165,14 @@ export default {
   components: {
     WellList,
     MeasList,
-    WellGrid,
-    Tag,
+    PlateLayout,
+    PlateHeatmap,
+    TagList,
     EditPlate,
     PropertyTable,
     ResultSetList
   },
   methods: {
-    onClick() {
-      const tagInfo = {
-        objectId: this.plate.id,
-        objectClass: "PLATE",
-        tag: this.plateTag
-      }
-
-      this.$store.dispatch('plates/tagPlate', tagInfo)
-    },
     addMeasurement() {
       const plateMeasurement = {
         plateId: this.plate,
@@ -244,8 +215,6 @@ export default {
   },
   data() {
     return {
-      plateTag: ref(""),
-      prompt: ref(false),
       plateName: ref(""),
       deletedialog: ref(false),
       editdialog: false,

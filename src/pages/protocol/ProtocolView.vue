@@ -38,9 +38,7 @@
           <div class="row">
             <div class="col-3 text-weight-bold">Tags:</div>
             <div class="col">
-              <div class="tag-icon flex inline" v-for="tag in protocol.tags" :key="tag.tag">
-                <Tag :tagInfo="tag" :objectInfo="protocol" :objectClass="'PROTOCOL'"></Tag>
-              </div>
+              <TagList :objectInfo="protocol" :objectClass="'PROTOCOL'" />
             </div>
           </div>
         </div>
@@ -50,9 +48,6 @@
           </div>
           <div class="row justify-end action-button">
             <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete" @click="deletedialog = true"/>
-          </div>
-          <div class="row justify-end action-button">
-            <q-btn size="sm" color="primary" icon="sell" class="oa-button-tag" label="Add Tag" @click="prompt = true"/>
           </div>
         </div>
       </div>
@@ -118,23 +113,6 @@
     <new-feature v-if="newFeatureTab" v-model:show="newFeatureTab" v-model:protocolId="protocolId"></new-feature>
     <edit-feature v-if="editFeatureSection" v-model:show="editFeatureSection" v-model:originalFeature="selectedFeature"></edit-feature>
 
-    <q-dialog v-model="prompt" persistent>
-      <q-card>
-        <q-card-section style="min-width: 350px">
-          <div class="text-h6">Tag:</div>
-        </q-card-section>
-
-        <q-card-section>
-          <q-input dense v-model="protocolTag" autofocus @keyup.enter="prompt = false"/>
-        </q-card-section>
-
-        <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="Cancel" v-close-popup/>
-          <q-btn flat label="Add tag" v-close-popup @click="onClick"/>
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-
     <q-dialog v-model="deletedialog" persistent>
       <q-card style="min-width: 30vw">
         <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
@@ -190,7 +168,7 @@ import {useStore} from "vuex";
 import {useRoute} from "vue-router";
 import {computed, ref} from "vue";
 
-import Tag from "@/components/tag/Tag";
+import TagList from "@/components/tag/TagList"
 import EditProtocol from "./EditProtocol";
 import TableConfig from "../../components/table/TableConfig";
 import EditFeature from "../../components/protocol/EditFeature";
@@ -221,7 +199,7 @@ const filterMethod = function (rows, term) {
 export default {
   name: "ProtocolView",
   components: {
-    Tag,
+    TagList,
     EditProtocol,
     TableConfig,
     EditFeature,
@@ -261,8 +239,6 @@ export default {
   },
   data() {
     return {
-      protocolTag: ref(""),
-      prompt: ref(false),
       openFeatureDialog: ref(false),
       newFeature: {
         name: null,
