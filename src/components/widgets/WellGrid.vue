@@ -1,21 +1,38 @@
 <template>
-  <div v-if="plate" ref="rootElement" style="width: 100%;" class="gridContainer oa-section relative-position"
-      @mousedown="selectionBoxSupport.dragStart"
-      @mousemove="selectionBoxSupport.dragMove"
-      @mouseup="selectionBoxSupport.dragEnd">
+  <div class="row oa-section relative-position" ref="rootElement">
 
-    <div class="loadingAnimation" v-if="loading">
-      <q-spinner-pie color="info" size="10em"/>
+    <div class="col gridHeaderColumn" style="max-width: 20px; margin-top: 18px;">
+      <div class="gridHeaderSlot" v-for="n in plate.rows" :key="n" @click="selectRow(n, $event.shiftKey)">
+        {{ WellUtils.getWellRowLabel(n) }}
+      </div>
     </div>
-    
-    <WellSlot :ref="refWellSlot" v-for="well in plate.wells" :key="well.nr"
-              :well="well"
-              :wellColorFunction="wellColorFunction"
-              :wellLabelFunctions="wellLabelFunctions"
-              @wellSelection="handleWellSelection"
-              :selectedWells="selectedWells"
-              class="wellSlot"
-    ></WellSlot>
+
+    <div class="col-grow">
+      <div class="gridHeaderRow">
+        <div class="gridHeaderSlot" v-for="n in plate.columns" :key="n" @click="selectColumn(n, $event.shiftKey)">
+          {{ n }}
+        </div>
+      </div>
+
+      <div v-if="plate" style="width: 100%;" class="gridContainer"
+          @mousedown="selectionBoxSupport.dragStart"
+          @mousemove="selectionBoxSupport.dragMove"
+          @mouseup="selectionBoxSupport.dragEnd">
+
+        <div class="loadingAnimation" v-if="loading">
+          <q-spinner-pie color="info" size="10em"/>
+        </div>
+        
+        <WellSlot :ref="refWellSlot" v-for="well in plate.wells" :key="well.nr"
+                  :well="well"
+                  :wellColorFunction="wellColorFunction"
+                  :wellLabelFunctions="wellLabelFunctions"
+                  :selectedWells="selectedWells"
+                  @wellSelection="handleWellSlotSelection"
+                  class="wellSlot"
+        ></WellSlot>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -35,6 +52,25 @@
 
 .wellSlot {
   min-height: v-bind(wellSlotHeight);
+}
+
+.gridHeaderRow {
+  display: grid;
+  grid-template-columns: v-bind(gridColumnStyle);
+}
+
+.gridHeaderColumn {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+}
+
+.gridHeaderSlot {
+  background-color: grey;
+  border: 1px solid black;
+  margin: 1px;
+  font-size: 65%;
+  text-align: center;
+  cursor: pointer;
 }
 </style>
 
@@ -56,62 +92,69 @@ export default {
   },
   emits: ['wellSelection'],
   setup(props, {emit}) {
-    const onKeyNav = function (event) {
-      if (selectedWells.value.length == 0) return
-      let currentWell = selectedWells.value[0]
+    const exported = {};
+
+    exported.selectedWells = ref([]);
+
+    const emitWellSelection = (wells, append) => {
+      if (!append) exported.selectedWells.value.splice(0);
+      for (const well of wells) {
+        if (append && exported.selectedWells.value.some(w => w.id == well.id)) continue;
+        exported.selectedWells.value.push(well);
+      }
+      emit('wellSelection', exported.selectedWells.value);
+    }
+
+    window.addEventListener('keyup', function (event) {
+      if (exported.selectedWells.value.length == 0) return;
+      let currentWell = exported.selectedWells.value[0];
+      let nextPosition = [];
       switch (event.key) {
         case "ArrowUp":
-          handleWellSelection(WellUtils.getWell(props.plate, currentWell.row - 1, currentWell.column))
-          break
+          nextPosition = [ currentWell.row - 1, currentWell.column ];
+          break;
         case "ArrowDown":
-          handleWellSelection(WellUtils.getWell(props.plate, currentWell.row + 1, currentWell.column))
-          break
+          nextPosition = [ currentWell.row + 1, currentWell.column ];
+          break;
         case "ArrowLeft":
-          handleWellSelection(WellUtils.getWell(props.plate, currentWell.row, currentWell.column - 1))
-          break
+          nextPosition = [ currentWell.row, currentWell.column - 1 ];
+          break;
         case "ArrowRight":
-          handleWellSelection(WellUtils.getWell(props.plate, currentWell.row, currentWell.column + 1))
-          break
+          nextPosition = [ currentWell.row, currentWell.column + 1 ];
+          break;
       }
-    }
-    window.addEventListener('keyup', onKeyNav)
+      const nextWell = WellUtils.getWell(props.plate, nextPosition[0], nextPosition[1]);
+      if (nextWell) emitWellSelection([nextWell]);
+    });
 
     // Single well selection handling
-    const selectedWells = ref([])
-    const handleWellSelection = function (well) {
-      if (!well) return
-      selectedWells.value.splice(0)
-      selectedWells.value.push(well)
-      emit('wellSelection', selectedWells.value);
+    exported.handleWellSlotSelection = function (well) {
+      if (!well) return;
+      emitWellSelection([well]);
     }
 
     // Multi well selection handling
-    const rootElement = ref(null)
-    const wellSlots = ref([])
-    const refWellSlot = function (slot) {
-      wellSlots.value.push(slot)
+    exported.rootElement = ref(null);
+    exported.wellSlots = ref([]);
+    exported.refWellSlot = function (slot) {
+      exported.wellSlots.value.push(slot)
     }
-    const selectionBoxSupport = SelectionBoxHelper.addSelectionBoxSupport(rootElement, wellSlots, wells => {
-      selectedWells.value.splice(0)
-      wells.forEach(well => {
-        selectedWells.value.push(well)
-      })
-      emit('wellSelection', selectedWells.value);
+    exported.selectionBoxSupport = SelectionBoxHelper.addSelectionBoxSupport(exported.rootElement, exported.wellSlots, wells => {
+      emitWellSelection(wells);
     });
 
-    const gridColumnStyle = computed(() => { return "repeat(" + props.plate.columns + ", 1fr)" })
-    const wellSlotHeight = (props.wellLabelFunctions.length * 15) + "px";
+    exported.selectRow = (n, append) => {
+      emitWellSelection(props.plate.wells.filter(w => w.row == n), append);
+    };
+    exported.selectColumn = (n, append) => {
+      emitWellSelection(props.plate.wells.filter(w => w.column == n), append);
+    };
 
-    return {
-      selectedWells,
-      handleWellSelection,
-      onKeyNav,
-      rootElement,
-      refWellSlot,
-      selectionBoxSupport,
-      gridColumnStyle,
-      wellSlotHeight
-    }
+    exported.gridColumnStyle = computed(() => { return "repeat(" + props.plate.columns + ", 1fr)" });
+    exported.wellSlotHeight = (props.wellLabelFunctions.length * 15) + "px";
+    exported.WellUtils = WellUtils;
+
+    return exported;
   },
 }
 </script>
