@@ -8,29 +8,29 @@
       <q-card-section>
         <div class="row">
           <div class="col-5">
-            <q-input v-model="name" square autofocus label="Name"></q-input>
-            <q-input v-model="alias" square label="Alias"></q-input>
-            <q-input v-model="description" square label="Description"></q-input>
-            <q-input v-model="format" square label="Format" placeholder="#.##"
+            <q-input v-model="feature.name" square autofocus label="Name"></q-input>
+            <q-input v-model="feature.alias" square label="Alias"></q-input>
+            <q-input v-model="feature.description" square label="Description"></q-input>
+            <q-input v-model="feature.format" square label="Format" placeholder="#.##"
                      style="width: 100px"></q-input>
-            <q-input v-model="sequence" square label="Sequence"></q-input>
-            <q-input v-model="trigger" square label="Trigger"></q-input>
+            <q-input v-model="feature.sequence" square label="Sequence"></q-input>
+            <q-input v-model="feature.trigger" square label="Trigger"></q-input>
           </div>
           <div class="col-1"/>
           <div class="col-5">
-            <q-select v-model="type" square label="Type" :options="featureTypes"></q-select>
-            <q-select v-model="formulaId" square label="Formula"
-                      :options="formulas.filter(formula => formula.category === type)" option-label="name"
+            <q-select v-model="feature.type" square label="Type" :options="featureTypes"></q-select>
+            <q-select v-model="feature.formulaId" square label="Formula"
+                      :options="formulas.filter(formula => formula.category === feature.type)" option-label="name"
                       option-value="id" map-options></q-select>
             <div v-if="variables.list.length>0">
               <br>
               <span class="text-primary">Formula variables:</span>
               <!--Previous formula variables-->
-              <div v-if="formulaId===props.feature.formulaId || formulaId.id === props.feature.formulaId">
+              <div v-if="feature.formulaId===originalFormulaId || feature.formulaId.id === originalFormulaId">
                 <q-input :key="p.variableName" v-model="p.sourceMeasColName" v-for="p in previous.list" :label="p.variableName"></q-input>
               </div>
               <!--New formula variables-->
-              <div v-if="formulaId!==props.feature.formulaId && formulaId.id!==props.feature.formulaId">
+              <div v-if="feature.formulaId!==originalFormulaId && feature.formulaId.id!==originalFormulaId">
                 <br>
                 <q-input :key="variable.variableName" v-model="variable.sourceMeasColName" v-for="variable in variables.list" :label="variable.variableName"></q-input>
               </div>
@@ -44,8 +44,7 @@
         </div>
       </q-card-section>
       {{variables}}<br>
-      {{previous}}<br>
-      {{[formulaId,props.feature.formulaId]}}
+      {{previous}}
     </div>
   </div>
 </template>
@@ -59,89 +58,64 @@ export default {
   name: 'EditFeature',
   methods: {
     editFeature() {
-      const editedFeature = {
-        id: this.props.feature.id,
-        name: this.name,
-        type: this.type,
-        protocolId: this.protocolId,
-        formulaId: Number.isInteger(this.formulaId) ? this.formulaId : this.formulaId.id
-      }
-      //Check if it is not null
-      if (this.alias) editedFeature.alias = this.alias
-      if (this.description) editedFeature.description = this.description
-      if (this.format) editedFeature.format = this.format
-      if (this.sequence) editedFeature.alias = this.sequence
-      if (this.trigger) editedFeature.trigger = this.trigger
-
+      this.feature.formulaId = Number.isInteger(this.feature.formulaId) ? this.feature.formulaId : this.feature.formulaId.id
+      console.log(this.feature)
       //Did formula change? choose civs list accordingly
-      const formulaChange = this.formulaId!==this.props.feature.formulaId
+      const formulaChange = this.feature.formulaId!==this.originalFeature
       const civs = formulaChange?this.variables:this.previous
-      this.$store.dispatch('features/editFeature', {feature:editedFeature, formulaChange: formulaChange, civs: civs.list, prev: this.previous.list})
+      this.$store.dispatch('features/editFeature', {feature:this.feature, formulaChange: formulaChange, civs: civs.list, prev: this.previous.list})
+      //this.$store.dispatch('features/editFeature', this.exported.feature)
       this.$emit('update:show', false)
     },
   },
   setup(props) {
+    const exported = {}
+
     const store = useStore()
-    const formulas = computed(() => store.getters['calculations/getFormulas']())
+    exported.formulas = computed(() => store.getters['calculations/getFormulas']())
 
-    let name = ref(props.feature.name)
-    let alias = ref(props.feature.alias)
-    let description = ref(props.feature.description)
-    let format = ref(props.feature.format)
-    let type = ref(props.feature.type)
-    let sequence = ref(props.feature.sequence)
-    let protocolId = ref(props.feature.protocolId)
-    let trigger = ref(props.feature.alias)
-    let formulaId = ref(props.feature.formulaId)
+    exported.feature = ref({})
+    const fetchFeatureWorkingCopy = () => {
+      let originalFeature = props.originalFeature || {}
+      exported.feature.value = {...originalFeature}
+      exported.originalFormulaId = ref(originalFeature.formulaId)
+    }
+    fetchFeatureWorkingCopy()
 
+    //Fetch and assign formula variables
     //Get calculationInputValues
     const civs = computed(() => {
-      console.log('civs')
-      if(!store.getters['features/getCalculationInputValueByFeatureId'](props.feature.id))
-        store.dispatch('features/getCalculationInputValue',props.feature.id)
-      return store.getters['features/getCalculationInputValueByFeatureId'](props.feature.id)
+      if(!exported.feature.value.id) return []
+      if(!store.getters['features/getCalculationInputValueByFeatureId'](exported.feature.value.id))
+        store.dispatch('features/getCalculationInputValue',exported.feature.value.id)
+      return store.getters['features/getCalculationInputValueByFeatureId'](exported.feature.value.id)
     })
     //Get formulaInputs
     const formulaInputs = computed(() => {
-      const id = Number.isInteger(formulaId.value) ? formulaId.value:formulaId.value.id
+      if (!exported.feature.value.formulaId) return []
+      const id = Number.isInteger(exported.feature.value.formulaId) ? exported.feature.value.formulaId:exported.feature.value.formulaId.id
       if(!store.getters['calculations/getFormulaInputs'](id))
         store.dispatch('calculations/getFormulaInputs',id)
       return store.getters['calculations/getFormulaInputs'](id) || []
     })
 
     //Reactive list that changes when formulaInputs changes
-    let variables = reactive({list: []})
+    exported.variables = reactive({list: []})
     //Reactive list that changes when civs changes
-    let previous = reactive({list: []})
+    exported.previous = reactive({list: []})
     //Watch for changes and update lists accordingly
     watch([civs,formulaInputs], ([c,f]) => {
       console.log(c)
-      if(c)previous.list = c.map(i => {return {variableName: i.variableName, sourceMeasColName: i.sourceMeasColName, id: i.id, featureId: i.featureId}})
-      if(f)variables.list = f.map(i => {return {variableName: i,sourceMeasColName: ''}})
+      if(c)exported.previous.list = c.map(i => {return {variableName: i.variableName, sourceMeasColName: i.sourceMeasColName, id: i.id, featureId: i.featureId}})
+      if(f)exported.variables.list = f.map(i => {return {variableName: i,sourceMeasColName: ''}})
     },  { deep: true })
 
-    return {
-      props,
-      formulas,
-      name,
-      alias,
-      description,
-      format,
-      type,
-      sequence,
-      protocolId,
-      formulaId,
-      trigger,
-      variables,
-      previous
-    }
+    //TODO fix hardcode
+    exported.featureTypes =  ['CALCULATION', 'NORMALIZATION', 'RAW']
+
+    return exported;
   },
-  data() {
-    return {
-      featureTypes: ['CALCULATION', 'NORMALIZATION', 'RAW'],
-    }
-  },
-  props: ['feature'],
+  props: ['originalFeature'],
   emits: ['update:show']
 }
 </script>

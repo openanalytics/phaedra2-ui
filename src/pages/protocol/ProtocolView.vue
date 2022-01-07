@@ -116,7 +116,7 @@
     </div>
 
     <new-feature v-if="newFeatureTab" v-model:show="newFeatureTab" v-model:protocolId="protocolId"></new-feature>
-    <edit-feature v-if="editFeatureSection" v-model:show="editFeatureSection" v-model:feature="selectedFeature"></edit-feature>
+    <edit-feature v-if="editFeatureSection" v-model:show="editFeatureSection" v-model:originalFeature="selectedFeature"></edit-feature>
 
     <q-dialog v-model="prompt" persistent>
       <q-card>
