@@ -1,6 +1,6 @@
 <template>
   <q-dialog v-model="props.show" persistent>
-    <q-card style="min-width: 30vw">
+    <q-card v-if="plate" style="min-width: 30vw">
       <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
         <q-avatar icon="check_circle" color="primary" text-color="white"/>
         Approve Plate
@@ -33,10 +33,10 @@ import {computed} from "vue";
 import {useStore} from "vuex";
 
 export default {
-  name: 'DisapproveDialog',
+  name: 'ApproveDialog',
   methods: {
     approve() {
-      this.editedPlate.id = this.plateId
+      this.editedPlate.id = this.props.plateId
       this.editedPlate.approvalStatus = 'APPROVED'
       this.editedPlate.experimentId = this.props.experimentId
       this.$store.dispatch('plates/editPlate', this.editedPlate)

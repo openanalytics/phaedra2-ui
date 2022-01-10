@@ -21,7 +21,8 @@ import PlateList from "@/pages/experiment/PlateList.vue"
 import PlateStatsList from "@/pages/experiment/PlateStatsList.vue"
 import PlateGrid from "@/pages/experiment/PlateGrid.vue"
 
-import WellGrid from "@/pages/plate/WellGrid.vue"
+import PlateLayout from "@/pages/plate/PlateLayout.vue"
+import PlateHeatmap from "@/pages/plate/PlateHeatmap.vue"
 import WellList from "@/pages/plate/WellList.vue"
 import MeasList from "@/pages/plate/MeasList.vue"
 
@@ -43,9 +44,9 @@ const routes = [
     },
     { name: "plate", path: "/plate/:id", component: PlateView,
         children: [
-            { path: '', component: WellGrid, props: { gridType: WellGrid.GRID_TYPE_LAYOUT } },
+            { path: '', component: PlateLayout },
             { path: 'measurements', component: MeasList },
-            { path: 'heatmap', component: WellGrid, props: { gridType: WellGrid.GRID_TYPE_HEATMAP } },
+            { path: 'heatmap', component: PlateHeatmap },
             { path: 'wells', component: WellList }
         ]
     },

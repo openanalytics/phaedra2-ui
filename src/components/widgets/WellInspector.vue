@@ -10,7 +10,7 @@
       </div>
     </div>
     <div class="oa-section-body" v-if="wells.length == 0">
-      <div v-if="wells.length == 0" class="text-info">
+      <div v-if="wells.length == 0" class="text-info q-pa-sm">
         No well selected
       </div>
     </div>
@@ -22,7 +22,7 @@
               <div class="col-6 text-weight-bold">Well:</div>
               <div class="col-6">{{ WellUtils.getWellCoordinate(well.row, well.column) }}</div>
             </div>
-            <div class="row" v-if="gridType===GRID_TYPE_TEMPLATE">
+            <div class="row" v-if="hasSkippedField(well)">
               <div class="col-6 text-weight-bold">Skipped:</div>
               <div class="col-6">{{ well?.skipped }}</div>
             </div>
@@ -39,7 +39,7 @@
                 </div>
               </div>
             </div>
-            <div class="row" v-if="gridType===GRID_TYPE_TEMPLATE">
+            <div class="row" v-show="well.substanceName">
               <div class="col-6 text-weight-bold">
                 <span v-if="well.substanceName">Substance name:<br></span>
                 <span v-if="well.substanceType">Substance type:<br></span>
@@ -51,7 +51,7 @@
                 <span v-if="well.concentration">{{ well?.concentration ? parseFloat(well?.concentration).toExponential(3) : "" }}</span>
               </div>
             </div>
-            <div class="row" v-if="gridType===GRID_TYPE_LAYOUT">
+            <div class="row">
               <div class="col-6 text-weight-bold">Status:</div>
               <div class="col-6">
                 <div v-if="well.status === 'ACCEPTED_DEFAULT'">
@@ -75,22 +75,16 @@
 <script>
 import WellUtils from "@/lib/WellUtils.js"
 
-const GRID_TYPE_LAYOUT = "layout"
-const GRID_TYPE_TEMPLATE = "well-templates"
 export default {
-  GRID_TYPE_LAYOUT,
-  GRID_TYPE_TEMPLATE,
   props: {
     wells: Array,
     minimal: Boolean,
-    gridType: String
   },
   setup(props) {
     return {
       WellUtils,
       statusIconSize: props.minimal ? "xs" : "sm",
-      GRID_TYPE_LAYOUT,
-      GRID_TYPE_TEMPLATE
+      hasSkippedField: (well) => { return (typeof well.skipped !== 'undefined') },
     }
   }
 }

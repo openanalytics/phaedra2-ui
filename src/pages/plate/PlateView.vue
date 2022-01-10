@@ -72,13 +72,13 @@
       <div class="row oa-section-body">
         <q-tab-panels v-model="activeTab" animated style="width: 100%">
           <q-tab-panel name="layout" icon="view_module" label="Layout">
-            <WellGrid :plate="plate" grid-type="layout"/>
+            <PlateLayout :plate="plate" />
           </q-tab-panel>
           <q-tab-panel name="measurements" icon="view_module" label="Layout">
             <MeasList :plate="plate" />
           </q-tab-panel>
           <q-tab-panel name="heatmap" icon="view_module" label="Layout">
-            <WellGrid :plate="plate" grid-type="heatmap"/>
+            <PlateHeatmap :plate="plate" />
           </q-tab-panel>
           <q-tab-panel name="wells" icon="view_module" label="Layout">
             <WellList :plate="plate" />
@@ -154,7 +154,8 @@ import {useRoute} from 'vue-router'
 import TagList from "@/components/tag/TagList"
 import EditPlate from "./EditPlate";
 import PropertyTable from "@/components/property/PropertyTable";
-import WellGrid from "@/pages/plate/WellGrid";
+import PlateLayout from "@/pages/plate/PlateLayout";
+import PlateHeatmap from "@/pages/plate/PlateHeatmap";
 import MeasList from "@/pages/plate/MeasList";
 import WellList from "@/pages/plate/WellList";
 import ResultSetList from "./ResultSetList";
@@ -164,7 +165,8 @@ export default {
   components: {
     WellList,
     MeasList,
-    WellGrid,
+    PlateLayout,
+    PlateHeatmap,
     TagList,
     EditPlate,
     PropertyTable,

@@ -1,13 +1,13 @@
 <template>
   <q-breadcrumbs class="breadcrumb">
     <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}" />
-    <q-breadcrumbs-el :label="'New protocol'" />
+    <q-breadcrumbs-el :label="'New Plate Layout Template'" />
   </q-breadcrumbs>
 
   <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
     <div class="q-pa-md">
       <div class="q-px-sm oa-section-title">
-        <div class="text-h6">Create new template</div>
+        <div class="text-h6">New Template</div>
       </div>
 
       <div class="row q-pa-lg oa-section-body">
@@ -30,43 +30,44 @@
 </template>
 
 <script>
+import {ref} from 'vue'
+import {useStore} from 'vuex'
+import {useRouter} from 'vue-router'
 
 export default {
   name: "NewPlateTemplateView",
-  methods: {
-    onSubmit() {
-      this.newPlateTemplate.createdOn = new Date();
-      this.$store.dispatch('templates/createNewPlateTemplate',this.newPlateTemplate)
-      this.onReset()
-    },
-    onReset() {
-      this.newPlateTemplate.name = null
-      this.newPlateTemplate.description = null
-      this.newPlateTemplate.rows = null
-      this.newPlateTemplate.columns = null
-      this.newPlateTemplate.createdOn = null
-    }
-  },
   setup() {
+    const router = useRouter();
+    const store = useStore();
+
+    const newPlateTemplate = ref({
+      name: null,
+      description: null,
+      rows: null,
+      columns: null,
+      createdOn: null,
+      createdBy: 'smarien'
+    });
+    
+    const onSubmit = async () => {
+      newPlateTemplate.value.createdOn = new Date();
+      const createdTemplate = await store.dispatch('templates/createNewPlateTemplate', newPlateTemplate.value);
+      router.push("/template/" + createdTemplate.id);
+    };
+    const onReset = () => {
+      newPlateTemplate.value.name = null
+      newPlateTemplate.value.description = null
+      newPlateTemplate.value.rows = null
+      newPlateTemplate.value.columns = null
+      newPlateTemplate.value.createdOn = null
+    };
+
     return {
+      onSubmit,
+      onReset,
+      newPlateTemplate,
       wellTypeOptions: ['LC', 'HC']
-    }
-  },
-  data() {
-    return {
-      newPlateTemplate: {
-        name: null,
-        description: null,
-        rows: null,
-        columns: null,
-        createdOn: null,
-        createdBy: 'smarien'
-      }
     }
   }
 }
 </script>
-
-<style lang="scss">
-@import "src/css/oa.global";
-</style>

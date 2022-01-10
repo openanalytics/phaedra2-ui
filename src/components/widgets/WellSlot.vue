@@ -1,6 +1,6 @@
 <template>
-  <div class="column well" :class="{ blink: isSelected, skipped: tab==='overview'&&well.skipped}" v-ripple
-       :style="{ color: (tab==='overview'&&well.skipped)?'#e52323':fgColor, backgroundColor: bgColor }"
+  <div class="column well" :class="{ blink: isSelected, skipped: well.skipped }" v-ripple
+       :style="{ color: well.skipped ? '#e52323':fgColor, backgroundColor: bgColor }"
        @click="$emit('wellSelection', well)"
   >
     <div v-if="well.status === 'REJECTED'" class="absolute-center">
@@ -11,7 +11,7 @@
     </span>
     <q-tooltip :delay="1000" class="bg-secondary q-pa-xs">
       <div class="tooltipContainer">
-        <WellInspector minimal :wells="[well]" :gridType="(tab)?'well-templates':'layout'"></WellInspector>
+        <WellInspector minimal :wells="[well]"></WellInspector>
       </div>
     </q-tooltip>
   </div>
@@ -21,7 +21,7 @@
 .well {
   border: 1px solid black;
   margin: 1px;
-  font-size: 85%;
+  font-size: 65%;
   text-align: center;
   position: relative;
   cursor: pointer;
@@ -56,8 +56,8 @@
       -45deg,
       #E5E5E5,
       #E5E5E5 10px,
-      #0F0F0F 10px,
-      #0F0F0F 15px
+      #0F0F0F 11px,
+      #0F0F0F 12px
   );
 }
 </style>
@@ -74,7 +74,6 @@ export default {
     selectedWells: Array,
     wellColorFunction: Function,
     wellLabelFunctions: Array,
-    tab: String
   },
   components: {
     WellInspector
