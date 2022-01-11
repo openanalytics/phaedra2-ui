@@ -11,11 +11,63 @@
       :filter-method="filterMethod"
   >
     <template v-slot:top-left>
-      <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
-        <template v-slot:append>
-          <q-icon name="search"/>
-        </template>
-      </q-input>
+      <div class="row">
+        <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
+          <template v-slot:append>
+            <q-icon name="search"/>
+          </template>
+        </q-input>
+        <q-input outlined dense v-model="fromDate">
+          <template v-slot:prepend>
+            <q-icon name="event" class="cursor-pointer">
+              <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                <q-date v-model="fromDate" mask="YYYY-MM-DD HH:mm">
+                  <div class="row items-center justify-end">
+                    <q-btn v-close-popup label="Close" color="primary" flat/>
+                  </div>
+                </q-date>
+              </q-popup-proxy>
+            </q-icon>
+          </template>
+
+          <template v-slot:append>
+            <q-icon name="access_time" class="cursor-pointer">
+              <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                <q-time v-model="fromDate" mask="YYYY-MM-DD HH:mm" format24h>
+                  <div class="row items-center justify-end">
+                    <q-btn v-close-popup label="Close" color="primary" flat/>
+                  </div>
+                </q-time>
+              </q-popup-proxy>
+            </q-icon>
+          </template>
+        </q-input>
+        <q-input outlined dense v-model="toDate">
+          <template v-slot:prepend>
+            <q-icon name="event" class="cursor-pointer">
+              <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                <q-date v-model="toDate" mask="YYYY-MM-DD HH:mm">
+                  <div class="row items-center justify-end">
+                    <q-btn v-close-popup label="Close" color="primary" flat/>
+                  </div>
+                </q-date>
+              </q-popup-proxy>
+            </q-icon>
+          </template>
+
+          <template v-slot:append>
+            <q-icon name="access_time" class="cursor-pointer">
+              <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                <q-time v-model="toDate" mask="YYYY-MM-DD HH:mm" format24h>
+                  <div class="row items-center justify-end">
+                    <q-btn v-close-popup label="Close" color="primary" flat/>
+                  </div>
+                </q-time>
+              </q-popup-proxy>
+            </q-icon>
+          </template>
+        </q-input>
+      </div>
     </template>
     <template v-slot:body-cell-statusCode="props">
       <q-td :props="props">
@@ -95,7 +147,9 @@ export default {
         )
       })
     }
-
+    const toDate = ref(new Date())
+    const fromDate = ref(new Date())
+    fromDate.value.setDate(toDate.value.getDate() - 14)
     return {
       jobs,
       columns,
@@ -106,7 +160,9 @@ export default {
       filter,
       filterMethod,
       ColorUtils,
-      timer: null
+      timer: null,
+      toDate,
+      fromDate
     }
   },
   mounted: function () {
