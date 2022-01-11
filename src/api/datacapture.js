@@ -12,7 +12,7 @@ export default {
         return result;
     },
     async postJob(newJob) {
-        const response = await axios.post(apiURL + '/jobs', newJob.captureConfig, {
+        const response = await axios.post(apiURL + '/job', newJob.captureConfig, {
             params: { sourcePath: newJob.sourcePath },
             headers: { 'Content-Type': 'application/json' }
         })
