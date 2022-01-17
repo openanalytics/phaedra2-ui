@@ -179,7 +179,7 @@ export default {
   mounted: function () {
     this.timer = setInterval(() => {
       this.refreshJobs()
-    }, 5000)
+    }, 60000)
   },
   beforeUnmount() {
     clearInterval(this.timer)
