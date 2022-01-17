@@ -5,14 +5,14 @@ const state = () => ({
 })
 
 const getters = {
-    getAllJobs: (state) => () => {
+    getJobs: (state) => () => {
         return state.jobs
     }
 }
 
 const actions = {
-    async loadAllJobs(ctx) {
-        const jobs = await datacaptureAPI.getAllJobs()
+    async loadJobs(ctx, args) {
+        const jobs = await datacaptureAPI.getJobs(args)
         ctx.commit('cacheJobs', jobs)
     }
 }

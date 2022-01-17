@@ -3,9 +3,9 @@ import axios from "axios";
 const apiURL = process.env.VUE_APP_API_BASE_URL + '/datacapture-service';
 
 export default {
-    async getAllJobs() {
+    async getJobs(args) {
         let result = null;
-        await axios.get(apiURL + '/jobs')
+        await axios.get(apiURL + '/jobs', args)
             .then(response => {
                 result = response.data;
             })
