@@ -158,8 +158,9 @@ export default {
 
     exported.filter = ref('')
     exported.filterMethod = function (rows, term) {
+      term = term.toLowerCase()
       return rows.filter(row => {
-        return (row.id == term
+        return ((row.id+' ').includes(term.toString())
             || (row.createdBy && row.createdBy.toLowerCase().includes(term))
             || (row.statusMessage && row.statusMessage.toLowerCase().includes(term))
             || (row.sourcePath && row.sourcePath.toLowerCase().includes(term))
