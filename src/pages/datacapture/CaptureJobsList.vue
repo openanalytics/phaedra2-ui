@@ -9,15 +9,11 @@
       :pagination="{ rowsPerPage: 20, sortBy: 'createDate', descending: true }"
       :filter="filter"
       :filter-method="filterMethod"
+      :visible-columns="visibleColumns"
   >
-    <template v-slot:top-left>
+    <template v-slot:top-right>
       <div class="row">
-        <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
-          <template v-slot:append>
-            <q-icon name="search"/>
-          </template>
-        </q-input>
-        <q-input outlined dense v-model="fromDate">
+        <q-input outlined dense label="From" stack-label v-model="fromDate">
           <template v-slot:prepend>
             <q-icon name="event" class="cursor-pointer">
               <q-popup-proxy cover transition-show="scale" transition-hide="scale">
@@ -42,7 +38,7 @@
             </q-icon>
           </template>
         </q-input>
-        <q-input outlined dense v-model="toDate">
+        <q-input outlined dense label="Until" stack-label v-model="toDate">
           <template v-slot:prepend>
             <q-icon name="event" class="cursor-pointer">
               <q-popup-proxy cover transition-show="scale" transition-hide="scale">
@@ -67,8 +63,17 @@
             </q-icon>
           </template>
         </q-input>
+        <div>
+          <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
+            <template v-slot:append>
+              <q-icon name="search"/>
+            </template>
+          </q-input>
+        </div>
+        <q-btn flat round color="primary" icon="settings" style="border-radius: 50%;" @click="configdialog=true"/>
       </div>
     </template>
+
     <template v-slot:body-cell-statusCode="props">
       <q-td :props="props">
         <q-badge :color="ColorUtils.getCaptureJobStatusColor(props.row.statusCode)">{{ props.row.statusCode }}</q-badge>
@@ -77,6 +82,11 @@
     <template v-slot:body-cell-details="props">
       <q-td :props="props">
         <q-btn label="Details" icon-right="chevron_right" size="sm" @click="doShowJobDetails(props.row)"/>
+      </q-td>
+    </template>
+    <template v-slot:body-cell-cancel="props">
+      <q-td :props="props">
+        <q-btn label="Cancel" icon-right="cancel" size="sm" @click="cancel(props.row)" v-if="props.row.statusCode==='Running'"/>
       </q-td>
     </template>
     <template v-slot:no-data>
@@ -88,6 +98,9 @@
   <q-dialog v-model="showJobDetails">
     <CaptureJobDetailsPanel :job="jobDetails"></CaptureJobDetailsPanel>
   </q-dialog>
+
+  <table-config v-model:show="configdialog" v-model:columns="columns" v-model:visibleColumns="visibleColumns"></table-config>
+
 </template>
 
 <script>
@@ -95,21 +108,24 @@ import {ref, computed} from 'vue'
 import {useStore} from 'vuex'
 
 import CaptureJobDetailsPanel from "./CaptureJobDetailsPanel";
+import TableConfig from "../../components/table/TableConfig";
 
 import FormatUtils from "@/lib/FormatUtils.js"
-import ColorUtils from "@/lib/ColorUtils.js"
+import ColorUtils from "../../lib/ColorUtils";
 
 export default {
   components: {
-    CaptureJobDetailsPanel
+    CaptureJobDetailsPanel,
+    TableConfig
   },
   setup() {
+    const exported = {};
     const store = useStore()
 
-    const jobs = computed(() => store.getters['datacapture/getAllJobs']())
+    exported.jobs = computed(() => store.getters['datacapture/getAllJobs']())
     store.dispatch('datacapture/loadAllJobs')
 
-    const columns = [
+    exported.columns = ref([
       {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
       {
         name: 'createDate',
@@ -124,21 +140,24 @@ export default {
       {name: 'statusCode', label: 'Status', field: 'statusCode', sortable: true},
       {name: 'statusMessage', align: 'left', label: 'Message', field: 'statusMessage', sortable: true},
       {name: 'details'},
-    ]
+      {name: 'cancel'}
+    ])
+    exported.visibleColumns = exported.columns.value.map(a => a.name)
+    exported.configdialog = ref(false)
 
-    const refreshJobs = () => {
+    exported.refreshJobs = () => {
       store.dispatch('datacapture/loadAllJobs')
     }
 
-    const showJobDetails = ref(false)
-    const jobDetails = ref(null)
-    const doShowJobDetails = (job) => {
-      jobDetails.value = job
-      showJobDetails.value = true
+    exported.showJobDetails = ref(false)
+    exported.jobDetails = ref(null)
+    exported.doShowJobDetails = (job) => {
+      exported.jobDetails.value = job
+      exported.showJobDetails.value = true
     }
 
-    const filter = ref('')
-    const filterMethod = function (rows, term) {
+    exported.filter = ref('')
+    exported.filterMethod = function (rows, term) {
       return rows.filter(row => {
         return (row.id == term
             || (row.createdBy && row.createdBy.toLowerCase().includes(term))
@@ -147,23 +166,13 @@ export default {
         )
       })
     }
-    const toDate = ref(new Date())
-    const fromDate = ref(new Date())
-    fromDate.value.setDate(toDate.value.getDate() - 14)
-    return {
-      jobs,
-      columns,
-      refreshJobs,
-      showJobDetails,
-      jobDetails,
-      doShowJobDetails,
-      filter,
-      filterMethod,
-      ColorUtils,
-      timer: null,
-      toDate,
-      fromDate
-    }
+    exported.toDate = ref(new Date())
+    exported.fromDate = ref(new Date())
+    exported.fromDate.value.setDate(exported.toDate.value.getDate() - 14)
+    exported.timer = null
+    exported.ColorUtils = ColorUtils
+
+    return exported
   },
   mounted: function () {
     this.timer = setInterval(() => {
