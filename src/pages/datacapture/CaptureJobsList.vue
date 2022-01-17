@@ -127,7 +127,7 @@ export default {
     exported.fromDate.value.setDate(exported.toDate.value.getDate() - 14)
 
     exported.jobs = computed(() => store.getters['datacapture/getJobs']())
-    store.dispatch('datacapture/loadJobs',{fromDate: exported.fromDate.value, toDate: exported.toDate.value})
+    store.dispatch('datacapture/loadJobs', {fromDate: Date.parse(exported.fromDate.value), toDate: Date.parse(exported.toDate.value)})
 
     exported.columns = ref([
       {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
@@ -150,7 +150,7 @@ export default {
     exported.configdialog = ref(false)
 
     exported.refreshJobs = () => {
-      store.dispatch('datacapture/loadJobs', {fromDate: exported.fromDate.value, toDate: exported.toDate.value})
+      store.dispatch('datacapture/loadJobs', {fromDate: Date.parse(exported.fromDate.value), toDate: Date.parse(exported.toDate.value)})
     }
 
     exported.showJobDetails = ref(false)
