@@ -17,5 +17,9 @@ export default {
             headers: { 'Content-Type': 'application/json' }
         })
         return response.data;
-    }
+    },
+    async cancelJob(jobId) {
+        const response = await axios.post(apiURL + '/cancel',{id: jobId})
+        return response.data;
+    },
 }

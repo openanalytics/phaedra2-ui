@@ -86,7 +86,7 @@
     </template>
     <template v-slot:body-cell-cancel="props">
       <q-td :props="props">
-        <q-btn label="Cancel" icon-right="cancel" size="sm" @click="cancel(props.row)" v-if="props.row.statusCode==='Running'"/>
+        <q-btn label="Cancel" icon-right="cancel" size="sm" @click="cancelJob(props.row.id)" v-if="props.row.statusCode==='Running'"/>
       </q-td>
     </template>
     <template v-slot:no-data>
@@ -151,6 +151,10 @@ export default {
 
     exported.refreshJobs = () => {
       store.dispatch('datacapture/loadJobs', {fromDate: Date.parse(exported.fromDate.value), toDate: Date.parse(exported.toDate.value)})
+    }
+
+    exported.cancelJob = (id) => {
+      store.dispatch('datacapture/cancelJob', id)
     }
 
     exported.showJobDetails = ref(false)
