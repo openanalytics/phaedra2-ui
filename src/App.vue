@@ -3,7 +3,7 @@
 
     <q-header elevated class="bg-primary text-white" height-hint="98">
       <q-toolbar class="oa-header">
-        <q-icon name="img:/OALogo.png" type="image/png" size="40px"/>
+        <q-img :src="publicPath + 'OALogo.png'" width="40px"/>
         <q-toolbar-title>
           Phaedra 2.0
         </q-toolbar-title>
@@ -27,12 +27,14 @@
 
 <script>
   import Navigator from "@/components/navigator/Navigator.vue"
+  import { publicPath } from '../vue.config'
 
   export default {
     components: {
       Navigator
     },
     setup() {
+      return { publicPath }
     }
   }
 </script>

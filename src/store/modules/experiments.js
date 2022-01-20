@@ -3,7 +3,8 @@ import experimentAPI from '@/api/experiments.js'
 const state = () => ({
     currentExperiment: {},
     experiments: [],
-    recentExperiments: []
+    recentExperiments: [],
+    recentExperimentSummaries: []
 })
 
 const getters = {
@@ -21,6 +22,9 @@ const getters = {
     },
     getRecentExperiments: (state) => () => {
         return state.recentExperiments
+    },
+    getRecentExperimentSummaries: (state) => () => {
+        return state.recentExperimentSummaries
     },
     getNrOfExperiments: (state) => (projectId) => {
         return state.experiments.filter(exp => exp.projectId === projectId).length;
@@ -82,7 +86,14 @@ const actions = {
                     if(!isFinite(p2Time)) return -1
                     return  p2Time - p1Time;
                 }).slice(0,n)
-                list.forEach(experiment => {console.log(experiment.id);ctx.dispatch('plates/loadByExperimentId', experiment.id, { root: true })})
+                //Get all unique project ids
+                const unique = [...new Set(list.map(item => item.projectId))]
+                unique.forEach(id => {
+                    //For each projectId, load experimentSummaries and add them to recent experiments.
+                    experimentAPI.loadExperimentSummariesByProjectId(id).then(summaries => {
+                        ctx.commit('cacheRecentExperimentSummaries',summaries)
+                    });
+                })
                 ctx.commit('cacheRecentExperiments', list)
             })
     },
@@ -111,25 +122,31 @@ const mutations = {
         });
     },
     cacheRecentExperiments(state, recentExperiments) {
-        state.recentExperiments = recentExperiments.sort((p1, p2) => {
-            let p1Time = new Date((p1.updatedOn)?p1.updatedOn:p1.createdOn).getTime()
-            let p2Time = new Date((p2.updatedOn)?p2.updatedOn:p2.createdOn).getTime()
-            //Fix sort not stopped when reached 0
-            if(!isFinite(p1Time)&&!isFinite(p2Time)) return 0
-            if(!isFinite(p1Time)) return 1
-            if(!isFinite(p2Time)) return -1
-            return  p2Time - p1Time;
-        })
-        console.log(state.recentExperiments)
+        state.recentExperiments = recentExperiments
+
     },
     deleteExperiment(state, id) {
         state.experiments = state.experiments.filter(exp => exp.id !== id)
+    },
+    cacheRecentExperimentSummaries(state, summaries) {
+        summaries.forEach(sum => {
+            if (!containsSummary(state, sum)) state.recentExperimentSummaries.push(sum)
+        })
     }
 }
 
 function containsExperiment(state, experiment) {
     for (var i = 0; i < state.experiments.length; i++) {
         if (state.experiments[i].id === experiment.id) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function containsSummary(state, summary) {
+    for (var i = 0; i < state.recentExperimentSummaries.length; i++) {
+        if (state.recentExperimentSummaries[i].experimentId === summary.experimentId) {
             return true;
         }
     }

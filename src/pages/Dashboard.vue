@@ -34,22 +34,22 @@
         </template>
         <template v-slot:body-cell-nrOfPlates="props" >
           <q-td :props="props">
-            {{platesInExperiments[props.row.id]?.length}}
+            {{recentExperimentSummaries.find(sum => sum.experimentId===props.row.id)?.nrPlates.toString()||"-"}}
           </q-td>
         </template>
         <template v-slot:body-cell-nrOfPlatesCalculated="props" >
           <q-td :props="props">
-            {{platesInExperiments[props.row.id]?.filter(x=> x.calculationStatus==='CALCULATION_OK').length}}
+            {{recentExperimentSummaries.find(sum => sum.experimentId===props.row.id)?.nrPlatesCalculated.toString()||"-"}}
           </q-td>
         </template>
         <template v-slot:body-cell-nrOfPlatesValidated="props" >
           <q-td :props="props">
-            {{platesInExperiments[props.row.id]?.filter(x=> x.validationStatus==='VALIDATED').length}}
+            {{recentExperimentSummaries.find(sum => sum.experimentId===props.row.id)?.nrPlatesValidated.toString()||"-"}}
           </q-td>
         </template>
         <template v-slot:body-cell-nrOfPlatesApproved="props" >
           <q-td :props="props">
-            {{platesInExperiments[props.row.id]?.filter(x=> x.approvalStatus==='APPROVED').length}}
+            {{recentExperimentSummaries.find(sum => sum.experimentId===props.row.id)?.nrPlatesApproved.toString()||"-"}}
           </q-td>
         </template>
       </q-table>
@@ -59,7 +59,7 @@
 </template>
 
 <script>
-  import {computed} from "vue";
+import {computed} from "vue";
   import {useStore} from "vuex";
   import RecentProjects from "@/components/dashboard/RecentProjects";
   import RecentCalculations from "../components/dashboard/RecentCalculations";
@@ -78,6 +78,7 @@
 
       const recentProjects = computed(() => store.getters['projects/getNRecentProjects'](3));
       const recentExperiments = computed(() => store.getters['experiments/getRecentExperiments']());
+      const recentExperimentSummaries = computed(() => store.getters['experiments/getRecentExperimentSummaries']())
       const projects = computed(() => store.getters['projects/getAll']())
       const platesInExperiments = computed(() => store.getters['plates/getPlatesInExperiment']())
 
@@ -101,7 +102,8 @@
         columns,
         recentExperiments,
         projects,
-        platesInExperiments
+        platesInExperiments,
+        recentExperimentSummaries
       }
     },
     methods: {

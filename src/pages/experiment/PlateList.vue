@@ -79,7 +79,7 @@
         <div class="row items-center cursor-pointer">
           <q-btn flat round icon="more_horiz" style="border-radius: 50%;">
             <q-menu fit>
-              <q-list style="min-width: 100px">
+              <q-list>
                 <q-item clickable
                         v-if="props.row.approvalStatus==='APPROVAL_NOT_SET'">
                   <q-item-section>Validation</q-item-section>
@@ -90,12 +90,15 @@
                   <q-menu anchor="top end" self="top start">
                     <q-list>
                       <q-item clickable v-if="props.row.validationStatus==='VALIDATION_NOT_SET'" @click="validate(props.row.id, props.row.experimentId)">
+                        <q-item-section avatar><q-icon name="check_circle"/></q-item-section>
                         <q-item-section>Validate</q-item-section>
                       </q-item>
                       <q-item clickable v-if="props.row.validationStatus==='VALIDATION_NOT_SET'" @click="invalidate(props.row.id, props.row.experimentId)">
+                        <q-item-section avatar><q-icon name="cancel"/></q-item-section>
                         <q-item-section>Invalidate</q-item-section>
                       </q-item>
                       <q-item clickable v-if="props.row.validationStatus!=='VALIDATION_NOT_SET'" @click="resetValidation(props.row.id, props.row.experimentId)">
+                        <q-item-section avatar><q-icon name="horizontal_rule"/></q-item-section>
                         <q-item-section>Reset Validation</q-item-section>
                       </q-item>
                     </q-list>
@@ -110,9 +113,11 @@
                   <q-menu anchor="top end" self="top start">
                     <q-list>
                       <q-item clickable v-if="props.row.approvalStatus==='APPROVAL_NOT_SET'" @click="approve(props.row.id, props.row.experimentId)">
+                        <q-item-section avatar><q-icon name="check_circle"/></q-item-section>
                         <q-item-section>Approve</q-item-section>
                       </q-item>
                       <q-item clickable v-if="props.row.approvalStatus==='APPROVAL_NOT_SET'" @click="disapprove(props.row.id, props.row.experimentId)">
+                        <q-item-section avatar><q-icon name="cancel"/></q-item-section>
                         <q-item-section>Disapprove</q-item-section>
                       </q-item>
                     </q-list>
@@ -120,9 +125,11 @@
 
                 </q-item>
                 <q-item clickable @click="calculatePlate(props.row.id)">
+                  <q-item-section avatar><q-icon name="calculate"/></q-item-section>
                   <q-item-section>Calculate plate</q-item-section>
                 </q-item>
                 <q-item clickable @click="selectedPlateId=props.row.id;linkDialog = true">
+                  <q-item-section avatar><q-icon name="playlist_add"/></q-item-section>
                   <q-item-section>Link Plate Template</q-item-section>
                 </q-item>
               </q-list>
@@ -216,6 +223,7 @@ export default {
     },
     approve(id, experimentId) {
       //put approvalStatus: APPROVED
+      console.log(id)
       this.selectedPlateId = id
       this.experimentId = experimentId
       this.approveDialog = true

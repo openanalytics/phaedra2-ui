@@ -142,11 +142,11 @@ const mutations = {
         let i = state.plates.findIndex(t => t.id === pl.id);
         if(i>-1){
             for (const property in pl){
-                state.plates[i] = pl[property]
+                state.plates[i][property] = pl[property]
             }
         }
         //Replace properties in state.currentPlate
-        if(state.currentPlate){
+        if(Object.keys(state.currentPlate).length>0){
             for (const property in pl){
                 state.currentPlate[property] = pl[property]
             }

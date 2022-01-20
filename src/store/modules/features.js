@@ -152,9 +152,9 @@ const mutations = {
     editFeature(state, feature) {
         //Replace properties in state.plates
         let i = state.features.findIndex(t => t.id === feature.id);
-        if (i) {
+        if (i > -1) {
             for (const property in feature) {
-                state.features[i] = feature[property]
+                state.features[i][property] = feature[property]
             }
         }
         //Replace properties in state.featureInProtocol
