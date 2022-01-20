@@ -210,6 +210,10 @@
                 label: "Capture Jobs",
                 icon: 'list_alt',
                 route: 'dataCaptureJobs',
+              },
+              {
+                label: "Measurements",
+                route: 'capturedMeasurements'
               }
             ]
           },
