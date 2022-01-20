@@ -6,7 +6,7 @@
         Captured Measurements
       </div>
       <div class="row q-pa-lg oa-section-body">
-        <q-table table-header-class="text-grey" flat :rows="measurements" :columns="columns" row-key="id" class="full-width" :pagination="{ rowsPerPage: 20}" :filter="filterValue" :filter-method="filterMethod">
+        <q-table table-header-class="text-grey" flat :rows="measurements" :columns="columns" row-key="id" class="full-width" :pagination="{ rowsPerPage: 20, sortBy: 'createdOn', descending: true}" :filter="filterValue" :filter-method="filterMethod">
           <template v-slot:top-right>
             <div class="row">
               <q-input outlined rounded dense debounce="300" v-model="filterValue" placeholder="Search">
@@ -56,7 +56,7 @@ export default {
         name: 'createdOn',
         align: 'left',
         label: 'Created On',
-        field: 'createDate',
+        field: 'createdOn',
         sortable: true,
         format: FormatUtils.formatDate
       },
