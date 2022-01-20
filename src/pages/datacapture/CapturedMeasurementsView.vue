@@ -2,7 +2,7 @@
   <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
     <div class="q-pa-md">
       <div class="row text-h6 items-center q-px-md oa-section-title">
-        <q-icon name="list_alt" class="on-left"/>
+        <q-icon name="text_snippet" class="on-left"/>
         Captured Measurements
       </div>
       <div class="row q-pa-lg oa-section-body">
