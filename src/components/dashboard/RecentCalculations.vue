@@ -20,7 +20,7 @@
         <q-td :props="props">
           <router-link :to="'/plate/' + props.row.plateId" class="nav-link">
             <div class="row items-center cursor-pointer">
-              {{plates.find(plate => plate.id === props.row.plateId)?.barcode}}
+              {{plates.find(plate => plate.id === props.row.plateId)?.barcode||"-"}}
             </div>
           </router-link>
         </q-td>

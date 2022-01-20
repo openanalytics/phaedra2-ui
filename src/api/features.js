@@ -98,9 +98,33 @@ export default {
             });
         return result;
     },
-    async CalculationInputValue(featureId) {
+    async createCalculationInputValue(featureId, civ) {
         let result = null;
-        await axios.get(apiURL + '/features/' + featureId + '/calculationinputvalue')
+        await axios.post(apiURL + '/features/' + featureId + '/calculationinputvalue', civ)
+            .then(response => {
+                if (response.status === 201)
+                    result = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result;
+    },
+    async updateCalculationInputValue(featureId, civ) {
+        let result = null;
+        await axios.put(apiURL + '/features/' + featureId + '/calculationinputvalue', civ)
+            .then(response => {
+                if (response.status === 200)
+                    result = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result;
+    },
+    async deleteCalculationInputValue(id) {
+        let result = null;
+        await axios.delete(apiURL + '/features/calculationinputvalue/'+id)
             .then(response => {
                 if (response.status === 200)
                     result = response.data;
