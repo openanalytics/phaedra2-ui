@@ -50,7 +50,7 @@ export default {
     addFeature() {
       console.log(this.newFeature)
       this.newFeature.formulaId = this.selectedFormulaId.id
-      this.$store.dispatch('features/createFeature', this.newFeature)
+      this.$store.dispatch('features/createFeature', {newFeature: this.newFeature, civ: this.variables.list})
       this.$emit('update:show', false)
     },
   },
