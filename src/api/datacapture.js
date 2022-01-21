@@ -22,4 +22,12 @@ export default {
         const response = await axios.post(apiURL + '/cancel',{id: jobId})
         return response.data;
     },
+    async getCaptureJobConfig(args) {
+        let result = null;
+        await axios.get(apiURL + '/job/config', {params: {id: args}})
+            .then(response => {
+                result = response.data;
+            })
+        return result;
+    },
 }
