@@ -49,6 +49,9 @@
           <div class="row justify-end action-button">
             <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete" @click="deletedialog = true"/>
           </div>
+          <div class="row justify-end action-button">
+            <q-btn size="sm" color="primary" icon="import_export" class="oa-button-delete" label="Export" @click="exportToJson(protocolId)"/>
+          </div>
         </div>
       </div>
     </div>
@@ -290,6 +293,9 @@ export default {
     },
     deleteFeature(){
       this.$store.dispatch('features/deleteFeature',this.selectedFeature)
+    },
+    exportToJson(id){
+      this.$store.dispatch('protocols/downloadAsJson',id)
     }
   }
 

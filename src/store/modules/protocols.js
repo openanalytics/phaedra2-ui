@@ -75,6 +75,25 @@ const actions = {
             .then(() => {
                 ctx.commit('loadProtocol', protocol)
             })
+    },
+    async downloadAsJson({rootGetters}, id) {
+        //Make hard copy of protocol and assign features + formulaName
+        const protocol = {...rootGetters['protocols/getById'](id)}
+        protocol.features = rootGetters['features/getByProtocolId'](id).map(a => {return {...a}})
+        protocol.features.forEach(f => {
+            if(rootGetters['calculations/getFormula'](f.formulaId))
+                f.formulaName = rootGetters['calculations/getFormula'](f.formulaId).name
+        })
+        //Parse and save to default downloads folder
+        const data = JSON.stringify(protocol)
+        const blob = new Blob([data], {type: 'text/plain'})
+        const e = document.createEvent('MouseEvents'),
+            a = document.createElement('a');
+        a.download = protocol.name + ".json";
+        a.href = window.URL.createObjectURL(blob);
+        a.dataset.downloadurl = ['text/json', a.download, a.href].join(':');
+        e.initEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+        a.dispatchEvent(e);
     }
 }
 
