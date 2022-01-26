@@ -62,6 +62,7 @@ const routes = [
     },
     { name: "protocol", path: "/protocol/:id", component: ProtocolView },
     { name: "newProtocol", path: "/protocol/new", component: NewProtocolView },
+    { name: "importProtocol", path: "/protocol/import", component: ImportProtocolView},
     { name: "template", path: "/template/:id", component: PlateTemplateView},
     { name: "newPlateTemplate", path: "/template/new", component: NewPlateTemplateView},
 
@@ -91,6 +92,7 @@ import 'material-icons/iconfont/material-icons.css';
 // --------------------------------------------------------------------
 import { createApp } from "vue"
 import App from "./App.vue"
+import ImportProtocolView from "./pages/protocol/ImportProtocolView";
 
 const app = createApp(App)
 app.use(router)
