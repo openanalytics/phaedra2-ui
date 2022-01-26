@@ -58,7 +58,7 @@ const actions = {
     },
     async saveProtocol(ctx, protocol) {
         const newProtocol = await protocolAPI.createNewProtocol(protocol)
-        ctx.commit('loadProtocol', newProtocol)
+        ctx.commit('cacheProtocols', [newProtocol])
         return newProtocol
     },
     async deleteProtocol(ctx, protocol){
@@ -76,7 +76,7 @@ const actions = {
             })
     },
     async downloadAsJson({rootGetters}, id) {
-        //Make hard copy of protocol and assign features + formulaName
+        //Make hard copy of protocol and assign features + formulaName, delete id
         const protocol = {...rootGetters['protocols/getById'](id)}
         delete protocol.id
         protocol.features = rootGetters['features/getByProtocolId'](id).map(a => {return {...a}})
@@ -85,8 +85,9 @@ const actions = {
             if(rootGetters['calculations/getFormula'](f.formulaId))
                 f.formulaName = rootGetters['calculations/getFormula'](f.formulaId).name
             //Load, remove ids and add civ
+            if(rootGetters['features/getCalculationInputValueByFeatureId'](f.id)){
             f.calculationInputValues = rootGetters['features/getCalculationInputValueByFeatureId'](f.id).map(a => {return {...a}})
-            f.calculationInputValues.forEach(c => {delete c.id; delete c.featureId})
+            f.calculationInputValues.forEach(c => {delete c.id; delete c.featureId})}
             delete f.id
             delete f.protocolId
         })
