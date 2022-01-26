@@ -106,14 +106,13 @@ const actions = {
         delete json.features
         //Add new protocol without features
         const protocol = await dispatch('saveProtocol', json)
-        console.log(protocol, 'before foreach')
         //Add new features without formulaName, with new protocolId
         features.forEach(f => {
-            delete f.formulaName
-            console.log(protocol)
+            const civs = f.calculationInputValues
             f.protocolId = protocol.id
-            console.log('protocols:',f)
-            dispatch('features/createFeature', {newFeature: f}, {root:true})
+            delete f.formulaName
+            delete f.calculationInputValues
+            dispatch('features/createFeature', {newFeature: f, civs: civs}, {root:true})
         })
     }
 }

@@ -25,7 +25,7 @@
             <div v-if="variables.list.length>0">
               <br>
               <span class="text-primary">Formula variables:</span>
-              <q-input :key="variable.name" v-model="variable.input" v-for="variable in variables.list" :label="variable.name"></q-input>
+              <q-input :key="variable.variableName" v-model="variable.sourceMeasColName" v-for="variable in variables.list" :label="variable.variableName"></q-input>
             </div>
           </div>
         </div>
@@ -50,7 +50,7 @@ export default {
     addFeature() {
       console.log(this.newFeature)
       this.newFeature.formulaId = this.selectedFormulaId.id
-      this.$store.dispatch('features/createFeature', {newFeature: this.newFeature, civ: this.variables.list})
+      this.$store.dispatch('features/createFeature', {newFeature: this.newFeature, civs: this.variables.list})
       this.$emit('update:show', false)
     },
   },
@@ -67,7 +67,7 @@ export default {
     })
     let variables = reactive({list: []})
     watch(formulaInputs, (i) =>{
-      variables.list = i.map(i => {return {name: i,input: ''}})
+      variables.list = i.map(i => {return {variableName: i,sourceMeasColName: ''}})
     })
     return {
       props,

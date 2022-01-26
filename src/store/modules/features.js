@@ -61,8 +61,8 @@ const actions = {
             .then((result) => {
                 ctx.commit('cacheOne', result);
                 ctx.commit('features/cacheInProtocol', result, {root: true})
-                args.civ.forEach(c => {
-                    ctx.dispatch('createCalculationInputValue',{featureId: result.id, civ: {variableName: c.name, sourceMeasColName: c.input}})
+                args.civs.forEach(c => {
+                    ctx.dispatch('createCalculationInputValue',{featureId: result.id, civ: c})
                 })
             })
     },
