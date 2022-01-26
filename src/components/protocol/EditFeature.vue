@@ -70,12 +70,10 @@ export default {
       exported.feature.value = {...originalFeature}
       exported.originalFormulaId = ref(originalFeature.formulaId)
       //Fetch previous formula variable names
-      store.dispatch('features/getCalculationInputValue',exported.feature.value.id).then(() => {
-        const civs = store.getters['features/getCalculationInputValueByFeatureId'](exported.feature.value.id)
+      const civs = store.getters['features/getCalculationInputValueByFeatureId'](exported.feature.value.id)
         if (civs)
           //Make full copy of getter + sort alphabetically instead of by date modified
           exported.previous.list = JSON.parse(JSON.stringify(civs)).sort((a, b) => a.variableName.localeCompare(b.variableName))
-      })
     }
     fetchFeatureWorkingCopy()
 

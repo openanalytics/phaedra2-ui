@@ -51,7 +51,9 @@ const actions = {
         if (features) {
             ctx.commit('cacheMany', features)
             ctx.commit('cacheFeaturesInProtocol', {protocolId, features})
-            return features
+            features.forEach(f => {
+                ctx.dispatch('getCalculationInputValue', f.id)
+            })
         }
     },
     async createFeature(ctx, args) {

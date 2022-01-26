@@ -81,10 +81,14 @@ const actions = {
         delete protocol.id
         protocol.features = rootGetters['features/getByProtocolId'](id).map(a => {return {...a}})
         protocol.features.forEach(f => {
-            delete f.id
-            delete f.protocolId
+            //Add formulaName
             if(rootGetters['calculations/getFormula'](f.formulaId))
                 f.formulaName = rootGetters['calculations/getFormula'](f.formulaId).name
+            //Load, remove ids and add civ
+            f.calculationInputValues = rootGetters['features/getCalculationInputValueByFeatureId'](f.id).map(a => {return {...a}})
+            f.calculationInputValues.forEach(c => {delete c.id; delete c.featureId})
+            delete f.id
+            delete f.protocolId
         })
         //Parse and save to default downloads folder
         const data = JSON.stringify(protocol)
