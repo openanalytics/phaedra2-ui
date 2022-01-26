@@ -1,12 +1,11 @@
 import measAPI from '@/api/measurements.js'
 
 const state = () => ({
-    measurements: [],
-    measurementsInPlate: {}
+    measurements: []
 })
 
 const getters = {
-    getAll: (state) => () => {
+     getAll: (state) => () => {
         return state.measurements;
     },
     getById: (state) => (id) => {
@@ -17,12 +16,6 @@ const getters = {
     },
     isLoaded: (state) => (id) => {
         return state.measurements?.find(meas => meas.id === id) != null
-    },
-    getPlateMeasurements: (state) => (plateId) => {
-        return state.measurementsInPlate[plateId];
-    },
-    getActiveMeasurement: (state) => () => {
-        return state.measurementsInPlate.find(meas => meas.active === true)
     }
 }
 
@@ -32,21 +25,6 @@ const actions = {
             .then(result => {
                 ctx.commit('cacheMeasurements', result);
             });
-    },
-    async loadPlateMeasurements(ctx, plate) {
-        if (plate.measurements) {
-            plate.measurements.forEach(pm => {
-                measAPI.getMeasurementById(pm.measurementId)
-                    .then(response => {
-                        let plateMeas = response;
-                        plateMeas['active'] = pm.active;
-                        ctx.commit('cacheMeasurementsInPlate', { plateMeas: plateMeas, plateId: plate.id })
-                    })
-            })
-        } else {
-            ctx.commit('cacheMeasurementsInPlate', { plateId: plate.id })
-        }
-
     },
     async loadById(ctx, id) {
         const meas = await measAPI.getMeasurementById(id)
@@ -59,6 +37,11 @@ const actions = {
                 ctx.commit('cacheMeasurement', measurement);
             }
         }
+    },
+    async loadAvailableMeasurements(ctx, plate) {
+        const allMeasurements = await measAPI.getAllMeasurements();
+        const availableMeasurements = allMeasurements.filter(m => m.rows === plate.rows && m.columns === plate.columns);
+        ctx.commit("cacheMeasurements", availableMeasurements);
     }
 }
 
@@ -69,21 +52,12 @@ const mutations = {
             state.measurements.push(meas);
     },
     cacheMeasurements(state, measurements) {
-        measurements?.forEach(meas => {
-            var measurement = state.measurements.find(m => m.id === meas.id);
-            if (measurement === undefined)
-                state.measurements.push(meas)
-        });
-    },
-    cacheMeasurementsInPlate(state, params) {
-        // const plateMeas = state.measurementsInPlate.find(pm => pm.id === plateMeasurement.id);
-        if (state.measurementsInPlate[params.plateId]) {
-            const plateMeas = state.measurementsInPlate[params.plateId].find(pm => pm.id === params.plateMeas.id);
-            if (plateMeas === undefined)
-                state.measurementsInPlate[params.plateId].push(params.plateMeas);
-        } else {
-            if (params.plateMeas) state.measurementsInPlate[params.plateId] = [params.plateMeas];
-        }
+        state.measurements = [...measurements];
+        // measurements?.forEach(meas => {
+        //     var measurement = state.measurements.find(m => m.id === meas.id);
+        //     if (measurement === undefined)
+        //         state.measurements.push(meas)
+        // });
     }
 }
 

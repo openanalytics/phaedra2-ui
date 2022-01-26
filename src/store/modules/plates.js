@@ -83,9 +83,16 @@ const actions = {
         const meas = await plateAPI.linkMeasurement(plateMeasurement.plateId, plateMeasurement);
         ctx.commit('addMeasurement', meas);
     },
-    async setActiveMeasurement(ctx, measActiveState) {
-        ctx.commit('setMeasurementActiveState', measActiveState);
-    },
+    async setActiveMeasurement(ctx, plateMeasurement) {
+        plateMeasurement["linkedBy"] = "sberberovic";
+        plateMeasurement["linkedOn"] = new Date();
+        await plateAPI.setActivePlateMeasurement(plateMeasurement)
+            .then(() => {
+                ctx.commit('setActiveMeasurement', plateMeasurement);
+            });
+    }
+
+    ,
     async deletePlate(ctx, plate) {
         await plateAPI.deletePlateById(plate.id)
             .then(() => {
@@ -135,8 +142,16 @@ const mutations = {
     addMeasurement(state, plateMeasurement) {
         state.currentPlate?.measurements ? state.currentPlate.measurements.push(plateMeasurement) : state.currentPlate.measurements = [plateMeasurement];
     },
-    setMeasurementActiveState(state, isActive) {
-        state.currentPlate.measurements.filter(m => m.id === isActive.measId)[0].active = isActive.active;
+    setActiveMeasurement(state, { measurementId, active }) {
+        for (let m in state.currentPlate.measurements) {
+            if (state.currentPlate.measurements[m].measurementId === measurementId)
+                state.currentPlate.measurements[m].active = active;
+        }
+
+        for (let m in state.currentPlate.measurements) {
+            if (state.currentPlate.measurements[m].measurementId !== measurementId)
+                state.currentPlate.measurements[m].active = false;
+        }
     },
     deletePlate(state, pl) {
         state.plates = state.plates.filter(plate => plate.id !== pl.id)
@@ -169,7 +184,7 @@ const mutations = {
 
 function containsPlate(state, plate) {
     for (var i = 0; i < state.plates.length; i++){
-        if (state.plates[i].id === plate.id) {
+        if (state.plates[i]?.id === plate.id) {
             return true;
         }
     }

@@ -2,13 +2,13 @@
   <q-table
       table-header-class="text-dark"
       flat square
-      :rows="measurements"
+      :rows="plateMeasurements"
       :columns="columns"
       row-key="id"
       no-data-label="No measurements associated with this plate"
   >
     <template v-slot:top-right>
-      <q-btn dense color="primary" label="Set measurement" @click="openMeasDialog = true">
+      <q-btn dense color="primary" label="Set measurement" @click="addMeasDialog">
       </q-btn>
     </template>
     <template v-slot:body-cell="props">
@@ -18,10 +18,9 @@
     </template>
     <template v-slot:body-cell-active="props">
       <q-td :props="props">
-        <q-icon name="link" v-show="props.row.active"/>
         <q-toggle
             :model-value="props.row.active"
-            @input="() => updateActiveState()"/>
+            @update:model-value="val => updateActiveState(val, props.row)"/>
       </q-td>
     </template>
   </q-table>
@@ -53,23 +52,22 @@ import {ref} from 'vue'
 
 const columns = [
   {name: 'active', align: 'left', label: 'Active?', field: 'active', sortable: true},
-  {name: 'id', align: 'left', label: 'ID', field: 'measurementId', sortable: true},
+  {name: 'measurementId', align: 'left', label: 'Measurement Id', field: 'measurementId', sortable: true},
+  {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
+  {name: 'dimensions', align: 'left', label: 'Dimensions', field: 'dimensions', sortable: true},
+  {name: 'wellColumns', align: 'left', label: 'Well Columns', field: 'wellColumns', sortable: true},
+  {name: 'subWellColumns', align: 'left', label: 'SubWell Columns', field: 'subWellColumns', sortable: true},
+  {name: 'imageChannels', align: 'left', label: 'Image Channels', field: 'imageChannels', sortable: true},
+  {
+    name: 'createdOn',
+    align: 'left',
+    label: 'Created On',
+    field: 'createdOn',
+    sortable: true,
+    format: val => `${val?.toLocaleString()}`
+  },
   {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true}
 ]
-
-// {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
-// {name: 'dimensions', align: 'left', label: 'Dimensions', field: 'dimensions', sortable: true},
-// {name: 'wellColumns', align: 'left', label: 'Well Columns', field: 'wellColumns', sortable: true},
-// {name: 'subWellColumns', align: 'left', label: 'SubWell Columns', field: 'subWellColumns', sortable: true},
-// {name: 'imageChannels', align: 'left', label: 'Image Channels', field: 'imageChannels', sortable: true},
-// {
-//   name: 'createdOn',
-//   align: 'left',
-//   label: 'Created On',
-//   field: 'createdOn',
-//   sortable: true,
-//   format: val => `${val?.toLocaleString()}`
-// },
 
 export default {
   props: {
@@ -83,29 +81,38 @@ export default {
   data() {
     return {
       openMeasDialog: ref(false),
+      selectedMeasurement: ref()
     }
   },
   methods: {
+    addMeasDialog() {
+      this.$store.dispatch("measurements/loadAvailableMeasurements", this.plate);
+      this.openMeasDialog = true;
+    },
     addMeasurement() {
       const activePlateMeasurement = {
         plateId: this.plate.id,
         measurementId: this.selectedMeasurement.id,
         active: true,
         linkedBy: "sasa.berberovic", //TODO: select logged in username
-        linkedOn: new Date()
+        linkedOn: new Date(),
+        ...this.selectedMeasurement
       };
 
       this.$store.dispatch('plates/addMeasurement', activePlateMeasurement);
     },
-    updateActiveState() {
+    updateActiveState(active, {plateId, measurementId}) {
       console.log("Change active state");
-      // this.$store.dispatch('plates/setActiveMeasurement', value);
+      this.$store.dispatch('plates/setActiveMeasurement', { plateId, measurementId, active });
     }
   },
   computed: {
-    measurements() {
+    plateMeasurements() {
       return this.$store.getters['plates/getCurrentPlateMeasurements']();
     },
+    availableMeasurements() {
+      return this.$store.getters['measurements/getAll']();
+    }
   }
 }
 
