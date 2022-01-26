@@ -26,15 +26,21 @@
               <div class="col">{{ experiment.id }}</div>
             </div>
             <div class="row">
+              <div class="col-3 text-weight-bold">Created On:</div>
+              <div class="col">{{ FormatUtils.formatDate(experiment.createdOn) }}</div>
+            </div>
+            <div class="row">
+              <div class="col-3 text-weight-bold">Created By:</div>
+              <div class="col">{{ experiment.createdBy }}</div>
+            </div>
+            <div class="row">
               <div class="col-3 text-weight-bold">Description:</div>
               <div class="col">{{ experiment.description }}</div>
             </div>
             <div class="row">
               <div class="col-3 text-weight-bold">Tags:</div>
               <div class="col">
-                <div class="tag-icon flex inline" v-for="tag in experiment.tags" :key="tag">
-                  <Tag :tagInfo="tag" :objectInfo="experiment" :objectClass="'EXPERIMENT'"/>
-                </div>
+                <TagList :objectInfo="experiment" :objectClass="'EXPERIMENT'" />
               </div>
             </div>
           </div>
@@ -49,9 +55,6 @@
             </div>
             <div class="row justify-end action-button">
               <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete" @click="deletedialog = true"/>
-            </div>
-            <div class="row justify-end action-button">
-              <q-btn size="sm" color="primary" icon="sell" class="oa-button-tag" label="Add Tag" @click="prompt = true"/>
             </div>
           </div>
 
@@ -77,7 +80,7 @@
         <!--        <router-view v-model:experiment="experiment" v-model:newPlateTab="newPlateTab"></router-view>-->
         <q-tab-panels v-model="activeTab" animated style="width: 100%">
           <q-tab-panel name="overview">
-            <PlateList :experiment="experiment"/>
+            <PlateList :experiment="experiment" v-model:newPlateTab="newPlateTab"/>
           </q-tab-panel>
           <q-tab-panel name="statistics">
             <PlateStatsList :experiment="experiment"/>
@@ -113,23 +116,6 @@
         </div>
       </div>
     </div>
-
-    <q-dialog v-model="prompt" persistent>
-      <q-card>
-        <q-card-section style="min-width: 350px">
-          <div class="text-h6">Tag:</div>
-        </q-card-section>
-
-        <q-card-section>
-          <q-input dense v-model="experimentTag" autofocus @keyup.enter="prompt = false"/>
-        </q-card-section>
-
-        <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="Cancel" v-close-popup/>
-          <q-btn flat label="Add tag" v-close-popup @click="onClick"/>
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
 
     <q-dialog v-model="deletedialog" persistent>
       <q-card style="min-width: 30vw">
@@ -186,17 +172,19 @@ import {ref, computed} from 'vue'
 import {useStore} from 'vuex'
 import {useRoute} from 'vue-router'
 
-import Tag from "@/components/tag/Tag";
+import TagList from "@/components/tag/TagList";
 import EditExperiment from "./EditExperiment";
 import PropertyTable from "@/components/property/PropertyTable";
 import PlateList from "@/pages/experiment/PlateList";
 import PlateStatsList from "@/pages/experiment/PlateStatsList";
 import PlateGrid from "@/pages/experiment/PlateGrid";
 
+import FormatUtils from "@/lib/FormatUtils.js"
+
 export default {
   name: 'Experiment',
   components: {
-    Tag,
+    TagList,
     EditExperiment,
     PropertyTable,
     PlateList,
@@ -204,15 +192,6 @@ export default {
     PlateGrid
   },
   methods: {
-    onClick() {
-      const tagInfo = {
-        objectId: this.experiment.id,
-        objectClass: "EXPERIMENT",
-        tag: this.experimentTag
-      }
-
-      this.$store.dispatch('experiments/tagExperiment', tagInfo)
-    },
     createNewPlate(){
       this.newPlate.sequence = "1"
       this.newPlate.experimentId = this.experimentId
@@ -243,13 +222,12 @@ export default {
       experimentId,
       experiment,
       project,
-      activeTab: ref('overview')
+      activeTab: ref('overview'),
+      FormatUtils
     }
   },
   data() {
     return {
-      experimentTag: ref(""),
-      prompt: ref(false),
       newPlateTab: ref(false),
       newPlate: {
         barcode: null,
@@ -258,6 +236,7 @@ export default {
         columns: null,
         sequence: null,
         experimentId: null,
+        linkStatus: "NOT_LINKED",
         calculationStatus: "CALCULATION_NEEDED",
         validationStatus: "VALIDATION_NOT_SET",
         approvalStatus: "APPROVAL_NOT_SET",

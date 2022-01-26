@@ -31,11 +31,11 @@ export default {
   setup(props) {
     const wellColorFunction = (well) => {
       if (!props.plateResult || !props.feature) return WellUtils.getWellTypeColor("EMPTY")
-      const selectedProtocol = props.plateResult.protocols[props.feature.protocolId];
-      if (!selectedProtocol) return WellUtils.getWellTypeColor("EMPTY")
-      const selectedMeasurement = Object.values(selectedProtocol.measurements)[0][0].resultData // pick the resultData of first measurement
-      const rsData = selectedMeasurement.find(it => it.featureId === props.feature.id)
-      const wellNr = WellUtils.getWellNr(well.row, well.column, 8) // TODO
+
+      const rsData = props.plateResult.find(rs => rs.featureId == props.feature.id);
+      if (!rsData) return WellUtils.getWellTypeColor("EMPTY");
+
+      const wellNr = WellUtils.getWellNr(well.row, well.column, props.plate.columns)
       let value = rsData.values[wellNr - 1]
       let index = ColorUtils.findGradientIndex(value, rsData.values, ColorUtils.defaultHeatmapGradients)
       if (index === -1) return WellUtils.getWellTypeColor("EMPTY")

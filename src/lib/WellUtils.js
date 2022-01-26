@@ -3,12 +3,25 @@ function getWellTypeColor(wellType) {
       case "SAMPLE": return "#5050C8";
       case "NC": return "#C80000";
       case "PC": return "#00C800";
+      case "LC": return "#C80000";
+      case "HC": return "#00C800";
       default: return "#969696";
     }
 }
 
 function getWellCoordinate(row, column) {
-    return String.fromCharCode(64 + row) + column;
+    return getWellRowLabel(row) + column;
+}
+
+function getWellRowLabel(row) {
+    let rowLabel = String.fromCharCode(64 + row);
+    if (row > 26) {
+        // After row Z, start with AA
+        let div = row / 26;
+        let mod = row % 26;
+        rowLabel = String.fromCharCode(64 + div) + String.fromCharCode(64 + mod);
+    }
+    return rowLabel;
 }
 
 function getWellNr(row, column, colCount) {
@@ -22,6 +35,7 @@ function getWell(plate, row, column) {
 export default {
     getWellTypeColor,
     getWellCoordinate,
+    getWellRowLabel,
     getWellNr,
     getWell
 }

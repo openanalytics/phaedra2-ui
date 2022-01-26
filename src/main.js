@@ -1,3 +1,13 @@
+// DEV API Token
+// --------------------------------------------------------------------
+
+import axios from "axios";
+const token = process.env.VUE_APP_API_BEARER_TOKEN;
+if (token) {
+    console.log("DEV: Bearer token found, using it for all API calls");
+    axios.defaults.headers.common['Authorization'] = 'Bearer ' + token;
+}
+
 // Routing
 // --------------------------------------------------------------------
 
@@ -13,15 +23,21 @@ import NewExperimentView from '@/pages/experiment/NewExperimentView.vue'
 import PlateView from '@/pages/plate/PlateView.vue'
 import ProtocolView from '@/pages/protocol/ProtocolView.vue'
 import NewProtocolView from "@/pages/protocol/NewProtocolView";
+import FormulasView from "@/pages/calculation/formula/FormulasView";
+import FormulaView from "@/pages/calculation/formula/FormulaView";
 import CaptureJobsView from '@/pages/datacapture/CaptureJobsView.vue'
 
 import PlateList from "@/pages/experiment/PlateList.vue"
 import PlateStatsList from "@/pages/experiment/PlateStatsList.vue"
 import PlateGrid from "@/pages/experiment/PlateGrid.vue"
 
-import WellGrid from "@/pages/plate/WellGrid.vue"
+import PlateLayout from "@/pages/plate/PlateLayout.vue"
+import PlateHeatmap from "@/pages/plate/PlateHeatmap.vue"
 import WellList from "@/pages/plate/WellList.vue"
 import MeasList from "@/pages/plate/MeasList.vue"
+
+import PlateTemplateView from "./pages/platelayout/PlateTemplateView";
+import NewPlateTemplateView from "./pages/platelayout/NewPlateTemplateView"
 
 const routes = [
     { name: "dashboard", path: "/", component: Dashboard },
@@ -38,14 +54,20 @@ const routes = [
     },
     { name: "plate", path: "/plate/:id", component: PlateView,
         children: [
-            { path: '', component: WellGrid, props: { gridType: WellGrid.GRID_TYPE_LAYOUT } },
+            { path: '', component: PlateLayout },
             { path: 'measurements', component: MeasList },
-            { path: 'heatmap', component: WellGrid, props: { gridType: WellGrid.GRID_TYPE_HEATMAP } },
+            { path: 'heatmap', component: PlateHeatmap },
             { path: 'wells', component: WellList }
         ]
     },
     { name: "protocol", path: "/protocol/:id", component: ProtocolView },
     { name: "newProtocol", path: "/protocol/new", component: NewProtocolView },
+    { name: "template", path: "/template/:id", component: PlateTemplateView},
+    { name: "newPlateTemplate", path: "/template/new", component: NewPlateTemplateView},
+
+    { name: "calcFormulas", path: "/calc/formulas", component: FormulasView },
+    { name: "calcFormula", path: "/calc/formula/:id", component: FormulaView },
+
     { name: "dataCaptureJobs", path: "/datacapture/jobs", component: CaptureJobsView },
 ]
 const router = createRouter({

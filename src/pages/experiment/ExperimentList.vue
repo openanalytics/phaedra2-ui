@@ -3,7 +3,7 @@
     <q-icon name="science" class="on-left"/>Experiments
   </div>
   <q-table
-      :columns="getColumns()"
+      :columns="columns"
       :rows="experiments"
       row-key="id"
       :pagination="{ rowsPerPage: 10 }"
@@ -17,7 +17,7 @@
         <q-btn size="sm" color="primary" icon="add" label="New Experiment" @click="showNewExperimentDialog = true"/>
       </div>
       <div class="row">
-        <q-input outlined rounded dense debounce="300" v-model="filter" placeholder="Search">
+        <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
           <template v-slot:append>
             <q-icon name="search"/>
           </template>
@@ -38,11 +38,37 @@
     </template>
     <template v-slot:body-cell-tags="props">
       <q-td :props="props">
-        <div class="tag-icon flex inline" v-for="tag in props.row.tags" :key="tag.tag">
-          <q-badge color="green">
-            {{ tag.tag }}
-          </q-badge>
-        </div>
+        <TagList :objectInfo="props.row" :objectClass="'EXPERIMENT'" :readOnly="true" />
+      </q-td>
+    </template>
+    <template v-slot:body-cell-nrPlatesCalculated="props">
+      <q-td :props="props">
+        <q-linear-progress rounded size="20px" color="positive" 
+          :value="props.row.summary[props.col.name] ? props.row.summary[props.col.name] / props.row.summary.nrPlates : 0">
+          <div class="absolute-full flex flex-center">
+            <span class="text-black text-body2">{{props.row.summary[props.col.name] >= 0 ? props.row.summary[props.col.name] + ' / ' + props.row.summary.nrPlates : '?'}}</span>
+          </div>
+        </q-linear-progress>
+      </q-td>
+    </template>
+    <template v-slot:body-cell-nrPlatesValidated="props">
+      <q-td :props="props">
+        <q-linear-progress rounded size="20px" color="positive" 
+          :value="props.row.summary[props.col.name] ? props.row.summary[props.col.name] / props.row.summary.nrPlates : 0">
+          <div class="absolute-full flex flex-center">
+            <span class="text-black text-body2">{{props.row.summary[props.col.name] >= 0 ? props.row.summary[props.col.name] + ' / ' + props.row.summary.nrPlates : '?'}}</span>
+          </div>
+        </q-linear-progress>
+      </q-td>
+    </template>
+    <template v-slot:body-cell-nrPlatesApproved="props">
+      <q-td :props="props">
+        <q-linear-progress rounded size="20px" color="positive" 
+          :value="props.row.summary[props.col.name] ? props.row.summary[props.col.name] / props.row.summary.nrPlates : 0">
+          <div class="absolute-full flex flex-center">
+            <span class="text-black text-body2">{{props.row.summary[props.col.name] >= 0 ? props.row.summary[props.col.name] + ' / ' + props.row.summary.nrPlates : '?'}}</span>
+          </div>
+        </q-linear-progress>
       </q-td>
     </template>
     <template v-slot:no-data>
@@ -75,8 +101,7 @@
     </q-card>
   </q-dialog>
 
-  <table-config v-model:show="configdialog" v-model:visibleColumns="visibleColumns"
-                v-model:columnsList="columnsList" v-model:columnOrder="columnOrder"></table-config>
+  <table-config v-model:show="configdialog" v-model:columns="columns" v-model:visibleColumns="visibleColumns"></table-config>
 </template>
 
 <style scoped>
@@ -95,24 +120,24 @@
   import {useStore} from 'vuex'
 
   import ExperimentContextMenu from "@/components/widgets/ExperimentContextMenu.vue"
-  import TableConfig from "../../components/table/TableConfig";
+  import TableConfig from "@/components/table/TableConfig";
+  import TagList from "@/components/tag/TagList";
 
   import FormatUtils from "@/lib/FormatUtils.js"
 
-  const columns = {
-    name: {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
-    id: {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
-    description: {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-    createdOn: {
-      name: 'createdOn',
-      align: 'left',
-      label: 'Created On',
-      field: 'createdOn',
-      sortable: true,
-      format: FormatUtils.formatDate
-    },
-    tags: {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true}
-  }
+  const columns = ref([
+    {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
+    {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
+    {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
+    {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
+    {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
+    {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
+
+    {name: 'nrPlates', align: 'left', label: 'Plates', field: row => row.summary.nrPlates, sortable: true},
+    {name: 'nrPlatesCalculated', align: 'left', label: 'Calculated', sortable: true},
+    {name: 'nrPlatesValidated', align: 'left', label: 'Validated', sortable: true},
+    {name: 'nrPlatesApproved', align: 'left', label: 'Approved', sortable: true},
+  ])
 
   const filterMethod = function (rows, term) {
     return rows.filter(row => {
@@ -129,7 +154,8 @@
     },
     components: {
       ExperimentContextMenu,
-      TableConfig
+      TableConfig,
+      TagList
     },
     setup(props) {
       const store = useStore()
@@ -140,53 +166,29 @@
         loading.value = false
       })
 
-      //Load columnList for config in setup
-      let columnOrder = ['name','id','description','createdOn','tags']
-      let columnsList = []
-      columnOrder.forEach(function (col) {
-        columnsList.push({column: col})
-      })
-      columnsList.forEach(function (col) {
-        //Dummy data
-        col.dataType = (Math.random() + 1).toString(36).substring(7)
-        col.description = (Math.random() + 1).toString(36).substring(2)
-      })
-
       const showNewExperimentDialog = ref(false)
       const newExperimentName = ref('')
       const doCreateNewExperiment = function() {
         store.dispatch('experiments/createNewExperiment', {
           projectId: props.projectId,
           name: newExperimentName.value,
-          status: 'OPEN'
+          status: 'OPEN',
+          createdOn: new Date()
         })
       }
 
       return {
-        columns,
         filter: ref(''),
         filterMethod,
         loading,
         experiments,
         FormatUtils,
-        visibleColumns: ['name','id','description','createdOn','tags'],
-        columnsList,
+        columns,
+        visibleColumns: columns.value.map(a => a.name),
         configdialog: ref(false),
-        columnOrder,
         showNewExperimentDialog,
         newExperimentName,
         doCreateNewExperiment
-      }
-    },
-    methods: {
-      getColumns(){
-        let newOrder = []
-        let tempList = this.columnOrder.slice()
-        while (tempList.length>0){
-          const shift = tempList.shift()
-          newOrder.push(this.columns[shift])
-        }
-        return newOrder
       }
     }
   }

@@ -6,12 +6,18 @@ function addSelectionBoxSupport(rootElement, wellSlots, selectionHandler) {
         wellSlots: wellSlots,
         selectionHandler: selectionHandler,
         dragInProgress: false,
-        dragStartPosition: null,
+        dragStartPosition: {x:0,y:0},
         selectionRectangle: null,
+        scrollError: {left: 0,right: 0},
 
         dragStart: function(event) {
             if (this.dragInProgress) return
             event.preventDefault()
+            //Calculate pixels moved by scrolling
+            this.scrollError = {
+                left: document.querySelector('.q-panel').scrollLeft,
+                top: document.documentElement.scrollTop
+            }
 
             this.dragInProgress = true
             this.dragStartPosition = { x: event.pageX, y: event.pageY }
@@ -19,8 +25,8 @@ function addSelectionBoxSupport(rootElement, wellSlots, selectionHandler) {
             let parentBounds = rootElement.value.parentNode.getBoundingClientRect()
             let rootStyle = window.getComputedStyle(rootElement.value)
             this.rootOffset = {
-                left: parentBounds.left + parseInt(rootStyle.marginLeft),
-                top: parentBounds.top + parseInt(rootStyle.marginTop)
+                left: parentBounds.left + parseInt(rootStyle.marginLeft) + this.scrollError.left,
+                top: parentBounds.top + parseInt(rootStyle.marginTop) + this.scrollError.top
             }
 
             let box = document.createElement('div')
@@ -44,16 +50,22 @@ function addSelectionBoxSupport(rootElement, wellSlots, selectionHandler) {
         dragEnd: function(event) {
             event.preventDefault()
             this.dragInProgress = false
-            this.rootElement.value.removeChild(this.selectionRectangle)
-
-            let selectedBox = calcRectangleBounds(this.dragStartPosition, { x: event.pageX, y: event.pageY })
+            //Only remove child if it is a child and parent not null
+            if(this.rootElement.value&&this.rootElement.value.contains(this.selectionRectangle)){this.rootElement.value.removeChild(this.selectionRectangle)}
+            //Check if it is on grid
+            var gridContainerCoords = document.querySelector('.gridContainer').getBoundingClientRect()
+            if(gridContainerCoords.left- this.scrollError.left>event.pageX||gridContainerCoords.right- this.scrollError.left<event.pageX||gridContainerCoords.top- this.scrollError.right>event.pageY||gridContainerCoords.bottom- this.scrollError.right<event.pageY){return}
+            //Calculate wells in selection
+            let selectedBox = calcRectangleBounds({x: this.dragStartPosition.x - this.scrollError.left, y: this.dragStartPosition.y-this.scrollError.top}, { x: event.pageX- this.scrollError.left, y: event.pageY-this.scrollError.top })
             if (selectedBox.width > 5 && selectedBox.height > 5) {
                 let selectedWells = []
                 wellSlots.value.forEach(slot => {
+                    //Check if slot is not null
+                    if(slot){
                     let bounds = slot.$el.getBoundingClientRect()
                     if (boxesOverlap(bounds, selectedBox)) {
                         selectedWells.push(slot.well)
-                    }
+                    }}
                 })
                 this.selectionHandler(selectedWells)
             }

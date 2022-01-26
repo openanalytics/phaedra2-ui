@@ -23,5 +23,115 @@ export default {
                 console.log(error);
             });
         return result;
-    }
+    },
+    async createFeature(newFeature) {
+        let result = null;
+        await axios.post(apiURL + '/features', newFeature)
+            .then(response => {
+                if (response.status === 201) {
+                    console.log('here',response.data)
+                    result = response.data
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result
+    },
+    async deleteFeature(featureId) {
+        let result = null;
+        await axios.delete(apiURL + '/features/' + featureId)
+            .then(response => {
+                if (response.status === 200)
+                    result = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result;
+    },
+    async editFeature(feature) {
+        let result = null;
+        await axios.put(apiURL + '/features/', feature)
+            .then(response => {
+                if (response.status === 200)
+                    result = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result;
+    },
+    async getFeatureStatsByFeatureId(id) {
+        let result = null;
+        await axios.get(apiURL + '/features/' + id + '/featurestat')
+            .then(response => {
+                if (response.status === 200)
+                    result = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result;
+    },
+    async deleteFeatureStat(featureId, featureStatId) {
+        let result = null;
+        await axios.delete(apiURL + '/features/' + featureId + '/featurestat/'+featureStatId)
+            .then(response => {
+                if (response.status === 200)
+                    result = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result;
+    },
+    async getCalculationInputValue(featureId) {
+        let result = null;
+        await axios.get(apiURL + '/features/' + featureId + '/calculationinputvalue')
+            .then(response => {
+                if (response.status === 200)
+                    result = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result;
+    },
+    async createCalculationInputValue(featureId, civ) {
+        let result = null;
+        await axios.post(apiURL + '/features/' + featureId + '/calculationinputvalue', civ)
+            .then(response => {
+                if (response.status === 201)
+                    result = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result;
+    },
+    async updateCalculationInputValue(featureId, civ) {
+        let result = null;
+        await axios.put(apiURL + '/features/' + featureId + '/calculationinputvalue', civ)
+            .then(response => {
+                if (response.status === 200)
+                    result = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result;
+    },
+    async deleteCalculationInputValue(id) {
+        let result = null;
+        await axios.delete(apiURL + '/features/calculationinputvalue/'+id)
+            .then(response => {
+                if (response.status === 200)
+                    result = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result;
+    },
 }

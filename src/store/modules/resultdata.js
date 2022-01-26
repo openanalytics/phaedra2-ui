@@ -2,8 +2,8 @@ import resultdataAPI from '@/api/resultdata.js'
 
 const state = () => ({
     plateResults: {},
-    latestPlateResult: {}
-})
+    latestPlateResult: {},
+    recentCalculations: []})
 
 const getters = {
     getPlateResults: (state) => (plateId) => {
@@ -17,22 +17,18 @@ const getters = {
         const result = [];
         for (const plateId of plateIds) {
             const plateResult = state.latestPlateResult[plateId];
-            for (const protocol of Object.values(plateResult.protocols)) {
-                // note: we assume that only one measurement is loaded for each plate
-                if (protocol.measurements?.length === 0) {
-                    continue
-                }
-                // get first measurement and first resultSet (only the latest ResultSet is returned)
-                const measurement = Object.values(protocol.measurements)[0][0];
-                for (let resultData of measurement.resultData) {
-                    if (result.indexOf(resultData.featureId) < 0)
-                        result.push(resultData.featureId);
-                    // featureIds.add(resultData.featureId);
-                }
+            if (!plateResult) continue;
+
+            let featureIds = [... new Set(plateResult.map(rs => rs.featureId))]
+            for (const i in featureIds) {
+                result.push(featureIds[i])
             }
         }
         return result;
-    }
+    },
+    getRecentCalculations: (state) => () => {
+        return state.recentCalculations;
+}
 }
 
 const actions = {
@@ -44,13 +40,25 @@ const actions = {
 
     },
     async loadLatestPlateResult(ctx, args) {
-        if (ctx.getters['isPlateResultLoaded'](args.plateId)) {
-            return;
-        }
         await resultdataAPI.getLatestPlateResult(args.plateId)
             .then(plateResult => {
                 ctx.commit('cacheLatestPlateResult', { plateId: args.plateId, plateResult });
             });
+    },
+    async loadRecentCalculations(ctx, n) {
+        await resultdataAPI.getAllResults()
+            .then(result => {
+                console.log(result)
+                //Sort before mutation because actions can only be dispatched from actions
+                const list = result.sort((p1, p2) => {
+                    let p1Time = new Date((p1.executionEndTimeStamp)?p1.executionEndTimeStamp:p1.executionStartTimeStamp).getTime()
+                    let p2Time = new Date((p2.executionEndTimeStamp)?p2.executionEndTimeStamp:p2.executionStartTimeStamp).getTime()
+                    return  p2Time - p1Time;
+                }).slice(0,n)
+                //Load plates that are used in calculations to display barcode + first check if they are in cache
+                list.forEach(calc => {if(!ctx.rootGetters["plates/isLoaded"](calc.plateId))ctx.dispatch('plates/loadPlateForCalculation', calc.plateId, { root: true })})
+                ctx.commit('cacheRecentCalculations',list)
+            })
     }
 }
 
@@ -60,6 +68,9 @@ const mutations = {
     },
     cacheLatestPlateResult(state, args) {
         state.latestPlateResult[args.plateId] = args.plateResult;
+    },
+    cacheRecentCalculations(state, args) {
+        state.recentCalculations = args
     }
 }
 
