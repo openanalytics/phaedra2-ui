@@ -9,7 +9,7 @@
         </q-toolbar-title>
         <q-btn dense flat round icon="menu"/>
         <q-btn flat round dense icon="person"/>
-        <span>{{userinfo.name}}</span>
+        <span>{{userinfo.fullName}}</span>
       </q-toolbar>
     </q-header>
 
