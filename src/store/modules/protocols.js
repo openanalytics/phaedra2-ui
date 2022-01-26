@@ -57,13 +57,12 @@ const actions = {
         ctx.commit('cacheAllProtocols', protocols)
     },
     async saveProtocol(ctx, protocol) {
-        if (protocol.id !== undefined) {
-            const newProtocol = await protocolAPI.createNewProtocol(protocol)
-            ctx.commit('loadProtocol', newProtocol)
-        }
+        const newProtocol = await protocolAPI.createNewProtocol(protocol)
+        ctx.commit('loadProtocol', newProtocol)
+        return newProtocol
     },
     async deleteProtocol(ctx, protocol){
-        await protocolAPI.deleteProtocol(protocol)
+        await protocolAPI.deleteProtocol(protocol.id)
             .then(() => {
                 ctx.commit('deleteProtocol', protocol)
             })
@@ -79,8 +78,11 @@ const actions = {
     async downloadAsJson({rootGetters}, id) {
         //Make hard copy of protocol and assign features + formulaName
         const protocol = {...rootGetters['protocols/getById'](id)}
+        delete protocol.id
         protocol.features = rootGetters['features/getByProtocolId'](id).map(a => {return {...a}})
         protocol.features.forEach(f => {
+            delete f.id
+            delete f.protocolId
             if(rootGetters['calculations/getFormula'](f.formulaId))
                 f.formulaName = rootGetters['calculations/getFormula'](f.formulaId).name
         })
@@ -94,6 +96,21 @@ const actions = {
         a.dataset.downloadurl = ['text/json', a.download, a.href].join(':');
         e.initEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
         a.dispatchEvent(e);
+    },
+    async importAsJson({dispatch}, json) {
+        const features = json.features
+        delete json.features
+        //Add new protocol without features
+        const protocol = await dispatch('saveProtocol', json)
+        console.log(protocol, 'before foreach')
+        //Add new features without formulaName, with new protocolId
+        features.forEach(f => {
+            delete f.formulaName
+            console.log(protocol)
+            f.protocolId = protocol.id
+            console.log('protocols:',f)
+            dispatch('features/createFeature', {newFeature: f}, {root:true})
+        })
     }
 }
 

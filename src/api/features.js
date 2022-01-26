@@ -26,6 +26,7 @@ export default {
     },
     async createFeature(newFeature) {
         let result = null;
+        console.log('inFeatures',newFeature)
         await axios.post(apiURL + '/features', newFeature)
             .then(response => {
                 if (response.status === 201) {
