@@ -70,6 +70,7 @@ const routes = [
     { name: "calcFormula", path: "/calc/formula/:id", component: FormulaView },
 
     { name: "dataCaptureJobs", path: "/datacapture/jobs", component: CaptureJobsView },
+    { name: "capturedMeasurements", path: "/datacapture/meas", component: CapturedMeasurementsView}
 ]
 const router = createRouter({
     history: createWebHistory(publicPath),
@@ -92,6 +93,7 @@ import 'material-icons/iconfont/material-icons.css';
 // --------------------------------------------------------------------
 import { createApp } from "vue"
 import App from "./App.vue"
+import CapturedMeasurementsView from "./pages/datacapture/CapturedMeasurementsView";
 import ImportProtocolView from "./pages/protocol/ImportProtocolView";
 
 const app = createApp(App)
