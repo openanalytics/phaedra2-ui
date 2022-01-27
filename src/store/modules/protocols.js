@@ -59,6 +59,8 @@ const actions = {
     async saveProtocol(ctx, protocol) {
         const newProtocol = await protocolAPI.createNewProtocol(protocol)
         ctx.commit('loadProtocol', newProtocol)
+        ctx.commit('cacheProtocols', [newProtocol])
+        return newProtocol
     },
     async deleteProtocol(ctx, protocol){
         await protocolAPI.deleteProtocol(protocol.id)
@@ -78,6 +80,7 @@ const actions = {
         //Make hard copy of protocol and assign features + formulaName, delete id
         const protocol = {...rootGetters['protocols/getById'](id)}
         delete protocol.id
+        if (rootGetters['features/getByProtocolId'](id)){
         protocol.features = rootGetters['features/getByProtocolId'](id).map(a => {return {...a}})
         protocol.features.forEach(f => {
             //Add formulaName
@@ -89,7 +92,7 @@ const actions = {
             f.calculationInputValues.forEach(c => {delete c.id; delete c.featureId})}
             delete f.id
             delete f.protocolId
-        })
+        })}
         //Parse and save to default downloads folder
         const data = JSON.stringify(protocol)
         const blob = new Blob([data], {type: 'text/plain'})
@@ -107,13 +110,14 @@ const actions = {
         //Add new protocol without features
         const protocol = await dispatch('saveProtocol', json)
         //Add new features without formulaName, with new protocolId
+        if (features){
         features.forEach(f => {
             const civs = f.calculationInputValues
             f.protocolId = protocol.id
             delete f.formulaName
             delete f.calculationInputValues
             dispatch('features/createFeature', {newFeature: f, civs: civs}, {root:true})
-        })
+        })}
     }
 }
 
