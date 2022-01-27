@@ -1,3 +1,13 @@
+// DEV API Token
+// --------------------------------------------------------------------
+
+import axios from "axios";
+const token = process.env.VUE_APP_API_BEARER_TOKEN;
+if (token) {
+    console.log("DEV: Bearer token found, using it for all API calls");
+    axios.defaults.headers.common['Authorization'] = 'Bearer ' + token;
+}
+
 // Routing
 // --------------------------------------------------------------------
 
