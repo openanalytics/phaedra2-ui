@@ -3,9 +3,9 @@ import axios from "axios";
 const apiURL = process.env.VUE_APP_API_BASE_URL + '/datacapture-service';
 
 export default {
-    async getAllJobs() {
+    async getJobs(args) {
         let result = null;
-        await axios.get(apiURL + '/jobs')
+        await axios.get(apiURL + '/jobs', {params: args})
             .then(response => {
                 result = response.data;
             })
@@ -17,5 +17,17 @@ export default {
             headers: { 'Content-Type': 'application/json' }
         })
         return response.data;
-    }
+    },
+    async cancelJob(jobId) {
+        const response = await axios.post(apiURL + '/cancel',{id: jobId})
+        return response.data;
+    },
+    async getCaptureJobConfig(args) {
+        let result = null;
+        await axios.get(apiURL + '/job/config', {params: {id: args}})
+            .then(response => {
+                result = response.data;
+            })
+        return result;
+    },
 }

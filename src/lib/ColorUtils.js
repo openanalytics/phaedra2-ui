@@ -94,6 +94,15 @@ function getCaptureJobStatusColor(statusCode) {
     }
 }
 
+function getCaptureJobEventTypeColor(eventType) {
+    switch (eventType) {
+        case 'Info': return 'blue'
+        case 'Warning': return 'orange'
+        case 'Error': return 'red'
+        default: return 'grey'
+    }
+}
+
 export default {
     createGradients,
     createMultiGradients,
@@ -102,5 +111,6 @@ export default {
     asCSSColor,
     asRGBColor,
     defaultHeatmapGradients,
-    getCaptureJobStatusColor
+    getCaptureJobStatusColor,
+    getCaptureJobEventTypeColor
 }
