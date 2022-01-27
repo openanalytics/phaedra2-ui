@@ -58,8 +58,7 @@ const actions = {
     },
     async saveProtocol(ctx, protocol) {
         const newProtocol = await protocolAPI.createNewProtocol(protocol)
-        ctx.commit('cacheProtocols', [newProtocol])
-        return newProtocol
+        ctx.commit('loadProtocol', newProtocol)
     },
     async deleteProtocol(ctx, protocol){
         await protocolAPI.deleteProtocol(protocol.id)

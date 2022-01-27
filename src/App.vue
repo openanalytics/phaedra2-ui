@@ -9,7 +9,7 @@
         </q-toolbar-title>
         <q-btn dense flat round icon="menu"/>
         <q-btn flat round dense icon="person"/>
-        <span>TestUser</span>
+        <span>{{userinfo.fullName}}</span>
       </q-toolbar>
     </q-header>
 
@@ -26,15 +26,23 @@
 </style>
 
 <script>
-  import Navigator from "@/components/navigator/Navigator.vue"
+  import {computed} from 'vue'
+  import {useStore} from 'vuex'
   import { publicPath } from '../vue.config'
+  
+  import Navigator from "@/components/navigator/Navigator.vue"
 
   export default {
     components: {
       Navigator
     },
     setup() {
-      return { publicPath }
+      const store = useStore();
+
+      store.dispatch('userinfo/loadUserInfo').then();
+      const userinfo = computed(() => store.getters['userinfo/getUserInfo']());
+
+      return { publicPath, userinfo }
     }
   }
 </script>
