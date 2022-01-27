@@ -67,16 +67,7 @@ const actions = {
             })
     },
     async deleteFeature(ctx, feature) {
-        //First find and delete featureStats
-        await featuresAPI.getFeatureStatsByFeatureId(feature.id)
-            .then(response => {
-                response.forEach(f => {
-                    featuresAPI.deleteFeatureStat(feature.id, f.id)
-                })
-            }).then(() => {
-                //If all featureStats are deleted, delete feature
-                featuresAPI.deleteFeature(feature.id)
-            })
+        featuresAPI.deleteFeature(feature.id)
         ctx.commit('deleteFeature', feature)
     },
     async editFeature(ctx, args) {
