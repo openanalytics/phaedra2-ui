@@ -11,7 +11,7 @@
       </div>
 
       <div class="row q-pa-lg oa-section-body">
-        <q-form class="col col-4" @submit="onSubmit" @reset="onReset">
+        <q-form class="col" @submit="onSubmit" @reset="onReset">
           <q-input v-model="newProtocol.name" label="Name: "></q-input>
           <q-input v-model="newProtocol.description" label="Description: "></q-input>
           <q-select v-model="newProtocol.lowWelltype" label="Low well type:" :options="wellTypeOptions"></q-select>
@@ -33,8 +33,6 @@
 </template>
 
 <script>
-// import axios from "axios";
-
 export default {
   name: "NewProtocolView",
   methods: {

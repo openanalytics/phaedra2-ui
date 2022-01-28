@@ -49,6 +49,9 @@
           <div class="row justify-end action-button">
             <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete" @click="deletedialog = true"/>
           </div>
+          <div class="row justify-end action-button">
+            <q-btn size="sm" color="primary" icon="import_export" class="oa-button-delete" label="Export" @click="exportToJson(protocolId)"/>
+          </div>
         </div>
       </div>
     </div>
@@ -211,10 +214,7 @@ export default {
     const loading = ref(false)
     const protocolId = parseInt(route.params.id);
     const protocol = computed(() => store.getters['protocols/getCurrentProtocol']())
-    // if (!store.getters['protocols/isLoaded'](protocolId)) {
-      store.dispatch('protocols/loadById', protocolId)
-    // }
-    // store.dispatch('protocols/loadProtocolsTags', protocolId)
+    store.dispatch('protocols/loadById', protocolId)
     const  features = computed(() => store.getters['features/getByProtocolId'](protocolId))
     if(!store.getters['features/isProtocolLoaded'](protocolId)) {
       store.dispatch('features/loadByProtocolId', protocolId)
@@ -290,6 +290,9 @@ export default {
     },
     deleteFeature(){
       this.$store.dispatch('features/deleteFeature',this.selectedFeature)
+    },
+    exportToJson(id){
+      this.$store.dispatch('protocols/downloadAsJson',id)
     }
   }
 

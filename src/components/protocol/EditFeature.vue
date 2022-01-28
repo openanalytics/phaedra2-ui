@@ -65,13 +65,14 @@ export default {
     exported.variables = reactive({list: []})
     exported.previous = reactive({list: []})
 
+    //Make hard copy of feature to edit it later
     const fetchFeatureWorkingCopy = () => {
       let originalFeature = props.originalFeature || {}
       exported.feature.value = {...originalFeature}
       exported.originalFormulaId = ref(originalFeature.formulaId)
       //Fetch previous formula variable names
       store.dispatch('features/getCalculationInputValue',exported.feature.value.id).then(() => {
-        const civs = store.getters['features/getCalculationInputValueByFeatureId'](exported.feature.value.id)
+      const civs = store.getters['features/getCalculationInputValueByFeatureId'](exported.feature.value.id)
         if (civs)
           //Make full copy of getter + sort alphabetically instead of by date modified
           exported.previous.list = JSON.parse(JSON.stringify(civs)).sort((a, b) => a.variableName.localeCompare(b.variableName))
@@ -93,8 +94,8 @@ export default {
       exported.variables.list = f.map(i => {return {variableName: i,sourceMeasColName: ''}}).sort((a, b) => a.variableName.localeCompare(b.variableName))
     })
 
+    //Function to fire an edit event of a feature using the working copy
     exported.editFeature = () => {
-      console.log(exported.feature)
       exported.feature.value.formulaId = Number.isInteger(exported.feature.value.formulaId) ? exported.feature.value.formulaId : exported.feature.value.formulaId.id
       //Did formula change? choose civs list accordingly
       const formulaChange = exported.feature.value.formulaId!==exported.originalFormulaId.value

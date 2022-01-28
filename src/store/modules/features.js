@@ -51,7 +51,9 @@ const actions = {
         if (features) {
             ctx.commit('cacheMany', features)
             ctx.commit('cacheFeaturesInProtocol', {protocolId, features})
-            return features
+            features.forEach(f => {
+                ctx.dispatch('getCalculationInputValue', f.id)
+            })
         }
     },
     async createFeature(ctx, args) {
@@ -59,22 +61,13 @@ const actions = {
             .then((result) => {
                 ctx.commit('cacheOne', result);
                 ctx.commit('features/cacheInProtocol', result, {root: true})
-                args.civ.forEach(c => {
-                    ctx.dispatch('createCalculationInputValue',{featureId: result.id, civ: {variableName: c.name, sourceMeasColName: c.input}})
+                args.civs.forEach(c => {
+                    ctx.dispatch('createCalculationInputValue',{featureId: result.id, civ: c})
                 })
             })
     },
     async deleteFeature(ctx, feature) {
-        //First find and delete featureStats
-        await featuresAPI.getFeatureStatsByFeatureId(feature.id)
-            .then(response => {
-                response.forEach(f => {
-                    featuresAPI.deleteFeatureStat(feature.id, f.id)
-                })
-            }).then(() => {
-                //If all featureStats are deleted, delete feature
-                featuresAPI.deleteFeature(feature.id)
-            })
+        featuresAPI.deleteFeature(feature.id)
         ctx.commit('deleteFeature', feature)
     },
     async editFeature(ctx, args) {

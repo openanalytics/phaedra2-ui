@@ -62,6 +62,7 @@ const routes = [
     },
     { name: "protocol", path: "/protocol/:id", component: ProtocolView },
     { name: "newProtocol", path: "/protocol/new", component: NewProtocolView },
+    { name: "importProtocol", path: "/protocol/import", component: ImportProtocolView},
     { name: "template", path: "/template/:id", component: PlateTemplateView},
     { name: "newPlateTemplate", path: "/template/new", component: NewPlateTemplateView},
 
@@ -69,6 +70,7 @@ const routes = [
     { name: "calcFormula", path: "/calc/formula/:id", component: FormulaView },
 
     { name: "dataCaptureJobs", path: "/datacapture/jobs", component: CaptureJobsView },
+    { name: "capturedMeasurements", path: "/datacapture/meas", component: CapturedMeasurementsView}
 ]
 const router = createRouter({
     history: createWebHistory(publicPath),
@@ -91,6 +93,8 @@ import 'material-icons/iconfont/material-icons.css';
 // --------------------------------------------------------------------
 import { createApp } from "vue"
 import App from "./App.vue"
+import CapturedMeasurementsView from "./pages/datacapture/CapturedMeasurementsView";
+import ImportProtocolView from "./pages/protocol/ImportProtocolView";
 
 const app = createApp(App)
 app.use(router)

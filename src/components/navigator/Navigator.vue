@@ -60,6 +60,10 @@
           <q-icon name="add" class="text-primary" />
           {{ prop.node.label }}
         </router-link>
+        <router-link v-else-if="prop.node.id === 'import'" :to="{ name: 'importProtocol', params: { id: prop.node.id } }" class="nav-link">
+          <q-icon name="import_export" class="text-primary" />
+          {{ prop.node.label }}
+        </router-link>
         <router-link v-else :to="{ name: 'protocol', params: { id: prop.node.id } }" class="nav-link">
           <q-icon name="ballot" class="text-primary" />
           {{ prop.node.label }}
@@ -127,6 +131,10 @@
           header: "protocol",
           label: "New Protocol...",
           id: "new",
+        },{
+          header: "protocol",
+          label: "Import Protocols...",
+          id: "import",
         }];
         const allProtocols = store.getters['protocols/getAll']().map(protocol => {
           return {
@@ -210,6 +218,11 @@
                 label: "Capture Jobs",
                 icon: 'list_alt',
                 route: 'dataCaptureJobs',
+              },
+              {
+                label: "Measurements",
+                icon: 'text_snippet',
+                route: 'capturedMeasurements'
               }
             ]
           },
