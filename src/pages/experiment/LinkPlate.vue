@@ -181,7 +181,7 @@ export default {
   props: ['show','plateId'],
   emits: ['update:show'],
   methods: {
-    linkPlate() {
+    linkPlate() { //TODO change to linkplate api endpoint
       const copy = JSON.parse(JSON.stringify(this.selectedPlates.list));
       copy.forEach(plate => {
         plate.linkStatus = 'LINKED'
