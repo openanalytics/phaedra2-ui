@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import axios from "axios";
+// import axios from "axios";
 
 export default {
   name: "NewProtocolView",
@@ -41,12 +41,10 @@ export default {
     onSubmit() {
       this.newProtocol.createdOn = new Date();
       console.log(this.newProtocol)
-      axios.post('http://localhost:6030/phaedra/protocol-service/protocols', this.newProtocol)
-          .then(response => {
-            this.$store.commit('protocols/cacheProtocol', response.data)
-            const protocolId = response.data.id
-            this.$router.push({ name: 'protocol', params: { id: protocolId } })
-          })
+      this.$store.dispatch("protocols/saveProtocol", this.newProtocol)
+      .then(protocol => {
+        this.$router.push({path: '/protocol/' + protocol?.id});
+      });
     },
     onReset() {
       this.newProtocol.name = null

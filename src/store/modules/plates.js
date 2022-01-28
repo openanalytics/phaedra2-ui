@@ -136,11 +136,15 @@ const mutations = {
     },
     loadMeasurements(state, measurements) {
         for (let i = 0; i < measurements.length; i++) {
-            state.currentPlate?.measurements ? state.currentPlate.measurements.push(measurements[i]) : state.currentPlate.measurements = [measurements[i]];
+            if (!containsPlateMeasurement(state.currentPlate, measurements[i])) {
+                state.currentPlate?.measurements ? state.currentPlate.measurements.push(measurements[i]) : state.currentPlate.measurements = measurements[i];
+            }
         }
     },
     addMeasurement(state, plateMeasurement) {
-        state.currentPlate?.measurements ? state.currentPlate.measurements.push(plateMeasurement) : state.currentPlate.measurements = [plateMeasurement];
+        if (!containsPlateMeasurement(state.currentPlate, plateMeasurement)) {
+            state.currentPlate?.measurements ? state.currentPlate.measurements.push(plateMeasurement) : state.currentPlate.measurements = plateMeasurement;
+        }
     },
     setActiveMeasurement(state, { measurementId, active }) {
         for (let m in state.currentPlate.measurements) {
@@ -189,6 +193,11 @@ function containsPlate(state, plate) {
         }
     }
     return false;
+}
+
+function containsPlateMeasurement(plate, measurement) {
+    let result = plate.measurements?.filter(m => m.measurementId === measurement.measurementId);
+    return result !== undefined && result.length > 0;
 }
 
 export default {
