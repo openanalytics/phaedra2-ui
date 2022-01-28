@@ -80,6 +80,7 @@ const actions = {
         //Make hard copy of protocol and assign features + formulaName, delete id
         const protocol = {...rootGetters['protocols/getById'](id)}
         delete protocol.id
+        //If there are features, add them
         if (rootGetters['features/getByProtocolId'](id)){
         protocol.features = rootGetters['features/getByProtocolId'](id).map(a => {return {...a}})
         protocol.features.forEach(f => {
@@ -93,11 +94,12 @@ const actions = {
             delete f.id
             delete f.protocolId
         })}
-        //Parse and save to default downloads folder
+        //Parse and save to default downloads folder, a lot of boilerplate code form stackoverflow
         const data = JSON.stringify(protocol)
         const blob = new Blob([data], {type: 'text/plain'})
         const e = document.createEvent('MouseEvents'),
             a = document.createElement('a');
+        //File name
         a.download = protocol.name + ".json";
         a.href = window.URL.createObjectURL(blob);
         a.dataset.downloadurl = ['text/json', a.download, a.href].join(':');

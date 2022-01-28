@@ -59,6 +59,7 @@ export default {
     const formulas = computed(() => store.getters['calculations/getFormulas']())
 
     let selectedFormulaId = ref(null)
+    //Get formulaInputs and dispatch if it not available
     const formulaInputs = computed(() => {
       if (!selectedFormulaId.value) return []
       if(!store.getters['calculations/getFormulaInputs'](selectedFormulaId.value.id))

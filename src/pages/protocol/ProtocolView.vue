@@ -214,10 +214,7 @@ export default {
     const loading = ref(false)
     const protocolId = parseInt(route.params.id);
     const protocol = computed(() => store.getters['protocols/getCurrentProtocol']())
-    // if (!store.getters['protocols/isLoaded'](protocolId)) {
-      store.dispatch('protocols/loadById', protocolId)
-    // }
-    // store.dispatch('protocols/loadProtocolsTags', protocolId)
+    store.dispatch('protocols/loadById', protocolId)
     const  features = computed(() => store.getters['features/getByProtocolId'](protocolId))
     if(!store.getters['features/isProtocolLoaded'](protocolId)) {
       store.dispatch('features/loadByProtocolId', protocolId)
