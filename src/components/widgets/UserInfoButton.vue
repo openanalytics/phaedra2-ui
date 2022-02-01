@@ -14,11 +14,12 @@
             <q-card-section>
                 <span class="text-h6">Teams</span>
                 <q-list>
-                    <q-item v-for="role in roles" :key="role">
+                    <q-item v-for="team in userInfo.teams" :key="team">
                         <q-icon color="primary" name="group" class="on-left" />
-                        {{role}}
+                        {{team}}
                     </q-item>
                 </q-list>
+                <span v-show="userInfo.teams.length == 0" class="text-info">You have no team memberships</span>
             </q-card-section>
 
             <q-card-actions align="right" class="text-primary">
@@ -37,21 +38,8 @@
             const exported = {};
             const store = useStore();
 
-            store.dispatch('userinfo/loadUserInfo').then();
+            store.dispatch('userinfo/loadUserInfo');
             exported.userInfo = computed(() => store.getters['userinfo/getUserInfo']());
-            
-            // Example
-            // exported.userInfo = computed(() => {
-            //     return {
-            //         fullName: "Tester McTest",
-            //         claims: { realm_access: {"roles":["default-roles-phaedra2","offline_access","uma_authorization","phaedra2-user","phaedra2-admin"]} }
-            //     }
-            // });
-
-            exported.roles = computed(() => {
-                return exported.userInfo.value.claims.realm_access.roles.filter(role => role.startsWith("phaedra2-")).sort();
-            });
-
             exported.showDialog = ref(false);
             return exported;
         }

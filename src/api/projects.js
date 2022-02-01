@@ -11,6 +11,30 @@ export default {
             console.log(err);
         }
     },
+    async getProjectAccess(projectId) {
+        try {
+            const response = await axios.get(apiURL + '/project-access/' + projectId);
+            if (response.status === 200) return response.data;
+        } catch (err) {
+            console.log(err);
+        }
+    },
+    async createProjectAccess(projectAccess) {
+        try {
+            const response = await axios.post(apiURL + '/project-access', projectAccess);
+            if (response.status === 201) return response.data;
+        } catch (err) {
+            console.log(err);
+        }
+    },
+    async deleteProjectAccess(projectAccessId) {
+        try {
+            const response = await axios.delete(apiURL + '/project-access/' + projectAccessId);
+            if (response.status === 200) return response.data;
+        } catch (err) {
+            console.log(err);
+        }
+    },
     async getAllProjects() {
         try {
             const response = await axios.get(apiURL + '/projects');

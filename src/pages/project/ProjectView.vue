@@ -35,6 +35,12 @@
                 <div class="col"><EditableField :object="project" :fieldName="'description'" @valueChanged="onDescriptionChanged" /></div>
               </div>
               <div class="row">
+                <div class="col-3 text-weight-bold">Access:</div>
+                <div class="col">
+                  <AccessControlList :projectId="project.id" />
+                </div>
+              </div>
+              <div class="row">
                 <div class="col-3 text-weight-bold">Tags:</div>
                 <div class="col">
                   <TagList :objectInfo="project" :objectClass="'PROJECT'" />
@@ -118,6 +124,7 @@
   import TagList from "@/components/tag/TagList"
   import PropertyTable from "@/components/property/PropertyTable";
   import EditableField from "@/components/widgets/EditableField";
+  import AccessControlList from "@/components/widgets/AccessControlList";
 
   import FormatUtils from "@/lib/FormatUtils.js"
 
@@ -126,7 +133,8 @@
       ExperimentList,
       TagList,
       PropertyTable,
-      EditableField
+      EditableField,
+      AccessControlList
     },
 
     setup() {
