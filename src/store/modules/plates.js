@@ -77,6 +77,8 @@ const actions = {
                     ctx.commit('loadMeasurements', result);
                 });
         }
+
+        ctx.dispatch('resultdata/loadPlateResults', {plateId: plateId}, {root: true});
     },
     async createNewPlate(ctx, plate) {
         const newPlate = await plateAPI.addPlate(plate)
@@ -93,9 +95,7 @@ const actions = {
             .then(() => {
                 ctx.commit('setActiveMeasurement', plateMeasurement);
             });
-    }
-
-    ,
+    },
     async deletePlate(ctx, plate) {
         await plateAPI.deletePlateById(plate.id)
             .then(() => {

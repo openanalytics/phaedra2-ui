@@ -34,7 +34,7 @@
     <template v-slot:body-cell-Measurement="props">
       <q-td :props="props">
           <div class="row items-center">
-            {{ ($store.state.measurements.measurements.length>0)?$store.state.measurements.measurements.find(meas => meas.id == props.row.measId).name:"" }}
+            {{ (currentPlate.measurements.length>0)?currentPlate.measurements.find(meas => meas.measurementId == props.row.measId).name:"" }}
           </div>
       </q-td>
     </template>
@@ -73,12 +73,11 @@ export default {
   setup(props) {
     const store = useStore()
     const resultSetTable = ref(false)
-    const resultSets = computed(() => [...new Map(store.getters['resultdata/getPlateResults'](props.plate.id)?.map(item => [item.resultSetId, item])).values()])
+    const resultSets = computed(() => store.getters['resultdata/getPlateResults'](props.plate.id));
     const resultData = computed(() => store.getters['resultdata/getPlateResults'](props.plate.id));
-    store.dispatch('resultdata/loadPlateResults',{plateId: props.plate.id});
-    store.dispatch('measurements/loadAll');
     let resultSet = ref([])
     return {
+      currentPlate: props.plate,
       resultData,
       resultSetTable,
       resultSetsColumns,
