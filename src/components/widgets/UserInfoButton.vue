@@ -12,7 +12,7 @@
             </q-card-section>
         
             <q-card-section>
-                <span class="text-h6">Teams</span>
+                <span class="text-h6 row">Team Memberships</span>
                 <q-list>
                     <q-item v-for="team in userInfo.teams" :key="team">
                         <q-icon color="primary" name="group" class="on-left" />
@@ -20,6 +20,17 @@
                     </q-item>
                 </q-list>
                 <span v-show="userInfo.teams.length == 0" class="text-info">You have no team memberships</span>
+
+                <span class="text-h6 row">Additional Roles</span>
+                <div v-show="userInfo.admin">
+                    <q-list>
+                        <q-item>
+                            <q-icon color="primary" name="manage_accounts" class="on-left" />
+                            Administrator
+                        </q-item>
+                    </q-list>
+                </div>
+                <span v-show="!userInfo.admin" class="text-info">You have no additional roles</span>
             </q-card-section>
 
             <q-card-actions align="right" class="text-primary">
