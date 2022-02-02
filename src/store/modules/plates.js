@@ -1,3 +1,4 @@
+import experimentAPI from "@/api/experiments"
 import plateAPI from '@/api/plates.js'
 
 const state = () => ({
@@ -38,8 +39,10 @@ const getters = {
 
 const actions = {
     async loadByExperimentId(ctx, id) {
-        if (ctx.getters['isExperimentLoaded'](id)) {
-            return;
+        if (!ctx.getters['isExperimentLoaded'](id)) {
+            const experiment = experimentAPI.getExperimentById(id);
+            ctx.commit('experiments/loadExperiment', experiment);
+            ctx.commit('experiments/cacheExperiments', [experiment]);
         }
         const plates = await plateAPI.getPlatesByExperimentId(id);
         ctx.commit('cachePlates', plates);
@@ -105,6 +108,10 @@ const actions = {
                 ctx.commit('editPlate', plate)
             })
     },
+    async applyPlateLayout(ctx, plate) {
+        const edited = await plateAPI.linkPlate(plate.id, plate.linkTemplateId);
+        ctx.commit('editPlate', edited);
+    },
     async loadPlateForCalculation(ctx, id) {
         await plateAPI.getPlateById(id)
             .then(plate => {
@@ -137,13 +144,13 @@ const mutations = {
     loadMeasurements(state, measurements) {
         for (let i = 0; i < measurements.length; i++) {
             if (!containsPlateMeasurement(state.currentPlate, measurements[i])) {
-                state.currentPlate?.measurements ? state.currentPlate.measurements.push(measurements[i]) : state.currentPlate.measurements = measurements[i];
+                state.currentPlate?.measurements ? state.currentPlate.measurements.push(measurements[i]) : state.currentPlate.measurements = [measurements[i]];
             }
         }
     },
     addMeasurement(state, plateMeasurement) {
         if (!containsPlateMeasurement(state.currentPlate, plateMeasurement)) {
-            state.currentPlate?.measurements ? state.currentPlate.measurements.push(plateMeasurement) : state.currentPlate.measurements = plateMeasurement;
+            state.currentPlate?.measurements ? state.currentPlate.measurements.push(plateMeasurement) : state.currentPlate.measurements = [plateMeasurement];
         }
     },
     setActiveMeasurement(state, { measurementId, active }) {

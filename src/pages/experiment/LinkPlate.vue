@@ -188,7 +188,8 @@ export default {
         plate.linkSource = 'layout-template'
         plate.linkTemplateId = this.selectedTemplate[0].id
         plate.linkedOn = new Date()
-        this.$store.dispatch('plates/editPlate', plate)
+        // this.$store.dispatch('plates/editPlate', plate)
+        this.$store.dispatch('plates/applyPlateLayout', plate)
       })
       this.$emit('update:show', false)
     },

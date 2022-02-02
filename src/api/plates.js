@@ -73,5 +73,10 @@ export default {
         const endpoint = apiURL + '/plate/' + plateMeasurement.plateId + '/measurement/' + plateMeasurement.measurementId;
         const response = await axios.put(endpoint, plateMeasurement);
         return response.data;
+    },
+    async linkPlate(plateId, plateTemplateId) {
+        const endpoint = apiURL + '/plate/' + plateId + '/link/' + plateTemplateId;
+        const response = await axios.put(endpoint);
+        return response.data;
     }
 }
