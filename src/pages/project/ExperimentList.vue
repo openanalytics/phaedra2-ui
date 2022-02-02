@@ -12,17 +12,21 @@
       :visible-columns="visibleColumns"
       square
   >
-    <template v-slot:top-right>
+    <template v-slot:top-left>
       <div class="row action-button on-left">
-        <q-btn size="sm" color="primary" icon="add" label="New Experiment" @click="showNewExperimentDialog = true"/>
+        <q-btn size="sm" icon="add" class="oa-button" label="New Experiment" @click="showNewExperimentDialog = true"/>
       </div>
+    </template>
+    <template v-slot:top-right>
       <div class="row">
         <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
           <template v-slot:append>
             <q-icon name="search"/>
           </template>
         </q-input>
-        <q-btn flat round color="primary" icon="settings" style="border-radius: 50%;" @click="configdialog=true"/>
+        <q-btn flat round color="primary" icon="settings" class="on-right" @click="showConfigDialog=true">
+          <q-tooltip>Configure Table Columns</q-tooltip>
+        </q-btn>
       </div>
     </template>
     <template v-slot:body-cell-name="props">
@@ -31,7 +35,6 @@
           <div class="row items-center cursor-pointer">
             <q-icon name="science" class="icon q-pr-sm"/>
             {{ props.row.name }}
-            <ExperimentContextMenu></ExperimentContextMenu>
           </div>
         </router-link>
       </q-td>
@@ -43,32 +46,17 @@
     </template>
     <template v-slot:body-cell-nrPlatesCalculated="props">
       <q-td :props="props">
-        <q-linear-progress rounded size="20px" color="positive" 
-          :value="props.row.summary[props.col.name] ? props.row.summary[props.col.name] / props.row.summary.nrPlates : 0">
-          <div class="absolute-full flex flex-center">
-            <span class="text-black text-body2">{{props.row.summary[props.col.name] >= 0 ? props.row.summary[props.col.name] + ' / ' + props.row.summary.nrPlates : '?'}}</span>
-          </div>
-        </q-linear-progress>
+        <ProgressBarField :object="props.row.summary" :valueFieldName="props.col.name" :maxValueFieldName="'nrPlates'" />
       </q-td>
     </template>
     <template v-slot:body-cell-nrPlatesValidated="props">
       <q-td :props="props">
-        <q-linear-progress rounded size="20px" color="positive" 
-          :value="props.row.summary[props.col.name] ? props.row.summary[props.col.name] / props.row.summary.nrPlates : 0">
-          <div class="absolute-full flex flex-center">
-            <span class="text-black text-body2">{{props.row.summary[props.col.name] >= 0 ? props.row.summary[props.col.name] + ' / ' + props.row.summary.nrPlates : '?'}}</span>
-          </div>
-        </q-linear-progress>
+        <ProgressBarField :object="props.row.summary" :valueFieldName="props.col.name" :maxValueFieldName="'nrPlates'" />
       </q-td>
     </template>
     <template v-slot:body-cell-nrPlatesApproved="props">
       <q-td :props="props">
-        <q-linear-progress rounded size="20px" color="positive" 
-          :value="props.row.summary[props.col.name] ? props.row.summary[props.col.name] / props.row.summary.nrPlates : 0">
-          <div class="absolute-full flex flex-center">
-            <span class="text-black text-body2">{{props.row.summary[props.col.name] >= 0 ? props.row.summary[props.col.name] + ' / ' + props.row.summary.nrPlates : '?'}}</span>
-          </div>
-        </q-linear-progress>
+        <ProgressBarField :object="props.row.summary" :valueFieldName="props.col.name" :maxValueFieldName="'nrPlates'" />
       </q-td>
     </template>
     <template v-slot:no-data>
@@ -101,7 +89,7 @@
     </q-card>
   </q-dialog>
 
-  <table-config v-model:show="configdialog" v-model:columns="columns" v-model:visibleColumns="visibleColumns"></table-config>
+  <table-config v-model:show="showConfigDialog" v-model:columns="columns" v-model:visibleColumns="visibleColumns"></table-config>
 </template>
 
 <style scoped>
@@ -119,11 +107,11 @@
   import {ref, computed} from 'vue'
   import {useStore} from 'vuex'
 
-  import ExperimentContextMenu from "@/components/widgets/ExperimentContextMenu.vue"
   import TableConfig from "@/components/table/TableConfig";
+  import ProgressBarField from "@/components/widgets/ProgressBarField";
   import TagList from "@/components/tag/TagList";
-
   import FormatUtils from "@/lib/FormatUtils.js"
+  import FilterUtils from "@/lib/FilterUtils.js"
 
   const columns = ref([
     {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
@@ -133,29 +121,20 @@
     {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
     {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
 
-    {name: 'nrPlates', align: 'left', label: 'Plates', field: row => row.summary.nrPlates, sortable: true},
+    {name: 'nrPlates', align: 'left', label: 'Plates', field: row => (row.summary ? row.summary.nrPlates : 0), sortable: true},
     {name: 'nrPlatesCalculated', align: 'left', label: 'Calculated', sortable: true},
     {name: 'nrPlatesValidated', align: 'left', label: 'Validated', sortable: true},
     {name: 'nrPlatesApproved', align: 'left', label: 'Approved', sortable: true},
   ])
-
-  const filterMethod = function (rows, term) {
-    return rows.filter(row => {
-      return (row.id === term
-          || row.name.toLowerCase().includes(term)
-          || row.description.toLowerCase().includes(term)
-          || (row.tags && row.tags.some(tag => tag.toLowerCase().includes(term))))
-    })
-  }
 
   export default {
     props: {
       projectId: Number
     },
     components: {
-      ExperimentContextMenu,
       TableConfig,
-      TagList
+      TagList,
+      ProgressBarField
     },
     setup(props) {
       const store = useStore()
@@ -179,13 +158,13 @@
 
       return {
         filter: ref(''),
-        filterMethod,
+        filterMethod: FilterUtils.createTableFilter(),
         loading,
         experiments,
         FormatUtils,
         columns,
         visibleColumns: columns.value.map(a => a.name),
-        configdialog: ref(false),
+        showConfigDialog: ref(false),
         showNewExperimentDialog,
         newExperimentName,
         doCreateNewExperiment

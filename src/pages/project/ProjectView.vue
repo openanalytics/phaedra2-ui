@@ -120,7 +120,7 @@
   import {useStore} from 'vuex'
   import {useRoute, useRouter} from 'vue-router'
 
-  import ExperimentList from "@/pages/experiment/ExperimentList.vue"
+  import ExperimentList from "@/pages/project/ExperimentList.vue"
   import TagList from "@/components/tag/TagList"
   import PropertyTable from "@/components/property/PropertyTable";
   import EditableField from "@/components/widgets/EditableField";
