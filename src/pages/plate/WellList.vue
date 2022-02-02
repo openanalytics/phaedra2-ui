@@ -1,15 +1,15 @@
 <template>
   <q-table v-if="!loading"
-      table-header-class="text-dark"
-      flat square
-      :rows="wells.list"
-      :columns="columns"
-      row-key="id"
-      column-key="name"
-      :pagination="{ rowsPerPage: 50 }"
-      :filter="filter"
-      :filter-method="filterMethod"
-      :visible-columns="visibleColumns"
+           table-header-class="text-dark"
+           flat square
+           :rows="wells.list"
+           :columns="columns"
+           row-key="id"
+           column-key="name"
+           :pagination="{ rowsPerPage: 50 }"
+           :filter="filter"
+           :filter-method="filterMethod"
+           :visible-columns="visibleColumns"
   >
     <template v-slot:top-right>
       <div class="row">
@@ -34,7 +34,7 @@
     </template>
   </q-table>
   <table-config v-if="!loading" v-model:show="configdialog" v-model:visibleColumns="visibleColumns"
-                 v-model:columns="columns"></table-config>
+                v-model:columns="columns"></table-config>
 </template>
 
 <script>
@@ -67,8 +67,12 @@ export default {
       wells.list = cols.wells
     })
 
-    store.dispatch('resultdata/loadLatestPlateResult', {plateId: props.plate.id})
-    const resultSet = computed(()=> store.getters['resultdata/getLatestPlateResult'](props.plate.id))
+    const activeMeasurement = store.getters['plates/getActiveMeasurement']();
+    store.dispatch('resultdata/loadLatestPlateResult', {
+      plateId: props.plate.id,
+      measurementId: activeMeasurement?.measurementId
+    })
+    const resultSet = computed(() => store.getters['resultdata/getLatestPlateResult'](props.plate.id))
 
     let columns = ref([
       {
@@ -105,20 +109,28 @@ export default {
   },
   //Watch for resultSet to arrive to add columns and row data
   watch: {
-    resultSet (newResult) {
-      this.$store.dispatch('features/loadByProtocolId', newResult[0].protocolId).then(() => {
-        const features = this.$store.getters['features/getByProtocolId'](newResult[0].protocolId)
-        let tempList = JSON.parse ( JSON.stringify (this.wells.list))
-        newResult.forEach(res => {
-          const featureNameFull = features.find(feature => feature.id === res.featureId).name
-          const featureName = featureNameFull.split("_feature")[0]
-          this.columns.push({name: featureName, align: 'left', label: featureName, field: featureName, sortable: true})
-          this.visibleColumns.push(featureName)
-          res.values.forEach((val, index) => {
-            tempList[index][featureName] = val
+    resultSet(newResult) {
+      this.$store.dispatch('features/loadByProtocolId', newResult[0]?.protocolId).then(() => {
+        if (newResult.length > 0) {
+          const features = this.$store.getters['features/getByProtocolId'](newResult[0].protocolId);
+          let tempList = JSON.parse(JSON.stringify(this.wells.list));
+          newResult.forEach(res => {
+            const featureNameFull = features.find(feature => feature.id === res.featureId).name
+            const featureName = featureNameFull.split("_feature")[0]
+            this.columns.push({
+              name: featureName,
+              align: 'left',
+              label: featureName,
+              field: featureName,
+              sortable: true
+            })
+            this.visibleColumns.push(featureName)
+            res.values.forEach((val, index) => {
+              tempList[index][featureName] = val
+            })
           })
-        })
-        this.wells.list = tempList
+          this.wells.list = tempList
+        }
       })
       this.loading = false
     }

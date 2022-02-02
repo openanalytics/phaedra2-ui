@@ -93,7 +93,7 @@ const actions = {
         plateMeasurement["linkedOn"] = new Date();
         await plateAPI.setActivePlateMeasurement(plateMeasurement)
             .then(() => {
-                ctx.commit('setActiveMeasurement', plateMeasurement);
+                ctx.commit('activateMeasurement', plateMeasurement);
             });
     },
     async deletePlate(ctx, plate) {
@@ -153,7 +153,7 @@ const mutations = {
             state.currentPlate?.measurements ? state.currentPlate.measurements.push(plateMeasurement) : state.currentPlate.measurements = [plateMeasurement];
         }
     },
-    setActiveMeasurement(state, { measurementId, active }) {
+    activateMeasurement(state, { measurementId, active }) {
         for (let m in state.currentPlate.measurements) {
             if (state.currentPlate.measurements[m].measurementId === measurementId)
                 state.currentPlate.measurements[m].active = active;

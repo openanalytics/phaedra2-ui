@@ -40,9 +40,12 @@ const actions = {
 
     },
     async loadLatestPlateResult(ctx, args) {
-        await resultdataAPI.getLatestPlateResult(args.plateId)
+        await resultdataAPI.getLatestPlateResult(args.plateId, args.measurementId)
             .then(plateResult => {
-                ctx.commit('cacheLatestPlateResult', { plateId: args.plateId, plateResult });
+                if (!args.measurementId)
+                    ctx.commit('cacheLatestPlateResult', {plateId: args.plateId, plateResult: []});
+                else
+                    ctx.commit('cacheLatestPlateResult', {plateId: args.plateId, plateResult});
             });
     },
     async loadRecentCalculations(ctx, n) {
