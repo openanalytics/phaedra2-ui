@@ -62,5 +62,15 @@ export default {
             console.log(err);
         }
         return [];
+    },
+    async getMetadata(objectId, objectClass) {
+        try {
+            const objectIdArg = Array.isArray(objectId) ? objectId.join(',') : objectId;
+            const response = await axios.get(apiURL + '/metadata', {params: {objectId: objectIdArg, objectClass: objectClass}});
+            if (response.status === 200) return response.data;
+        } catch (err) {
+            console.log(err);
+        }
+        return [];
     }
 }

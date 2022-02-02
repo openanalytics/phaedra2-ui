@@ -47,11 +47,9 @@ const actions = {
             exp.summary = summaries.find(s => s.experimentId == exp.id) || {};
         }
 
-        //TODO Implement API to load metadata for multiple objects in 1 call
-        for (const exp of experiments) {
-            ctx.dispatch('metadata/loadMetadata', { objectId: exp.id, objectClass: 'EXPERIMENT' }, {root:true});
-        }
-
+        const experimentIds = experiments.map(exp => exp.id);
+        ctx.dispatch('metadata/loadMetadata', { objectId: experimentIds, objectClass: 'EXPERIMENT' }, {root:true});
+        
         ctx.commit('cacheExperiments', experiments);
     },
     async loadById(ctx, experimentId) {

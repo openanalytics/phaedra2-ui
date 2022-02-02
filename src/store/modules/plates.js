@@ -45,10 +45,8 @@ const actions = {
         ctx.commit('cachePlates', plates);
         ctx.commit('cachePlatesInExperiment', {experimentId: id, plates});
 
-        //TODO Implement API to load metadata for multiple objects in 1 call
-        for (const plate of plates) {
-            ctx.dispatch('metadata/loadMetadata', { objectId: plate.id, objectClass: 'PLATE' }, {root:true});
-        }
+        const plateIds = plates.map(plate => plate.id);
+        ctx.dispatch('metadata/loadMetadata', { objectId: plateIds, objectClass: 'PLATE' }, {root:true});
     },
     async loadById(ctx, plateId) {
         // Load plate by id

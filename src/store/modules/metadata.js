@@ -54,11 +54,10 @@ const actions = {
     async loadMetadata(ctx, objectDescriptor) {
         if (!objectDescriptor.objectId) return;
 
-        if (!ctx.getters['areTagsLoaded'](objectDescriptor)) {
-            ctx.dispatch('loadTags', objectDescriptor);
-        }
-        if (!ctx.getters['arePropertiesLoaded'](objectDescriptor)) {
-            ctx.dispatch('loadProperties', objectDescriptor);
+        const metadata = await metadataAPI.getMetadata(objectDescriptor.objectId, objectDescriptor.objectClass);
+        for (const row of metadata) {
+            if (row.tags) ctx.commit('cacheTags', { objectId: row.objectId, objectClass: row.objectClass, tags: row.tags });
+            if (row.properties) ctx.commit('cacheProperties', { objectId: row.objectId, objectClass: row.objectClass, properties: row.properties });
         }
     },
 }
