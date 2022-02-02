@@ -73,8 +73,9 @@ export default {
   setup(props) {
     const store = useStore()
     const resultSetTable = ref(false)
-    const resultSets = computed(() => store.getters['resultdata/getPlateResults'](props.plate.id));
-    const resultData = computed(() => store.getters['resultdata/getPlateResults'](props.plate.id));
+    const activeMeasurement = store.getters['plates/getActiveMeasurement']();
+    const resultSets = activeMeasurement ? computed(() => store.getters['resultdata/getPlateResults'](props.plate.id)) : [];
+    const resultData = activeMeasurement ? computed(() => store.getters['resultdata/getPlateResults'](props.plate.id)) : [];
     let resultSet = ref([])
     return {
       currentPlate: props.plate,

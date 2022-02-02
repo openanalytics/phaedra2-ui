@@ -12,7 +12,6 @@ const getters = {
     getLatestPlateResult: (state) => (plateId) => {
         return state.latestPlateResult[plateId];
     },
-
     getLatestPlateResultFeatureIds: (state) => (plateIds) => {
         const result = [];
         for (const plateId of plateIds) {
