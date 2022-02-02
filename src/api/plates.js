@@ -16,16 +16,12 @@ export default {
         return result;
     },
     async getPlatesByExperimentId(id) {
-        let result = [];
-        await axios.get(apiURL + '/plate', { params: {experimentId: id}})
-            .then(response => {
-                if (response.status === 200)
-                    result = response.data;
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
-        return result;
+        try {
+            const response = await axios.get(apiURL + '/experiment/' + id + '/plates');
+            if (response.status === 200) return response.data;
+        } catch (error) {
+            console.log(error);
+        }
     },
     async getPlateMeasurementsByPlateId(plateId) {
         let result = null;

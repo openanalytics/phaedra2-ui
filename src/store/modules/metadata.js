@@ -52,7 +52,7 @@ const actions = {
         if (properties) ctx.commit('cacheProperties', { objectId: args.objectId, objectClass: args.objectClass, properties: properties });
     },
     async loadMetadata(ctx, objectDescriptor) {
-        if (!objectDescriptor.objectId) return;
+        if (!objectDescriptor.objectId || objectDescriptor.objectId.length == 0) return;
 
         const metadata = await metadataAPI.getMetadata(objectDescriptor.objectId, objectDescriptor.objectClass);
         for (const row of metadata) {
