@@ -1,5 +1,5 @@
 <template>
-    <div style="min-height: 20px;" @mouseover="toggleEditBtn(true)" @mouseleave="toggleEditBtn(false)">
+    <div>
         <q-btn flat round dense icon="person" @click="showDialog = true" />
         <span>{{userInfo.fullName}}</span>
     </div>

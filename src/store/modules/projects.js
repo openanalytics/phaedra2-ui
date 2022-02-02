@@ -70,11 +70,16 @@ const actions = {
             })
     },
     async createNewProject(ctx, newProject) {
-        await projectAPI.createNewProject(newProject)
-            .then((response) => {
-                ctx.commit('cacheProject', response)
-                return response
-            })
+        const createdProject = await projectAPI.createNewProject(newProject);
+        ctx.commit('cacheProject', createdProject);
+
+        ctx.dispatch('createProjectAccess', {
+            projectId: createdProject.id,
+            teamName: newProject.adminTeam,
+            accessLevel: "Admin"
+        });
+
+        return createdProject;
     },
     async deleteProject(ctx, projectId) {
         await projectAPI.deleteProject(projectId)
