@@ -8,8 +8,7 @@
           Phaedra 2.0
         </q-toolbar-title>
         <q-btn dense flat round icon="menu"/>
-        <q-btn flat round dense icon="person"/>
-        <span>{{userinfo.fullName}}</span>
+        <UserInfoButton />
       </q-toolbar>
     </q-header>
 
@@ -26,23 +25,18 @@
 </style>
 
 <script>
-  import {computed} from 'vue'
-  import {useStore} from 'vuex'
   import { publicPath } from '../vue.config'
   
   import Navigator from "@/components/navigator/Navigator.vue"
+  import UserInfoButton from "@/components/widgets/UserInfoButton.vue"
 
   export default {
     components: {
-      Navigator
+      Navigator,
+      UserInfoButton
     },
     setup() {
-      const store = useStore();
-
-      store.dispatch('userinfo/loadUserInfo').then();
-      const userinfo = computed(() => store.getters['userinfo/getUserInfo']());
-
-      return { publicPath, userinfo }
+      return { publicPath }
     }
   }
 </script>

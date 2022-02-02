@@ -3,12 +3,16 @@ import projectAPI from '@/api/projects.js'
 const state = () => ({
     currentProject: {},
     projects: [],
-    recentProjects: []
+    recentProjects: [],
+    projectAccess: {},
 })
 
 const getters = {
     getById: (state) => (id) => {
         return state.projects.find(project => project.id === id)
+    },
+    getProjectAccess: (state) => (id) => {
+        return state.projectAccess[id];
     },
     getCurrentProject: (state) => () => {
         return state.currentProject;
@@ -38,7 +42,20 @@ const actions = {
             }
         }
 
+        ctx.dispatch('loadProjectAccess', projectId);
         ctx.dispatch('metadata/loadMetadata', { objectId: projectId, objectClass: 'PROJECT' }, {root:true});
+    },
+    async loadProjectAccess(ctx, projectId) {
+        const response = await projectAPI.getProjectAccess(projectId);
+        ctx.commit('cacheProjectAccess', { id: projectId, projectAccess: response });
+    },
+    async createProjectAccess(ctx, projectAccess) {
+        const response = await projectAPI.createProjectAccess(projectAccess);
+        ctx.commit('cacheProjectAccess', { id: projectAccess.projectId, projectAccess: response });
+    },
+    async deleteProjectAccess(ctx, projectAccessId) {
+        await projectAPI.deleteProjectAccess(projectAccessId);
+        ctx.commit('uncacheProjectAccess', projectAccessId);
     },
     async loadAll(ctx) {
         await projectAPI.getAllProjects()
@@ -53,11 +70,16 @@ const actions = {
             })
     },
     async createNewProject(ctx, newProject) {
-        await projectAPI.createNewProject(newProject)
-            .then((response) => {
-                ctx.commit('cacheProject', response)
-                return response
-            })
+        const createdProject = await projectAPI.createNewProject(newProject);
+        ctx.commit('cacheProject', createdProject);
+
+        ctx.dispatch('createProjectAccess', {
+            projectId: createdProject.id,
+            teamName: newProject.adminTeam,
+            accessLevel: "Admin"
+        });
+
+        return createdProject;
     },
     async deleteProject(ctx, projectId) {
         await projectAPI.deleteProject(projectId)
@@ -82,6 +104,24 @@ const mutations = {
     cacheProject(state, project) {
         if(!containsProject(state,project)){
             state.projects.push(project)
+        }
+    },
+    cacheProjectAccess(state, args) {
+        if (args.projectAccess.id) {
+            // Add a single projectAccess entry for a project
+            if (!state.projectAccess[args.id]) {
+                state.projectAccess[args.id] = [];
+            }
+            state.projectAccess[args.id].push(args.projectAccess);
+        } else {
+            // Cache an entire projectAccess array for a project
+            state.projectAccess[args.id] = args.projectAccess;
+        }
+    },
+    uncacheProjectAccess(state, projectAccessId) {
+        for (var projectId of Object.keys(state.projectAccess)) {
+            let index = state.projectAccess[projectId].findIndex(pa => pa.id == projectAccessId);
+            if (index >= 0) state.projectAccess[projectId].splice(index, 1);
         }
     },
     uncacheProject(state, projectId) {
