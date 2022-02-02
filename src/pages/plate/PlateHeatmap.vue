@@ -38,12 +38,17 @@ export default {
     exported.dataLoading = ref(true);
 
     // Load resultdata to display
-    exported.plateResults.value = store.getters['resultdata/getPlateResults'](props.plate.id);
-    let protocolIds = [...new Set(exported.plateResults.value.map(rs => rs.protocolId))];
-    store.dispatch('protocols/loadByIds', protocolIds).then(() => {
-      exported.protocols.value = store.getters['protocols/getByIds'](protocolIds);
+    const activeMeasurement = store.getters['plates/getActiveMeasurement']();
+    if (activeMeasurement) {
+      exported.plateResults.value = store.getters['resultdata/getPlateResults'](props.plate.id);
+      let protocolIds = [...new Set(exported.plateResults.value.map(rs => rs.protocolId))];
+      store.dispatch('protocols/loadByIds', protocolIds).then(() => {
+        exported.protocols.value = store.getters['protocols/getByIds'](protocolIds);
+        exported.dataLoading.value = false;
+      })
+    } else {
       exported.dataLoading.value = false;
-    })
+    }
 
     const selectedFeatureData = computed(() => {
       if (!exported.selectedFeature.value) return undefined
