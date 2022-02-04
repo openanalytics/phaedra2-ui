@@ -113,6 +113,7 @@ const actions = {
 const mutations = {
     loadExperiment(state, experiment) {
         state.currentExperiment = experiment;
+        if (!containsExperiment(state, experiment)) state.experiments.push(experiment)
     },
     cacheExperiments(state, experiments) {
         experiments.forEach(exp => {
