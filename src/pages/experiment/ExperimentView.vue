@@ -54,7 +54,7 @@
               <q-btn size="sm" color="primary" icon="edit" class="oa-button-edit" label="Edit" @click="editdialog = true"/>
             </div>
             <div class="row justify-end action-button">
-              <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete" @click="deletedialog = true"/>
+              <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete" @click="$refs.deleteDialog.showDialog = true" />
             </div>
           </div>
 
@@ -117,29 +117,7 @@
       </div>
     </div>
 
-    <q-dialog v-model="deletedialog" persistent>
-      <q-card style="min-width: 30vw">
-        <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
-          <q-avatar icon="delete" color="primary" text-color="white"/> Delete Experiment
-        </q-card-section>
-        <q-card-section>
-          <div class="row">
-            <div class="col-10">
-              <span>Are you sure you want to delete the experiment <b>{{experiment.name}}</b>?</span><br/>
-              <span>Type <span
-                  style="font-weight: bold">{{ experiment.name }}</span> and press the button to confirm:</span><br/>
-              <q-input dense v-model="experimentName" autofocus/><br>
-              <span class="text-accent">WARNING: The experiment, plates and associated data will be deleted!</span>
-            </div>
-          </div>
-        </q-card-section>
-        <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="Cancel" v-close-popup/>
-          <q-btn label="Delete experiment" color="accent" v-if="experiment.name==experimentName" v-close-popup
-                 @click="deleteExperiment"/>
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+    <DeleteExperimentDialog ref="deleteDialog" :experimentId="experimentId" @onDeleted="onDeleted" />
   </q-page>
 </template>
 
@@ -170,7 +148,7 @@
 <script>
 import {ref, computed} from 'vue'
 import {useStore} from 'vuex'
-import {useRoute} from 'vue-router'
+import {useRoute, useRouter} from 'vue-router'
 
 import TagList from "@/components/tag/TagList";
 import EditExperiment from "./EditExperiment";
@@ -178,6 +156,7 @@ import PropertyTable from "@/components/property/PropertyTable";
 import PlateList from "@/pages/experiment/PlateList";
 import PlateStatsList from "@/pages/experiment/PlateStatsList";
 import PlateGrid from "@/pages/experiment/PlateGrid";
+import DeleteExperimentDialog from "@/components/experiment/DeleteExperimentDialog";
 
 import FormatUtils from "@/lib/FormatUtils.js"
 
@@ -189,7 +168,8 @@ export default {
     PropertyTable,
     PlateList,
     PlateStatsList,
-    PlateGrid
+    PlateGrid,
+    DeleteExperimentDialog
   },
   methods: {
     createNewPlate(){
@@ -198,18 +178,11 @@ export default {
       this.$store.dispatch('plates/createNewPlate',this.newPlate)
       this.newPlateTab = false
     },
-    deleteExperiment() {
-      const id = this.project.id
-      //disable experiment to stop page from loading experiment data and causing undefined errors
-      this.experiment = false
-      this.$store.dispatch('experiments/deleteExperiment', this.experimentId).then(() => {
-        this.$router.push({name: 'project', params: {id: id}})
-      })
-    }
   },
   setup() {
     const store = useStore()
     const route = useRoute()
+    const router = useRouter()
 
     const experimentId = parseInt(route.params.id);
     const experiment = computed(() => store.getters['experiments/getCurrentExperiment']())
@@ -223,7 +196,10 @@ export default {
       experiment,
       project,
       activeTab: ref('overview'),
-      FormatUtils
+      FormatUtils,
+      onDeleted: () => {
+        router.push({name: 'project', params: {id: project.value.id}})
+      }
     }
   },
   data() {
@@ -242,7 +218,6 @@ export default {
         approvalStatus: "APPROVAL_NOT_SET",
       },
       experimentName: ref(""),
-      deletedialog: ref(false),
       editdialog:ref(false)
     }
   }

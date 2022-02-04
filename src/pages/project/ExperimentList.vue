@@ -59,6 +59,15 @@
         <ProgressBarField :object="props.row.summary" :valueFieldName="props.col.name" :maxValueFieldName="'nrPlates'" />
       </q-td>
     </template>
+    <template v-slot:body-cell-menu="props">
+      <q-td :props="props">
+        <div class="row items-center cursor-pointer">
+          <q-btn flat round icon="more_horiz" size="sm" >
+            <ExperimentMenu :experimentId="props.row.id" />
+          </q-btn>
+        </div>
+      </q-td>
+    </template>
     <template v-slot:no-data>
       <div class="full-width row text-info">
         <span>No experiments to show.</span>
@@ -110,6 +119,8 @@
   import TableConfig from "@/components/table/TableConfig";
   import ProgressBarField from "@/components/widgets/ProgressBarField";
   import TagList from "@/components/tag/TagList";
+  import ExperimentMenu from "@/components/experiment/ExperimentMenu";
+
   import FormatUtils from "@/lib/FormatUtils.js"
   import FilterUtils from "@/lib/FilterUtils.js"
 
@@ -125,6 +136,8 @@
     {name: 'nrPlatesCalculated', align: 'left', label: 'Calculated', sortable: true},
     {name: 'nrPlatesValidated', align: 'left', label: 'Validated', sortable: true},
     {name: 'nrPlatesApproved', align: 'left', label: 'Approved', sortable: true},
+
+    {name: 'menu', align: 'left', field: 'menu', sortable: false}
   ])
 
   export default {
@@ -134,7 +147,8 @@
     components: {
       TableConfig,
       TagList,
-      ProgressBarField
+      ProgressBarField,
+      ExperimentMenu
     },
     setup(props) {
       const store = useStore()
