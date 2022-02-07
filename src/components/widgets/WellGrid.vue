@@ -12,13 +12,13 @@
       <div><!-- Corner slot --></div>
 
       <!-- Column headers -->
-      <div class="gridHeaderSlot" v-for="n in plate.columns" :key="n" @click="selectColumn(n, $event.shiftKey)">
+      <div class="gridHeaderSlot" v-for="n in plate.columns" :key="n" @click="selectColumn(n, $event.ctrlKey)">
         {{ n }}
       </div>
 
       <template v-for="r in plate.rows" :key="r">
         <!-- Row header -->
-        <div class="gridHeaderSlot" @click="selectRow(r, $event.shiftKey)">
+        <div class="gridHeaderSlot" @click="selectRow(r, $event.ctrlKey)">
           {{ WellUtils.getWellRowLabel(r) }}
         </div>
         <!-- Plate row -->
@@ -124,8 +124,8 @@ export default {
     exported.refWellSlot = function (slot) {
       exported.wellSlots.value.push(slot)
     }
-    exported.selectionBoxSupport = SelectionBoxHelper.addSelectionBoxSupport(exported.rootElement, exported.wellSlots, wells => {
-      emitWellSelection(wells);
+    exported.selectionBoxSupport = SelectionBoxHelper.addSelectionBoxSupport(exported.rootElement, exported.wellSlots, (wells, append) => {
+      emitWellSelection(wells, append);
     });
 
     exported.selectRow = (n, append) => {

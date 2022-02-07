@@ -75,7 +75,7 @@ function addSelectionBoxSupport(rootElement, wellSlots, selectionHandler) {
                     }
                 }
             })
-            this.selectionHandler(selectedWells);
+            this.selectionHandler(selectedWells, event.ctrlKey);
         }
     }
     return selectionBoxSupport
@@ -112,6 +112,7 @@ function createSelectionBoxDiv(doc, event, rootOffset) {
     box.style.border = '1px solid black';
     box.style.left = (event.pageX - rootOffset.left) + 'px';
     box.style.top = (event.pageY - rootOffset.top) + 'px';
+    box.style.pointerEvents = 'none';
     return box;
 }
 
