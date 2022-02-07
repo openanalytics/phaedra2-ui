@@ -2,7 +2,11 @@ import calculationsAPI from "@/api/calculations";
 
 const state = () => ({
     formulas: [],
-    formulaInputs: {}
+    formulaInputs: {},
+
+    categories: [ 'CALCULATION', 'HIT_CALLING', 'OUTLIER_DETECTION', 'POLISHING' ],
+    languages: [ 'JAVASCRIPT', 'R', 'JAVASTAT' ],
+    scopes: [ 'PLATE', 'WELL', 'SUB_WELL' ]
 })
 
 const getters = {
@@ -17,6 +21,15 @@ const getters = {
     },
     getFormulaInputs: (state) => (id) => {
         return state.formulaInputs[id];
+    },
+    getCategories: (state) => () => {
+        return state.categories;
+    },
+    getLanguages: (state) => () => {
+        return state.languages;
+    },
+    getScopes: (state) => () => {
+        return state.scopes;
     },
 }
 

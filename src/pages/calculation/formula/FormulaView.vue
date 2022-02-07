@@ -107,10 +107,9 @@
             exported.formulaInputs = computed(() => { return store.getters['calculations/getFormulaInputs'](formulaId) || [] })
             if (formulaId > 0) store.dispatch('calculations/getFormulaInputs', formulaId);
 
-            //TODO Fetch from API
-            exported.categories = [ 'CALCULATION', 'HIT_CALLING', 'OUTLIER_DETECTION', 'POLISHING' ];
-            exported.languages = [ 'JAVASCRIPT', 'R', 'JAVASTAT' ];
-            exported.scopes = [ 'PLATE', 'WELL', 'SUB_WELL' ];
+            exported.categories = computed(() => (store.getters['calculations/getCategories']() || []));
+            exported.languages = computed(() => (store.getters['calculations/getLanguages']() || []));
+            exported.scopes = computed(() => (store.getters['calculations/getScopes']() || []));
 
             return exported;
         },
