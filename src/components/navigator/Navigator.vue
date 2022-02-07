@@ -54,21 +54,6 @@
         </router-link>
       </template>
 
-      <!-- Template for protocols (header: "protocols") -->
-      <template v-slot:header-protocol="prop">
-        <router-link v-if="prop.node.id === 'new'" :to="{ name: 'newProtocol', params: { id: prop.node.id } }" class="nav-link">
-          <q-icon name="add" class="text-primary" />
-          {{ prop.node.label }}
-        </router-link>
-        <router-link v-else-if="prop.node.id === 'import'" :to="{ name: 'importProtocol', params: { id: prop.node.id } }" class="nav-link">
-          <q-icon name="import_export" class="text-primary" />
-          {{ prop.node.label }}
-        </router-link>
-        <router-link v-else :to="{ name: 'protocol', params: { id: prop.node.id } }" class="nav-link">
-          <q-icon name="ballot" class="text-primary" />
-          {{ prop.node.label }}
-        </router-link>
-      </template>
       <!-- Template for templates (header: "template") -->
       <template v-slot:header-template="prop">
         <router-link v-if="prop.node.id === 'new'" :to="{ name: 'newPlateTemplate', params: { id: prop.node.id } }" class="nav-link">
@@ -126,28 +111,6 @@
           projects.push(prj);
         })
 
-        // Protocols
-        let protocols = [{
-          header: "protocol",
-          label: "New Protocol...",
-          id: "new",
-        },{
-          header: "protocol",
-          label: "Import Protocols...",
-          id: "import",
-        }];
-        const allProtocols = store.getters['protocols/getAll']().map(protocol => {
-          return {
-            header: "protocol",
-            label: protocol.name,
-            id: protocol.id,
-            version: protocol.version
-          }
-        })
-        allProtocols.forEach(prot => {
-          protocols.push(prot);
-        })
-
         // Templates
         let templates = [{
           header: "template",
@@ -179,18 +142,21 @@
             children: projects
           },
           {
-            label: "Protocols",
-            header: "category",
-            icon: 'ballot',
-            children: protocols
-          },
-          {
             label: "Calculation",
             header: "category",
             icon: 'calculate',
             children: [
               {
-                label: "Formulas",
+                label: "New Protocol...",
+                icon: "add",
+                route: "newProtocol",
+              }, {
+                label: "Browse Protocols",
+                icon: 'ballot',
+                route: 'browseProtocols',
+              },
+              {
+                label: "Browse Formulas",
                 icon: 'functions',
                 route: 'calcFormulas',
               }
@@ -230,7 +196,6 @@
       })
 
       store.dispatch('projects/loadAll')
-      store.dispatch('protocols/loadAll')
       store.dispatch('templates/loadAll')
 
       return {

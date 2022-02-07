@@ -1,28 +1,31 @@
 <template>
   <q-breadcrumbs class="breadcrumb">
     <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
-    <q-breadcrumbs-el :label="'Import protocol'"/>
+    <q-breadcrumbs-el :label="'Import Protocol'"/>
   </q-breadcrumbs>
 
-  <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
-    <div class="q-pa-md">
-      <div class="q-px-sm oa-section-title">
-        <div class="text-h6">Import protocols</div>
+  <q-page class="oa-root-div q-pa-md">
+    <div class="row text-h6 items-center q-px-md oa-section-title">
+        <q-icon name="ballot" class="on-left"/>
+        Import Protocol
+    </div>
+
+    <div class="q-pa-md oa-section-body">
+      <span class="">Create a new Protocol by importing it from a JSON file:</span>
+      <div class="row q-pt-md">
+        <q-file
+            class="full-width"
+            v-model="jsonFiles"
+            dense
+            label="Protocol File"
+            multiple
+            accept=".json"
+        />
       </div>
-      <div class="col q-pa-lg oa-section-body">
-        <span class="text-bold">Import protocols as json</span>
-        <div class="row justify-start q-pt-md">
-          <q-file
-              style="min-width: 300px; margin-right: 10px"
-              v-model="jsonFiles"
-              dense
-              label="Pick protocol json files"
-              multiple
-              accept=".json"
-          />
-          <q-btn label="Import" type="submit" color="primary" @click="importAsJson"></q-btn>
-        </div>
-        <span class="text-accent">{{ jsonStatusMessage }}</span>
+      <span class="text-accent">{{ jsonStatusMessage }}</span>
+
+      <div class="row justify-end q-pt-md">
+        <q-btn label="Import" type="submit" color="primary" @click="importAsJson"></q-btn>
       </div>
     </div>
   </q-page>

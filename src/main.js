@@ -21,10 +21,14 @@ import NewProjectView from '@/pages/project/NewProjectView.vue'
 import ExperimentView from '@/pages/experiment/ExperimentView.vue'
 import NewExperimentView from '@/pages/experiment/NewExperimentView.vue'
 import PlateView from '@/pages/plate/PlateView.vue'
+
+import BrowseProtocols from '@/pages/protocol/BrowseProtocols.vue'
 import ProtocolView from '@/pages/protocol/ProtocolView.vue'
 import NewProtocolView from "@/pages/protocol/NewProtocolView";
+
 import FormulasView from "@/pages/calculation/formula/FormulasView";
 import FormulaView from "@/pages/calculation/formula/FormulaView";
+
 import CaptureJobsView from '@/pages/datacapture/CaptureJobsView.vue'
 
 import PlateList from "@/pages/experiment/PlateList.vue"
@@ -60,9 +64,11 @@ const routes = [
             { path: 'wells', component: WellList }
         ]
     },
+    { name: "browseProtocols", path: "/protocols", component: BrowseProtocols },
     { name: "protocol", path: "/protocol/:id", component: ProtocolView },
     { name: "newProtocol", path: "/protocol/new", component: NewProtocolView },
     { name: "importProtocol", path: "/protocol/import", component: ImportProtocolView},
+    
     { name: "template", path: "/template/:id", component: PlateTemplateView},
     { name: "newPlateTemplate", path: "/template/new", component: NewPlateTemplateView},
 
