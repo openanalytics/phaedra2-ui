@@ -81,8 +81,8 @@
         <template v-slot:body-cell-formulaId="props">
           <q-td :props="props">
             {{getFormulaName(props.row.formulaId)}}
-            <q-icon name="info" size="xs" class="text-info cursor-pointer" @click="showFormulaTooltip = true">
-              <q-tooltip v-model="showFormulaTooltip" :delay="2000">
+            <q-icon name="info" size="xs" class="text-info cursor-pointer" @click="showFormulaTooltip[props.rowIndex] = true">
+              <q-tooltip v-model="showFormulaTooltip[props.rowIndex]" :delay="2000">
                 <FormulaInspector :formulaId="props.row.formulaId"/>
               </q-tooltip>
             </q-icon>
@@ -230,7 +230,7 @@ export default {
       configdialog: ref(false),
       filter: ref(''),
       filterMethod: FilterUtils.createTableFilter(),
-      showFormulaTooltip: ref(false)
+      showFormulaTooltip: ref([])
     }
   },
   data() {
