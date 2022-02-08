@@ -45,6 +45,7 @@ import NewPlateTemplateView from "./pages/platelayout/NewPlateTemplateView"
 
 const routes = [
     { name: "dashboard", path: "/", component: Dashboard },
+    { name: 'browseProjects', path: "/projects", component: BrowseProjects},
     { name: "project", path: "/project/:id", component: ProjectView },
     { name: "newProject", path: "/project/new", component: NewProjectView },
     { name: "experiment", path: "/experiment/:id", component: ExperimentView },
@@ -101,6 +102,7 @@ import { createApp } from "vue"
 import App from "./App.vue"
 import CapturedMeasurementsView from "./pages/datacapture/CapturedMeasurementsView";
 import ImportProtocolView from "./pages/protocol/ImportProtocolView";
+import BrowseProjects from "./pages/project/BrowseProjects";
 
 const app = createApp(App)
 app.use(router)

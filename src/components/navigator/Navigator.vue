@@ -48,6 +48,10 @@
           <q-icon name="add" class="text-primary" />
           {{ prop.node.label }}
         </router-link>
+        <router-link v-else-if="prop.node.id === 'browse'" :to="{ name: 'browseProjects'}" class="nav-link">
+          <q-icon name="folder_open" class="text-primary" />
+          {{ prop.node.label }}
+        </router-link>
         <router-link v-else :to="{ name: 'project', params: { id: prop.node.id } }" class="nav-link">
           <q-icon name="folder" class="text-primary" />
           {{ prop.node.label }}
@@ -98,7 +102,11 @@
           header: "project",
           label: "New Project...",
           id: "new",
-        }];
+        }, {
+          header: "project",
+          label: "Browse Projects",
+          id: "browse",
+        },];
         const allProjects = store.getters['projects/getAll']().map(project => {
           return {
             header: "project",
