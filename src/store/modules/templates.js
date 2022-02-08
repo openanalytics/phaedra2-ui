@@ -1,5 +1,4 @@
 import templateAPI from '@/api/templates.js'
-import WellUtils from "../../lib/WellUtils";
 
 const state = () => ({
     currentPlateTemplate: {},
@@ -29,7 +28,6 @@ const actions = {
         } else {
             try {
                 plateTemplate = await templateAPI.getPlateTemplateById(plateTemplateId)
-                console.log('Load plateTemplate by id');
                 ctx.commit('loadPlateTemplate', plateTemplate)
             } catch (err) {
                 console.error(err)
@@ -100,18 +98,13 @@ const mutations = {
         state.currentPlateTemplate.description = template.description
     },
     updateWellTemplates(state, args) {
-        var date1 = new Date()
+        const modifiedWells = [];
+        state.currentPlateTemplate.wells.forEach(well => modifiedWells.push({...well}));
         args.wells.forEach(well => {
-            const i = WellUtils.getWellNr(well.row, well.column, state.currentPlateTemplate.columns) - 1
-            switch (args.field){
-                case 'skipped': state.currentPlateTemplate.wells[i].skipped = args.entry;break;
-                case 'wellType': state.currentPlateTemplate.wells[i].wellType = args.entry;break;
-                case 'substanceName': state.currentPlateTemplate.wells[i].substanceName = args.entry;break;
-                case 'substanceType': state.currentPlateTemplate.wells[i].substanceType = args.entry;break;
-                case 'concentration': state.currentPlateTemplate.wells[i].concentration = args.entry;break;
-            }
+            const modifiedWell = modifiedWells.find(w => w.row == well.row && w.column == well.column);
+            modifiedWell[args.field] = args.entry;
         })
-        console.log("Time it took to update welltemplate store in ms: ",new Date()-date1)
+        state.currentPlateTemplate.wells = [...modifiedWells];
     },
     async savePlateTemplate(state) {
         templateAPI.editWellTemplates(state.currentPlateTemplate.wells)

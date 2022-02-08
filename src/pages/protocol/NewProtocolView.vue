@@ -1,30 +1,25 @@
 <template>
   <q-breadcrumbs class="breadcrumb">
     <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}" />
-    <q-breadcrumbs-el :label="'New protocol'" />
+    <q-breadcrumbs-el :label="'New Protocol'" />
   </q-breadcrumbs>
 
-  <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
+  <q-page class="oa-root-div">
     <div class="q-pa-md">
-      <div class="q-px-sm oa-section-title">
-        <div class="text-h6">Create new protocol</div>
-      </div>
-
-      <div class="row q-pa-lg oa-section-body">
+      <oa-section-header :title="'New Protocol'" :icon="'ballot'"/>
+      <div class="row q-pa-md oa-section-body">
         <q-form class="col" @submit="onSubmit" @reset="onReset">
           <q-input v-model="newProtocol.name" label="Name: "></q-input>
           <q-input v-model="newProtocol.description" label="Description: "></q-input>
           <q-select v-model="newProtocol.lowWelltype" label="Low well type:" :options="wellTypeOptions"></q-select>
           <q-select v-model="newProtocol.highWelltype" label="High well type:" :options="wellTypeOptions"></q-select>
 
-          <div class="row justify-start q-pt-md">
-            <q-toggle v-model="newProtocol.editable" label="Is editable:"/>
-            <q-toggle v-model="newProtocol.inDevelopment" label="Is in development:"/>
-          </div>
-
           <div class="row justify-end q-pt-md">
+            <router-link :to="{ name: 'importProtocol' }" class="nav-link">
+              <q-btn label="Import From File..." color="primary" class="on-left"/>
+            </router-link>
             <q-btn label="Save" type="submit" color="primary"></q-btn>
-            <q-btn label="Cancel" type="reset" color="primary" flat class="a-ml-sm"></q-btn>
+            <q-btn label="Cancel" type="reset" color="primary" flat class="a-ml-sm on-right"></q-btn>
           </div>
         </q-form>
       </div>
@@ -33,8 +28,10 @@
 </template>
 
 <script>
+import OaSectionHeader from "../../components/widgets/OaSectionHeader";
 export default {
   name: "NewProtocolView",
+  components: {OaSectionHeader},
   methods: {
     onSubmit() {
       this.newProtocol.createdOn = new Date();
@@ -70,13 +67,9 @@ export default {
         lowWelltype: null,
         highWelltype: null,
         createdOn: null,
-        createdBy: 'sasa.berberovic'
+        createdBy: null
       }
     }
   }
 }
 </script>
-
-<style lang="scss">
-  @import "src/css/oa.global";
-</style>

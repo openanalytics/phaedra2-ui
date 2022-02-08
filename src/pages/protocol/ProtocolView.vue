@@ -6,10 +6,7 @@
 
   <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs" v-if="protocol">
     <div class="q-pa-md" v-if="!editdialog">
-      <div class="row text-h6 items-center q-px-md oa-section-title">
-        <q-icon name="ballot" class="q-pr-sm"/>
-        {{ protocol.name }}
-      </div>
+      <oa-section-header :title="protocol.name" :icon="'ballot'"/>
 
       <div class="row q-pa-md oa-section-body">
         <div class="col-4 q-gutter-xs">
@@ -64,32 +61,36 @@
     <EditProtocol v-model:show="editdialog" v-model:protocol="protocol"></EditProtocol>
 
     <div class="q-pa-md" v-if="!newFeatureTab && formulas && !editFeatureSection">
-      <div class="row text-h6 items-center q-px-md oa-section-title">
-        <q-icon name="functions" class="q-pr-sm"/>
-        Features
-      </div>
+      <oa-section-header :title="'Features'" :icon="'functions'"/>
       <q-table :rows="features" row-key="id" :columns="columns" :filter="filter" :filter-method="filterMethod" :loading="loading" :visible-columns="visibleColumns" square>
-        <template v-slot:top-right>
+        <template v-slot:top-left>
           <div class="col action-button on-left">
-            <q-btn size="sm" color="primary" icon="add" label="Add Feature..." @click="newFeatureTab = true"/>
+            <q-btn size="sm" icon="add" class="oa-button" label="New Feature" @click="newFeatureTab = true"/>
           </div>
+        </template>
+        <template v-slot:top-right>
           <div class="row">
-            <q-input outlined rounded dense debounce="300" v-model="filter" placeholder="Search">
+            <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
               <template v-slot:append>
                 <q-icon name="search"/>
               </template>
             </q-input>
-            <q-btn flat round color="primary" icon="settings" style="border-radius: 50%;" @click="configdialog=true"/>
+            <q-btn flat round color="primary" icon="settings" class="on-right" @click="configdialog=true"/>
           </div>
-        </template>
-        <template v-slot:body-cell-formulaId="props" >
-          <q-td :props="props">
-            {{getFormulaName(props.row.formulaId)}}
-          </q-td>
         </template>
         <template v-slot:body-cell-protocolId="props">
           <q-td :props="props">
             {{protocol.name}}
+          </q-td>
+        </template>
+        <template v-slot:body-cell-formulaId="props">
+          <q-td :props="props">
+            {{getFormulaName(props.row.formulaId)}}
+            <q-icon name="info" size="xs" class="text-info cursor-pointer" @click="showFormulaTooltip[props.rowIndex] = true">
+              <q-tooltip v-model="showFormulaTooltip[props.rowIndex]" :delay="2000">
+                <FormulaInspector :formulaId="props.row.formulaId"/>
+              </q-tooltip>
+            </q-icon>
           </q-td>
         </template>
         <template v-slot:body-cell-menu="props">
@@ -176,8 +177,11 @@ import {useStore} from "vuex";
 import {useRoute} from "vue-router";
 import {computed, ref} from "vue";
 
-import TagList from "@/components/tag/TagList";
 import EditProtocol from "./EditProtocol";
+import TagList from "@/components/tag/TagList"
+import FormulaInspector from "@/components/widgets/FormulaInspector";
+import FilterUtils from "@/lib/FilterUtils.js"
+import OaSectionHeader from "../../components/widgets/OaSectionHeader";
 import TableConfig from "../../components/table/TableConfig";
 import EditFeature from "../../components/protocol/EditFeature";
 import NewFeature from "../../components/protocol/NewFeature";
@@ -190,20 +194,9 @@ let columns = ref([
   {name: 'format', align: 'left', label: 'Format', field: 'format', sortable: true},
   {name: 'type', align: 'left', label: 'Type', field: 'type', sortable: true},
   {name: 'sequence', align: 'left', label: 'Sequence', field: 'sequence', sortable: true},
-  {name: 'protocolId', align: 'left', label: 'Protocol', field: 'protocolId', sortable: true},
   {name: 'formulaId', align: 'left', label: 'Formula', field: 'formulaId', sortable: true},
-  {name: 'trigger', align: 'left', label: 'Trigger', field: 'trigger', sortable: true},
   {name: 'menu', align: 'left', field: 'menu', sortable: false}
     ])
-
-const filterMethod = function (rows, term) {
-  return rows.filter(row => {
-    return (row.id == term
-        || row.barcode.toLowerCase().includes(term)
-        || row.description.toLowerCase().includes(term)
-        || (row.tags && row.tags.some(tag => tag.toLowerCase().includes(term))))
-  })
-}
 
 export default {
   name: "ProtocolView",
@@ -213,7 +206,9 @@ export default {
     EditProtocol,
     TableConfig,
     EditFeature,
-    NewFeature
+    NewFeature,
+    FormulaInspector,
+    OaSectionHeader
   },
   setup() {
     const store = useStore()
@@ -241,7 +236,8 @@ export default {
       visibleColumns: columns.value.map(a => a.name),
       configdialog: ref(false),
       filter: ref(''),
-      filterMethod,
+      filterMethod: FilterUtils.createTableFilter(),
+      showFormulaTooltip: ref([])
     }
   },
   data() {
@@ -305,8 +301,3 @@ export default {
 
 }
 </script>
-
-<style lang="scss">
-@import "src/css/oa.global";
-
-</style>

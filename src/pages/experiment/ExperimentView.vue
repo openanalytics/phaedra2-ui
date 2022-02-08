@@ -9,14 +9,10 @@
   <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
     <div class="q-pa-md" v-if="!editdialog">
 
-      <div class="text-h6 q-px-sm oa-section-title" v-if="!experiment">
-        Loading experiment...
-      </div>
+      <oa-section-header v-if="!experiment" :title="'Loading experiment...'" :icon="'science'"/>
 
       <div v-else>
-        <div class="row text-h6 items-center q-px-sm oa-section-title">
-          <q-icon name="science" class="on-left"/>{{ experiment.name }}
-        </div>
+        <oa-section-header :title="experiment.name" :icon="'science'"/>
 
         <div class="row q-pa-md oa-section-body">
 
@@ -93,10 +89,7 @@
     </div>
 
     <div class="q-pa-md" v-if="newPlateTab">
-      <div class="row text-h6 items-center q-px-md oa-section-title">
-        <q-icon name="add" class="q-pr-sm"/>
-        New Plate
-      </div>
+      <oa-section-header :title="'New Plate'" :icon="'add'"/>
       <div class="row col-12 q-pa-md oa-section-body">
         <div class="row" style="min-width: 90vw">
           <div class="col col-5">
@@ -157,7 +150,7 @@ import PlateList from "@/pages/experiment/PlateList";
 import PlateStatsList from "@/pages/experiment/PlateStatsList";
 import PlateGrid from "@/pages/experiment/PlateGrid";
 import DeleteExperimentDialog from "@/components/experiment/DeleteExperimentDialog";
-
+import OaSectionHeader from "../../components/widgets/OaSectionHeader";
 import FormatUtils from "@/lib/FormatUtils.js"
 
 export default {
@@ -169,7 +162,8 @@ export default {
     PlateList,
     PlateStatsList,
     PlateGrid,
-    DeleteExperimentDialog
+    DeleteExperimentDialog,
+    OaSectionHeader
   },
   methods: {
     createNewPlate(){

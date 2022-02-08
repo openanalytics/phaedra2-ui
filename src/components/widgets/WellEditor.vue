@@ -8,85 +8,72 @@
     </div>
     <div class="q-pa-xs oa-section-body">
       <div class="col-12 q-mb-sm">
-        <q-checkbox v-if="tab==='overview'" v-model="skipped" label="Skip Wells" @click="updateWells('skipped')"/>
-        <q-select v-if="tab==='well-type'" v-model="selectedType" :label="previousType" :options="wellTypes" @update:model-value="updateWells('well-type')"></q-select>
-        <q-input v-if="tab==='substance'" v-model="name" square autofocus label="Substance Name" @change="updateWells('substance_name')"></q-input>
-        <q-input v-if="tab==='substance'" v-model="substanceType" square autofocus label="Substance Type" @change="updateWells('substance_type')"></q-input>
-        <q-input v-if="tab==='substance'" v-model="concentration" square autofocus label="Concentration" @change="updateWells('concentration')"></q-input>
+        <q-checkbox v-if="tab==='overview'" v-model="skipped" label="Skip Wells" @click="updateWells('skipped', skipped)"/>
+        <q-select v-if="tab==='well-type'" v-model="selectedType" :label="previousType" :options="wellTypes" @update:model-value="updateWells('wellType', selectedType)"></q-select>
+        <q-input v-if="tab==='substance'" v-model="name" square autofocus label="Substance Name" @change="updateWells('substanceName', name)"></q-input>
+        <q-input v-if="tab==='substance'" v-model="substanceType" square autofocus label="Substance Type" @change="updateWells('substanceType', substanceType)"></q-input>
+        <q-input v-if="tab==='substance'" v-model="concentration" square autofocus label="Concentration" @change="updateWells('concentration', concentration)"></q-input>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.legendRow {
-  width: 200px;
-}
+  .legendRow {
+    width: 200px;
+  }
 </style>
 
 <script>
+  import {computed, ref} from "vue";
+  import {useStore} from 'vuex'
 
-import {computed, ref} from "vue";
+  export default {
+    props: {
+      wells: Array,
+      plateId: Number,
+      tab: String
+    },
+    setup(props) {
+      const store = useStore()
 
-export default {
+      const wellTypes = ["EMPTY", "LC", "HC", "SAMPLE"]
+      const selectedType = ref(null)
+      const skipped = ref(true)
 
-  props: {
-    wells: Array,
-    plateId: Number,
-    tab: String
-  },
-  methods: {
-    updateWells(field) {
-      //Nested deep copy
-      const copy = JSON.parse(JSON.stringify(this.wells));
-      switch (field) {
-        case "skipped": this.$store.dispatch('templates/updateWellTemplates', {wells: copy, field:'skipped', entry: this.skipped});break;
-        case "well-type": this.$store.dispatch('templates/updateWellTemplates', {wells: copy, field:'wellType', entry: this.selectedType});break;
-        case "substance_name": this.$store.dispatch('templates/updateWellTemplates', {wells: copy, field:'substanceName', entry: this.name});break;
-        case "substance_type": this.$store.dispatch('templates/updateWellTemplates', {wells: copy, field:'substanceType', entry: this.substanceType});break;
-        case "concentration": this.$store.dispatch('templates/updateWellTemplates', {wells: copy, field:'concentration', entry: this.concentration});break;
+      const updateWells = function(field, newValue) {
+        const selectedWells = JSON.parse(JSON.stringify(props.wells));
+        store.dispatch('templates/updateWellTemplates', {wells: selectedWells, field: field, entry: newValue});
+      }
+
+      function onlyUnique(value, index, self) {
+        return self.indexOf(value) === index;
+      }
+      const getWellType = function () {
+        const countTypes = props.wells.map(w => w.wellType).filter(onlyUnique)
+        return (countTypes?.length === 1) ? props.wells[0].wellType : ""
+      }
+
+      const previousType = computed(() => {
+        if (props.wells.length < 1) return ""
+        return getWellType(props.wells)
+      })
+
+      const templateId = computed(() => {
+        return props.plateId
+      })
+
+      return {
+        updateWells,
+        wellTypes,
+        selectedType,
+        previousType,
+        skipped,
+        templateId,
+        name: ref(null),
+        substanceType: ref(null),
+        concentration: ref(null)
       }
     }
-  },
-  setup(props) {
-
-    const wellTypes = ["EMPTY", "LC", "HC", "SAMPLE"]
-    const selectedType = ref(null)
-    const skipped = ref(true)
-
-    //Give previous wellType
-    function onlyUnique(value, index, self) {
-      return self.indexOf(value) === index;
-    }
-
-    const getWellType = function () {
-      const countTypes = props.wells.map(w => w.wellType).filter(onlyUnique)
-      return (countTypes?.length === 1) ? props.wells[0].wellType : ""
-    }
-
-    const previousType = computed(() => {
-      if (props.wells.length < 1) return ""
-      return getWellType(props.wells)
-    })
-
-    const templateId = computed(() => {
-      return props.plateId
-    })
-
-    return {
-      wellTypes,
-      selectedType,
-      previousType,
-      skipped,
-      templateId
-    }
-  },
-  data() {
-    return {
-      name: ref(null),
-      substanceType: ref(null),
-      concentration: ref(null)
-    }
   }
-}
 </script>

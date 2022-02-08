@@ -1,7 +1,6 @@
 <template>
-  <div class="column well" :class="{ blink: isSelected, skipped: well.skipped }" v-ripple
+  <div class="column well" :class="{ highlight: isSelected, skipped: well.skipped }" v-ripple
        :style="{ color: well.skipped ? '#e52323':fgColor, backgroundColor: bgColor }"
-       @click="$emit('wellSelection', well)"
   >
     <div v-if="well.status === 'REJECTED'" class="absolute-center">
       <img src="/rejected_cross.svg" class="vertical-middle" style="width: 100%; height: 100%;"/>
@@ -9,7 +8,7 @@
     <span v-for="wellLabelFunction in wellLabelFunctions" :key="wellLabelFunction" class="wellLabel" style="white-space: pre;">
         {{ wellLabelFunction(well) }}
     </span>
-    <q-tooltip :delay="1000" class="bg-secondary q-pa-xs">
+    <q-tooltip :delay="3000" class="bg-secondary q-pa-xs">
       <div class="tooltipContainer">
         <WellInspector minimal :wells="[well]"></WellInspector>
       </div>
@@ -21,14 +20,15 @@
 .well {
   border: 1px solid black;
   margin: 1px;
-  font-size: 65%;
   text-align: center;
   position: relative;
   cursor: pointer;
 }
 
-.blink {
-  animation: blink-animation 1s linear infinite;
+.highlight {
+  border-color: #9ecaed;
+  box-shadow: 0 0 5px #9ecaed;
+  /* animation: blink-animation 1s linear infinite; */
 }
 
 @keyframes blink-animation {
@@ -78,12 +78,10 @@ export default {
   components: {
     WellInspector
   },
-  emits: ['wellSelection'],
   setup(props) {
     const bgColor = computed(() => props.wellColorFunction(props.well))
     const fgColor = computed(() => ColorUtils.calculateTextColor(bgColor.value))
-    const isSelected = computed(() => props.selectedWells.indexOf(props.well) >= 0)
-
+    const isSelected = computed(() => props.selectedWells.find(w => props.well.row == w.row && props.well.column == w.column))
     return {
       bgColor,
       fgColor,

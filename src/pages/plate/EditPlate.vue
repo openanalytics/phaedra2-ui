@@ -1,9 +1,6 @@
 <template>
   <div class="q-pa-md" v-if="props.show">
-    <div class="row text-h6 items-center q-px-sm oa-section-title">
-      <q-icon name="edit" class="q-mr-sm"/>
-      Edit Plate
-    </div>
+    <oa-section-header :title="'Edit Plate'" :icon="'edit'"/>
     <div class="row col-12 q-pa-md oa-section-body">
       <q-card-section class="row" style="min-width: 95vw">
         <div class="col col-5">
@@ -23,9 +20,10 @@
 </template>
 
 <script>
-
+import OaSectionHeader from "../../components/widgets/OaSectionHeader";
 export default {
   name: 'EditPlate',
+  components: {OaSectionHeader},
   methods: {
     editPlate() {
       this.editedPlate.id = this.plate.id

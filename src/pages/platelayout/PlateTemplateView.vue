@@ -1,14 +1,9 @@
 <template>
   <q-page class="oa-root-div">
     <div class="q-pa-md" v-if="!editdialog">
-      <div class="text-h6 q-px-sm oa-section-title" v-if="!plateTemplate">
-        Loading template...
-      </div>
+      <oa-section-header v-if="!plateTemplate" :title="'Loading template...'" :icon="'border_outer'"/>
       <div v-else>
-        <div class="row text-h6 items-center q-px-sm oa-section-title">
-          <q-icon name="border_outer" class="q-mr-sm"/>
-          {{ plateTemplate.name }}
-        </div>
+        <oa-section-header :title="plateTemplate.name" :icon="'border_outer'"/>
         <div class="row col-4 q-pa-md oa-section-body">
           <div class="col col-4">
             <div class="row">
@@ -125,6 +120,7 @@ import PropertyTable from "@/components/property/PropertyTable";
 import PlateTemplateLayout from "./PlateTemplateLayout";
 import {useRoute} from "vue-router";
 import EditPlateTemplate from "./EditPlateTemplate";
+import OaSectionHeader from "../../components/widgets/OaSectionHeader";
 
 export default {
   name: 'PlateTemplate',
@@ -132,7 +128,8 @@ export default {
     EditPlateTemplate,
     PlateTemplateLayout,
     TagList,
-    PropertyTable
+    PropertyTable,
+    OaSectionHeader
   },
   methods: {
     deletePlateTemplate() {

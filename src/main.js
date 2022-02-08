@@ -21,10 +21,14 @@ import NewProjectView from '@/pages/project/NewProjectView.vue'
 import ExperimentView from '@/pages/experiment/ExperimentView.vue'
 import NewExperimentView from '@/pages/experiment/NewExperimentView.vue'
 import PlateView from '@/pages/plate/PlateView.vue'
+
+import BrowseProtocols from '@/pages/protocol/BrowseProtocols.vue'
 import ProtocolView from '@/pages/protocol/ProtocolView.vue'
 import NewProtocolView from "@/pages/protocol/NewProtocolView";
+
 import FormulasView from "@/pages/calculation/formula/FormulasView";
 import FormulaView from "@/pages/calculation/formula/FormulaView";
+
 import CaptureJobsView from '@/pages/datacapture/CaptureJobsView.vue'
 
 import PlateList from "@/pages/experiment/PlateList.vue"
@@ -41,6 +45,7 @@ import NewPlateTemplateView from "./pages/platelayout/NewPlateTemplateView"
 
 const routes = [
     { name: "dashboard", path: "/", component: Dashboard },
+    { name: 'browseProjects', path: "/projects", component: BrowseProjects},
     { name: "project", path: "/project/:id", component: ProjectView },
     { name: "newProject", path: "/project/new", component: NewProjectView },
     { name: "experiment", path: "/experiment/:id", component: ExperimentView },
@@ -60,9 +65,11 @@ const routes = [
             { path: 'wells', component: WellList }
         ]
     },
+    { name: "browseProtocols", path: "/protocols", component: BrowseProtocols },
     { name: "protocol", path: "/protocol/:id", component: ProtocolView },
     { name: "newProtocol", path: "/protocol/new", component: NewProtocolView },
     { name: "importProtocol", path: "/protocol/import", component: ImportProtocolView},
+    
     { name: "template", path: "/template/:id", component: PlateTemplateView},
     { name: "newPlateTemplate", path: "/template/new", component: NewPlateTemplateView},
 
@@ -95,6 +102,7 @@ import { createApp } from "vue"
 import App from "./App.vue"
 import CapturedMeasurementsView from "./pages/datacapture/CapturedMeasurementsView";
 import ImportProtocolView from "./pages/protocol/ImportProtocolView";
+import BrowseProjects from "./pages/project/BrowseProjects";
 
 const app = createApp(App)
 app.use(router)

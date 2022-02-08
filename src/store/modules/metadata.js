@@ -53,12 +53,8 @@ const actions = {
     },
     async loadMetadata(ctx, objectDescriptor) {
         if (!objectDescriptor.objectId || objectDescriptor.objectId.length == 0) return;
-
         const metadata = await metadataAPI.getMetadata(objectDescriptor.objectId, objectDescriptor.objectClass);
-        for (const row of metadata) {
-            if (row.tags) ctx.commit('cacheTags', { objectId: row.objectId, objectClass: row.objectClass, tags: row.tags });
-            if (row.properties) ctx.commit('cacheProperties', { objectId: row.objectId, objectClass: row.objectClass, properties: row.properties });
-        }
+        ctx.commit('cacheMetadata', metadata);
     },
 }
 
@@ -95,6 +91,24 @@ const mutations = {
         const key = getKey(propertyDescriptor);
         if (state.properties[key]) removeProperty(state.properties[key], propertyDescriptor);
     },
+    cacheMetadata(state, metadata) {
+        for (const row of metadata) {
+            if (row.tags) {
+                const key = getKey(row);
+                if (!state.tags[key]) state.tags[key] = [];
+                for (const tagDescriptor of row.tags) {
+                    addTag(state.tags[key], tagDescriptor);
+                }
+            }
+            if (row.properties) {
+                const key = getKey(row);
+                if (!state.properties[key]) state.properties[key] = [];
+                for (const propertyDescriptor of row.properties) {
+                    addProperty(state.properties[key], propertyDescriptor);
+                }
+            }
+        }
+    }
 }
 
 /* Private helper functions */

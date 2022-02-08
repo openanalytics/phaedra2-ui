@@ -1,10 +1,6 @@
 <template>
   <div class="q-pa-md">
-    <div class="q-px-sm oa-section-title">
-      <div class="row text-h6 items-center">
-        <q-icon name="folder" class="on-left"/>Recent Projects
-      </div>
-    </div>
+    <oa-section-header :title="'Recent Projects'" :icon="'folder'"/>
     <div class="row col-4 q-pa-lg oa-section-body">
       <ProjectCard :project="project" v-for="project in projects" :key="project.id"/>
     </div>
@@ -13,6 +9,7 @@
 
 <script>
   import ProjectCard from "@/components/dashboard/ProjectCard";
+  import OaSectionHeader from "../widgets/OaSectionHeader";
 
   export default {
     props: {
@@ -20,7 +17,8 @@
     },
     name: "RecentProjects",
     components: {
-      ProjectCard
+      ProjectCard,
+      OaSectionHeader
     }
   }
 </script>

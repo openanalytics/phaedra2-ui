@@ -1,77 +1,68 @@
 <template>
   <div class="row oa-section relative-position" ref="rootElement">
-
-    <div class="col gridHeaderColumn" style="max-width: 20px; margin-top: 18px;">
-      <div class="gridHeaderSlot" v-for="n in plate.rows" :key="n" @click="selectRow(n, $event.shiftKey)">
-        {{ WellUtils.getWellRowLabel(n) }}
-      </div>
+    <div class="loadingAnimation" v-if="loading">
+      <q-spinner-pie color="info" size="10em"/>
     </div>
 
-    <div class="col-grow">
-      <div class="gridHeaderRow">
-        <div class="gridHeaderSlot" v-for="n in plate.columns" :key="n" @click="selectColumn(n, $event.shiftKey)">
-          {{ n }}
-        </div>
+    <div v-if="plate" style="width: 100%;" class="gridContainer"
+        @mousedown="selectionBoxSupport.dragStart"
+        @mousemove="selectionBoxSupport.dragMove"
+        @mouseup="selectionBoxSupport.dragEnd">
+
+      <div><!-- Corner slot --></div>
+
+      <!-- Column headers -->
+      <div class="gridHeaderSlot" v-for="n in plate.columns" :key="n" @click="selectColumn(n, $event.ctrlKey)">
+        {{ n }}
       </div>
 
-      <div v-if="plate" style="width: 100%;" class="gridContainer"
-          @mousedown="selectionBoxSupport.dragStart"
-          @mousemove="selectionBoxSupport.dragMove"
-          @mouseup="selectionBoxSupport.dragEnd">
-
-        <div class="loadingAnimation" v-if="loading">
-          <q-spinner-pie color="info" size="10em"/>
+      <template v-for="r in plate.rows" :key="r">
+        <!-- Row header -->
+        <div class="gridHeaderSlot" @click="selectRow(r, $event.ctrlKey)">
+          {{ WellUtils.getWellRowLabel(r) }}
         </div>
-        
-        <WellSlot :ref="refWellSlot" v-for="well in plate.wells" :key="well.nr"
-                  :well="well"
-                  :wellColorFunction="wellColorFunction"
-                  :wellLabelFunctions="wellLabelFunctions"
-                  :selectedWells="selectedWells"
-                  @wellSelection="handleWellSlotSelection"
-                  class="wellSlot"
-        ></WellSlot>
-      </div>
+        <!-- Plate row -->
+        <template v-for="c in plate.columns" :key="c">
+          <WellSlot :ref="refWellSlot"
+                    :well="WellUtils.getWell(plate, r, c)"
+                    :wellColorFunction="wellColorFunction"
+                    :wellLabelFunctions="wellLabelFunctions"
+                    :selectedWells="selectedWells"
+                    class="wellSlot"
+          ></WellSlot>
+        </template>
+      </template>
     </div>
   </div>
 </template>
 
 <style scoped>
-.loadingAnimation {
-  position: absolute;
-  z-index: 10;
-  justify-self: center;
-  align-self: center;
-}
+  .loadingAnimation {
+    position: absolute;
+    z-index: 10;
+    justify-self: center;
+    align-self: center;
+  }
 
-.gridContainer {
-  display: grid;
-  grid-template-columns: v-bind(gridColumnStyle);
-  min-height: 400px;
-}
+  .gridContainer {
+    display: grid;
+    grid-template-columns: v-bind(gridColumnStyle);
+    min-height: 400px;
+  }
 
-.wellSlot {
-  min-height: v-bind(wellSlotHeight);
-}
+  .gridHeaderSlot {
+    background-color: grey;
+    border: 1px solid black;
+    margin: 1px;
+    font-size: 65%;
+    text-align: center;
+    cursor: pointer;
+  }
 
-.gridHeaderRow {
-  display: grid;
-  grid-template-columns: v-bind(gridColumnStyle);
-}
-
-.gridHeaderColumn {
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
-}
-
-.gridHeaderSlot {
-  background-color: grey;
-  border: 1px solid black;
-  margin: 1px;
-  font-size: 65%;
-  text-align: center;
-  cursor: pointer;
-}
+  .wellSlot {
+    min-height: v-bind(wellSlotMinHeight);
+    font-size: v-bind(wellSlotFontSize);
+  }
 </style>
 
 <script>
@@ -127,20 +118,14 @@ export default {
       if (nextWell) emitWellSelection([nextWell]);
     });
 
-    // Single well selection handling
-    exported.handleWellSlotSelection = function (well) {
-      if (!well) return;
-      emitWellSelection([well]);
-    }
-
-    // Multi well selection handling
+    // Well selection handling
     exported.rootElement = ref(null);
     exported.wellSlots = ref([]);
     exported.refWellSlot = function (slot) {
       exported.wellSlots.value.push(slot)
     }
-    exported.selectionBoxSupport = SelectionBoxHelper.addSelectionBoxSupport(exported.rootElement, exported.wellSlots, wells => {
-      emitWellSelection(wells);
+    exported.selectionBoxSupport = SelectionBoxHelper.addSelectionBoxSupport(exported.rootElement, exported.wellSlots, (wells, append) => {
+      emitWellSelection(wells, append);
     });
 
     exported.selectRow = (n, append) => {
@@ -150,8 +135,9 @@ export default {
       emitWellSelection(props.plate.wells.filter(w => w.column == n), append);
     };
 
-    exported.gridColumnStyle = computed(() => { return "repeat(" + props.plate.columns + ", 1fr)" });
-    exported.wellSlotHeight = (props.wellLabelFunctions.length * 15) + "px";
+    exported.gridColumnStyle = computed(() => { return "repeat(" + (props.plate.columns + 1) + ", 1fr)" });
+    exported.wellSlotMinHeight = (props.wellLabelFunctions.length * 15) + "px";
+    exported.wellSlotFontSize = (props.plate.columns > 24) ? "0.4vw" : "65%";
     exported.WellUtils = WellUtils;
 
     return exported;

@@ -54,6 +54,10 @@ const actions = {
     },
     async loadAll(ctx) {
         const protocols = await protocolAPI.getAllProtocols()
+        
+        const protocolIds = protocols.map(p => p.id);
+        ctx.dispatch('metadata/loadMetadata', { objectId: protocolIds, objectClass: 'PROTOCOL' }, {root:true});
+
         ctx.commit('cacheAllProtocols', protocols)
     },
     async saveProtocol(ctx, protocol) {
