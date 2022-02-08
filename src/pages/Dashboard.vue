@@ -2,11 +2,7 @@
   <q-page class="oa-root-div">
     <RecentProjects :projects="recentProjects"></RecentProjects>
     <div class="q-pa-md">
-      <div class="q-px-sm oa-section-title">
-        <div class="row text-h6 items-center">
-          <q-icon name="science" class="on-left"/>Recent Experiments
-        </div>
-      </div>
+      <oa-section-header :title="'Recent Experiments'" :icon="'science'"/>
       <q-table :columns="columns" :rows="recentExperiments" square table-header-class="text-grey" >
         <template v-slot:body-cell-tags="props">
             <q-td key="tags" :props="props">
@@ -64,11 +60,13 @@ import {computed} from "vue";
   import RecentProjects from "@/components/dashboard/RecentProjects";
   import RecentCalculations from "../components/dashboard/RecentCalculations";
   import FormatUtils from "@/lib/FormatUtils.js";
+  import OaSectionHeader from "../components/widgets/OaSectionHeader";
 
   export default {
     components: {
       RecentProjects,
-      RecentCalculations
+      RecentCalculations,
+      OaSectionHeader
     },
     setup() {
       const store = useStore();

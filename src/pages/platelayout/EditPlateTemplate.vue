@@ -1,9 +1,6 @@
 <template>
   <div class="q-pa-md" v-if="props.show">
-    <div class="row text-h6 items-center q-px-sm oa-section-title">
-      <q-icon name="edit" class="q-mr-sm"/>
-      Edit Template
-    </div>
+    <oa-section-header :title="'Edit Template'" :icon="'edit'"/>
     <div class="row col-12 q-pa-md oa-section-body">
       <q-card-section class="row" style="min-width: 95vw">
         <div class="col col-5">
@@ -28,9 +25,11 @@
 
 import {useStore} from "vuex";
 import {computed, ref} from "vue";
+import OaSectionHeader from "../../components/widgets/OaSectionHeader";
 
 export default {
   name: 'EditPlateTemplate',
+  components: {OaSectionHeader},
   setup(props) {
     const store = useStore();
 

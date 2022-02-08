@@ -5,11 +5,7 @@
   </q-breadcrumbs>
 
   <q-page class="oa-root-div q-pa-md">
-    <div class="row text-h6 items-center q-px-md oa-section-title">
-        <q-icon name="ballot" class="on-left"/>
-        Import Protocol
-    </div>
-
+    <oa-section-header :title="'Import Protocol'" :icon="'ballot'"/>
     <div class="q-pa-md oa-section-body">
       <span class="">Create a new Protocol by importing it from a JSON file:</span>
       <div class="row q-pt-md">
@@ -34,9 +30,10 @@
 <script>
 
 import {ref} from "vue";
-
+import OaSectionHeader from "../../components/widgets/OaSectionHeader";
 export default {
   name: "ImportProtocolView",
+  components: {OaSectionHeader},
   methods: {
     importAsJson() {
       console.log('importing')

@@ -1,10 +1,7 @@
 <template>
   <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
     <div class="q-pa-md">
-      <div class="row text-h6 items-center q-px-md oa-section-title">
-        <q-icon name="text_snippet" class="on-left"/>
-        Captured Measurements
-      </div>
+      <oa-section-header :title="'Captured Measurements'" :icon="'text_snippet'"/>
       <div class="row q-pa-lg oa-section-body">
         <q-table table-header-class="text-grey" flat :rows="measurements" :columns="columns" row-key="id" class="full-width" :pagination="{ rowsPerPage: 20, sortBy: 'createdOn', descending: true}" :filter="filterValue" :filter-method="filterMethod">
           <template v-slot:top-right>
@@ -34,10 +31,11 @@ import {computed, ref} from 'vue'
 import {useStore} from "vuex";
 import FormatUtils from "../../lib/FormatUtils";
 import TableConfig from "../../components/table/TableConfig";
+import OaSectionHeader from "../../components/widgets/OaSectionHeader";
 
 export default {
   name: 'CapturedMeasurementsView',
-  components: {TableConfig},
+  components: {TableConfig, OaSectionHeader},
   setup() {
     const exported = {}
     const store = useStore()

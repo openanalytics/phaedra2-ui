@@ -6,10 +6,7 @@
 
   <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs" v-if="protocol">
     <div class="q-pa-md" v-if="!editdialog">
-      <div class="row text-h6 items-center q-px-md oa-section-title">
-        <q-icon name="ballot" class="q-pr-sm"/>
-        {{ protocol.name }}
-      </div>
+      <oa-section-header :title="protocol.name" :icon="'ballot'"/>
 
       <div class="row col-4 q-pa-md oa-section-body">
         <div class="col col-6 q-gutter-xs">
@@ -59,10 +56,7 @@
     <EditProtocol v-model:show="editdialog" v-model:protocol="protocol"></EditProtocol>
 
     <div class="q-pa-md" v-if="!newFeatureTab && formulas && !editFeatureSection">
-      <div class="row text-h6 items-center q-px-md oa-section-title">
-        <q-icon name="functions" class="q-pr-sm"/>
-        Features
-      </div>
+      <oa-section-header :title="'Features'" :icon="'functions'"/>
       <q-table :rows="features" row-key="id" :columns="columns" :filter="filter" :filter-method="filterMethod" :loading="loading" :visible-columns="visibleColumns" square>
         <template v-slot:top-left>
           <div class="col action-button on-left">
@@ -185,6 +179,7 @@ import EditFeature from "@/components/protocol/EditFeature";
 import NewFeature from "@/components/protocol/NewFeature";
 import FormulaInspector from "@/components/widgets/FormulaInspector";
 import FilterUtils from "@/lib/FilterUtils.js"
+import OaSectionHeader from "../../components/widgets/OaSectionHeader";
 
 let columns = ref([
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
@@ -205,7 +200,8 @@ export default {
     TableConfig,
     EditFeature,
     NewFeature,
-    FormulaInspector
+    FormulaInspector,
+    OaSectionHeader
   },
   setup() {
     const store = useStore()

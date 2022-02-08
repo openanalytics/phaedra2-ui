@@ -1,9 +1,6 @@
 <template>
   <div class="q-pa-md" v-if="props.show">
-    <div class="row text-h6 items-center q-px-sm oa-section-title">
-      <q-icon name="edit" class="q-mr-sm"/>
-      Edit Experiment
-    </div>
+    <oa-section-header :title="'Edit Experiment'" :icon="'edit'"/>
     <div class="row col-12 q-pa-md oa-section-body">
       <q-card-section class="row" style="min-width: 95vw">
         <div class="col col-5">
@@ -25,9 +22,12 @@
 </template>
 
 <script>
-
+import OaSectionHeader from "../../components/widgets/OaSectionHeader";
 export default {
   name: 'EditExperiment',
+  components: {
+    OaSectionHeader
+  },
   methods: {
     editExperiment() {
       this.editedExperiment.id = this.experiment.id

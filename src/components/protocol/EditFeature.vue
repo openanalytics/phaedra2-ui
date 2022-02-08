@@ -1,9 +1,6 @@
 <template>
   <div class="q-pa-md">
-    <div class="row text-h6 items-center q-px-md oa-section-title">
-      <q-icon name="edit" class="q-pr-sm"/>
-      Edit Feature
-    </div>
+    <oa-section-header :title="'Edit Feature'" :icon="'edit'"/>
     <div class="oa-section-body">
       <q-card-section>
         <div class="row">
@@ -51,9 +48,11 @@
 
 import {useStore} from "vuex";
 import {computed, reactive, ref, watch} from "vue";
+import OaSectionHeader from "../widgets/OaSectionHeader";
 
 export default {
   name: 'EditFeature',
+  components: {OaSectionHeader},
   setup(props, context) {
     const exported = {}
 

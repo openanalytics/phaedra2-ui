@@ -6,9 +6,7 @@
 
   <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
     <div class="q-pa-md">
-      <div class="q-px-sm oa-section-title">
-        <div class="text-h6">New Template</div>
-      </div>
+      <oa-section-header :title="'New Template'" :icon="'add'"/>
 
       <div class="row q-pa-lg oa-section-body">
         <q-form class="col" @submit="onSubmit" @reset="onReset">
@@ -33,9 +31,11 @@
 import {ref} from 'vue'
 import {useStore} from 'vuex'
 import {useRouter} from 'vue-router'
+import OaSectionHeader from "../../components/widgets/OaSectionHeader";
 
 export default {
   name: "NewPlateTemplateView",
+  components: {OaSectionHeader},
   setup() {
     const router = useRouter();
     const store = useStore();

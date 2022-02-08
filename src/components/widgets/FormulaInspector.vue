@@ -1,8 +1,5 @@
 <template>
-    <div class="row text-h6 items-center q-px-md oa-section-title">
-        <q-icon name="functions" class="on-left"/>
-        Formula: {{formula.name}}
-    </div>
+  <oa-section-header :title="'Formula: '+ formula.name" :icon="'functions'"/>
     <div class="q-pa-sm text-black text-body2 shadow-1 bg-white" style="min-width: 30vw">
         <div class="row">
             <div class="col-3 text-weight-bold">ID:</div>
@@ -49,11 +46,13 @@
     import {computed} from 'vue'
     import {useStore} from 'vuex'
     import FormatUtils from "@/lib/FormatUtils";
+    import OaSectionHeader from "./OaSectionHeader";
 
     export default {
         props: {
             formulaId: Number
         },
+      components: {OaSectionHeader},
         setup(props) {
             const exported = {};
             

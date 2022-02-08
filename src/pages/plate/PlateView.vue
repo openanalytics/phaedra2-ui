@@ -8,14 +8,9 @@
 
   <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
     <div class="q-pa-md" v-if="!editdialog">
-      <div class="text-h6 q-px-sm oa-section-title" v-if="!plate">
-        Loading plate...
-      </div>
+      <oa-section-header v-if="!plate" :title="'Loading plate...'" :icon="'view_module'"/>
       <div v-else>
-        <div class="row text-h6 items-center q-px-sm oa-section-title">
-          <q-icon name="view_module" class="on-left"/>
-          {{ plate.barcode }}
-        </div>
+        <oa-section-header :title="plate.barcode" :icon="'view_module'"/>
         <div class="row q-pa-md oa-section-body">
           <div class="col-4 q-gutter-xs">
             <div class="row">
@@ -159,6 +154,7 @@ import PlateHeatmap from "@/pages/plate/PlateHeatmap";
 import MeasList from "@/pages/plate/MeasList";
 import WellList from "@/pages/plate/WellList";
 import ResultSetList from "./ResultSetList";
+import OaSectionHeader from "../../components/widgets/OaSectionHeader";
 
 export default {
   name: 'Plate',
@@ -170,7 +166,8 @@ export default {
     TagList,
     EditPlate,
     PropertyTable,
-    ResultSetList
+    ResultSetList,
+    OaSectionHeader
   },
   methods: {
     addMeasurement() {

@@ -6,11 +6,7 @@
 
   <q-page class="oa-root-div">
     <div class="q-pa-md">
-      <div class="row text-h6 items-center q-px-md oa-section-title">
-          <q-icon name="ballot" class="on-left"/>
-          New Protocol
-      </div>
-
+      <oa-section-header :title="'New Protocol'" :icon="'ballot'"/>
       <div class="row q-pa-md oa-section-body">
         <q-form class="col" @submit="onSubmit" @reset="onReset">
           <q-input v-model="newProtocol.name" label="Name: "></q-input>
@@ -32,8 +28,10 @@
 </template>
 
 <script>
+import OaSectionHeader from "../../components/widgets/OaSectionHeader";
 export default {
   name: "NewProtocolView",
+  components: {OaSectionHeader},
   methods: {
     onSubmit() {
       this.newProtocol.createdOn = new Date();

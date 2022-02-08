@@ -20,11 +20,8 @@
           <br>
         </div>
         <div v-if="!quickView">
-          <div class="row text-h6 items-center q-px-sm oa-section-title">
-            <q-icon name="view_module" class="on-left"/>
-            <span v-if="plateId">Plate</span>
-            <span v-if="!plateId">Plates</span>
-          </div>
+          <oa-section-header v-if="plateId" :title="'Plate'" :icon="'view_module'"/>
+          <oa-section-header v-if="!plateId" :title="'Plates'" :icon="'view_module'"/>
           <q-table
               table-header-class="text-white bg-primary"
               :rows="plateId?plates.filter(p => p.id === plateId):plates"
@@ -61,10 +58,7 @@
         </div>
         <div>
           <div class="row justify-between">
-            <div class="row text-h6 items-center q-px-sm oa-section-title">
-              <q-icon name="border_outer" class="on-left"/>
-              Templates
-            </div>
+            <oa-section-header :title="'Templates'" :icon="'border_outer'"/>
             <div class="action-button">
               <q-btn v-if="!selectedTemplate.length>0&&!quickView" size="sm" color="primary" icon="remove_red_eye"
                      label="Show Quick view"
@@ -129,6 +123,7 @@ import {useStore} from "vuex";
 import {computed, reactive, ref, watch} from "vue";
 import {useRoute} from "vue-router";
 import TemplateQuickView from "../../components/layout/TemplateQuickView";
+import OaSectionHeader from "../../components/widgets/OaSectionHeader";
 
 /**
  * Dialog to link plate(s) to template
@@ -137,7 +132,7 @@ import TemplateQuickView from "../../components/layout/TemplateQuickView";
  */
 export default {
   name: 'LinkPlate',
-  components: {TemplateQuickView},
+  components: {TemplateQuickView, OaSectionHeader},
   setup(props) {
     const store = useStore()
     const route = useRoute()

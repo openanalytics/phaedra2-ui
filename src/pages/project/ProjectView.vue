@@ -7,15 +7,10 @@
   <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
     <div class="q-pa-md">
 
-      <div class="text-h6 q-px-sm oa-section-title" v-if="!project">
-          Loading project...
-      </div>
+      <oa-section-header v-if="!project" :title="'Loading project...'" :icon="'folder'"/>
 
       <div v-else>
-        <div class="row text-h6 items-center q-px-md oa-section-title">
-          <q-icon name="folder" class="q-pr-sm"/>{{ project.name }}
-        </div>
-
+        <oa-section-header :title="project.name" :icon="'folder'"/>
         <div class="row q-pa-md oa-section-body">
             <div class="col-4 q-gutter-xs">
               <div class="row">
@@ -125,6 +120,7 @@
   import PropertyTable from "@/components/property/PropertyTable";
   import EditableField from "@/components/widgets/EditableField";
   import AccessControlList from "@/components/widgets/AccessControlList";
+  import OaSectionHeader from "../../components/widgets/OaSectionHeader";
 
   import FormatUtils from "@/lib/FormatUtils.js"
 
@@ -134,7 +130,8 @@
       TagList,
       PropertyTable,
       EditableField,
-      AccessControlList
+      AccessControlList,
+      OaSectionHeader
     },
 
     setup() {

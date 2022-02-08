@@ -6,10 +6,7 @@
 
   <q-page class="oa-root-div">
     <div class="q-pa-md">
-      <div class="row text-h6 items-center q-px-md oa-section-title">
-        <q-icon name="folder" class="on-left"/>
-        Projects
-      </div>
+      <oa-section-header :title="'Projects'" :icon="'folder'"/>
       <div class="row q-pa-md oa-section-body">
         <q-table
             table-header-class="text-grey"
@@ -54,10 +51,12 @@ import FilterUtils from "@/lib/FilterUtils.js"
 import FormatUtils from "@/lib/FormatUtils.js"
 
 import TagList from "@/components/tag/TagList";
+import OaSectionHeader from "../../components/widgets/OaSectionHeader";
 
 export default {
   components: {
     TagList,
+    OaSectionHeader
   },
   setup() {
     const store = useStore();

@@ -6,11 +6,7 @@
 
   <q-page class="oa-root-div">
     <div class="q-pa-md">
-      <div class="row text-h6 items-center q-px-md oa-section-title">
-        <q-icon name="folder" class="q-pr-sm"/>
-        New Project
-      </div>
-
+      <oa-section-header  :title="'New Project'" :icon="'folder'"/>
       <div class="row q-pa-md oa-section-body">
         <q-form class="full-width" @submit="onSubmit" @reset="onReset">
 
@@ -38,8 +34,10 @@
 import {ref, computed} from "vue";
 import {useStore} from 'vuex';
 import {useRouter} from 'vue-router';
+import OaSectionHeader from "../../components/widgets/OaSectionHeader";
 
 export default {
+  components: {OaSectionHeader},
   setup() {
     const exported = {};
     const store = useStore();

@@ -1,11 +1,6 @@
 <template>
   <div class="q-pa-md">
-    <div class="q-px-sm oa-section-title">
-      <div class="row text-h6 items-center">
-        <q-icon name="calculate" class="on-left"/>
-        Recent Plate Calculations
-      </div>
-    </div>
+    <oa-section-header :title="'Recent Plate Calculations'" :icon="'calculate'"/>
     <q-table :columns="columns" :rows="calculations" square table-header-class="text-grey">
       <template v-slot:body-cell-protocolId="props">
         <q-td :props="props">
@@ -33,9 +28,11 @@
 import {computed} from "vue";
 import {useStore} from "vuex";
 import FormatUtils from "../../lib/FormatUtils";
+import OaSectionHeader from "../widgets/OaSectionHeader";
 
 export default {
   name: 'RecentCalculations',
+  components: {OaSectionHeader},
   setup() {
     const store = useStore();
 

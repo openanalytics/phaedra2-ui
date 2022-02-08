@@ -4,6 +4,7 @@
       <q-icon name="edit" class="q-pr-sm"/>
       New Feature
     </div>
+    <oa-section-header :title="'New Feature'" :icon="'edit'"/>
     <div class="oa-section-body">
       <q-card-section>
         <div class="row">
@@ -43,9 +44,11 @@
 
 import {useStore} from "vuex";
 import {computed, reactive, ref, watch} from "vue";
+import OaSectionHeader from "../widgets/OaSectionHeader";
 
 export default {
   name: 'NewFeature',
+  components: {OaSectionHeader},
   methods: {
     addFeature() {
       console.log(this.newFeature)
