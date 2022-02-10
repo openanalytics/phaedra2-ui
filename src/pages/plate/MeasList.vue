@@ -20,7 +20,7 @@
       <q-td :props="props">
         <q-toggle
             :model-value="props.row.active"
-            @update:model-value="val => updateActiveState(val, props.row)"/>
+            @update:model-value="val => openConfirmDialog(val, props.row)"/>
       </q-td>
     </template>
   </q-table>
@@ -42,6 +42,19 @@
       <q-card-actions align="right">
         <q-btn label="Save" color="primary" v-close-popup @click="addMeasurement"/>
         <q-btn label="Cancel" color="primary" flat v-close-popup/>
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
+
+  <q-dialog v-model="confirm" persistent>
+    <q-card>
+      <q-card-section class="row items-center">
+        <span class="q-ml-sm">Are you sure you want to change the active measurement?</span>
+      </q-card-section>
+
+      <q-card-actions align="right">
+        <q-btn flat label="Cancel" color="primary" v-close-popup />
+        <q-btn flat label="Yes" color="primary" v-close-popup @click="updateActiveState"/>
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -81,7 +94,9 @@ export default {
   data() {
     return {
       openMeasDialog: ref(false),
-      selectedMeasurement: ref()
+      confirm: ref(false),
+      selectedMeasurement: ref(),
+      newActiveMeas: ref()
     }
   },
   methods: {
@@ -101,9 +116,19 @@ export default {
 
       this.$store.dispatch('plates/addMeasurement', activePlateMeasurement);
     },
-    updateActiveState(active, {plateId, measurementId}) {
+    openConfirmDialog(active, {plateId, measurementId}) {
+      const current = this.$store.getters['plates/getActiveMeasurement']();
+      this.newActiveMeas = {active, plateId, measurementId};
+      if (current && active) {
+        this.confirm = true;
+      } else {
+        this.updateActiveState();
+      }
+    },
+    updateActiveState() {
       console.log("Change active state");
-      this.$store.dispatch('plates/setActiveMeasurement', { plateId, measurementId, active });
+      if (this.newActiveMeas)
+        this.$store.dispatch('plates/setActiveMeasurement',  this.newActiveMeas);
     }
   },
   computed: {
