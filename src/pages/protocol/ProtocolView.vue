@@ -8,8 +8,8 @@
     <div class="q-pa-md" v-if="!editdialog">
       <oa-section-header :title="protocol.name" :icon="'ballot'"/>
 
-      <div class="row col-4 q-pa-md oa-section-body">
-        <div class="col col-6 q-gutter-xs">
+      <div class="row q-pa-md oa-section-body">
+        <div class="col-4 q-gutter-xs">
           <div class="row">
             <div class="col-3 text-weight-bold">ID:</div>
             <div class="col">{{ protocol.id }}</div>
@@ -39,7 +39,12 @@
             </div>
           </div>
         </div>
-        <div class="col col-6">
+
+        <div class="col-4">
+          <PropertyTable :objectInfo="protocol" :objectClass="'PROTOCOL'"/>
+        </div>
+
+        <div class="col-4">
           <div class="row justify-end action-button">
             <q-btn size="sm" color="primary" icon="edit" class="oa-button-edit" label="Edit" @click="editdialog = true"/>
           </div>
@@ -174,12 +179,13 @@ import {computed, ref} from "vue";
 
 import EditProtocol from "./EditProtocol";
 import TagList from "@/components/tag/TagList"
-import TableConfig from "@/components/table/TableConfig";
-import EditFeature from "@/components/protocol/EditFeature";
-import NewFeature from "@/components/protocol/NewFeature";
 import FormulaInspector from "@/components/widgets/FormulaInspector";
 import FilterUtils from "@/lib/FilterUtils.js"
 import OaSectionHeader from "../../components/widgets/OaSectionHeader";
+import TableConfig from "../../components/table/TableConfig";
+import EditFeature from "../../components/protocol/EditFeature";
+import NewFeature from "../../components/protocol/NewFeature";
+import PropertyTable from "@/components/property/PropertyTable";
 
 let columns = ref([
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
@@ -196,6 +202,7 @@ export default {
   name: "ProtocolView",
   components: {
     TagList,
+    PropertyTable,
     EditProtocol,
     TableConfig,
     EditFeature,

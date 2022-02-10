@@ -34,7 +34,7 @@
     <template v-slot:body-cell-Measurement="props">
       <q-td :props="props">
           <div class="row items-center">
-            {{ ($store.state.measurements.measurements.length>0)?$store.state.measurements.measurements.find(meas => meas.id == props.row.measId).name:"" }}
+            {{ (currentPlate.measurements.length>0)?currentPlate.measurements.find(meas => meas.measurementId == props.row.measId).name:"" }}
           </div>
       </q-td>
     </template>
@@ -73,12 +73,12 @@ export default {
   setup(props) {
     const store = useStore()
     const resultSetTable = ref(false)
-    const resultSets = computed(() => [...new Map(store.getters['resultdata/getPlateResults'](props.plate.id)?.map(item => [item.resultSetId, item])).values()])
-    const resultData = computed(() => store.getters['resultdata/getPlateResults'](props.plate.id));
-    store.dispatch('resultdata/loadPlateResults',{plateId: props.plate.id});
-    store.dispatch('measurements/loadAll');
+    const activeMeasurement = store.getters['plates/getActiveMeasurement']();
+    const resultSets = activeMeasurement ? computed(() => [...new Map(store.getters['resultdata/getPlateResults'](props.plate.id, activeMeasurement.measurementId)?.map(item => [item.resultSetId, item])).values()]) : [];
+    const resultData = activeMeasurement ? computed(() => store.getters['resultdata/getPlateResults'](props.plate.id, activeMeasurement.measurementId)) : [];
     let resultSet = ref([])
     return {
+      currentPlate: props.plate,
       resultData,
       resultSetTable,
       resultSetsColumns,
@@ -101,7 +101,8 @@ export default {
             || this.$store.getters['protocols/getAll']().find(protocol => protocol.id == row.protocolId).name.toLowerCase().includes(term)
             || this.$store.getters['measurements/getAll']().find(meas => meas.id == row.measId).name.toLowerCase().includes(term))
       })
-    }
+    },
+
   }
 }
 

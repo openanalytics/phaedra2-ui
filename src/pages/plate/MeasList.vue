@@ -2,13 +2,13 @@
   <q-table
       table-header-class="text-dark"
       flat square
-      :rows="measurements"
+      :rows="plateMeasurements"
       :columns="columns"
       row-key="id"
       no-data-label="No measurements associated with this plate"
   >
     <template v-slot:top-right>
-      <q-btn dense color="primary" label="Add measurement" @click="openMeasDialog = true">
+      <q-btn dense color="primary" label="Set measurement" @click="addMeasDialog">
       </q-btn>
     </template>
     <template v-slot:body-cell="props">
@@ -18,13 +18,9 @@
     </template>
     <template v-slot:body-cell-active="props">
       <q-td :props="props">
-        <q-icon name="link" v-show="props.row.active"/>
-<!--        <q-toggle v-model="props.row.active"/>-->
-      </q-td>
-    </template>
-    <template v-slot:body-cell-dimensions="props">
-      <q-td :props="props" :class="props.row.active ? 'text-dark' : 'text-grey'">
-        {{ props.row.rows }} x {{ props.row.columns }}
+        <q-toggle
+            :model-value="props.row.active"
+            @update:model-value="val => openConfirmDialog(val, props.row)"/>
       </q-td>
     </template>
   </q-table>
@@ -38,7 +34,7 @@
       <q-card-section class="row">
         <div class="col col-12">
           <q-select v-model="selectedMeasurement" :options="availableMeasurements"
-                    option-label="name"
+                    option-label="barcode"
                     option-value="id"/>
         </div>
       </q-card-section>
@@ -49,16 +45,28 @@
       </q-card-actions>
     </q-card>
   </q-dialog>
-</template>
 
+  <q-dialog v-model="confirm" persistent>
+    <q-card>
+      <q-card-section class="row items-center">
+        <span class="q-ml-sm">Are you sure you want to change the active measurement?</span>
+      </q-card-section>
+
+      <q-card-actions align="right">
+        <q-btn flat label="Cancel" color="primary" v-close-popup />
+        <q-btn flat label="Yes" color="primary" v-close-popup @click="updateActiveState"/>
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
+</template>
 <script>
-import {ref, computed, onUnmounted} from 'vue'
-import {useStore} from 'vuex'
+import {ref} from 'vue'
+// import {useStore} from 'vuex'
 
 const columns = [
   {name: 'active', align: 'left', label: 'Active?', field: 'active', sortable: true},
+  {name: 'measurementId', align: 'left', label: 'Measurement Id', field: 'measurementId', sortable: true},
   {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
-  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
   {name: 'dimensions', align: 'left', label: 'Dimensions', field: 'dimensions', sortable: true},
   {name: 'wellColumns', align: 'left', label: 'Well Columns', field: 'wellColumns', sortable: true},
   {name: 'subWellColumns', align: 'left', label: 'SubWell Columns', field: 'subWellColumns', sortable: true},
@@ -78,53 +86,57 @@ export default {
   props: {
     plate: Object
   },
+  setup() {
+    return {
+      columns
+    }
+  },
+  data() {
+    return {
+      openMeasDialog: ref(false),
+      confirm: ref(false),
+      selectedMeasurement: ref(),
+      newActiveMeas: ref()
+    }
+  },
   methods: {
+    addMeasDialog() {
+      this.$store.dispatch("measurements/loadAvailableMeasurements", this.plate);
+      this.openMeasDialog = true;
+    },
     addMeasurement() {
       const activePlateMeasurement = {
         plateId: this.plate.id,
         measurementId: this.selectedMeasurement.id,
         active: true,
         linkedBy: "sasa.berberovic", //TODO: select logged in username
-        linkedOn: new Date()
+        linkedOn: new Date(),
+        ...this.selectedMeasurement
       };
 
       this.$store.dispatch('plates/addMeasurement', activePlateMeasurement);
+    },
+    openConfirmDialog(active, {plateId, measurementId}) {
+      const current = this.$store.getters['plates/getActiveMeasurement']();
+      this.newActiveMeas = {active, plateId, measurementId};
+      if (current && active) {
+        this.confirm = true;
+      } else {
+        this.updateActiveState();
+      }
+    },
+    updateActiveState() {
+      console.log("Change active state");
+      if (this.newActiveMeas)
+        this.$store.dispatch('plates/setActiveMeasurement',  this.newActiveMeas);
     }
   },
-  setup(props) {
-    const store = useStore()
-    const loading = ref(true)
-
-    const availableMeasurements = computed(() => store.getters['measurements/getAll']());
-    store.dispatch('measurements/loadAll');
-    store.dispatch('measurements/loadPlateMeasurements', props.plate);
-
-    let plateMeasIds = {};
-    props.plate.measurements?.forEach( pm => {
-      plateMeasIds[pm.measurementId] = pm.active;
-    });
-    const measurements = computed(() => store.getters['measurements/getPlateMeasurements'](props.plate.id))
-
-    const unsubscribe = store.subscribe((mutation) => {
-        if (mutation.type == "measurements/cacheMeasurements") {
-            loading.value = false
-        }
-    })
-    onUnmounted(() => {
-        unsubscribe()
-    })
-
-    return {
-      columns,
-      measurements,
-      availableMeasurements,
-      loading,
-    }
-  },
-  data() {
-    return {
-      openMeasDialog: ref(false),
-      selectedMeasurement: ref(),
+  computed: {
+    plateMeasurements() {
+      return this.$store.getters['plates/getCurrentPlateMeasurements']();
+    },
+    availableMeasurements() {
+      return this.$store.getters['measurements/getAll']();
     }
   }
 }

@@ -1,3 +1,4 @@
+import experimentAPI from "@/api/experiments"
 import plateAPI from '@/api/plates.js'
 
 const state = () => ({
@@ -38,8 +39,10 @@ const getters = {
 
 const actions = {
     async loadByExperimentId(ctx, id) {
-        if (ctx.getters['isExperimentLoaded'](id)) {
-            return;
+        if (!ctx.getters['isExperimentLoaded'](id)) {
+            const experiment = experimentAPI.getExperimentById(id);
+            ctx.commit('experiments/loadExperiment', experiment);
+            ctx.commit('experiments/cacheExperiments', [experiment]);
         }
         const plates = await plateAPI.getPlatesByExperimentId(id);
         ctx.commit('cachePlates', plates);
@@ -72,6 +75,8 @@ const actions = {
                     ctx.commit('loadMeasurements', result);
                 });
         }
+
+        ctx.dispatch('resultdata/loadPlateResults', {plateId: plateId}, {root: true});
     },
     async createNewPlate(ctx, plate) {
         const newPlate = await plateAPI.addPlate(plate)
@@ -80,6 +85,14 @@ const actions = {
     async addMeasurement(ctx, plateMeasurement) {
         const meas = await plateAPI.linkMeasurement(plateMeasurement.plateId, plateMeasurement);
         ctx.commit('addMeasurement', meas);
+    },
+    async setActiveMeasurement(ctx, plateMeasurement) {
+        plateMeasurement["linkedBy"] = "sberberovic";
+        plateMeasurement["linkedOn"] = new Date();
+        await plateAPI.setActivePlateMeasurement(plateMeasurement)
+            .then(() => {
+                ctx.commit('activateMeasurement', plateMeasurement);
+            });
     },
     async deletePlate(ctx, plate) {
         await plateAPI.deletePlateById(plate.id)
@@ -92,6 +105,10 @@ const actions = {
             .then(() => {
                 ctx.commit('editPlate', plate)
             })
+    },
+    async applyPlateLayout(ctx, plate) {
+        const edited = await plateAPI.linkPlate(plate.id, plate.linkTemplateId);
+        ctx.commit('editPlate', edited);
     },
     async loadPlateForCalculation(ctx, id) {
         await plateAPI.getPlateById(id)
@@ -124,11 +141,26 @@ const mutations = {
     },
     loadMeasurements(state, measurements) {
         for (let i = 0; i < measurements.length; i++) {
-            state.currentPlate?.measurements ? state.currentPlate.measurements.push(measurements[i]) : state.currentPlate.measurements = [measurements[i]];
+            if (!containsPlateMeasurement(state.currentPlate, measurements[i])) {
+                state.currentPlate?.measurements ? state.currentPlate.measurements.push(measurements[i]) : state.currentPlate.measurements = [measurements[i]];
+            }
         }
     },
     addMeasurement(state, plateMeasurement) {
-        state.currentPlate?.measurements ? state.currentPlate.measurements.push(plateMeasurement) : state.currentPlate.measurements = [plateMeasurement];
+        if (!containsPlateMeasurement(state.currentPlate, plateMeasurement)) {
+            state.currentPlate?.measurements ? state.currentPlate.measurements.push(plateMeasurement) : state.currentPlate.measurements = [plateMeasurement];
+        }
+    },
+    activateMeasurement(state, { measurementId, active }) {
+        for (let m in state.currentPlate.measurements) {
+            if (state.currentPlate.measurements[m].measurementId === measurementId)
+                state.currentPlate.measurements[m].active = active;
+        }
+
+        for (let m in state.currentPlate.measurements) {
+            if (state.currentPlate.measurements[m].measurementId !== measurementId)
+                state.currentPlate.measurements[m].active = false;
+        }
     },
     deletePlate(state, pl) {
         state.plates = state.plates.filter(plate => plate.id !== pl.id)
@@ -161,11 +193,16 @@ const mutations = {
 
 function containsPlate(state, plate) {
     for (var i = 0; i < state.plates.length; i++){
-        if (state.plates[i].id === plate.id) {
+        if (state.plates[i]?.id === plate.id) {
             return true;
         }
     }
     return false;
+}
+
+function containsPlateMeasurement(plate, measurement) {
+    let result = plate.measurements?.filter(m => m.measurementId === measurement.measurementId);
+    return result !== undefined && result.length > 0;
 }
 
 export default {

@@ -6,13 +6,12 @@ const state = () => ({
     recentCalculations: []})
 
 const getters = {
-    getPlateResults: (state) => (plateId) => {
-        return state.plateResults[plateId];
+    getPlateResults: (state) => (plateId, measId) => {
+        return state.plateResults[plateId]?.filter(pr => pr.measId === measId);
     },
-    getLatestPlateResult: (state) => (plateId) => {
-        return state.latestPlateResult[plateId];
+    getLatestPlateResult: (state) => (plateId, measId) => {
+        return state.latestPlateResult[plateId]?.filter(pr => pr.measId === measId);
     },
-
     getLatestPlateResultFeatureIds: (state) => (plateIds) => {
         const result = [];
         for (const plateId of plateIds) {
@@ -28,7 +27,7 @@ const getters = {
     },
     getRecentCalculations: (state) => () => {
         return state.recentCalculations;
-}
+    },
 }
 
 const actions = {
@@ -40,9 +39,12 @@ const actions = {
 
     },
     async loadLatestPlateResult(ctx, args) {
-        await resultdataAPI.getLatestPlateResult(args.plateId)
+        await resultdataAPI.getLatestPlateResult(args.plateId, args.measurementId)
             .then(plateResult => {
-                ctx.commit('cacheLatestPlateResult', { plateId: args.plateId, plateResult });
+                ctx.commit('cacheLatestPlateResult', {plateId: args.plateId, plateResult});
+                // if (!args.measurementId)
+                //     ctx.commit('cacheLatestPlateResult', {plateId: args.plateId, plateResult: []});
+                // else
             });
     },
     async loadRecentCalculations(ctx, n) {

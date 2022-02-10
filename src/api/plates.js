@@ -32,10 +32,6 @@ export default {
             });
         return result;
     },
-    async linkMeasurement(plateId, measurement) {
-        const response = await axios.post(apiURL + '/plate/' + plateId + '/measurement', measurement);
-        return response.data;
-    },
     async addPlate(plate) {
         const response = await axios.post(apiURL + '/plate', plate)
         const newPlate = response.data
@@ -64,6 +60,19 @@ export default {
                 console.log(error);
             });
         return result;
+    },
+    async linkMeasurement(plateId, measurement) {
+        const response = await axios.post(apiURL + '/plate/' + plateId + '/measurement', measurement);
+        return response.data;
+    },
+    async setActivePlateMeasurement(plateMeasurement) {
+        const endpoint = apiURL + '/plate/' + plateMeasurement.plateId + '/measurement/' + plateMeasurement.measurementId;
+        const response = await axios.put(endpoint, plateMeasurement);
+        return response.data;
+    },
+    async linkPlate(plateId, plateTemplateId) {
+        const endpoint = apiURL + '/plate/' + plateId + '/link/' + plateTemplateId;
+        const response = await axios.put(endpoint);
+        return response.data;
     }
-
 }

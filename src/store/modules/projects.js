@@ -24,7 +24,7 @@ const getters = {
         return state.projects.find(project => project.id === id)
     },
     getNRecentProjects: (state) => (n) => {
-        return state.recentProjects.slice(0, n)
+        return state.recentProjects?.slice(0, n)
     }
 }
 

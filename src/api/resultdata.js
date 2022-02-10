@@ -3,9 +3,9 @@ import axios from "axios";
 const apiURL = process.env.VUE_APP_API_BASE_URL + '/resultdata-service';
 
 export default {
-    async getLatestPlateResult(plateId) {
+    async getLatestPlateResult(plateId, measurementId) {
         let result = null;
-        await axios.get(apiURL + '/plate-results/' + plateId + '/latest')
+        await axios.get(apiURL + '/plate-results/' + plateId + '/latest', { params: { measId: [measurementId] } })
             .then(response => {
                 if (response.status === 201)
                     result = reformatPlateResults(response.data);
@@ -57,10 +57,10 @@ function reformatPlateResults(resultMap) {
                 resultDataArray.forEach(resultData => {
                     resultData.protocolId = parseInt(protocolId);
                     resultData.measId = parseInt(measId);
-    
+
                     resultData.plateStats = [];
                     resultData.wellTypeStats = [];
-    
+
                     resultData.resultFeatureStats.forEach(stat => {
                         if (stat.welltype) {
                             resultData.wellTypeStats.push({
