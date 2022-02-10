@@ -40,7 +40,7 @@ export default {
     // Load resultdata to display
     const activeMeasurement = store.getters['plates/getActiveMeasurement']();
     if (activeMeasurement) {
-      exported.plateResults.value = store.getters['resultdata/getPlateResults'](props.plate.id);
+      exported.plateResults.value = store.getters['resultdata/getPlateResults'](props.plate.id, activeMeasurement.measurementId);
       let protocolIds = [...new Set(exported.plateResults.value.map(rs => rs.protocolId))];
       store.dispatch('protocols/loadByIds', protocolIds).then(() => {
         exported.protocols.value = store.getters['protocols/getByIds'](protocolIds);
@@ -51,8 +51,10 @@ export default {
     }
 
     const selectedFeatureData = computed(() => {
-      if (!exported.selectedFeature.value) return undefined
-      return exported.plateResults.value.find(rs => (rs.featureId == exported.selectedFeature.value.id));
+      if (!exported.selectedFeature.value)
+        return undefined
+      let temp = exported.plateResults.value.filter(rs => (rs.featureId == exported.selectedFeature.value.id));
+      return temp.sort((t1, t2) => t2.id - t1.id)[0];
     })
 
     exported.wellColorFunction = function (well) {

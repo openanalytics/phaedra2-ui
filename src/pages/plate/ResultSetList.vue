@@ -74,8 +74,8 @@ export default {
     const store = useStore()
     const resultSetTable = ref(false)
     const activeMeasurement = store.getters['plates/getActiveMeasurement']();
-    const resultSets = activeMeasurement ? computed(() => store.getters['resultdata/getPlateResults'](props.plate.id)) : [];
-    const resultData = activeMeasurement ? computed(() => store.getters['resultdata/getPlateResults'](props.plate.id)) : [];
+    const resultSets = activeMeasurement ? computed(() => [...new Map(store.getters['resultdata/getPlateResults'](props.plate.id, activeMeasurement.measurementId)?.map(item => [item.resultSetId, item])).values()]) : [];
+    const resultData = activeMeasurement ? computed(() => store.getters['resultdata/getPlateResults'](props.plate.id, activeMeasurement.measurementId)) : [];
     let resultSet = ref([])
     return {
       currentPlate: props.plate,
@@ -101,7 +101,8 @@ export default {
             || this.$store.getters['protocols/getAll']().find(protocol => protocol.id == row.protocolId).name.toLowerCase().includes(term)
             || this.$store.getters['measurements/getAll']().find(meas => meas.id == row.measId).name.toLowerCase().includes(term))
       })
-    }
+    },
+
   }
 }
 

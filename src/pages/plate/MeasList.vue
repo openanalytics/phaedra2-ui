@@ -34,7 +34,7 @@
       <q-card-section class="row">
         <div class="col col-12">
           <q-select v-model="selectedMeasurement" :options="availableMeasurements"
-                    option-label="name"
+                    option-label="barcode"
                     option-value="id"/>
         </div>
       </q-card-section>

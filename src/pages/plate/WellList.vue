@@ -70,9 +70,9 @@ export default {
     const activeMeasurement = store.getters['plates/getActiveMeasurement']();
     store.dispatch('resultdata/loadLatestPlateResult', {
       plateId: props.plate.id,
-      measurementId: activeMeasurement?.measurementId
+      measurementId: activeMeasurement.measurementId
     })
-    const resultSet = computed(() => store.getters['resultdata/getLatestPlateResult'](props.plate.id))
+    const resultSet = computed(() => store.getters['resultdata/getLatestPlateResult'](props.plate.id, activeMeasurement.measurementId))
 
     let columns = ref([
       {
