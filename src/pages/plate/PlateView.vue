@@ -42,7 +42,7 @@
               <q-btn size="sm" color="primary" icon="edit" class="oa-button-edit" label="Edit" @click="editdialog = true"/>
             </div>
             <div class="row justify-end action-button">
-              <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete" @click="deletedialog = true"/>
+              <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete" @click="$refs.deleteDialog.showDialog = true"/>
             </div>
           </div>
         </div>
@@ -84,32 +84,7 @@
         </q-tab-panels>
       </div>
     </div>
-
-    <q-dialog v-model="deletedialog" persistent>
-      <q-card style="min-width: 30vw">
-        <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
-          <q-avatar icon="delete" color="primary" text-color="white"/> Delete Plate
-        </q-card-section>
-        <q-card-section>
-          <div class="row">
-            <div class="col-10">
-              <span>Are you sure you want to delete the plate <b>{{plate.barcode}}</b>?</span><br/>
-              <span>Type <span style="font-weight: bold">{{plate.barcode }}</span> and press the button to confirm:</span><br/>
-              <q-input dense v-model="plateName" autofocus/>
-              <br>
-              <span class="text-accent">WARNING: The plate and associated data will be deleted!</span>
-            </div>
-          </div>
-        </q-card-section>
-        <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="Cancel" v-close-popup/>
-          <router-link :to="'/experiment/' + experiment.id" class="nav-link">
-            <q-btn label="Delete plate" color="accent" v-if="plate.barcode==plateName" v-close-popup
-                 @click="deletePlate"/>
-          </router-link>
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+    <delete-dialog ref="deleteDialog" v-model:id="plate.id" v-model:name="plate.barcode" :objectClass="'plate'" @onDeleted="onDeleted" />
   </q-page>
 </template>
 
@@ -144,7 +119,7 @@
 <script>
 import {computed, ref} from 'vue'
 import {useStore} from 'vuex'
-import {useRoute} from 'vue-router'
+import {useRoute, useRouter} from 'vue-router'
 
 import TagList from "@/components/tag/TagList"
 import EditPlate from "./EditPlate";
@@ -155,6 +130,7 @@ import MeasList from "@/pages/plate/MeasList";
 import WellList from "@/pages/plate/WellList";
 import ResultSetList from "./ResultSetList";
 import OaSectionHeader from "../../components/widgets/OaSectionHeader";
+import DeleteDialog from "../../components/widgets/DeleteDialog";
 
 export default {
   name: 'Plate',
@@ -167,7 +143,8 @@ export default {
     EditPlate,
     PropertyTable,
     ResultSetList,
-    OaSectionHeader
+    OaSectionHeader,
+    DeleteDialog
   },
   methods: {
     addMeasurement() {
@@ -178,15 +155,12 @@ export default {
         linkedOn: new Date()
       }
       this.$store.dispatch('plates/addMeasurement', plateMeasurement)
-    },
-    deletePlate() {
-      this.$store.dispatch('plates/deletePlate', this.plate)
     }
   },
   setup() {
     const store = useStore()
     const route = useRoute()
-
+    const router = useRouter()
     const plateId = parseInt(route.params.id);
     const plate = computed(() => store.getters['plates/getCurrentPlate']());
     const experiment = computed(() => store.getters['experiments/getCurrentExperiment']());
@@ -207,14 +181,11 @@ export default {
       plate,
       experiment,
       project,
-      activeTab: ref('layout')
-    }
-  },
-  data() {
-    return {
-      plateName: ref(""),
-      deletedialog: ref(false),
-      editdialog: false,
+      activeTab: ref('layout'),
+      onDeleted: () => {
+        router.push({name: 'experiment', params: {id: experiment.value.id}})
+      },
+      editdialog: ref(false)
     }
   }
 }

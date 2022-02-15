@@ -41,7 +41,7 @@
             </div>
             <div class="row justify-end action-button">
               <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete"
-                     @click="deletedialog = true"/>
+                     @click="$refs.deleteDialog.showDialog = true"/>
             </div>
           </div>
         </div>
@@ -75,31 +75,7 @@
       </div>
     </div>
 
-    <q-dialog v-model="deletedialog" persistent>
-      <q-card style="min-width: 30vw">
-        <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
-          <q-avatar icon="delete" color="primary" text-color="white"/> Delete Template
-        </q-card-section>
-        <q-card-section>
-          <div class="row">
-            <div class="col-10">
-              <span>Are you sure you want to delete the template <b>{{plateTemplate.name}}</b>?</span><br/>
-              <span>Type <span style="font-weight: bold">{{plateTemplate.name}}</span> and press the button to confirm:</span><br/>
-              <q-input dense v-model="plateTemplateName" autofocus/>
-              <br>
-              <span class="text-accent">WARNING: The template and associated data will be deleted!</span>
-            </div>
-          </div>
-        </q-card-section>
-        <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="Cancel" v-close-popup/>
-          <router-link :to="'/dashboard/'" class="nav-link">
-            <q-btn label="Delete template" color="accent" v-if="plateTemplate.name==plateTemplateName" v-close-popup
-                   @click="deletePlateTemplate"/>
-          </router-link>
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+    <delete-dialog ref="deleteDialog" v-model:id="plateTemplate.id" v-model:name="plateTemplate.name" :objectClass="'template'" @onDeleted="onDeleted" />
 
   </q-page>
 </template>
@@ -118,9 +94,10 @@ import {useStore} from 'vuex'
 import TagList from "@/components/tag/TagList";
 import PropertyTable from "@/components/property/PropertyTable";
 import PlateTemplateLayout from "./PlateTemplateLayout";
-import {useRoute} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 import EditPlateTemplate from "./EditPlateTemplate";
 import OaSectionHeader from "../../components/widgets/OaSectionHeader";
+import DeleteDialog from "../../components/widgets/DeleteDialog";
 
 export default {
   name: 'PlateTemplate',
@@ -129,12 +106,10 @@ export default {
     PlateTemplateLayout,
     TagList,
     PropertyTable,
-    OaSectionHeader
+    OaSectionHeader,
+    DeleteDialog
   },
   methods: {
-    deletePlateTemplate() {
-      this.$store.dispatch('templates/deletePlateTemplate', this.plateTemplate.id)
-    },
     savePlateTemplate() {
       this.$store.dispatch('templates/savePlateTemplate')
     }
@@ -142,6 +117,7 @@ export default {
   setup() {
     const store = useStore()
     const route = useRoute()
+    const router = useRouter()
 
     const plateTemplateId = parseInt(route.params.id);
 
@@ -153,13 +129,10 @@ export default {
     return {
       plateTemplate,
       activeTab: ref('overview'),
-    }
-  },
-  data() {
-    return {
-      plateTemplateName: ref(""),
-      deletedialog: ref(false),
-      editdialog: false,
+      editdialog: ref(false),
+      onDeleted: () => {
+        router.push({name: 'dashboard'})
+      }
     }
   }
 }
