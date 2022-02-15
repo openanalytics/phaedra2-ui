@@ -172,7 +172,7 @@
 
       return {
         filter: ref(''),
-        filterMethod: FilterUtils.createTableFilter(),
+        filterMethod: FilterUtils.defaultTableFilter(),
         loading,
         experiments,
         FormatUtils,

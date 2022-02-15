@@ -174,6 +174,7 @@ import DisapproveDialog from "@/components/plate/DisapproveDialog";
 import ApproveDialog from "@/components/plate/ApproveDialog";
 import LinkPlate from "./LinkPlate";
 import {useRoute} from "vue-router";
+import FilterUtils from "../../lib/FilterUtils";
 
 let columns = ref([
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
@@ -187,15 +188,6 @@ let columns = ref([
   {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
   {name: 'menu', align: 'left', field: 'menu', sortable: false}
 ])
-
-const filterMethod = function (rows, term) {
-  return rows.filter(row => {
-    return (row.id == term
-        || row.barcode.toLowerCase().includes(term)
-        || row.description.toLowerCase().includes(term)
-        || (row.tags && row.tags.some(tag => tag.toLowerCase().includes(term))))
-  })
-}
 
 export default {
   components: {TableConfig, TagList, PlateCalculateDialog, InvalidateDialog, DisapproveDialog, ApproveDialog, LinkPlate},
@@ -255,7 +247,7 @@ export default {
       columns,
       visibleColumns: columns.value.map(a => a.name),
       filter: ref(''),
-      filterMethod,
+      filterMethod: FilterUtils.defaultTableFilter(),
       loading,
       plates,
       configdialog: ref(false),

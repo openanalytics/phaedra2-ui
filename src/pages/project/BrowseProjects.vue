@@ -87,7 +87,7 @@ export default {
       projects,
       columns,
       filter: ref(''),
-      filterMethod: FilterUtils.createTableFilter(),
+      filterMethod: FilterUtils.defaultTableFilter(),
       selectProject
     }
   }

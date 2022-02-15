@@ -94,7 +94,7 @@ export default {
       protocols,
       columns,
       filter: ref(''),
-      filterMethod: FilterUtils.createTableFilter(),
+      filterMethod: FilterUtils.defaultTableFilter(),
       selectProtocol
     }
   }

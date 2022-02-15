@@ -32,6 +32,7 @@ import {useStore} from "vuex";
 import FormatUtils from "../../lib/FormatUtils";
 import TableConfig from "../../components/table/TableConfig";
 import OaSectionHeader from "../../components/widgets/OaSectionHeader";
+import FilterUtils from "../../lib/FilterUtils";
 
 export default {
   name: 'CapturedMeasurementsView',
@@ -62,15 +63,7 @@ export default {
     ])
     exported.visibleColumns = exported.columns.value.map(a => a.name)
     exported.configdialog = ref(false)
-    exported.filterMethod = (rows, term) => {
-      return rows.filter(row => {
-        term = term.toLowerCase()
-        return (row.id == term
-            || row.barcode.toLowerCase().includes(term)
-            || row.name.toLowerCase().includes(term)
-            || row.description?.toLowerCase().includes(term))
-      })
-    }
+    exported.filterMethod = FilterUtils.defaultTableFilter()
     exported.filterValue = ref('')
 
     return exported

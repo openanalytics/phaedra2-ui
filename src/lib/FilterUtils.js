@@ -1,19 +1,25 @@
 /**
- * Filters on some basic fields that most objects have (id, name, description, etc.).
+ * Default table filter method
+ * @param rows
+ * @param term
+ * @returns {*}
  */
-const createTableFilter = function() {
+const defaultTableFilter = function () {
     return (rows, term) => {
         return rows.filter(row => {
-          return (
-              (row.id && row.id == term)
-              || (row.name && row.name.toLowerCase().includes(term.toLowerCase()))
-              || (row.description && row.description.toLowerCase().includes(term.toLowerCase()))
-              || (row.tags && row.tags.some(tag => tag.toLowerCase().includes(term.toLowerCase())))
-            )
+            for (const key of Object.keys(row)) {
+                const comp = String(term).toLowerCase()
+                //If a row element contains the filter, return true
+                if (String(row[key]).toLowerCase().includes(comp)) {
+                    return true
+                }
+            }
+            //If no row element contains the filter, return false
+            return false
         })
-      }
+    }
 }
 
 export default {
-    createTableFilter
+    defaultTableFilter
 }

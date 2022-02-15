@@ -70,15 +70,7 @@
 <script>
 import {computed, ref} from 'vue'
 import {useStore} from 'vuex'
-
-const filterMethod = function (rows, term) {
-  return rows.filter(row => {
-    return (row.id == term
-        || row.barcode.toLowerCase().includes(term)
-        || row.description.toLowerCase().includes(term)
-        || (row.tags && row.tags.some(tag => tag.toLowerCase().includes(term))))
-  })
-}
+import FilterUtils from "../../lib/FilterUtils";
 
 export default {
   props: {
@@ -154,7 +146,7 @@ export default {
       columns,
       tableKey,
       filter: ref(''),
-      filterMethod,
+      filterMethod: FilterUtils.defaultTableFilter(),
       loading
     }
   }

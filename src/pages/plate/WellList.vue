@@ -42,16 +42,9 @@ import {ref, computed, reactive, watch} from 'vue'
 
 import WellUtils from "@/lib/WellUtils.js"
 import TableConfig from "../../components/table/TableConfig";
-import {useStore} from "vuex";
+import {useStore} from "vuex"
+import FilterUtils from "../../lib/FilterUtils";
 
-const filterMethod = function (rows, term) {
-  return rows.filter(row => {
-    return (row.id == term
-        || row.nr == term
-        || row.wellType.toLowerCase().includes(term)
-    )
-  })
-}
 
 export default {
   components: {TableConfig},
@@ -98,7 +91,7 @@ export default {
     return {
       columns,
       filter: ref(''),
-      filterMethod,
+      filterMethod: FilterUtils.defaultTableFilter(),
       WellUtils,
       visibleColumns: columns.value.map(a => a.name),
       configdialog: ref(false),

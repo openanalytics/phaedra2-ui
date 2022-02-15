@@ -112,6 +112,7 @@ import TableConfig from "../../components/table/TableConfig";
 
 import FormatUtils from "@/lib/FormatUtils.js"
 import ColorUtils from "../../lib/ColorUtils";
+import FilterUtils from "../../lib/FilterUtils";
 
 export default {
   components: {
@@ -165,16 +166,7 @@ export default {
     }
 
     exported.filter = ref('')
-    exported.filterMethod = function (rows, term) {
-      term = term.toLowerCase()
-      return rows.filter(row => {
-        return ((row.id+' ').includes(term.toString())
-            || (row.createdBy && row.createdBy.toLowerCase().includes(term))
-            || (row.statusMessage && row.statusMessage.toLowerCase().includes(term))
-            || (row.sourcePath && row.sourcePath.toLowerCase().includes(term))
-        )
-      })
-    }
+    exported.filterMethod = FilterUtils.defaultTableFilter()
     exported.timer = null
     exported.ColorUtils = ColorUtils
 
