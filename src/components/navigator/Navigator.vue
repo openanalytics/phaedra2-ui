@@ -107,17 +107,6 @@
           label: "Browse Projects",
           id: "browse",
         },];
-        const allProjects = store.getters['projects/getAll']().map(project => {
-          return {
-            header: "project",
-            label: project.name,
-            id: project.id,
-            owner: project.team
-          }
-        })
-        allProjects.forEach(prj => {
-          projects.push(prj);
-        })
 
         // Templates
         let templates = [{
@@ -203,7 +192,6 @@
         ]
       })
 
-      store.dispatch('projects/loadAll')
       store.dispatch('templates/loadAll')
 
       return {
