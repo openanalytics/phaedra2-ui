@@ -26,7 +26,7 @@
               <q-btn size="sm" color="primary" icon="edit" class="oa-button" label="Edit" v-show="!editMode"
                      @click="toggleEditMode"/>
               <q-btn size="sm" color="primary" icon="delete" class="oa-button q-mt-sm" label="Delete" v-show="!editMode"
-                     @click="deleteFormula"/>
+                     @click="$refs.deleteDialog.showDialog = true"/>
 
               <q-btn size="sm" color="primary" icon="save" class="oa-button" label="Save Changes" v-show="editMode"
                      @click="saveChanges"/>
@@ -45,20 +45,20 @@
       </div>
     </div>
   </q-page>
-  <DeleteFormulaDialog :ref="el => deleteDialog = el"/>
+  <delete-dialog ref="deleteDialog" v-model:id="formula.id" v-model:name="formula.name" :objectClass="'formula'" @onDeleted="onDeleted" />
 </template>
 
 <script>
 import {computed, ref} from 'vue'
 import {useStore} from 'vuex'
 import {useRoute, useRouter} from 'vue-router'
-import DeleteFormulaDialog from "@/pages/calculation/formula/DeleteFormulaDialog.vue"
 import OaSectionHeader from "../../../components/widgets/OaSectionHeader";
+import DeleteDialog from "../../../components/widgets/DeleteDialog";
 
 export default {
   components: {
-    DeleteFormulaDialog,
-    OaSectionHeader
+    OaSectionHeader,
+    DeleteDialog
   },
   setup() {
     const exported = {};
@@ -72,9 +72,8 @@ export default {
       exported.editMode.value = !exported.editMode.value;
     }
 
-    exported.deleteDialog = ref(null)
-    exported.deleteFormula = () => {
-      exported.deleteDialog.value.openDialog(exported.formula.value);
+    exported.onDeleted = () => {
+      router.push({name: 'calcFormulas'})
     }
 
     exported.saveChanges = async () => {

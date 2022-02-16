@@ -66,10 +66,10 @@ const actions = {
         ctx.commit('cacheProtocols', [newProtocol])
         return newProtocol
     },
-    async deleteProtocol(ctx, protocol){
-        await protocolAPI.deleteProtocol(protocol.id)
+    async deleteProtocol(ctx, id){
+        await protocolAPI.deleteProtocol(id)
             .then(() => {
-                ctx.commit('deleteProtocol', protocol)
+                ctx.commit('deleteProtocol', id)
             })
     },
     async editProtocol(ctx, data) {
@@ -152,8 +152,8 @@ const mutations = {
         state.currentProtocol.name = data.name;
         state.currentProtocol.description = data.description;
     },
-    deleteProtocol(state, pr){
-        state.protocols = state.protocols.filter(protocol => protocol.id !== pr.id)
+    deleteProtocol(state, id){
+        state.protocols = state.protocols.filter(protocol => protocol.id !== id)
     }
 }
 

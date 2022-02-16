@@ -110,7 +110,7 @@
       </div>
     </div>
 
-    <DeleteExperimentDialog ref="deleteDialog" :experimentId="experimentId" @onDeleted="onDeleted" />
+    <delete-dialog ref="deleteDialog" v-model:id="experiment.id" v-model:name="experiment.name" :objectClass="'experiment'" @onDeleted="onDeleted" />
   </q-page>
 </template>
 
@@ -149,7 +149,7 @@ import PropertyTable from "@/components/property/PropertyTable";
 import PlateList from "@/pages/experiment/PlateList";
 import PlateStatsList from "@/pages/experiment/PlateStatsList";
 import PlateGrid from "@/pages/experiment/PlateGrid";
-import DeleteExperimentDialog from "@/components/experiment/DeleteExperimentDialog";
+import DeleteDialog from "../../components/widgets/DeleteDialog";
 import OaSectionHeader from "../../components/widgets/OaSectionHeader";
 import FormatUtils from "@/lib/FormatUtils.js"
 
@@ -162,7 +162,7 @@ export default {
     PlateList,
     PlateStatsList,
     PlateGrid,
-    DeleteExperimentDialog,
+    DeleteDialog,
     OaSectionHeader
   },
   methods: {

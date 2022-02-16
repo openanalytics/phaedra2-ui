@@ -66,9 +66,9 @@ const actions = {
                 })
             })
     },
-    async deleteFeature(ctx, feature) {
-        featuresAPI.deleteFeature(feature.id)
-        ctx.commit('deleteFeature', feature)
+    async deleteFeature(ctx, id) {
+        featuresAPI.deleteFeature(id)
+        ctx.commit('deleteFeature', id)
     },
     async editFeature(ctx, args) {
         await featuresAPI.editFeature(args.feature)
@@ -137,10 +137,12 @@ const mutations = {
         else
             state.featuresInProtocol[feature.protocolId] = [feature];
     },
-    deleteFeature(state, feature) {
-        state.features = state.features.filter(feature => feature.id !== feature.id)
-        let i = state.featuresInProtocol[feature.protocolId].findIndex(t => t.id === feature.id);
-        state.featuresInProtocol[feature.protocolId].splice(i, 1);
+    deleteFeature(state, id) {
+        const f = state.features.find(f => f.id === id)
+        state.features = state.features.filter(feature => feature.id !== id)
+        if (f){
+        let i = state.featuresInProtocol[f.protocolId].findIndex(t => t.id === id);
+        state.featuresInProtocol[f.protocolId].splice(i, 1);}
     },
     editFeature(state, feature) {
         //Replace properties in state.plates

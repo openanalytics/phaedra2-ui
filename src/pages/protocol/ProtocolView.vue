@@ -49,7 +49,7 @@
             <q-btn size="sm" color="primary" icon="edit" class="oa-button-edit" label="Edit" @click="editdialog = true"/>
           </div>
           <div class="row justify-end action-button">
-            <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete" @click="deletedialog = true"/>
+            <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete" @click="$refs.deleteDialog.showDialog = true"/>
           </div>
           <div class="row justify-end action-button">
             <q-btn size="sm" color="primary" icon="import_export" class="oa-button-delete" label="Export" @click="exportToJson(protocolId)"/>
@@ -102,7 +102,7 @@
                     <q-item clickable @click="selectedFeature=props.row;editFeatureSection=true">
                       <q-item-section>Edit feature</q-item-section>
                     </q-item>
-                    <q-item clickable @click="selectedFeature=props.row;deleteFeatureDialog=true">
+                    <q-item clickable @click="selectedFeature=props.row;$refs.deleteDialogFeature.showDialog = true">
                       <q-item-section>Delete feature</q-item-section>
                     </q-item>
                   </q-list>
@@ -122,59 +122,15 @@
     <new-feature v-if="newFeatureTab" v-model:show="newFeatureTab" v-model:protocolId="protocolId"></new-feature>
     <edit-feature v-if="editFeatureSection" v-model:show="editFeatureSection" v-model:originalFeature="selectedFeature"></edit-feature>
 
-    <q-dialog v-model="deletedialog" persistent>
-      <q-card style="min-width: 30vw">
-        <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
-          <q-avatar icon="delete" color="primary" text-color="white"/> Delete Protocol
-        </q-card-section>
-        <q-card-section>
-          <div class="row">
-            <div class="col-10">
-              <span>Are you sure you want to delete the protocol <b>{{protocol.name}}</b>?</span><br/>
-              <span>Type <span
-                  style="font-weight: bold">{{ protocol.name }}</span> and press the button to confirm:</span><br/>
-              <q-input dense v-model="protocolName" autofocus/><br>
-              <span class="text-accent">WARNING: The protocol, features and associated data will be deleted!</span>
-            </div>
-          </div>
-        </q-card-section>
-        <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="Cancel" v-close-popup/>
-          <q-btn label="Delete protocol" color="accent" v-if="protocol.name==protocolName" v-close-popup
-                 @click="deleteProtocol"/>
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-    <q-dialog v-model="deleteFeatureDialog" persistent>
-      <q-card style="min-width: 30vw">
-        <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
-          <q-avatar icon="delete" color="primary" text-color="white"/> Delete Feature
-        </q-card-section>
-        <q-card-section>
-          <div class="row">
-            <div class="col-10">
-              <span>Are you sure you want to delete the feature <b>{{selectedFeature.name}}</b>?</span><br/>
-              <span>Type <span
-                  style="font-weight: bold">{{ selectedFeature.name }}</span> and press the button to confirm:</span><br/>
-              <q-input dense v-model="featureName" autofocus/><br>
-              <span class="text-accent">WARNING: The feature and associated data will be deleted!</span>
-            </div>
-          </div>
-        </q-card-section>
-        <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="Cancel" v-close-popup/>
-          <q-btn label="Delete feature" color="accent" v-if="selectedFeature.name==featureName" v-close-popup
-                 @click="deleteFeature"/>
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+    <delete-dialog ref="deleteDialog" v-model:id="protocol.id" v-model:name="protocol.name" :objectClass="'protocol'" @onDeleted="onDeleted" />
+    <delete-dialog ref="deleteDialogFeature" v-model:id="selectedFeature.id" v-model:name="selectedFeature.name" :objectClass="'feature'" />
     <table-config v-model:show="configdialog" v-model:visibleColumns="visibleColumns" v-model:columns="columns"></table-config>
   </q-page>
 </template>
 
 <script>
 import {useStore} from "vuex";
-import {useRoute} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 import {computed, ref} from "vue";
 
 import EditProtocol from "./EditProtocol";
@@ -186,6 +142,7 @@ import TableConfig from "../../components/table/TableConfig";
 import EditFeature from "../../components/protocol/EditFeature";
 import NewFeature from "../../components/protocol/NewFeature";
 import PropertyTable from "@/components/property/PropertyTable";
+import DeleteDialog from "../../components/widgets/DeleteDialog";
 
 let columns = ref([
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
@@ -208,11 +165,13 @@ export default {
     EditFeature,
     NewFeature,
     FormulaInspector,
-    OaSectionHeader
+    OaSectionHeader,
+    DeleteDialog
   },
   setup() {
     const store = useStore()
     const route = useRoute()
+    const router = useRouter()
     const loading = ref(false)
     const protocolId = parseInt(route.params.id);
     const protocol = computed(() => store.getters['protocols/getCurrentProtocol']())
@@ -236,8 +195,11 @@ export default {
       visibleColumns: columns.value.map(a => a.name),
       configdialog: ref(false),
       filter: ref(''),
-      filterMethod: FilterUtils.createTableFilter(),
-      showFormulaTooltip: ref([])
+      filterMethod: FilterUtils.defaultTableFilter(),
+      showFormulaTooltip: ref([]),
+      onDeleted: () => {
+        router.push({name: 'browseProtocols'})
+      }
     }
   },
   data() {
@@ -256,11 +218,8 @@ export default {
       },
       newFeatureTab: false,
       protocolName: ref(""),
-      deletedialog: ref(false),
       editdialog: ref(false),
-      deleteFeatureDialog: ref(false),
       editFeatureSection: ref(false),
-      featureName: ref(null),
       selectedFeature: ref({id:9})
     }
   },
@@ -279,20 +238,12 @@ export default {
       this.$store.dispatch('protocols/addNewFeature', this.newFeature)
       this.newFeatureTab = false
     },
-    deleteProtocol() {
-      this.$store.dispatch('protocols/deleteProtocol', this.protocol).then(() => {
-        this.$router.push({name: 'dashboard'})
-      })
-    },
     getFormulaName(id){
       const formula = this.formulas.find(formula => {return formula.id === id})
       if(formula){
         return formula.name
       }
       else return 'NOT_IN_DB'
-    },
-    deleteFeature(){
-      this.$store.dispatch('features/deleteFeature',this.selectedFeature)
     },
     exportToJson(id){
       this.$store.dispatch('protocols/downloadAsJson',id)

@@ -94,10 +94,10 @@ const actions = {
                 ctx.commit('activateMeasurement', plateMeasurement);
             });
     },
-    async deletePlate(ctx, plate) {
-        await plateAPI.deletePlateById(plate.id)
+    async deletePlate(ctx, id) {
+        await plateAPI.deletePlateById(id)
             .then(() => {
-                ctx.commit('deletePlate', plate)
+                ctx.commit('deletePlate', id)
             })
     },
     async editPlate(ctx, plate) {
@@ -162,10 +162,11 @@ const mutations = {
                 state.currentPlate.measurements[m].active = false;
         }
     },
-    deletePlate(state, pl) {
-        state.plates = state.plates.filter(plate => plate.id !== pl.id)
-        let i = state.platesInExperiment[pl.experimentId].findIndex(t => t.id === pl.id);
-        state.platesInExperiment[pl.experimentId].splice(i, 1);
+    deletePlate(state, id) {
+        const experimentId = state.currentPlate.experimentId
+        state.plates = state.plates.filter(plate => plate.id !== id)
+        let i = state.platesInExperiment[experimentId].findIndex(t => t.id === id);
+        state.platesInExperiment[experimentId].splice(i, 1);
     },
     editPlate(state, pl) {
         //Replace properties in state.plates
