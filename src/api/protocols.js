@@ -4,12 +4,8 @@ const apiURL = process.env.VUE_APP_API_BASE_URL + '/protocol-service';
 
 export default {
     async getProtocolById(protocolId) {
-        let result = null;
-        await axios.get(apiURL + '/protocols/' + protocolId)
-            .then(response => {
-                result = response.data;
-            })
-        return result;
+        const response = await axios.get(apiURL + '/protocols/' + protocolId);
+        return response.data;
     },
     async getProtocolsByIds(ids) {
         try {
@@ -21,44 +17,27 @@ export default {
         }
     },
     async getAllProtocols() {
-        let result = null;
-        await axios.get(apiURL + '/protocols')
-            .then(response => {
-                result = response.data;
-            })
-        return result;
+        const response = await axios.get(apiURL + '/protocols');
+        return response.data;
     },
     async createNewProtocol(newProtocol) {
-        let result = null;
-        await axios.post(apiURL + '/protocols', newProtocol)
-            .then(response => {
-                if (response.status === 201)
-                    result = response.data;
-            })
-        return result;
+        const response = await axios.post(apiURL + '/protocols', newProtocol)
+        if (response.status === 201) return response.data;
     },
     async deleteProtocol(protocolId) {
-        let result = null;
-        await axios.delete(apiURL + '/protocols/' + protocolId)
-            .then(response => {
-                if (response.status === 200)
-                    result = response.data;
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
-        return result;
+        try {
+            const response = await axios.delete(apiURL + '/protocols/' + protocolId);
+            if (response.status === 200) return response.data;
+        } catch(err) {
+            console.log(err);
+        }
     },
     async editProtocol(protocol) {
-        let result = null;
-        await axios.put(apiURL + '/protocols', protocol)
-            .then(response => {
-                if (response.status === 200)
-                    result = response.data;
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
-        return result;
+        try {
+            const response = await axios.put(apiURL + '/protocols', protocol);
+            if (response.status === 200) return response.data;
+        } catch (err) {
+            console.log(err);
+        }
     }
 }
