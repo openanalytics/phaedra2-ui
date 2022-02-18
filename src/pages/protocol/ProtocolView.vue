@@ -96,13 +96,15 @@
         <template v-slot:body-cell-menu="props">
           <q-td :props="props">
             <div class="row items-center cursor-pointer">
-              <q-btn flat round icon="more_horiz" style="border-radius: 50%;">
-                <q-menu fit>
-                  <q-list style="min-width: 100px">
-                    <q-item clickable @click="selectedFeature=props.row;showEditFeatureSection=true">
+              <q-btn flat round icon="more_horiz" size="sm" >
+                <q-menu>
+                  <q-list>
+                    <q-item dense clickable @click="selectedFeature=props.row;showEditFeatureSection=true">
+                      <q-item-section avatar><q-icon name="edit"/></q-item-section>
                       <q-item-section>Edit feature</q-item-section>
                     </q-item>
-                    <q-item clickable @click="selectedFeature=props.row;$refs.deleteDialogFeature.showDialog = true">
+                    <q-item dense clickable @click="selectedFeature=props.row;$refs.deleteDialogFeature.showDialog = true">
+                      <q-item-section avatar><q-icon name="delete"/></q-item-section>
                       <q-item-section>Delete feature</q-item-section>
                     </q-item>
                   </q-list>
