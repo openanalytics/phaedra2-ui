@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="props.show" persistent>
+  <q-dialog v-model="showDialog" persistent>
     <q-card style="min-width: 50vw">
       <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
         <q-avatar icon="calculate" color="primary" text-color="white"/>
@@ -32,11 +32,15 @@
 
 import {computed} from "vue";
 import {useStore} from "vuex";
-import ProtocolSelectableList from "../../components/protocol/ProtocolSelectableList";
+import ProtocolSelectableList from "../protocol/ProtocolSelectableList";
 
 export default {
   name: 'PlateCalculateDialog',
   components: {ProtocolSelectableList},
+  props: {
+    plateId: Number,
+  },
+  emits: ['update:show'],
   methods: {
     calculatePlate() {
       this.calculation.measId = this.activeMeasurement.measurementId
@@ -69,20 +73,18 @@ export default {
       plate
     }
   },
-  data() {
-    return {
-      calculation: {
-        protocolId: null,
-        plateId: null,
-        measId: null
-      },
-      calculateDialog: this.props.show,
-
-      selected: []
-    }
-  },
-  props: ['show', 'plateId'],
-  emits: ['update:show'],
+  // data() {
+  //   return {
+  //     calculation: {
+  //       protocolId: null,
+  //       plateId: null,
+  //       measId: null
+  //     },
+  //     calculateDialog: this.props.show,
+  //
+  //     selected: []
+  //   }
+  // },
   watch: {
     plateId: function (newVal) {
       this.store.dispatch('plates/loadById', newVal)

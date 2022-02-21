@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="props.show" persistent>
+  <q-dialog v-model="showDialog" persistent>
     <q-card style="min-width: 50vw">
       <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
         <q-avatar icon="cancel" color="primary" text-color="white"/>
@@ -12,11 +12,7 @@
           </div>
         </div>
         <div class="q-pa-md">
-          <q-input
-              v-model="reason"
-              filled
-              type="textarea"
-          />
+          <q-input v-model="reason" filled type="textarea"/>
         </div>
       </q-card-section>
       <q-card-actions align="right" class="text-primary">
@@ -24,7 +20,7 @@
         <q-btn flat label="Invalidate" disable v-if="reason.length===0"
                v-close-popup/>
         <q-btn flat label="Invalidate" v-if="reason.length>0"
-               @click="invalidate" v-close-popup/>
+               @click="invalidate(reason)" v-close-popup/>
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -32,36 +28,32 @@
 
 <script>
 
+import {ref} from "vue";
+import {useStore} from "vuex";
+
 export default {
   name: 'InvalidateDialog',
-  methods: {
-    invalidate() {
-      this.editedPlate.id = this.plateId
-      this.editedPlate.invalidatedReason = this.reason
-      this.editedPlate.validationStatus = 'INVALIDATED'
-      this.editedPlate.experimentId = this.props.experimentId
-      this.$store.dispatch('plates/editPlate', this.editedPlate)
-      this.$emit('update:show', false)
-    }
+  props: {
+    plateId: Number,
+    experimentId: Number
   },
-  setup(props) {
+  emits: ['update:show'],
+  setup(props, { emit }) {
+    const store = useStore();
     return {
-      props,
+      showDialog: ref(false),
+      reason: ref(''),
+      invalidate: (reason) => {
+        const invalidatePlate = {
+          id: props.plateId,
+          invalidatedReason: reason,
+          validationStatus: 'INVALIDATED',
+          experimentId: props.experimentId
+        }
+        store.dispatch('plates/editPlate', invalidatePlate)
+        emit('update:show', false)
+      }
     }
-  },
-  data() {
-    return {
-      editedPlate: {
-        id: null,
-        invalidatedReason: null,
-        validationStatus: null,
-        experimentId: null
-      },
-      reason: ''
-    }
-  },
-  props: ['show', 'plateId', 'experimentId'],
-  emits: ['update:show']
-
+  }
 }
 </script>

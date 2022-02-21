@@ -78,62 +78,8 @@
       <q-td :props="props">
         <div class="row items-center cursor-pointer">
           <q-btn flat round icon="more_horiz" style="border-radius: 50%;">
-            <q-menu fit>
-              <q-list>
-                <q-item clickable
-                        v-if="props.row.approvalStatus==='APPROVAL_NOT_SET'">
-                  <q-item-section>Validation</q-item-section>
-                  <q-item-section side>
-                    <q-icon name="keyboard_arrow_right"/>
-                  </q-item-section>
-
-                  <q-menu anchor="top end" self="top start">
-                    <q-list>
-                      <q-item clickable v-if="props.row.validationStatus==='VALIDATION_NOT_SET'" @click="validate(props.row.id, props.row.experimentId)">
-                        <q-item-section avatar><q-icon name="check_circle"/></q-item-section>
-                        <q-item-section>Validate</q-item-section>
-                      </q-item>
-                      <q-item clickable v-if="props.row.validationStatus==='VALIDATION_NOT_SET'" @click="invalidate(props.row.id, props.row.experimentId)">
-                        <q-item-section avatar><q-icon name="cancel"/></q-item-section>
-                        <q-item-section>Invalidate</q-item-section>
-                      </q-item>
-                      <q-item clickable v-if="props.row.validationStatus!=='VALIDATION_NOT_SET'" @click="resetValidation(props.row.id, props.row.experimentId)">
-                        <q-item-section avatar><q-icon name="horizontal_rule"/></q-item-section>
-                        <q-item-section>Reset Validation</q-item-section>
-                      </q-item>
-                    </q-list>
-                  </q-menu>
-                </q-item>
-                <q-item clickable v-if="props.row.approvalStatus==='APPROVAL_NOT_SET'&&props.row.validationStatus==='VALIDATED'" >
-                  <q-item-section>Approval</q-item-section>
-                  <q-item-section side>
-                    <q-icon name="keyboard_arrow_right"/>
-                  </q-item-section>
-
-                  <q-menu anchor="top end" self="top start">
-                    <q-list>
-                      <q-item clickable v-if="props.row.approvalStatus==='APPROVAL_NOT_SET'" @click="approve(props.row.id, props.row.experimentId)">
-                        <q-item-section avatar><q-icon name="check_circle"/></q-item-section>
-                        <q-item-section>Approve</q-item-section>
-                      </q-item>
-                      <q-item clickable v-if="props.row.approvalStatus==='APPROVAL_NOT_SET'" @click="disapprove(props.row.id, props.row.experimentId)">
-                        <q-item-section avatar><q-icon name="cancel"/></q-item-section>
-                        <q-item-section>Disapprove</q-item-section>
-                      </q-item>
-                    </q-list>
-                  </q-menu>
-
-                </q-item>
-                <q-item clickable @click="calculatePlate(props.row.id)">
-                  <q-item-section avatar><q-icon name="calculate"/></q-item-section>
-                  <q-item-section>Calculate plate</q-item-section>
-                </q-item>
-                <q-item clickable @click="selectedPlateId=props.row.id;linkDialog = true">
-                  <q-item-section avatar><q-icon name="playlist_add"/></q-item-section>
-                  <q-item-section>Link Plate Template</q-item-section>
-                </q-item>
-              </q-list>
-            </q-menu>
+            <PlateMenu :plateId="props.row.id" :experimentId="props.row.experimentId"
+                       :validationStatus="props.row.validationStatus" :approvalStatus="props.row.approvalStatus"/>
           </q-btn>
         </div>
       </q-td>
@@ -168,13 +114,10 @@ import {useStore} from 'vuex'
 import {computed, ref} from "vue";
 import TagList from "@/components/tag/TagList";
 import TableConfig from "@/components/table/TableConfig";
-import PlateCalculateDialog from "./PlateCalculateDialog";
-import InvalidateDialog from "@/components/plate/InvalidateDialog";
-import DisapproveDialog from "@/components/plate/DisapproveDialog";
-import ApproveDialog from "@/components/plate/ApproveDialog";
 import LinkPlate from "./LinkPlate";
 import {useRoute} from "vue-router";
 import FilterUtils from "../../lib/FilterUtils";
+import PlateMenu from "@/components/plate/PlateMenu";
 
 let columns = ref([
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
@@ -190,7 +133,7 @@ let columns = ref([
 ])
 
 export default {
-  components: {TableConfig, TagList, PlateCalculateDialog, InvalidateDialog, DisapproveDialog, ApproveDialog, LinkPlate},
+  components: {TableConfig, TagList, LinkPlate, PlateMenu},
 
   props: ['experiment','newPlateTab'],
   emits: ['update:newPlateTab'],
@@ -198,37 +141,6 @@ export default {
     openNewPlateTab() {
       console.log('clicked')
       this.$emit('update:newPlateTab',true)
-    },
-    validate(id, experimentId) {
-      //put validationStatus: VALIDATED
-      console.log('VALIDATED')
-      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, validationStatus: 'VALIDATED'})
-    },
-    invalidate(id, experimentId) {
-      //put validationStatus: INVALIDATED
-      this.selectedPlateId = id
-      this.experimentId = experimentId
-      this.invalidateDialog = true
-    },
-    resetValidation(id, experimentId) {
-      this.$store.dispatch('plates/editPlate', {id: id, experimentId: experimentId, validationStatus: 'VALIDATION_NOT_SET', invalidatedReason: ""})
-    },
-    approve(id, experimentId) {
-      //put approvalStatus: APPROVED
-      console.log(id)
-      this.selectedPlateId = id
-      this.experimentId = experimentId
-      this.approveDialog = true
-    },
-    disapprove(id, experimentId) {
-      //put approvalStatus: DISAPPROVED
-      this.selectedPlateId = id
-      this.experimentId = experimentId
-      this.disapproveDialog = true
-    },
-    calculatePlate(id){
-      this.selectedPlateId = id
-      this.calculateDialog = true
     }
   },
   setup() {
@@ -254,9 +166,6 @@ export default {
       selectedPlateId: null,
       experimentId: null,
       calculateDialog: ref(false),
-      invalidateDialog: ref(false),
-      disapproveDialog: ref(false),
-      approveDialog: ref(false),
       linkDialog: ref(false)
     }
   }
