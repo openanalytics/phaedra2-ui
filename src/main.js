@@ -69,7 +69,8 @@ const routes = [
     { name: "protocol", path: "/protocol/:id", component: ProtocolView },
     { name: "newProtocol", path: "/protocol/new", component: NewProtocolView },
     { name: "importProtocol", path: "/protocol/import", component: ImportProtocolView},
-    
+
+    { name: "browseTemplates", path: "/templates", component: BrowseTemplates},
     { name: "template", path: "/template/:id", component: PlateTemplateView},
     { name: "newPlateTemplate", path: "/template/new", component: NewPlateTemplateView},
 
@@ -103,6 +104,7 @@ import App from "./App.vue"
 import CapturedMeasurementsView from "./pages/datacapture/CapturedMeasurementsView";
 import ImportProtocolView from "./pages/protocol/ImportProtocolView";
 import BrowseProjects from "./pages/project/BrowseProjects";
+import BrowseTemplates from "./pages/platelayout/BrowseTemplates";
 
 const app = createApp(App)
 app.use(router)

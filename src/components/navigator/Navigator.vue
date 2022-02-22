@@ -66,7 +66,6 @@
 
 <script>
   import {ref, computed} from 'vue'
-  import {useStore} from 'vuex'
 
   export default {
     methods: {
@@ -77,27 +76,8 @@
       }
     },
     setup() {
-      const store = useStore()
 
       const navTree = computed(() => {
-
-        // Templates
-        let templates = [{
-          header: "template",
-          label: "New Template...",
-          id: "new",
-          icon: "add"
-        }]
-        const allTemplates = store.getters['templates/getAll']().map(template => {
-          return {
-            header: "template",
-            label: template.name,
-            id: template.id,
-          }
-        })
-        allTemplates.forEach(temp => {
-          templates.push(temp);
-        })
 
         return [
           {
@@ -148,10 +128,13 @@
             icon: "border_all",
             children: [
               {
-                label: "Templates",
-                header: "category",
-                icon: "border_outer",
-                children: templates
+                label: "New Template...",
+                icon: "add",
+                route: "newPlateTemplate",
+              }, {
+                label: "Browse Templates",
+                icon: 'border_outer',
+                route: 'browseTemplates',
               }
             ]
           },
@@ -174,8 +157,6 @@
           },
         ]
       })
-
-      store.dispatch('templates/loadAll')
 
       return {
         drawerIcons: {
