@@ -1,19 +1,26 @@
 <template>
   <div class="q-pa-md" v-if="props.show">
     <oa-section-header :title="'Edit Experiment'" :icon="'edit'"/>
-    <div class="row col-12 q-pa-md oa-section-body">
-      <q-card-section class="row" style="min-width: 95vw">
-        <div class="col col-5">
-          <q-input v-model="editedExperiment.name" square autofocus label="Name"></q-input><br>
-          <q-btn flat label="Cancel" color="primary" @click="$emit('update:show',false)"/>
-        </div>
-        <div class="col col-1">
+    <div class="oa-section-body">
+      <q-card-section>
+        <div class="row">
+          <div class="col-5">
+            <q-input v-model="editedExperiment.name" square autofocus label="Name"></q-input>
+            <br>
+          </div>
+          <div class="col-1">
 
+          </div>
+          <div class="col-5">
+            <q-input v-model="editedExperiment.description" square label="Description"></q-input>
+            <br>
+          </div>
         </div>
-        <div class="col col-4">
-          <q-input v-model="editedExperiment.description" square label="Description"></q-input><br>
+        <br>
+        <div class="row justify-end">
           <router-link :to="'/experiment/' + experiment.id" class="nav-link">
-            <q-btn label="Edit experiment" v-close-popup color="primary" @click="editExperiment" />
+            <q-btn flat label="Cancel" color="primary" @click="$emit('update:show',false)"/>
+            <q-btn label="Edit experiment" v-close-popup color="primary" @click="editExperiment"/>
           </router-link>
         </div>
       </q-card-section>
@@ -23,6 +30,7 @@
 
 <script>
 import OaSectionHeader from "../../components/widgets/OaSectionHeader";
+
 export default {
   name: 'EditExperiment',
   components: {
@@ -33,7 +41,7 @@ export default {
       this.editedExperiment.id = this.experiment.id
       this.editedExperiment.projectId = this.experiment.projectId
       this.$store.dispatch('experiments/editExperiment', this.editedExperiment)
-      this.$emit('update:show',false)
+      this.$emit('update:show', false)
     },
   },
   setup(props) {

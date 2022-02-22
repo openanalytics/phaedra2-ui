@@ -1,17 +1,24 @@
 <template>
   <div class="q-pa-md" v-if="props.show">
     <oa-section-header :title="'Edit Plate'" :icon="'edit'"/>
-    <div class="row col-12 q-pa-md oa-section-body">
-      <q-card-section class="row" style="min-width: 95vw">
-        <div class="col col-5">
-          <q-input v-model="editedPlate.barcode" square autofocus label="Barcode"></q-input><br>
-          <q-btn flat label="Cancel" color="primary" @click="$emit('update:show',false)"/>
-        </div>
-        <div class="col col-1">
+    <div class="oa-section-body">
+      <q-card-section>
+        <div class="row">
+          <div class="col-5">
+            <q-input v-model="editedPlate.barcode" square autofocus label="Barcode"></q-input>
+            <br>
+          </div>
+          <div class="col-1">
 
+          </div>
+          <div class="col-5">
+            <q-input v-model="editedPlate.description" square label="Description"></q-input>
+            <br>
+          </div>
         </div>
-        <div class="col col-4">
-          <q-input v-model="editedPlate.description" square label="Description"></q-input><br>
+        <br>
+        <div class="row justify-end">
+          <q-btn flat label="Cancel" color="primary" @click="$emit('update:show',false)"/>
           <q-btn align="right" label="Edit plate" v-close-popup color="primary" @click="editPlate"/>
         </div>
       </q-card-section>
@@ -21,6 +28,7 @@
 
 <script>
 import OaSectionHeader from "../../components/widgets/OaSectionHeader";
+
 export default {
   name: 'EditPlate',
   components: {OaSectionHeader},
@@ -29,7 +37,7 @@ export default {
       this.editedPlate.id = this.plate.id
       this.editedPlate.experimentId = this.plate.experimentId
       this.$store.dispatch('plates/editPlate', this.editedPlate)
-      this.$emit('update:show',false)
+      this.$emit('update:show', false)
     },
   },
   setup(props) {

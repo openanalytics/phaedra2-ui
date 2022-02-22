@@ -90,12 +90,11 @@
 
     <div class="q-pa-md" v-if="newPlateTab">
       <oa-section-header :title="'New Plate'" :icon="'add'"/>
-      <div class="row col-12 q-pa-md oa-section-body">
+      <div class="col-12 q-pa-md oa-section-body">
         <div class="row" style="min-width: 90vw">
           <div class="col col-5">
             <q-input v-model="newPlate.barcode" square autofocus label="Barcode"></q-input>
             <q-input v-model="newPlate.description" square label="Description"></q-input><br>
-            <q-btn flat label="Cancel" color="primary" @click="newPlateTab = false"/>
 
           </div>
           <div class="col col-1">
@@ -104,8 +103,11 @@
           <div class="col col-4">
             <q-input v-model="newPlate.rows" square label="Rows"></q-input>
             <q-input v-model="newPlate.columns" square label="Columns"></q-input><br>
-            <q-btn align="right" label="Add plate" v-close-popup color="primary" @click="createNewPlate"/>
           </div>
+        </div>
+        <div class="row justify-end">
+          <q-btn flat label="Cancel" color="primary" @click="newPlateTab = false"/>
+          <q-btn align="right" label="Add plate" v-close-popup color="primary" @click="createNewPlate"/>
         </div>
       </div>
     </div>

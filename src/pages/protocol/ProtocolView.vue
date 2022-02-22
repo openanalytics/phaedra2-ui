@@ -219,7 +219,7 @@ export default {
         return (formula || {}).name;
       },
       exportToJson: (id) => {
-        this.$store.dispatch('protocols/downloadAsJson',id)
+        store.dispatch('protocols/downloadAsJson',id)
       },
       showFormulaTooltip: ref([]),
       showEditProtocolDialog: ref(false),
