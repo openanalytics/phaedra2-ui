@@ -80,10 +80,7 @@ const mutations = {
         if (match) state.plateTemplates.splice(state.plateTemplates.indexOf(match), 1)
     },
     cacheAllPlateTemplates(state, plateTemplates) {
-        plateTemplates?.forEach(plateTemplate => {
-            if (!containsPlateTemplate(plateTemplate))
-                state.plateTemplates.push(plateTemplate)
-        })
+        state.plateTemplates = plateTemplates
     },
     deletePlateTemplate(state, plateTemplate) {
         state.plateTemplates = state.plateTemplates.filter(plate => plate.id !== plateTemplate.id)

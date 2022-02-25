@@ -1,13 +1,13 @@
 import protocolAPI from '@/api/protocols.js'
 
 const state = () => ({
-    currentProtocol: {},
+    currentProtocolId: null,
     protocols: []
 })
 
 const getters = {
     getCurrentProtocol: (state) => () => {
-        return state.currentProtocol;
+        if (state.currentProtocolId) return state.protocols.find(p => p.id === state.currentProtocolId);
     },
     getById: (state) => (id) => {
         return state.protocols.find(protocol => protocol.id == id)
@@ -29,58 +29,47 @@ const getters = {
 const actions = {
     async loadById(ctx, protocolId) {
         let protocol = ctx.getters.getById(protocolId);
-        if (protocol) {
-            ctx.commit('loadProtocol', protocol)
-        } else {
-            try {
-                protocol = await protocolAPI.getProtocolById(protocolId);
-                ctx.commit('loadProtocol', protocol)
-            }catch (err) {
-                console.error(err);
-            }
+        if (!protocol) {
+            protocol = await protocolAPI.getProtocolById(protocolId);
+            ctx.commit('cacheProtocols', [protocol]);
+            ctx.dispatch('metadata/loadMetadata', { objectId: protocolId, objectClass: 'PROTOCOL' }, {root:true});
         }
-
-        ctx.dispatch('metadata/loadMetadata', { objectId: protocolId, objectClass: 'PROTOCOL' }, {root:true});
+        ctx.commit('setCurrentProtocolId', protocolId);
     },
     async loadByIds(ctx, ids) {
         const loadedIds = ctx.getters['getLoadedIds']()
-        const missingIds = Array.from(ids).filter(id => !loadedIds.has(id))
+        // Fetch only protocols that are currently unloaded
+        const missingIds = Array.from(ids).filter(id => !loadedIds.has(id));
         if (missingIds.length === 0) {
-            return
+            return;
         }
-        const protocols = await protocolAPI.getProtocolsByIds(missingIds)
-        console.log(protocols);
-        ctx.commit('cacheProtocols', protocols)
+        const protocols = await protocolAPI.getProtocolsByIds(missingIds);
+        ctx.commit('cacheProtocols', protocols);
     },
     async loadAll(ctx) {
-        const protocols = await protocolAPI.getAllProtocols()
-        
+        const protocols = await protocolAPI.getAllProtocols();
         const protocolIds = protocols.map(p => p.id);
         ctx.dispatch('metadata/loadMetadata', { objectId: protocolIds, objectClass: 'PROTOCOL' }, {root:true});
-
-        ctx.commit('cacheAllProtocols', protocols)
+        ctx.commit('cacheProtocols', protocols);
     },
+    //TODO Rename to saveNewProtocol
     async saveProtocol(ctx, protocol) {
-        const newProtocol = await protocolAPI.createNewProtocol(protocol)
-        ctx.commit('loadProtocol', newProtocol)
-        ctx.commit('cacheProtocols', [newProtocol])
-        return newProtocol
+        const newProtocol = await protocolAPI.createNewProtocol(protocol);
+        ctx.commit('cacheProtocols', [newProtocol]);
+        ctx.commit('setCurrentProtocolId', newProtocol.id);
+        return newProtocol;
     },
-    async deleteProtocol(ctx, id){
-        await protocolAPI.deleteProtocol(id)
-            .then(() => {
-                ctx.commit('deleteProtocol', id)
-            })
+    async deleteProtocol(ctx, id) {
+        await protocolAPI.deleteProtocol(id);
+        ctx.commit('deleteProtocol', id);
     },
-    async editProtocol(ctx, data) {
-        ctx.commit('editProtocol', data);
-        const protocol = ctx.getters.getCurrentProtocol();
-        await protocolAPI.editProtocol(protocol)
-            .then(() => {
-                ctx.commit('loadProtocol', protocol)
-            })
+    async editProtocol(ctx, protocol) {
+        const updatedProtocol = await protocolAPI.editProtocol(protocol);
+        ctx.commit('cacheProtocols', [updatedProtocol]);
     },
     async downloadAsJson({rootGetters}, id) {
+        //TODO This should move out of the store. Suggested: into the lib folder.
+
         //Make hard copy of protocol and assign features + formulaName, delete id
         const protocol = {...rootGetters['protocols/getById'](id)}
         delete protocol.id
@@ -128,37 +117,19 @@ const actions = {
 }
 
 const mutations = {
-    loadProtocol(state, protocol) {
-        state.currentProtocol = protocol;
+    setCurrentProtocolId(state, protocolId) {
+        state.currentProtocolId = protocolId;
     },
     cacheProtocols (state, protocols) {
         protocols.forEach(protocol => {
-            // TODO broken
-            let index = state.protocols.indexOf(protocol)
+            let index = state.protocols.findIndex(p => p.id === protocol.id);
             if (index >= 0) state.protocols.splice(index, 1)
             state.protocols.push(protocol)
-            console.log(JSON.stringify(state.protocols))
         });
     },
-    cacheAllProtocols (state, protocols) {
-        state.protocols = protocols;
-    },
-    addFeature(state, feature) {
-        const protocol = state.protocols.find(protocol => protocol.id === feature.protocolId)
-        if (!containsFeature(protocol, feature))
-            protocol.features !== undefined ? protocol.features.push(feature) : protocol.features = [feature];
-    },
-    editProtocol(state, data) {
-        state.currentProtocol.name = data.name;
-        state.currentProtocol.description = data.description;
-    },
-    deleteProtocol(state, id){
+    deleteProtocol(state, id) {
         state.protocols = state.protocols.filter(protocol => protocol.id !== id)
     }
-}
-
-function containsFeature(protocol, feature) {
-    return protocol.features !== undefined && protocol.features.findIndex(f => f.id === feature.id) > -1;
 }
 
 export default {

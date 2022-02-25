@@ -1,19 +1,26 @@
 <template>
   <div class="q-pa-md" v-if="props.show">
     <oa-section-header :title="'Edit Protocol'" :icon="'edit'"/>
-    <div class="row col-12 q-pa-md oa-section-body">
-      <q-card-section class="row" style="min-width: 95vw">
-        <div class="col col-5">
-          <q-input v-model="name" square autofocus label="Name"></q-input><br>
-          <q-btn flat label="Cancel" color="primary" @click="$emit('update:show',false)"/>
-        </div>
-        <div class="col col-1">
+    <div class="oa-section-body">
+      <q-card-section>
+        <div class="row">
+          <div class="col col-5">
+            <q-input v-model="name" square autofocus label="Name"></q-input>
+            <br>
+          </div>
+          <div class="col col-1">
 
+          </div>
+          <div class="col col-4">
+            <q-input v-model="description" square label="Description"></q-input>
+            <br>
+          </div>
         </div>
-        <div class="col col-4">
-          <q-input v-model="description" square label="Description"></q-input><br>
+        <br>
+        <div class="row justify-end">
+          <q-btn flat label="Cancel" color="primary" @click="$emit('update:show',false)"/>
           <router-link :to="'/protocol/' + protocol.id" class="nav-link">
-            <q-btn label="Edit protocol" v-close-popup color="primary" @click="editProtocol" />
+            <q-btn label="Edit protocol" v-close-popup color="primary" @click="editProtocol"/>
           </router-link>
         </div>
       </q-card-section>
@@ -51,8 +58,8 @@ export default {
   },
   methods: {
     editProtocol() {
-      this.$store.dispatch('protocols/editProtocol', { name: this.name, description: this.description});
-      this.$emit('update:show',false);
+      this.$store.dispatch('protocols/editProtocol', {name: this.name, description: this.description});
+      this.$emit('update:show', false);
     }
   },
   props: ['show'],

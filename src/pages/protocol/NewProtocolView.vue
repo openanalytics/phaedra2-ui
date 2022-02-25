@@ -1,7 +1,7 @@
 <template>
   <q-breadcrumbs class="breadcrumb">
-    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}" />
-    <q-breadcrumbs-el :label="'New Protocol'" />
+    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
+    <q-breadcrumbs-el :label="'New Protocol'"/>
   </q-breadcrumbs>
 
   <q-page class="oa-root-div">
@@ -15,11 +15,13 @@
           <q-select v-model="newProtocol.highWelltype" label="High well type:" :options="wellTypeOptions"></q-select>
 
           <div class="row justify-end q-pt-md">
+            <router-link :to="{ name: 'browseProtocols' }" class="nav-link">
+              <q-btn label="Cancel" type="reset" color="primary" flat class="a-ml-sm on-right"></q-btn>
+            </router-link>
             <router-link :to="{ name: 'importProtocol' }" class="nav-link">
               <q-btn label="Import From File..." color="primary" class="on-left"/>
             </router-link>
             <q-btn label="Save" type="submit" color="primary"></q-btn>
-            <q-btn label="Cancel" type="reset" color="primary" flat class="a-ml-sm on-right"></q-btn>
           </div>
         </q-form>
       </div>
@@ -29,6 +31,7 @@
 
 <script>
 import OaSectionHeader from "../../components/widgets/OaSectionHeader";
+
 export default {
   name: "NewProtocolView",
   components: {OaSectionHeader},
@@ -37,9 +40,9 @@ export default {
       this.newProtocol.createdOn = new Date();
       console.log(this.newProtocol)
       this.$store.dispatch("protocols/saveProtocol", this.newProtocol)
-      .then(protocol => {
-        this.$router.push({path: '/protocol/' + protocol?.id});
-      });
+          .then(protocol => {
+            this.$router.push({path: '/protocol/' + protocol?.id});
+          });
     },
     onReset() {
       this.newProtocol.name = null

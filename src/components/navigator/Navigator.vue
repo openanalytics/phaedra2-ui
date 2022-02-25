@@ -16,7 +16,7 @@
     >
       <!-- Default template -->
       <template v-slot:default-header="prop">
-        <div class="row items-center" style="padding-left: 8px;">
+        <div class="row items-center">
           <q-icon :name="prop.node.icon" size="28px" class="q-mr-sm text-primary" />
           <div>
             <router-link :to="{ name: prop.node.route }" class="nav-link">{{ prop.node.label }}</router-link>
@@ -24,7 +24,7 @@
         </div>
       </template>
 
-      <!-- Template for links (header: "link") -->
+      <!-- Template for top-level links, e.g. Dashboard (header: "link") -->
       <template v-slot:header-link="prop">
         <div class="row items-center" style="padding-left: 8px;">
           <q-icon :name="prop.node.icon" size="28px" class="q-mr-sm text-primary" />
@@ -40,22 +40,6 @@
           <q-icon :name="prop.node.icon || 'folder'" size="28px" class="q-mr-sm text-primary" />
           <div class="text-weight-bold">{{ prop.node.label }}</div>
         </div>
-      </template>
-
-      <!-- Template for projects (header: "project") -->
-      <template v-slot:header-project="prop">
-        <router-link v-if="prop.node.id === 'new'" :to="{ name: 'newProject', params: { id: prop.node.id } }" class="nav-link">
-          <q-icon name="add" class="text-primary" />
-          {{ prop.node.label }}
-        </router-link>
-        <router-link v-else-if="prop.node.id === 'browse'" :to="{ name: 'browseProjects'}" class="nav-link">
-          <q-icon name="folder_open" class="text-primary" />
-          {{ prop.node.label }}
-        </router-link>
-        <router-link v-else :to="{ name: 'project', params: { id: prop.node.id } }" class="nav-link">
-          <q-icon name="folder" class="text-primary" />
-          {{ prop.node.label }}
-        </router-link>
       </template>
 
       <!-- Template for templates (header: "template") -->
@@ -82,7 +66,6 @@
 
 <script>
   import {ref, computed} from 'vue'
-  import {useStore} from 'vuex'
 
   export default {
     methods: {
@@ -93,38 +76,8 @@
       }
     },
     setup() {
-      const store = useStore()
 
       const navTree = computed(() => {
-
-        // Projects
-        let projects = [{
-          header: "project",
-          label: "New Project...",
-          id: "new",
-        }, {
-          header: "project",
-          label: "Browse Projects",
-          id: "browse",
-        },];
-
-        // Templates
-        let templates = [{
-          header: "template",
-          label: "New Template...",
-          id: "new",
-          icon: "add"
-        }]
-        const allTemplates = store.getters['templates/getAll']().map(template => {
-          return {
-            header: "template",
-            label: template.name,
-            id: template.id,
-          }
-        })
-        allTemplates.forEach(temp => {
-          templates.push(temp);
-        })
 
         return [
           {
@@ -136,7 +89,17 @@
           {
             label: "Projects",
             header: "category",
-            children: projects
+            children: [
+              {
+                label: "New Project...",
+                icon: "add",
+                route: "newProject",
+              }, {
+                label: "Browse Projects",
+                icon: 'folder_open',
+                route: 'browseProjects',
+              }
+            ]
           },
           {
             label: "Calculation",
@@ -165,10 +128,13 @@
             icon: "border_all",
             children: [
               {
-                label: "Templates",
-                header: "category",
-                icon: "border_outer",
-                children: templates
+                label: "New Template...",
+                icon: "add",
+                route: "newPlateTemplate",
+              }, {
+                label: "Browse Templates",
+                icon: 'border_outer',
+                route: 'browseTemplates',
               }
             ]
           },
@@ -191,8 +157,6 @@
           },
         ]
       })
-
-      store.dispatch('templates/loadAll')
 
       return {
         drawerIcons: {

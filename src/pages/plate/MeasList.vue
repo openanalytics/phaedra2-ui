@@ -40,8 +40,8 @@
       </q-card-section>
 
       <q-card-actions align="right">
-        <q-btn label="Save" color="primary" v-close-popup @click="addMeasurement"/>
         <q-btn label="Cancel" color="primary" flat v-close-popup/>
+        <q-btn label="Save" color="primary" v-close-popup @click="addMeasurement"/>
       </q-card-actions>
     </q-card>
   </q-dialog>

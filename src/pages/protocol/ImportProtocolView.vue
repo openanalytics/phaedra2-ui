@@ -21,6 +21,9 @@
       <span class="text-accent">{{ jsonStatusMessage }}</span>
 
       <div class="row justify-end q-pt-md">
+        <router-link :to="{ name: 'newProtocol' }" class="nav-link">
+          <q-btn label="Cancel" type="reset" color="primary" flat class="a-ml-sm on-right"></q-btn>
+        </router-link>
         <q-btn label="Import" type="submit" color="primary" @click="importAsJson"></q-btn>
       </div>
     </div>

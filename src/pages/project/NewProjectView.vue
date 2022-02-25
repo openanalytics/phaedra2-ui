@@ -19,10 +19,10 @@
                     :rules="[ val => val && val.length > 0 || 'An admin team must be selected']"/>
 
           <div class="row justify-end q-pt-md">
-            <q-btn label="Create" type="submit" color="primary"/>
             <router-link :to="{ name: 'browseProjects'}" class="nav-link">
               <q-btn label="Cancel" type="reset" color="primary" flat class="on-right"/>
             </router-link>
+            <q-btn label="Create" type="submit" color="primary"/>
           </div>
         </q-form>
       </div>

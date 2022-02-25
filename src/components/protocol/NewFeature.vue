@@ -1,9 +1,5 @@
 <template>
   <div class="q-pa-md">
-    <div class="row text-h6 items-center q-px-md oa-section-title">
-      <q-icon name="edit" class="q-pr-sm"/>
-      New Feature
-    </div>
     <oa-section-header :title="'New Feature'" :icon="'edit'"/>
     <div class="oa-section-body">
       <q-card-section>

@@ -20,8 +20,8 @@
                 <q-select v-model="newAccess.accessLevel" :options="accessLevels" label="Access Level" />
             </q-card-section>
             <q-card-actions align="right" class="text-primary">
-                <q-btn label="Add" v-close-popup color="primary" @click="doAddAccess" />
-                <q-btn flat label="Cancel" v-close-popup />
+              <q-btn flat label="Cancel" v-close-popup />
+              <q-btn label="Add" v-close-popup color="primary" @click="doAddAccess" />
             </q-card-actions>
         </q-card>
     </q-dialog>
