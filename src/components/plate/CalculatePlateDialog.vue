@@ -32,10 +32,9 @@
 
 import {computed} from "vue";
 import {useStore} from "vuex";
-import ProtocolSelectableList from "../../components/protocol/ProtocolSelectableList";
+import ProtocolSelectableList from "@/components/protocol/ProtocolSelectableList";
 
 export default {
-  name: 'PlateCalculateDialog',
   components: {ProtocolSelectableList},
   methods: {
     calculatePlate() {
