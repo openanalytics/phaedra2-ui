@@ -90,6 +90,16 @@
   </q-page>
 </template>
 
+<style scoped lang="scss">
+.breadcrumb {
+  margin: 12px;
+  margin-bottom: 13px;
+}
+.action-button {
+  margin: 3px;
+}
+</style>
+
 <script>
   import {computed, ref} from 'vue'
   import {useStore} from 'vuex'

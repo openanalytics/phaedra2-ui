@@ -112,12 +112,11 @@
       </div>
     </div>
 
-    <delete-dialog ref="deleteDialog" v-model:id="experiment.id" v-model:name="experiment.name" :objectClass="'experiment'" @onDeleted="onDeleted" />
+    <delete-dialog ref="deleteDialog" :id="experiment.id" :name="experiment.name" :objectClass="'experiment'" @onDeleted="onDeleted" />
   </q-page>
 </template>
 
-<style lang="scss">
-
+<style scoped lang="scss">
 .breadcrumb {
   margin: 12px;
   margin-bottom: 13px;
@@ -133,10 +132,6 @@
 
 .action-button {
   margin: 3px;
-}
-
-.tag-icon {
-  margin-right: 5px;
 }
 </style>
 
@@ -181,11 +176,13 @@ export default {
     const router = useRouter()
 
     const experimentId = parseInt(route.params.id);
-    const experiment = computed(() => store.getters['experiments/getCurrentExperiment']())
-    // if (!experiment.value || experiment.value.id !== experimentId) {
-      store.dispatch('experiments/loadById', experimentId);
-    // }
-    const project = computed(() => store.getters['projects/getById'](experiment.value.projectId))
+    const projectId = ref(null);
+    const experiment = computed(() => store.getters['experiments/getById'](experimentId) || {})
+    const project = computed(() => store.getters['projects/getById'](projectId.value))
+    store.dispatch('experiments/loadById', experimentId).then(() => {
+      projectId.value = experiment.value.projectId;
+      store.dispatch('projects/loadById', projectId.value);
+    })
 
     return {
       experimentId,
@@ -207,7 +204,6 @@ export default {
         rows: null,
         columns: null,
         sequence: null,
-        experimentId: null,
         linkStatus: "NOT_LINKED",
         calculationStatus: "CALCULATION_NEEDED",
         validationStatus: "VALIDATION_NOT_SET",
