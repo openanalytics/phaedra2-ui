@@ -1,5 +1,5 @@
 <template>
-  <q-breadcrumbs class="breadcrumb">
+  <q-breadcrumbs class="oa-breadcrumb">
     <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
     <q-breadcrumbs-el :label="'Protocols'"/>
   </q-breadcrumbs>

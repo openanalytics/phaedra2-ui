@@ -1,5 +1,5 @@
 <template >
-  <q-breadcrumbs class="breadcrumb" v-if="project">
+  <q-breadcrumbs class="oa-breadcrumb" v-if="project">
       <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}" />
       <q-breadcrumbs-el :label="project.name" icon="folder" />
   </q-breadcrumbs>
@@ -91,10 +91,6 @@
 </template>
 
 <style scoped lang="scss">
-.breadcrumb {
-  margin: 12px;
-  margin-bottom: 13px;
-}
 .action-button {
   margin: 3px;
 }

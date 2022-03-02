@@ -1,5 +1,5 @@
 <template>
-  <q-breadcrumbs class="breadcrumb" v-if="experiment && project">
+  <q-breadcrumbs class="oa-breadcrumb" v-if="experiment && project">
     <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
     <q-breadcrumbs-el :label="project.name" icon="folder"
                       :to="{ name: 'project', params: { id: experiment.projectId } }"/>
@@ -117,11 +117,6 @@
 </template>
 
 <style scoped lang="scss">
-.breadcrumb {
-  margin: 12px;
-  margin-bottom: 13px;
-}
-
 .experiment-header {
   margin: 10px;
 }

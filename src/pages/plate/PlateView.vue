@@ -1,5 +1,5 @@
 <template>
-  <q-breadcrumbs class="breadcrumb" v-if="plate && experiment && project">
+  <q-breadcrumbs class="oa-breadcrumb" v-if="plate && experiment && project">
     <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
     <q-breadcrumbs-el :label="project.name" icon="folder" :to="'/project/' + project.id"/>
     <q-breadcrumbs-el :label="experiment.name" icon="science" :to="'/experiment/' + experiment.id"/>
@@ -89,11 +89,6 @@
 </template>
 
 <style scoped>
-.breadcrumb {
-  margin: 12px;
-  margin-bottom: 13px;
-}
-
 .plate-header {
   margin: 10px;
 }
@@ -104,10 +99,6 @@
 
 .action-button {
   margin: 3px;
-}
-
-.tag-icon {
-  margin-right: 5px;
 }
 
 .router-view {
