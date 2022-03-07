@@ -16,7 +16,7 @@
         <q-btn size="sm" color="primary" icon="add" label="New Plate" @click="openNewPlateTab()"/>
       </div>
       <div class="row">
-        <q-input outlined rounded dense debounce="300" v-model="filter" placeholder="Search">
+        <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
           <template v-slot:append>
             <q-icon name="search"/>
           </template>
@@ -36,32 +36,17 @@
     </template>
     <template v-slot:body-cell-status-calculation="props">
       <q-td :props="props">
-        <q-icon v-if="props.row.calculationStatus==='CALCULATION_NEEDED'" name="horizontal_rule"></q-icon>
-        <q-icon v-else-if="props.row.approvalStatus==='CALCULATION_OK'" name="check_circle" color="positive"/>
-        <q-icon v-else-if="props.row.approvalStatus==='CALCULATION_NOT_POSSIBLE'" name="cancel" color="negative"/>
-        <q-icon v-else-if="props.row.approvalStatus==='CALCULATION_ERROR'" name="cancel" color="negative"/>
+        <StatusFlag :object="props.row" :statusField="'calculationStatus'" />
       </q-td>
     </template>
     <template v-slot:body-cell-status-validated="props">
       <q-td :props="props">
-        <q-icon v-if="props.row.validationStatus==='VALIDATION_NOT_SET'" name="horizontal_rule"></q-icon>
-        <q-icon v-else-if="props.row.validationStatus==='VALIDATED'" name="check_circle" color="positive"/>
-        <q-icon v-else-if="props.row.validationStatus==='INVALIDATED'" name="cancel" color="negative">
-          <q-tooltip>
-            {{props.row.invalidatedReason}}
-          </q-tooltip>
-        </q-icon>
+        <StatusFlag :object="props.row" :statusField="'validationStatus'" />
       </q-td>
     </template>
     <template v-slot:body-cell-status-approved="props">
       <q-td :props="props">
-        <q-icon v-if="props.row.approvalStatus==='APPROVAL_NOT_SET'" name="horizontal_rule"></q-icon>
-        <q-icon v-else-if="props.row.approvalStatus==='APPROVED'" name="check_circle" color="positive"/>
-        <q-icon v-else-if="props.row.approvalStatus==='DISAPPROVED'" name="cancel" color="negative">
-          <q-tooltip>
-            {{props.row.disapprovedReason}}
-          </q-tooltip>
-        </q-icon>
+        <StatusFlag :object="props.row" :statusField="'approvalStatus'" />
       </q-td>
     </template>
     <template v-slot:body-cell-layout="props">
@@ -77,9 +62,8 @@
     <template v-slot:body-cell-menu="props">
       <q-td :props="props">
         <div class="row items-center cursor-pointer">
-          <q-btn flat round icon="more_horiz" style="border-radius: 50%;">
-            <PlateMenu :plateId="props.row.id" :experimentId="props.row.experimentId"
-                       :validationStatus="props.row.validationStatus" :approvalStatus="props.row.approvalStatus"/>
+          <q-btn flat round icon="more_horiz" size="sm" >
+            <plate-action-menu :plate="props.row" />
           </q-btn>
         </div>
       </q-td>
@@ -91,11 +75,6 @@
     </template>
   </q-table>
   <table-config v-model:show="configdialog" v-model:visibleColumns="visibleColumns" v-model:columns="columns"></table-config>
-  <plate-calculate-dialog v-model:show="calculateDialog" v-model:plateId="selectedPlateId"></plate-calculate-dialog>
-  <invalidate-dialog v-model:show="invalidateDialog" v-model:plateId="selectedPlateId" v-model:experimentId="experimentId"></invalidate-dialog>
-  <disapprove-dialog v-model:show="disapproveDialog" v-model:plateId="selectedPlateId" v-model:experimentId="experimentId"></disapprove-dialog>
-  <approve-dialog v-model:show="approveDialog" v-model:plateId="selectedPlateId" v-model:experimentId="experimentId"></approve-dialog>
-  <LinkPlate v-model:show="linkDialog" v-model:plateId="selectedPlateId"></LinkPlate>
 </template>
 
 <style scoped>
@@ -110,14 +89,15 @@
 </style>
 
 <script>
-import {useStore} from 'vuex'
 import {computed, ref} from "vue";
+import {useStore} from 'vuex'
+import {useRoute} from "vue-router";
+
 import TagList from "@/components/tag/TagList";
 import TableConfig from "@/components/table/TableConfig";
-import LinkPlate from "./LinkPlate";
-import {useRoute} from "vue-router";
-import FilterUtils from "../../lib/FilterUtils";
-import PlateMenu from "@/components/plate/PlateMenu";
+import PlateActionMenu from "@/components/plate/PlateActionMenu";
+import StatusFlag from "@/components/widgets/StatusFlag";
+import FilterUtils from "@/lib/FilterUtils";
 
 let columns = ref([
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
@@ -133,17 +113,11 @@ let columns = ref([
 ])
 
 export default {
-  components: {TableConfig, TagList, LinkPlate, PlateMenu},
-
-  props: ['experiment','newPlateTab'],
+  components: {TableConfig, TagList, StatusFlag, PlateActionMenu},
+  props: ['experiment', 'newPlateTab'],
   emits: ['update:newPlateTab'],
-  methods: {
-    openNewPlateTab() {
-      console.log('clicked')
-      this.$emit('update:newPlateTab',true)
-    }
-  },
-  setup() {
+
+  setup(props, { emit }) {
     const store = useStore()
     const route = useRoute()
 
@@ -163,12 +137,10 @@ export default {
       loading,
       plates,
       configdialog: ref(false),
-      selectedPlateId: null,
-      experimentId: null,
-      calculateDialog: ref(false),
-      linkDialog: ref(false)
+      openNewPlateTab: () => {
+        emit('update:newPlateTab',true)
+      },
     }
   }
 }
-
 </script>

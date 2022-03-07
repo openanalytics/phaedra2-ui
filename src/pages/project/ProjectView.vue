@@ -1,5 +1,5 @@
 <template >
-  <q-breadcrumbs class="breadcrumb" v-if="project">
+  <q-breadcrumbs class="oa-breadcrumb" v-if="project">
       <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}" />
       <q-breadcrumbs-el :label="project.name" icon="folder" />
   </q-breadcrumbs>
@@ -89,6 +89,12 @@
     <delete-dialog ref="deleteDialog" v-model:id="project.id" v-model:name="project.name" :objectClass="'project'" @onDeleted="onDeleted" />
   </q-page>
 </template>
+
+<style scoped lang="scss">
+.action-button {
+  margin: 3px;
+}
+</style>
 
 <script>
   import {computed, ref} from 'vue'

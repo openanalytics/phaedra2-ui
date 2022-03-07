@@ -41,8 +41,8 @@ const actions = {
     async loadByExperimentId(ctx, id) {
         if (!ctx.getters['isExperimentLoaded'](id)) {
             const experiment = experimentAPI.getExperimentById(id);
-            ctx.commit('experiments/loadExperiment', experiment);
-            ctx.commit('experiments/cacheExperiments', [experiment]);
+            ctx.commit('experiments/loadExperiment', experiment, {root:true});
+            ctx.commit('experiments/cacheExperiments', [experiment], {root:true});
         }
         const plates = await plateAPI.getPlatesByExperimentId(id);
         ctx.commit('cachePlates', plates);
@@ -183,7 +183,7 @@ const mutations = {
             }
         }
         //Replace properties in state.platesInExperiment
-        let j = state.platesInExperiment[pl.experimentId].findIndex(t => t.id === pl.id);
+        let j = state.platesInExperiment[pl.experimentId]?.findIndex(t => t.id === pl.id);
         if (j>-1) {
             for (const property in pl){
                 state.platesInExperiment[pl.experimentId][j][property] = pl[property]

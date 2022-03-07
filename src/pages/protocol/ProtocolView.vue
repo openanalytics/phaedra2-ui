@@ -1,5 +1,5 @@
 <template>
-  <q-breadcrumbs class="breadcrumb" v-if="protocol">
+  <q-breadcrumbs class="oa-breadcrumb" v-if="protocol">
     <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
     <q-breadcrumbs-el :label="protocol.name" icon="ballot"/>
   </q-breadcrumbs>

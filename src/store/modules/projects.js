@@ -100,6 +100,7 @@ const actions = {
 const mutations = {
     loadProject(state, project) {
         state.currentProject = project;
+        if (!containsProject(state,project)) state.projects.push(project)
     },
     cacheProject(state, project) {
         if(!containsProject(state,project)){

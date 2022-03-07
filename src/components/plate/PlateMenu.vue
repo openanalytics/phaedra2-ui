@@ -64,7 +64,8 @@
         </q-menu>
 
       </q-item>
-      <q-item clickable @click="calculatePlate(plateId)">
+<!--      <q-item clickable @click="calculatePlate(plateId)">-->
+      <q-item clickable @click="$refs.plateCalculateDialog.showDialog = true">
         <q-item-section avatar>
           <q-icon name="calculate"/>
         </q-item-section>
@@ -86,7 +87,7 @@
 </template>
 
 <script>
-import PlateCalculateDialog from "@/components/plate/PlateCalculateDialog";
+import PlateCalculateDialog from "@/components/plate/CalculatePlateDialog";
 import InvalidateDialog from "@/components/plate/InvalidateDialog";
 import DisapproveDialog from "@/components/plate/DisapproveDialog";
 import ApproveDialog from "@/components/plate/ApproveDialog";

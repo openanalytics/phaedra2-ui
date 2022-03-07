@@ -1,5 +1,5 @@
 <template>
-  <q-breadcrumbs class="breadcrumb">
+  <q-breadcrumbs class="oa-breadcrumb">
     <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
     <q-breadcrumbs-el :label="'Import Protocol'"/>
   </q-breadcrumbs>
@@ -63,7 +63,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss">
-@import "src/css/oa.global";
-</style>
