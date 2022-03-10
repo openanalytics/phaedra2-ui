@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="showDialog" persistent>
+  <q-dialog v-model="props.show" persistent>
     <q-card style="min-width: 50vw">
       <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
         <q-avatar icon="cancel" color="primary" text-color="white"/>
@@ -25,7 +25,7 @@
         <q-btn flat label="Disapprove" disable v-if="reason.length===0"
                v-close-popup/>
         <q-btn flat label="Disapprove" v-if="reason.length>0"
-               @click="disapprove(reason)" v-close-popup/>
+               @click="disapprove" v-close-popup/>
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -33,33 +33,36 @@
 
 <script>
 
-import {computed, ref} from "vue";
-import {useStore} from "vuex";
-
 export default {
   name: 'DisapproveDialog',
-  props: {
-    plateId: Number,
-    experimentId: Number
-  },
-  emits: ['update:show'],
-  setup(props, { emit }) {
-    const store = useStore();
-    return {
-      plate: computed(()=> store.getters['plates/getById'](props.plateId)),
-      showDialog: ref(false),
-      reason: ref(''),
-      disapprove: (reason) => {
-        const disapprovePlate = {
-          id: props.plateId,
-          disapprovedReason: reason,
-          approvalStatus: 'DISAPPROVED',
-          experimentId: props.experimentId
-        }
-        store.dispatch('plates/editPlate', disapprovePlate)
-        emit('update:show', false)
-      }
+  methods: {
+    disapprove() {
+      this.editedPlate.id = this.plateId
+      this.editedPlate.disapprovedReason = this.reason
+      this.editedPlate.approvalStatus = 'DISAPPROVED'
+      this.editedPlate.experimentId = this.props.experimentId
+      this.$store.dispatch('plates/editPlate', this.editedPlate)
+      this.$emit('update:show', false)
     }
-  }
+  },
+  setup(props) {
+    return {
+      props,
+    }
+  },
+  data() {
+    return {
+      editedPlate: {
+        id: null,
+        disapprovedReason: null,
+        approvalStatus: null,
+        experimentId: null
+      },
+      reason: ''
+    }
+  },
+  props: ['show', 'plateId', 'experimentId'],
+  emits: ['update:show']
+
 }
 </script>
