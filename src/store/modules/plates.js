@@ -29,6 +29,15 @@ const getters = {
     getActiveMeasurement: (state) => () => {
         if(state.currentPlate.measurements) return state.currentPlate.measurements.find(meas => meas.active === true)
     },
+    getActiveMeasurementByPlateId: (state) => (plateId) => {
+        if(state.platesInExperiment) {
+            const plate = state.platesInExperiment.find(p => p.id === plateId);
+            if (plate) {
+                if (plate.measurements) return plate.measurements.find(meas => meas.active === true)
+            }
+        }
+        return null;
+    },
     getAllPlates: (state) => () => {
         return state.plates
     },
