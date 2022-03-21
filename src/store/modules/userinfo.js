@@ -7,6 +7,10 @@ const state = () => ({
 const getters = {
     getUserInfo: (state) => () => {
         return state.userinfo;
+    },
+    getUserName: (state) => (userID) => {
+        if (state?.userinfo?.subject == userID) return state.userinfo.fullName;
+        return "Unknown User";
     }
 }
 

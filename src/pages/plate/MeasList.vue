@@ -59,26 +59,21 @@
     </q-card>
   </q-dialog>
 </template>
+
 <script>
 import {ref} from 'vue'
 // import {useStore} from 'vuex'
+import FormatUtils from "@/lib/FormatUtils";
 
 const columns = [
   {name: 'active', align: 'left', label: 'Active?', field: 'active', sortable: true},
-  {name: 'measurementId', align: 'left', label: 'Measurement Id', field: 'measurementId', sortable: true},
+  {name: 'measurementId', align: 'left', label: 'ID', field: 'measurementId', sortable: true},
   {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
   {name: 'dimensions', align: 'left', label: 'Dimensions', field: 'dimensions', sortable: true},
-  {name: 'wellColumns', align: 'left', label: 'Well Columns', field: 'wellColumns', sortable: true},
-  {name: 'subWellColumns', align: 'left', label: 'SubWell Columns', field: 'subWellColumns', sortable: true},
-  {name: 'imageChannels', align: 'left', label: 'Image Channels', field: 'imageChannels', sortable: true},
-  {
-    name: 'createdOn',
-    align: 'left',
-    label: 'Created On',
-    field: 'createdOn',
-    sortable: true,
-    format: val => `${val?.toLocaleString()}`
-  },
+  {name: 'wellColumns', align: 'left', label: 'Well Columns', field: 'wellColumns', sortable: true, format: val => `${val?.length || 0}` },
+  {name: 'subWellColumns', align: 'left', label: 'SubWell Columns', field: 'subWellColumns', sortable: true, format: val => `${val?.length || 0}` },
+  {name: 'imageChannels', align: 'left', label: 'Image Channels', field: 'imageChannels', sortable: true, format: val => `${val?.length || 0}` },
+  {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate },
   {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true}
 ]
 
