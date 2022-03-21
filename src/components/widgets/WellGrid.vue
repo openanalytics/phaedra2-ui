@@ -24,7 +24,7 @@
         <!-- Plate row -->
         <template v-for="c in plate.columns" :key="c">
           <WellSlot :ref="refWellSlot"
-                    :well="WellUtils.getWell(plate, r, c)"
+                    :well="plate.wells[WellUtils.getWellNr(r, c, plate.columns) - 1]"
                     :wellColorFunction="wellColorFunction"
                     :wellLabelFunctions="wellLabelFunctions"
                     :selectedWells="selectedWells"
