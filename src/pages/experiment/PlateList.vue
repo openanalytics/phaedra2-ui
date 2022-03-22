@@ -98,19 +98,7 @@ import TableConfig from "@/components/table/TableConfig";
 import PlateActionMenu from "@/components/plate/PlateActionMenu";
 import StatusFlag from "@/components/widgets/StatusFlag";
 import FilterUtils from "@/lib/FilterUtils";
-
-let columns = ref([
-  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
-  {name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
-  {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-  {name: 'status-calculation', align: 'center', label: 'C', field: 'status-calculation'},
-  {name: 'status-validated', align: 'center', label: 'V', field: 'status-validated'},
-  {name: 'status-approved', align: 'center', label: 'A', field: 'status-approved'},
-  {name: 'layout', align: 'left', label: 'Layout', field: 'layout', sortable: true},
-  {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: val => val !== undefined ? `${val.toLocaleString()}` : ''},
-  {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
-  {name: 'menu', align: 'left', field: 'menu', sortable: false}
-])
+import FormatUtils from "@/lib/FormatUtils";
 
 export default {
   components: {TableConfig, TagList, StatusFlag, PlateActionMenu},
@@ -128,6 +116,20 @@ export default {
     store.dispatch('plates/loadByExperimentId', experimentId).then(() => {
       loading.value = false
     })
+
+    let columns = ref([
+      {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
+      {name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
+      {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
+      {name: 'status-calculation', align: 'center', label: 'C', field: 'status-calculation'},
+      {name: 'status-validated', align: 'center', label: 'V', field: 'status-validated'},
+      {name: 'status-approved', align: 'center', label: 'A', field: 'status-approved'},
+      {name: 'layout', align: 'left', label: 'Layout', field: 'layout', sortable: true},
+      {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate },
+      {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true, format: val => store.getters['userinfo/getUserName'](val) },
+      {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
+      {name: 'menu', align: 'left', field: 'menu', sortable: false}
+    ])
 
     return {
       columns,

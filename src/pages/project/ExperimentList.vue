@@ -124,22 +124,6 @@
   import FormatUtils from "@/lib/FormatUtils.js"
   import FilterUtils from "@/lib/FilterUtils.js"
 
-  const columns = ref([
-    {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
-    {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
-    {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-    {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
-    {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
-    {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
-
-    {name: 'nrPlates', align: 'left', label: 'Plates', field: row => (row.summary ? row.summary.nrPlates : 0), sortable: true},
-    {name: 'nrPlatesCalculated', align: 'left', label: 'Calculated', sortable: true},
-    {name: 'nrPlatesValidated', align: 'left', label: 'Validated', sortable: true},
-    {name: 'nrPlatesApproved', align: 'left', label: 'Approved', sortable: true},
-
-    {name: 'menu', align: 'left', field: 'menu', sortable: false}
-  ])
-
   export default {
     props: {
       projectId: Number
@@ -159,6 +143,22 @@
         loading.value = false
       })
 
+      const columns = ref([
+          {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
+          {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
+          {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
+          {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
+          {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate },
+          {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true, format: val => store.getters['userinfo/getUserName'](val) },
+
+          {name: 'nrPlates', align: 'left', label: 'Plates', field: row => (row.summary ? row.summary.nrPlates : 0), sortable: true},
+          {name: 'nrPlatesCalculated', align: 'left', label: 'Calculated', sortable: true},
+          {name: 'nrPlatesValidated', align: 'left', label: 'Validated', sortable: true},
+          {name: 'nrPlatesApproved', align: 'left', label: 'Approved', sortable: true},
+
+          {name: 'menu', align: 'left', field: 'menu', sortable: false}
+      ])
+        
       const showNewExperimentDialog = ref(false)
       const newExperimentName = ref('')
       const doCreateNewExperiment = function() {
