@@ -14,7 +14,7 @@
   >
     <template v-slot:top-right>
       <div class="row">
-        <q-input outlined rounded dense debounce="300" v-model="filter" placeholder="Search">
+        <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
           <template v-slot:append>
             <q-icon name="search"/>
           </template>
@@ -23,26 +23,19 @@
       </div>
     </template>
     <template v-slot:body-cell-Protocol="props">
-      <q-td :props="props">
+      <q-td :props="props" >
         <router-link :to="'/protocol/' + props.row.protocolId" class="nav-link">
           <div class="row items-center cursor-pointer">
-            {{ ($store.state.protocols.protocols.length>0)?$store.state.protocols.protocols.find(protocol => protocol.id == props.row.protocolId).name:"" }}
+            {{ props.value }}
           </div>
         </router-link>
-      </q-td>
-    </template>
-    <template v-slot:body-cell-Measurement="props">
-      <q-td :props="props">
-          <div class="row items-center">
-            {{ (currentPlate.measurements.length>0)?currentPlate.measurements.find(meas => meas.measurementId == props.row.measId).name:"" }}
-          </div>
       </q-td>
     </template>
     <template v-slot:body-cell-Id="props">
       <q-td :props="props" >
         <div class="row items-center cursor-pointer" @click="showResultSet(props.row.resultSetId)">
           <q-icon name="assignment_turned_in" class="icon q-pr-sm"/>
-        {{props.row.resultSetId}}
+          {{props.row.resultSetId}}
         </div>
       </q-td>
     </template>
@@ -58,43 +51,58 @@ import FormatUtils from "../../lib/FormatUtils";
 import ResultSetTable from "../../components/plate/ResultSetTable";
 import TableConfig from "../../components/table/TableConfig";
 
-let resultSetsColumns = ref([
-  {name: 'Id', align: 'left', label: 'Id', field: 'resultSetId', sortable: true},
-  {name: 'Protocol', align: 'left', label: 'Protocol', field: 'protocolId', sortable: true},
-  {name: 'Created On', align: 'left', label: 'Created On', field: 'createdTimestamp', sortable: true, format: FormatUtils.formatDate},
-  {name: 'Measurement', align: 'left', label: 'Measurement', field: 'measId', sortable: true}])
-
 export default {
   name: 'ResultSetList',
   props: {
     plate: Object
   },
-  components: {ResultSetTable, TableConfig},
+  components: {
+    ResultSetTable, TableConfig
+  },
   setup(props) {
     const store = useStore()
-    const resultSetTable = ref(false)
+    
     const activeMeasurement = store.getters['plates/getActiveMeasurement']();
-    const resultSets = activeMeasurement ? computed(() => [...new Map(store.getters['resultdata/getPlateResults'](props.plate.id, activeMeasurement.measurementId)?.map(item => [item.resultSetId, item])).values()]) : [];
-    const resultData = activeMeasurement ? computed(() => store.getters['resultdata/getPlateResults'](props.plate.id, activeMeasurement.measurementId)) : [];
-    let resultSet = ref([])
+    
+    // All known resultDatas from all resultSets
+    const resultDatas = activeMeasurement ? computed(() => store.getters['resultdata/getPlateResults'](props.plate.id, activeMeasurement.measurementId)) : [];
+
+    // Distinct resultSets
+    const resultSets = activeMeasurement ? computed(() => [...new Map(store.getters['resultdata/getPlateResults'](props.plate.id, activeMeasurement.measurementId)
+      ?.map(item => [item.resultSetId, item])).values()]
+      .sort((r1, r2) => r2.resultSetId - r1.resultSetId)) : [];
+
+    let protocolIds = [...new Set(resultSets.value.map(rs => rs.protocolId))];
+    protocolIds.forEach(id => store.dispatch('protocols/loadById', id));
+
+    let resultSetsColumns = ref([
+      {name: 'Id', align: 'left', label: 'ID', field: 'resultSetId', sortable: true},
+      {name: 'Protocol', align: 'left', label: 'Protocol', field: 'protocolId', sortable: true, format: val => (store.getters['protocols/getById'](val) || {}).name},
+      {name: 'Created On', align: 'left', label: 'Created On', field: 'createdTimestamp', sortable: true, format: FormatUtils.formatDate},
+      {name: 'Measurement', align: 'left', label: 'Measurement', field: 'measId', sortable: true, format: val => (props.plate.measurements.find(meas => meas.measurementId == val) || {}).name},
+      {name: 'Features', align: 'left', label: 'Features', sortable: true, format: (val, row) => resultDatas.value.filter(a => a.resultSetId === row.resultSetId).length },
+      {name: 'Status', align: 'left', label: 'Status', sortable: true, format: 
+        (val, row) => (resultDatas.value.some(a => a.resultSetId === row.resultSetId && a.statusCode != 'SUCCESS')) ? 'FAILURE' : 'SUCCESS' }
+    ])
+
+    const resultSet = ref([])
+    const resultSetShow = ref(false);
+
     return {
-      currentPlate: props.plate,
-      resultData,
-      resultSetTable,
       resultSetsColumns,
       resultSets,
       resultSet,
       filter: ref(''),
       visibleColumns: resultSetsColumns.value.map(a => a.name),
       configdialog: ref(false),
-      resultSetShow: ref(false)
-  }
+      resultSetShow,
+      showResultSet(resultSetId){
+        resultSet.value = resultDatas.value.filter(a => a.resultSetId === resultSetId)
+        resultSetShow.value = true
+      },
+    }
   },
   methods: {
-    showResultSet(resultSetId){
-      this.resultSet = this.resultData.filter(a => a.resultSetId === resultSetId)
-      this.resultSetShow = true
-    },
     filterMethod(rows,term){
       return rows.filter(row => {
         return ((row.resultSetId+' ').includes(term.toString())
@@ -102,7 +110,6 @@ export default {
             || this.$store.getters['measurements/getAll']().find(meas => meas.id == row.measId).name.toLowerCase().includes(term))
       })
     },
-
   }
 }
 

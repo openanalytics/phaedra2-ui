@@ -15,6 +15,7 @@
             :columns="columns"
             row-key="id"
             class="full-width"
+            :loading="loading"
             :pagination="{ rowsPerPage: 20, sortBy: 'id', descending: true }"
             :filter="filter"
             :filter-method="filterMethod"
@@ -51,7 +52,7 @@ import FilterUtils from "@/lib/FilterUtils.js"
 import FormatUtils from "@/lib/FormatUtils.js"
 
 import TagList from "@/components/tag/TagList";
-import OaSectionHeader from "../../components/widgets/OaSectionHeader";
+import OaSectionHeader from "@/components/widgets/OaSectionHeader";
 
 export default {
   components: {
@@ -86,6 +87,7 @@ export default {
     return {
       templates,
       columns,
+      loading,
       filter: ref(''),
       filterMethod: FilterUtils.defaultTableFilter(),
       selectTemplate

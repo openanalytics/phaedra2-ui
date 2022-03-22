@@ -18,7 +18,7 @@
                @click="$emit('update:resultSetShow',false)"/>
       </div>
       <div class="row">
-        <q-input outlined rounded dense debounce="300" v-model="filter" placeholder="Search">
+        <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
           <template v-slot:append>
             <q-icon name="search"/>
           </template>
@@ -26,26 +26,6 @@
         <q-btn flat round color="primary" icon="settings" style="border-radius: 50%;"
                @click="configResultSetDialog=true"/>
       </div>
-    </template>
-    <template v-slot:body-cell-Protocol="props">
-      <q-td :props="props">
-        <router-link :to="'/protocol/' + props.row.protocolId" class="nav-link">
-          <div class="row items-center cursor-pointer">
-            {{
-              ($store.state.protocols.protocols.length > 0) ? $store.state.protocols.protocols.find(protocol => protocol.id == props.row.protocolId).name : ""
-            }}
-          </div>
-        </router-link>
-      </q-td>
-    </template>
-    <template v-slot:body-cell-Measurement="props">
-      <q-td :props="props">
-        <div class="row items-center">
-          {{
-            ($store.state.measurements.measurements.length > 0) ? $store.state.measurements.measurements.find(meas => meas.id == props.row.measId).name : ""
-          }}
-        </div>
-      </q-td>
     </template>
     <template v-slot:body-cell-Feature="props">
       <q-td :props="props">
@@ -138,25 +118,14 @@
 <script>
 import {computed, ref} from 'vue'
 
-import FormatUtils from "../../lib/FormatUtils";
 import {useStore} from "vuex";
 import TableConfig from "../table/TableConfig";
 
 let resultSetColumns = ref([
-  {name: 'Id', align: 'left', label: 'Id', field: 'id', sortable: true},
   {name: 'Feature', align: 'left', label: 'Feature', field: 'featureId', sortable: true},
-  {name: 'Protocol', align: 'left', label: 'Protocol', field: 'protocolId', sortable: true},
-  {name: 'Measurement', align: 'left', label: 'Measurement', field: 'measId', sortable: true},
-  {
-    name: 'CreatedOn',
-    align: 'left',
-    label: 'Created On',
-    field: 'createdTimestamp',
-    sortable: true,
-    format: FormatUtils.formatDate
-  },
   {name: 'Status', align: 'left', label: 'Status', field: 'statusCode', sortable: true},
-  {name: 'Menu', align: 'left', field: 'menu', sortable: false}])
+  {name: 'Menu', align: 'left', field: 'menu', sortable: false}
+])
 
 let plateStatsColumns = ref([
   {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
@@ -176,16 +145,21 @@ export default {
     resultSetShow: Boolean
   },
   emits: ['update:resultSetShow'],
-  components: {TableConfig},
+  components: {
+    TableConfig
+  },
   setup(props) {
     const store = useStore()
+
     const features = computed(() => store.getters['features/getByProtocolId'](props.resultSet[0].protocolId))
     if (!store.getters['features/isProtocolLoaded'](props.resultSet[0].protocolId)) {
       store.dispatch('features/loadByProtocolId', props.resultSet[0].protocolId)
     }
+
     let chosenId = ref(0)
     let showPlateStats = ref(false)
     let showWellTypeStats = ref(false)
+    
     return {
       resultSetColumns,
       visibleResultSetColumns: resultSetColumns.value.map(a => a.name),
