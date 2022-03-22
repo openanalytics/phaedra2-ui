@@ -16,7 +16,7 @@ const getters = {
         return state.protocols.filter(protocol => ids && ids.includes(protocol.id))
     },
     getAll: (state) => () => {
-        return state.protocols
+        return [...state.protocols]
     },
     isLoaded: (state) => (id) => {
         return state.protocols.find(protocol => protocol.id == id) != null
@@ -121,11 +121,13 @@ const mutations = {
         state.currentProtocolId = protocolId;
     },
     cacheProtocols (state, protocols) {
+        let newProtocols = [...state.protocols];
         protocols.forEach(protocol => {
-            let index = state.protocols.findIndex(p => p.id === protocol.id);
-            if (index >= 0) state.protocols.splice(index, 1)
-            state.protocols.push(protocol)
+            let index = newProtocols.findIndex(p => p.id === protocol.id);
+            if (index >= 0) newProtocols.splice(index, 1)
+            newProtocols.push(protocol)
         });
+        state.protocols = newProtocols;
     },
     deleteProtocol(state, id) {
         state.protocols = state.protocols.filter(protocol => protocol.id !== id)

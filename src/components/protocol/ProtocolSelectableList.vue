@@ -37,7 +37,7 @@ export default {
   name: 'ProtocolSelectableList',
   setup(props){
     const store = useStore()
-    const protocols = computed(() => store.getters['protocols/getAll']())
+    const protocols = computed(() => store.getters['protocols/getAll']().sort((p1, p2) => p1.name.localeCompare(p2.name)))
     if (!store.getters['protocols/isLoaded']()){
       store.dispatch('protocols/loadAll')
     }
@@ -46,11 +46,9 @@ export default {
       protocols,
       selected: [],
       columns: [
-        {name: 'id', align: 'left',label: 'Id', field: 'id', sortable: true},
+        {name: 'id', align: 'left',label: 'ID', field: 'id', sortable: true},
         {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
         {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-        {name: 'highWellType', align: 'left', label: 'High Well Type', field: 'highWellType', sortable: true},
-        {name: 'lowWellType', align: 'left', label: 'Low Well Type', field: 'lowWellType', sortable: true},
       ]
     }
   }
