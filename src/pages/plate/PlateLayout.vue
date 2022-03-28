@@ -29,21 +29,16 @@ export default {
     props: {
         plate: Object
     },
-    setup() {
+    setup(props) {
         const exported = {};
 
         exported.wellColorFunction = function (well) {
             return WellUtils.getWellTypeColor(well.wellType)
         }
 
-        exported.wellLabelFunctions = [
-            function (well) {
-                return WellUtils.getWellCoordinate(well.row, well.column)
-            },
-            function (well) {
-                return well.wellType;
-            }
-        ]
+        exported.wellLabelFunctions = [];
+        exported.wellLabelFunctions.push(well => WellUtils.getWellCoordinate(well.row, well.column));
+        if (props.plate.columns <= 24) exported.wellLabelFunctions.push(well => well.wellType);
 
         exported.selectedWells = ref([])
         exported.handleWellSelection = (wells) => {

@@ -3,9 +3,10 @@
     <q-card style="min-width: 50vw">
       <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
         <q-avatar icon="calculate" color="primary" text-color="white"/>
-        Start Plate Calculation
+        Calculate Plate
       </q-card-section>
-      <q-card-section>
+
+      <q-card-section v-if="activeMeasurement && checkDimensions()">
         <div class="row">
           <div class="col-10">
             <span>Select the protocol that will be used for the calculation.</span><br><br>
@@ -14,15 +15,19 @@
         <div class="q-pa-md">
           <protocol-selectable-list v-model:selected="selected"></protocol-selectable-list>
         </div>
-        <span v-if="!activeMeasurement" class="text-accent">This plate has no active measurement.</span>
-        <span v-if="!checkDimensions()" class="text-accent">The plate and measurement dimensions are different.</span>
       </q-card-section>
+      <q-card-section v-if="!activeMeasurement">
+        <q-icon name="warning" color="negative" class="on-left"/>
+        <span class="text-accent text-weight-bold">Cannot calculate: this plate has no active measurement.</span>
+      </q-card-section>
+      <q-card-section v-if="!checkDimensions()">
+        <q-icon name="warning" color="negative" class="on-left"/>
+        <span class="text-accent text-weight-bold">Cannot calculate: the plate and measurement dimensions are different.</span>
+      </q-card-section>
+
       <q-card-actions align="right" class="text-primary">
         <q-btn flat label="Cancel" v-close-popup @click="$emit('update:show',false)"/>
-        <q-btn flat label="Calculate" disable v-if="!activeMeasurement||!selected.length>0||!checkDimensions()"
-               v-close-popup/>
-        <q-btn flat label="Calculate" v-if="activeMeasurement&&selected.length>0&&checkDimensions()"
-               @click="calculatePlate" v-close-popup/>
+        <q-btn label="Calculate" color="primary" :disable="!activeMeasurement || selected.length == 0 || !checkDimensions()" @click="calculatePlate" v-close-popup/>
       </q-card-actions>
     </q-card>
   </q-dialog>

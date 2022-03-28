@@ -2,7 +2,7 @@
   <q-page class="oa-root-div">
     <div class="q-pa-md">
       <oa-section-header :title="'Calculation Formulas'" :icon="'functions'"/>
-      <div class="row q-pa-lg oa-section-body">
+      <div class="row q-pa-md oa-section-body">
         <q-table
             table-header-class="text-grey"
             class="full-width"
@@ -13,16 +13,17 @@
             :pagination="{ rowsPerPage: 20, sortBy: 'id' }"
             :filter="filter"
             :filter-method="filterMethod"
+            :loading="loading"
         >
           <template v-slot:top-left>
+            <q-btn size="sm" color="primary" icon="add" label="New Formula..." @click="createNewFormula"/>
+          </template>
+          <template v-slot:top-right>
             <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
               <template v-slot:append>
                 <q-icon name="search"/>
               </template>
             </q-input>
-          </template>
-          <template v-slot:top-right>
-            <q-btn size="sm" color="primary" icon="add" label="New Formula..." @click="createNewFormula"/>
           </template>
           <template v-slot:body-cell-name="props">
             <q-td :props="props" class="cursor-pointer" @click="selectFormula(props.row)">
@@ -77,9 +78,10 @@ export default {
   },
   setup() {
     const exported = {};
+    exported.loading = ref(true);
 
     const store = useStore()
-    store.dispatch('calculations/getAllFormulas');
+    store.dispatch('calculations/getAllFormulas').then(() => exported.loading.value = false);
     exported.formulas = computed(() => store.getters['calculations/getFormulas']());
 
     exported.columns = [

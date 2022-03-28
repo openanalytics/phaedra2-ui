@@ -1,9 +1,4 @@
 <template>
-  <q-breadcrumbs class="oa-breadcrumb">
-    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
-    <q-breadcrumbs-el :label="'Protocols'"/>
-  </q-breadcrumbs>
-
   <q-page class="oa-root-div">
     <div class="q-pa-md">
       <oa-section-header :title="'Protocols'" :icon="'ballot'"/>
@@ -22,7 +17,7 @@
         >
           <template v-slot:top-left>
             <router-link :to="{ name: 'newProtocol' }" class="nav-link">
-              <q-btn size="sm" icon="add" class="oa-button" label="New Protocol"/>
+              <q-btn size="sm" icon="add" color="primary" label="New Protocol..."/>
             </router-link>
           </template>
           <template v-slot:top-right>

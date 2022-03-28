@@ -37,10 +37,8 @@ const actions = {
         //TODO add properties and tags load
     },
     async loadAll(ctx) {
-        await templateAPI.getAllPlateTemplates()
-            .then(response => {
-                ctx.commit('cacheAllPlateTemplates', response)
-            })
+        const response = await templateAPI.getAllPlateTemplates();
+        ctx.commit('cacheAllPlateTemplates', response);
     },
     async createNewPlateTemplate(ctx, newPlateTemplate) {
         const createdTemplate = await templateAPI.createPlateTemplate(newPlateTemplate);
