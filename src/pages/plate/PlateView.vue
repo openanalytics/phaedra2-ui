@@ -145,7 +145,7 @@ export default {
         linkedBy: 'sberberovic',
         linkedOn: new Date()
       }
-      this.$store.dispatch('plates/addMeasurement', plateMeasurement)
+      this.$store.dispatch('measurements/addMeasurement', plateMeasurement)
     }
   },
   setup() {

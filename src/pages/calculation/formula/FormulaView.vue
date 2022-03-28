@@ -35,7 +35,7 @@
             </div>
           </div>
         </div>
-        <div class="q-pt-md">
+        <div class="q-pt-md" style="max-height: 750px">
           <q-input v-model="formula.formula" label="Formula" type="textarea" outlined square
                    :readonly=!editMode></q-input>
           <span class="text-grey text-caption">

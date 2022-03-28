@@ -42,9 +42,6 @@ const actions = {
         await resultdataAPI.getLatestPlateResult(args.plateId, args.measurementId)
             .then(plateResult => {
                 ctx.commit('cacheLatestPlateResult', {plateId: args.plateId, plateResult});
-                // if (!args.measurementId)
-                //     ctx.commit('cacheLatestPlateResult', {plateId: args.plateId, plateResult: []});
-                // else
             });
     },
     async loadRecentCalculations(ctx, n) {

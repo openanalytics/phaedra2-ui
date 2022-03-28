@@ -61,14 +61,14 @@ export default {
   },
   setup(props) {
     const store = useStore()
-    
-    const activeMeasurement = store.getters['plates/getActiveMeasurement']();
-    
+
+    const activeMeasurement = store.getters['measurements/getActivePlateMeasurement'](props.plate.id);
+
     // All known resultDatas from all resultSets
-    const resultDatas = activeMeasurement ? computed(() => store.getters['resultdata/getPlateResults'](props.plate.id, activeMeasurement.measurementId)) : [];
+    const resultDatas = activeMeasurement ? computed(() => store.getters['resultdata/getPlateResults'](props.plate.id, activeMeasurement[0].measurementId)) : [];
 
     // Distinct resultSets
-    const resultSets = activeMeasurement ? computed(() => [...new Map(store.getters['resultdata/getPlateResults'](props.plate.id, activeMeasurement.measurementId)
+    const resultSets = activeMeasurement ? computed(() => [...new Map(store.getters['resultdata/getPlateResults'](props.plate.id, activeMeasurement[0].measurementId)
       ?.map(item => [item.resultSetId, item])).values()]
       .sort((r1, r2) => r2.resultSetId - r1.resultSetId)) : [];
 
@@ -79,9 +79,9 @@ export default {
       {name: 'Id', align: 'left', label: 'ID', field: 'resultSetId', sortable: true},
       {name: 'Protocol', align: 'left', label: 'Protocol', field: 'protocolId', sortable: true, format: val => (store.getters['protocols/getById'](val) || {}).name},
       {name: 'Created On', align: 'left', label: 'Created On', field: 'createdTimestamp', sortable: true, format: FormatUtils.formatDate},
-      {name: 'Measurement', align: 'left', label: 'Measurement', field: 'measId', sortable: true, format: val => (props.plate.measurements.find(meas => meas.measurementId == val) || {}).name},
+      {name: 'Measurement', align: 'left', label: 'Measurement', field: 'measId', sortable: true, format: val => (activeMeasurement[0].measurementId == val || {}).name},
       {name: 'Features', align: 'left', label: 'Features', sortable: true, format: (val, row) => resultDatas.value.filter(a => a.resultSetId === row.resultSetId).length },
-      {name: 'Status', align: 'left', label: 'Status', sortable: true, format: 
+      {name: 'Status', align: 'left', label: 'Status', sortable: true, format:
         (val, row) => (resultDatas.value.some(a => a.resultSetId === row.resultSetId && a.statusCode != 'SUCCESS')) ? 'FAILURE' : 'SUCCESS' }
     ])
 

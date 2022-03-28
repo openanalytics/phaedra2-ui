@@ -60,12 +60,12 @@ export default {
       wells.list = cols.wells
     })
 
-    const activeMeasurement = store.getters['plates/getActiveMeasurement']();
+    const activeMeasurement = store.getters['measurements/getActivePlateMeasurement'](props.plate.id);
     store.dispatch('resultdata/loadLatestPlateResult', {
       plateId: props.plate.id,
-      measurementId: activeMeasurement.measurementId
+      measurementId: activeMeasurement[0].measurementId
     })
-    const resultSet = computed(() => store.getters['resultdata/getLatestPlateResult'](props.plate.id, activeMeasurement.measurementId))
+    const resultSet = computed(() => store.getters['resultdata/getLatestPlateResult'](props.plate.id, activeMeasurement[0].measurementId))
 
     let columns = ref([
       {
@@ -103,8 +103,8 @@ export default {
   //Watch for resultSet to arrive to add columns and row data
   watch: {
     resultSet(newResult) {
-      this.$store.dispatch('features/loadByProtocolId', newResult[0]?.protocolId).then(() => {
-        if (newResult.length > 0) {
+      if (newResult.length > 0) {
+        this.$store.dispatch('features/loadByProtocolId', newResult[0]?.protocolId).then(() => {
           const features = this.$store.getters['features/getByProtocolId'](newResult[0].protocolId);
           let tempList = JSON.parse(JSON.stringify(this.wells.list));
           newResult.forEach(res => {
@@ -123,8 +123,8 @@ export default {
             })
           })
           this.wells.list = tempList
-        }
-      })
+        })
+      }
       this.loading = false
     }
   }

@@ -43,7 +43,7 @@ export default {
   components: {ProtocolSelectableList},
   methods: {
     calculatePlate() {
-      this.calculation.measId = this.activeMeasurement.measurementId
+      this.calculation.measId = this.activeMeasurement[0].measurementId
       this.calculation.plateId = this.plateId
       this.calculation.protocolId = this.selected[0].id
       this.$store.dispatch('calculations/startCalculation', this.calculation)
@@ -51,8 +51,9 @@ export default {
     },
     checkDimensions() {
       if (this.activeMeasurement) {
-        const meas = this.store.getters['plates/getActiveMeasurement'](this.activeMeasurement.measurementId)
-        if (meas && meas.rows === this.plate.rows && meas.columns === this.plate.columns) {
+        if (this.activeMeasurement[0]
+            && this.activeMeasurement[0].rows === this.plate.rows
+            && this.activeMeasurement[0].columns === this.plate.columns) {
           return true
         }
         return false
@@ -63,9 +64,13 @@ export default {
   setup(props) {
     const store = useStore()
 
-    const activeMeasurement = computed(() => store.getters['plates/getActiveMeasurement']())
-    const plate = computed(() => store.getters['plates/getCurrentPlate']())
-    // store.dispatch('measurements/loadAll')
+
+    const plate = computed(() => store.getters['plates/getById'](props.plateId));
+    const activeMeasurement = computed(() => store.getters['measurements/getActivePlateMeasurement'](props.plateId))
+
+    // Load plate measurements
+    store.dispatch('measurements/loadByPlateId', { plateId: props.plateId }, { root: true })
+
     return {
       props,
       activeMeasurement,

@@ -62,8 +62,16 @@ export default {
         return result;
     },
     async linkMeasurement(plateId, measurement) {
-        const response = await axios.post(apiURL + '/plate/' + plateId + '/measurement', measurement);
-        return response.data;
+        let result = null;
+        await axios.post(apiURL + '/plate/' + plateId + '/measurement', measurement)
+            .then(response => {
+                if  (response.status === 201)
+                    result = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return result;
     },
     async setActivePlateMeasurement(plateMeasurement) {
         const endpoint = apiURL + '/plate/' + plateMeasurement.plateId + '/measurement/' + plateMeasurement.measurementId;

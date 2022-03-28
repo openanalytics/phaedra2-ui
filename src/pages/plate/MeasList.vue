@@ -16,6 +16,11 @@
         {{ props.value }}
       </q-td>
     </template>
+    <template v-slot:body-cell-dimensions="props">
+      <q-td :props="props">
+        {{ props.row.rows }} x {{ props.row.columns }}
+      </q-td>
+    </template>
     <template v-slot:body-cell-active="props">
       <q-td :props="props">
         <q-toggle
@@ -69,7 +74,7 @@ const columns = [
   {name: 'active', align: 'left', label: 'Active?', field: 'active', sortable: true},
   {name: 'measurementId', align: 'left', label: 'ID', field: 'measurementId', sortable: true},
   {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
-  {name: 'dimensions', align: 'left', label: 'Dimensions', field: 'dimensions', sortable: true},
+  {name: 'dimensions', align: 'left', label: 'Dimensions', field: 'dimensions', sortable: false},
   {name: 'wellColumns', align: 'left', label: 'Well Columns', field: 'wellColumns', sortable: true, format: val => `${val?.length || 0}` },
   {name: 'subWellColumns', align: 'left', label: 'SubWell Columns', field: 'subWellColumns', sortable: true, format: val => `${val?.length || 0}` },
   {name: 'imageChannels', align: 'left', label: 'Image Channels', field: 'imageChannels', sortable: true, format: val => `${val?.length || 0}` },
@@ -109,10 +114,10 @@ export default {
         ...this.selectedMeasurement
       };
 
-      this.$store.dispatch('plates/addMeasurement', activePlateMeasurement);
+      this.$store.dispatch('measurements/addMeasurement', activePlateMeasurement);
     },
-    openConfirmDialog(active, {plateId, measurementId}) {
-      const current = this.$store.getters['plates/getActiveMeasurement']();
+    openConfirmDialog(active, { plateId, measurementId}) {
+      const current = this.$store.getters['measurements/getActivePlateMeasurement'](plateId);
       this.newActiveMeas = {active, plateId, measurementId};
       if (current && active) {
         this.confirm = true;
@@ -123,12 +128,12 @@ export default {
     updateActiveState() {
       console.log("Change active state");
       if (this.newActiveMeas)
-        this.$store.dispatch('plates/setActiveMeasurement',  this.newActiveMeas);
+        this.$store.dispatch('measurements/setActiveMeasurement',  this.newActiveMeas);
     }
   },
   computed: {
     plateMeasurements() {
-      return this.$store.getters['plates/getCurrentPlateMeasurements']();
+      return this.$store.getters['measurements/getPlateMeasurements'](this.plate.id);
     },
     availableMeasurements() {
       return this.$store.getters['measurements/getAll']();

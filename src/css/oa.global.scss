@@ -67,3 +67,8 @@
   margin: 12px;
   margin-bottom: 13px;
 }
+
+.q-textarea .q-field__control {
+  min-height: 400px;
+  height: auto;
+}
