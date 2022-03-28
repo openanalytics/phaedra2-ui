@@ -1,9 +1,4 @@
 <template>
-  <q-breadcrumbs class="oa-breadcrumb">
-    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
-    <q-breadcrumbs-el :label="'New Protocol'"/>
-  </q-breadcrumbs>
-
   <q-page class="oa-root-div">
     <div class="q-pa-md">
       <oa-section-header :title="'New Protocol'" :icon="'ballot'"/>
