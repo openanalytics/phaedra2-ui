@@ -43,7 +43,7 @@ export default {
   components: {ProtocolSelectableList},
   methods: {
     calculatePlate() {
-      this.calculation.measId = this.activeMeasurement[0].measurementId
+      this.calculation.measId = this.activeMeasurement.measurementId
       this.calculation.plateId = this.plateId
       this.calculation.protocolId = this.selected[0].id
       this.$store.dispatch('calculations/startCalculation', this.calculation)
@@ -51,9 +51,8 @@ export default {
     },
     checkDimensions() {
       if (this.activeMeasurement) {
-        if (this.activeMeasurement[0]
-            && this.activeMeasurement[0].rows === this.plate.rows
-            && this.activeMeasurement[0].columns === this.plate.columns) {
+        if (this.activeMeasurement.rows === this.plate.rows
+            && this.activeMeasurement.columns === this.plate.columns) {
           return true
         }
         return false

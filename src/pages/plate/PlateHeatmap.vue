@@ -40,7 +40,7 @@ export default {
     // Load resultdata to display
     const activeMeasurement = store.getters['measurements/getActivePlateMeasurement'](props.plate.id);
     if (activeMeasurement) {
-      exported.plateResults.value = store.getters['resultdata/getPlateResults'](props.plate.id, activeMeasurement[0].measurementId);
+      exported.plateResults.value = store.getters['resultdata/getPlateResults'](props.plate.id, activeMeasurement.measurementId);
       let protocolIds = [...new Set(exported.plateResults.value.map(rs => rs.protocolId))];
       store.dispatch('protocols/loadByIds', protocolIds).then(() => {
         exported.protocols.value = store.getters['protocols/getByIds'](protocolIds);
