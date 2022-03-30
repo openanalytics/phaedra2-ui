@@ -23,7 +23,7 @@ const getters = {
       return state.plateMeasurements[plateId];
     },
     getActivePlateMeasurement: (state) => (plateId) => {
-         return state.plateMeasurements[plateId].filter(pm => pm.active === true)[0];
+         return state.plateMeasurements[plateId]?.filter(pm => pm.active === true)[0];
     }
 }
 

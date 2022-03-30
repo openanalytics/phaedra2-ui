@@ -35,7 +35,7 @@
 
 <script>
 
-import {computed} from "vue";
+import {computed,watch} from "vue";
 import {useStore} from "vuex";
 import ProtocolSelectableList from "@/components/protocol/ProtocolSelectableList";
 
@@ -63,13 +63,13 @@ export default {
   setup(props) {
     const store = useStore()
 
-
     const plate = computed(() => store.getters['plates/getById'](props.plateId));
     const activeMeasurement = computed(() => store.getters['measurements/getActivePlateMeasurement'](props.plateId))
 
-    // Load plate measurements
-    store.dispatch('measurements/loadByPlateId', { plateId: props.plateId }, { root: true })
-
+    watch(() => props.show, (newValue) => {
+      if (newValue === true) store.dispatch('measurements/loadByPlateId', { plateId: props.plateId }, { root: true })
+    });
+    
     return {
       props,
       activeMeasurement,

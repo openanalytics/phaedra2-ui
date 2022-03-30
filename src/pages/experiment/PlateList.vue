@@ -4,7 +4,7 @@
       :rows="plates"
       :columns="columns"
       row-key="id"
-      :pagination="{ rowsPerPage: 10 }"
+      :pagination="{ rowsPerPage: 10, sortBy: 'barcode' }"
       :filter="filter"
       :filter-method="filterMethod"
       :loading="loading"
