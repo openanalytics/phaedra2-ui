@@ -24,7 +24,7 @@
         <!-- Plate row -->
         <template v-for="c in plate.columns" :key="c">
           <WellSlot :ref="refWellSlot"
-                    :well="plate.wells[WellUtils.getWellNr(r, c, plate.columns) - 1]"
+                    :well="wells[WellUtils.getWellNr(r, c, plate.columns) - 1] || {}"
                     :wellColorFunction="wellColorFunction"
                     :wellLabelFunctions="wellLabelFunctions"
                     :selectedWells="selectedWells"
@@ -66,7 +66,8 @@
 </style>
 
 <script>
-import {ref, computed} from 'vue'
+import {ref, computed, watchEffect} from 'vue'
+import {useStore} from 'vuex'
 import WellUtils from "@/lib/WellUtils.js"
 import SelectionBoxHelper from "@/lib/SelectionBoxHelper.js"
 import WellSlot from "@/components/widgets/WellSlot.vue"
@@ -86,6 +87,19 @@ export default {
     const exported = {};
 
     exported.selectedWells = ref([]);
+
+    const store = useStore();
+    exported.wells = computed(() => store.getters['wells/getWells'](props.plate.id) || []);
+    watchEffect(() => {
+      if (props?.plate?.wells) {
+        // If the plate object has wells, it's a plate template instead of a regular plate, whose wells are in the wells store.
+        exported.wells = ref(props.plate.wells);
+        return;
+      }
+      if (props?.plate?.id && !store.getters['wells/areWellsLoaded'](props.plate.id)) {
+        store.dispatch('wells/fetchByPlateId', props.plate.id);
+      }
+    })
 
     const emitWellSelection = (wells, append) => {
       if (!append) exported.selectedWells.value.splice(0);
@@ -114,7 +128,7 @@ export default {
           nextPosition = [ currentWell.row, currentWell.column + 1 ];
           break;
       }
-      const nextWell = WellUtils.getWell(props.plate, nextPosition[0], nextPosition[1]);
+      const nextWell = WellUtils.getWell(exported.wells.value, nextPosition[0], nextPosition[1]);
       if (nextWell) emitWellSelection([nextWell]);
     });
 
@@ -129,10 +143,10 @@ export default {
     });
 
     exported.selectRow = (n, append) => {
-      emitWellSelection(props.plate.wells.filter(w => w.row == n), append);
+      emitWellSelection(exported.wells.value.filter(w => w.row == n), append);
     };
     exported.selectColumn = (n, append) => {
-      emitWellSelection(props.plate.wells.filter(w => w.column == n), append);
+      emitWellSelection(exported.wells.value.filter(w => w.column == n), append);
     };
 
     exported.gridColumnStyle = computed(() => { return "repeat(" + (props.plate.columns + 1) + ", 1fr)" });

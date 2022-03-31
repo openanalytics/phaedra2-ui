@@ -4,16 +4,12 @@ const apiURL = process.env.VUE_APP_API_BASE_URL + '/plate-service';
 
 export default {
     async getPlateById(id) {
-        let result = null;
-        await axios.get(apiURL + '/plate/' + id)
-            .then(response => {
-                if (response.status === 200)
-                    result = response.data;
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
-        return result;
+        try {
+            const response = await axios.get(apiURL + '/plate/' + id);
+            if (response.status === 200) return response.data;
+        } catch (error) {
+            console.log(error);
+        }
     },
     async getPlatesByExperimentId(id) {
         try {
@@ -24,54 +20,40 @@ export default {
         }
     },
     async getPlateMeasurementsByPlateId(plateId) {
-        let result = null;
-        await axios.get(apiURL + '/plate/' + plateId + '/measurements')
-            .then(response => {
-                if (response.status === 200)
-                    result = response.data;
-            });
-        return result;
+        try {
+            const response = await axios.get(apiURL + '/plate/' + plateId + '/measurements');
+            if (response.status === 200) return response.data;
+        } catch (error) {
+            console.log(error);
+        }
     },
     async addPlate(plate) {
-        const response = await axios.post(apiURL + '/plate', plate)
-        const newPlate = response.data
-        return newPlate
+        const response = await axios.post(apiURL + '/plate', plate);
+        return response.data;
     },
     async deletePlateById(plateId) {
-        let result = null;
-        await axios.delete(apiURL + '/plate/' + plateId)
-            .then(response => {
-                if (response.status === 200)
-                    result = response.data;
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
-        return result;
+        try {
+            const response = await axios.delete(apiURL + '/plate/' + plateId);
+            if (response.status === 200) return response.data;
+        } catch (error) {
+            console.log(error);
+        }
     },
     async editPlate(newPlate) {
-        let result = null;
-        await axios.put(apiURL + '/plate', newPlate)
-            .then(response => {
-                if (response.status === 200)
-                    result = response.data;
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
-        return result;
+        try {
+            const response = await axios.put(apiURL + '/plate', newPlate);
+            if (response.status === 200) return response.data;
+        } catch (error) {
+            console.log(error);
+        }
     },
     async linkMeasurement(plateId, measurement) {
-        let result = null;
-        await axios.post(apiURL + '/plate/' + plateId + '/measurement', measurement)
-            .then(response => {
-                if  (response.status === 201)
-                    result = response.data;
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
-        return result;
+        try {
+            const response = await axios.post(apiURL + '/plate/' + plateId + '/measurement', measurement);
+            if (response.status === 201) return response.data;
+        } catch (error) {
+            console.log(error);
+        }
     },
     async setActivePlateMeasurement(plateMeasurement) {
         const endpoint = apiURL + '/plate/' + plateMeasurement.plateId + '/measurement/' + plateMeasurement.measurementId;

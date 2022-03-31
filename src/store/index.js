@@ -3,6 +3,7 @@ import { createStore, createLogger } from 'vuex'
 import projects from './modules/projects'
 import experiments from './modules/experiments'
 import plates from './modules/plates'
+import wells from './modules/wells'
 import protocols from './modules/protocols'
 import features from './modules/features'
 import measurements from './modules/measurements'
@@ -20,6 +21,7 @@ export default createStore({
     projects,
     experiments,
     plates,
+    wells,
     protocols,
     features,
     measurements,

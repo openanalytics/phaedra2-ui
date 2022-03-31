@@ -17,8 +17,8 @@
 </style>
 
 <script>
-import {ref, onMounted, onUpdated} from 'vue'
-
+import {ref, computed, watchEffect, onMounted, onUpdated} from 'vue'
+import {useStore} from 'vuex'
 import WellUtils from "@/lib/WellUtils.js"
 import ColorUtils from "@/lib/ColorUtils.js"
 
@@ -29,6 +29,15 @@ export default {
     feature: Object
   },
   setup(props) {
+    const store = useStore();
+
+    const wells = computed(() => store.getters['wells/getWells'](props.plate.id) || []);
+    watchEffect(() => {
+      if (props?.plate?.id && !store.getters['wells/areWellsLoaded'](props.plate.id)) {
+        store.dispatch('wells/fetchByPlateId', props.plate.id);
+      }
+    })
+
     const wellColorFunction = (well) => {
       if (!props.plateResult || !props.feature) return WellUtils.getWellTypeColor("EMPTY")
 
@@ -65,8 +74,9 @@ export default {
 
       for (var r = 0; r < props.plate.rows; r++) {
         for (var c = 0; c < props.plate.columns; c++) {
-          let well = WellUtils.getWell(props.plate, r + 1, c + 1)
-
+          let well = WellUtils.getWell(wells.value, r + 1, c + 1)
+          if (!well) continue;
+          
           let x = c * (wellSize[0] + 2)
           let y = r * (wellSize[1] + 2)
 

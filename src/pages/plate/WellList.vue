@@ -1,8 +1,8 @@
 <template>
-  <q-table v-if="!loading"
+  <q-table
            table-header-class="text-dark"
            flat square
-           :rows="wells.list"
+           :rows="rows"
            :columns="columns"
            row-key="id"
            column-key="name"
@@ -10,6 +10,7 @@
            :filter="filter"
            :filter-method="filterMethod"
            :visible-columns="visibleColumns"
+           :loading="loading"
   >
     <template v-slot:top-right>
       <div class="row">
@@ -38,13 +39,12 @@
 </template>
 
 <script>
-import {ref, computed, reactive, watch} from 'vue'
+import {ref, computed, watchEffect} from 'vue'
 
 import WellUtils from "@/lib/WellUtils.js"
 import TableConfig from "../../components/table/TableConfig";
 import {useStore} from "vuex"
 import FilterUtils from "../../lib/FilterUtils";
-
 
 export default {
   components: {TableConfig},
@@ -54,20 +54,9 @@ export default {
   setup(props) {
     const store = useStore()
 
-    let wells = reactive({list: props.plate.wells})
-    //Watch for plate change to update list
-    watch(props.plate, (cols) => {
-      wells.list = cols.wells
-    })
+    const loading = ref(true);
 
-    const activeMeasurement = store.getters['measurements/getActivePlateMeasurement'](props.plate.id);
-    store.dispatch('resultdata/loadLatestPlateResult', {
-      plateId: props.plate.id,
-      measurementId: activeMeasurement?.measurementId
-    })
-    const resultSet = computed(() => store.getters['resultdata/getLatestPlateResult'](props.plate.id, activeMeasurement?.measurementId))
-
-    let columns = ref([
+    const columns = ref([
       {
         name: 'coordinate', align: 'left', label: 'Coordinate', field: 'coordinate', sortable: true,
         format: (val, well) => (well ? WellUtils.getWellCoordinate(well.row, well.column) : "")
@@ -86,46 +75,65 @@ export default {
         name: 'concentration', align: 'left', label: 'Concentration', field: 'concentration', sortable: true,
         format: (val, well) => (well.substance?.concentration ? well.substance?.concentration.toExponential(3) : "")
       },
-    ])
+    ]);
+
+    const visibleColumns = columns.value.map(a => a.name);
+    
+    const wells = computed(() => store.getters['wells/getWells'](props.plate.id) || []);
+    watchEffect(() => {
+      if (props?.plate?.id && !store.getters['wells/areWellsLoaded'](props.plate.id)) {
+        store.dispatch('wells/fetchByPlateId', props.plate.id);
+      }
+    })
+
+    // Rows are based on wells but will have additional 'data' columns when resultSet data comes in.
+    const rows = computed(() => wells.value.map(w => { return { ...w, data: {} } }));
+
+    const activeMeasurement = store.getters['measurements/getActivePlateMeasurement'](props.plate.id);
+    store.dispatch('resultdata/loadLatestPlateResult', {
+      plateId: props.plate.id,
+      measurementId: activeMeasurement?.measurementId
+    })
+    const resultSet = computed(() => store.getters['resultdata/getLatestPlateResult'](props.plate.id, activeMeasurement?.measurementId))
+
+    // When resultSet becomes available, add new columns to table.
+    watchEffect(() => {
+      if (!resultSet.value || !loading.value) return;
+
+      store.dispatch('features/loadByProtocolId', resultSet.value[0]?.protocolId).then(() => {
+        const features = store.getters['features/getByProtocolId'](resultSet.value[0].protocolId);
+
+        resultSet.value.forEach(res => {
+          const featureName = features.find(feature => feature.id === res.featureId).name;
+
+          columns.value.push({
+            name: featureName,
+            align: 'left',
+            label: featureName,
+            field: row => row.data[featureName],
+            sortable: true
+          });
+          visibleColumns.push(featureName);
+
+          res.values.forEach((val, index) => {
+            rows.value[index].data[featureName] = val;
+          });
+        })
+
+        loading.value = false;
+      })
+    })
 
     return {
       columns,
+      rows,
       filter: ref(''),
       filterMethod: FilterUtils.defaultTableFilter(),
       WellUtils,
-      visibleColumns: columns.value.map(a => a.name),
+      visibleColumns,
       configdialog: ref(false),
       resultSet,
-      loading: ref(true),
-      wells
-    }
-  },
-  //Watch for resultSet to arrive to add columns and row data
-  watch: {
-    resultSet(newResult) {
-      if (newResult.length > 0) {
-        this.$store.dispatch('features/loadByProtocolId', newResult[0]?.protocolId).then(() => {
-          const features = this.$store.getters['features/getByProtocolId'](newResult[0].protocolId);
-          let tempList = JSON.parse(JSON.stringify(this.wells.list));
-          newResult.forEach(res => {
-            const featureNameFull = features.find(feature => feature.id === res.featureId).name
-            const featureName = featureNameFull.split("_feature")[0]
-            this.columns.push({
-              name: featureName,
-              align: 'left',
-              label: featureName,
-              field: featureName,
-              sortable: true
-            })
-            this.visibleColumns.push(featureName)
-            res.values.forEach((val, index) => {
-              tempList[index][featureName] = val
-            })
-          })
-          this.wells.list = tempList
-        })
-      }
-      this.loading = false
+      loading
     }
   }
 }
