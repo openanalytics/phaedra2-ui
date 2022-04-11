@@ -75,13 +75,13 @@
 <!--        <router-view class="router-view" :experiment="experiment" @message="newPlateTab=true"></router-view>-->
         <!--        <router-view v-model:experiment="experiment" v-model:newPlateTab="newPlateTab"></router-view>-->
         <q-tab-panels v-model="activeTab" animated style="width: 100%">
-          <q-tab-panel name="overview">
+          <q-tab-panel name="overview" class="q-px-none">
             <PlateList :experiment="experiment" v-model:newPlateTab="newPlateTab"/>
           </q-tab-panel>
-          <q-tab-panel name="statistics">
+          <q-tab-panel name="statistics" class="q-px-none">
             <PlateStatsList :experiment="experiment"/>
           </q-tab-panel>
-          <q-tab-panel name="heatmaps">
+          <q-tab-panel name="heatmaps" class="q-px-none">
             <PlateGrid :experiment="experiment"/>
           </q-tab-panel>
         </q-tab-panels>

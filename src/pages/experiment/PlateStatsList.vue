@@ -3,12 +3,12 @@
       :rows="rows"
       :columns="columns"
       row-key="id"
-      :pagination="{ rowsPerPage: 10 }"
+      :pagination="{ rowsPerPage: 10, sortBy: 'barcode' }"
       :filter="filter"
       :filter-method="filterMethod"
       :loading="loading"
       :key="tableKey"
-      flat square
+      flat square dense
   >
     <template v-slot:top-right>
       <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
@@ -95,8 +95,12 @@ export default {
       const plateIds = plates.value.map(plate => plate.id)
       
       // 2. load all PlateResults
+      const calls = [];
       for (const plateId of plateIds) {
-        await store.dispatch('resultdata/loadLatestPlateResult', {plateId});
+        calls.push(store.dispatch('resultdata/loadLatestPlateResult', { plateId: plateId }));
+      }
+      await Promise.all(calls);
+      for (const plateId of plateIds) {
         const plateResult = store.getters['resultdata/getLatestPlateResult'](plateId);
         plateResults[plateId] = plateResult;
       }

@@ -9,12 +9,14 @@
       :filter-method="filterMethod"
       :loading="loading"
       :visible-columns="visibleColumns"
-      flat square
+      flat square dense
   >
-    <template v-slot:top-right>
-      <div class="col action-button on-left">
+    <template v-slot:top-left>
+      <div class="action-button">
         <q-btn size="sm" color="primary" icon="add" label="New Plate" @click="openNewPlateTab()"/>
       </div>
+    </template>
+    <template v-slot:top-right>
       <div class="row">
         <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
           <template v-slot:append>
@@ -49,7 +51,7 @@
         <StatusFlag :object="props.row" :statusField="'approvalStatus'" />
       </q-td>
     </template>
-    <template v-slot:body-cell-layout="props">
+    <template v-slot:body-cell-dimensions="props">
       <q-td :props="props">
         {{ props.row.rows }} x {{ props.row.columns }}
       </q-td>
@@ -124,7 +126,7 @@ export default {
       {name: 'status-calculation', align: 'center', label: 'C', field: 'status-calculation'},
       {name: 'status-validated', align: 'center', label: 'V', field: 'status-validated'},
       {name: 'status-approved', align: 'center', label: 'A', field: 'status-approved'},
-      {name: 'layout', align: 'left', label: 'Layout', field: 'layout', sortable: true},
+      {name: 'dimensions', align: 'left', label: 'Dimensions', field: 'dimensions', sortable: true},
       {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate },
       {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true, format: val => store.getters['userinfo/getUserName'](val) },
       {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},

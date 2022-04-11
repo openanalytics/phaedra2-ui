@@ -39,6 +39,8 @@ const actions = {
             ctx.commit('experiments/cacheExperiments', [experiment], {root:true});
         }
         const plates = await plateAPI.getPlatesByExperimentId(id);
+        plates.sort((p1, p2) => p1.barcode.localeCompare(p2.barcode));
+
         ctx.commit('cachePlates', plates);
         ctx.commit('cachePlatesInExperiment', {experimentId: id, plates});
 

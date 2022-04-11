@@ -5,7 +5,7 @@ const apiURL = process.env.VUE_APP_API_BASE_URL + '/resultdata-service';
 export default {
     async getLatestPlateResult(plateId, measurementId) {
         let result = null;
-        await axios.get(apiURL + '/plate-results/' + plateId + '/latest', { params: { measId: [measurementId] } })
+        await axios.get(apiURL + '/plate-results/' + plateId + '/latest', { params: { measId: measurementId } })
             .then(response => {
                 if (response.status === 201)
                     result = reformatPlateResults(response.data);
