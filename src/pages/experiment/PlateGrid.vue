@@ -44,21 +44,27 @@ export default {
     const plateResults = {}
 
     async function load() {
-      // 1. get plates
+      // 1. Load plates
       await store.dispatch('plates/loadByExperimentId', props.experiment.id);
       const plateIds = plates.value.map(plate => plate.id)
 
-      // 2. get PlatResults
+      // 2. Load plateResults
       const reqs = [];
       for (const plateId of plateIds) {
-        reqs.push(store.dispatch('resultdata/loadLatestPlateResult', {plateId}));
+        let res = plateResults[plateId] = store.getters['resultdata/getLatestPlateResult'](plateId);
+        if (res) {
+          plateResults[plateId] = res;
+        } else {
+          reqs.push(store.dispatch('resultdata/loadLatestPlateResult', {plateId}).then(() => {
+            plateResults[plateId] = store.getters['resultdata/getLatestPlateResult'](plateId);
+          }));
+        }
       }
       await Promise.all(reqs);
 
-      // 3. load protocols once we got all ids
+      // 3. Load protocols once all plateResults are in
       const protocolIds = [];
       for (const plateId of plateIds) {
-        plateResults[plateId] = store.getters['resultdata/getLatestPlateResult'](plateId);
         for (const i in plateResults[plateId]) {
           protocolIds.push(plateResults[plateId][i].protocolId)
         }

@@ -17,7 +17,7 @@
 </style>
 
 <script>
-import {ref, computed, watchEffect, onMounted, onUpdated} from 'vue'
+import {ref, computed, watchEffect} from 'vue'
 import {useStore} from 'vuex'
 import WellUtils from "@/lib/WellUtils.js"
 import ColorUtils from "@/lib/ColorUtils.js"
@@ -31,6 +31,8 @@ export default {
   setup(props) {
     const store = useStore();
 
+    const canvas = ref(null);
+
     const wells = computed(() => store.getters['wells/getWells'](props.plate.id) || []);
     watchEffect(() => {
       if (props?.plate?.id && !store.getters['wells/areWellsLoaded'](props.plate.id)) {
@@ -38,23 +40,29 @@ export default {
       }
     })
 
+    const lut = ref(ColorUtils.createLUT([], ColorUtils.defaultHeatmapGradients));
+    watchEffect(() => {
+      if (!props.plateResult || !props.feature) return;
+
+      const rsDataValues = props.plateResult.find(rs => rs.featureId == props.feature.id)?.values || [];
+      lut.value = ColorUtils.createLUT(rsDataValues, ColorUtils.defaultHeatmapGradients);
+      
+      setTimeout(draw());
+    });
+
     const wellColorFunction = (well) => {
-      if (!props.plateResult || !props.feature) return WellUtils.getWellTypeColor("EMPTY")
+      if (!props.plateResult || !props.feature) return WellUtils.getWellTypeColor("EMPTY");
 
-      const rsData = props.plateResult.find(rs => rs.featureId == props.feature.id);
-      if (!rsData) return WellUtils.getWellTypeColor("EMPTY");
+      const rsDataValues = props.plateResult.find(rs => rs.featureId == props.feature.id)?.values;
+      if (!rsDataValues) return WellUtils.getWellTypeColor("EMPTY");
 
-      const wellNr = WellUtils.getWellNr(well.row, well.column, props.plate.columns)
-      let value = rsData.values[wellNr - 1]
-      let index = ColorUtils.findGradientIndex(value, rsData.values, ColorUtils.defaultHeatmapGradients)
-      if (index === -1) return WellUtils.getWellTypeColor("EMPTY")
-      return ColorUtils.defaultHeatmapGradients[index]
+      const wellNr = WellUtils.getWellNr(well.row, well.column, props.plate.columns);
+      return lut.value.getColor(rsDataValues[wellNr - 1]);
     }
-
-    const canvas = ref(null)
 
     function draw() {
       console.log("MiniHeatmap Draw")
+
       if (canvas.value === null) {
         return;
       }
@@ -74,7 +82,11 @@ export default {
 
       for (var r = 0; r < props.plate.rows; r++) {
         for (var c = 0; c < props.plate.columns; c++) {
-          let well = WellUtils.getWell(wells.value, r + 1, c + 1)
+          //Note: getWell takes ~1sec for 1536 wells
+          // let well = WellUtils.getWell(wells.value, r + 1, c + 1)
+          // This optimization assumes wells are always sorted by number:
+          let wellNr = WellUtils.getWellNr(r + 1, c + 1, props.plate.columns);
+          let well = wells.value[wellNr - 1];
           if (!well) continue;
           
           let x = c * (wellSize[0] + 2)
@@ -95,13 +107,6 @@ export default {
         }
       }
     }
-
-    onMounted(() => {
-      draw();
-    });
-    onUpdated(() => {
-      draw();
-    });
 
     return {
       canvas

@@ -34,6 +34,20 @@ function createMultiGradients(colorSteps, steps) {
     return colors;
 }
 
+function createLUT(values, gradients) {
+    const min = Math.min(...values.filter(v => !isNaN(v)));
+    const max = Math.max(...values.filter(v => !isNaN(v)));
+    const range = max - min;
+    const scale = ((gradients.length - 1) / range);
+
+    return {
+        getColor: (v) => {
+            let index = Math.floor((v-min) * scale);
+            return gradients[index];
+        }
+    };
+}
+
 function findGradientIndex(value, values, gradients) {
     if (isNaN(value)) return -1
 
@@ -106,6 +120,7 @@ function getCaptureJobEventTypeColor(eventType) {
 export default {
     createGradients,
     createMultiGradients,
+    createLUT,
     findGradientIndex,
     calculateTextColor,
     asCSSColor,
