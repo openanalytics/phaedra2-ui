@@ -7,14 +7,16 @@
                         @wellSelection="handleWellSelection" />
         </div>
         <div class="col-3 q-pa-sm">
-            <WellTypeLegend :plate=plate></WellTypeLegend>
+            <WellTypeLegend :wells=wells></WellTypeLegend>
             <WellInspector :wells=selectedWells :gridType="'layout'"></WellInspector>
         </div>
     </div>
 </template>
 
 <script>
-import {ref} from 'vue'
+import {ref, computed, watchEffect} from 'vue'
+import {useStore} from 'vuex'
+
 import WellGrid from "@/components/widgets/WellGrid.vue"
 import WellTypeLegend from "@/components/widgets/WellTypeLegend.vue"
 import WellInspector from "@/components/widgets/WellInspector.vue"
@@ -31,14 +33,19 @@ export default {
     },
     setup(props) {
         const exported = {};
+        const store = useStore();
+
+        exported.wells = computed(() => store.getters['wells/getWells'](props.plate.id) || []);
 
         exported.wellColorFunction = function (well) {
             return WellUtils.getWellTypeColor(well.wellType)
         }
 
         exported.wellLabelFunctions = [];
-        exported.wellLabelFunctions.push(well => WellUtils.getWellCoordinate(well.row, well.column));
-        if (props.plate.columns <= 24) exported.wellLabelFunctions.push(well => well.wellType);
+        // exported.wellLabelFunctions.push(well => WellUtils.getWellCoordinate(well.row, well.column));
+        watchEffect(() => {
+            if (props.plate.columns <= 24) exported.wellLabelFunctions.push(well => well.wellType);
+        });
 
         exported.selectedWells = ref([])
         exported.handleWellSelection = (wells) => {

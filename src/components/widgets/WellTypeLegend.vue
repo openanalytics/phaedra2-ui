@@ -29,17 +29,17 @@ import {computed} from "vue";
 export default {
 
   props: {
-    plate: Object
+    wells: Array
   },
   setup(props) {
     function onlyUnique(value, index, self) {
       return self.indexOf(value) === index;
     }
 
-    var wellTypes = computed(() => {return props.plate?.wells?.map(w => w.wellType).filter(onlyUnique).map(wt => ({
+    var wellTypes = computed(() => {return props.wells?.map(w => w.wellType).filter(onlyUnique).map(wt => ({
       code: wt,
       color: WellUtils.getWellTypeColor(wt),
-      count: props.plate?.wells?.filter(w => w.wellType === wt).length
+      count: props.wells?.filter(w => w.wellType === wt).length
     }))})
 
     return {

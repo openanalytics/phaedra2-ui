@@ -136,7 +136,9 @@ export default {
     exported.rootElement = ref(null);
     exported.wellSlots = ref([]);
     exported.refWellSlot = function (slot) {
-      exported.wellSlots.value.push(slot)
+      if (!slot || !slot.well) return;
+      const wellNr = WellUtils.getWellNr(slot.well.row, slot.well.column, props.plate.columns);
+      exported.wellSlots.value[wellNr - 1] = slot;
     }
     exported.selectionBoxSupport = SelectionBoxHelper.addSelectionBoxSupport(exported.rootElement, exported.wellSlots, (wells, append) => {
       emitWellSelection(wells, append);
@@ -151,7 +153,11 @@ export default {
 
     exported.gridColumnStyle = computed(() => { return "repeat(" + (props.plate.columns + 1) + ", 1fr)" });
     exported.wellSlotMinHeight = (props.wellLabelFunctions.length * 15) + "px";
-    exported.wellSlotFontSize = (props.plate.columns > 24) ? "0.4vw" : "65%";
+
+    watchEffect(() => {
+      exported.wellSlotFontSize = (props.plate.columns > 24) ? "0.4vw" : "65%";
+    })
+
     exported.WellUtils = WellUtils;
 
     return exported;

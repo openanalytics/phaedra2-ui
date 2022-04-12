@@ -67,9 +67,6 @@ export default {
 
     exported.wellLabelFunctions = [
       function (well) {
-        return WellUtils.getWellCoordinate(well.row, well.column);
-      },
-      function (well) {
         let wellNr = WellUtils.getWellNr(well.row, well.column, props.plate.columns);
         return (selectedFeatureData.value) ? (Math.round(selectedFeatureData.value.values[wellNr - 1] * 100) / 100) : "";
       }
