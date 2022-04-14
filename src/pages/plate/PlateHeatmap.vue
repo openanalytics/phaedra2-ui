@@ -1,19 +1,19 @@
 <template>
   <div class="row">
-    <div class="col-9">
+    <div class="col-auto" style="min-width: 75%">
       <WellGrid :plate="plate"
                 :loading="dataLoading"
                 :wellColorFunction="wellColorFunction"
                 :wellLabelFunctions="wellLabelFunctions"/>
     </div>
-    <div class="col-3 q-pa-sm">
+    <div class="col q-pa-sm">
       <FeatureSelector :protocols=protocols @featureSelection="handleFeatureSelection"/>
     </div>
   </div>
 </template>
 
 <script>
-import {ref, computed} from 'vue'
+import {ref, computed, watchEffect} from 'vue'
 import {useStore} from 'vuex'
 import WellGrid from "@/components/widgets/WellGrid.vue"
 import FeatureSelector from "@/components/widgets/FeatureSelector.vue"
@@ -51,18 +51,22 @@ export default {
     }
 
     const selectedFeatureData = computed(() => {
-      if (!exported.selectedFeature.value)
-        return undefined
-      let temp = exported.plateResults.value.filter(rs => (rs.featureId == exported.selectedFeature.value.id));
-      return temp.sort((t1, t2) => t2.id - t1.id)[0];
+      if (!exported.selectedFeature.value) return undefined;
+      let rsData = exported.plateResults.value.filter(rs => (rs.featureId == exported.selectedFeature.value.id));
+      return rsData.sort((t1, t2) => t2.id - t1.id)[0];
     })
+
+    const lut = ref(ColorUtils.createLUT([], ColorUtils.defaultHeatmapGradients));
+    watchEffect(() => {
+      if (selectedFeatureData.value) {
+        lut.value = ColorUtils.createLUT(selectedFeatureData.value.values, ColorUtils.defaultHeatmapGradients);
+      }
+    });
 
     exported.wellColorFunction = function (well) {
       if (!selectedFeatureData.value) return WellUtils.getWellTypeColor("EMPTY");
-      let value = selectedFeatureData.value.values[WellUtils.getWellNr(well.row, well.column, props.plate.columns) - 1];
-      let index = ColorUtils.findGradientIndex(value, selectedFeatureData.value.values, ColorUtils.defaultHeatmapGradients);
-      if (index == -1) return WellUtils.getWellTypeColor("EMPTY");
-      return ColorUtils.defaultHeatmapGradients[index];
+      const wellNr = WellUtils.getWellNr(well.row, well.column, props.plate.columns);
+      return lut.value.getColor(selectedFeatureData.value.values[wellNr - 1]);
     }
 
     exported.wellLabelFunctions = [
