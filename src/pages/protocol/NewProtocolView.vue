@@ -52,7 +52,7 @@ export default {
   },
   setup() {
     return {
-      wellTypeOptions: ['LC', 'HC']
+      wellTypeOptions: ['LC', 'HC', 'NC', 'PC']
     }
   },
   data() {

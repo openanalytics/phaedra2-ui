@@ -83,7 +83,7 @@ export default {
     const tableKey = ref(0)
 
     const columns = [
-      {name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true}
+      {name: 'barcode', align: 'center', label: 'Barcode', field: 'barcode', sortable: true}
     ]
 
     async function load() {
@@ -93,7 +93,7 @@ export default {
       await store.dispatch('plates/loadByExperimentId', props.experiment.id);
       const plates = computed(() => store.getters['plates/getByExperimentId'](props.experiment.id));
       const plateIds = plates.value.map(plate => plate.id)
-      
+
       // 2. load all PlateResults
       const calls = [];
       for (const plateId of plateIds) {
@@ -126,7 +126,8 @@ export default {
               statColumns[key] = {
                 name: key,
                 label: features.find(f => f.id == rs.featureId).name,
-                label2: stat.name
+                label2: stat.name,
+                align: 'center'
               }
               row[key] = stat ? Math.round(stat.value * 100) / 100 : NaN
             })
@@ -138,7 +139,7 @@ export default {
       for (const key in statColumns) {
         columns.push(statColumns[key])
       }
-      
+
       loading.value = false
       tableKey.value++
     }
