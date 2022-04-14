@@ -48,8 +48,8 @@
         </div>
         <br>
         <div class="row justify-end">
-          <q-btn flat label="Cancel" color="primary" @click="$emit('update:show',false)"/>
-          <q-btn align="right" label="Edit feature" v-close-popup color="primary" @click="editFeature"/>
+          <q-btn flat class="on-left" label="Cancel" color="primary" @click="$emit('update:show',false)"/>
+          <q-btn label="Edit feature" v-close-popup color="primary" @click="editFeature"/>
         </div>
       </q-card-section>
     </div>

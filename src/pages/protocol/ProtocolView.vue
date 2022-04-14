@@ -44,14 +44,14 @@
           <PropertyTable :objectInfo="protocol" :objectClass="'PROTOCOL'"/>
         </div>
 
-        <div class="col-4">
-          <div class="row justify-end action-button">
+        <div class="col-4 q-gutter-xs">
+          <div class="row justify-end">
             <q-btn size="sm" color="primary" icon="edit" class="oa-button-edit" label="Edit" @click="showEditProtocolDialog = true"/>
           </div>
-          <div class="row justify-end action-button">
+          <div class="row justify-end">
             <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete" @click="$refs.deleteDialog.showDialog = true"/>
           </div>
-          <div class="row justify-end action-button">
+          <div class="row justify-end">
             <q-btn size="sm" color="primary" icon="import_export" class="oa-button-delete" label="Export" @click="exportToJson(protocolId)"/>
           </div>
         </div>
@@ -62,7 +62,18 @@
 
     <div class="q-pa-md" v-if="!showNewFeatureTab && !showEditFeatureSection">
       <oa-section-header :title="'Features'" :icon="'functions'"/>
-      <q-table :rows="features" row-key="id" :columns="columns" :filter="filter" :filter-method="filterMethod" :loading="loading" :visible-columns="visibleColumns" square>
+      <q-table
+        table-header-class="text-grey"
+        :rows="features"
+        row-key="id"
+        :pagination="{ rowsPerPage: 20, sortBy: 'name' }"
+        :columns="columns"
+        :filter="filter"
+        :filter-method="filterMethod"
+        :loading="loading"
+        :visible-columns="visibleColumns"
+        dense>
+
         <template v-slot:top-left>
           <div class="col action-button on-left">
             <q-btn size="sm" icon="add" class="oa-button" label="New Feature" @click="showNewFeatureTab = true"/>
@@ -78,11 +89,13 @@
             <q-btn flat round color="primary" icon="settings" class="on-right" @click="configdialog=true"/>
           </div>
         </template>
-        <template v-slot:body-cell-protocolId="props">
-          <q-td :props="props">
-            {{protocol.name}}
-          </q-td>
-        </template>
+      <template v-slot:body-cell-name="props">
+        <q-td :props="props">
+          <div class="row items-center cursor-pointer" @click="selectedFeature=props.row;showEditFeatureSection=true">
+            {{ props.row.name }}
+          </div>
+        </q-td>
+      </template>
         <template v-slot:body-cell-formulaId="props">
           <q-td :props="props">
             {{getFormulaName(props.row.formulaId)}}
@@ -193,7 +206,6 @@ export default {
       {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
       {name: 'format', align: 'left', label: 'Format', field: 'format', sortable: true},
       {name: 'type', align: 'left', label: 'Type', field: 'type', sortable: true},
-      {name: 'sequence', align: 'left', label: 'Sequence', field: 'sequence', sortable: true},
       {name: 'formulaId', align: 'left', label: 'Formula', field: 'formulaId', sortable: true},
       {name: 'menu', align: 'left', field: 'menu', sortable: false}
     ])

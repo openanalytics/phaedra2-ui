@@ -1,7 +1,7 @@
 <template>
   <q-table
       table-header-class="text-grey"
-      flat
+      dense flat
       :rows="jobs"
       :columns="columns"
       row-key="id"
@@ -12,7 +12,7 @@
       :visible-columns="visibleColumns"
   >
     <template v-slot:top-right>
-      <div class="row">
+      <div class="row q-gutter-sm">
         <q-input outlined dense label="From" stack-label v-model="fromDate">
           <template v-slot:prepend>
             <q-icon name="event" class="cursor-pointer">

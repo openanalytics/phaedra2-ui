@@ -3,10 +3,20 @@
     <div class="q-pa-md">
       <oa-section-header :title="'Captured Measurements'" :icon="'text_snippet'"/>
       <div class="row q-pa-lg oa-section-body">
-        <q-table table-header-class="text-grey" flat :rows="measurements" :columns="columns" row-key="id" class="full-width" :pagination="{ rowsPerPage: 20, sortBy: 'createdOn', descending: true}" :filter="filterValue" :filter-method="filterMethod">
+        <q-table
+          table-header-class="text-grey"
+          flat dense
+          :rows="measurements"
+          :columns="columns"
+          row-key="id"
+          class="full-width"
+          :pagination="{ rowsPerPage: 20, sortBy: 'createdOn', descending: true}"
+          :filter="filterValue"
+          :filter-method="filterMethod"
+          >
           <template v-slot:top-right>
             <div class="row">
-              <q-input outlined rounded dense debounce="300" v-model="filterValue" placeholder="Search">
+              <q-input outlined dense debounce="300" v-model="filterValue" placeholder="Search">
                 <template v-slot:append>
                   <q-icon name="search"/>
                 </template>
@@ -46,19 +56,13 @@ export default {
     exported.measurements = computed(() => store.getters['measurements/getAll']())
 
     exported.columns = ref([
-      {name: 'id', align: 'left', label: 'Id', field: 'id', sortable: true},
+      {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
       {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
       {name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
       {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-      {name: 'layout', align: 'left', label: 'Layout', field: 'layout', sortable: true},
-      {
-        name: 'createdOn',
-        align: 'left',
-        label: 'Created On',
-        field: 'createdOn',
-        sortable: true,
-        format: FormatUtils.formatDate
-      },
+      {name: 'wellColumns', align: 'left', label: 'WellData Columns', field: 'wellColumns', sortable: true, format: (val, row) => row.wellColumns.length },
+      {name: 'layout', align: 'left', label: 'Dimensions', field: 'layout', sortable: true},
+      {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
       {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
     ])
     exported.visibleColumns = exported.columns.value.map(a => a.name)

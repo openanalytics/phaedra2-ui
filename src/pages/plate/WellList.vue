@@ -14,7 +14,7 @@
   >
     <template v-slot:top-right>
       <div class="row">
-        <q-input outlined rounded dense debounce="300" v-model="filter" placeholder="Search">
+        <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
           <template v-slot:append>
             <q-icon name="search"/>
           </template>

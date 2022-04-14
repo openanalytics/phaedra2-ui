@@ -1,6 +1,6 @@
 <template>
   <q-table v-if="!showPlateStats&&!showWellTypeStats"
-           table-header-class="text-dark"
+           table-header-class="text-grey"
            flat square
            :title="'Result Set ' + props.resultSet[0].resultSetId"
            :rows="props.resultSet"
