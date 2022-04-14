@@ -17,19 +17,31 @@
           <div class="col-5">
             <q-select v-model="feature.type" square label="Type" :options="featureTypes"></q-select>
             <q-select v-model="feature.formulaId" square label="Formula"
-                      :options="formulas.filter(formula => formula.category === feature.type)" option-label="name"
+                      :options="formulas.filter(formula => isCalculation(feature.type, formula.category))" option-label="name"
                       option-value="id" map-options></q-select>
-            <div>
-              <br>
-              <!--Previous formula variables-->
-              <div v-if="feature.formulaId===originalFormulaId || feature.formulaId.id === originalFormulaId">
-                <span v-if="previous.list.length>0" class="text-primary">Formula variables:</span>
-                <q-input :key="p.variableName" v-model="p.sourceMeasColName" v-for="p in previous.list" :label="p.variableName"></q-input>
-              </div>
-              <!--New formula variables-->
-              <div v-if="feature.formulaId!==originalFormulaId && feature.formulaId.id!==originalFormulaId">
-                <span v-if="variables.list.length>0" class="text-primary">Formula variables:</span>
-                <q-input :key="variable.variableName" v-model="variable.sourceMeasColName" v-for="variable in variables.list" :label="variable.variableName"></q-input>
+            <div v-if="(variables.list.length > 0)">
+              <br/>
+              <span class="text-primary">Formula variables:</span>
+              <div class="row col-12">
+                <template :key="variable.variableName"
+                          v-for="variable in variables.list">
+                  <div class="col-7">
+                    <q-input v-model="variable.sourceMeasColName"
+                             v-if="variable.sourceInput === 'MEASUREMENT'"
+                             :label="variable.variableName"></q-input>
+                    <q-select :options="availableFeatures(feature.protocolId, feature.id)"
+                              v-model="variable.sourceFeatureId"
+                              option-value="id" option-label="name" emit-value map-options
+                              v-if="variable.sourceInput === 'FEATURE'"
+                              :label="variable.variableName"></q-select>
+                  </div>
+                  <div class="col-1"/>
+                  <div class="col-4">
+                    <q-select v-model="variable.sourceInput"
+                              :options="inputSource"
+                              square label="Input source"></q-select>
+                  </div>
+                </template>
               </div>
             </div>
           </div>
@@ -53,6 +65,24 @@ import OaSectionHeader from "../widgets/OaSectionHeader";
 export default {
   name: 'EditFeature',
   components: {OaSectionHeader},
+  methods: {
+    isCalculation(featureType, formulaCategory) {
+      if (featureType === 'CALCULATION') {
+        if (formulaCategory === 'CALCULATION'
+            || formulaCategory === 'HIT_CALLING'
+            || formulaCategory === 'OUTLIER_DETECTION'
+            || formulaCategory === 'POLISHING') {
+          return true;
+        }
+      }
+      return false;
+    },
+    availableFeatures(protocolId, featureId) {
+      if (featureId)
+        return this.$store.getters['features/getByProtocolId'](protocolId).filter(f => f.id !== featureId)
+      return this.$store.getters['features/getByProtocolId'](protocolId);
+    }
+  },
   setup(props, context) {
     const exported = {}
 
@@ -72,9 +102,14 @@ export default {
       //Fetch previous formula variable names
       store.dispatch('features/getCalculationInputValue',exported.feature.value.id).then(() => {
       const civs = store.getters['features/getCalculationInputValueByFeatureId'](exported.feature.value.id)
-        if (civs)
+        if (civs) {
           //Make full copy of getter + sort alphabetically instead of by date modified
           exported.previous.list = JSON.parse(JSON.stringify(civs)).sort((a, b) => a.variableName.localeCompare(b.variableName))
+          exported.previous.list.forEach(f => f['sourceInput'] = f.sourceMeasColName ? 'MEASUREMENT' : 'FEATURE');
+
+          exported.variables.list = JSON.parse(JSON.stringify(civs)).sort((a, b) => a.variableName.localeCompare(b.variableName));
+          exported.variables.list.forEach(f => f['sourceInput'] = f.sourceMeasColName ? 'MEASUREMENT' : 'FEATURE');
+        }
       })
     }
     fetchFeatureWorkingCopy()
@@ -90,7 +125,14 @@ export default {
 
     //Watch for changes and update lists accordingly
     watch(formulaInputs, (f) => {
-      exported.variables.list = f.map(i => {return {variableName: i,sourceMeasColName: ''}}).sort((a, b) => a.variableName.localeCompare(b.variableName))
+      exported.variables.list = f.map(i => {
+        return {
+          variableName: i,
+          sourceInput: 'MEASUREMENT',
+          sourceMeasColName: undefined,
+          sourceFeatureId: undefined
+        }
+      })
     })
 
     //Function to fire an edit event of a feature using the working copy
@@ -105,6 +147,7 @@ export default {
 
     //TODO fix hardcode
     exported.featureTypes =  ['CALCULATION', 'NORMALIZATION', 'RAW']
+    exported.inputSource = ['MEASUREMENT', 'FEATURE']
 
     return exported;
   },
