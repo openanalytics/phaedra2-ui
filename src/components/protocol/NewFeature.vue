@@ -17,12 +17,34 @@
           <div class="col-5">
             <q-select v-model="newFeature.type" square label="Type" :options="featureTypes"></q-select>
             <q-select v-model="selectedFormulaId" square label="Formula"
-                      :options="formulas.filter(formula => formula.category === newFeature.type)" option-value="id"
-                      option-label="name"></q-select>
-            <div v-if="variables.list.length>0">
-              <br>
-              <span class="text-primary">Formula variables:</span>
-              <q-input :key="variable.variableName" v-model="variable.sourceMeasColName" v-for="variable in variables.list" :label="variable.variableName"></q-input>
+                      :options="formulas.filter(formula => isCalculation(newFeature.type, formula.category))"
+                      option-value="id" option-label="name"></q-select>
+            <div v-if="(variables.list.length > 0)">
+              <br/>
+              <div>
+                <span class="text-primary">Formula variables:</span>
+                <div class="row col-12">
+                  <template :key="variable.variableName"
+                            v-for="variable in variables.list">
+                    <div class="col-7">
+                      <q-input v-model="variable.sourceMeasColName"
+                               v-if="variable.sourceInput === 'MEASUREMENT'"
+                               :label="variable.variableName"></q-input>
+                      <q-select :options="availableFeatures(newFeature.protocolId, newFeature.id)"
+                                v-model="variable.sourceFeatureId"
+                                option-value="id" option-label="name" emit-value map-options
+                                v-if="variable.sourceInput === 'FEATURE'"
+                                :label="variable.variableName"></q-select>
+                    </div>
+                    <div class="col-1"/>
+                    <div class="col-4">
+                      <q-select v-model="variable.sourceInput"
+                                :options="inputSource"
+                                square label="Input source"></q-select>
+                    </div>
+                  </template>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -49,15 +71,32 @@ export default {
     addFeature() {
       console.log(this.newFeature)
       this.newFeature.formulaId = this.selectedFormulaId.id
-      this.$store.dispatch('features/createFeature', {newFeature: this.newFeature, civs: this.variables.list})
+      this.$store.dispatch('features/createFeature', { newFeature: this.newFeature, civs: this.variables.list})
       this.$emit('update:show', false)
     },
+    isCalculation(featureType, formulaCategory) {
+      if (featureType === 'CALCULATION') {
+        if (formulaCategory === 'CALCULATION'
+            || formulaCategory === 'HIT_CALLING'
+            || formulaCategory === 'OUTLIER_DETECTION'
+            || formulaCategory === 'POLISHING') {
+          return true;
+        }
+      }
+      return false;
+    },
+    availableFeatures(protocolId, featureId) {
+      if (featureId)
+        return this.$store.getters['features/getByProtocolId'](protocolId).filter(f => f.id !== featureId)
+      return this.$store.getters['features/getByProtocolId'](protocolId);
+    }
   },
   setup(props) {
     const store = useStore()
     const formulas = computed(() => store.getters['calculations/getFormulas']())
 
     let selectedFormulaId = ref(null)
+    let selectedInputSource = ref(null)
     //Get formulaInputs and dispatch if it not available
     const formulaInputs = computed(() => {
       if (!selectedFormulaId.value) return []
@@ -67,19 +106,21 @@ export default {
     })
     let variables = reactive({list: []})
     watch(formulaInputs, (i) =>{
-      variables.list = i.map(i => {return {variableName: i,sourceMeasColName: ''}})
+      variables.list = i.map(i => {return {variableName: i, sourceInput: 'MEASUREMENT', sourceMeasColName: undefined, sourceFeatureId: undefined}})
     })
     return {
       props,
       formulas,
       formulaInputs,
       selectedFormulaId,
+      selectedInputSource,
       variables
     }
   },
   data() {
     return {
       featureTypes: ['CALCULATION', 'NORMALIZATION', 'RAW'],
+      inputSource: ['MEASUREMENT', 'FEATURE'],
       newFeature: {
         name: null,
         alias: null,

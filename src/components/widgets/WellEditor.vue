@@ -37,7 +37,7 @@
     setup(props) {
       const store = useStore()
 
-      const wellTypes = ["EMPTY", "LC", "HC", "SAMPLE"]
+      const wellTypes = ["EMPTY", "SAMPLE", "LC", "HC", "NC", "PC"]
       const selectedType = ref(null)
       const skipped = ref(true)
 
