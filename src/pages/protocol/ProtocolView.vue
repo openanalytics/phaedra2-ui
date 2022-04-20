@@ -62,7 +62,16 @@
 
     <div class="q-pa-md" v-if="!showNewFeatureTab && !showEditFeatureSection">
       <oa-section-header :title="'Features'" :icon="'functions'"/>
-      <q-table :rows="features" row-key="id" :columns="columns" :filter="filter" :filter-method="filterMethod" :loading="loading" :visible-columns="visibleColumns" square>
+      <q-table
+          row-key="id"
+          :rows="features"
+          :columns="columns"
+          :filter="filter"
+          :filter-method="filterMethod"
+          :loading="loading"
+          :visible-columns="visibleColumns"
+          :pagination="pagination"
+          square>
         <template v-slot:top-left>
           <div class="col action-button on-left">
             <q-btn size="sm" icon="add" class="oa-button" label="New Feature" @click="showNewFeatureTab = true"/>
@@ -167,7 +176,7 @@ export default {
     const router = useRouter();
 
     const loading = ref(false);
-    
+
     const protocolId = parseInt(route.params.id);
     const protocol = computed(() => store.getters['protocols/getById'](protocolId))
     store.dispatch('protocols/loadById', protocolId);
@@ -179,7 +188,7 @@ export default {
         loading.value = false;
       });
     }
-    
+
     const formulas = computed(() => store.getters['calculations/getFormulas']())
     store.dispatch('calculations/getAllFormulas')
 
@@ -206,6 +215,7 @@ export default {
       features,
       loading,
       columns,
+      pagination: { rowsPerPage: 10 },
       visibleColumns: columns.value.map(a => a.name),
       configdialog: ref(false),
       filter: ref(''),

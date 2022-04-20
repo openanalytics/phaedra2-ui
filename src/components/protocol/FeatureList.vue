@@ -8,6 +8,7 @@
         flat square
         :rows="features"
         :columns="columns"
+        :pagination="pagination"
         row-key="id"
         no-data-label="No features defined for this protocol"
         class="oa-section-body">
@@ -35,6 +36,10 @@ const columns = [
   {name: 'trigger', align: 'left', label: 'Trigger', field: 'trigger', sortable: true}
 ];
 
+const pagination = {
+  rowsPerPage: 10
+}
+
 export default {
   props: {
     protocol: Object
@@ -47,7 +52,8 @@ export default {
 
     return {
       columns,
-      features
+      features,
+      pagination
     }
   }
 }
