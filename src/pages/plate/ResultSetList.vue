@@ -1,12 +1,12 @@
 <template>
   <q-table v-if="!resultSetShow"
-      table-header-class="text-dark"
+      table-header-class="text-grey"
       flat square
       :title="'Result Sets'"
       :rows="resultSets"
       :columns="resultSetsColumns"
       row-key="id"
-      :pagination="{ rowsPerPage: 5 }"
+      :pagination="{ rowsPerPage: 5, sortBy: 'Created On', descending: true }"
       :filter="filter"
       :filter-method="filterMethod"
       :visible-columns="visibleColumns"
@@ -63,7 +63,7 @@ export default {
     const store = useStore()
 
     const activeMeasurement = store.getters['measurements/getActivePlateMeasurement'](props.plate.id);
-
+  console.log(activeMeasurement)
     // All known resultDatas from all resultSets
     const resultDatas = activeMeasurement ? computed(() => store.getters['resultdata/getPlateResults'](props.plate.id, activeMeasurement?.measurementId)) : [];
 
@@ -79,7 +79,7 @@ export default {
       {name: 'Id', align: 'left', label: 'ID', field: 'resultSetId', sortable: true},
       {name: 'Protocol', align: 'left', label: 'Protocol', field: 'protocolId', sortable: true, format: val => (store.getters['protocols/getById'](val) || {}).name},
       {name: 'Created On', align: 'left', label: 'Created On', field: 'createdTimestamp', sortable: true, format: FormatUtils.formatDate},
-      {name: 'Measurement', align: 'left', label: 'Measurement', field: 'measId', sortable: true, format: val => (activeMeasurement?.measurementId == val || {}).name},
+      {name: 'Measurement', align: 'left', label: 'Measurement', field: 'measId', sortable: true, format: val => (activeMeasurement?.measurementId == val) ? activeMeasurement.name : ''},
       {name: 'Features', align: 'left', label: 'Features', sortable: true, format: (val, row) => resultDatas.value.filter(a => a.resultSetId === row.resultSetId).length },
       {name: 'Status', align: 'left', label: 'Status', sortable: true, format:
         (val, row) => (resultDatas.value.some(a => a.resultSetId === row.resultSetId && a.statusCode != 'SUCCESS')) ? 'FAILURE' : 'SUCCESS' }

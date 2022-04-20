@@ -34,15 +34,10 @@ export default {
             return WellUtils.getWellTypeColor(well.wellType)
         }
 
-        exported.wellLabelFunctions = [
-            (well) => WellUtils.getWellCoordinate(well.row, well.column)
-        ];
+        exported.wellLabelFunctions = [];
         if (props.tab === 'substance') {
             exported.wellLabelFunctions.push((well) => well.substanceName);
             exported.wellLabelFunctions.push((well) => well.concentration);
-            
-        } else if (props.tab !== 'overview') {
-            exported.wellLabelFunctions.push((well) => well.wellType);
         }
 
         exported.selectedWells = ref([])

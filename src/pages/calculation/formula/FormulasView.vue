@@ -10,7 +10,7 @@
             :rows="formulas"
             :columns="columns"
             row-key="id"
-            :pagination="{ rowsPerPage: 20, sortBy: 'id' }"
+            :pagination="{ rowsPerPage: 20, sortBy: 'name' }"
             :filter="filter"
             :filter-method="filterMethod"
             :loading="loading"

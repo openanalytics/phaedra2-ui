@@ -1,6 +1,7 @@
 <template>
-  <oa-section-header :title="'Formula: '+ formula.name" :icon="'functions'"/>
-    <div class="q-pa-sm text-black text-body2 shadow-1 bg-white" style="min-width: 30vw">
+    <oa-section-header :title="'Formula: '+ formula.name" :icon="'functions'"/>
+
+    <div class="q-pa-sm text-black text-body2 shadow-1 bg-white" style="min-width: 40vw">
         <div class="row">
             <div class="col-3 text-weight-bold">ID:</div>
             <div class="col">{{ formula.id }}</div>
@@ -34,7 +35,7 @@
             <div class="col">{{ FormatUtils.formatDate(formula.updatedOn) }}</div>
         </div>
         <div class="q-pt-md">
-            <q-input v-model="formula.formula" label="Formula" type="textarea" outlined square ></q-input>
+            <q-input v-model="formula.formula" label="Formula" autogrow dense outlined square ></q-input>
             <span class="text-grey text-caption">
                 Input variables: {{formulaInputs.length > 0 ? formulaInputs : 'None'}}
             </span>
@@ -52,7 +53,7 @@
         props: {
             formulaId: Number
         },
-      components: {OaSectionHeader},
+        components: {OaSectionHeader},
         setup(props) {
             const exported = {};
             

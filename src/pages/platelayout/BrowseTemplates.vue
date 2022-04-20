@@ -16,7 +16,7 @@
             row-key="id"
             class="full-width"
             :loading="loading"
-            :pagination="{ rowsPerPage: 20, sortBy: 'id', descending: true }"
+            :pagination="{ rowsPerPage: 20, sortBy: 'name' }"
             :filter="filter"
             :filter-method="filterMethod"
             @row-click="selectTemplate"

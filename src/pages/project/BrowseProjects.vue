@@ -15,7 +15,7 @@
             :columns="columns"
             row-key="id"
             class="full-width"
-            :pagination="{ rowsPerPage: 20, sortBy: 'id', descending: true }"
+            :pagination="{ rowsPerPage: 20, sortBy: 'name' }"
             :filter="filter"
             :filter-method="filterMethod"
             @row-click="selectProject"

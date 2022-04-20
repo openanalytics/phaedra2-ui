@@ -58,10 +58,11 @@ const actions = {
         ctx.commit('uncacheProjectAccess', projectAccessId);
     },
     async loadAll(ctx) {
-        await projectAPI.getAllProjects()
-            .then(response => {
-                ctx.commit('cacheAllProjects', response)
-            })
+        const projects = await projectAPI.getAllProjects();
+        ctx.commit('cacheAllProjects', projects);
+
+        const projectIds = projects.map(p => p.id);
+        ctx.dispatch('metadata/loadMetadata', { objectId: projectIds, objectClass: 'PROJECT' }, {root:true});
     },
     async loadRecentProjects(ctx, n) {
         await projectAPI.loadRecentProjects()

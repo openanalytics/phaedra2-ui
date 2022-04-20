@@ -9,10 +9,10 @@
     <div class="q-pa-xs oa-section-body">
       <div class="col-12 q-mb-sm">
         <q-checkbox v-if="tab==='overview'" v-model="skipped" label="Skip Wells" @click="updateWells('skipped', skipped)"/>
-        <q-select v-if="tab==='well-type'" v-model="selectedType" :label="previousType" :options="wellTypes" @update:model-value="updateWells('wellType', selectedType)"></q-select>
-        <q-input v-if="tab==='substance'" v-model="name" square autofocus label="Substance Name" @change="updateWells('substanceName', name)"></q-input>
-        <q-input v-if="tab==='substance'" v-model="substanceType" square autofocus label="Substance Type" @change="updateWells('substanceType', substanceType)"></q-input>
-        <q-input v-if="tab==='substance'" v-model="concentration" square autofocus label="Concentration" @change="updateWells('concentration', concentration)"></q-input>
+        <q-select dense v-if="tab==='well-type'" v-model="selectedType" :label="previousType" :options="wellTypes" @update:model-value="updateWells('wellType', selectedType)"></q-select>
+        <q-input dense v-if="tab==='substance'" v-model="substanceType" square autofocus label="Substance Type" @change="updateWells('substanceType', substanceType)"></q-input>
+        <q-input dense v-if="tab==='substance'" v-model="name" square autofocus label="Substance Name" @change="updateWells('substanceName', name)"></q-input>
+        <q-input dense v-if="tab==='substance'" v-model="concentration" square autofocus label="Concentration" @change="updateWells('concentration', concentration)"></q-input>
       </div>
     </div>
   </div>
@@ -55,7 +55,7 @@
       }
 
       const previousType = computed(() => {
-        if (props.wells.length < 1) return ""
+        if (props.wells.length < 1) return "Well Type"
         return getWellType(props.wells)
       })
 
