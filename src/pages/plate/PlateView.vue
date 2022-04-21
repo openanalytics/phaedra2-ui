@@ -1,6 +1,7 @@
 <template>
   <q-breadcrumbs class="oa-breadcrumb" v-if="plate && experiment && project">
     <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
+    <q-breadcrumbs-el :label="'Projects'" icon="list" :to="'/projects'"/>
     <q-breadcrumbs-el :label="project.name" icon="folder" :to="'/project/' + project.id"/>
     <q-breadcrumbs-el :label="experiment.name" icon="science" :to="'/experiment/' + experiment.id"/>
     <q-breadcrumbs-el :label="plate.barcode" icon="view_module"/>
