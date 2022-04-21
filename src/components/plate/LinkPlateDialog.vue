@@ -22,23 +22,16 @@
               selection="multiple"
               v-model:selected="selectedPlates"
           >
-            <template v-slot:header="props">
-              <q-tr :props="props" class="text-white bg-primary">
-                <q-th v-for="col in props.cols" :key="col.name" :props="props">
-                  {{ col.label }}
-                </q-th>
-              </q-tr>
-            </template>
-            <template v-slot:body="props">
-              <q-tr class="cursor-pointer" :props="props" @click="props.selected = !props.selected">
-                <q-td v-for="col in props.cols" :key="col.name" :props="props">
-                  <span v-if="(col.name === 'layout')">{{ props.row.rows }} x {{ props.row.columns }}</span>
-                  <q-icon v-else-if="col.name === 'status' && props.row.linkStatus==='LINKED'" name="check_circle" color="positive"/>
-                  <q-icon v-else-if="col.name === 'status' && props.row.linkStatus==='NOT_LINKED'" name="cancel" color="negative"/>
-                  <span v-else>{{ col.value }}</span>
+              <template v-slot:body-cell-dimensions="props">
+                <q-td :props="props">
+                  {{ props.row.rows }} x {{ props.row.columns }}
                 </q-td>
-              </q-tr>
-            </template>
+              </template>
+              <template v-slot:body-cell-link-status="props">
+                <q-td :props="props">
+                  <StatusFlag :object="props.row" :statusField="'linkStatus'" />
+                </q-td>
+              </template>
           </q-table>
           <span v-if="!checkPlateDimensions()" class="text-accent">The selected plates have different dimensions.</span><br>
         </div>
@@ -73,20 +66,10 @@
               :filter="selectedPlates"
               :filter-method="filterMethod"
           >
-            <template v-slot:header="props">
-              <q-tr :props="props" class="text-white bg-primary">
-                <q-th v-for="col in props.cols" :key="col.name" :props="props">
-                  {{ col.label }}
-                </q-th>
-              </q-tr>
-            </template>
-            <template v-slot:body="props">
-              <q-tr class="cursor-pointer" :props="props" @click="props.selected = !props.selected">
-                <q-td v-for="col in props.cols" :key="col.name" :props="props">
-                  <span v-if="!(col.name === 'select' || col.name === 'layout')">{{ col.value }}</span>
-                  <span v-if="(col.name === 'layout')">{{ props.row.rows }} x {{ props.row.columns }}</span>
-                </q-td>
-              </q-tr>
+            <template v-slot:body-cell-layout="props">
+              <q-td :props="props">
+                {{ props.row.rows }} x {{ props.row.columns }}
+              </q-td>
             </template>
           </q-table>
           <span v-if="!checkAllDimensions()" class="text-accent">The selected template has different dimensions compared to the selected plates.</span><br>
@@ -117,6 +100,7 @@
 
   import TemplateQuickView from "@/components/layout/TemplateQuickView";
   import OaSectionHeader from "@/components/widgets/OaSectionHeader";
+  import StatusFlag from "@/components/widgets/StatusFlag";
 
   const props = defineProps(['show','plateId']);
   const emit = defineEmits(['update:show']);
@@ -126,7 +110,6 @@
 
   const experimentId = parseInt(route.params.id);
   const plates = computed(() => store.getters['plates/getByExperimentId'](experimentId).filter(p => props.plateId ? p.id === props.plateId : true));
-  const allTemplates = computed(() => store.getters['templates/getAll']());
 
   const showDialog = computed({
     get: () => props.show,
@@ -136,30 +119,31 @@
     if (newValue === true && allTemplates.value.length == 0) store.dispatch('templates/loadAll');
   });
 
-  const selectedPlates = plates.value.filter(p => p.id === props.plateId);
+  const selectedPlates = ref(plates.value.filter(p => p.id === props.plateId));
+  const allTemplates = computed(() => store.getters['templates/getPlateTemplatesByPlateDimensions'](selectedPlates.value[0]));
   const selectedTemplates = ref([]);
 
   const source = ref('Layout Template')
   const sourceOptions = ['Layout Template']
   const quickView = ref(false);
 
-  const plateColumns = [
+  const plateColumns = ref([
     {name: 'sequence', align: 'left', label: 'Sequence', field: 'sequence', sortable: true},
     {name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
     {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-    {name: 'layout', align: 'center', label: 'Layout', field: 'layout', sortable: true},
-    {name: 'status', align: 'center', label: 'Link status', field: 'linkStatus', sortable: true}
-  ];
+    {name: 'dimensions', align: 'left', label: 'Dimensions', field: 'dimensions', sortable: true},
+    {name: 'link-status', align: 'center', label: 'Link status', field: 'link-status', sortable: true}
+  ]);
 
   const templateColumns = [
     {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
     {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-    {name: 'layout', align: 'center', label: 'Layout', field: 'layout', sortable: true}
+    {name: 'layout', align: 'center', label: 'Dimensions', field: 'layout', sortable: true}
   ];
 
   const linkPlate = () => {
     //TODO change to linkplate api endpoint
-    const copy = JSON.parse(JSON.stringify(selectedPlates));
+    const copy = JSON.parse(JSON.stringify(selectedPlates.value));
     copy.forEach(plate => {
       plate.linkStatus = 'LINKED'
       plate.linkSource = 'layout-template'
@@ -171,8 +155,8 @@
   };
   const checkPlateDimensions = () => {
     // Count occurences of rows and columns in selected plates
-    const countRows = selectedPlates.map(p => p.rows).filter(onlyUnique).length;
-    const countColumns = selectedPlates.map(p => p.rows).filter(onlyUnique).length;
+    const countRows = selectedPlates.value.map(p => p.rows).filter(onlyUnique).length;
+    const countColumns = selectedPlates.value.map(p => p.rows).filter(onlyUnique).length;
     return (countRows <= 1 && countColumns <= 1);
   };
   const onlyUnique = (value, index, self) => {
@@ -186,14 +170,21 @@
   };
   const checkAllDimensions = () => {
     if (!isTemplateSelected()) return true;
-    const countRows = selectedPlates.filter(row => row.rows === selectedTemplates.value[0].rows).length
-    const countColumns = selectedPlates.filter(row => row.columns === selectedTemplates.value[0].columns).length
-    return (countRows === selectedPlates.length && countColumns === selectedPlates.length);
+    const countRows = selectedPlates.value.filter(row => row.rows === selectedTemplates.value[0].rows).length
+    const countColumns = selectedPlates.value.filter(row => row.columns === selectedTemplates.value[0].columns).length
+    return (countRows === selectedPlates.value.length && countColumns === selectedPlates.value.length);
   };
   const isTemplateSelected = () => {
     return (selectedTemplates.value && selectedTemplates.value.length > 0);
   };
   const arePlatesSelected = () => {
-    return selectedPlates.length !== 0;
+    return selectedPlates.value.length !== 0;
+  };
+  const onPlateSelection = () => {
+    if (selectedPlates.value)
+      alert("Plate selected: " + selectedPlates.value[0].barcode);
+    else
+      alert("No plates selected!");
+    allTemplates = computed(() => store.getters['templates/getPlateTemplatesByPlateDimensions'](selectedPlates.value[0]));
   };
 </script>

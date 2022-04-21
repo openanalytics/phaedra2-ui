@@ -17,6 +17,12 @@ const getters = {
     },
     getAll: (state) => () => {
         return state.plateTemplates;
+    },
+    getPlateTemplatesByPlateDimensions: (state) => (plate) => {
+        if (plate)
+            return state.plateTemplates.filter(pt => pt.rows === plate.rows && pt.columns === plate.columns)
+        else
+            return state.plateTemplates;
     }
 }
 
