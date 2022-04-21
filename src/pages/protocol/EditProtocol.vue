@@ -7,6 +7,8 @@
           <div class="col col-5">
             <q-input v-model="name" square autofocus label="Name"></q-input>
             <br>
+            <q-select v-model="lowWellType" square label="Low well type" :options="wellTypeOptions"></q-select>
+            <br>
           </div>
           <div class="col col-1">
 
@@ -14,11 +16,13 @@
           <div class="col col-4">
             <q-input v-model="description" square label="Description"></q-input>
             <br>
+            <q-select v-model="highWellType" square label="High well type" :options="wellTypeOptions"></q-select>
+            <br>
           </div>
         </div>
         <br>
         <div class="row justify-end">
-          <q-btn flat label="Cancel" color="primary" @click="$emit('update:show',false)"/>
+          <q-btn flat label="Cancel" color="primary" @click="editdialog = false"/>
           <router-link :to="'/protocol/' + protocol.id" class="nav-link">
             <q-btn label="Edit protocol" v-close-popup color="primary" @click="editProtocol"/>
           </router-link>
@@ -28,41 +32,40 @@
   </div>
 </template>
 
-<script>
+<script setup>
 
 import {useStore} from "vuex";
 import {computed, ref} from "vue";
 import OaSectionHeader from "../../components/widgets/OaSectionHeader";
 
-export default {
-  name: 'EditProtocol',
-  components: {OaSectionHeader},
-  setup(props) {
-    const store = useStore();
+const props = defineProps(['show']);
+const emit = defineEmits(['update:show']);
 
-    const protocol = computed(() => store.getters['protocols/getCurrentProtocol']());
+const store = useStore();
 
-    const name = ref(protocol.value.name);
-    const description = ref(protocol.value.description);
-    return {
-      props,
-      protocol,
-      name,
-      description
-    }
-  },
-  data() {
-    return {
-      editdialog: this.props.show
-    }
-  },
-  methods: {
-    editProtocol() {
-      this.$store.dispatch('protocols/editProtocol', {name: this.name, description: this.description});
-      this.$emit('update:show', false);
-    }
-  },
-  props: ['show'],
-  emits: ['update:show']
-}
+const wellTypeOptions = ['LC', 'HC', 'NC', 'PC'];
+
+const protocol = computed(() => store.getters['protocols/getCurrentProtocol']());
+
+const name = ref(protocol.value.name);
+const description = ref(protocol.value.description);
+const lowWellType = ref(protocol.value.lowWelltype);
+const highWellType = ref(protocol.value.highWelltype);
+
+const editdialog = computed({
+  get: () => props.show,
+  set: (v) => emit('update:show', v)
+});
+
+const editProtocol = () => {
+  const payload = {
+    id: protocol.value.id,
+    name: name.value,
+    description: description.value,
+    lowWelltype: lowWellType.value,
+    highWelltype: highWellType.value
+  }
+  store.dispatch('protocols/editProtocol', payload);
+  editdialog.value = false;
+};
 </script>
