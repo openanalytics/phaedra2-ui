@@ -53,6 +53,9 @@
     </template>
     <template v-slot:body-cell-link-status="props">
       <q-td :props="props">
+        <q-tooltip transition-show="flip-right" transition-hide="flip-left">
+          {{'Linked with ' + props.row.linkSource}}
+        </q-tooltip>
         <StatusFlag :object="props.row" :statusField="'linkStatus'" />
       </q-td>
     </template>
@@ -128,10 +131,10 @@ export default {
       {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
       {name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
       {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
+      {name: 'link-status', align: 'center', label: 'Link status', field: 'link-status'},
       {name: 'status-calculation', align: 'center', label: 'C', field: 'status-calculation'},
       {name: 'status-validated', align: 'center', label: 'V', field: 'status-validated'},
       {name: 'status-approved', align: 'center', label: 'A', field: 'status-approved'},
-      {name: 'link-status', align: 'center', label: 'L', field: 'link-status'},
       {name: 'dimensions', align: 'left', label: 'Dimensions', field: 'dimensions', sortable: true},
       {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate },
       {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true, format: val => store.getters['userinfo/getUserName'](val) },
