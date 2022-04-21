@@ -1,4 +1,10 @@
 <template>
+  <q-breadcrumbs class="oa-breadcrumb" v-if="formula">
+    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
+    <q-breadcrumbs-el :label="'Formulas'" icon="list" :to="'/calc/formulas'"/>
+    <q-breadcrumbs-el :label="formula.name" icon="functions"/>
+  </q-breadcrumbs>
+
   <q-page class="oa-root-div">
     <div class="q-pa-md">
       <oa-section-header :title="'Formula: ' + formula.name" :icon="'functions'"/>

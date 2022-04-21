@@ -1,4 +1,10 @@
 <template>
+  <q-breadcrumbs class="oa-breadcrumb" v-if="plateTemplate">
+    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
+    <q-breadcrumbs-el :label="'Templates'" icon="list" :to="'/templates'"/>
+    <q-breadcrumbs-el :label="plateTemplate.name" icon="border_outer"/>
+  </q-breadcrumbs>
+
   <q-page class="oa-root-div">
     <div class="q-pa-md" v-if="!editdialog">
       <oa-section-header v-if="!plateTemplate" :title="'Loading template...'" :icon="'border_outer'"/>
