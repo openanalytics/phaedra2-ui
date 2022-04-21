@@ -22,22 +22,25 @@ export default {
         const neutralFlag = { name: 'horizontal_rule', color: '' };
 
         const statusValue = computed(() => props.object[props.statusField] || 'unknown');
-        
+
         let flags = {
             'unknown': neutralFlag,
-            
+
             'CALCULATION_NEEDED': neutralFlag,
             'CALCULATION_OK': positiveFlag,
             'CALCULATION_NOT_POSSIBLE': negativeFlag,
             'CALCULATION_ERROR': negativeFlag,
-            
+
             'VALIDATION_NOT_SET': neutralFlag,
             'VALIDATED': positiveFlag,
             'INVALIDATED': negativeFlag,
 
             'APPROVAL_NOT_SET': neutralFlag,
             'APPROVED': positiveFlag,
-            'DISAPPROVED': negativeFlag
+            'DISAPPROVED': negativeFlag,
+
+            'NOT_LINKED': neutralFlag,
+            'LINKED': positiveFlag
         };
         const flag = computed(() => flags[statusValue.value]);
 
