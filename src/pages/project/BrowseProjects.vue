@@ -1,7 +1,7 @@
 <template>
   <q-breadcrumbs class="oa-breadcrumb">
     <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}" />
-    <q-breadcrumbs-el :label="'Projects'" />
+    <q-breadcrumbs-el :label="'Projects'" icon="list"/>
   </q-breadcrumbs>
 
   <q-page class="oa-root-div">
