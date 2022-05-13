@@ -103,11 +103,16 @@
       const rangeValues = ref(null)
       const calcRangeValues = () => {
         if (!selectedFeature.value) rangeValues.value = { min: 0, mean: 50, max: 100 }
-        const result = props.plateResults.filter(rs => (rs.featureId == selectedFeature.value.id));
-        const min = Math.min(...result[0].values.filter(v => !isNaN(v)));
-        const mean = result[0].values.reduce((x, y) => x + y, 0) / result[0].values.length;
-        const max = Math.max(...result[0].values.filter(v => !isNaN(v)));
-        rangeValues.value = {min: min, mean: mean, max: max}
+        if (Array.isArray(props.plateResults)) {
+          const result = props.plateResults.filter(rs => (rs.featureId == selectedFeature.value.id));
+          const min = Math.min(...result[0].values.filter(v => !isNaN(v)));
+          const mean = result[0].values.reduce((x, y) => x + y, 0) / result[0].values.length;
+          const max = Math.max(...result[0].values.filter(v => !isNaN(v)));
+          rangeValues.value = {min: min, mean: mean, max: max}
+        } else {
+          rangeValues.value = null
+        }
+
       }
 
       return {

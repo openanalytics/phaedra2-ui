@@ -2,14 +2,11 @@
   <div class="row" style="width: 100%">
     <div class="col-10 gridContainer">
       <div v-for="plate in plates" :key="plate.id" class="q-pa-sm">
-        <MiniHeatmap :plate=plate :feature=selectedFeature :plate-result="plateResults[plate.id]"></MiniHeatmap>
+        <MiniHeatmap :plate=plate :feature=selectedFeature :plate-result="plateResults[plate.id]"/>
       </div>
     </div>
     <div class="col-2 q-pa-sm">
-      <FeatureSelector
-          :protocols=protocols
-          @featureSelection="handleFeatureSelection"
-      ></FeatureSelector>
+      <FeatureSelector :protocols=protocols :plateResults=plateResults @featureSelection="handleFeatureSelection"/>
     </div>
   </div>
 </template>

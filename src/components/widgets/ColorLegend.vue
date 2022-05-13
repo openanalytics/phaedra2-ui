@@ -2,11 +2,14 @@
   <div class="row justify-center">
     <div class="legendBar oa-section"></div>
     <div class="legendLabels column q-ml-sm">
-      <div class="text-dark col-2">Max: {{ maxValue }}</div>
+      <div v-if="maxValue !== null" class="text-dark col-2">Max: {{ maxValue }}</div>
+      <div v-if="maxValue === null" class="text-dark col-2">Max</div>
       <div class="col-3"></div>
-      <div class="text-dark col-2">Mean: {{ meanValue }}</div>
+      <div v-if="meanValue !== null" class="text-dark col-2">Mean {{ meanValue }}</div>
+      <div v-if="meanValue === null" class="text-dark col-2">Mean</div>
       <div class="col-3"></div>
-      <div class="text-dark col-2">Min: {{ minValue }}</div>
+      <div v-if="minValue !== null" class="text-dark col-2">Min: {{ minValue }}</div>
+      <div v-if="minValue === null" class="text-dark col-2">Min</div>
     </div>
   </div>
 </template>
@@ -23,9 +26,9 @@
 import {ref, watchEffect} from "vue";
 
 const props = defineProps(['rangeValues']);
-const minValue = ref(0)
-const meanValue = ref(50)
-const maxValue = ref(100)
+const minValue = ref(null)
+const meanValue = ref(null)
+const maxValue = ref(null)
 
 watchEffect(() => {
   if (props?.rangeValues) {
