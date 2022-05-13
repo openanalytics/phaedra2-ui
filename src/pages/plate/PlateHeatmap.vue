@@ -7,7 +7,7 @@
                 :wellLabelFunctions="wellLabelFunctions"/>
     </div>
     <div class="col q-pa-sm">
-      <FeatureSelector :protocols=protocols @featureSelection="handleFeatureSelection"/>
+      <FeatureSelector :protocols=protocols :plateResults=plateResults @featureSelection="handleFeatureSelection"/>
     </div>
   </div>
 </template>

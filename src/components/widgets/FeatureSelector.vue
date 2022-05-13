@@ -29,7 +29,7 @@
         </template>
       </q-select>
       <div class="q-py-sm">
-        <ColorLegend></ColorLegend>
+        <ColorLegend :rangeValues=rangeValues />
       </div>
     </div>
   </div>
@@ -49,7 +49,8 @@
 
   export default {
     props: {
-      protocols: Array
+      protocols: Array,
+      plateResults: Array
     },
     components: {
       ColorLegend
@@ -85,6 +86,7 @@
       const selectedFeature = ref(null)
       const onFeatureSelected = (value) => {
         context.emit('featureSelection', value)
+        calcRangeValues()
       }
       const applyFeatureFilter = (val, update) => {
         if (val === '') {
@@ -98,6 +100,16 @@
         })
       }
 
+      const rangeValues = ref(null)
+      const calcRangeValues = () => {
+        if (!selectedFeature.value) rangeValues.value = { min: 0, mean: 50, max: 100 }
+        const result = props.plateResults.filter(rs => (rs.featureId == selectedFeature.value.id));
+        const min = Math.min(...result[0].values.filter(v => !isNaN(v)));
+        const mean = result[0].values.reduce((x, y) => x + y, 0) / result[0].values.length;
+        const max = Math.max(...result[0].values.filter(v => !isNaN(v)));
+        rangeValues.value = {min: min, mean: mean, max: max}
+      }
+
       return {
         selectedProtocol,
         onProtocolSelected,
@@ -105,7 +117,9 @@
         filteredFeatures,
         selectedFeature,
         onFeatureSelected,
-        applyFeatureFilter
+        applyFeatureFilter,
+
+        rangeValues
       }
     }
   }
