@@ -5,18 +5,16 @@
       <q-card-section>
         <div class="row">
           <div class="col-5">
-            <q-input v-model="newFeature.name" square autofocus label="Name"></q-input>
-            <q-input v-model="newFeature.alias" square label="Alias"></q-input>
-            <q-input v-model="newFeature.description" square label="Description"></q-input>
-            <q-input v-model="newFeature.format" square label="Format" placeholder="#.##"
-                     style="width: 100px"></q-input>
-            <q-input v-model="newFeature.sequence" square label="Sequence"></q-input>
-            <q-input v-model="newFeature.trigger" square label="Trigger"></q-input>
+            <q-input v-model="newFeature.name" square autofocus label="Name"/>
+            <q-input v-model="newFeature.alias" square label="Alias"/>
+            <q-input v-model="newFeature.description" square label="Description"/>
+            <q-input v-model="newFeature.format" square label="Format" placeholder="#.##" style="width: 100px"/>
+            <q-input v-model="newFeature.sequence" square label="Sequence"/>
+            <q-input v-model="newFeature.trigger" square label="Trigger"/>
           </div>
           <div class="col-1"/>
           <div class="col-5">
-            <q-select v-model="newFeature.type" square label="Type" :options="featureTypes"
-                      @update:model-value="onFeatureTypeSelection"/>
+            <q-select v-model="newFeature.type" square label="Type" :options="featureTypes" @update:model-value="onFeatureTypeSelection"/>
             <q-select v-model="selectedFormulaId" square label="Formula" v-if="!isRaw(newFeature.type)"
                       :options="formulas.filter(formula => isCalculation(newFeature.type, formula.category))"
                       option-value="id" option-label="name" @update:model-value="onFormulaSelection"/>
@@ -24,7 +22,7 @@
               <br/>
               <div>
                 <span class="text-primary">Formula variables:</span>
-                <div>
+                <div class="row col-12">
                   <template :key="variable.variableName" v-for="variable in variables.list">
                     <div v-if="!isRaw(newFeature.type)" class="row col-12">
                       <div class="col-7">
@@ -39,7 +37,7 @@
                       </div>
                       <div class="col-1"/>
                       <div class="col-4">
-                        <q-select v-model="variable.sourceInput" :options="inputSource" label="Input source" square />
+                        <q-select v-model="variable.sourceInput" :options="inputSource" label="Input source" square/>
                       </div>
                     </div>
                     <div v-else class="row col-12">
@@ -78,6 +76,7 @@ const store = useStore()
 const props = defineProps(['show', 'protocolId'])
 const emit = defineEmits(['update:show'])
 
+//TODO fix hardcode
 const featureTypes = ['CALCULATION', 'NORMALIZATION', 'RAW']
 const inputSource = ['MEASUREMENT', 'FEATURE']
 
@@ -125,7 +124,6 @@ const availableFeatures = (protocolId, featureId) => {
 
 const formulas = computed(() => store.getters['calculations/getFormulas']())
 
-const selectedFormulaId = ref(null)
 // const selectedInputSource = ref(null)
 const formulaInputs = ref(null)
 
@@ -144,6 +142,7 @@ const onFeatureTypeSelection = () => {
 }
 
 //Get formulaInputs and dispatch if it not available
+const selectedFormulaId = ref(null)
 const onFormulaSelection = () => {
   if (selectedFormulaId.value) {
     store.dispatch('calculations/getFormulaInputs', selectedFormulaId.value.id).then(() => {
