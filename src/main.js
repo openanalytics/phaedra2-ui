@@ -24,6 +24,8 @@ import PlateView from '@/pages/plate/PlateView.vue'
 import BrowseProtocols from '@/pages/protocol/BrowseProtocols.vue'
 import ProtocolView from '@/pages/protocol/ProtocolView.vue'
 import NewProtocolView from "@/pages/protocol/NewProtocolView";
+import FeatureView from "@/pages/feature/FeatureView";
+import FormulaTab  from "@/pages/feature/FormulaTab.vue";
 
 import FormulasView from "@/pages/calculation/formula/FormulasView";
 import FormulaView from "@/pages/calculation/formula/FormulaView";
@@ -67,6 +69,11 @@ const routes = [
     { name: "protocol", path: "/protocol/:id", component: ProtocolView },
     { name: "newProtocol", path: "/protocol/new", component: NewProtocolView },
     { name: "importProtocol", path: "/protocol/import", component: ImportProtocolView},
+    { name: "feature", path: "/feature/:id", component: FeatureView,
+        children: [
+            { path: '', component: FormulaTab}
+        ]
+    },
 
     { name: "browseTemplates", path: "/templates", component: BrowseTemplates},
     { name: "template", path: "/template/:id", component: PlateTemplateView},
