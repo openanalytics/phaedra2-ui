@@ -23,6 +23,10 @@
               </div>
             </div>
             <div class="row">
+              <div class="col-3 text-weight-bold">Description:</div>
+              <div class="col">{{ feature.description }}</div>
+            </div>
+            <div class="row">
               <div class="col-3 text-weight-bold">Format:</div>
               <div class="col">{{ feature.format }}</div>
             </div>
