@@ -180,11 +180,4 @@
   const arePlatesSelected = () => {
     return selectedPlates.value.length !== 0;
   };
-  const onPlateSelection = () => {
-    if (selectedPlates.value)
-      alert("Plate selected: " + selectedPlates.value[0].barcode);
-    else
-      alert("No plates selected!");
-    allTemplates = computed(() => store.getters['templates/getPlateTemplatesByPlateDimensions'](selectedPlates.value[0]));
-  };
 </script>
