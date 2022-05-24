@@ -50,6 +50,10 @@
             </div>
           </div>
 
+          <div class="col-4">
+            <PropertyTable :objectInfo="feature" :objectClass="'FEATURE'"/>
+          </div>
+
           <div class="col col-4">
             <div class="row justify-end action-button">
               <q-btn size="sm" color="primary" icon="edit" class="oa-button-edit" label="Edit"
@@ -64,9 +68,9 @@
       </div>
     </div>
 
-    <edit-feature v-model:show="editdialog" v-model:originalFeature="feature"></edit-feature>
+    <edit-feature v-if="editdialog" v-model:show="editdialog" v-model:originalFeature="feature"></edit-feature>
 
-    <div class="q-pa-md" v-if="feature">
+    <div class="q-pa-md" v-if="feature&&!editdialog">
       <q-tabs
           inline-label dense no-caps
           align="left"
@@ -78,7 +82,7 @@
       <div class="row oa-section-body">
         <q-tab-panels v-model="activeTab" animated style="width: 100%">
           <q-tab-panel name="formula" icon="functions" label="Formula">
-            <FormulaTab :formula="formula"/>
+            <FormulaTab :formula="formula" :formulaInputs="formulaInputs"/>
           </q-tab-panel>
         </q-tab-panels>
       </div>
@@ -114,6 +118,9 @@ const featureId = parseInt(route.params.id);
 const feature = computed(() => store.getters['features/getById'](featureId));
 const protocol = computed(() => store.getters['protocols/getById'](feature.value.protocolId));
 const formula = computed(() => store.getters['calculations/getFormula'](feature.value.formulaId));
+const formulaInputs = computed(() => {
+  return store.getters['calculations/getFormulaInputs'](feature.value.formulaId)
+})
 store.dispatch('features/loadByIds',[featureId]).then(() => {
   if (!protocol.value) {
     store.dispatch('protocols/loadById', feature.value.protocolId);
@@ -121,10 +128,13 @@ store.dispatch('features/loadByIds',[featureId]).then(() => {
   if (!formula.value) {
     store.dispatch('calculations/getFormula', feature.value.formulaId);
   }
-})
+  if (!formulaInputs.value) {
+    store.dispatch('calculations/getFormulaInputs', feature.value.formulaId);
+  }
+});
 
 const onDeleted = () => {
-  router.push({name: 'protocol', params: {id: feature.value.protocolId}});
+  router.push({name: "protocol", params: {id: protocol.value.id}});
 }
 const editdialog = ref(false);
 const activeTab = ref('formula');

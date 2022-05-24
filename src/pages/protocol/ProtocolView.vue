@@ -92,9 +92,11 @@
         </template>
       <template v-slot:body-cell-name="props">
         <q-td :props="props">
-          <div class="row items-center cursor-pointer" @click="selectedFeature=props.row;showEditFeatureSection=true">
-            {{ props.row.name }}
-          </div>
+          <router-link :to="'/feature/' + props.row.id" class="nav-link">
+            <div class="row items-center cursor-pointer">
+              {{ props.row.name }}
+            </div>
+          </router-link>
         </q-td>
       </template>
         <template v-slot:body-cell-formulaId="props">

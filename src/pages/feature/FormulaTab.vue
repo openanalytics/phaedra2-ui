@@ -3,7 +3,9 @@
     <div class="col-6">
       <div class="row">
         <div class="col-3 text-weight-bold">Name:</div>
-        <div class="col">{{ props.formula.name }}</div>
+          <router-link :to="'/calc/formula/' + props.formula.id" class="nav-link">
+            <div class="col">{{ props.formula.name }}</div>
+          </router-link>
       </div>
       <div class="row">
         <div class="col-3 text-weight-bold">Description:</div>
@@ -43,11 +45,11 @@
     </div>
   </div>
   <br>
-  <div class="q-pt-md" style="max-height: 750px" v-if="props.formula">
+  <div class="q-pt-md" style="max-height: 750px" v-if="props.formula && props.formulaInputs">
     <div class="col-3 text-weight-bold">Formula:</div><br>
     <p style="border: 3px solid gray;padding: 1em;white-space: pre-line;" class="text-italic" >{{props.formula.formula}}</p>
     <span class="text-grey text-caption">
-                        Input variables: {{ formulaInputs.length > 0 ? formulaInputs : 'None' }}
+                        Input variables: {{ props.formulaInputs.length > 0 ? props.formulaInputs : 'None' }}
                     </span>
   </div>
 
@@ -60,11 +62,8 @@ import {computed} from "vue";
 const store = useStore()
 
 const props = defineProps({
-  formula: Object
-})
-
-const formulaInputs = computed(() => {
-  return store.getters['calculations/getFormulaInputs'](props.formula.id) || []
+  formula: Object,
+  formulaInputs: Array,
 })
 
 </script>
