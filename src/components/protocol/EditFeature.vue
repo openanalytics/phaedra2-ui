@@ -5,41 +5,48 @@
       <q-card-section>
         <div class="row">
           <div class="col-5">
-            <q-input v-model="feature.name" square autofocus label="Name"></q-input>
-            <q-input v-model="feature.alias" square label="Alias"></q-input>
-            <q-input v-model="feature.description" square label="Description"></q-input>
-            <q-input v-model="feature.format" square label="Format" placeholder="#.##"
-                     style="width: 100px"></q-input>
-            <q-input v-model="feature.sequence" square label="Sequence"></q-input>
-            <q-input v-model="feature.trigger" square label="Trigger"></q-input>
+            <q-input v-model="feature.name" square autofocus label="Name"/>
+            <q-input v-model="feature.alias" square label="Alias"/>
+            <q-input v-model="feature.description" square label="Description"/>
+            <q-input v-model="feature.format" square label="Format" placeholder="#.##" style="width: 100px"/>
+            <q-input v-model="feature.sequence" square label="Sequence"/>
+            <q-input v-model="feature.trigger" square label="Trigger"/>
           </div>
           <div class="col-1"/>
           <div class="col-5">
-            <q-select v-model="feature.type" square label="Type" :options="featureTypes"></q-select>
-            <q-select v-model="feature.formulaId" square label="Formula"
-                      :options="formulas.filter(formula => isCalculation(feature.type, formula.category))" option-label="name"
-                      option-value="id" map-options></q-select>
+            <q-select v-model="feature.type" square label="Type" :options="featureTypes" @update:model-value="onFeatureTypeSelection"/>
+            <q-select v-model="feature.formulaId" square label="Formula" v-if="!isRaw(feature.type)"
+                      :options="formulas.filter(formula => isCalculation(feature.type, formula.category))"
+                      option-label="name" option-value="id" map-options @update:model-value="onFormulaSelection"/>
             <div v-if="(variables.list.length > 0)">
               <br/>
               <span class="text-primary">Formula variables:</span>
               <div class="row col-12">
-                <template :key="variable.variableName"
-                          v-for="variable in variables.list">
-                  <div class="col-7">
-                    <q-input v-model="variable.sourceMeasColName"
-                             v-if="variable.sourceInput === 'MEASUREMENT'"
-                             :label="variable.variableName"></q-input>
-                    <q-select :options="availableFeatures(feature.protocolId, feature.id)"
-                              v-model="variable.sourceFeatureId"
-                              option-value="id" option-label="name" emit-value map-options
-                              v-if="variable.sourceInput === 'FEATURE'"
-                              :label="variable.variableName"></q-select>
+                <template :key="variable.variableName" v-for="variable in variables.list">
+                  <div v-if="!isRaw(feature.type)" class="row col-12">
+                    <div class="col-7">
+                      <q-input v-model="variable.sourceMeasColName"
+                               v-if="variable.sourceInput === 'MEASUREMENT'"
+                               :label="variable.variableName"/>
+                      <q-select :options="availableFeatures(feature.protocolId, feature.id)"
+                                v-model="variable.sourceFeatureId"
+                                option-value="id" option-label="name" emit-value map-options
+                                v-if="variable.sourceInput === 'FEATURE'"
+                                :label="variable.variableName"/>
+                    </div>
+                    <div class="col-1"/>
+                    <div class="col-4">
+                      <q-select v-model="variable.sourceInput" :options="inputSource" label="Input source" square/>
+                    </div>
                   </div>
-                  <div class="col-1"/>
-                  <div class="col-4">
-                    <q-select v-model="variable.sourceInput"
-                              :options="inputSource"
-                              square label="Input source"></q-select>
+                  <div v-else class="row col-12">
+                    <div class="col-7">
+                      <q-input v-model="variable.sourceMeasColName" :label="variable.variableName"/>
+                    </div>
+                    <div class="col-1"/>
+                    <div class="col-4">
+                      <q-select v-model="variable.sourceInput" :options="inputSource" label="Input source" disable square />
+                    </div>
                   </div>
                 </template>
               </div>
@@ -56,102 +63,129 @@
   </div>
 </template>
 
-<script>
+<script setup>
 
-import {useStore} from "vuex";
-import {computed, reactive, ref, watch} from "vue";
+import { useStore } from "vuex";
+import { computed, reactive, ref, watch } from "vue";
+import assert from 'assert'
 import OaSectionHeader from "../widgets/OaSectionHeader";
 
-export default {
-  name: 'EditFeature',
-  components: {OaSectionHeader},
-  methods: {
-    isCalculation(featureType, formulaCategory) {
-      if (featureType === 'CALCULATION') {
-        if (formulaCategory === 'CALCULATION'
-            || formulaCategory === 'HIT_CALLING'
-            || formulaCategory === 'OUTLIER_DETECTION'
-            || formulaCategory === 'POLISHING') {
-          return true;
-        }
-      }
-      return false;
-    },
-    availableFeatures(protocolId, featureId) {
-      if (featureId)
-        return this.$store.getters['features/getByProtocolId'](protocolId).filter(f => f.id !== featureId)
-      return this.$store.getters['features/getByProtocolId'](protocolId);
+const store = useStore()
+
+//TODO fix hardcode
+const featureTypes = ['CALCULATION', 'NORMALIZATION', 'RAW']
+const inputSource = ['MEASUREMENT', 'FEATURE']
+
+const props = defineProps(['show', 'originalFeature'])
+const emit = defineEmits(['update:show'])
+
+const formulas = computed(() => store.getters['calculations/getFormulas']())
+const feature = ref({})
+
+//Reactive list that changes when formulaInputs changes
+const variables = reactive({list: []})
+const previous = reactive({list: []})
+
+const isCalculation = (featureType, formulaCategory) => {
+  if (featureType === 'CALCULATION') {
+    if (formulaCategory === 'CALCULATION'
+        || formulaCategory === 'HIT_CALLING'
+        || formulaCategory === 'OUTLIER_DETECTION'
+        || formulaCategory === 'POLISHING') {
+      return true;
     }
-  },
-  setup(props, context) {
-    const exported = {}
+  }
+  return false;
+}
 
-    const store = useStore()
-    exported.formulas = computed(() => store.getters['calculations/getFormulas']())
+const isRaw = (featureType) => {
+  return featureType === 'RAW' ? true : false
+}
 
-    exported.feature = ref({})
-    //Reactive list that changes when formulaInputs changes
-    exported.variables = reactive({list: []})
-    exported.previous = reactive({list: []})
+const availableFeatures = (protocolId, featureId) => {
+  if (featureId)
+    return store.getters['features/getByProtocolId'](protocolId).filter(f => f.id !== featureId)
+  return store.getters['features/getByProtocolId'](protocolId);
+}
 
-    //Make hard copy of feature to edit it later
-    const fetchFeatureWorkingCopy = () => {
-      let originalFeature = props.originalFeature || {}
-      exported.feature.value = {...originalFeature}
-      exported.originalFormulaId = ref(originalFeature.formulaId)
-      //Fetch previous formula variable names
-      store.dispatch('features/getCalculationInputValue',exported.feature.value.id).then(() => {
-      const civs = store.getters['features/getCalculationInputValueByFeatureId'](exported.feature.value.id)
-        if (civs) {
-          //Make full copy of getter + sort alphabetically instead of by date modified
-          exported.previous.list = JSON.parse(JSON.stringify(civs)).sort((a, b) => a.variableName.localeCompare(b.variableName))
-          exported.previous.list.forEach(f => f['sourceInput'] = f.sourceMeasColName ? 'MEASUREMENT' : 'FEATURE');
+//Make hard copy of feature to edit it later
+let originalFeature = props.originalFeature || {}
+feature.value = {...originalFeature}
+const originalFormulaId = ref(originalFeature.formulaId)
+//Fetch previous formula variable names
+store.dispatch('features/getCalculationInputValue', feature.value.id).then(() => {
+  const civs = store.getters['features/getCalculationInputValueByFeatureId'](feature.value.id)
+  if (civs) {
+    //Make full copy of getter + sort alphabetically instead of by date modified
+    previous.list = JSON.parse(JSON.stringify(civs)).sort((a, b) => a.variableName.localeCompare(b.variableName))
+    previous.list.forEach(f => f['sourceInput'] = f.sourceMeasColName ? 'MEASUREMENT' : 'FEATURE');
 
-          exported.variables.list = JSON.parse(JSON.stringify(civs)).sort((a, b) => a.variableName.localeCompare(b.variableName));
-          exported.variables.list.forEach(f => f['sourceInput'] = f.sourceMeasColName ? 'MEASUREMENT' : 'FEATURE');
-        }
-      })
-    }
-    fetchFeatureWorkingCopy()
+    variables.list = JSON.parse(JSON.stringify(civs)).sort((a, b) => a.variableName.localeCompare(b.variableName));
+    variables.list.forEach(f => f['sourceInput'] = f.sourceMeasColName ? 'MEASUREMENT' : 'FEATURE');
+  }
+})
 
-    //Get formulaInputs
-    const formulaInputs = computed(() => {
-      if (!exported.feature.value.formulaId) return []
-      const id = Number.isInteger(exported.feature.value.formulaId) ? exported.feature.value.formulaId:exported.feature.value.formulaId.id
-      if(!store.getters['calculations/getFormulaInputs'](id))
-        store.dispatch('calculations/getFormulaInputs',id)
-      return store.getters['calculations/getFormulaInputs'](id) || []
+//Get formulaInputs
+const formulaInputs = ref(null)
+const onFeatureTypeSelection = () => {
+  if (isRaw(feature.value.type)) {
+    feature.value.sequence = 0
+    feature.value.formulaId = 75
+    store.dispatch('calculations/getFormulaInputs', 75).then(() => {
+      formulaInputs.value = store.getters['calculations/getFormulaInputs'](75) || []
     })
-
-    //Watch for changes and update lists accordingly
-    watch(formulaInputs, (f) => {
-      exported.variables.list = f.map(i => {
-        return {
-          variableName: i,
-          sourceInput: 'MEASUREMENT',
-          sourceMeasColName: undefined,
-          sourceFeatureId: undefined
-        }
-      })
-    })
-
-    //Function to fire an edit event of a feature using the working copy
-    exported.editFeature = () => {
-      exported.feature.value.formulaId = Number.isInteger(exported.feature.value.formulaId) ? exported.feature.value.formulaId : exported.feature.value.formulaId.id
-      //Did formula change? choose civs list accordingly
-      const formulaChange = exported.feature.value.formulaId!==exported.originalFormulaId.value
-      const civs = formulaChange?exported.variables:exported.previous
-      store.dispatch('features/editFeature', {feature:exported.feature.value, formulaChange: formulaChange, civs: civs.list, prev: exported.previous.list})
-      context.emit('update:show', false)
+  } else {
+    if (formulaInputs.value && formulaInputs.value.length > 0) {
+      feature.value.formulaId = null
+      formulaInputs.value = []
     }
+  }
+}
 
-    //TODO fix hardcode
-    exported.featureTypes =  ['CALCULATION', 'NORMALIZATION', 'RAW']
-    exported.inputSource = ['MEASUREMENT', 'FEATURE']
+const onFormulaSelection = () => {
+  if (feature.value.formulaId) {
+    store.dispatch('calculations/getFormulaInputs', feature.value.formulaId.id).then(() => {
+      formulaInputs.value = store.getters['calculations/getFormulaInputs'](feature.value.formulaId.id) || []
+    })
+  }
+}
 
-    return exported;
-  },
-  props: ['originalFeature'],
-  emits: ['update:show']
+//Watch for changes and update lists accordingly
+watch(formulaInputs, (f) => {
+  variables.list = f.map(i => {
+    return {
+      variableName: i,
+      sourceInput: 'MEASUREMENT',
+      sourceMeasColName: undefined,
+      sourceFeatureId: undefined
+    }
+  })
+})
+
+//Function to fire an edit event of a feature using the working copy
+const editFeature = () => {
+  feature.value.formulaId = Number.isInteger(feature.value.formulaId) ? feature.value.formulaId : feature.value.formulaId.id
+  //Did formula change? choose civs list accordingly
+  const formulaChange = (feature.value.formulaId !== originalFormulaId.value)
+  const varsChanged = calcVariablesChanged(variables, previous)
+  const civs = (formulaChange || varsChanged) ? variables : previous
+  store.dispatch('features/editFeature', {
+    feature: feature.value,
+    formulaChange: formulaChange,
+    civs: civs.list,
+    prev: previous.list
+  })
+  emit('update:show', false)
+}
+
+const calcVariablesChanged =  (variables, previous) => {
+  if (variables.list.length !== previous.list.length) return true;
+  try {
+    assert.deepEqual(variables.list, previous.list);
+    return false;
+  } catch (e) {
+    return true
+  }
+
 }
 </script>

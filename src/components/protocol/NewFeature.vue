@@ -5,42 +5,49 @@
       <q-card-section>
         <div class="row">
           <div class="col-5">
-            <q-input v-model="newFeature.name" square autofocus label="Name"></q-input>
-            <q-input v-model="newFeature.alias" square label="Alias"></q-input>
-            <q-input v-model="newFeature.description" square label="Description"></q-input>
-            <q-input v-model="newFeature.format" square label="Format" placeholder="#.##"
-                     style="width: 100px"></q-input>
-            <q-input v-model="newFeature.sequence" square label="Sequence"></q-input>
-            <q-input v-model="newFeature.trigger" square label="Trigger"></q-input>
+            <q-input v-model="newFeature.name" square autofocus label="Name"/>
+            <q-input v-model="newFeature.alias" square label="Alias"/>
+            <q-input v-model="newFeature.description" square label="Description"/>
+            <q-input v-model="newFeature.format" square label="Format" placeholder="#.##" style="width: 100px"/>
+            <q-input v-model="newFeature.sequence" square label="Sequence"/>
+            <q-input v-model="newFeature.trigger" square label="Trigger"/>
           </div>
           <div class="col-1"/>
           <div class="col-5">
-            <q-select v-model="newFeature.type" square label="Type" :options="featureTypes"></q-select>
-            <q-select v-model="selectedFormulaId" square label="Formula"
+            <q-select v-model="newFeature.type" square label="Type" :options="featureTypes" @update:model-value="onFeatureTypeSelection"/>
+            <q-select v-model="selectedFormulaId" square label="Formula" v-if="!isRaw(newFeature.type)"
                       :options="formulas.filter(formula => isCalculation(newFeature.type, formula.category))"
-                      option-value="id" option-label="name"></q-select>
+                      option-value="id" option-label="name" @update:model-value="onFormulaSelection"/>
             <div v-if="(variables.list.length > 0)">
               <br/>
               <div>
                 <span class="text-primary">Formula variables:</span>
                 <div class="row col-12">
-                  <template :key="variable.variableName"
-                            v-for="variable in variables.list">
-                    <div class="col-7">
-                      <q-input v-model="variable.sourceMeasColName"
-                               v-if="variable.sourceInput === 'MEASUREMENT'"
-                               :label="variable.variableName"></q-input>
-                      <q-select :options="availableFeatures(newFeature.protocolId, newFeature.id)"
-                                v-model="variable.sourceFeatureId"
-                                option-value="id" option-label="name" emit-value map-options
-                                v-if="variable.sourceInput === 'FEATURE'"
-                                :label="variable.variableName"></q-select>
+                  <template :key="variable.variableName" v-for="variable in variables.list">
+                    <div v-if="!isRaw(newFeature.type)" class="row col-12">
+                      <div class="col-7">
+                        <q-input v-model="variable.sourceMeasColName"
+                                 v-if="variable.sourceInput === 'MEASUREMENT'"
+                                 :label="variable.variableName"/>
+                        <q-select :options="availableFeatures(newFeature.protocolId, newFeature.id)"
+                                  v-model="variable.sourceFeatureId"
+                                  option-value="id" option-label="name" emit-value map-options
+                                  v-if="variable.sourceInput === 'FEATURE'"
+                                  :label="variable.variableName"/>
+                      </div>
+                      <div class="col-1"/>
+                      <div class="col-4">
+                        <q-select v-model="variable.sourceInput" :options="inputSource" label="Input source" square/>
+                      </div>
                     </div>
-                    <div class="col-1"/>
-                    <div class="col-4">
-                      <q-select v-model="variable.sourceInput"
-                                :options="inputSource"
-                                square label="Input source"></q-select>
+                    <div v-else class="row col-12">
+                      <div class="col-7">
+                        <q-input v-model="variable.sourceMeasColName" :label="variable.variableName"/>
+                      </div>
+                      <div class="col-1"/>
+                      <div class="col-4">
+                        <q-select v-model="variable.sourceInput" :options="inputSource" label="Input source" disable square />
+                      </div>
                     </div>
                   </template>
                 </div>
@@ -58,84 +65,96 @@
   </div>
 </template>
 
-<script>
+<script setup>
 
 import {useStore} from "vuex";
 import {computed, reactive, ref, watch} from "vue";
 import OaSectionHeader from "../widgets/OaSectionHeader";
 
-export default {
-  name: 'NewFeature',
-  components: {OaSectionHeader},
-  methods: {
-    addFeature() {
-      console.log(this.newFeature)
-      this.newFeature.formulaId = this.selectedFormulaId.id
-      this.$store.dispatch('features/createFeature', { newFeature: this.newFeature, civs: this.variables.list})
-      this.$emit('update:show', false)
-    },
-    isCalculation(featureType, formulaCategory) {
-      if (featureType === 'CALCULATION') {
-        if (formulaCategory === 'CALCULATION'
-            || formulaCategory === 'HIT_CALLING'
-            || formulaCategory === 'OUTLIER_DETECTION'
-            || formulaCategory === 'POLISHING') {
-          return true;
-        }
-      }
-      return false;
-    },
-    availableFeatures(protocolId, featureId) {
-      if (featureId)
-        return this.$store.getters['features/getByProtocolId'](protocolId).filter(f => f.id !== featureId)
-      return this.$store.getters['features/getByProtocolId'](protocolId);
-    }
-  },
-  setup(props) {
-    const store = useStore()
-    const formulas = computed(() => store.getters['calculations/getFormulas']())
+const store = useStore()
 
-    let selectedFormulaId = ref(null)
-    let selectedInputSource = ref(null)
-    //Get formulaInputs and dispatch if it not available
-    const formulaInputs = computed(() => {
-      if (!selectedFormulaId.value) return []
-      if(!store.getters['calculations/getFormulaInputs'](selectedFormulaId.value.id))
-        store.dispatch('calculations/getFormulaInputs',selectedFormulaId.value.id)
-      return store.getters['calculations/getFormulaInputs'](selectedFormulaId.value.id) || []
-    })
-    let variables = reactive({list: []})
-    watch(formulaInputs, (i) =>{
-      variables.list = i.map(i => {return {variableName: i, sourceInput: 'MEASUREMENT', sourceMeasColName: undefined, sourceFeatureId: undefined}})
-    })
-    return {
-      props,
-      formulas,
-      formulaInputs,
-      selectedFormulaId,
-      selectedInputSource,
-      variables
-    }
-  },
-  data() {
-    return {
-      featureTypes: ['CALCULATION', 'NORMALIZATION', 'RAW'],
-      inputSource: ['MEASUREMENT', 'FEATURE'],
-      newFeature: {
-        name: null,
-        alias: null,
-        description: null,
-        format: null,
-        type: null,
-        sequence: 0,
-        protocolId: this.props.protocolId,
-        formulaId: this.selectedFormulaId,
-        trigger: null
-      },
-      variableNames: []
-    }
-  },
-  props: ['protocolId'],
-  emits: ['update:show']
+const props = defineProps(['show', 'protocolId'])
+const emit = defineEmits(['update:show'])
+
+//TODO fix hardcode
+const featureTypes = ['CALCULATION', 'NORMALIZATION', 'RAW']
+const inputSource = ['MEASUREMENT', 'FEATURE']
+
+const newFeature = ref({
+  name: null,
+  alias: null,
+  description: null,
+  format: '#.##',
+  type: null,
+  sequence: 0,
+  protocolId: props.protocolId,
+  formulaId: selectedFormulaId?.value,
+  trigger: null
+})
+
+const variableNames = ref([])
+
+const addFeature = () => {
+  newFeature.value.formulaId = selectedFormulaId.value.id
+  store.dispatch('features/createFeature', {newFeature: newFeature.value, civs: variables.list})
+  emit('update:show', false)
 }
+
+const isCalculation = (featureType, formulaCategory) => {
+  if (featureType === 'CALCULATION') {
+    if (formulaCategory === 'CALCULATION'
+        || formulaCategory === 'HIT_CALLING'
+        || formulaCategory === 'OUTLIER_DETECTION'
+        || formulaCategory === 'POLISHING') {
+      return true;
+    }
+  }
+  return false;
+}
+
+const isRaw = (featureType) => {
+  return featureType === 'RAW' ? true : false
+}
+
+const availableFeatures = (protocolId, featureId) => {
+  if (featureId)
+    return store.getters['features/getByProtocolId'](protocolId).filter(f => f.id !== featureId)
+  return store.getters['features/getByProtocolId'](protocolId);
+}
+
+const formulas = computed(() => store.getters['calculations/getFormulas']())
+
+// const selectedInputSource = ref(null)
+const formulaInputs = ref(null)
+
+const onFeatureTypeSelection = () => {
+  if (isRaw(newFeature.value.type)) {
+    newFeature.value.sequence = 0
+    store.dispatch('calculations/getFormulaInputs', 75).then(() => {
+      formulaInputs.value = store.getters['calculations/getFormulaInputs'](75) || []
+    })
+  } else {
+    if (formulaInputs.value && formulaInputs.value.length > 0) {
+      selectedFormulaId.value = null
+      formulaInputs.value = []
+    }
+  }
+}
+
+//Get formulaInputs and dispatch if it not available
+const selectedFormulaId = ref(null)
+const onFormulaSelection = () => {
+  if (selectedFormulaId.value) {
+    store.dispatch('calculations/getFormulaInputs', selectedFormulaId.value.id).then(() => {
+      formulaInputs.value = store.getters['calculations/getFormulaInputs'](selectedFormulaId.value.id) || []
+    })
+  }
+}
+
+let variables = reactive({list: []})
+watch(formulaInputs, (i) => {
+  variables.list = i.map(i => {
+    return {variableName: i, sourceInput: 'MEASUREMENT', sourceMeasColName: undefined, sourceFeatureId: undefined}
+  })
+})
 </script>
