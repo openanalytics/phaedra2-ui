@@ -54,7 +54,7 @@
                 <q-item-section avatar><q-icon name="calculate"/></q-item-section>
                 <q-item-section>Calculate plate</q-item-section>
             </q-item>
-            
+
             <q-item dense clickable @click="linkPlate()">
                 <q-item-section avatar><q-icon name="playlist_add"/></q-item-section>
                 <q-item-section>Link Plate Template</q-item-section>
@@ -64,6 +64,11 @@
                 <q-item-section avatar><q-icon name="delete"/></q-item-section>
                 <q-item-section>Delete Plate</q-item-section>
             </q-item>
+
+          <q-item dense clickable @click="showPlateInspector()">
+            <q-item-section avatar><q-icon name="info"/></q-item-section>
+            <q-item-section>Plate Inspector</q-item-section>
+          </q-item>
         </q-list>
     </q-menu>
 

@@ -71,6 +71,12 @@ const actions = {
         // Load the 'calculated' plate results
         ctx.dispatch('resultdata/loadPlateResults', {plateId: plateId}, {root: true});
     },
+    async loadByIds(ctx, plateIds) {
+      for (let i in plateIds) {
+          const plate = await plateAPI.getPlateById(plateIds[i]);
+          ctx.commit('cachePlate', plate);
+      }
+    },
     async createNewPlate(ctx, plate) {
         const newPlate = await plateAPI.addPlate(plate)
         ctx.commit('cacheNewPlate', newPlate)
@@ -104,9 +110,14 @@ const mutations = {
         if (state.currentPlate && state.currentPlate.id !== plate.id)
             state.currentPlate = plate;
     },
+    cachePlate(state, plate) {
+        if (!state.plates.find(it => it?.id === plate?.id)) {
+            state.plates.push(plate)
+        }
+    },
     cachePlates(state, plates) {
         plates?.forEach(plate => {
-            if (!state.plates.find(it => it.id === plate.id)) {
+            if (!state.plates.find(it => it?.id === plate?.id)) {
                 state.plates.push(plate)
             }
         });

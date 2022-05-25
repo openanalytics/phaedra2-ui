@@ -39,6 +39,13 @@ export default {
                     result = result.concat(response.data.data);
             });
         return result;
+    },
+    async getRecentCalculationResults(n = 10) {
+        const result = await axios.get(apiURL + '/resultset/latest', { params: { n: n }});
+        if (result.status === 200)
+            return result.data;
+        else
+            return [];
     }
 }
 
