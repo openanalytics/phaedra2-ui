@@ -36,6 +36,7 @@
 
 import {useStore} from "vuex";
 import {computed, ref} from "vue";
+import OaSectionHeader from "../../components/widgets/OaSectionHeader";
 
 const props = defineProps(['show', 'protocol']);
 const emit = defineEmits(['update:show']);
