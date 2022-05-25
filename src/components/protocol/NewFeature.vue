@@ -124,13 +124,13 @@ const availableFeatures = (protocolId, featureId) => {
 
 const formulas = computed(() => store.getters['calculations/getFormulas']())
 
-// const selectedInputSource = ref(null)
 const formulaInputs = ref(null)
 
 const onFeatureTypeSelection = () => {
   if (isRaw(newFeature.value.type)) {
     newFeature.value.sequence = 0
     store.dispatch('calculations/getFormulaInputs', 75).then(() => {
+      selectedFormulaId.value = store.getters['calculations/getFormula'](75)
       formulaInputs.value = store.getters['calculations/getFormulaInputs'](75) || []
     })
   } else {
