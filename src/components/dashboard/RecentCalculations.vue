@@ -63,13 +63,4 @@ const columns = [
   },
   {name: 'outcome', label: 'Outcome', align: 'left', field: 'outcome'},
 ]
-
-// const getProjectName = (projectId) => {
-//   const project = this.projects.find(project => {
-//     return project.id === projectId
-//   })
-//   if (project) {
-//     return project.name
-//   } else return 'NOT_IN_DB'
-// }
 </script>

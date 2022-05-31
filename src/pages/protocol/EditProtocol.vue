@@ -45,12 +45,6 @@ const store = useStore();
 
 const wellTypeOptions = ['LC', 'HC', 'NC', 'PC'];
 
-// const protocol = computed(() => store.getters['protocols/getCurrentProtocol']());
-// const name = ref(protocol.value.name);
-// const description = ref(protocol.value.description);
-// const lowWellType = ref(protocol.value.lowWelltype);
-// const highWellType = ref(protocol.value.highWelltype);
-
 const protocol = ref(props.protocol);
 const name = ref(protocol.value.name);
 const description = ref(protocol.value.description);
