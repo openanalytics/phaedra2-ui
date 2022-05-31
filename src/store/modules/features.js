@@ -42,6 +42,9 @@ const actions = {
         }
         const features = await featuresAPI.getByIds(missingIds)
         ctx.commit('cacheMany', features)
+        for (const id of missingIds) {
+            ctx.dispatch('metadata/loadMetadata', { objectId: missingIds, objectClass: 'FEATURE' }, {root:true});
+        }
     },
     async loadByProtocolId(ctx, protocolId) {
         if (ctx.getters['isProtocolLoaded'](protocolId)) {
