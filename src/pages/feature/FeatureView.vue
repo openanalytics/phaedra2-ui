@@ -78,11 +78,23 @@
           v-model="activeTab"
       >
         <q-tab name="formula" icon="functions" label="Formula"/>
+        <q-tab name="curve_fitting" label="Dose-Response Curve Fitting"/>
+        <q-tab name="outlier_detection" label="Outlier Detection"/>
+        <q-tab name="hit_calling" icon="rules" label="Hit Calling"/>
       </q-tabs>
       <div class="row oa-section-body">
         <q-tab-panels v-model="activeTab" animated style="width: 100%">
-          <q-tab-panel name="formula" icon="functions" label="Formula">
+          <q-tab-panel name="formula" label="Formula">
             <FormulaTab :formula="formula" :formulaInputs="formulaInputs"/>
+          </q-tab-panel>
+          <q-tab-panel name="curve_fitting">
+            <div>Not yet implemented!</div>
+          </q-tab-panel>
+          <q-tab-panel name="outlier_detection">
+            <div>Not yet implemented!</div>
+          </q-tab-panel>
+          <q-tab-panel name="hit_calling">
+            <div>Not yet implemented!</div>
           </q-tab-panel>
         </q-tab-panels>
       </div>

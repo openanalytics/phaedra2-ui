@@ -7,23 +7,17 @@
   </div>
 </template>
 
-<script>
-  import ProjectCard from "@/components/dashboard/ProjectCard";
-  import OaSectionHeader from "../widgets/OaSectionHeader";
+<script setup>
+import ProjectCard from "@/components/dashboard/ProjectCard";
+import OaSectionHeader from "../widgets/OaSectionHeader";
 
-  export default {
-    props: {
-      projects: Array
-    },
-    name: "RecentProjects",
-    components: {
-      ProjectCard,
-      OaSectionHeader
-    }
-  }
+const props = defineProps({
+  projects: Array
+})
+
 </script>
 
 <style lang="scss">
-  @import "src/css/oa.global";
+@import "src/css/oa.global";
 
 </style>
