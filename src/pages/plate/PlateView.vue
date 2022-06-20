@@ -60,8 +60,8 @@
           v-model="activeTab"
       >
         <q-tab name="layout" icon="view_module" label="Layout"/>
-        <q-tab name="measurements" icon="text_snippet" label="Measurements"/>
         <q-tab name="heatmap" icon="view_module" label="Heatmap"/>
+        <q-tab name="measurements" icon="text_snippet" label="Measurements"/>
         <q-tab name="wells" icon="table_rows" label="Well List"/>
         <q-tab name="results" icon="assignment_turned_in" label="Results"/>
       </q-tabs>
@@ -70,11 +70,11 @@
           <q-tab-panel name="layout" icon="view_module" label="Layout">
             <PlateLayout :plate="plate" />
           </q-tab-panel>
-          <q-tab-panel name="measurements" icon="view_module" label="Layout">
-            <MeasList :plate="plate" />
-          </q-tab-panel>
           <q-tab-panel name="heatmap" icon="view_module" label="Layout">
             <PlateHeatmap :plate="plate" />
+          </q-tab-panel>
+          <q-tab-panel name="measurements" icon="view_module" label="Layout">
+            <MeasList :plate="plate" />
           </q-tab-panel>
           <q-tab-panel name="wells" icon="view_module" label="Layout">
             <WellList :plate="plate" />
