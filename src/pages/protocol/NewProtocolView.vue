@@ -50,7 +50,7 @@ const newProtocol = ref({
 const onSubmit = () => {
   newProtocol.value.createdOn = new Date();
   console.log(newProtocol.value);
-  store.dispatch("protocols/saveProtocol", newProtocol.value)
+  store.dispatch("protocols/saveNewProtocol", newProtocol.value)
       .then(protocol => {
         router.push({path: '/protocol/' + protocol?.id});
       })

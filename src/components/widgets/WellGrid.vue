@@ -68,6 +68,8 @@
 <script>
 import {ref, computed, watchEffect} from 'vue'
 import {useStore} from 'vuex'
+import {useQuasar} from 'quasar'
+
 import WellUtils from "@/lib/WellUtils.js"
 import SelectionBoxHelper from "@/lib/SelectionBoxHelper.js"
 import WellSlot from "@/components/widgets/WellSlot.vue"
@@ -159,6 +161,21 @@ export default {
     })
 
     exported.WellUtils = WellUtils;
+
+    const $q = useQuasar();
+    exported.showDialog = () => {
+      $q.dialog({
+        title: 'Alert<em>!</em>',
+        message: '<em>I can</em> <span class="text-red">use</span> <strong>HTML</strong>',
+        html: true
+      }).onOk(() => {
+        // console.log('OK')
+      }).onCancel(() => {
+        // console.log('Cancel')
+      }).onDismiss(() => {
+        // console.log('I am triggered on both OK and Cancel')
+      })
+    }
 
     return exported;
   },
