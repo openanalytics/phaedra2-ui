@@ -24,50 +24,46 @@
   </q-page>
 </template>
 
-<script>
+<script setup>
 import OaSectionHeader from "../../components/widgets/OaSectionHeader";
+import {useStore} from "vuex";
+import {ref} from "vue";
+import {useRouter} from "vue-router";
 
-export default {
-  name: "NewProtocolView",
-  components: {OaSectionHeader},
-  methods: {
-    onSubmit() {
-      this.newProtocol.createdOn = new Date();
-      console.log(this.newProtocol)
-      this.$store.dispatch("protocols/saveProtocol", this.newProtocol)
-          .then(protocol => {
-            this.$router.push({path: '/protocol/' + protocol?.id});
-          });
-    },
-    onReset() {
-      this.newProtocol.name = null
-      this.newProtocol.description = null
-      this.newProtocol.editable = true
-      this.newProtocol.inDevelopment = true
-      this.newProtocol.lowWelltype = null
-      this.newProtocol.highWelltype = null
-      this.newProtocol.createdOn = null
-      this.newProtocol.createdBy = null
-    }
-  },
-  setup() {
-    return {
-      wellTypeOptions: ['LC', 'HC', 'NC', 'PC']
-    }
-  },
-  data() {
-    return {
-      newProtocol: {
-        name: null,
-        description: null,
-        editable: true,
-        inDevelopment: true,
-        lowWelltype: null,
-        highWelltype: null,
-        createdOn: null,
-        createdBy: null
-      }
-    }
-  }
+const store = useStore();
+const router = useRouter();
+
+const name = "NewProtocolView";
+const wellTypeOptions = ['LC', 'HC', 'NC', 'PC'];
+
+const newProtocol = ref({
+  name: null,
+  description: null,
+  editable: true,
+  inDevelopment: true,
+  lowWelltype: null,
+  highWelltype: null,
+  createdOn: null,
+  createdBy: null
+});
+
+const onSubmit = () => {
+  newProtocol.value.createdOn = new Date();
+  console.log(newProtocol.value);
+  store.dispatch("protocols/saveProtocol", newProtocol.value)
+      .then(protocol => {
+        router.push({path: '/protocol/' + protocol?.id});
+      })
+}
+
+const onReset = () => {
+  newProtocol.value.name = null
+  newProtocol.value.description = null
+  newProtocol.value.editable = true
+  newProtocol.value.inDevelopment = true
+  newProtocol.value.lowWelltype = null
+  newProtocol.value.highWelltype = null
+  newProtocol.value.createdOn = null
+  newProtocol.value.createdBy = null
 }
 </script>
