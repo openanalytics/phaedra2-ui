@@ -4,10 +4,11 @@
       <oa-section-header :title="'New Protocol'" :icon="'ballot'"/>
       <div class="row q-pa-md oa-section-body">
         <q-form class="col" @submit="onSubmit" @reset="onReset">
-          <q-input v-model="newProtocol.name" label="Name: "></q-input>
-          <q-input v-model="newProtocol.description" label="Description: "></q-input>
-          <q-select v-model="newProtocol.lowWelltype" label="Low well type:" :options="wellTypeOptions"></q-select>
-          <q-select v-model="newProtocol.highWelltype" label="High well type:" :options="wellTypeOptions"></q-select>
+          <q-input v-model="newProtocol.name" label="Name: "/>
+          <q-input v-model="newProtocol.description" label="Description: "/>
+          <q-select v-model="newProtocol.lowWelltype" label="Low well type:" :options="wellTypeOptions"/>
+          <q-select v-model="newProtocol.highWelltype" label="High well type:" :options="wellTypeOptions"/>
+          <q-input v-model="newProtocol.versionNumber" label="Version:" mask="#.#.#" hint="Example: 1.0.0"/>
 
           <div class="row justify-end q-pt-md">
             <router-link :to="{ name: 'browseProtocols' }" class="nav-link">
@@ -44,7 +45,8 @@ const newProtocol = ref({
   lowWelltype: null,
   highWelltype: null,
   createdOn: null,
-  createdBy: null
+  createdBy: null,
+  versionNumber: '1.0.0'
 });
 
 const onSubmit = () => {
