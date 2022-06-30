@@ -3,58 +3,100 @@
     <oa-section-header :title="'New Feature'" :icon="'edit'"/>
     <div class="oa-section-body">
       <q-card-section>
-        <div class="row">
-          <div class="col-5">
-            <q-input v-model="newFeature.name" square autofocus label="Name"/>
-            <q-input v-model="newFeature.alias" square label="Alias"/>
-            <q-input v-model="newFeature.description" square label="Description"/>
-            <q-input v-model="newFeature.format" square label="Format" placeholder="#.##" style="width: 100px"/>
-            <q-input v-model="newFeature.sequence" square label="Sequence"/>
-            <q-input v-model="newFeature.trigger" square label="Trigger"/>
-          </div>
-          <div class="col-1"/>
-          <div class="col-5">
-            <q-select v-model="newFeature.type" square label="Type" :options="featureTypes" @update:model-value="onFeatureTypeSelection"/>
-            <q-select v-model="selectedFormulaId" square label="Formula" v-if="!isRaw(newFeature.type)"
-                      :options="formulas.filter(formula => isCalculation(newFeature.type, formula.category))"
-                      option-value="id" option-label="name" @update:model-value="onFormulaSelection"/>
-            <div v-if="(variables.list.length > 0)">
-              <br/>
-              <div>
-                <span class="text-primary">Formula variables:</span>
-                <div class="row col-12">
-                  <template :key="variable.variableName" v-for="variable in variables.list">
-                    <div v-if="!isRaw(newFeature.type)" class="row col-12">
-                      <div class="col-7">
-                        <q-input v-model="variable.sourceMeasColName"
-                                 v-if="variable.sourceInput === 'MEASUREMENT'"
-                                 :label="variable.variableName"/>
-                        <q-select :options="availableFeatures(newFeature.protocolId, newFeature.id)"
-                                  v-model="variable.sourceFeatureId"
-                                  option-value="id" option-label="name" emit-value map-options
-                                  v-if="variable.sourceInput === 'FEATURE'"
-                                  :label="variable.variableName"/>
-                      </div>
-                      <div class="col-1"/>
-                      <div class="col-4">
-                        <q-select v-model="variable.sourceInput" :options="inputSource" label="Input source" square/>
-                      </div>
-                    </div>
-                    <div v-else class="row col-12">
-                      <div class="col-7">
-                        <q-input v-model="variable.sourceMeasColName" :label="variable.variableName"/>
-                      </div>
-                      <div class="col-1"/>
-                      <div class="col-4">
-                        <q-select v-model="variable.sourceInput" :options="inputSource" label="Input source" disable square />
-                      </div>
-                    </div>
-                  </template>
+        <q-tabs v-model="activeTab" align="left" class="q-px-sm oa-section-title" inline-label dense no-caps>
+          <q-tab name="general" icon="info" label="General Info"/>
+          <q-tab name="calculation" icon="functions" label="Calculation"/>
+          <q-tab name="curve_fitting" label="Dose-Response Curve Fitting"/>
+          <q-tab name="outlier_detection" label="Outlier Detection"/>
+          <q-tab name="hit_calling" icon="rules" label="Hit Calling"/>
+        </q-tabs>
+
+        <div class="row oa-section-body">
+          <q-tab-panels v-model="activeTab" animated style="width: 100%">
+
+            <q-tab-panel name="general" label="General Info" class="col">
+              <q-input v-model="newFeature.name" label="Name" stack-label square autofocus/>
+              <q-input v-model="newFeature.alias" label="Alias" stack-label square/>
+              <q-input v-model="newFeature.description" label="Description" stack-label square/>
+              <q-input v-model="newFeature.format" label="Format" placeholder="#.##" stack-label square/>
+              <q-select v-model="newFeature.type" label="Type" :options="featureTypes" stack-label square
+                        @update:model-value="onFeatureTypeSelection"/>
+            </q-tab-panel>
+
+            <q-tab-panel name="calculation" label="calculation">
+              <div class="q-pa-xs col">
+                <q-select v-model="selectedFormula" label="Formula" stack-label
+                          v-if="!isRaw(newFeature.type)"
+                          :options="formulas.filter(formula => isCalculation(newFeature.type, formula.category))"
+                          option-value="id" option-label="name" @update:model-value="onFormulaSelection"/>
+                <div v-if="(variables.list.length > 0)">
+                  <div>
+                    <q-field label="Formula variables" stack-label borderless>
+                      <template v-slot:control>
+                        <div class="row col-12">
+                          <template :key="variable.variableName" v-for="variable in variables.list">
+                            <div v-if="!isRaw(newFeature.type)" class="row col-12">
+                              <div class="col-7">
+                                <q-input v-model="variable.sourceMeasColName"
+                                         v-if="variable.sourceInput === 'MEASUREMENT'"
+                                         :label="variable.variableName"/>
+                                <q-select :options="availableFeatures(newFeature.protocolId, newFeature.id)"
+                                          v-model="variable.sourceFeatureId"
+                                          option-value="id" option-label="name" emit-value map-options
+                                          v-if="variable.sourceInput === 'FEATURE'"
+                                          :label="variable.variableName"/>
+                              </div>
+                              <div class="col-1"/>
+                              <div class="col-4">
+                                <q-select v-model="variable.sourceInput" :options="inputSource" label="Input source"
+                                          square/>
+                              </div>
+                            </div>
+                            <div v-else class="row col-12">
+                              <div class="col-7">
+                                <q-input v-model="variable.sourceMeasColName" :label="variable.variableName"/>
+                              </div>
+                              <div class="col-1"/>
+                              <div class="col-4">
+                                <q-select v-model="variable.sourceInput" :options="inputSource" label="Input source"
+                                          disable square/>
+                              </div>
+                            </div>
+                          </template>
+                        </div>
+                      </template>
+                    </q-field>
+                  </div>
                 </div>
+
+                <br/>
+                <q-input v-model="newFeature.sequence" label="Sequence" stack-label/>
+                <q-input v-model="newFeature.trigger" label="Trigger" stack-label/>
               </div>
-            </div>
-          </div>
+            </q-tab-panel>
+            <q-tab-panel name="curve_fitting">
+              <div class="col">
+                <q-select label="Model" stack-label square
+                          v-model="selectedDCRModel" :options="drcModelOptions" option-label="name"
+                          @update:model-value="onDRCModelSelection"/>
+                <q-input label="Description" stack-label square readonly
+                         v-model="drcModelDescription"/>
+                <q-select label="Method" stack-label square
+                          v-model="newFeature.drcMethod" :options="dcrModelMethodOptions"/>
+                <q-select label="Slope type" stack-label square
+                          v-model="newFeature.drcSlopeType" :options="drcModelSlopeTypesOptions"/>
+              </div>
+              <!--              <div>Not yet implemented!</div>-->
+            </q-tab-panel>
+            <q-tab-panel name="outlier_detection">
+              <div>Not yet implemented!</div>
+            </q-tab-panel>
+            <q-tab-panel name="hit_calling">
+              <div>Not yet implemented!</div>
+            </q-tab-panel>
+          </q-tab-panels>
         </div>
+
         <br>
         <div class="row justify-end">
           <q-btn flat label="Cancel" color="primary" @click="$emit('update:show',false)"/>
@@ -70,15 +112,28 @@
 import {useStore} from "vuex";
 import {computed, reactive, ref, watch} from "vue";
 import OaSectionHeader from "../widgets/OaSectionHeader";
+import drcModelOptions from "../../resources/dose_response_curve_fit_models.json"
 
 const store = useStore()
 
-const props = defineProps(['show', 'protocolId'])
-const emit = defineEmits(['update:show'])
+const props = defineProps(['show', 'protocol'])
+const emit = defineEmits(['update:show', 'addFeature'])
 
 //TODO fix hardcode
 const featureTypes = ['CALCULATION', 'NORMALIZATION', 'RAW']
 const inputSource = ['MEASUREMENT', 'FEATURE']
+
+const drcModelDescription = ref(null)
+const dcrModelMethodOptions = ref(null)
+const drcModelSlopeTypesOptions = ref(null)
+
+const selectedDCRModel = ref(null)
+
+const onDRCModelSelection = () => {
+  drcModelDescription.value = selectedDCRModel.value.description
+  dcrModelMethodOptions.value = selectedDCRModel.value.methods
+  drcModelSlopeTypesOptions.value = selectedDCRModel.value.slopeTypes
+}
 
 const newFeature = ref({
   name: null,
@@ -87,16 +142,22 @@ const newFeature = ref({
   format: '#.##',
   type: null,
   sequence: 0,
-  protocolId: props.protocolId,
-  formulaId: selectedFormulaId?.value,
+  protocolId: props.protocol.id ? props.protocol.id : null,
+  formulaId: selectedFormula?.value,
+  formula: null,
   trigger: null
 })
 
 const variableNames = ref([])
 
 const addFeature = () => {
-  newFeature.value.formulaId = selectedFormulaId.value.id
-  store.dispatch('features/createFeature', {newFeature: newFeature.value, civs: variables.list})
+  newFeature.value.formulaId = selectedFormula.value.id
+  newFeature.value.formula = {
+    ...selectedFormula.value
+  }
+  newFeature.value.formula['civs'] = variables.list
+  // store.dispatch('features/createFeature', {newFeature: newFeature.value, civs: variables.list})
+  emit('addFeature', newFeature.value)
   emit('update:show', false)
 }
 
@@ -123,30 +184,30 @@ const availableFeatures = (protocolId, featureId) => {
 }
 
 const formulas = computed(() => store.getters['calculations/getFormulas']())
-
 const formulaInputs = ref(null)
 
 const onFeatureTypeSelection = () => {
   if (isRaw(newFeature.value.type)) {
     newFeature.value.sequence = 0
-    store.dispatch('calculations/getFormulaInputs', 75).then(() => {
-      selectedFormulaId.value = store.getters['calculations/getFormula'](75)
+    store.dispatch('calculations/getFormulaInputs', 77).then(() => {
+      selectedFormula.value = store.getters['calculations/getFormula'](75)
       formulaInputs.value = store.getters['calculations/getFormulaInputs'](75) || []
     })
+    //TODO: retrieve the RAW formula that copies the measurement value
   } else {
     if (formulaInputs.value && formulaInputs.value.length > 0) {
-      selectedFormulaId.value = null
+      selectedFormula.value = null
       formulaInputs.value = []
     }
   }
 }
 
 //Get formulaInputs and dispatch if it not available
-const selectedFormulaId = ref(null)
+const selectedFormula = ref(null)
 const onFormulaSelection = () => {
-  if (selectedFormulaId.value) {
-    store.dispatch('calculations/getFormulaInputs', selectedFormulaId.value.id).then(() => {
-      formulaInputs.value = store.getters['calculations/getFormulaInputs'](selectedFormulaId.value.id) || []
+  if (selectedFormula.value) {
+    store.dispatch('calculations/getFormulaInputs', selectedFormula.value.id).then(() => {
+      formulaInputs.value = store.getters['calculations/getFormulaInputs'](selectedFormula.value.id) || []
     })
   }
 }
@@ -157,4 +218,6 @@ watch(formulaInputs, (i) => {
     return {variableName: i, sourceInput: 'MEASUREMENT', sourceMeasColName: undefined, sourceFeatureId: undefined}
   })
 })
+
+const activeTab = ref('general');
 </script>

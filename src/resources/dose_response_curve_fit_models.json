@@ -1,0 +1,38 @@
+[
+  {
+    "name": "PL2",
+    "description": "Two-parameter logistic model (OSB) with fixed upper and lower bound",
+    "methods": ["OLS", "LIN", "CENS"],
+    "slopeTypes": ["A", "D", ""]
+  },
+  {
+    "name": "PL3L",
+    "description": "Three-parameter logistic model (OSB) with lower bound",
+    "methods": ["OLS", "LIN", "CENS"],
+    "slopeTypes": ["A", "D", ""]
+  },
+  {
+    "name": "PL3U",
+    "description": "Three-parameter logistic model (OSB) with fixed upper bound",
+    "methods": ["OLS", "LIN", "CENS"],
+    "slopeTypes": ["A", "D", ""]
+  },
+  {
+    "name": "PL4",
+    "description": "Four-parameter logistic model (OSB)",
+    "methods": ["OLS", "LIN", "CENS"],
+    "slopeTypes": ["A", "D", ""]
+  },
+  {
+    "name": "PLOTONLY",
+    "description": "Plots the data points but will not attempt any curve fitting",
+    "methods": ["OLS", "LIN", "CENS"],
+    "slopeTypes": ["A", "D"]
+  },
+  {
+    "name": "RECEPTOR2",
+    "description": "Fits a logistic model using the receptor2 package",
+    "methods": ["mean", "median", "tukey"],
+    "slopeTypes": ["ascending", "descending", "free"]
+  }
+]

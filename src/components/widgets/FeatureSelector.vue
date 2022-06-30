@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="oa-section">
     <div class="oa-section-title2">
       <div class="row items-center q-pa-xs">
         <q-icon name="biotech" size="24px" class="q-mr-sm"/>
