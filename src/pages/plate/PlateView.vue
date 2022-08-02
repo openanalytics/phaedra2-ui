@@ -67,19 +67,19 @@
       </q-tabs>
       <div class="row oa-section-body">
         <q-tab-panels v-model="activeTab" animated style="width: 100%">
-          <q-tab-panel name="layout" icon="view_module" label="Layout">
+          <q-tab-panel name="layout">
             <PlateLayout :plate="plate" />
           </q-tab-panel>
-          <q-tab-panel name="measurements" icon="view_module" label="Layout">
+          <q-tab-panel name="measurements">
             <MeasList :plate="plate" />
           </q-tab-panel>
-          <q-tab-panel name="heatmap" icon="view_module" label="Layout">
+          <q-tab-panel name="heatmap">
             <PlateHeatmap :plate="plate" />
           </q-tab-panel>
-          <q-tab-panel name="wells" icon="view_module" label="Layout">
+          <q-tab-panel name="wells">
             <WellList :plate="plate" />
           </q-tab-panel>
-          <q-tab-panel name="results" icon="view_module" label="Layout">
+          <q-tab-panel name="results">
             <ResultSetList :plate="plate" />
           </q-tab-panel>
         </q-tab-panels>

@@ -1,12 +1,12 @@
 <template>
-  <q-drawer show-if-above side="left" bordered v-model="drawerVisible" :mini="!drawerOpen" :mini-width="60">
-    
+  <!-- <q-drawer show-if-above side="left" bordered v-model="drawerVisible" :mini="!drawerOpen" :mini-width="60"> -->
+  <div>
     <q-toolbar class="bg-grey-3">
       <q-toolbar-title v-show="drawerOpen">
         Navigator
       </q-toolbar-title>
       <q-btn dense flat round icon="settings" v-show="drawerOpen"/>
-      <q-btn dense flat round :icon="drawerIcon" @click="toggleDrawer"/>
+      <!-- <q-btn dense flat round :icon="drawerIcon" @click="toggleDrawer"/> -->
     </q-toolbar>
 
     <q-tree
@@ -54,7 +54,8 @@
         </router-link>
       </template>
     </q-tree>
-  </q-drawer>
+  <!-- </q-drawer> -->
+  </div>
 </template>
 
 <style lang="scss">

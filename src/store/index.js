@@ -13,6 +13,7 @@ import datacapture from './modules/datacapture'
 import templates from './modules/templates'
 import metadata from './modules/metadata'
 import userinfo from './modules/userinfo'
+import ui from './modules/ui'
 
 const debug = process.env.NODE_ENV !== 'production'
 
@@ -30,7 +31,8 @@ export default createStore({
     datacapture,
     templates,
     metadata,
-    userinfo
+    userinfo,
+    ui
   },
   strict: debug,
   plugins: debug ? [createLogger()] : []
