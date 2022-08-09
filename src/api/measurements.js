@@ -29,5 +29,14 @@ export default {
                     result = response.data;
             });
         return result;
-    }
+    },
+    async getRenderConfig(id) {
+        let result = null;
+        await axios.get(apiURL + '/render-config/' + id)
+            .then(response => {
+                if (response.status === 200)
+                    result = response.data;
+            });
+        return result;
+    },
 }
