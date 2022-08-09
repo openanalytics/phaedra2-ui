@@ -7,7 +7,7 @@
         <q-toolbar-title>
           Phaedra 2.0
         </q-toolbar-title>
-        <q-btn dense flat round icon="menu" @click="store.dispatch('ui/openSideView', 'wellImage')"/>
+        <q-btn dense flat round icon="menu"/>
         <UserInfoButton />
       </q-toolbar>
     </q-header>

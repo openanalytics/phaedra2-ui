@@ -68,7 +68,12 @@
 
     let renderConfigId = 4;
     const renderConfig = computed(() => store.getters['measurements/getRenderConfig'](renderConfigId) || {});
-    store.dispatch('measurements/loadRenderConfig', renderConfigId);
+    store.dispatch('measurements/loadRenderConfig', renderConfigId).then(() => {
+        if (selectedChannels.value.length == 0) {
+            let channels = renderConfig.value.config.channelConfigs;
+            if (channels.length > 0) selectedChannels.value = [ channels[0] ];
+        }
+    });
 
     const channelColumns = [
         { name: 'name', label: 'Channel', align: 'left', field: 'name' },
@@ -100,6 +105,7 @@
         return `https://phaedra.poc.openanalytics.io/phaedra/api/v2/measurement-service/image/179/14/${channelNames}?renderConfigId=${renderConfigId}&scale=${scale.value}`;
     }
     const reloadImage = () => {
+        console.log('reloadImage')
         let url = getImageURL();
         if (url) {
             loading.value = true;
