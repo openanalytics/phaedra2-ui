@@ -1,5 +1,5 @@
 <template>
-  <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
+  <q-page class="oa-root-div">
     <div class="q-pa-md">
       <oa-section-header :title="'Captured Measurements'" :icon="'text_snippet'"/>
       <div class="row q-pa-lg oa-section-body">
@@ -23,11 +23,6 @@
               </q-input>
               <q-btn flat round color="primary" icon="settings" style="border-radius: 50%;" @click="configdialog=true"/>
             </div>
-          </template>
-          <template v-slot:body-cell-layout="props">
-            <q-td :props="props">
-              {{ props.row.rows }} x {{ props.row.columns }}
-            </q-td>
           </template>
         </q-table>
       </div>
@@ -60,8 +55,10 @@ export default {
       {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
       {name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
       {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-      {name: 'wellColumns', align: 'left', label: 'WellData Columns', field: 'wellColumns', sortable: true, format: (val, row) => row.wellColumns.length },
-      {name: 'layout', align: 'left', label: 'Dimensions', field: 'layout', sortable: true},
+      {name: 'wellColumns', align: 'left', label: 'WellData Columns', field: row => (row?.wellColumns?.length || 0), sortable: true },
+      {name: 'subWellColumns', align: 'left', label: 'SubwellData Columns', field: row => (row?.subWellColumns?.length || 0), sortable: true },
+      {name: 'imageChannels', align: 'left', label: 'Image Channels', field: row => (row?.imageChannels?.length || 0), sortable: true },
+      {name: 'layout', align: 'left', label: 'Dimensions', field: 'layout', sortable: true, format: (val, row) => row.rows + " x " + row.columns },
       {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
       {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
     ])
