@@ -1,15 +1,13 @@
 <template>
-  <div>
-    <div class="row-cols-auto q-pb-sm full-width">
+    <div class="q-px-md">
       <q-table :rows="propertyRows"
                :columns="propertyColumns"
                class="oa-properties-table"
-               style="max-height: 250px"
                table-header-class="bg-secondary"
                row-key="propertyName"
                :pagination="{ rowsPerPage: 0 }"
                hide-pagination
-               dense
+               dense flat bordered
       >
         <template v-slot:body-cell="props">
             <q-td :props="props" @mouseover="toggleDeleteBtn(true, props.rowIndex)" @mouseleave="toggleDeleteBtn(false, props.rowIndex)">
@@ -18,14 +16,14 @@
         </template>
         <template v-slot:header-cell-actions="props">
             <q-th :props="props">
-                <q-btn round dense icon="add" color="primary" size="xs" @click="showNewPropertyDialog = true">
+                <q-btn style="border-radius: 0px;" dense icon="add" color="primary" size="xs" @click="showNewPropertyDialog = true">
                   <q-tooltip :delay="500" class="text-black bg-secondary">Add a new Property</q-tooltip>
                 </q-btn>
             </q-th>
         </template>
         <template v-slot:body-cell-actions="props">
             <q-td :props="props" @mouseover="toggleDeleteBtn(true, props.rowIndex)" @mouseleave="toggleDeleteBtn(false, props.rowIndex)">
-                <q-btn round dense icon="delete" size="xs" @click="doRemoveProperty(props.row)" v-show="deleteBtnShown[props.rowIndex]">
+                <q-btn style="border-radius: 0px;" dense icon="delete" size="xs" @click="doRemoveProperty(props.row)" v-show="deleteBtnShown[props.rowIndex]">
                   <q-tooltip :delay="500" class="text-black bg-secondary">Delete this Property</q-tooltip>
                 </q-btn>
             </q-td>
@@ -37,7 +35,6 @@
         </template>
       </q-table>
     </div>
-  </div>
 
   <q-dialog v-model="showNewPropertyDialog">
     <q-card style="min-width: 30vw">

@@ -120,7 +120,7 @@ import PropertyTable from "../../components/property/PropertyTable";
 import OaSectionHeader from "../../components/widgets/OaSectionHeader";
 import DeleteDialog from "../../components/widgets/DeleteDialog";
 import FormulaTab from "./FormulaTab";
-import EditFeature from "../../components/protocol/EditFeature";
+import EditFeature from "../../components/feature/EditFeature";
 
 const store = useStore();
 const route = useRoute();
@@ -145,9 +145,6 @@ store.dispatch('features/loadByIds',[featureId]).then(() => {
   }
 });
 
-const onDeleted = () => {
-  router.push({name: "protocol", params: {id: protocol.value.id}});
-}
 const editdialog = ref(false);
 const activeTab = ref('formula');
 </script>

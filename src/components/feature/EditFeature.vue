@@ -1,6 +1,6 @@
 <template>
   <div class="q-pa-md">
-    <oa-section-header :title="'New Feature'" :icon="'edit'"/>
+    <oa-section-header :title="'Edit Feature'" :icon="'edit'"/>
     <div class="oa-section-body">
       <q-card-section>
         <q-tabs v-model="activeTab" align="left" class="q-px-sm oa-section-title" inline-label dense no-caps>
@@ -13,21 +13,19 @@
 
         <div class="row oa-section-body">
           <q-tab-panels v-model="activeTab" animated style="width: 100%">
-
             <q-tab-panel name="general" label="General Info" class="col">
-              <q-input v-model="newFeature.name" label="Name" stack-label square autofocus/>
-              <q-input v-model="newFeature.alias" label="Alias" stack-label square/>
-              <q-input v-model="newFeature.description" label="Description" stack-label square/>
-              <q-input v-model="newFeature.format" label="Format" placeholder="#.##" stack-label square/>
-              <q-select v-model="newFeature.type" label="Type" :options="featureTypes" stack-label square
+              <q-input v-model="feature.name" label="Name" stack-label square autofocus/>
+              <q-input v-model="feature.alias" label="Alias" stack-label square/>
+              <q-input v-model="feature.description" label="Description" stack-label square/>
+              <q-input v-model="feature.format" label="Format" placeholder="#.##" stack-label square/>
+              <q-select v-model="feature.type" label="Type" :options="featureTypes" stack-label square
                         @update:model-value="onFeatureTypeSelection"/>
             </q-tab-panel>
-
             <q-tab-panel name="calculation" label="calculation">
               <div class="q-pa-xs col">
                 <q-select v-model="selectedFormula" label="Formula" stack-label
-                          v-if="!isRaw(newFeature.type)"
-                          :options="formulas.filter(formula => isCalculation(newFeature.type, formula.category))"
+                          v-if="!isRaw(feature.type)"
+                          :options="formulas.filter(formula => isCalculation(feature.type, formula.category))"
                           option-value="id" option-label="name" @update:model-value="onFormulaSelection"/>
                 <div v-if="(variables.list.length > 0)">
                   <div>
@@ -35,20 +33,20 @@
                       <template v-slot:control>
                         <div class="row col-12">
                           <template :key="variable.variableName" v-for="variable in variables.list">
-                            <div v-if="!isRaw(newFeature.type)" class="row col-12">
+                            <div v-if="!isRaw(feature.type)" class="row col-12">
                               <div class="col-7">
                                 <q-input v-model="variable.sourceMeasColName"
-                                         v-if="variable.sourceInput === 'MEASUREMENT'"
+                                         v-if="variable.inputSource === 'MEASUREMENT'"
                                          :label="variable.variableName"/>
-                                <q-select :options="availableFeatures(newFeature.protocolId, newFeature.id)"
+                                <q-select :options="availableFeatures(feature.protocolId, feature.id)"
                                           v-model="variable.sourceFeatureId"
                                           option-value="id" option-label="name" emit-value map-options
-                                          v-if="variable.sourceInput === 'FEATURE'"
+                                          v-if="variable.inputSource === 'FEATURE'"
                                           :label="variable.variableName"/>
                               </div>
                               <div class="col-1"/>
                               <div class="col-4">
-                                <q-select v-model="variable.sourceInput" :options="inputSource" label="Input source"
+                                <q-select v-model="variable.inputSource" :options="inputSource" label="Input source"
                                           square/>
                               </div>
                             </div>
@@ -58,7 +56,7 @@
                               </div>
                               <div class="col-1"/>
                               <div class="col-4">
-                                <q-select v-model="variable.sourceInput" :options="inputSource" label="Input source"
+                                <q-select v-model="variable.inputSource" :options="inputSource" label="Input source"
                                           disable square/>
                               </div>
                             </div>
@@ -70,10 +68,11 @@
                 </div>
 
                 <br/>
-                <q-input v-model="newFeature.sequence" label="Sequence" stack-label/>
-                <q-input v-model="newFeature.trigger" label="Trigger" stack-label/>
+                <q-input v-model="feature.sequence" label="Sequence" stack-label/>
+                <q-input v-model="feature.trigger" label="Trigger" stack-label/>
               </div>
             </q-tab-panel>
+
             <q-tab-panel name="curve_fitting">
               <div class="col">
                 <q-select label="Model" stack-label square
@@ -82,12 +81,12 @@
                 <q-input label="Description" stack-label square readonly
                          v-model="drcModelDescription"/>
                 <q-select label="Method" stack-label square
-                          v-model="newFeature.drcMethod" :options="dcrModelMethodOptions"/>
+                          v-model="feature.drcMethod" :options="dcrModelMethodOptions"/>
                 <q-select label="Slope type" stack-label square
-                          v-model="newFeature.drcSlopeType" :options="drcModelSlopeTypesOptions"/>
+                          v-model="feature.drcSlopeType" :options="drcModelSlopeTypesOptions"/>
               </div>
-              <!--              <div>Not yet implemented!</div>-->
             </q-tab-panel>
+
             <q-tab-panel name="outlier_detection">
               <div>Not yet implemented!</div>
             </q-tab-panel>
@@ -96,11 +95,10 @@
             </q-tab-panel>
           </q-tab-panels>
         </div>
-
         <br>
         <div class="row justify-end">
-          <q-btn flat label="Cancel" color="primary" @click="$emit('update:show',false)"/>
-          <q-btn align="right" label="Add feature" v-close-popup color="primary" @click="addFeature"/>
+          <q-btn flat class="on-left" label="Cancel" color="primary" @click="$emit('update:show',false)"/>
+          <q-btn label="Edit feature" v-close-popup color="primary" @click="editFeature"/>
         </div>
       </q-card-section>
     </div>
@@ -109,15 +107,18 @@
 
 <script setup>
 
-import {useStore} from "vuex";
-import {computed, reactive, ref, watch} from "vue";
+import { useStore } from "vuex";
+import { computed, reactive, ref, watch } from "vue";
+import assert from 'assert'
 import OaSectionHeader from "../widgets/OaSectionHeader";
 import drcModelOptions from "../../resources/dose_response_curve_fit_models.json"
 
 const store = useStore()
 
-const props = defineProps(['show', 'protocol'])
-const emit = defineEmits(['update:show', 'addFeature'])
+const props = defineProps(['show', 'originalFeature'])
+const emit = defineEmits(['update:show'])
+
+const activeTab = ref('general');
 
 //TODO fix hardcode
 const featureTypes = ['CALCULATION', 'NORMALIZATION', 'RAW']
@@ -135,31 +136,12 @@ const onDRCModelSelection = () => {
   drcModelSlopeTypesOptions.value = selectedDCRModel.value.slopeTypes
 }
 
-const newFeature = ref({
-  name: null,
-  alias: null,
-  description: null,
-  format: '#.##',
-  type: null,
-  sequence: 0,
-  protocolId: props.protocol.id ? props.protocol.id : null,
-  formulaId: selectedFormula?.value,
-  formula: null,
-  trigger: null
-})
+const formulas = computed(() => store.getters['calculations/getFormulas']())
+const feature = ref( props.originalFeature )
 
-const variableNames = ref([])
-
-const addFeature = () => {
-  newFeature.value.formulaId = selectedFormula.value.id
-  newFeature.value.formula = {
-    ...selectedFormula.value
-  }
-  newFeature.value.formula['civs'] = variables.list
-  // store.dispatch('features/createFeature', {newFeature: newFeature.value, civs: variables.list})
-  emit('addFeature', newFeature.value)
-  emit('update:show', false)
-}
+//Reactive list that changes when formulaInputs changes
+const variables = reactive({list: []})
+const previous = reactive({list: []})
 
 const isCalculation = (featureType, formulaCategory) => {
   if (featureType === 'CALCULATION') {
@@ -183,27 +165,17 @@ const availableFeatures = (protocolId, featureId) => {
   return store.getters['features/getByProtocolId'](protocolId);
 }
 
-const formulas = computed(() => store.getters['calculations/getFormulas']())
-const formulaInputs = ref(null)
+//Make hard copy of feature to edit it later
+let originalFeature = props.originalFeature || {}
+feature.value = {...originalFeature}
+const originalFormulaId = ref(originalFeature.formulaId)
+//Fetch previous formula variable names
+previous.list = originalFeature.civs
+variables.list = originalFeature.civs
 
-const onFeatureTypeSelection = () => {
-  if (isRaw(newFeature.value.type)) {
-    newFeature.value.sequence = 0
-    store.dispatch('calculations/getFormulaInputs', 77).then(() => {
-      selectedFormula.value = store.getters['calculations/getFormula'](75)
-      formulaInputs.value = store.getters['calculations/getFormulaInputs'](75) || []
-    })
-    //TODO: retrieve the RAW formula that copies the measurement value
-  } else {
-    if (formulaInputs.value && formulaInputs.value.length > 0) {
-      selectedFormula.value = null
-      formulaInputs.value = []
-    }
-  }
-}
+const selectedFormula = computed(() => store.getters['calculations/getFormula'](feature.value.formulaId))
+const formulaInputs = ref(feature.value.civs)
 
-//Get formulaInputs and dispatch if it not available
-const selectedFormula = ref(null)
 const onFormulaSelection = () => {
   if (selectedFormula.value) {
     store.dispatch('calculations/getFormulaInputs', selectedFormula.value.id).then(() => {
@@ -212,12 +184,52 @@ const onFormulaSelection = () => {
   }
 }
 
-let variables = reactive({list: []})
+const onFeatureTypeSelection = () => {
+  if (isRaw(feature.value.type)) {
+    feature.value.sequence = 0
+    feature.value.formulaId = 75
+    store.dispatch('calculations/getFormulaInputs', 75).then(() => {
+      formulaInputs.value = store.getters['calculations/getFormulaInputs'](75) || []
+    })
+  } else {
+    if (formulaInputs.value && formulaInputs.value.length > 0) {
+      feature.value.formulaId = null
+      formulaInputs.value = []
+    }
+  }
+}
+
+//Watch for changes and update lists accordingly
 watch(formulaInputs, (i) => {
   variables.list = i.map(i => {
-    return {variableName: i, sourceInput: 'MEASUREMENT', sourceMeasColName: undefined, sourceFeatureId: undefined}
+    return {variableName: i, inputSource: 'MEASUREMENT', sourceMeasColName: undefined, sourceFeatureId: undefined}
   })
 })
 
-const activeTab = ref('general');
+//Function to fire an edit event of a feature using the working copy
+const editFeature = () => {
+  feature.value.formulaId = Number.isInteger(feature.value.formulaId) ? feature.value.formulaId : feature.value.formulaId.id
+  //Did formula change? choose civs list accordingly
+  const formulaChange = (feature.value.formulaId !== originalFormulaId.value)
+  const varsChanged = calcVariablesChanged(variables, previous)
+  const civs = (formulaChange || varsChanged) ? variables : previous
+  store.dispatch('features/editFeature', {
+    feature: feature.value,
+    formulaChange: formulaChange,
+    civs: civs.list,
+    prev: previous.list
+  })
+  emit('update:show', false)
+}
+
+const calcVariablesChanged =  (variables, previous) => {
+  if (variables.list.length !== previous.list.length) return true;
+  try {
+    assert.deepEqual(variables.list, previous.list);
+    return false;
+  } catch (e) {
+    return true
+  }
+
+}
 </script>

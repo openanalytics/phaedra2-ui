@@ -61,7 +61,7 @@ const actions = {
     },
     async deleteProtocol(ctx, id) {
         await protocolAPI.deleteProtocol(id);
-        ctx.commit('deleteProtocol', id);
+        await ctx.commit('deleteProtocol', id);
     },
     async editProtocol(ctx, protocol) {
         const updatedProtocol = await protocolAPI.editProtocol(protocol);
@@ -129,7 +129,7 @@ const mutations = {
         });
         state.protocols = newProtocols;
     },
-    deleteProtocol(state, id) {
+    async deleteProtocol(state, id) {
         state.protocols = state.protocols.filter(protocol => protocol.id !== id)
     }
 }

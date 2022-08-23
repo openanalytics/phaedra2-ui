@@ -1,5 +1,5 @@
 <template>
-  <div class="q-pa-md" v-if="!showNewFeatureTab">
+  <div class="q-pa-md" v-if="!showNewFeatureTab && !showEditFeatureSection">
     <oa-section-header :title="'Features'" :icon="'functions'"/>
     <q-table
         table-header-class="text-grey"
@@ -15,7 +15,7 @@
 
       <template v-slot:top-left>
         <div class="col action-button on-left">
-          <q-btn size="sm" icon="add" class="oa-button" label="Add Feature" @click="showNewFeatureTab = true"/>
+          <q-btn size="sm" icon="add" class="oa-button" label="Add Feature" @click="showNewFeatureTab=true"/>
         </div>
       </template>
       <template v-slot:top-right>
@@ -25,16 +25,14 @@
               <q-icon name="search"/>
             </template>
           </q-input>
-          <q-btn flat round color="primary" icon="settings" class="on-right" @click="configdialog=true"/>
+          <q-btn flat round color="primary" icon="settings" class="on-right" @click="configDialog=true"/>
         </div>
       </template>
       <template v-slot:body-cell-name="props">
         <q-td :props="props">
-          <router-link :to="'/feature/' + props.row.id" class="nav-link">
             <div class="row items-center cursor-pointer">
               {{ props.row.name }}
             </div>
-          </router-link>
         </q-td>
       </template>
       <template v-slot:body-cell-formulaId="props">
@@ -50,20 +48,22 @@
       <template v-slot:body-cell-menu="props">
         <q-td :props="props">
           <div class="row items-center cursor-pointer">
-            <q-btn flat round icon="more_horiz" size="sm" >
-              <q-menu>
-                <q-list>
-                  <q-item dense clickable @click="selectedFeature=props.row;showEditFeatureSection=true">
-                    <q-item-section avatar><q-icon name="edit"/></q-item-section>
-                    <q-item-section>Edit feature</q-item-section>
-                  </q-item>
-                  <q-item dense clickable @click="selectedFeature=props.row;$refs.deleteDialogFeature.showDialog = true">
-                    <q-item-section avatar><q-icon name="delete"/></q-item-section>
-                    <q-item-section>Delete feature</q-item-section>
-                  </q-item>
-                </q-list>
-              </q-menu>
-            </q-btn>
+            <q-btn flat round icon="edit" size="sm" @click="selectedFeature=props.row;showEditFeatureSection=true"/>
+            <q-btn flat round icon="delete" size="sm" @click="openDeleteDialog(props.row)"/>
+<!--            <q-btn flat round icon="more_horiz" size="sm" >-->
+<!--              <q-menu>-->
+<!--                <q-list>-->
+<!--                  <q-item dense clickable @click="selectedFeature=props.row;showEditFeatureSection=true">-->
+<!--                    <q-item-section avatar><q-icon name="edit"/></q-item-section>-->
+<!--                    <q-item-section>Edit feature</q-item-section>-->
+<!--                  </q-item>-->
+<!--                  <q-item dense clickable @click="selectedFeature=props.row;$refs.deleteDialogFeature.showDialog = true">-->
+<!--                    <q-item-section avatar><q-icon name="delete"/></q-item-section>-->
+<!--                    <q-item-section>Delete feature</q-item-section>-->
+<!--                  </q-item>-->
+<!--                </q-list>-->
+<!--              </q-menu>-->
+<!--            </q-btn>-->
           </div>
         </q-td>
       </template>
@@ -76,10 +76,11 @@
   </div>
 
   <NewFeature v-if="showNewFeatureTab" v-model:show="showNewFeatureTab" :protocol="props.protocol" @addFeature="addNewFeature"/>
-  <edit-feature v-if="showEditFeatureSection" v-model:show="showEditFeatureSection" v-model:originalFeature="selectedFeature"/>
+  <EditFeature v-if="showEditFeatureSection" v-model:show="showEditFeatureSection" v-model:originalFeature="selectedFeature"/>
+  <ViewFeature v-if="showFeatureDetails" v-model:show="showFeatureDetails" :feature="selectedFeature"/>
 
-  <delete-dialog ref="deleteDialogFeature" v-model:id="selectedFeature.id" v-model:name="selectedFeature.name" :objectClass="'feature'" />
-  <table-config v-model:show="configdialog" v-model:visibleColumns="visibleColumns" v-model:columns="columns"/>
+  <DeleteDialog v-model:show="deleteDialog" :id="selectedFeature.id" :name="selectedFeature.name" :objectClass="'feature'"/>
+  <table-config v-model:show="configDialog" v-model:visibleColumns="visibleColumns" v-model:columns="columns"/>
 </template>
 
 <script setup>
@@ -89,14 +90,16 @@ import {computed, ref} from "vue";
 import OaSectionHeader from "@/components/widgets/OaSectionHeader";
 import FilterUtils from "@/lib/FilterUtils";
 import TableConfig from "@/components/table/TableConfig";
-import EditFeature from "@/components/protocol/EditFeature";
+import EditFeature from "@/components/feature/EditFeature";
+import ViewFeature from "@/components/feature/ViewFeature";
 import DeleteDialog from "@/components/widgets/DeleteDialog";
-import NewFeature from "@/components/protocol/NewFeature";
+import NewFeature from "@/components/feature/NewFeature";
 import FormulaInspector from "@/components/widgets/FormulaInspector";
 
 const store = useStore()
 
 const loading = ref(false);
+const deleteDialog = ref(false)
 
 const columns = ref([
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
@@ -120,7 +123,7 @@ if (props.protocol.id)
   store.dispatch("features/loadByProtocolId", props.protocol?.id);
 
 const visibleColumns = columns.value.map(a => a.name)
-const configdialog = ref(false)
+const configDialog = ref(false)
 const filter = ref('')
 const filterMethod = FilterUtils.defaultTableFilter()
 
@@ -130,13 +133,24 @@ const getFormulaName = (id) => {
 }
 
 const showFormulaTooltip = ref([])
-const showEditProtocolDialog = ref(false)
 const showEditFeatureSection = ref(false)
+const showFeatureDetails = ref(false)
 const showNewFeatureTab = ref(false)
-const selectedFeature = ref({})
+let selectedFeature = ref({})
 
 const addNewFeature = (feature) => {
   emit('addFeature', feature)
+}
+
+const viewFeatureDetails = (evt, row, index) => {
+  showFeatureDetails.value = true
+  selectedFeature.value = row
+}
+
+const openDeleteDialog = (row) => {
+  deleteDialog.value = true;
+  selectedFeature.value = row;
+  console.info(deleteDialog.value)
 }
 
 </script>

@@ -50,7 +50,7 @@
 <script setup>
 import OaSectionHeader from "../../components/widgets/OaSectionHeader";
 import PropertyTable from "@/components/property/PropertyTable";
-import FeatureList from "@/components/protocol/FeatureList";
+import FeatureList from "@/components/feature/FeatureList";
 
 import {useStore} from "vuex";
 import {computed, ref} from "vue";
