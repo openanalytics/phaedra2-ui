@@ -3,7 +3,7 @@
         <q-tabs
             v-model="activeTab"
             inline-label dense no-caps
-            class="q-px-sm oa-section-title">
+            class="oa-section-title">
             <q-tab v-for="cfg in openSideViewConfigs" :key="cfg.id" :name="cfg.id" :label="cfg.label" :icon="cfg.icon">
                 <q-btn size="xs" flat dense icon="close" class="on-right" @click="store.dispatch('ui/closeSideView', cfg.id)"/>
             </q-tab>

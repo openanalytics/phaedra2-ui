@@ -15,31 +15,34 @@
         <div class="absolute-top-right q-pr-xl q-pt-sm">
             <q-badge color="blue">{{ selectedWell ? WellUtils.getWellCoordinate(selectedWell.row, selectedWell.column) : "No Well Selected" }}, Zoom: {{scale*100}}%</q-badge>
         </div>
-        <q-separator class="q-my-sm"/>
-        <div ref="configPanel">
-            <div class="q-pb-sm">
-                <q-select dense outlined v-model="renderConfig.name" label="Render Config" />
-            </div>
-            <q-table
-                dense flat hide-bottom
-                selection="multiple" v-model:selected="selectedChannels"
-                table-header-class="text-grey"
-                :rows="renderConfig?.config?.channelConfigs"
-                :columns="channelColumns"
-                :pagination="{ rowsPerPage: 20 }"
-                row-key="name"
-            >
-                <template v-slot:body-cell-rgb="props">
-                    <q-td :props="props">
-                        <div :style="{ width: '25px', backgroundColor: getColor(props.row.rgb) }">&nbsp;</div>
-                    </q-td>
-                </template>
-                <template v-slot:body-cell-contrast="props">
-                    <q-td :props="props">
-                        <q-range dense thumb-size="12px" label :model-value="{ min: (props.row.contrastMin * 100), max: (props.row.contrastMax * 100) }" :min="0" :max="100" />
-                    </q-td>
-                </template>
-            </q-table>
+        <div ref="configPanel" class="q-pt-sm">
+            <q-list bordered class="rounded-borders">
+                <q-expansion-item dense expand-separator icon="settings" label="Render Settings">
+                    <div class="q-pb-sm">
+                        <q-select dense outlined v-model="renderConfig.name" label="Channel Configuration" class="q-pa-sm" />
+                    </div>
+                    <q-table
+                        dense flat hide-bottom
+                        selection="multiple" v-model:selected="selectedChannels"
+                        table-header-class="text-grey"
+                        :rows="renderConfig?.config?.channelConfigs"
+                        :columns="channelColumns"
+                        :pagination="{ rowsPerPage: 20 }"
+                        row-key="name"
+                    >
+                        <template v-slot:body-cell-rgb="props">
+                            <q-td :props="props">
+                                <div :style="{ width: '25px', backgroundColor: getColor(props.row.rgb) }">&nbsp;</div>
+                            </q-td>
+                        </template>
+                        <template v-slot:body-cell-contrast="props">
+                            <q-td :props="props">
+                                <q-range dense thumb-size="12px" label :model-value="{ min: (props.row.contrastMin * 100), max: (props.row.contrastMax * 100) }" :min="0" :max="100" />
+                            </q-td>
+                        </template>
+                    </q-table>
+                </q-expansion-item>
+            </q-list>
         </div>
     </div>
 </template>
