@@ -101,8 +101,12 @@ const actions = {
 
 const mutations = {
     loadPlate(state, plate) {
-        if (state.currentPlate && state.currentPlate.id !== plate.id)
+        if (state.currentPlate && state.currentPlate.id !== plate.id) {
             state.currentPlate = plate;
+        }
+        if (!state.plates.find(it => it.id === plate.id)) {
+            state.plates.push(plate)
+        }
     },
     cachePlates(state, plates) {
         plates?.forEach(plate => {

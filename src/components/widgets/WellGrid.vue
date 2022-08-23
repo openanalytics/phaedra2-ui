@@ -107,6 +107,7 @@ export default {
         if (append && exported.selectedWells.value.some(w => w.id == well.id)) continue;
         exported.selectedWells.value.push(well);
       }
+      store.dispatch('ui/selectWells', exported.selectedWells.value);
       emit('wellSelection', exported.selectedWells.value);
     }
 

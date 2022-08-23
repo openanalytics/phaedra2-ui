@@ -13,7 +13,7 @@
             </div>
         </div>
         <div class="absolute-top-right q-pr-xl q-pt-sm">
-            <q-badge color="blue">Zoom: {{scale*100}}%</q-badge>
+            <q-badge color="blue">{{ selectedWell ? WellUtils.getWellCoordinate(selectedWell.row, selectedWell.column) : "No Well Selected" }}, Zoom: {{scale*100}}%</q-badge>
         </div>
         <q-separator class="q-my-sm"/>
         <div ref="configPanel">
@@ -36,7 +36,7 @@
                 </template>
                 <template v-slot:body-cell-contrast="props">
                     <q-td :props="props">
-                        <q-range dense label :model-value="{ min: (props.row.contrastMin * 100), max: (props.row.contrastMax * 100) }" :min="0" :max="100" />
+                        <q-range dense thumb-size="12px" label :model-value="{ min: (props.row.contrastMin * 100), max: (props.row.contrastMax * 100) }" :min="0" :max="100" />
                     </q-td>
                 </template>
             </q-table>
@@ -54,6 +54,7 @@
 <script setup>
     import {computed, ref, watch, onMounted, onUnmounted } from 'vue'
     import {useStore} from 'vuex'
+    import WellUtils from "@/lib/WellUtils.js";
 
     const configPanel = ref(null);
     const maxCanvasHeight = ref(100);
@@ -97,12 +98,28 @@
     // --------------------------
 
     const selectedChannels = ref([]);
+    const selectedWell = computed(() => {
+        let wells = store.getters['ui/getSelectedWells']();
+        if (wells && wells.length > 0) return wells[0];
+        return null;
+    });
 
     const getImageURL = () => {
         if (selectedChannels.value.length == 0) return;
         let channelNames = selectedChannels.value.map(c => c.name).join(',');
-        //TODO
-        return `https://phaedra.poc.openanalytics.io/phaedra/api/v2/measurement-service/image/179/14/${channelNames}?renderConfigId=${renderConfigId}&scale=${scale.value}`;
+        
+        let well = selectedWell.value;
+        if (!well) return;
+
+        //TODO Assuming here that meas is already stored.
+        let measLink = store.getters['measurements/getActivePlateMeasurement'](well.plateId);
+        if (measLink == null) return;
+        
+        let measId = measLink.measurementId;
+        let wellNr = WellUtils.getWellNr(well.row, well.column, measLink.columns);
+
+        let baseURL = process.env.VUE_APP_API_BASE_URL;
+        return baseURL + `/measurement-service/image/${measId}/${wellNr}/${channelNames}?renderConfigId=${renderConfigId}&scale=${scale.value}`;
     }
     const reloadImage = () => {
         console.log('reloadImage')
@@ -110,9 +127,13 @@
         if (url) {
             loading.value = true;
             image.src = url;
+        } else {
+            image.src = null;
+            setTimeout(draw());
         }
     }
     watch(selectedChannels, reloadImage);
+    watch(selectedWell, reloadImage);
 
     const image = new Image();
     image.addEventListener('load', function() {
@@ -120,7 +141,6 @@
         calculateCanvasHeight();
         setTimeout(draw());
     }, false);
-    reloadImage();
 
     const canvas = ref(null);
     const canvasContainer = ref(null);
@@ -195,4 +215,5 @@
         dragPrevPosition = null;
     };
 
+    reloadImage();
 </script>
