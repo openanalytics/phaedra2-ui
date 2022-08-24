@@ -53,7 +53,7 @@
       <div class="col-1 q-gutter-xs">
         <div class="row justify-center">
           <q-btn flat size="sm" color="secondary" icon="edit" class="oa-button-edit" label="Edit"
-                 @click="$emit('update:show', true)"/>
+                 @click="$emit('editMode', true)"/>
         </div>
         <div class="row justify-center">
           <q-btn flat size="sm" color="secondary" icon="delete" class="oa-button-delete" label="Delete"
@@ -82,8 +82,8 @@ import TagList from "@/components/tag/TagList";
 import PropertyTable from "@/components/property/PropertyTable";
 import DeleteDialog from "@/components/widgets/DeleteDialog";
 
-const props = defineProps(['show', 'protocol']);
-const emit = defineEmits(['update:show']);
+const props = defineProps(['editMode', 'protocol']);
+const emit = defineEmits(['editMode']);
 
 const store = useStore()
 

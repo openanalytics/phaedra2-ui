@@ -25,7 +25,7 @@
             <q-btn flat size="sm" label="Save" color="secondary" icon="save" class="oa-button-edit" @click="saveProtocol()" />
           </div>
           <div class="row justify-end">
-              <q-btn flat size="sm" label="Cancel" color="secondary" icon="cancel" class="oa-button-edit" @click="$emit('update:show',false)"/>
+              <q-btn flat size="sm" label="Cancel" color="secondary" icon="cancel" class="oa-button-edit" @click="$emit('editMode',false)"/>
           </div>
         </div>
 
@@ -41,7 +41,7 @@ import OaSectionHeader from "@/components/widgets/OaSectionHeader";
 import PropertyTable from "@/components/property/PropertyTable";
 
 const props = defineProps(['show', 'protocol']);
-const emit = defineEmits(['update:show', 'updateProtocol']);
+const emit = defineEmits(['editMode', 'updateProtocol']);
 
 const store = useStore();
 
@@ -51,6 +51,6 @@ const editProtocol = ref({...props.protocol});
 
 const saveProtocol = () => {
   store.dispatch('protocols/editProtocol', editProtocol.value)
-  emit('update:show', false)
+  emit('editMode', false)
 }
 </script>

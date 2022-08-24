@@ -6,9 +6,9 @@
   </q-breadcrumbs>
 
   <q-page class="oa-root-div" v-if="protocol">
-    <ViewProtocol v-if="!editMode" v-model:show="editMode" :protocol="protocol"/>
-    <EditProtocol v-if="editMode" v-model:show="editMode" :protocol="protocol"/>
-    <FeatureList :protocol="protocol" @addFeature="addNewFeature"/>
+    <ViewProtocol v-if="!editMode" :editMode ="editMode" :protocol="protocol" @editMode="setEditMode"/>
+    <EditProtocol v-if="editMode" :editMode="editMode" :protocol="protocol" @editMode="setEditMode"/>
+    <FeatureList :protocol="protocol" :editMode="editMode" @addFeature="addNewFeature" @editMode="setEditMode"/>
   </q-page>
 </template>
 
@@ -44,6 +44,9 @@ const formulas = computed(() => store.getters['calculations/getFormulas']())
 store.dispatch('calculations/getAllFormulas')
 
 const editMode = ref(false)
+const setEditMode = (input) => {
+  editMode.value = input
+}
 
 // const onDescriptionChanged = (newDescription) => {
 //   store.dispatch('protocols/editProtocol', {id: protocolId, description: newDescription});

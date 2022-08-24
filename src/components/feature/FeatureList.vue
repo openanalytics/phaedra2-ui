@@ -13,7 +13,7 @@
         :visible-columns="visibleColumns"
         dense>
 
-      <template v-slot:top-left>
+      <template v-if="props.editMode" v-slot:top-left>
         <div class="col action-button on-left">
           <q-btn size="sm" icon="add" class="oa-button" label="Add Feature" @click="showNewFeatureTab=true"/>
         </div>
@@ -30,7 +30,7 @@
       </template>
       <template v-slot:body-cell-name="props">
         <q-td :props="props">
-            <div class="row items-center cursor-pointer">
+            <div class="row items-center cursor-pointer" @click="selectedFeature=props.row;showFeatureDetails=true">
               {{ props.row.name }}
             </div>
         </q-td>
@@ -45,25 +45,11 @@
           </q-icon>
         </q-td>
       </template>
-      <template v-slot:body-cell-menu="props">
+      <template v-if="props.editMode" v-slot:body-cell-menu="props">
         <q-td :props="props">
           <div class="row items-center cursor-pointer">
             <q-btn flat round icon="edit" size="sm" @click="selectedFeature=props.row;showEditFeatureSection=true"/>
             <q-btn flat round icon="delete" size="sm" @click="openDeleteDialog(props.row)"/>
-<!--            <q-btn flat round icon="more_horiz" size="sm" >-->
-<!--              <q-menu>-->
-<!--                <q-list>-->
-<!--                  <q-item dense clickable @click="selectedFeature=props.row;showEditFeatureSection=true">-->
-<!--                    <q-item-section avatar><q-icon name="edit"/></q-item-section>-->
-<!--                    <q-item-section>Edit feature</q-item-section>-->
-<!--                  </q-item>-->
-<!--                  <q-item dense clickable @click="selectedFeature=props.row;$refs.deleteDialogFeature.showDialog = true">-->
-<!--                    <q-item-section avatar><q-icon name="delete"/></q-item-section>-->
-<!--                    <q-item-section>Delete feature</q-item-section>-->
-<!--                  </q-item>-->
-<!--                </q-list>-->
-<!--              </q-menu>-->
-<!--            </q-btn>-->
           </div>
         </q-td>
       </template>
@@ -98,8 +84,12 @@ import FormulaInspector from "@/components/widgets/FormulaInspector";
 
 const store = useStore()
 
-const loading = ref(false);
+const props = defineProps(['protocol', 'editMode'])
+const emit = defineEmits(['addFeature'])
+
+const loading = ref(false)
 const deleteDialog = ref(false)
+const editMode = ref(props.editMode)
 
 const columns = ref([
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
@@ -114,9 +104,6 @@ const columns = ref([
 const pagination = {
   rowsPerPage: 10
 }
-
-const props = defineProps(['protocol'])
-const emit = defineEmits(['addFeature'])
 
 const features = props.protocol.id ? computed(() => store.getters['features/getByProtocolId'](props.protocol?.id)) : props.protocol.features;
 if (props.protocol.id)
