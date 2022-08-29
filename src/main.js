@@ -16,14 +16,15 @@ import { createWebHistory, createRouter } from "vue-router"
 import { publicPath } from '../vue.config'
 
 import Dashboard from '@/pages/Dashboard.vue'
+
+import BrowseProjects from "./pages/project/BrowseProjects";
 import ProjectView from '@/pages/project/ProjectView.vue'
 import NewProjectView from '@/pages/project/NewProjectView.vue'
-import ExperimentView from '@/pages/experiment/ExperimentView.vue'
-import PlateView from '@/pages/plate/PlateView.vue'
 
 import BrowseProtocols from '@/pages/protocol/BrowseProtocols.vue'
 import ProtocolView from '@/pages/protocol/ProtocolView.vue'
 import NewProtocolView from "@/pages/protocol/NewProtocolView";
+import ImportProtocolView from "./pages/protocol/ImportProtocolView";
 import FeatureView from "@/pages/feature/FeatureView";
 import FormulaTab  from "@/pages/feature/FormulaTab.vue";
 
@@ -31,35 +32,39 @@ import FormulasView from "@/pages/calculation/formula/FormulasView";
 import FormulaView from "@/pages/calculation/formula/FormulaView";
 
 import CaptureJobsView from '@/pages/datacapture/CaptureJobsView.vue'
+import MeasurementsView from "./pages/datacapture/MeasurementsView";
+import MeasurementDetailsView from "./pages/datacapture/MeasurementDetailsView";
 
+import ExperimentView from '@/pages/experiment/ExperimentView.vue'
 import PlateList from "@/pages/experiment/PlateList.vue"
 import PlateStatsList from "@/pages/experiment/PlateStatsList.vue"
 import PlateGrid from "@/pages/experiment/PlateGrid.vue"
 
+import PlateView from '@/pages/plate/PlateView.vue'
 import PlateLayout from "@/pages/plate/PlateLayout.vue"
 import PlateHeatmap from "@/pages/plate/PlateHeatmap.vue"
 import WellList from "@/pages/plate/WellList.vue"
 import MeasList from "@/pages/plate/MeasList.vue"
 
 import PlateTemplateView from "./pages/platelayout/PlateTemplateView";
-import NewPlateTemplateView from "./pages/platelayout/NewPlateTemplateView"
+import NewPlateTemplateView from "./pages/platelayout/NewPlateTemplateView";
+import BrowseTemplates from "./pages/platelayout/BrowseTemplates";
 
 const routes = [
     { name: "dashboard", path: "/", component: Dashboard },
     { name: 'browseProjects', path: "/projects", component: BrowseProjects},
     { name: "project", path: "/project/:id", component: ProjectView },
     { name: "newProject", path: "/project/new", component: NewProjectView },
-    { name: "experiment", path: "/experiment/:id", component: ExperimentView },
     { name: "experiment", path: "/experiment/:id", component: ExperimentView,
         children: [
-            { path: '', component: PlateList },
+            { path: '', component: PlateList, name: "plateList" },
             { path: 'statistics', component: PlateStatsList },
             { path: 'heatmaps', component: PlateGrid }
         ]
     },
     { name: "plate", path: "/plate/:id", component: PlateView,
         children: [
-            { path: '', component: PlateLayout },
+            { path: '', component: PlateLayout, name: "plateLayout" },
             { path: 'measurements', component: MeasList },
             { path: 'heatmap', component: PlateHeatmap },
             { path: 'wells', component: WellList }
@@ -71,7 +76,7 @@ const routes = [
     { name: "importProtocol", path: "/protocol/import", component: ImportProtocolView},
     { name: "feature", path: "/feature/:id", component: FeatureView,
         children: [
-            { path: '', component: FormulaTab}
+            { path: '', component: FormulaTab, name: "featureFormula" },
         ]
     },
 
@@ -83,7 +88,8 @@ const routes = [
     { name: "calcFormula", path: "/calc/formula/:id", component: FormulaView },
 
     { name: "dataCaptureJobs", path: "/datacapture/jobs", component: CaptureJobsView },
-    { name: "capturedMeasurements", path: "/datacapture/meas", component: CapturedMeasurementsView}
+    { name: "measurements", path: "/datacapture/meas", component: MeasurementsView},
+    { name: "measurementDetails", path: "/datacapture/meas/:id", component: MeasurementDetailsView},
 ]
 const router = createRouter({
     history: createWebHistory(publicPath),
@@ -107,10 +113,6 @@ import 'splitpanes/dist/splitpanes.css'
 // --------------------------------------------------------------------
 import { createApp } from "vue"
 import App from "./App.vue"
-import CapturedMeasurementsView from "./pages/datacapture/CapturedMeasurementsView";
-import ImportProtocolView from "./pages/protocol/ImportProtocolView";
-import BrowseProjects from "./pages/project/BrowseProjects";
-import BrowseTemplates from "./pages/platelayout/BrowseTemplates";
 
 const app = createApp(App)
 app.use(router)

@@ -30,6 +30,15 @@ export default {
             });
         return result;
     },
+    async getWellData(measId) {
+        let result = null;
+        await axios.get(apiURL + '/meas/' + measId + '/welldata')
+            .then(response => {
+                if (response.status === 200)
+                    result = response.data;
+            });
+        return result;
+    },
     async getRenderConfig(id) {
         let result = null;
         await axios.get(apiURL + '/render-config/' + id)
