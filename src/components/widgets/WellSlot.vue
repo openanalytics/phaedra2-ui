@@ -8,14 +8,21 @@
     <span v-for="wellLabelFunction in wellLabelFunctions" :key="wellLabelFunction" class="wellLabel" style="white-space: pre;">
         {{ wellLabelFunction(well) }}
     </span>
-
+<!--    <q-tooltip :delay="3000" class="bg-secondary q-pa-xs">-->
+<!--      <div class="tooltipContainer">-->
+<!--        <WellInspector minimal :wells="[well]"></WellInspector>-->
+<!--      </div>-->
+<!--    </q-tooltip>-->
     <q-popup-proxy>
       <WellInspector minimal :wells="[well]"></WellInspector>
     </q-popup-proxy>
 
-<!--      <WellActions :wells="[well]"></WellActions>-->
     <q-menu touch-position context-menu>
-      <q-list style="min-width: 100px">
+      <q-list dense>
+        <q-item clickable v-close-popup @click="showWellImage">
+          <q-item-section avatar><q-icon color="primary" name="image"/></q-item-section>
+          <q-item-section>Show Well Image</q-item-section>
+        </q-item>
         <q-item clickable v-close-popup>
           <q-item-section>Approve</q-item-section>
         </q-item>
@@ -27,11 +34,6 @@
         </q-item>
       </q-list>
     </q-menu>
-<!--    <q-tooltip :delay="3000" class="bg-secondary q-pa-xs">-->
-<!--      <div class="tooltipContainer">-->
-<!--        <WellInspector minimal :wells="[well]"></WellInspector>-->
-<!--      </div>-->
-<!--    </q-tooltip>-->
   </div>
 </template>
 
@@ -83,8 +85,8 @@
 
 <script>
 import {computed} from 'vue'
+import {useStore} from 'vuex'
 import ColorUtils from "@/lib/ColorUtils.js"
-
 import WellInspector from "@/components/widgets/WellInspector.vue"
 
 export default {
@@ -98,13 +100,20 @@ export default {
     WellInspector
   },
   setup(props) {
+    const store = useStore();
+    const showWellImage = () => {
+      store.dispatch('ui/openSideView', 'wellImage');
+    }
+
     const bgColor = computed(() => props.wellColorFunction(props.well))
     const fgColor = computed(() => ColorUtils.calculateTextColor(bgColor.value))
     const isSelected = computed(() => props.selectedWells.find(w => props.well.row == w.row && props.well.column == w.column))
+
     return {
       bgColor,
       fgColor,
-      isSelected
+      isSelected,
+      showWellImage
     }
   }
 }

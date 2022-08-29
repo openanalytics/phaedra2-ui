@@ -95,12 +95,13 @@ const router = createRouter({
 
 import store from '@/store/index.js'
 
-// Quasar UI with Material Icons
+// Quasar UI with Material Icons and SplitPanes
 // --------------------------------------------------------------------
 
 import "quasar/dist/quasar.css"
 import Quasar from "quasar/dist/quasar.umd.js"
 import 'material-icons/iconfont/material-icons.css';
+import 'splitpanes/dist/splitpanes.css'
 
 // Create Vue App
 // --------------------------------------------------------------------

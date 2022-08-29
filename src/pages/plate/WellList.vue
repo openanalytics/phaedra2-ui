@@ -1,7 +1,7 @@
 <template>
   <q-table
-           table-header-class="text-dark"
-           flat square
+           table-header-class="text-grey"
+           flat square dense
            :rows="rows"
            :columns="columns"
            row-key="id"
@@ -99,6 +99,10 @@ export default {
     // When resultSet becomes available, add new columns to table.
     watchEffect(() => {
       if (!resultSet.value || !loading.value) return;
+      if (resultSet.value.length == 0) {
+        loading.value = false;
+        return;
+      }
 
       store.dispatch('features/loadByProtocolId', resultSet.value[0]?.protocolId).then(() => {
         const features = store.getters['features/getByProtocolId'](resultSet.value[0].protocolId);

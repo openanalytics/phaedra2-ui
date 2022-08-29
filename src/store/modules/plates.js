@@ -100,15 +100,19 @@ const actions = {
     async loadPlateForCalculation(ctx, id) {
         await plateAPI.getPlateById(id)
             .then(plate => {
-                ctx.commit('cacheNewPlate',plate)
+                if (plate) ctx.commit('cacheNewPlate',plate)
             })
     }
 }
 
 const mutations = {
     loadPlate(state, plate) {
-        if (state.currentPlate && state.currentPlate.id !== plate.id)
+        if (state.currentPlate && state.currentPlate.id !== plate.id) {
             state.currentPlate = plate;
+        }
+        if (!state.plates.find(it => it.id === plate.id)) {
+            state.plates.push(plate)
+        }
     },
     cachePlate(state, plate) {
         if (!state.plates.find(it => it?.id === plate?.id)) {
@@ -116,7 +120,6 @@ const mutations = {
         }
     },
     cachePlates(state, plates) {
-        console.log(state.plates)
         plates?.forEach(plate => {
             if (!state.plates.find(it => it?.id === plate?.id)) {
                 state.plates.push(plate)

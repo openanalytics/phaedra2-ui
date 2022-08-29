@@ -3,7 +3,8 @@ import plateAPI from '@/api/plates.js'
 
 const state = () => ({
     measurements: [],
-    plateMeasurements: {}
+    plateMeasurements: {},
+    renderConfigs: []
 })
 
 const getters = {
@@ -24,6 +25,9 @@ const getters = {
     },
     getActivePlateMeasurement: (state) => (plateId) => {
          return state.plateMeasurements[plateId]?.filter(pm => pm.active === true)[0];
+    },
+    getRenderConfig: (state) => (id) => {
+        return state.renderConfigs.find(cfg => cfg.id === id);
     }
 }
 
@@ -69,6 +73,10 @@ const actions = {
         const allMeasurements = await measAPI.getAllMeasurements();
         const availableMeasurements = allMeasurements.filter(m => m.rows === plate.rows && m.columns === plate.columns);
         ctx.commit("cacheMeasurements", availableMeasurements);
+    },
+    async loadRenderConfig(ctx, id) {
+        const cfg = await measAPI.getRenderConfig(id);
+        ctx.commit('cacheRenderConfig', cfg);
     }
 }
 
@@ -104,6 +112,10 @@ const mutations = {
                 state.plateMeasurements[plateId][m].active = false;
         }
     },
+    cacheRenderConfig(state, cfg) {
+        var existingConfig = state.renderConfigs.find(el => el.id === cfg.id);
+        if (existingConfig === undefined) state.renderConfigs.push(cfg);
+    }
 }
 
 function containsPlateMeasurement(plateMeasurements, plateMeasurement) {
