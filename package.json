@@ -13,6 +13,7 @@
     "bootstrap": "^5.1.0",
     "core-js": "^3.6.5",
     "material-icons": "^1.2.0",
+    "pinia": "^2.0.20",
     "quasar": "^2.0.4",
     "roboto-fontface": "*",
     "vue": "^3.0.0",

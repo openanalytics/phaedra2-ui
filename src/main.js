@@ -105,13 +105,17 @@ import 'material-icons/iconfont/material-icons.css';
 // Create Vue App
 // --------------------------------------------------------------------
 import { createApp } from "vue"
+import { createPinia, setActivePinia } from "pinia"
 import App from "./App.vue"
 import CapturedMeasurementsView from "./pages/datacapture/CapturedMeasurementsView";
 import ImportProtocolView from "./pages/protocol/ImportProtocolView";
 import BrowseProjects from "./pages/project/BrowseProjects";
 import BrowseTemplates from "./pages/platelayout/BrowseTemplates";
 
+const pinia = createPinia()
 const app = createApp(App)
+
+app.use(pinia)
 app.use(router)
 app.use(store)
 app.use(Quasar, {

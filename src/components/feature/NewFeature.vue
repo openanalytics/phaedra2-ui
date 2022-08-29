@@ -40,7 +40,7 @@
                                 <q-input v-model="variable.sourceMeasColName"
                                          v-if="variable.inputSource === 'MEASUREMENT'"
                                          :label="variable.variableName"/>
-                                <q-select :options="availableFeatures(newFeature.protocolId, newFeature.id)"
+                                <q-select :options="availableFeatures(newFeature)"
                                           v-model="variable.sourceFeatureId"
                                           option-value="id" option-label="name" emit-value map-options
                                           v-if="variable.inputSource === 'FEATURE'"
@@ -84,7 +84,7 @@
                 <q-select label="Method" stack-label square
                           v-model="newFeature.drcModel.method" :options="dcrModelMethodOptions"/>
                 <q-select label="Slope type" stack-label square
-                          v-model="newFeature.drcModel.slopeType" :options="drcModelSlopeTypesOptions"/>
+                          v-model="newFeature.drcModel.slope" :options="drcModelSlopeTypesOptions"/>
               </div>
             </q-tab-panel>
             <q-tab-panel name="outlier_detection">
@@ -108,16 +108,37 @@
 
 <script setup>
 
-import {useStore} from "vuex";
 import {computed, reactive, ref, watch} from "vue";
-import OaSectionHeader from "../widgets/OaSectionHeader";
-import drcModelOptions from "../../resources/dose_response_curve_fit_models.json"
+import {useProtocolStore} from "@/stores/protocol";
+import {useFormulasStore} from "@/stores/formulas";
+import OaSectionHeader from "@/components/widgets/OaSectionHeader";
+import drcModelOptions from "@/resources/dose_response_curve_fit_models.json"
 
-const store = useStore()
+const protocolStore = useProtocolStore()
+const formulasStore = useFormulasStore()
 
 const props = defineProps(['show', 'protocol'])
 const emit = defineEmits(['update:show', 'addFeature'])
 
+const newFeature = ref({
+  name: null,
+  alias: null,
+  description: null,
+  format: '#.##',
+  type: null,
+  sequence: 0,
+  protocolId: props.protocol.id ? props.protocol.id : null,
+  formulaId: selectedFormula?.value,
+  drcModel: {
+    name: null,
+    description: null,
+    method: null,
+    slope: null
+  },
+  civs: null,
+  formula: null,
+  trigger: null
+})
 const activeTab = ref('general');
 
 //TODO fix hardcode
@@ -135,36 +156,13 @@ const onDRCModelSelection = (selectedDCRModel) => {
   drcModelSlopeTypesOptions.value = selectedDCRModel.slopeTypes
 }
 
-const newFeature = ref({
-  name: null,
-  alias: null,
-  description: null,
-  format: '#.##',
-  type: null,
-  sequence: 0,
-  protocolId: props.protocol.id ? props.protocol.id : null,
-  formulaId: selectedFormula?.value,
-  drcModel: {
-    name: null,
-    description: null,
-    method: null,
-    slopeType: null
-  },
-  civs: null,
-  formula: null,
-  trigger: null
-})
-
-const variableNames = ref([])
-
 const addFeature = () => {
   newFeature.value.formulaId = selectedFormula.value.id
   newFeature.value.formula = {
     ...selectedFormula.value
   }
   newFeature.value.civs = variables.list
-  // store.dispatch('features/createFeature', {newFeature: newFeature.value, civs: variables.list})
-  emit('addFeature', newFeature.value)
+  protocolStore.addFeature(newFeature.value)
   emit('update:show', false)
 }
 
@@ -184,22 +182,18 @@ const isRaw = (featureType) => {
   return featureType === 'RAW' ? true : false
 }
 
-const availableFeatures = (protocolId, featureId) => {
-  if (featureId)
-    return store.getters['features/getByProtocolId'](protocolId).filter(f => f.id !== featureId)
-  return store.getters['features/getByProtocolId'](protocolId);
+const availableFeatures = (feature) => {
+  return protocolStore.getFeatures().filter((f) => { return f.id !== feature.id && f.name !== feature.name })
 }
 
-const formulas = computed(() => store.getters['calculations/getFormulas']())
+const formulas = computed(() => formulasStore.formulas)
 const formulaInputs = ref(null)
 
 const onFeatureTypeSelection = () => {
   if (isRaw(newFeature.value.type)) {
     newFeature.value.sequence = 0
-    store.dispatch('calculations/getFormulaInputs', 77).then(() => {
-      selectedFormula.value = store.getters['calculations/getFormula'](75)
-      formulaInputs.value = store.getters['calculations/getFormulaInputs'](75) || []
-    })
+    selectedFormula.value = formulasStore.getFormulaById(78)
+    formulaInputs.value = formulasStore.getFormulaInputsByFormulaId(78) || []
     //TODO: retrieve the RAW formula that copies the measurement value
   } else {
     if (formulaInputs.value && formulaInputs.value.length > 0) {
@@ -213,8 +207,8 @@ const onFeatureTypeSelection = () => {
 const selectedFormula = ref(null)
 const onFormulaSelection = () => {
   if (selectedFormula.value) {
-    store.dispatch('calculations/getFormulaInputs', selectedFormula.value.id).then(() => {
-      formulaInputs.value = store.getters['calculations/getFormulaInputs'](selectedFormula.value.id) || []
+    formulasStore.loadFormulaInputs(selectedFormula.value.id).then(() => {
+      formulaInputs.value = formulasStore.formulaInputs[selectedFormula.value.id]
     })
   }
 }

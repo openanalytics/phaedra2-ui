@@ -1,6 +1,6 @@
 <template>
   <div class="q-pa-md">
-    <oa-section-header :title="feature.name" :icon="'view'"/>
+    <oa-section-header :title="featureStore.feature.name" :icon="'view'"/>
     <div class="oa-section-body">
       <q-card-section>
         <q-tabs v-model="activeTab" align="left" class="q-px-sm oa-section-title" inline-label dense no-caps>
@@ -16,27 +16,27 @@
             <q-tab-panel name="general" label="General Info" class="col">
               <q-field label="Name" stack-label square autofocus>
                 <template v-slot:control>
-                  <div class="self-center full-width no-outline" tabindex="0">{{feature.name}}</div>
+                  <div class="self-center full-width no-outline" tabindex="0">{{featureStore.feature.name}}</div>
                 </template>
               </q-field>
               <q-field label="Alias" stack-label square>
                 <template v-slot:control>
-                  <div class="self-center full-width no-outline" tabindex="0">{{feature.alias}}</div>
+                  <div class="self-center full-width no-outline" tabindex="0">{{featureStore.feature.alias}}</div>
                 </template>
               </q-field>
               <q-field label="Description" stack-label square>
                 <template v-slot:control>
-                  <div class="self-center full-width no-outline" tabindex="0">{{feature.description}}</div>
+                  <div class="self-center full-width no-outline" tabindex="0">{{featureStore.feature.description}}</div>
                 </template>
               </q-field>
               <q-field label="Format" placeholder="#.##" stack-label square>
                 <template v-slot:control>
-                  <div class="self-center full-width no-outline" tabindex="0">{{feature.format}}</div>
+                  <div class="self-center full-width no-outline" tabindex="0">{{featureStore.feature.format}}</div>
                 </template>
               </q-field>
               <q-field label="Type" stack-label square>
                 <template v-slot:control>
-                  <div class="self-center full-width no-outline" tabindex="0">{{feature.type}}</div>
+                  <div class="self-center full-width no-outline" tabindex="0">{{featureStore.feature.type}}</div>
                 </template>
               </q-field>
             </q-tab-panel>
@@ -44,19 +44,20 @@
               <div class="q-pa-xs col">
                 <q-field label="Formula" stack-label square>
                   <template v-slot:control>
-                    <div class="self-center full-width no-outline" tabindex="0">{{selectedFormula.name}}</div>
+                    <div class="self-center full-width no-outline" tabindex="0">{{featureStore.feature.formula.name}}</div>
                   </template>
                 </q-field>
-                <div v-if="(variables.length > 0)">
+                <div v-if="(featureStore.feature.civs.length > 0)">
                   <div>
                     <q-field label="Formula variables" stack-label borderless>
                       <template v-slot:control>
                         <div class="row col-12">
-                          <template :key="variable.variableName" v-for="variable in variables">
+                          <template :key="variable.variableName" v-for="variable in featureStore.feature.civs">
                               <div class="col-7">
                                 <q-field :label="variable.variableName" stack-label square>
                                   <template v-slot:control>
-                                    <div class="self-center full-width no-outline" tabindex="0">{{variable.sourceMeasColName}}</div>
+                                    <div v-if="variable.sourceFeatureId" class="self-center full-width no-outline" tabindex="0">{{protocolStore.getFeatureById(variable.sourceFeatureId).name}}</div>
+                                    <div v-if="!variable.sourceFeatureId" class="self-center full-width no-outline" tabindex="0">{{variable.sourceMeasColName}}</div>
                                   </template>
                                 </q-field>
                               </div>
@@ -78,12 +79,12 @@
                 <br/>
                 <q-field label="Sequence" stack-label square>
                   <template v-slot:control>
-                    <div class="self-center full-width no-outline" tabindex="0">{{feature.sequence}}</div>
+                    <div class="self-center full-width no-outline" tabindex="0">{{featureStore.feature.sequence}}</div>
                   </template>
                 </q-field>
                 <q-field label="Trigger" stack-label square>
                   <template v-slot:control>
-                    <div class="self-center full-width no-outline" tabindex="0">{{feature.trigger}}</div>
+                    <div class="self-center full-width no-outline" tabindex="0">{{featureStore.feature.trigger}}</div>
                   </template>
                 </q-field>
               </div>
@@ -93,22 +94,22 @@
               <div class="col">
                 <q-field label="Model" stack-label square>
                   <template v-slot:control>
-                    <div class="self-center full-width no-outline" tabindex="0">{{selectedDCRModel.name}}</div>
+                    <div class="self-center full-width no-outline" tabindex="0">{{featureStore.feature.drcModel.name}}</div>
                   </template>
                 </q-field>
                 <q-field label="Description" stack-label square>
                   <template v-slot:control>
-                    <div class="self-center full-width no-outline" tabindex="0">{{selectedDCRModel.description}}</div>
+                    <div class="self-center full-width no-outline" tabindex="0">{{featureStore.feature.drcModel.description}}</div>
                   </template>
                 </q-field>
                 <q-field label="Method" stack-label square>
                   <template v-slot:control>
-                    <div class="self-center full-width no-outline" tabindex="0">{{selectedDCRModel.method}}</div>
+                    <div class="self-center full-width no-outline" tabindex="0">{{featureStore.feature.drcModel.method}}</div>
                   </template>
                 </q-field>
                 <q-field label="Slope type" stack-label square>
                   <template v-slot:control>
-                    <div class="self-center full-width no-outline" tabindex="0">{{selectedDCRModel.slopeType}}</div>
+                    <div class="self-center full-width no-outline" tabindex="0">{{featureStore.feature.drcModel.slope}}</div>
                   </template>
                 </q-field>
               </div>
@@ -124,8 +125,7 @@
         </div>
         <br>
         <div class="row justify-end">
-          <q-btn flat class="on-left" label="Cancel" color="primary" @click="$emit('update:show',false)"/>
-<!--          <q-btn label="Edit feature" v-close-popup color="primary" @click="editFeature"/>-->
+          <q-btn flat class="on-left" label="Cancel" color="primary" @click="onCancel"/>
         </div>
       </q-card-section>
     </div>
@@ -134,37 +134,22 @@
 
 <script setup>
 
-import { useStore } from "vuex";
-import { computed, reactive, ref, watch } from "vue";
-import assert from 'assert'
+import { ref } from "vue";
+import { useProtocolStore} from "@/stores/protocol";
+import { useFeatureStore } from "@/stores/feature";
 import OaSectionHeader from "../widgets/OaSectionHeader";
-import drcModelOptions from "../../resources/dose_response_curve_fit_models.json"
 
-const store = useStore()
+const protocolStore = useProtocolStore()
+const featureStore = useFeatureStore()
 
 const props = defineProps(['show', 'feature'])
+const emit = defineEmits('update:show')
 
 const activeTab = ref('general');
 
-//TODO fix hardcode
-const featureTypes = ['CALCULATION', 'NORMALIZATION', 'RAW']
-const inputSource = ['MEASUREMENT', 'FEATURE']
-
-const feature = computed(() => props.feature)
-const selectedFormula = computed(() => store.getters['calculations/getFormula'](props.feature.formulaId))
-const variables = computed(() => props.feature.civs)
-const selectedDCRModel = computed(() => props.feature.drcModel)
-
-//Watch for changes and update lists accordingly
-// variables.list = feature.value.civs
-// watch(formulaInputs, (i) => {
-//   variables.list = i.map(i => {
-//     return {variableName: i, inputSource: 'MEASUREMENT', sourceMeasColName: undefined, sourceFeatureId: undefined}
-//   })
-// })
-
-// const formulaInputs = ref(feature.value.civs)
-
-
+const onCancel = () => {
+  featureStore.$reset()
+  emit('update:show', false)
+}
 
 </script>

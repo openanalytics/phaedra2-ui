@@ -1,5 +1,5 @@
 <template>
-  <q-breadcrumbs class="oa-breadcrumb" v-if="newProtocol">
+  <q-breadcrumbs class="oa-breadcrumb" v-if="newProtocol" @click="resetStores">
     <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
     <q-breadcrumbs-el :label="'Protocols'" icon="list" :to="'/protocols'"/>
     <q-breadcrumbs-el :label="newProtocol.name" icon="ballot"/>
@@ -51,6 +51,8 @@
 import OaSectionHeader from "../../components/widgets/OaSectionHeader";
 import PropertyTable from "@/components/property/PropertyTable";
 import FeatureList from "@/components/feature/FeatureList";
+import {useProtocolStore} from "@/stores/protocol";
+import {useFeatureStore} from "@/stores/feature";
 
 import {useStore} from "vuex";
 import {computed, ref} from "vue";
@@ -58,6 +60,8 @@ import {useRouter} from "vue-router";
 
 const store = useStore();
 const router = useRouter();
+const protocolStore = useProtocolStore();
+const featureStore = useFeatureStore()
 
 const name = "NewProtocolView";
 const wellTypeOptions = ['LC', 'HC', 'NC', 'PC'];
@@ -89,5 +93,10 @@ const onReset = () => {
 
 const addNewFeature = (newFeature) => {
   newProtocol.value.features.push(newFeature)
+}
+
+const resetStores = () => {
+  protocolStore.$reset()
+  featureStore.$reset()
 }
 </script>

@@ -41,42 +41,28 @@
 }
 </style>
 
-<script>
+<script setup>
 import {ref, computed} from "vue";
 import {useStore} from 'vuex'
 import Tag from "@/components/tag/Tag"
 
-export default {
-  props: {
-    label: String,
-    objectInfo: Object,
-    objectClass: String,
-    readOnly: Boolean
-  },
-  components: {
-    Tag
-  },
-  setup(props) {
-    const exported = {};
-    const store = useStore();
+const props = defineProps(['label', 'objectInfo', 'objectClass', 'readOnly']);
 
-    exported.tags = computed(() => store.getters['metadata/getTags']({
-      objectId: props.objectInfo.id,
-      objectClass: props.objectClass
-    }));
+const store = useStore();
 
-    exported.showAddTagDialog = ref(false);
-    exported.newTag = ref('');
+const tags = computed(() => store.getters['metadata/getTags']({
+  objectId: props.objectInfo.id,
+  objectClass: props.objectClass
+}));
 
-    exported.doAddTag = function () {
-      store.dispatch('metadata/addTag', {
-        objectId: props.objectInfo.id,
-        objectClass: props.objectClass,
-        tag: exported.newTag.value,
-      })
-    };
+const showAddTagDialog = ref(false);
+const newTag = ref('');
 
-    return exported;
-  },
+const doAddTag = () => {
+  store.dispatch('metadata/addTag', {
+    objectId: props.objectInfo.id,
+    objectClass: props.objectClass,
+    tag: newTag.value,
+  })
 }
 </script>
