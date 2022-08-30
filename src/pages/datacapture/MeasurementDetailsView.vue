@@ -95,7 +95,7 @@
                                     <div class="col-2">
                                         <q-scroll-area style="height: 450px;">
                                             <q-list bordered separator dense>
-                                                <q-item clickable v-for="well in wells" :key="well.nr" @click="selectWell(well)">
+                                                <q-item clickable :active="well.nr == selectedWell?.nr" v-for="well in wells" :key="well.nr" @click="selectWell(well)">
                                                     {{ well.coord }}
                                                 </q-item>
                                             </q-list>
@@ -147,8 +147,10 @@
             return { nr: nr, row: pos[0], columns: pos[1], coord: coord };
         });
     });
+    const selectedWell = ref(null);
     const selectWell = (well) => {
-        store.dispatch('ui/selectWells', [{ nr: well.nr, measId: meas.value.id }]);
+        selectedWell.value = { nr: well.nr, measId: meas.value.id };
+        store.dispatch('ui/selectWells', [ selectedWell.value ]);
     };
 
     const wellDataColumns = ref([
