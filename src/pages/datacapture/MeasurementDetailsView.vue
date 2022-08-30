@@ -60,10 +60,6 @@
                     <div class="row oa-section-body">
                         <q-tab-panels v-model="activeTab" animated style="width: 100%">
                             <q-tab-panel name="wellData">
-                                <div v-if="wellDataColumnLimit > 0">
-                                    <span class="text-info">Showing first {{wellDataColumnLimit}} columns.</span>
-                                    <q-btn class="on-right" size="xs" color="info" @click="wellDataColumnLimit = -1">Load all</q-btn>
-                                </div>
                                 <q-table
                                     table-header-class="text-grey"
                                     flat dense
@@ -71,8 +67,23 @@
                                     :columns="wellDataColumns"
                                     row-key="id"
                                     :pagination="{ rowsPerPage: 100 }"
+                                    :filter="filter"
+                                    :filter-method="filterMethod"
                                     :loading="loading"
                                 >
+                                <template v-slot:top-left>
+                                    <div v-if="wellNrLimit > 0">
+                                        <span class="text-info">Showing first {{wellNrLimit}} wells.</span>
+                                        <q-btn class="on-right" size="xs" color="info" @click="wellNrLimit = -1">Load all</q-btn>
+                                    </div>
+                                </template>
+                                <template v-slot:top-right>
+                                    <div class="row">
+                                        <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
+                                            <template v-slot:append> <q-icon name="search"/> </template>
+                                        </q-input>
+                                    </div>
+                                </template>
                                 </q-table>
                             </q-tab-panel>
                             <q-tab-panel name="subWellData">
@@ -100,7 +111,9 @@
     import {useRoute} from 'vue-router'
 
     import OaSectionHeader from "@/components/widgets/OaSectionHeader";
-
+    import WellUtils from "@/lib/WellUtils";
+    import FilterUtils from "@/lib/FilterUtils";
+    
     const activeTab = ref('wellData');
     const loading = ref(true);
 
@@ -111,30 +124,31 @@
     const meas = computed(() => store.getters['measurements/getById'](measId));
     store.dispatch('measurements/loadById', measId);
     
-    //TODO All columns -> poor performance
-    const wellDataColumnLimit = ref(20);
+    const filter = ref('');
+    const filterMethod = FilterUtils.defaultTableFilter();
 
+    const wellNrLimit = ref(20);
     const wellDataColumns = ref([
-        { name: 'wellNr', align: 'left', label: 'Well', field: 'wellNr', sortable: true }
+        { name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true }
     ]);
     const wellData = computed(() => {
         let dataMap = store.getters['measurements/getWellData'](measId) || {};
         let columns = Object.keys(dataMap).sort();
-        if (wellDataColumnLimit.value > 0) columns = columns.slice(0, wellDataColumnLimit.value);
-
-        columns.forEach(col => {
-            wellDataColumns.value.push({ name: col, align: 'left', label: col, field: row => row[col], sortable: true });
-        });
 
         let wellNrs = [...Array(meas.value.rows * meas.value.columns).keys()].map(i => i+1);
-        return wellNrs.map(nr => {
-            let row = { wellNr: nr };
-            columns.forEach(col => row[col] = dataMap[col][nr - 1]);
-            return row;
+        if (wellNrLimit.value > 0) wellNrs = wellNrs.slice(0, wellNrLimit.value);
+
+        wellNrs.forEach(nr => {
+            let pos = WellUtils.getWellPosition(nr, meas.value.columns);
+            let coord = WellUtils.getWellCoordinate(pos[0], pos[1]);
+            wellDataColumns.value.push({ name: coord, align: 'left', label: coord, field: row => (Math.round(row.values[nr - 1] * 100) / 100), sortable: true });
         });
+
+        return columns.map(col => { return { name: col, values: dataMap[col] }});
     });
     store.dispatch('measurements/loadWellData', measId).then(() => loading.value = false);
 
+    //TODO
     const subWellData = [];
     const subWellDataColumns = [
         { name: 'wellNr', align: 'left', label: 'Well', field: 'wellNr', sortable: true },
