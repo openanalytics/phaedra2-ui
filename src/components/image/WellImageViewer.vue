@@ -13,7 +13,7 @@
             </div>
         </div>
         <div class="absolute-top-right q-pr-xl q-pt-sm">
-            <q-badge color="blue">{{ selectedWell ? WellUtils.getWellCoordinate(selectedWell.row, selectedWell.column) : "No Well Selected" }}, Zoom: {{scale*100}}%</q-badge>
+            <q-badge color="blue">{{ selectedWellCoordinate }}, Zoom: {{scale*100}}%</q-badge>
         </div>
         <div ref="configPanel" class="q-pt-sm">
             <q-list bordered class="rounded-borders">
@@ -106,20 +106,36 @@
         if (wells && wells.length > 0) return wells[0];
         return null;
     });
+    const selectedWellCoordinate = computed(() => {
+        if (selectedWell.value?.row && selectedWell.value?.column) {
+            return WellUtils.getWellCoordinate(selectedWell.value.row, selectedWell.value.column);
+        } else if (selectedWell.value?.nr && selectedWell.value?.measId) {
+            let meas = store.getters['measurements/getById'](selectedWell.value.measId);
+            let pos = WellUtils.getWellPosition(selectedWell.value.nr, meas.columns);
+            return WellUtils.getWellCoordinate(pos[0], pos[1]);
+        }
+        return "No Well Selected";
+    });
 
     const getImageURL = () => {
         if (selectedChannels.value.length == 0) return;
         let channelNames = selectedChannels.value.map(c => c.name).join(',');
+        let measId = null;
+        let wellNr = null;
         
         let well = selectedWell.value;
-        if (!well) return;
-
-        //TODO Assuming here that meas is already stored.
-        let measLink = store.getters['measurements/getActivePlateMeasurement'](well.plateId);
-        if (measLink == null) return;
-        
-        let measId = measLink.measurementId;
-        let wellNr = WellUtils.getWellNr(well.row, well.column, measLink.columns);
+        if (well?.plateId) {
+            //TODO Assuming here that meas is already stored.
+            let measLink = store.getters['measurements/getActivePlateMeasurement'](well.plateId);
+            if (measLink == null) return;
+            measId = measLink.measurementId;
+            wellNr = WellUtils.getWellNr(well.row, well.column, measLink.columns);
+        } else if (well?.measId && well?.nr) {
+            measId = well.measId;
+            wellNr = well.nr;
+        } else {
+            return;
+        }
 
         let baseURL = process.env.VUE_APP_API_BASE_URL;
         return baseURL + `/measurement-service/image/${measId}/${wellNr}/${channelNames}?renderConfigId=${renderConfigId}&scale=${scale.value}`;

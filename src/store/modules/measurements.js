@@ -4,7 +4,8 @@ import plateAPI from '@/api/plates.js'
 const state = () => ({
     measurements: [],
     plateMeasurements: {},
-    renderConfigs: []
+    renderConfigs: [],
+    wellData: {}
 })
 
 const getters = {
@@ -28,6 +29,9 @@ const getters = {
     },
     getRenderConfig: (state) => (id) => {
         return state.renderConfigs.find(cfg => cfg.id === id);
+    },
+    getWellData: (state) => (measId) => {
+        return state.wellData[measId];
     }
 }
 
@@ -77,6 +81,10 @@ const actions = {
     async loadRenderConfig(ctx, id) {
         const cfg = await measAPI.getRenderConfig(id);
         ctx.commit('cacheRenderConfig', cfg);
+    },
+    async loadWellData(ctx, measId) {
+        const wellData = await measAPI.getWellData(measId);
+        ctx.commit("cacheWellData", { measId: measId, wellData: wellData });
     }
 }
 
@@ -115,6 +123,9 @@ const mutations = {
     cacheRenderConfig(state, cfg) {
         var existingConfig = state.renderConfigs.find(el => el.id === cfg.id);
         if (existingConfig === undefined) state.renderConfigs.push(cfg);
+    },
+    cacheWellData(state, { measId, wellData }) {
+        state.wellData[measId] = wellData;
     }
 }
 

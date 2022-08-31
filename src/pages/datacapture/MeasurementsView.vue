@@ -13,6 +13,7 @@
           :pagination="{ rowsPerPage: 20, sortBy: 'createdOn', descending: true}"
           :filter="filterValue"
           :filter-method="filterMethod"
+          @row-click="(e, row) => router.push('/datacapture/meas/' + row.id)"
           >
           <template v-slot:top-right>
             <div class="row">
@@ -34,6 +35,7 @@
 <script>
 import {computed, ref} from 'vue'
 import {useStore} from "vuex";
+import {useRouter} from "vue-router";
 import FormatUtils from "../../lib/FormatUtils";
 import TableConfig from "../../components/table/TableConfig";
 import OaSectionHeader from "../../components/widgets/OaSectionHeader";
@@ -44,6 +46,8 @@ export default {
   components: {TableConfig, OaSectionHeader},
   setup() {
     const exported = {}
+
+    exported.router = useRouter()
     const store = useStore()
     if (!store.getters["measurements/isLoaded"]()){
       store.dispatch('measurements/loadAll')

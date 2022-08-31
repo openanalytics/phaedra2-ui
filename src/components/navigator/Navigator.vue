@@ -152,7 +152,7 @@
               {
                 label: "Measurements",
                 icon: 'text_snippet',
-                route: 'capturedMeasurements'
+                route: 'measurements'
               }
             ]
           },

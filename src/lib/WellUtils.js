@@ -28,6 +28,13 @@ function getWellNr(row, column, colCount) {
     return ((row-1) * colCount) + column;
 }
 
+function getWellPosition(wellNr, columnCount) {
+    wellNr--;
+    let rowNr = 1 + wellNr / columnCount;
+    let colNr = 1 + wellNr % columnCount;
+    return [ rowNr, colNr ];
+}
+
 function getWell(wells, row, column) {
     return wells.find(w => w.row == row && w.column == column)
 }
@@ -37,5 +44,6 @@ export default {
     getWellCoordinate,
     getWellRowLabel,
     getWellNr,
+    getWellPosition,
     getWell
 }
