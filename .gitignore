@@ -22,3 +22,4 @@ pnpm-debug.log*
 *.sln
 *.sw?
 /phaedra2-ui.iml
+/package-lock.json
