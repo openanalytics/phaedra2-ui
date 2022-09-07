@@ -156,7 +156,7 @@
           {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
           {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
           {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate },
-          {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true, format: val => store.getters['userinfo/getUserName'](val) },
+          {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true },
 
           {name: 'nrPlates', align: 'left', label: 'Plates', field: row => (row.summary ? row.summary.nrPlates : 0), sortable: true},
           {name: 'nrPlatesCalculated', align: 'left', label: 'Calculated', sortable: true},

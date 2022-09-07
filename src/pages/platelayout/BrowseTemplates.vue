@@ -38,6 +38,11 @@
               <TagList :objectInfo="props.row" :objectClass="'PLATE_TEMPLATE'" :readOnly="true" />
             </q-td>
           </template>
+          <template v-slot:body-cell-createdBy="props">
+            <q-td :props="props">
+              <UserChip :id="props.row.createdBy" />
+            </q-td>
+          </template>
         </q-table>
       </div>
     </div>
@@ -52,11 +57,13 @@ import FilterUtils from "@/lib/FilterUtils.js"
 import FormatUtils from "@/lib/FormatUtils.js"
 
 import TagList from "@/components/tag/TagList";
+import UserChip from "@/components/widgets/UserChip";
 import OaSectionHeader from "@/components/widgets/OaSectionHeader";
 
 export default {
   components: {
     TagList,
+    UserChip,
     OaSectionHeader
   },
   setup() {

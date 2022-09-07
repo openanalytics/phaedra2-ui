@@ -143,7 +143,7 @@ export default {
       {name: 'status-approved', align: 'center', label: 'A', field: 'status-approved'},
       {name: 'dimensions', align: 'left', label: 'Dimensions', field: 'dimensions', sortable: true},
       {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate },
-      {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true, format: val => store.getters['userinfo/getUserName'](val) },
+      {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true },
       {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
       {name: 'menu', align: 'left', field: 'menu', sortable: false}
     ])

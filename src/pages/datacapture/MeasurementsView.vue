@@ -25,6 +25,11 @@
               <q-btn flat round color="primary" icon="settings" style="border-radius: 50%;" @click="configdialog=true"/>
             </div>
           </template>
+          <template v-slot:body-cell-createdBy="props">
+            <q-td :props="props">
+              <UserChip :id="props.row.createdBy" />
+            </q-td>
+        </template>
         </q-table>
       </div>
     </div>
@@ -36,14 +41,15 @@
 import {computed, ref} from 'vue'
 import {useStore} from "vuex";
 import {useRouter} from "vue-router";
-import FormatUtils from "../../lib/FormatUtils";
-import TableConfig from "../../components/table/TableConfig";
-import OaSectionHeader from "../../components/widgets/OaSectionHeader";
-import FilterUtils from "../../lib/FilterUtils";
+import FormatUtils from "@/lib/FormatUtils";
+import FilterUtils from "@/lib/FilterUtils";
+import TableConfig from "@/components/table/TableConfig";
+import OaSectionHeader from "@/components/widgets/OaSectionHeader";
+import UserChip from "@/components/widgets/UserChip";
 
 export default {
   name: 'CapturedMeasurementsView',
-  components: {TableConfig, OaSectionHeader},
+  components: { TableConfig, OaSectionHeader, UserChip },
   setup() {
     const exported = {}
 
