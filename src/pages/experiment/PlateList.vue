@@ -69,6 +69,11 @@
         <TagList :objectInfo="props.row" :objectClass="'PLATE'" :readOnly="true" />
       </q-td>
     </template>
+    <template v-slot:body-cell-createdBy="props">
+      <q-td :props="props">
+        <UserChip :id="props.row.createdBy" />
+      </q-td>
+    </template>
     <template v-slot:body-cell-menu="props">
       <q-td :props="props">
         <div class="row items-center cursor-pointer">
@@ -104,6 +109,7 @@ import {useStore} from 'vuex'
 import {useRoute} from "vue-router";
 
 import TagList from "@/components/tag/TagList";
+import UserChip from "@/components/widgets/UserChip";
 import TableConfig from "@/components/table/TableConfig";
 import PlateActionMenu from "@/components/plate/PlateActionMenu";
 import StatusFlag from "@/components/widgets/StatusFlag";
@@ -111,7 +117,7 @@ import FilterUtils from "@/lib/FilterUtils";
 import FormatUtils from "@/lib/FormatUtils";
 
 export default {
-  components: {TableConfig, TagList, StatusFlag, PlateActionMenu},
+  components: {TableConfig, UserChip, TagList, StatusFlag, PlateActionMenu},
   props: ['experiment', 'newPlateTab'],
   emits: ['update:newPlateTab'],
 
@@ -137,7 +143,7 @@ export default {
       {name: 'status-approved', align: 'center', label: 'A', field: 'status-approved'},
       {name: 'dimensions', align: 'left', label: 'Dimensions', field: 'dimensions', sortable: true},
       {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate },
-      {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true, format: val => store.getters['userinfo/getUserName'](val) },
+      {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true },
       {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
       {name: 'menu', align: 'left', field: 'menu', sortable: false}
     ])

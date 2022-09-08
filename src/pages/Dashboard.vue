@@ -28,6 +28,11 @@
             </router-link>
           </q-td>
         </template>
+        <template v-slot:body-cell-createdBy="props">
+          <q-td :props="props">
+            <UserChip :id="props.row.createdBy" />
+          </q-td>
+        </template>
         <template v-slot:body-cell-nrOfPlates="props" >
           <q-td :props="props">
             {{recentExperimentSummaries.find(sum => sum.experimentId===props.row.id)?.nrPlates.toString()||"-"}}
@@ -59,6 +64,7 @@ import {computed} from "vue";
   import {useStore} from "vuex";
   import RecentProjects from "@/components/dashboard/RecentProjects";
   import RecentCalculations from "../components/dashboard/RecentCalculations";
+  import UserChip from "@/components/widgets/UserChip";
   import FormatUtils from "@/lib/FormatUtils.js";
   import OaSectionHeader from "../components/widgets/OaSectionHeader";
 
@@ -66,6 +72,7 @@ import {computed} from "vue";
     components: {
       RecentProjects,
       RecentCalculations,
+      UserChip,
       OaSectionHeader
     },
     setup() {

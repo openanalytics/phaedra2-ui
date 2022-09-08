@@ -1,19 +1,21 @@
 <template>
-    <div class="viewer-panel">
-        <div class="row relative-position canvas-container" ref="canvasContainer">
-            <canvas ref="canvas"
+    <div class="viewer-panel relative-position">
+        <div class="row canvas-container" ref="canvasContainer">
+            <canvas ref="canvas" :class="(dragInProgress)?'cursor-grabbing':'cursor-grab'"
                 @mousedown="canvasDragStart"
                 @mousemove="canvasDragMove"
                 @mouseup="canvasDragEnd"
                 @mouseenter="mouseEnter"
                 @mouseleave="mouseLeave"
             ></canvas>
-            <div class="absolute-center" v-if="loading">
-                <q-spinner-pie color="info" size="7em"/>
-            </div>
         </div>
-        <div class="absolute-top-right q-pr-xl q-pt-sm">
+        <div class="absolute-center" v-if="loading">
+            <q-spinner-pie color="info" size="7em"/>
+        </div>
+        <div class="absolute-top-left q-pl-sm q-pt-sm">
             <q-badge color="blue">{{ selectedWellCoordinate }}, Zoom: {{scale*100}}%</q-badge>
+            <q-btn color="blue" size="xs" round class="on-right" icon="zoom_in" @click="doZoom(1)"><q-tooltip>Zoom In</q-tooltip></q-btn>
+            <q-btn color="blue" size="xs" round class="on-right" icon="zoom_out" @click="doZoom(-1)"><q-tooltip>Zoom Out</q-tooltip></q-btn>
         </div>
         <div ref="configPanel" class="q-pt-sm">
             <q-list bordered class="rounded-borders">
@@ -32,7 +34,7 @@
                     >
                         <template v-slot:body-cell-rgb="props">
                             <q-td :props="props">
-                                <div :style="{ width: '25px', backgroundColor: getColor(props.row.rgb) }">&nbsp;</div>
+                                <div :style="{ width: '25px', backgroundColor: ColorUtils.asCSSColor(props.row.rgb) }">&nbsp;</div>
                             </q-td>
                         </template>
                         <template v-slot:body-cell-contrast="props">
@@ -57,6 +59,7 @@
 <script setup>
     import {computed, ref, watch, onMounted, onUnmounted } from 'vue'
     import {useStore} from 'vuex'
+    import ColorUtils from '@/lib/ColorUtils';
     import WellUtils from "@/lib/WellUtils.js";
 
     const configPanel = ref(null);
@@ -85,14 +88,6 @@
         { name: 'contrast', label: 'Contrast Range', align: 'left' },
         { name: 'alpha', label: 'Alpha', align: 'left', field: 'alpha', format: val => (val * 100) + '%' },
     ];
-
-    const getColor = (rgb) => {
-        let r = (rgb & 0xFF0000) >> 16;
-        let g = (rgb & 0xFF00) >> 8;
-        let b = (rgb & 0xFF);
-        return `rgb(${r},${g},${b})`;
-
-    }
 
     const scale = ref(0.25);
     const scaleLimits = [ 0.125, 8];
@@ -127,21 +122,20 @@
         if (well?.plateId) {
             //TODO Assuming here that meas is already stored.
             let measLink = store.getters['measurements/getActivePlateMeasurement'](well.plateId);
-            if (measLink == null) return;
+            if (measLink == null) return null;
             measId = measLink.measurementId;
             wellNr = WellUtils.getWellNr(well.row, well.column, measLink.columns);
         } else if (well?.measId && well?.nr) {
             measId = well.measId;
             wellNr = well.nr;
         } else {
-            return;
+            return null;
         }
-
+        
         let baseURL = process.env.VUE_APP_API_BASE_URL;
         return baseURL + `/measurement-service/image/${measId}/${wellNr}/${channelNames}?renderConfigId=${renderConfigId}&scale=${scale.value}`;
     }
     const reloadImage = () => {
-        console.log('reloadImage')
         let url = getImageURL();
         if (url) {
             loading.value = true;
@@ -165,14 +159,18 @@
     const canvasContainer = ref(null);
 
     function draw() {
-        console.log("WellImageViewer Draw")
+        console.log("WellImageViewer Draw " + image.src)
         if (canvas.value === null) return;
         
-        canvas.value.width = image.width;
-        canvas.value.height = image.height;
-
         let ctx = canvas.value.getContext('2d');
-        ctx.drawImage(image, 0, 0);
+        if (image.src && !image.src.endsWith('/null')) {
+            canvas.value.width = image.width;
+            canvas.value.height = image.height;
+            ctx.drawImage(image, 0, 0);
+        } else {
+            canvas.value.width = 100;
+            canvas.value.height = 100;
+        }
     }
 
     // Mouse scroll behaviour
@@ -186,38 +184,45 @@
         isMouseOnCanvas = false;
         canvasDragEnd(event);
     }
-    const canvasMouseScroll = (event) => {
-        if (event.deltaY == 0 || !isMouseOnCanvas) return;
-        event.preventDefault();
+    // const canvasMouseScroll = (event) => {
+    //     if (event.deltaY == 0 || !isMouseOnCanvas) return;
+    //     event.preventDefault();
 
-        let isZoomIn = event.deltaY < 0;
-        if (isZoomIn && scale.value <= scaleLimits[1]) scale.value *= 2;
-        else if (scale.value >= scaleLimits[0]) scale.value /= 2;
+    //     let isZoomIn = event.deltaY < 0;
+    //     if (isZoomIn && scale.value <= scaleLimits[1]) scale.value *= 2;
+    //     else if (scale.value >= scaleLimits[0]) scale.value /= 2;
+    //     else return;
+    //     reloadImage();
+    // }
+    // onMounted(() => {
+    //     window.addEventListener('wheel', canvasMouseScroll, { passive: false });
+    // });
+    // onUnmounted(() => {
+    //     window.removeEventListener('wheel', canvasMouseScroll);
+    // });
+
+    const doZoom = (amount) => {
+        if (amount > 0 && scale.value <= scaleLimits[1]) scale.value *= (2 * amount);
+        else if (scale.value >= scaleLimits[0]) scale.value /= (2 * (0 - amount));
         else return;
         reloadImage();
     }
-    onMounted(() => {
-        window.addEventListener('wheel', canvasMouseScroll, { passive: false });
-    });
-    onUnmounted(() => {
-        window.removeEventListener('wheel', canvasMouseScroll);
-    });
 
     // Mouse drag behaviour
     // --------------------
 
-    let dragInProgress = false;
+    const dragInProgress = ref(false);
     let dragPrevPosition = null;
     let canvasBounds = null;
 
     const canvasDragStart = (event) => {
-        if (dragInProgress) return;
+        if (dragInProgress.value) return;
         event.preventDefault();
-        dragInProgress = true;
+        dragInProgress.value = true;
         canvasBounds = canvas.value.parentNode.getBoundingClientRect();
     };
     const canvasDragMove = (event) => {
-        if (!dragInProgress) return;
+        if (!dragInProgress.value) return;
         canvasBounds = canvas.value.parentNode.getBoundingClientRect();
         let currentPosition = { x: event.x - canvasBounds.left, y: event.y - canvasBounds.top};
         if (dragPrevPosition != null) {
@@ -228,9 +233,9 @@
         dragPrevPosition = currentPosition;
     };
     const canvasDragEnd = (event) => {
-        if (!dragInProgress) return;
+        if (!dragInProgress.value) return;
         event.preventDefault();
-        dragInProgress = false;
+        dragInProgress.value = false;
         dragPrevPosition = null;
     };
 

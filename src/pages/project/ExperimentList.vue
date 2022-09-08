@@ -44,6 +44,11 @@
         <TagList :objectInfo="props.row" :objectClass="'EXPERIMENT'" :readOnly="true" />
       </q-td>
     </template>
+    <template v-slot:body-cell-createdBy="props">
+      <q-td :props="props">
+        <UserChip :id="props.row.createdBy" />
+      </q-td>
+    </template>
     <template v-slot:body-cell-nrPlatesCalculated="props">
       <q-td :props="props">
         <ProgressBarField :object="props.row.summary" :valueFieldName="props.col.name" :maxValueFieldName="'nrPlates'" />
@@ -119,6 +124,7 @@
   import TableConfig from "@/components/table/TableConfig";
   import ProgressBarField from "@/components/widgets/ProgressBarField";
   import TagList from "@/components/tag/TagList";
+  import UserChip from "@/components/widgets/UserChip";
   import ExperimentMenu from "@/components/experiment/ExperimentMenu";
 
   import FormatUtils from "@/lib/FormatUtils.js"
@@ -131,6 +137,7 @@
     components: {
       TableConfig,
       TagList,
+      UserChip,
       ProgressBarField,
       ExperimentMenu
     },
@@ -149,7 +156,7 @@
           {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
           {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
           {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate },
-          {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true, format: val => store.getters['userinfo/getUserName'](val) },
+          {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true },
 
           {name: 'nrPlates', align: 'left', label: 'Plates', field: row => (row.summary ? row.summary.nrPlates : 0), sortable: true},
           {name: 'nrPlatesCalculated', align: 'left', label: 'Calculated', sortable: true},

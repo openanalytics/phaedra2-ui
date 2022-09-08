@@ -37,6 +37,11 @@
               </q-chip>
             </q-td>
           </template>
+          <template v-slot:body-cell-createdBy="props">
+            <q-td :props="props">
+              <UserChip :id="props.row.createdBy" />
+            </q-td>
+          </template>
           <template v-slot:body-cell-menu="props">
             <q-td :props="props">
               <div class="row items-center cursor-pointer">
@@ -73,12 +78,14 @@ import {computed, ref} from 'vue'
 import {useStore} from 'vuex'
 import {useRouter} from 'vue-router'
 import FormatUtils from "@/lib/FormatUtils.js"
-import DeleteFormulaDialog from "@/pages/calculation/formula/DeleteFormulaDialog.vue"
+import DeleteFormulaDialog from "@/pages/calculation/formula/DeleteFormulaDialog.vue";
+import UserChip from "@/components/widgets/UserChip";
 import OaSectionHeader from "../../../components/widgets/OaSectionHeader";
 
 export default {
   components: {
     DeleteFormulaDialog,
+    UserChip,
     OaSectionHeader
   },
   setup() {

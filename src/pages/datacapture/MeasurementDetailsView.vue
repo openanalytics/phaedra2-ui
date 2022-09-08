@@ -93,7 +93,7 @@
                             <q-tab-panel name="imageData">
                                 <div class="row">
                                     <div class="col-2">
-                                        <q-scroll-area style="height: 450px;">
+                                        <q-scroll-area style="height: 500px;">
                                             <q-list bordered separator dense>
                                                 <q-item clickable :active="well.nr == selectedWell?.nr" v-for="well in wells" :key="well.nr" @click="selectWell(well)">
                                                     {{ well.coord }}

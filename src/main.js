@@ -32,8 +32,10 @@ import FormulasView from "@/pages/calculation/formula/FormulasView";
 import FormulaView from "@/pages/calculation/formula/FormulaView";
 
 import CaptureJobsView from '@/pages/datacapture/CaptureJobsView.vue'
-import MeasurementsView from "./pages/datacapture/MeasurementsView";
-import MeasurementDetailsView from "./pages/datacapture/MeasurementDetailsView";
+import MeasurementsView from "@/pages/datacapture/MeasurementsView";
+import MeasurementDetailsView from "@/pages/datacapture/MeasurementDetailsView";
+import BrowseImageRenderConfigs from "@/pages/datacapture/BrowseImageRenderConfigs";
+import ImageRenderConfigDetails from "@/pages/datacapture/ImageRenderConfigDetails";
 
 import ExperimentView from '@/pages/experiment/ExperimentView.vue'
 import PlateList from "@/pages/experiment/PlateList.vue"
@@ -90,6 +92,8 @@ const routes = [
     { name: "dataCaptureJobs", path: "/datacapture/jobs", component: CaptureJobsView },
     { name: "measurements", path: "/datacapture/meas", component: MeasurementsView},
     { name: "measurementDetails", path: "/datacapture/meas/:id", component: MeasurementDetailsView},
+    { name: "imageRenderConfigs", path: "/datacapture/render-configs", component: BrowseImageRenderConfigs},
+    { name: "imageRenderConfigDetails", path: "/datacapture/render-config/:id", component: ImageRenderConfigDetails},
 ]
 const router = createRouter({
     history: createWebHistory(publicPath),

@@ -79,6 +79,11 @@
         <q-badge :color="ColorUtils.getCaptureJobStatusColor(props.row.statusCode)">{{ props.row.statusCode }}</q-badge>
       </q-td>
     </template>
+    <template v-slot:body-cell-createdBy="props">
+      <q-td :props="props">
+        <UserChip :id="props.row.createdBy" />
+      </q-td>
+    </template>
     <template v-slot:body-cell-details="props">
       <q-td :props="props">
         <q-btn label="Details" icon-right="chevron_right" size="sm" @click="doShowJobDetails(props.row)"/>
@@ -108,16 +113,18 @@ import {ref, computed} from 'vue'
 import {useStore} from 'vuex'
 
 import CaptureJobDetailsPanel from "./CaptureJobDetailsPanel";
-import TableConfig from "../../components/table/TableConfig";
+import TableConfig from "@/components/table/TableConfig";
+import UserChip from "@/components/widgets/UserChip";
 
 import FormatUtils from "@/lib/FormatUtils.js"
-import ColorUtils from "../../lib/ColorUtils";
-import FilterUtils from "../../lib/FilterUtils";
+import ColorUtils from "@/lib/ColorUtils";
+import FilterUtils from "@/lib/FilterUtils";
 
 export default {
   components: {
     CaptureJobDetailsPanel,
-    TableConfig
+    TableConfig,
+    UserChip
   },
   setup() {
     const exported = {};

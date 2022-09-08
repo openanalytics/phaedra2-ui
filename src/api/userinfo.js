@@ -1,11 +1,11 @@
 import axios from "axios";
 
-const apiURL = process.env.VUE_APP_API_BASE_URL.replace('api/v1', 'userinfo');
+const apiURL = process.env.VUE_APP_API_BASE_URL.replace('/api/v1', '');
 
 export default {
     async getUserInfo() {
         try {
-            const response = await axios.get(apiURL);
+            const response = await axios.get(apiURL + '/userinfo');
             
             // const response = { 
             //     data: {
@@ -33,5 +33,10 @@ export default {
                 teams: []
             };
         }
+    },
+
+    async getUserList() {
+        const response = await axios.get(apiURL + '/users');
+        return response.data;
     }
 }

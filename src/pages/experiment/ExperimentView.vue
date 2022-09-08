@@ -28,7 +28,7 @@
             </div>
             <div class="row">
               <div class="col-3 text-weight-bold">Created By:</div>
-              <div class="col">{{ experiment.createdBy }}</div>
+              <div class="col"><UserChip :id="experiment.createdBy" /></div>
             </div>
             <div class="row">
               <div class="col-3 text-weight-bold">Description:</div>
@@ -137,6 +137,7 @@ import {useStore} from 'vuex'
 import {useRoute, useRouter} from 'vue-router'
 
 import TagList from "@/components/tag/TagList";
+import UserChip from "@/components/widgets/UserChip";
 import EditExperiment from "./EditExperiment";
 import PropertyTable from "@/components/property/PropertyTable";
 import PlateList from "@/pages/experiment/PlateList";
@@ -150,6 +151,7 @@ export default {
   name: 'Experiment',
   components: {
     TagList,
+    UserChip,
     EditExperiment,
     PropertyTable,
     PlateList,

@@ -24,7 +24,7 @@
               </div>
               <div class="row">
                 <div class="col-3 text-weight-bold">Created By:</div>
-                <div class="col">{{ project.createdBy }}</div>
+                <div class="col"><UserChip :id="project.createdBy" /></div>
               </div>
               <div class="row">
                 <div class="col-3 text-weight-bold">Description:</div>
@@ -106,6 +106,7 @@
   import TagList from "@/components/tag/TagList"
   import PropertyTable from "@/components/property/PropertyTable";
   import EditableField from "@/components/widgets/EditableField";
+  import UserChip from "@/components/widgets/UserChip";
   import AccessControlList from "@/components/widgets/AccessControlList";
   import OaSectionHeader from "../../components/widgets/OaSectionHeader";
   import DeleteDialog from "../../components/widgets/DeleteDialog";
@@ -118,6 +119,7 @@
       TagList,
       PropertyTable,
       EditableField,
+      UserChip,
       AccessControlList,
       OaSectionHeader,
       DeleteDialog

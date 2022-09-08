@@ -153,6 +153,11 @@
                 label: "Measurements",
                 icon: 'text_snippet',
                 route: 'measurements'
+              },
+              {
+                label: "Render Settings",
+                icon: 'palette',
+                route: 'imageRenderConfigs'
               }
             ]
           },
