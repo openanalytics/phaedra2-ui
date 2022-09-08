@@ -80,67 +80,56 @@
     <delete-dialog ref="refDeleteDialog" :id="plate.id" :name="plate.barcode" :objectClass="'plate'" />
 </template>
 
-<script>
-    import {ref} from "vue";
-    import {useStore} from 'vuex'
+<script setup>
+import {ref} from "vue";
+import {useStore} from 'vuex'
 
-    import InvalidateDialog from "@/components/plate/InvalidateDialog";
-    import DisapproveDialog from "@/components/plate/DisapproveDialog";
-    import ApproveDialog from "@/components/plate/ApproveDialog";
-    import CalculatePlateDialog from "@/components/plate/CalculatePlateDialog";
-    import LinkPlateDialog from "@/components/plate/LinkPlateDialog";
-    import DeleteDialog from "@/components/widgets/DeleteDialog";
+import InvalidateDialog from "@/components/plate/InvalidateDialog";
+import DisapproveDialog from "@/components/plate/DisapproveDialog";
+import ApproveDialog from "@/components/plate/ApproveDialog";
+import CalculatePlateDialog from "@/components/plate/CalculatePlateDialog";
+import LinkPlateDialog from "@/components/plate/LinkPlateDialog";
+import DeleteDialog from "@/components/widgets/DeleteDialog";
 
-    export default {
-        props: {
-            'plate': Object
-        },
-        components: {
-            InvalidateDialog, DisapproveDialog, ApproveDialog, CalculatePlateDialog, LinkPlateDialog, DeleteDialog
-        },
-        setup(props) {
-            const store = useStore();
+const store = useStore();
 
-            const showInvalidateDialog = ref(false);
-            const showApproveDialog = ref(false);
-            const showDisapproveDialog = ref(false);
-            const showCalculateDialog = ref(false);
-            const showLinkDialog = ref(false);
-            const refDeleteDialog = ref(null);
+const showInvalidateDialog = ref(false);
+const showApproveDialog = ref(false);
+const showDisapproveDialog = ref(false);
+const showCalculateDialog = ref(false);
+const showLinkDialog = ref(false);
+const refDeleteDialog = ref(null);
 
-            return {
-                showInvalidateDialog,
-                showApproveDialog,
-                showDisapproveDialog,
-                showCalculateDialog,
-                showLinkDialog,
-                refDeleteDialog,
+const props = defineProps(['plate']);
+const plate = ref(props.plate)
 
-                validate() {
-                    store.dispatch('plates/editPlate', { id: props.plate.id, validationStatus: 'VALIDATED' })
-                },
-                invalidate() {
-                    showInvalidateDialog.value = true;
-                },
-                resetValidation() {
-                    store.dispatch('plates/editPlate', { id: props.plate.id, validationStatus: 'VALIDATION_NOT_SET', invalidatedReason: "" })
-                },
-                approve() {
-                    showApproveDialog.value = true;
-                },
-                disapprove() {
-                    showDisapproveDialog.value = true;
-                },
-                calculatePlate() {
-                    showCalculateDialog.value = true;
-                },
-                linkPlate() {
-                    showLinkDialog.value = true;
-                },
-                deletePlate() {
-                    refDeleteDialog.value.showDialog = true;
-                }
-            }
-        }
-    }
+const validate = () => {
+  store.dispatch('plates/editPlate', {id: props.plate.id, validationStatus: 'VALIDATED'})
+}
+
+const invalidate = () => {
+  showInvalidateDialog.value = true;
+}
+const resetValidation = () => {
+  store.dispatch('plates/editPlate', {
+    id: props.plate.id,
+    validationStatus: 'VALIDATION_NOT_SET',
+    invalidatedReason: ""
+  })
+}
+const approve = () => {
+  showApproveDialog.value = true;
+}
+const disapprove = () => {
+  showDisapproveDialog.value = true;
+}
+const calculatePlate = () => {
+  showCalculateDialog.value = true;
+}
+const linkPlate = () => {
+  showLinkDialog.value = true;
+}
+const deletePlate = () => {
+  refDeleteDialog.value.showDialog = true;
+}
 </script>

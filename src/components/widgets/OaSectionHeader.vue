@@ -5,11 +5,8 @@
   </div>
 </template>
 
-<script>
-export default {
-  props: {
-    title: String,
-    icon: String
-  }
-}
+<script setup>
+
+const props = defineProps(['title', 'icon'])
+
 </script>

@@ -10,7 +10,7 @@ export const useProtocolStore = defineStore("protocol",  {
             this.protocol = await protocolAPI.getProtocolById(protocolId)
         },
         async saveProtocol() {
-            await protocolAPI.editProtocol(this.protocol)
+            this.protocol = await protocolAPI.editProtocol(this.protocol)
             await this.loadProtocol(this.protocol.id)
         },
         addFeature(feature) {

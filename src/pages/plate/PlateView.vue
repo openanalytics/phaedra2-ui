@@ -43,7 +43,7 @@
               <q-btn size="sm" color="primary" icon="edit" class="oa-button-edit" label="Edit" @click="editdialog = true"/>
             </div>
             <div class="row justify-end action-button">
-              <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete" @click="$refs.deleteDialog.showDialog = true"/>
+              <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete" @click="openDeleteDialog"/>
             </div>
           </div>
         </div>
@@ -85,7 +85,7 @@
         </q-tab-panels>
       </div>
     </div>
-    <delete-dialog ref="deleteDialog" v-model:id="plate.id" v-model:name="plate.barcode" :objectClass="'plate'" @onDeleted="onDeleted" />
+    <delete-dialog ref="deleteDialog" v-model:id="plate.id" v-model:name="plate.barcode" v-model:show="showDialog" :objectClass="'plate'" @onDeleted="onDeleted" />
   </q-page>
 </template>
 
@@ -108,7 +108,7 @@
 }
 </style>
 
-<script>
+<script setup>
 import {computed, ref} from 'vue'
 import {useStore} from 'vuex'
 import {useRoute, useRouter} from 'vue-router'
@@ -124,61 +124,36 @@ import ResultSetList from "./ResultSetList";
 import OaSectionHeader from "../../components/widgets/OaSectionHeader";
 import DeleteDialog from "../../components/widgets/DeleteDialog";
 
-export default {
-  name: 'Plate',
-  components: {
-    WellList,
-    MeasList,
-    PlateLayout,
-    PlateHeatmap,
-    TagList,
-    EditPlate,
-    PropertyTable,
-    ResultSetList,
-    OaSectionHeader,
-    DeleteDialog
-  },
-  methods: {
-    addMeasurement() {
-      const plateMeasurement = {
-        plateId: this.plate,
-        measurementId: this.selectedMeas.id,
-        linkedBy: 'sberberovic',
-        linkedOn: new Date()
-      }
-      this.$store.dispatch('measurements/addMeasurement', plateMeasurement)
-    }
-  },
-  setup() {
-    const store = useStore()
-    const route = useRoute()
-    const router = useRouter()
-    const plateId = parseInt(route.params.id);
-    const plate = computed(() => store.getters['plates/getCurrentPlate']());
-    const experiment = computed(() => store.getters['experiments/getCurrentExperiment']());
-    const project = computed(() => store.getters['projects/getCurrentProject']());
+const store = useStore()
+const route = useRoute()
+const router = useRouter()
 
-    store.dispatch('plates/loadById', plateId).then(() => {
-      // Make sure parent experiment and project are loaded too (e.g. for breadcrumb)
-      if (!experiment.value.id) {
-        store.dispatch('experiments/loadById', plate.value.experimentId).then(() => {
-          if (!project.value.id) {
-            store.dispatch('projects/loadById', experiment.value.projectId);
-          }
-        });
+const plateId = parseInt(route.params.id);
+
+const plate = computed(() => store.getters['plates/getCurrentPlate']());
+const experiment = computed(() => store.getters['experiments/getCurrentExperiment']());
+const project = computed(() => store.getters['projects/getCurrentProject']());
+
+const activeTab = ref('layout')
+const editdialog = ref(false)
+const showDialog = ref(false)
+
+store.dispatch('plates/loadById', plateId).then(() => {
+  // Make sure parent experiment and project are loaded too (e.g. for breadcrumb)
+  if (!experiment.value.id) {
+    store.dispatch('experiments/loadById', plate.value.experimentId).then(() => {
+      if (!project.value.id) {
+        store.dispatch('projects/loadById', experiment.value.projectId);
       }
     });
-
-    return {
-      plate,
-      experiment,
-      project,
-      activeTab: ref('layout'),
-      onDeleted: () => {
-        router.push({name: 'experiment', params: {id: experiment.value.id}})
-      },
-      editdialog: ref(false)
-    }
   }
+})
+
+const openDeleteDialog = () => {
+  showDialog.value = true;
+}
+
+const onDeleted = () => {
+  router.push({name: 'experiment', params: {id: experiment.value.id}})
 }
 </script>

@@ -5,17 +5,17 @@
       <div class="col q-pa-md oa-section-body">
         <div class="row q-pa-md">
           <div class="col-5 q-gutter-xs">
-            <q-input v-model="editProtocol.name" label="Name: "/>
-            <q-input v-model="editProtocol.description" label="Description: "/>
-            <q-select v-model="editProtocol.lowWelltype" label="Low well type:" :options="wellTypeOptions"/>
-            <q-select v-model="editProtocol.highWelltype" label="High well type:" :options="wellTypeOptions"/>
-            <q-input v-model="editProtocol.versionNumber" label="Version:" mask="#.#.#"
+            <q-input v-model="protocolStore.protocol.name" label="Name: "/>
+            <q-input v-model="protocolStore.protocol.description" label="Description: "/>
+            <q-select v-model="protocolStore.protocol.lowWelltype" label="Low well type:" :options="wellTypeOptions"/>
+            <q-select v-model="protocolStore.protocol.highWelltype" label="High well type:" :options="wellTypeOptions"/>
+            <q-input v-model="protocolStore.protocol.versionNumber" label="Version:" mask="#.#.#"
                      hint="Mask: #.#.#, Example: 1.0.0"/>
-            <TagList :label="'Tags'" :objectInfo="editProtocol" :objectClass="'PROTOCOL'" :read-only="!props.editMode"/>
+            <TagList :label="'Tags'" :objectInfo="protocolStore.protocol" :objectClass="'PROTOCOL'" :read-only="!props.editMode"/>
           </div>
 
           <div class="col-6">
-            <PropertyTable :objectInfo="editProtocol" :objectClass="'PROTOCOL'"/>
+            <PropertyTable :objectInfo="protocolStore.protocol" :objectClass="'PROTOCOL'"/>
           </div>
 
           <div class="col-1 q-gutter-xs">
@@ -36,7 +36,7 @@
 
         </div>
         <q-separator inset />
-        <FeatureList :protocol="props.protocol" :editMode="props.editMode" @addFeature="addNewFeature"/>
+        <FeatureList :protocol="protocolStore.protocol" :editMode="props.editMode" @addFeature="addNewFeature"/>
       </div>
     </div>
 </template>
@@ -45,6 +45,7 @@
 
 import {useStore} from "vuex";
 import {ref} from "vue";
+import {useProtocolStore} from "@/stores/protocol";
 import OaSectionHeader from "@/components/widgets/OaSectionHeader";
 import PropertyTable from "@/components/property/PropertyTable";
 import TagList from "@/components/tag/TagList";
@@ -54,13 +55,13 @@ const props = defineProps(['editMode', 'protocol']);
 const emit = defineEmits(['editMode', 'updateProtocol']);
 
 const store = useStore();
+const protocolStore = useProtocolStore();
 
 //TODO: Make external and hardcoded!!
 const wellTypeOptions = ['LC', 'HC', 'NC', 'PC'];
 const editProtocol = ref({...props.protocol});
 
 const saveProtocol = () => {
-  // store.dispatch('protocols/editProtocol', editProtocol.value)
   emit('saveChanges', editProtocol.value)
   emit('editMode', false)
 }

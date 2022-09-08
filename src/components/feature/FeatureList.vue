@@ -38,13 +38,15 @@
         </template>
         <template v-slot:body-cell-formulaId="props">
           <q-td :props="props">
-            {{ getFormulaName(props.row.formulaId) }}
-            <q-icon name="info" size="xs" class="text-info cursor-pointer"
-                    @click="showFormulaTooltip[props.rowIndex] = true">
-              <q-tooltip v-model="showFormulaTooltip[props.rowIndex]" :delay="2000">
-                <FormulaInspector :formulaId="props.row.formulaId"/>
-              </q-tooltip>
-            </q-icon>
+            <div class="row items-center cursor-pointer" @click="showFormulaInfo(props.row.formulaId)">
+              {{ getFormulaName(props.row.formulaId) }}
+            </div>
+<!--            <q-icon name="info" size="xs" class="text-info cursor-pointer"-->
+<!--                    @click="showFormulaTooltip[props.rowIndex] = true">-->
+<!--              <q-tooltip v-model="showFormulaTooltip[props.rowIndex]" :delay="2000">-->
+<!--                <FormulaInspector :formulaId="props.row.formulaId"/>-->
+<!--              </q-tooltip>-->
+<!--            </q-icon>-->
           </q-td>
         </template>
         <template v-if="props.editMode" v-slot:body-cell-menu="props">
@@ -74,6 +76,7 @@
 <script setup>
 
 import {computed, ref} from "vue";
+import {useRouter} from 'vue-router';
 import FilterUtils from "@/lib/FilterUtils";
 
 import {useFeatureStore} from "@/stores/feature";
@@ -85,7 +88,8 @@ import EditFeature from "@/components/feature/EditFeature";
 import ViewFeature from "@/components/feature/ViewFeature";
 import NewFeature from "@/components/feature/NewFeature";
 import TableConfig from "@/components/table/TableConfig";
-import FormulaInspector from "@/components/widgets/FormulaInspector";
+// import FormulaInspector from "@/components/widgets/FormulaInspector";
+
 
 const columns = ref([
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
@@ -103,6 +107,8 @@ const formulasStore = useFormulasStore()
 
 const props = defineProps(['protocol', 'editMode'])
 const emit = defineEmits(['addFeature'])
+
+const router = useRouter()
 
 const loading = ref(false)
 const editMode = ref(props.editMode)
@@ -144,6 +150,10 @@ const onEditFeature = (feature) => {
 
 const onDeleteFeature = (feature) => {
   protocolStore.deleteFeature(feature)
+}
+
+const showFormulaInfo = (formulaId) => {
+  router.push("/calc/formula/" + formulaId);
 }
 
 </script>

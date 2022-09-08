@@ -58,7 +58,7 @@
                               </div>
                               <div class="col-1"/>
                               <div class="col-4">
-                                <q-select v-model="variable.inputSource" :options="inputSource" label="Input source"
+                                <q-input v-model="variable.inputSource" :options="inputSource" label="Input source"
                                           disable square/>
                               </div>
                             </div>
@@ -128,7 +128,7 @@ const newFeature = ref({
   type: null,
   sequence: 0,
   protocolId: props.protocol.id ? props.protocol.id : null,
-  formulaId: selectedFormula?.value,
+  formulaId: null,
   drcModel: {
     name: null,
     description: null,
@@ -191,9 +191,24 @@ const formulaInputs = ref(null)
 
 const onFeatureTypeSelection = () => {
   if (isRaw(newFeature.value.type)) {
+    const copyRawDataFormulaId = 75;
     newFeature.value.sequence = 0
-    selectedFormula.value = formulasStore.getFormulaById(78)
-    formulaInputs.value = formulasStore.getFormulaInputsByFormulaId(78) || []
+    selectedFormula.value = formulasStore.getFormulaById(copyRawDataFormulaId)
+    // formulaInputs.value = formulasStore.getFormulaInputsByFormulaId(copyRawDataFormulaId) || []
+    formulasStore.loadFormulaInputs(copyRawDataFormulaId).then(() => {
+      formulaInputs.value = formulasStore.formulaInputs[copyRawDataFormulaId].map(i => {
+        return {
+          variableName: i,
+          inputSource: 'MEASUREMENT',
+          sourceMeasColName: undefined,
+          sourceFeatureId: undefined,
+          featureId: featureStore.feature.id,
+          formulaId: copyRawDataFormulaId
+        }
+      })
+      console.log(formulaInputs.value)
+    })
+
     //TODO: retrieve the RAW formula that copies the measurement value
   } else {
     if (formulaInputs.value && formulaInputs.value.length > 0) {
@@ -208,7 +223,16 @@ const selectedFormula = ref(null)
 const onFormulaSelection = () => {
   if (selectedFormula.value) {
     formulasStore.loadFormulaInputs(selectedFormula.value.id).then(() => {
-      formulaInputs.value = formulasStore.formulaInputs[selectedFormula.value.id]
+      formulaInputs.value = formulasStore.formulaInputs[selectedFormula.value.id].map(i => {
+        return {
+          variableName: i,
+          inputSource: 'MEASUREMENT',
+          sourceMeasColName: undefined,
+          sourceFeatureId: undefined,
+          featureId: featureStore.feature.id,
+          formulaId: selectedFormula.value.id
+        }
+      })
     })
   }
 }
@@ -216,7 +240,12 @@ const onFormulaSelection = () => {
 let variables = reactive({list: []})
 watch(formulaInputs, (i) => {
   variables.list = i.map(i => {
-    return {variableName: i, inputSource: 'MEASUREMENT', sourceMeasColName: undefined, sourceFeatureId: undefined}
+    return {
+      variableName: i,
+      inputSource: 'MEASUREMENT',
+      sourceMeasColName: undefined,
+      sourceFeatureId: undefined
+    }
   })
 })
 </script>

@@ -56,7 +56,7 @@
                               </div>
                               <div class="col-1"/>
                               <div class="col-4">
-                                <q-select v-model="variable.inputSource" :options="inputSource" label="Input source"
+                                <q-input v-model="variable.inputSource" label="Input source"
                                           disable square/>
                               </div>
                             </div>
@@ -163,17 +163,36 @@ const availableFeatures = (feature) => {
 const onFormulaSelection = (args) => {
   formulasStore.loadFormulaInputs(args.id).then(() => {
     formulaInputs.value = formulasStore.formulaInputs[args.id].map(i => {
-      return {variableName: i, inputSource: 'MEASUREMENT', sourceMeasColName: undefined, sourceFeatureId: undefined}
+      return {
+        variableName: i,
+        inputSource: 'MEASUREMENT',
+        sourceMeasColName: undefined,
+        sourceFeatureId: undefined,
+        featureId: featureStore.feature.id,
+        formulaId: args.id
+      }
     })
   })
 }
 
 const onFeatureTypeSelection = () => {
   if (isRaw(featureStore.feature.type)) {
+    const copyRawDataFormulaId = 75
     featureStore.feature.sequence = 0
-    featureStore.feature.formulaId = 75
-    formulasStore.loadFormulaInputs(75).then(() => {
-      formulaInputs.value = formulasStore.formulaInputs[75]
+    featureStore.feature.formulaId = copyRawDataFormulaId
+    featureStore.feature.formula = formulasStore.getFormulaById(copyRawDataFormulaId)
+    formulasStore.loadFormulaInputs(copyRawDataFormulaId).then(() => {
+      formulaInputs.value = formulasStore.formulaInputs[copyRawDataFormulaId].map(i => {
+        return {
+          variableName: i,
+          inputSource: 'MEASUREMENT',
+          sourceMeasColName: undefined,
+          sourceFeatureId: undefined,
+          featureId: featureStore.feature.id,
+          formulaId: copyRawDataFormulaId
+        }
+      })
+      console.log(formulaInputs.value)
     })
   } else {
     if (formulaInputs.value && formulaInputs.value.length > 0) {
@@ -185,10 +204,10 @@ const onFeatureTypeSelection = () => {
 
 //Function to fire an edit event of a feature using the working copy
 const editFeature = () => {
-  if (featureStore.feature.formulaId !== featureStore.feature.formula.id) {
+  // if (featureStore.feature.formulaId !== featureStore.feature.formula.id) {
     featureStore.feature.formulaId = featureStore.feature.formula.id
     featureStore.feature.civs = formulaInputs.value
-  }
+  // }
   emit('update:show', false)
 }
 
