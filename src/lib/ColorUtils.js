@@ -68,8 +68,10 @@ function calculateTextColor(backgroundColor) {
     else return "#DDDDDD"
 }
 
-function asCSSColor(colorRGB) {
-    return "#" + colorRGB.red.toString(16) + colorRGB.green.toString(16) + colorRGB.blue.toString(16)
+function asCSSColor(color) {
+    // return "#" + colorRGB.red.toString(16) + colorRGB.green.toString(16) + colorRGB.blue.toString(16)
+    let colorRGB = asRGBColor(color);
+    return `rgb(${colorRGB.red},${colorRGB.green},${colorRGB.blue})`;
 }
 
 function asRGBColor(color) {

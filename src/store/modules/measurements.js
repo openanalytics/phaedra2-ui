@@ -30,6 +30,9 @@ const getters = {
     getRenderConfig: (state) => (id) => {
         return state.renderConfigs.find(cfg => cfg.id === id);
     },
+    getRenderConfigs: (state) => () => {
+        return state.renderConfigs;
+    },
     getWellData: (state) => (measId) => {
         return state.wellData[measId];
     }
@@ -82,6 +85,10 @@ const actions = {
         const cfg = await measAPI.getRenderConfig(id);
         ctx.commit('cacheRenderConfig', cfg);
     },
+    async loadAllRenderConfigs(ctx) {
+        const cfgs = await measAPI.getRenderConfigs();
+        ctx.commit('cacheRenderConfigs', cfgs);
+    },
     async loadWellData(ctx, measId) {
         const wellData = await measAPI.getWellData(measId);
         ctx.commit("cacheWellData", { measId: measId, wellData: wellData });
@@ -123,6 +130,9 @@ const mutations = {
     cacheRenderConfig(state, cfg) {
         var existingConfig = state.renderConfigs.find(el => el.id === cfg.id);
         if (existingConfig === undefined) state.renderConfigs.push(cfg);
+    },
+    cacheRenderConfigs(state, cfgs) {
+        state.renderConfigs = [...cfgs];
     },
     cacheWellData(state, { measId, wellData }) {
         state.wellData[measId] = wellData;

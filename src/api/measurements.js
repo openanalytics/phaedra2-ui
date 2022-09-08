@@ -4,48 +4,27 @@ const apiURL = process.env.VUE_APP_API_BASE_URL + '/measurement-service';
 
 export default {
     async getAllMeasurements() {
-        let result = null;
-        await axios.get(apiURL + '/meas')
-            .then(response => {
-                if (response.status === 200)
-                    result = response.data;
-            });
-        return result;
+        const response = await axios.get(apiURL + '/meas');
+        return response.data;
     },
     async getMeasurementById(id) {
-        let result = null;
-        await axios.get(apiURL + '/meas/' + id)
-            .then(response => {
-                if (response.status === 200)
-                    result = response.data;
-            });
-        return result;
+        const response = await axios.get(apiURL + '/meas/' + id);
+        return response.data;
     },
     async getMeasurementsByIds(ids) {
-        let result = null;
-        await axios.get(apiURL + '/meas/' + ids)
-            .then(response => {
-                if (response.status === 200)
-                    result = response.data;
-            });
-        return result;
+        const response = await axios.get(apiURL + '/meas/' + ids);
+        return response.data;
     },
     async getWellData(measId) {
-        let result = null;
-        await axios.get(apiURL + '/meas/' + measId + '/welldata')
-            .then(response => {
-                if (response.status === 200)
-                    result = response.data;
-            });
-        return result;
+        const response = await axios.get(apiURL + '/meas/' + measId + '/welldata');
+        return response.data;
+    },
+    async getRenderConfigs() {
+        const response = await axios.get(apiURL + '/render-configs');
+        return response.data;
     },
     async getRenderConfig(id) {
-        let result = null;
-        await axios.get(apiURL + '/render-config/' + id)
-            .then(response => {
-                if (response.status === 200)
-                    result = response.data;
-            });
-        return result;
+        const response = await axios.get(apiURL + '/render-config/' + id)
+        return response.data;
     },
 }

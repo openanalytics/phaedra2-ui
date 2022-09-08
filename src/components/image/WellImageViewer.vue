@@ -34,7 +34,7 @@
                     >
                         <template v-slot:body-cell-rgb="props">
                             <q-td :props="props">
-                                <div :style="{ width: '25px', backgroundColor: getColor(props.row.rgb) }">&nbsp;</div>
+                                <div :style="{ width: '25px', backgroundColor: ColorUtils.asCSSColor(props.row.rgb) }">&nbsp;</div>
                             </q-td>
                         </template>
                         <template v-slot:body-cell-contrast="props">
@@ -59,6 +59,7 @@
 <script setup>
     import {computed, ref, watch, onMounted, onUnmounted } from 'vue'
     import {useStore} from 'vuex'
+    import ColorUtils from '@/lib/ColorUtils';
     import WellUtils from "@/lib/WellUtils.js";
 
     const configPanel = ref(null);
@@ -87,14 +88,6 @@
         { name: 'contrast', label: 'Contrast Range', align: 'left' },
         { name: 'alpha', label: 'Alpha', align: 'left', field: 'alpha', format: val => (val * 100) + '%' },
     ];
-
-    const getColor = (rgb) => {
-        let r = (rgb & 0xFF0000) >> 16;
-        let g = (rgb & 0xFF00) >> 8;
-        let b = (rgb & 0xFF);
-        return `rgb(${r},${g},${b})`;
-
-    }
 
     const scale = ref(0.25);
     const scaleLimits = [ 0.125, 8];

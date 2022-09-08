@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const apiURL = process.env.VUE_APP_API_BASE_URL.replace('api/v1', '');
+const apiURL = process.env.VUE_APP_API_BASE_URL.replace('/api/v1', '');
 
 export default {
     async getUserInfo() {
