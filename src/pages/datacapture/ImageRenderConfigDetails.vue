@@ -81,6 +81,7 @@
         { name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true },
         { name: 'rgb', align: 'left', label: 'Color', field: 'rgb', sortable: true },
         { name: 'alpha', align: 'left', label: 'Alpha', field: 'alpha', format: val => (val * 100) + '%' },
-        { name: 'contrast', label: 'Contrast Range', align: 'left', headerStyle: 'width: 300px' }
+        { name: 'contrast', label: 'Contrast Range', align: 'left', headerStyle: 'width: 200px' },
+        { name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true }
     ]);
 </script>
