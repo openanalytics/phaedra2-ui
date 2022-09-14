@@ -35,6 +35,10 @@ export default {
             console.log(err);
         }
     },
+    async updateRenderConfig(newConfig) {
+        const response = await axios.put(apiURL + '/render-config', newConfig);
+        return response.data;
+    },
     async deleteRenderConfig(id) {
         await axios.delete(apiURL + '/render-config/' + id);
     },

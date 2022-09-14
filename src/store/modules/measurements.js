@@ -98,6 +98,10 @@ const actions = {
         ctx.commit('cacheRenderConfig', savedConfig);
         return savedConfig;
     },
+    async updateRenderConfig(ctx, config) {
+        const  updatedConfig = await measAPI.updateRenderConfig(config);
+        ctx.commit('cacheRenderConfig', updatedConfig);
+    },
     async deleteRenderConfig(ctx, id) {
         await measAPI.deleteRenderConfig(id);
         ctx.commit('uncacheRenderConfig', id);

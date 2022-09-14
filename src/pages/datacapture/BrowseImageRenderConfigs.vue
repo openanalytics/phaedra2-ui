@@ -27,9 +27,15 @@
                             </template>
                         </q-input>
                     </template>
+                    <template v-slot:body-cell-name="props">
+                        <q-td :props="props">
+                            <router-link :to="`/datacapture/render-config/${props.row.id}`" class="nav-link">
+                                {{ props.row.name }}
+                            </router-link>
+                        </q-td>
+                    </template>
                     <template v-slot:body-cell-menu="props">
                         <q-td :props="props">
-                            <q-btn flat round icon="info" size="sm" @click="router.push(`/datacapture/render-config/${props.row.id}`)" />
                             <q-btn flat round icon="delete" size="sm" @click="deleteConfig(props.row.id)" />
                         </q-td>
                     </template>
@@ -45,14 +51,12 @@
 <script setup>
     import {ref, computed} from 'vue'
     import {useStore} from 'vuex'
-    import {useRouter} from "vue-router"
     import FilterUtils from "@/lib/FilterUtils.js"
     import OaSectionHeader from "@/components/widgets/OaSectionHeader";
     import CreateRenderConfigDialog from "@/components/image/CreateRenderConfigDialog";
     import DeleteRenderConfigDialog from "@/components/image/DeleteRenderConfigDialog";
 
     const store = useStore();
-    const router = useRouter();
     const loading = ref(true);
 
     const configs = computed(() => store.getters['measurements/getRenderConfigs']());
