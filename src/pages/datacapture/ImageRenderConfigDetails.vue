@@ -46,7 +46,7 @@
                     <q-table
                         table-header-class="text-grey"
                         flat dense hide-bottom
-                        :rows="config?.config?.channelConfigs"
+                        :rows="channels"
                         :columns="columns"
                         row-key="id"
                         :pagination="{ rowsPerPage: 100 }"
@@ -56,9 +56,17 @@
                                 <q-btn size="sm" color="primary" icon="add" label="Add..." @click="doAddChannel"/>
                             </div>
                         </template>
+                        <template v-slot:body-cell-name="props">
+                            <q-td :props="props">
+                                {{ props.row.name }}
+                                <q-popup-edit v-model="props.row.name" v-slot="scope" buttons @save="value => doUpdateName(props.row, value)">
+                                    <q-input v-model="scope.value" dense autofocus />
+                                </q-popup-edit>
+                            </q-td>
+                        </template>
                         <template v-slot:body-cell-rgb="props">
                             <q-td :props="props">
-                                <div :style="{ width: '25px', backgroundColor: ColorUtils.asCSSColor(props.row.rgb) }">&nbsp;</div>
+                                <div :style="{ width: '25px', border: '1px solid grey', backgroundColor: ColorUtils.asCSSColor(props.row.rgb) }">&nbsp;</div>
                             </q-td>
                         </template>
                         <template v-slot:body-cell-contrast="props">
@@ -66,9 +74,16 @@
                                 <q-range dense readonly thumb-size="12px" label :model-value="{ min: (props.row.contrastMin * 100), max: (props.row.contrastMax * 100) }" :min="0" :max="100" />
                             </q-td>
                         </template>
+                        <template v-slot:body-cell-alpha="props">
+                            <q-td :props="props">
+                                {{ props.row.alpha * 100 }}%
+                                <q-popup-edit v-model="props.row.alpha" v-slot="scope" buttons @save="value => doUpdateAlpha(props.row, value)">
+                                    <q-input v-model="scope.value" type="number" dense autofocus />
+                                </q-popup-edit>
+                            </q-td>
+                        </template>
                         <template v-slot:body-cell-menu="props">
                             <q-td :props="props">
-                                <q-btn flat round icon="edit" size="sm" @click="doEditChannel(props.rowIndex)" />
                                 <q-btn flat round icon="delete" size="sm" @click="doDeleteChannel(props.rowIndex)" />
                             </q-td>
                         </template>
@@ -78,18 +93,16 @@
         </div>
     </q-page>
 
-    <EditChannelDialog v-model="showEditChannelDialog" :configId="configId" :channelNr="channelNrToEdit" />
-    <DeleteChannelDialog v-model="showDeleteChannelDialog" :configId="configId" :channelNr="channelNrToEdit" />
+    <DeleteChannelDialog v-model="showDeleteChannelDialog" :configId="configId" :channelNr="channelNrToDelete" />
 </template>
 
 <script setup>
-    import {computed, ref} from 'vue'
+    import {computed, ref, watch} from 'vue'
     import {useStore} from "vuex";
     import {useRoute} from 'vue-router'
     import ColorUtils from '@/lib/ColorUtils';
     import EditableField from "@/components/widgets/EditableField";
     import OaSectionHeader from "@/components/widgets/OaSectionHeader";
-    import EditChannelDialog from "@/components/image/EditChannelDialog";
     import DeleteChannelDialog from "@/components/image/DeleteChannelDialog";
     
     const store = useStore();
@@ -99,12 +112,20 @@
     const config = computed(() => store.getters['measurements/getRenderConfig'](configId));
     store.dispatch('measurements/loadRenderConfig', configId);
 
+    const channels = ref([]);
+    watch(() => config.value, () => {
+        if (config.value?.config) {
+            channels.value.splice(0);
+            config.value.config.channelConfigs.forEach((ch, i) => channels.value.push({...ch,...{ nr: i+1 }}));
+        }
+    }, { immediate: true });
+
     const columns = ref([
-        { name: 'sequence', align: 'left', label: 'Sequence', field: row => (1 + config.value.config?.channelConfigs?.findIndex(r => r === row)), sortable: true },
+        { name: 'sequence', align: 'left', label: 'Sequence', field: 'nr', sortable: true },
         { name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true },
         { name: 'rgb', align: 'left', label: 'Color', field: 'rgb', sortable: true },
-        { name: 'alpha', align: 'left', label: 'Alpha', field: 'alpha', format: val => (val * 100) + '%' },
         { name: 'contrast', label: 'Contrast Range', align: 'left', headerStyle: 'width: 200px' },
+        { name: 'alpha', align: 'left', label: 'Alpha', field: 'alpha', sortable: true },
         { name: 'menu', align: 'left', field: 'menu', sortable: false }
     ]);
 
@@ -116,23 +137,37 @@
         newConfig[fieldName] = newValue;
         store.dispatch('measurements/updateRenderConfig', { id: configId, config: newConfig });
     };
+
+    const copyConfig = () => {
+        let origConfig = config.value.config;
+        let newConfig = { ...origConfig };
+        newConfig.channelConfigs = [];
+        origConfig.channelConfigs.forEach(ch => newConfig.channelConfigs.push({ ...ch }));
+        return newConfig;
+    };
+
     const doAddChannel = () => {
-        let newConfig = { ...config.value.config };
-        newConfig.channelConfigs = [ ...config.value.config.channelConfigs ];
+        let newConfig = copyConfig();
         newConfig.channelConfigs.push({ name: "New Channel" });
         store.dispatch('measurements/updateRenderConfig', { id: configId, config: newConfig });
     };
 
-    const showEditChannelDialog = ref(false);
-    const channelNrToEdit = ref(null);
-    const doEditChannel = (index) => {
-        channelNrToEdit.value = index + 1;
-        showEditChannelDialog.value = true;
+    const showDeleteChannelDialog = ref(false);
+    const channelNrToDelete = ref(null);
+    const doDeleteChannel = (index) => {
+        channelNrToDelete.value = index + 1;
+        showDeleteChannelDialog.value = true;
     };
 
-    const showDeleteChannelDialog = ref(false);
-    const doDeleteChannel = (index) => {
-        channelNrToEdit.value = index + 1;
-        showDeleteChannelDialog.value = true;
+    const doUpdateName = (row, newName) => {
+        let newConfig = copyConfig();
+        newConfig.channelConfigs[row.nr - 1].name = newName;
+        store.dispatch('measurements/updateRenderConfig', { id: configId, config: newConfig });
+    };
+
+    const doUpdateAlpha = (row, newAlpha) => {
+        let newConfig = copyConfig();
+        newConfig.channelConfigs[row.nr - 1].alpha = newAlpha;
+        store.dispatch('measurements/updateRenderConfig', { id: configId, config: newConfig });
     };
 </script>
