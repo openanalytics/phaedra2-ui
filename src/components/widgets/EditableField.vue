@@ -14,7 +14,8 @@
             </q-card-section>
         
             <q-card-section>
-                <q-input dense v-model="fieldValue" />
+                <q-input v-if="props.number" v-model.number="fieldValue" type="number" />
+                <q-input v-else dense v-model="fieldValue" />
             </q-card-section>
 
             <q-card-actions align="right" class="text-primary">
@@ -25,40 +26,35 @@
     </q-dialog>
 </template>
 
-<script>
+<script setup>
     import {ref, computed} from "vue";
 
-    export default {
-        props: {
-            object: Object,
-            fieldName: String
-        },
-        emits: [ 'valueChanged' ],
-        setup(props, {emit}) {
-            const exported = {};
-            const newFieldValue = ref(null);
+    const props = defineProps({
+        object: Object,
+        fieldName: String,
+        number: Boolean
+    });
+    const emit = defineEmits(['valueChanged']);
 
-            exported.editBtnShown = ref(false);
-            exported.toggleEditBtn = (show) => {
-                exported.editBtnShown.value = show;
-            }
-            exported.showEditDialog = ref(false);
-            exported.fieldValue = computed({
-                get: () => props.object[props.fieldName],
-                set: (newValue) => { newFieldValue.value = newValue }
-            });
-            
-            exported.cancelChanges = () => {
-                newFieldValue.value = null;
-            };
-            exported.saveChanges = () => {
-                if (newFieldValue.value) {
-                    emit('valueChanged', newFieldValue.value);
-                    newFieldValue.value = null;
-                }
-            };
+    const newFieldValue = ref(null);
 
-            return exported;
-        }
+    const editBtnShown = ref(false);
+    const toggleEditBtn = (show) => {
+        editBtnShown.value = show;
     }
+    const showEditDialog = ref(false);
+    const fieldValue = computed({
+        get: () => props.object[props.fieldName],
+        set: (newValue) => { newFieldValue.value = newValue }
+    });
+    
+    const cancelChanges = () => {
+        newFieldValue.value = null;
+    };
+    const saveChanges = () => {
+        if (newFieldValue.value) {
+            emit('valueChanged', newFieldValue.value);
+            newFieldValue.value = null;
+        }
+    };
 </script>

@@ -92,7 +92,20 @@ const actions = {
     async loadWellData(ctx, measId) {
         const wellData = await measAPI.getWellData(measId);
         ctx.commit("cacheWellData", { measId: measId, wellData: wellData });
-    }
+    },
+    async createRenderConfig(ctx, newConfig) {
+        const savedConfig = await measAPI.createRenderConfig(newConfig);
+        ctx.commit('cacheRenderConfig', savedConfig);
+        return savedConfig;
+    },
+    async updateRenderConfig(ctx, config) {
+        const  updatedConfig = await measAPI.updateRenderConfig(config);
+        ctx.commit('cacheRenderConfig', updatedConfig);
+    },
+    async deleteRenderConfig(ctx, id) {
+        await measAPI.deleteRenderConfig(id);
+        ctx.commit('uncacheRenderConfig', id);
+    },
 }
 
 const mutations = {
@@ -128,8 +141,17 @@ const mutations = {
         }
     },
     cacheRenderConfig(state, cfg) {
-        var existingConfig = state.renderConfigs.find(el => el.id === cfg.id);
-        if (existingConfig === undefined) state.renderConfigs.push(cfg);
+        var existingConfigIndex = state.renderConfigs.findIndex(el => el.id === cfg.id);
+        if (existingConfigIndex >= 0) {
+            state.renderConfigs.splice(existingConfigIndex, 1);
+        }
+        state.renderConfigs.push(cfg);
+    },
+    uncacheRenderConfig(state, id) {
+        var existingConfigIndex = state.renderConfigs.findIndex(el => el.id === id);
+        if (existingConfigIndex >= 0) {
+            state.renderConfigs.splice(existingConfigIndex, 1);
+        }
     },
     cacheRenderConfigs(state, cfgs) {
         state.renderConfigs = [...cfgs];
