@@ -48,9 +48,10 @@ import PlateHeatmap from "@/pages/plate/PlateHeatmap.vue"
 import WellList from "@/pages/plate/WellList.vue"
 import MeasList from "@/pages/plate/MeasList.vue"
 
-import PlateTemplateView from "./pages/platelayout/PlateTemplateView";
-import NewPlateTemplateView from "./pages/platelayout/NewPlateTemplateView";
-import BrowseTemplates from "./pages/platelayout/BrowseTemplates";
+import PlateTemplateView from "@/pages/platelayout/PlateTemplateView";
+import NewPlateTemplateView from "@/pages/platelayout/NewPlateTemplateView";
+import ImportPlateTemplateFromFile from "@/pages/platelayout/ImportPlateTemplateFromFile"
+import BrowseTemplates from "@/pages/platelayout/BrowseTemplates";
 
 const routes = [
     { name: "dashboard", path: "/", component: Dashboard },
@@ -85,6 +86,8 @@ const routes = [
     { name: "browseTemplates", path: "/templates", component: BrowseTemplates},
     { name: "template", path: "/template/:id", component: PlateTemplateView},
     { name: "newPlateTemplate", path: "/template/new", component: NewPlateTemplateView},
+    { name: "newPlateTemplateFromFile", path: "/template/new", component: ImportPlateTemplateFromFile},
+
 
     { name: "calcFormulas", path: "/calc/formulas", component: FormulasView },
     { name: "calcFormula", path: "/calc/formula/:id", component: FormulaView },
@@ -116,6 +119,8 @@ import 'splitpanes/dist/splitpanes.css'
 // Create Vue App
 // --------------------------------------------------------------------
 import { createApp } from "vue"
+import Plotly from "plotly.js-dist-min"
+
 import { createPinia, setActivePinia } from "pinia"
 import App from "./App.vue"
 
@@ -125,6 +130,7 @@ const app = createApp(App)
 app.use(pinia)
 app.use(router)
 app.use(store)
+app.use(Plotly)
 app.use(Quasar, {
     config: {
         brand: {

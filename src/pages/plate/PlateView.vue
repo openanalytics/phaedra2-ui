@@ -64,6 +64,7 @@
         <q-tab name="measurements" icon="text_snippet" label="Measurements"/>
         <q-tab name="wells" icon="table_rows" label="Well List"/>
         <q-tab name="results" icon="assignment_turned_in" label="Results"/>
+        <q-tab name="curve" icon="show_chart" label="Dose Response Curve"/>
       </q-tabs>
       <div class="row oa-section-body">
         <q-tab-panels v-model="activeTab" animated style="width: 100%">
@@ -81,6 +82,9 @@
           </q-tab-panel>
           <q-tab-panel name="results">
             <ResultSetList :plate="plate" />
+          </q-tab-panel>
+          <q-tab-panel name="curve" icon="show_chart" >
+            <DoseResponseCurve :plate="plate"/>
           </q-tab-panel>
         </q-tab-panels>
       </div>
@@ -121,8 +125,9 @@ import PlateHeatmap from "@/pages/plate/PlateHeatmap";
 import MeasList from "@/pages/plate/MeasList";
 import WellList from "@/pages/plate/WellList";
 import ResultSetList from "./ResultSetList";
-import OaSectionHeader from "../../components/widgets/OaSectionHeader";
-import DeleteDialog from "../../components/widgets/DeleteDialog";
+import DoseResponseCurve from "@/components/plate/DoseResponseCurve"
+import OaSectionHeader from "@/components/widgets/OaSectionHeader";
+import DeleteDialog from "@/components/widgets/DeleteDialog";
 
 const store = useStore()
 const route = useRoute()
