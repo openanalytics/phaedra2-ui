@@ -53,7 +53,7 @@
 <!--            </div>-->
             <div class="row justify-end action-button">
               <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete"
-                     @click="$refs.deleteDialog.showDialog = true"/>
+                     @click="openDeleteDialog"/>
             </div>
           </div>
         </div>
@@ -87,7 +87,7 @@
     </div>
 
     <delete-dialog v-if="template" ref="deleteDialog" v-model:id="template.id"
-                   v-model:name="template.name" :objectClass="'template'" @onDeleted="onDeleted"/>
+                   v-model:name="template.name" v-model:show="showDeleteDialog" :objectClass="'template'" @onDeleted="onDeleted"/>
 
   </q-page>
 </template>
@@ -117,6 +117,7 @@ const templateStore = useTemplateStore()
 
 const activeTab = ref('overview')
 const editdialog = ref(false)
+const showDeleteDialog = ref(false)
 
 const templateId = parseInt(route.params.id);
 templateStore.loadTemplate(templateId)
@@ -131,5 +132,9 @@ const savePlateTemplate = () => {
 
 const onDeleted = () => {
   router.push({name: 'dashboard'})
+}
+
+const openDeleteDialog = () => {
+  showDeleteDialog.value = true
 }
 </script>

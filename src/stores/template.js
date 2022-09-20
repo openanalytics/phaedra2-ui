@@ -9,7 +9,10 @@ export const useTemplateStore = defineStore("template", {
         async loadTemplate(templateId) {
             this.template = await templateAPI.getPlateTemplateById(templateId)
         },
-        async saveTemplate() {
+        async creatNewTemplate(newTemplate)  {
+          this.template = await templateAPI.createPlateTemplate(newTemplate);
+        },
+        async saveTemplate()  {
             await templateAPI.editPlateTemplate(this.template)
             if (this.template.wells)
                 await templateAPI.editWellTemplates(this.template.wells)

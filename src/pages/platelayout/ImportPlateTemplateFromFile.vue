@@ -29,11 +29,13 @@ import {ref} from 'vue'
 import {useStore} from 'vuex'
 import {useRouter} from 'vue-router'
 import OaSectionHeader from "@/components/widgets/OaSectionHeader";
+import {useTemplateStore} from "@/stores/template";
 
 const wellTypeOptions = ['LC', 'HC', 'NC', 'PC']
 
-const router = useRouter();
-const store = useStore();
+const router = useRouter()
+// const store = useStore()
+const templateStore = useTemplateStore()
 
 const importFile = ref(null)
 
@@ -61,7 +63,7 @@ const onSubmit = async () => {
         "wellType": wellType,
         "substanceType": substanceType,
         'substanceName': substanceName,
-        "concetration": parseFloat(concentration)
+        "concentration": concentration
       }
       if (newPlateTemplate.wells)
         newPlateTemplate.wells.push(wellInfo)
@@ -78,10 +80,19 @@ const onSubmit = async () => {
 }
 
 const saveTemplate = () => {
-  const createdTemplate = store.dispatch('templates/createNewPlateTemplate', newPlateTemplate);
-  router.push("/template/" + createdTemplate.id);
+  // const createdTemplate = store.dispatch('templates/createNewPlateTemplate', newPlateTemplate);
+  templateStore.creatNewTemplate(newPlateTemplate).then(() => {
+    for (let i = 0; i < templateStore.template.wells.length; i++) {
+      templateStore.template.wells[i].substanceType = newPlateTemplate.wells[i].substanceType;
+      templateStore.template.wells[i].substanceName = newPlateTemplate.wells[i].substanceName;
+      templateStore.template.wells[i].concentration = newPlateTemplate.wells[i].concentration;
+      templateStore.template.wells[i].wellType = newPlateTemplate.wells[i].wellType;
+      templateStore.template.wells[i].skipped = newPlateTemplate.wells[i].wellType === 'EMPTY';
+    }
+    templateStore.saveTemplate()
+    router.push("/template/" + templateStore.template.id);
+  })
 }
-
 const onReset = () => {
 }
 </script>
