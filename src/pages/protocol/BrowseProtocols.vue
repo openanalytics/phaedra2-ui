@@ -18,6 +18,7 @@
             :pagination="{ rowsPerPage: 20, sortBy: 'name' }"
             :filter="filter"
             :filter-method="filterMethod"
+            :loading="loading"
             @row-click="selectProtocol"
         >
           <template v-slot:top-left>
@@ -93,6 +94,7 @@ export default {
     return {
       protocols,
       columns,
+      loading,
       filter: ref(''),
       filterMethod: FilterUtils.defaultTableFilter(),
       selectProtocol

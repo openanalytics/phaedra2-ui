@@ -11,7 +11,13 @@
             <q-select v-model="protocolStore.protocol.highWelltype" label="High well type:" :options="wellTypeOptions"/>
             <q-input v-model="protocolStore.protocol.versionNumber" label="Version:" mask="#.#.#"
                      hint="Mask: #.#.#, Example: 1.0.0"/>
-            <TagList :label="'Tags'" :objectInfo="protocolStore.protocol" :objectClass="'PROTOCOL'" :read-only="!props.editMode"/>
+            <q-field label="Tags" stack-label readonly dense borderless>
+              <template v-slot:control>
+                <div class="q-pt-sm">
+                  <TagList label="Tags" :objectInfo="protocolStore.protocol" :objectClass="'PROTOCOL'"/>
+                </div>
+              </template>
+            </q-field>
           </div>
 
           <div class="col-6">

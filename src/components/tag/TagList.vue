@@ -1,15 +1,11 @@
 <template>
-  <q-field :label="label" stack-label square borderless>
-    <template v-slot:control>
-      <Tag :tagInfo="tag" :objectInfo="objectInfo" :objectClass="objectClass" :readOnly="readOnly" v-for="tag in tags"
-           :key="tag"/>
-      <q-space/>
-      <q-btn round dense icon="add" size="xs" v-show="!readOnly" @click="showAddTagDialog = true">
-        <q-tooltip :delay="500" class="text-black bg-secondary">Add a new Tag</q-tooltip>
-      </q-btn>
-    </template>
-  </q-field>
-
+  <div class="tag-icon flex inline" v-for="tag in tags" :key="tag">
+      <Tag :tagInfo="tag" :objectInfo="objectInfo" :objectClass="objectClass" :readOnly="readOnly" />
+  </div>
+  <q-btn round dense icon="add" size="xs" v-show="!readOnly" @click="showAddTagDialog = true">
+    <q-tooltip :delay="500" class="text-black bg-secondary">Add a new Tag</q-tooltip>
+  </q-btn>
+  
   <q-dialog v-model="showAddTagDialog">
     <q-card style="min-width: 30vw">
       <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
@@ -46,7 +42,7 @@ import {ref, computed} from "vue";
 import {useStore} from 'vuex'
 import Tag from "@/components/tag/Tag"
 
-const props = defineProps(['label', 'objectInfo', 'objectClass', 'readOnly']);
+const props = defineProps(['objectInfo', 'objectClass', 'readOnly']);
 
 const store = useStore();
 
