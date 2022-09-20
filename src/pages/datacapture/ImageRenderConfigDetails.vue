@@ -66,12 +66,15 @@
                         </template>
                         <template v-slot:body-cell-rgb="props">
                             <q-td :props="props">
-                                <div :style="{ width: '25px', border: '1px solid grey', backgroundColor: ColorUtils.asCSSColor(props.row.rgb) }">&nbsp;</div>
+                                <ColorButton v-model:rgb="props.row.rgb" @update:rgb="value => doUpdateRGB(props.row, value)" />
                             </q-td>
                         </template>
                         <template v-slot:body-cell-contrast="props">
                             <q-td :props="props">
-                                <q-range dense readonly thumb-size="12px" label :model-value="{ min: (props.row.contrastMin * 100), max: (props.row.contrastMax * 100) }" :min="0" :max="100" />
+                                <q-range dense thumb-size="12px" label
+                                    :model-value="{ min: (props.row.contrastMin * 100), max: (props.row.contrastMax * 100) }"
+                                    :min="0" :max="100"
+                                    @change="value => doUpdateContrast(props.row, value)" />
                             </q-td>
                         </template>
                         <template v-slot:body-cell-alpha="props">
@@ -100,9 +103,9 @@
     import {computed, ref, watch} from 'vue'
     import {useStore} from "vuex";
     import {useRoute} from 'vue-router'
-    import ColorUtils from '@/lib/ColorUtils';
     import EditableField from "@/components/widgets/EditableField";
     import OaSectionHeader from "@/components/widgets/OaSectionHeader";
+    import ColorButton from "@/components/image/ColorButton";
     import DeleteChannelDialog from "@/components/image/DeleteChannelDialog";
     
     const store = useStore();
@@ -160,14 +163,27 @@
     };
 
     const doUpdateName = (row, newName) => {
+        doUpdateChannelField(row, 'name', newName);
+    };
+
+    const doUpdateRGB = (row, rgb) => {
+        doUpdateChannelField(row, 'rgb', rgb);
+    }
+
+    const doUpdateAlpha = (row, newAlpha) => {
+        doUpdateChannelField(row, 'alpha', newAlpha);
+    };
+
+    const doUpdateContrast = (row, newContrast) => {
         let newConfig = copyConfig();
-        newConfig.channelConfigs[row.nr - 1].name = newName;
+        newConfig.channelConfigs[row.nr - 1].contrastMin = (newContrast.min / 100);
+        newConfig.channelConfigs[row.nr - 1].contrastMax = (newContrast.max / 100);
         store.dispatch('measurements/updateRenderConfig', { id: configId, config: newConfig });
     };
 
-    const doUpdateAlpha = (row, newAlpha) => {
+    const doUpdateChannelField = (row, fieldName, newValue) => {
         let newConfig = copyConfig();
-        newConfig.channelConfigs[row.nr - 1].alpha = newAlpha;
+        newConfig.channelConfigs[row.nr - 1][fieldName] = newValue;
         store.dispatch('measurements/updateRenderConfig', { id: configId, config: newConfig });
     };
 </script>
