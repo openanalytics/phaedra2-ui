@@ -32,21 +32,32 @@
           </q-field>
           <q-field label="Created On" stack-label readonly dense borderless>
             <template v-slot:control>
-              <div>{{ FormatUtils.formatDate(props.protocol.createdOn) || '-' }} <span
-                  class="text-weight-bold"> by </span>
-                {{ props.protocol.createdBy || '-' }}
+              <div>
+                {{ FormatUtils.formatDate(props.protocol.createdOn) || '-' }}
+                <span class="text-grey"> by </span>
+                <UserChip :id="props.protocol.createdBy" />
               </div>
             </template>
           </q-field>
           <q-field label="Updated On" stack-label readonly dense borderless>
             <template v-slot:control>
-              <div>{{ FormatUtils.formatDate(props.protocol.updatedOn) || '-' }} <span
-                  class="text-weight-bold"> by </span>
-                {{ props.protocol.updatedBy || '-' }}
+              <div v-if="props.protocol.updatedBy">
+                {{ FormatUtils.formatDate(props.protocol.updatedOn) || '-' }}
+                <span class="text-grey"> by </span>
+                <UserChip :id="props.protocol.updatedBy" />
+              </div>
+              <div v-else>
+                -
               </div>
             </template>
           </q-field>
-          <TagList :label="'Tags'" :objectInfo="props.protocol" :objectClass="'PROTOCOL'" :read-only="!props.editMode"/>
+          <q-field label="Tags" stack-label readonly dense borderless>
+            <template v-slot:control>
+              <div class="q-pt-sm">
+                <TagList label="Tags" :objectInfo="props.protocol" :objectClass="'PROTOCOL'" :read-only="!props.editMode" />
+              </div>
+            </template>
+          </q-field>
         </div>
 
         <div class="col-6">
@@ -79,28 +90,27 @@
 </template>
 
 <script setup>
+  import {useStore} from "vuex";
+  import {ref} from "vue";
+  import OaSectionHeader from "@/components/widgets/OaSectionHeader";
+  import FormatUtils from "@/lib/FormatUtils.js"
+  import TagList from "@/components/tag/TagList";
+  import PropertyTable from "@/components/property/PropertyTable";
+  import DeleteDialog from "@/components/widgets/DeleteDialog";
+  import FeatureList from "@/components/feature/FeatureList";
+  import UserChip from "@/components/widgets/UserChip";
 
-import {useStore} from "vuex";
-import {ref} from "vue";
-import OaSectionHeader from "@/components/widgets/OaSectionHeader";
-import FormatUtils from "@/lib/FormatUtils.js"
-import TagList from "@/components/tag/TagList";
-import PropertyTable from "@/components/property/PropertyTable";
-import DeleteDialog from "@/components/widgets/DeleteDialog";
-import FeatureList from "@/components/feature/FeatureList";
+  const props = defineProps(['editMode', 'protocol']);
+  const emit = defineEmits(['editMode']);
 
-const props = defineProps(['editMode', 'protocol']);
-const emit = defineEmits(['editMode']);
+  const store = useStore();
+  const showDialog = ref(false);
 
-const store = useStore()
+  const exportToJson = (id) => {
+    store.dispatch('protocols/downloadAsJson', id);
+  }
 
-const showDialog = ref(false)
-
-const exportToJson = (id) => {
-  store.dispatch('protocols/downloadAsJson', id)
-}
-
-const openDeleteDialog = () => {
-  showDialog.value = true;
-}
+  const openDeleteDialog = () => {
+    showDialog.value = true;
+  }
 </script>

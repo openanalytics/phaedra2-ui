@@ -10,6 +10,7 @@
       :filter="filter"
       :filter-method="filterMethod"
       :visible-columns="visibleColumns"
+      :loading="loading"
       square
   >
     <template v-slot:top-left>

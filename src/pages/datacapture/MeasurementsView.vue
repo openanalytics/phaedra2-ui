@@ -14,6 +14,7 @@
           :filter="filterValue"
           :filter-method="filterMethod"
           @row-click="(e, row) => router.push('/datacapture/meas/' + row.id)"
+          :loading="loading"
           >
           <template v-slot:top-right>
             <div class="row">
@@ -54,9 +55,11 @@ export default {
     const exported = {}
 
     exported.router = useRouter()
+    exported.loading = ref(false);
     const store = useStore()
     if (!store.getters["measurements/isLoaded"]()){
-      store.dispatch('measurements/loadAll')
+      exported.loading.value = true;
+      store.dispatch('measurements/loadAll').then(() => exported.loading.value = false);
     }
     exported.measurements = computed(() => store.getters['measurements/getAll']())
 
