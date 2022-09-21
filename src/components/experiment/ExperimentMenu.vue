@@ -10,18 +10,21 @@
     <DeleteExperimentDialog ref="deleteDialog" :experimentId="experimentId" />
 </template>
 
-<script>
+<script setup>
     import DeleteExperimentDialog from "@/components/experiment/DeleteExperimentDialog";
 
-    export default {
-        props: {
+    // export default {
+        const props = defineProps({
             experimentId: Number
-        },
-        components: {
-            DeleteExperimentDialog
-        },
-        setup() {
-            return {};
-        }
+        })
+
+    const showDeleteDialog = () => {
+
     }
+            // DeleteExperimentDialog
+        // },
+        // setup() {
+        //     return {};
+        // }
+    // }
 </script>

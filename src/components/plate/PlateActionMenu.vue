@@ -77,7 +77,7 @@
     <disapprove-dialog v-model:show="showDisapproveDialog" :plateId="plate.id" />
     <calculate-plate-dialog v-model:show="showCalculateDialog" :plateId="plate.id" />
     <link-plate-dialog v-model:show="showLinkDialog" :plateId="plate.id" />
-    <delete-dialog ref="refDeleteDialog" :id="plate.id" :name="plate.barcode" :objectClass="'plate'" />
+    <delete-dialog v-model:show="showDeleteDialog" :id="plate.id" :name="plate.barcode" :objectClass="'plate'" />
 </template>
 
 <script setup>
@@ -98,7 +98,7 @@ const showApproveDialog = ref(false);
 const showDisapproveDialog = ref(false);
 const showCalculateDialog = ref(false);
 const showLinkDialog = ref(false);
-const refDeleteDialog = ref(null);
+const showDeleteDialog = ref(null);
 
 const props = defineProps(['plate']);
 const plate = ref(props.plate)
@@ -130,6 +130,6 @@ const linkPlate = () => {
   showLinkDialog.value = true;
 }
 const deletePlate = () => {
-  refDeleteDialog.value.showDialog = true;
+  showDeleteDialog.value = true;
 }
 </script>
