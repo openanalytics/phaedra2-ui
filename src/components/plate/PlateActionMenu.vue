@@ -1,6 +1,32 @@
 <template>
     <q-menu>
         <q-list>
+            <!-- Charts -->
+          <q-item dense clickable>
+            <q-item-section avatar>
+              <q-icon name="insert_chart" />
+            </q-item-section>
+            <q-item-section>Charts</q-item-section>
+            <q-item-section side>
+              <q-icon name="keyboard_arrow_right"/>
+            </q-item-section>
+            <q-menu>
+              <q-list>
+                <q-item dense clickable @click="chart()">
+                  <q-item-section avatar>
+                    <q-icon name="insert_chart" />
+                  </q-item-section>
+                  <q-item-section>Scatterplot 2D</q-item-section>
+                </q-item>
+                <q-item dense clickable>
+                  <q-item-section avatar>
+                    <q-icon name="insert_chart" />
+                  </q-item-section>
+                  <q-item-section>Chart 2</q-item-section>
+                </q-item>
+              </q-list>
+            </q-menu>
+          </q-item>
             <!-- Validation Menu -->
             <q-item dense clickable v-if="plate.approvalStatus === 'APPROVAL_NOT_SET'">
                 <q-item-section avatar><q-icon name="outlined_flag"/></q-item-section>
@@ -134,6 +160,15 @@
                 },
                 deletePlate() {
                     refDeleteDialog.value.showDialog = true;
+                },
+                chart() {
+                  // load wells by plate id
+                  store.dispatch('wells/fetchByPlateId', props.plate.id).then(() => {
+                  const wells = store.getters['wells/getWells'](props.plate.id);
+                  console.log(wells);
+                  store.dispatch('ui/selectWells', wells)
+                  store.dispatch('ui/openSideView', 'chart' )}
+                  )
                 }
             }
         }
