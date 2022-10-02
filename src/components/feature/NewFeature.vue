@@ -202,7 +202,7 @@ const onFeatureTypeSelection = () => {
           inputSource: 'MEASUREMENT',
           sourceMeasColName: undefined,
           sourceFeatureId: undefined,
-          featureId: featureStore.feature.id,
+          featureId: newFeature.value.id,
           formulaId: copyRawDataFormulaId
         }
       })
@@ -229,7 +229,7 @@ const onFormulaSelection = () => {
           inputSource: 'MEASUREMENT',
           sourceMeasColName: undefined,
           sourceFeatureId: undefined,
-          featureId: featureStore.feature.id,
+          featureId: newFeature.value.id,
           formulaId: selectedFormula.value.id
         }
       })
@@ -241,10 +241,12 @@ let variables = reactive({list: []})
 watch(formulaInputs, (i) => {
   variables.list = i.map(i => {
     return {
-      variableName: i,
-      inputSource: 'MEASUREMENT',
-      sourceMeasColName: undefined,
-      sourceFeatureId: undefined
+      variableName: i.variableName,
+      inputSource: i.inputSource,
+      sourceMeasColName: i.sourceMeasColName,
+      sourceFeatureId: i.sourceFeatureId,
+      featureId: newFeature.value.id,
+      formulaId: selectedFormula.value.id
     }
   })
 })

@@ -13,9 +13,9 @@
 <!--        <WellInspector minimal :wells="[well]"></WellInspector>-->
 <!--      </div>-->
 <!--    </q-tooltip>-->
-    <q-popup-proxy>
-      <WellInspector minimal :wells="[well]"></WellInspector>
-    </q-popup-proxy>
+<!--    <q-popup-proxy>-->
+<!--      <WellInspector minimal :wells="[well]"></WellInspector>-->
+<!--    </q-popup-proxy>-->
 
     <q-menu touch-position context-menu>
       <q-list dense>
@@ -83,38 +83,24 @@
 }
 </style>
 
-<script>
+<script setup>
 import {computed} from 'vue'
 import {useStore} from 'vuex'
 import ColorUtils from "@/lib/ColorUtils.js"
 import WellInspector from "@/components/widgets/WellInspector.vue"
 
-export default {
-  props: {
-    well: Object,
-    selectedWells: Array,
-    wellColorFunction: Function,
-    wellLabelFunctions: Array,
-  },
-  components: {
-    WellInspector
-  },
-  setup(props) {
-    const store = useStore();
-    const showWellImage = () => {
-      store.dispatch('ui/openSideView', 'wellImage');
-    }
-
-    const bgColor = computed(() => props.wellColorFunction(props.well))
-    const fgColor = computed(() => ColorUtils.calculateTextColor(bgColor.value))
-    const isSelected = computed(() => props.selectedWells.find(w => props.well.row == w.row && props.well.column == w.column))
-
-    return {
-      bgColor,
-      fgColor,
-      isSelected,
-      showWellImage
-    }
-  }
+const props = defineProps({
+  well: Object,
+  selectedWells: Array,
+  wellColorFunction: Function,
+  wellLabelFunctions: Array,
+})
+const store = useStore();
+const showWellImage = () => {
+  store.dispatch('ui/openSideView', 'wellImage');
 }
+
+const bgColor = computed(() => props.wellColorFunction(props.well))
+const fgColor = computed(() => ColorUtils.calculateTextColor(bgColor.value))
+const isSelected = computed(() => props.selectedWells.find(w => props.well.row == w.row && props.well.column == w.column))
 </script>

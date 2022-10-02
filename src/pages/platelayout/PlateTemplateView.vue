@@ -10,7 +10,7 @@
       <oa-section-header v-if="!template" :title="'Loading template...'" :icon="'border_outer'"/>
       <div v-else>
         <oa-section-header :title="template.name" :icon="'border_outer'"/>
-        <div class="row col-4 q-pa-md oa-section-body">
+        <div class="row col-5 q-pa-md oa-section-body">
           <div class="col col-4">
             <div class="row">
               <div class="col-3 text-weight-bold">ID:</div>
@@ -34,11 +34,11 @@
             </div>
           </div>
 
-          <div class="col col-4">
+          <div class="col-6">
             <PropertyTable :objectInfo="template" :objectClass="'PLATE_TEMPLATE'"/>
           </div>
 
-          <div class="col col-4">
+          <div class="col-1 q-gutter-xs">
             <div class="row justify-end action-button">
               <q-btn size="sm" color="primary" icon="save" class="oa-button-edit" label="Save"
                      @click="savePlateTemplate"/>

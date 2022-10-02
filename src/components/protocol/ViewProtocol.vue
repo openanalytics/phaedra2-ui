@@ -4,33 +4,33 @@
 
     <div class="col q-pa-md oa-section-body">
       <div class="row q-pa-md">
-        <div class="col-5 q-gutter-xs">
-          <q-field label="Name" stack-label readonly dense borderless>
+        <div class="col-4 q-gutter-xs">
+          <q-field label="Name" stack-label disable dense>
             <template v-slot:control>
               <div class="self-center full-width no-outline">{{ props.protocol.name }}</div>
             </template>
           </q-field>
-          <q-field label="Description" stack-label readonly dense borderless>
+          <q-field label="Description" stack-label disable dense>
             <template v-slot:control>
               <div class="self-center full-width no-outline">{{ props.protocol.description }}</div>
             </template>
           </q-field>
-          <q-field label="Low well type" stack-label readonly dense borderless>
+          <q-field label="Low well type" stack-label disable dense>
             <template v-slot:control>
               <div class="self-center full-width no-outline">{{ props.protocol.lowWelltype }}</div>
             </template>
           </q-field>
-          <q-field label="High well type" stack-label readonly dense borderless>
+          <q-field label="High well type" stack-label disable dense>
             <template v-slot:control>
               <div class="self-center full-width no-outline">{{ props.protocol.highWelltype }}</div>
             </template>
           </q-field>
-          <q-field label="Version" stack-label readonly dense borderless>
+          <q-field label="Version" stack-label disable dense>
             <template v-slot:control>
               <div class="self-center full-width no-outline">{{ props.protocol.versionNumber }}</div>
             </template>
           </q-field>
-          <q-field label="Created On" stack-label readonly dense borderless>
+          <q-field label="Created On" stack-label disable dense>
             <template v-slot:control>
               <div>
                 {{ FormatUtils.formatDate(props.protocol.createdOn) || '-' }}
@@ -39,7 +39,7 @@
               </div>
             </template>
           </q-field>
-          <q-field label="Updated On" stack-label readonly dense borderless>
+          <q-field label="Updated On" stack-label disable dense>
             <template v-slot:control>
               <div v-if="props.protocol.updatedBy">
                 {{ FormatUtils.formatDate(props.protocol.updatedOn) || '-' }}
@@ -51,7 +51,7 @@
               </div>
             </template>
           </q-field>
-          <q-field label="Tags" stack-label readonly dense borderless>
+          <q-field label="Tags" stack-label disable dense>
             <template v-slot:control>
               <div class="q-pt-sm">
                 <TagList label="Tags" :objectInfo="props.protocol" :objectClass="'PROTOCOL'" :read-only="!props.editMode" />
@@ -60,7 +60,7 @@
           </q-field>
         </div>
 
-        <div class="col-6">
+        <div class="col-7">
           <PropertyTable :objectInfo="props.protocol" :objectClass="'PROTOCOL'" :read-only="!props.editMode"/>
         </div>
 
@@ -70,19 +70,18 @@
                    @click="$emit('editMode', true)"/>
           </div>
           <div class="row justify-center">
-            <q-btn flat size="sm" color="secondary" icon="delete" class="oa-button-delete" label="Delete"
-                   @click="openDeleteDialog"/>
-          </div>
-          <div class="row justify-center">
             <q-btn flat size="sm" color="secondary" icon="import_export" class="oa-button-delete" label="Export"
                    @click="exportToJson(protocolId)"/>
+          </div>
+          <div class="row justify-center">
+            <q-btn flat size="sm" color="secondary" icon="delete" class="oa-button-delete" label="Delete"
+                   @click="openDeleteDialog"/>
           </div>
         </div>
       </div>
       <q-separator inset />
       <FeatureList :protocol="props.protocol" :editMode="props.editMode"/>
     </div>
-
   </div>
 
   <DeleteDialog v-if="props.protocol" :id="props.protocol.id" :name="props.protocol.name" :objectClass="'protocol'"

@@ -139,12 +139,7 @@ const plate = computed(() => store.getters['plates/getCurrentPlate']());
 const experiment = computed(() => store.getters['experiments/getCurrentExperiment']());
 const project = computed(() => store.getters['projects/getCurrentProject']());
 
-const activeTab = ref('layout')
-const editdialog = ref(false)
-const showDialog = ref(false)
-
 store.dispatch('plates/loadById', plateId).then(() => {
-  // Make sure parent experiment and project are loaded too (e.g. for breadcrumb)
   if (!experiment.value.id) {
     store.dispatch('experiments/loadById', plate.value.experimentId).then(() => {
       if (!project.value.id) {
@@ -153,6 +148,10 @@ store.dispatch('plates/loadById', plateId).then(() => {
     });
   }
 })
+
+const activeTab = ref('layout')
+const editdialog = ref(false)
+const showDialog = ref(false)
 
 const openDeleteDialog = () => {
   showDialog.value = true;

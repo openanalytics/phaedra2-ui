@@ -1,19 +1,19 @@
 <template>
-    <div class="row">
-        <div class="col-9">
-            <WellGrid   :plate="plate"
-                        :wellColorFunction="wellColorFunction"
-                        :wellLabelFunctions="wellLabelFunctions"
-                        @wellSelection="handleWellSelection" />
-        </div>
-        <div class="col-3 q-pa-sm">
-            <WellTypeLegend :wells=wells></WellTypeLegend>
-            <WellInspector :wells=selectedWells :gridType="'layout'"></WellInspector>
-        </div>
+  <div class="row">
+    <div class="col-9">
+      <WellGrid :plate="plate"
+                :wellColorFunction="wellColorFunction"
+                :wellLabelFunctions="wellLabelFunctions"
+                @wellSelection="handleWellSelection"/>
     </div>
+    <div class="col-3 q-pa-sm">
+      <WellTypeLegend :wells=wells></WellTypeLegend>
+      <WellInspector :wells=selectedWells :gridType="'layout'"></WellInspector>
+    </div>
+  </div>
 </template>
 
-<script>
+<script setup>
 import {ref, computed, watchEffect} from 'vue'
 import {useStore} from 'vuex'
 
@@ -22,37 +22,23 @@ import WellTypeLegend from "@/components/widgets/WellTypeLegend.vue"
 import WellInspector from "@/components/widgets/WellInspector.vue"
 import WellUtils from "@/lib/WellUtils.js"
 
-export default {
-    components: {
-        WellGrid,
-        WellTypeLegend,
-        WellInspector
-    },
-    props: {
-        plate: Object
-    },
-    setup(props) {
-        const exported = {};
-        const store = useStore();
+const props = defineProps(['plate'])
+const store = useStore();
 
-        exported.wells = computed(() => store.getters['wells/getWells'](props.plate.id) || []);
+const wells = computed(() => store.getters['wells/getWells'](props.plate.id) || []);
 
-        exported.wellColorFunction = function (well) {
-            return WellUtils.getWellTypeColor(well.wellType)
-        }
-
-        exported.wellLabelFunctions = [];
-        // exported.wellLabelFunctions.push(well => WellUtils.getWellCoordinate(well.row, well.column));
-        watchEffect(() => {
-            if (props.plate.columns <= 24) exported.wellLabelFunctions.push(well => well.wellType);
-        });
-
-        exported.selectedWells = ref([])
-        exported.handleWellSelection = (wells) => {
-            exported.selectedWells.value = wells;
-        }
-        
-        return exported;
-    }
+const wellColorFunction = (well) => {
+  return WellUtils.getWellTypeColor(well.wellType)
 }
+
+const wellLabelFunctions = ref([]);
+watchEffect(() => {
+  if (props.plate.columns <= 24) wellLabelFunctions.value.push(well => well.wellType);
+});
+
+const selectedWells = ref([])
+const handleWellSelection = (wells) => {
+  selectedWells.value = wells;
+}
+
 </script>

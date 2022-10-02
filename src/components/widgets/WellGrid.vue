@@ -144,10 +144,10 @@ const selectionBoxSupport = SelectionBoxHelper.addSelectionBoxSupport(rootElemen
 });
 
 const selectRow = (n, append) => {
-  emitWellSelection(exported.wells.value.filter(w => w.row == n), append);
+  emitWellSelection(wells.value.filter(w => w.row == n), append);
 };
 const selectColumn = (n, append) => {
-  emitWellSelection(exported.wells.value.filter(w => w.column == n), append);
+  emitWellSelection(wells.value.filter(w => w.column == n), append);
 };
 
 const gridColumnStyle = computed(() => {

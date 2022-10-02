@@ -13,7 +13,7 @@
       <div v-else>
         <oa-section-header :title="project.name" :icon="'folder'"/>
         <div class="row q-pa-md oa-section-body">
-            <div class="col-4 q-gutter-xs">
+            <div class="col-5 q-gutter-xs">
               <div class="row">
                 <div class="col-3 text-weight-bold">ID:</div>
                 <div class="col">{{ project.id }}</div>
@@ -44,16 +44,16 @@
               </div>
             </div>
 
-            <div class="col-4">
+            <div class="col-6">
               <PropertyTable :objectInfo="project" :objectClass="'PROJECT'"/>
             </div>
 
-            <div class="col-4">
+            <div class="col-1">
               <div class="row justify-end action-button">
                 <q-btn size="sm" icon="edit" label="Rename" class="oa-button" @click="newProjectName = project.name; showRenameDialog = true"/>
               </div>
               <div class="row justify-end action-button">
-                <q-btn size="sm" icon="delete" label="Delete" class="oa-button" @click="$refs.deleteDialog.showDialog = true"/>
+                <q-btn size="sm" icon="delete" label="Delete" class="oa-button" @click="openDeleteDialog"/>
               </div>
             </div>
           </div>
@@ -87,7 +87,8 @@
       </q-card>
     </q-dialog>
 
-    <delete-dialog ref="deleteDialog" v-model:id="project.id" v-model:name="project.name" :objectClass="'project'" @onDeleted="onDeleted" />
+<!--    <delete-dialog v-model:show="showDialog" :id="experiment.id" :name="experiment.name" :objectClass="'experiment'" @onDeleted="onDeleted" />-->
+    <delete-dialog v-model:show="showDeleteDialog" :id="project.id" :name="project.name" :objectClass="'project'" @onDeleted="onDeleted" />
   </q-page>
 </template>
 
@@ -97,75 +98,50 @@
 }
 </style>
 
-<script>
-  import {computed, ref} from 'vue'
-  import {useStore} from 'vuex'
-  import {useRoute, useRouter} from 'vue-router'
+<script setup>
+import {computed, ref} from 'vue'
+import {useStore} from 'vuex'
+import {useRoute, useRouter} from 'vue-router'
 
-  import ExperimentList from "@/pages/project/ExperimentList.vue"
-  import TagList from "@/components/tag/TagList"
-  import PropertyTable from "@/components/property/PropertyTable";
-  import EditableField from "@/components/widgets/EditableField";
-  import UserChip from "@/components/widgets/UserChip";
-  import AccessControlList from "@/components/widgets/AccessControlList";
-  import OaSectionHeader from "../../components/widgets/OaSectionHeader";
-  import DeleteDialog from "../../components/widgets/DeleteDialog";
+import ExperimentList from "@/pages/project/ExperimentList.vue"
+import TagList from "@/components/tag/TagList"
+import PropertyTable from "@/components/property/PropertyTable";
+import EditableField from "@/components/widgets/EditableField";
+import UserChip from "@/components/widgets/UserChip";
+import AccessControlList from "@/components/widgets/AccessControlList";
+import OaSectionHeader from "../../components/widgets/OaSectionHeader";
+import DeleteDialog from "../../components/widgets/DeleteDialog";
 
-  import FormatUtils from "@/lib/FormatUtils.js"
+import FormatUtils from "@/lib/FormatUtils.js"
 
-  export default {
-    components: {
-      ExperimentList,
-      TagList,
-      PropertyTable,
-      EditableField,
-      UserChip,
-      AccessControlList,
-      OaSectionHeader,
-      DeleteDialog
-    },
+const store = useStore();
+const route = useRoute();
+const router = useRouter();
 
-    setup() {
-      const store = useStore();
-      const route = useRoute();
-      const router = useRouter();
+const projectId = parseInt(route.params.id);
+const project = computed(() => store.getters['projects/getCurrentProject']());
+store.dispatch('projects/loadById', projectId);
 
-      const projectId = parseInt(route.params.id);
-      const project = computed(() => store.getters['projects/getCurrentProject']());
-      store.dispatch('projects/loadById', projectId);
+const showDeleteDialog = ref (false)
+const showRenameDialog = ref(false)
+const newProjectName = ref(project.value ? project.value.name : '')
+const doRenameProject = function () {
+  store.dispatch('projects/renameProject', {
+    id: projectId,
+    name: newProjectName.value
+  })
+}
 
-      const showRenameDialog = ref(false)
-      const newProjectName = ref(project.value ? project.value.name : '')
-      const doRenameProject = function() {
-        store.dispatch('projects/renameProject', {
-          id: projectId,
-          name: newProjectName.value
-        })
-      }
+const onDescriptionChanged = (newDescription) => {
+  store.dispatch('projects/editProjectDescription', {id: projectId, description: newDescription});
+};
 
-      const onDescriptionChanged = (newDescription) => {
-        store.dispatch('projects/editProjectDescription', { id: projectId, description: newDescription });
-      };
+const openDeleteDialog = () => {
+  showDeleteDialog.value = true
+}
 
-      return {
-        projectId,
-        project,
-
-        showRenameDialog,
-        newProjectName,
-        doRenameProject,
-
-        onDescriptionChanged,
-        FormatUtils,
-        onDeleted: () => {
-          router.push({name: 'browseProjects'})
-        }
-      }
-    },
-    data(){
-      return {
-        projectName: ref(""),
-      }
-    }
-  }
+const onDeleted = () => {
+  router.push({name: 'browseProjects'})
+}
+const projectName = ref("")
 </script>
