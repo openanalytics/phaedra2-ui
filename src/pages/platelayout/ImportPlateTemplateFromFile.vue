@@ -89,7 +89,7 @@ const saveTemplate = () => {
       templateStore.template.wells[i].wellType = newPlateTemplate.wells[i].wellType;
       templateStore.template.wells[i].skipped = newPlateTemplate.wells[i].wellType === 'EMPTY';
     }
-    templateStore.saveTemplate()
+    // templateStore.saveTemplate()
     router.push("/template/" + templateStore.template.id);
   })
 }
