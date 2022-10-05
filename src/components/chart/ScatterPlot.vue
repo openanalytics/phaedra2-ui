@@ -9,7 +9,7 @@ import {onMounted, watch, watchEffect} from "vue";
 const props = defineProps(['data', 'width']);
 
 let layout = {
-  margin: {t:5, l:40, r:5, b:20},
+  margin: {t:5, l:50, r:5, b:20},
   "xaxis": {
     "autorange": true,
   },
@@ -25,9 +25,7 @@ const getAxisType = (data) => {
 
 // Wait for the DOM to be ready
 onMounted(() => {
-  const width = document.getElementById('plot').parentElement.clientWidth*3;
-  console.log(width);
-  layout.width = width;
+  layout.width = document.getElementById('plot').parentElement.clientWidth*3;
   layout.xaxis.type = getAxisType(props.data.x);
   layout.yaxis.type = getAxisType(props.data.y);
   PlotLy.newPlot('plot', [props.data], layout);
@@ -35,11 +33,14 @@ onMounted(() => {
 
 // Call method when data changes
 watch(props.data, () => {
-  console.log('data changed');
   layout.xaxis.type = getAxisType(props.data.x);
   layout.yaxis.type = getAxisType(props.data.y);
   PlotLy.newPlot('plot', [props.data],layout);
 });
+
+window.onresize = () => {
+  PlotLy.Plots.resize(document.getElementById('plot'));
+}
 
 
 </script>

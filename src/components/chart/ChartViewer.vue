@@ -16,9 +16,30 @@ const store = useStore();
 
 const selectedWells = computed(() => {
   let wells = store.getters['ui/getSelectedWells']();
-  if (wells) return wells;
+  if (wells) return getWellData(wells);
   return null;
 });
+
+const getWellData = (wells) => {
+  // // Get data from wellSubstance
+  // let wellSubstance = wells.map(w => w.wellSubstance);
+  // console.log(wellSubstance);
+  // return wellSubstance;
+  //Flat out the data
+  let data = [];
+  wells.forEach(w => {
+    //Deep copy the well
+    let well = JSON.parse(JSON.stringify(w));
+    const wellSubstance = well.wellSubstance;
+    well['wellSubstance-id'] = wellSubstance.id;
+    well['wellSubstance-type'] = wellSubstance.type;
+    well['wellSubstance-name'] = wellSubstance.name;
+    well['wellSubstance-concentration'] = wellSubstance.concentration;
+    delete well.wellSubstance;
+    data.push(well);
+  });
+  return data;
+};
 
 //Make a method to return the property keys of an object
 const getKeys = (obj) => {
@@ -42,4 +63,5 @@ watchEffect(() => {
   data.x = selectedWells.value.map(well => well[x.value]);
   data.y = selectedWells.value.map(well => well[y.value]);
 });
+
 </script>
