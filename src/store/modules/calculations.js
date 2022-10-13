@@ -4,6 +4,8 @@ const state = () => ({
     formulas: [],
     formulaInputs: {},
 
+    calculationJobs: [],
+
     categories: [ 'CALCULATION', 'HIT_CALLING', 'OUTLIER_DETECTION', 'POLISHING' ],
     languages: [ 'JAVASCRIPT', 'R', 'JAVASTAT' ],
     scopes: [ 'PLATE', 'WELL', 'SUB_WELL' ]
@@ -31,6 +33,9 @@ const getters = {
     getScopes: (state) => () => {
         return state.scopes;
     },
+    getCalculationJobStatus: (state) => (plateId) => {
+        return state.calculationJobs.find(j => j.plateId === plateId);
+    }
 }
 
 const actions = {
@@ -59,8 +64,24 @@ const actions = {
         await calculationsAPI.deleteFormula(id);
         ctx.commit('uncacheFormula', id);
     },
-    async startCalculation(ctx, cal) {
-        await calculationsAPI.startCalculation(cal)
+    async startCalculation(ctx, calculationRequest) {
+        calculationRequest.jobId = await calculationsAPI.startCalculation(calculationRequest);
+        ctx.dispatch('refreshCalculationJobStatus', calculationRequest);
+    },
+    async refreshCalculationJobStatus(ctx, calculationRequest) {
+        // Reload the plate, whose calculation flag is now changed.
+        ctx.dispatch('plates/loadById', calculationRequest.plateId, {root:true});
+
+        const jobStatus = await calculationsAPI.getCalculationJobStatus(calculationRequest.jobId);
+        jobStatus.jobId = calculationRequest.jobId;
+        ctx.commit('cacheCalculationJobStatus', jobStatus);
+        
+        // Keep updating until the job has been processed.
+        if (jobStatus.statusCode == 'SCHEDULED') {
+            setTimeout(() => {
+                ctx.dispatch('refreshCalculationJobStatus', calculationRequest);
+            }, 2000);
+        }
     }
 }
 
@@ -79,6 +100,11 @@ const mutations = {
     },
     cacheFormulaInputs(state, info) {
         state.formulaInputs[info.id] = info.inputs;
+    },
+    cacheCalculationJobStatus(state, jobStatus) {
+        let i = state.calculationJobs.findIndex(j => j.jobId === jobStatus.jobId);
+        if (i >= 0) state.calculationJobs.splice(i, 1);
+        state.calculationJobs.push(jobStatus);
     }
 }
 

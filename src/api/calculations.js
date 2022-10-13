@@ -29,6 +29,10 @@ export default {
     async startCalculation(calcRequest) {
         const response = await axios.post(apiURL + '/calculation', calcRequest);
         return response.data;
+    },
+    async getCalculationJobStatus(jobId) {
+        const response = await axios.get(apiURL + '/status?resultSetId=' + jobId);
+        return response.data;
     }
 }
 
