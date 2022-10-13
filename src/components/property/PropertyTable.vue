@@ -16,14 +16,14 @@
         </template>
         <template v-slot:header-cell-actions="props" v-if="!props.readOnly">
             <q-th :props="props">
-                <q-btn style="border-radius: 0px;" dense icon="add" color="primary" size="xs" @click="showNewPropertyDialog = true">
+                <q-btn dense icon="add" color="primary" size="xs" @click="showNewPropertyDialog = true">
                   <q-tooltip :delay="500" class="text-black bg-secondary">Add a new Property</q-tooltip>
                 </q-btn>
             </q-th>
         </template>
         <template v-slot:body-cell-actions="props" v-if="!props.readOnly">
             <q-td :props="props" @mouseover="toggleDeleteBtn(true, props.rowIndex)" @mouseleave="toggleDeleteBtn(false, props.rowIndex)">
-                <q-btn style="border-radius: 0px;" dense icon="delete" size="xs" @click="doRemoveProperty(props.row)" v-show="deleteBtnShown[props.rowIndex]">
+                <q-btn dense icon="delete" size="xs" @click="doRemoveProperty(props.row)" v-show="deleteBtnShown[props.rowIndex]">
                   <q-tooltip :delay="500" class="text-black bg-secondary">Delete this Property</q-tooltip>
                 </q-btn>
             </q-td>

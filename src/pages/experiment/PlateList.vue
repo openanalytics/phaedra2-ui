@@ -36,8 +36,19 @@
         </router-link>
       </q-td>
     </template>
+    <template v-slot:body-cell-link-status="props">
+      <q-td :props="props">
+        <q-tooltip transition-show="flip-right" transition-hide="flip-left">
+          {{'Linked with: ' + props.row.linkSource}}
+        </q-tooltip>
+        <StatusFlag :object="props.row" :statusField="'linkStatus'" />
+      </q-td>
+    </template>
     <template v-slot:body-cell-status-calculation="props">
       <q-td :props="props">
+        <q-tooltip transition-show="flip-right" transition-hide="flip-left">
+          {{'Calculated on: ' + FormatUtils.formatDate(props.row.calculatedOn)}}
+        </q-tooltip>
         <StatusFlag :object="props.row" :statusField="'calculationStatus'" />
       </q-td>
     </template>
@@ -49,14 +60,6 @@
     <template v-slot:body-cell-status-approved="props">
       <q-td :props="props">
         <StatusFlag :object="props.row" :statusField="'approvalStatus'" />
-      </q-td>
-    </template>
-    <template v-slot:body-cell-link-status="props">
-      <q-td :props="props">
-        <q-tooltip transition-show="flip-right" transition-hide="flip-left">
-          {{'Linked with ' + props.row.linkSource}}
-        </q-tooltip>
-        <StatusFlag :object="props.row" :statusField="'linkStatus'" />
       </q-td>
     </template>
     <template v-slot:body-cell-dimensions="props">
@@ -137,7 +140,7 @@ export default {
       {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
       {name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
       {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-      {name: 'link-status', align: 'center', label: 'Link status', field: 'link-status'},
+      {name: 'link-status', align: 'center', label: 'L', field: 'link-status'},
       {name: 'status-calculation', align: 'center', label: 'C', field: 'status-calculation'},
       {name: 'status-validated', align: 'center', label: 'V', field: 'status-validated'},
       {name: 'status-approved', align: 'center', label: 'A', field: 'status-approved'},
@@ -159,6 +162,7 @@ export default {
       openNewPlateTab: () => {
         emit('update:newPlateTab',true)
       },
+      FormatUtils
     }
   }
 }

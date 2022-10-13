@@ -8,7 +8,6 @@
         </div>
         <div class="col-3 q-pa-sm">
             <WellTypeLegend :wells=wells></WellTypeLegend>
-            <WellInspector :wells=selectedWells :gridType="'layout'"></WellInspector>
         </div>
     </div>
 </template>
@@ -19,14 +18,12 @@ import {useStore} from 'vuex'
 
 import WellGrid from "@/components/widgets/WellGrid.vue"
 import WellTypeLegend from "@/components/widgets/WellTypeLegend.vue"
-import WellInspector from "@/components/widgets/WellInspector.vue"
 import WellUtils from "@/lib/WellUtils.js"
 
 export default {
     components: {
         WellGrid,
         WellTypeLegend,
-        WellInspector
     },
     props: {
         plate: Object

@@ -23,7 +23,10 @@
               :key="col.name"
               :props="props"
               class="text-grey">
-          {{ col.label }}<br/>{{ col.label2 }}
+            {{ col.label }}
+            <span v-if="col.label2">
+              <br/>{{ col.label2 }}
+            </span>
         </q-th>
       </q-tr>
     </template>
@@ -39,13 +42,18 @@
     </template>
     <template v-slot:body-cell="props">
       <q-td :props="props">
-        <q-linear-progress rounded size="20px"
+        <div v-if="props.col.name.endsWith('-zprime')">
+          <q-linear-progress rounded size="20px"
                            :value="Number.isNaN(props.row[props.col.name])? 0 : props.row[props.col.name]"
                            color="positive">
           <div class="absolute-full flex flex-center">
             <q-badge color="white" text-color="black" :label="props.row[props.col.name]"/>
           </div>
         </q-linear-progress>
+        </div>
+        <div v-else>
+          {{props.row[props.col.name]}}
+        </div>
       </q-td>
     </template>
     <template v-slot:no-data>
@@ -120,18 +128,20 @@ export default {
           barcode: plate.barcode
         }
         if (plateResult) {
-          plateResult.forEach(rs => {
-            rs.plateStats.forEach(stat => {
+          for (let rs of plateResult) {
+            let isFirst = true;
+            for (let stat of rs.plateStats) {
               const key = 'stat-' + rs.featureId + '-' + stat.name;
               statColumns[key] = {
                 name: key,
-                label: features.find(f => f.id == rs.featureId).name,
+                label: isFirst ? features.find(f => f.id == rs.featureId).name : '',
                 label2: stat.name,
                 align: 'center'
               }
-              row[key] = stat ? Math.round(stat.value * 100) / 100 : NaN
-            })
-          })
+              row[key] = stat ? Math.round(stat.value * 100) / 100 : NaN;
+              isFirst = false;
+            }
+          }
         }
         rows.value.push(row)
       }

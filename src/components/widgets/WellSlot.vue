@@ -8,14 +8,12 @@
     <span v-for="wellLabelFunction in wellLabelFunctions" :key="wellLabelFunction" class="wellLabel" style="white-space: pre;">
         {{ wellLabelFunction(well) }}
     </span>
-<!--    <q-tooltip :delay="3000" class="bg-secondary q-pa-xs">-->
-<!--      <div class="tooltipContainer">-->
-<!--        <WellInspector minimal :wells="[well]"></WellInspector>-->
-<!--      </div>-->
-<!--    </q-tooltip>-->
-    <q-popup-proxy>
-      <WellInspector minimal :wells="[well]"></WellInspector>
-    </q-popup-proxy>
+    
+    <q-tooltip :delay="3000" class="bg-secondary q-pa-xs">
+      <div class="tooltipContainer">
+        <WellInspector minimal :wells="[well]"></WellInspector>
+      </div>
+    </q-tooltip>
 
     <q-menu touch-position context-menu>
       <q-list dense>
