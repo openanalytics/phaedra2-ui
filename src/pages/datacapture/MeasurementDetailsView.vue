@@ -2,7 +2,7 @@
     <q-breadcrumbs class="oa-breadcrumb" v-if="meas">
         <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
         <q-breadcrumbs-el :label="'Measurements'" icon="list" :to="'/datacapture/meas'"/>
-        <q-breadcrumbs-el :label="meas.name" icon="text_snippet"/>
+        <q-breadcrumbs-el :label="meas.barcode" icon="text_snippet"/>
     </q-breadcrumbs>
 
     <q-page class="oa-root-div">
@@ -10,7 +10,7 @@
             <oa-section-header v-if="!meas" title="Loading..." icon="text_snippet"/>
 
             <div v-else>
-                <oa-section-header :title="meas.name" :icon="'text_snippet'"/>
+                <oa-section-header :title="meas.barcode" :icon="'text_snippet'"/>
                 <div class="row q-pa-md oa-section-body">
                     <div class="col-6 q-gutter-xs">
                         <div class="row">

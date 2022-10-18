@@ -16,8 +16,8 @@
 import {ref, computed, watchEffect} from 'vue'
 import {useStore} from 'vuex'
 
-import WellGrid from "@/components/widgets/WellGrid.vue"
-import WellTypeLegend from "@/components/widgets/WellTypeLegend.vue"
+import WellGrid from "@/components/well/WellGrid.vue"
+import WellTypeLegend from "@/components/well/WellTypeLegend.vue"
 import WellUtils from "@/lib/WellUtils.js"
 
 export default {

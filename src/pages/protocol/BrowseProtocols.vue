@@ -33,6 +33,11 @@
               </template>
             </q-input>
           </template>
+          <template v-slot:body-cell-createdBy="props">
+            <q-td :props="props">
+              <UserChip :id="props.row.createdBy" />
+            </q-td>
+          </template>
           <template v-slot:body-cell-tags="props">
             <q-td :props="props">
               <TagList :objectInfo="props.row" :objectClass="'PROTOCOL'" :readOnly="true"/>
@@ -52,11 +57,13 @@ import FilterUtils from "@/lib/FilterUtils.js"
 import FormatUtils from "@/lib/FormatUtils.js"
 
 import TagList from "@/components/tag/TagList";
+import UserChip from "@/components/widgets/UserChip";
 import OaSectionHeader from "../../components/widgets/OaSectionHeader";
 
 export default {
   components: {
     TagList,
+    UserChip,
     OaSectionHeader
   },
   setup() {
@@ -75,14 +82,7 @@ export default {
       {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
       {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
       {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
-      {
-        name: 'createdOn',
-        align: 'left',
-        label: 'Created On',
-        field: 'createdOn',
-        sortable: true,
-        format: FormatUtils.formatDate
-      },
+      {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
       {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
       {name: 'menu', align: 'left', field: 'menu', sortable: false}
     ]);

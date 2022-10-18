@@ -15,6 +15,9 @@ const getters = {
 }
 
 const actions = {
+    async submitJob(ctx, job) {
+        await datacaptureAPI.postJob(job);
+    },
     async loadJobs(ctx, args) {
         const jobs = await datacaptureAPI.getJobs(args)
         ctx.commit('cacheJobs', jobs)

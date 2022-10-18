@@ -10,6 +10,7 @@
       :loading="loading"
       :visible-columns="visibleColumns"
       flat square dense
+      @row-contextmenu="selectPlate"
   >
     <template v-slot:top-left>
       <div class="action-button">
@@ -93,6 +94,9 @@
     </template>
   </q-table>
   <table-config v-model:show="configdialog" v-model:visibleColumns="visibleColumns" v-model:columns="columns"></table-config>
+
+  <PlateActionMenu v-show="showPlateContextMenu" :plate="selectedPlate" touch-position context-menu />
+
 </template>
 
 <style scoped>
@@ -150,6 +154,13 @@ export default {
       {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
       {name: 'menu', align: 'left', field: 'menu', sortable: false}
     ])
+    
+    const selectedPlate = ref({});
+    const showPlateContextMenu = ref(false);
+    const selectPlate = (event, row) => {
+      selectedPlate.value = row;
+      showPlateContextMenu.value = true;
+    }
 
     return {
       columns,
@@ -162,6 +173,9 @@ export default {
       openNewPlateTab: () => {
         emit('update:newPlateTab',true)
       },
+      selectPlate,
+      selectedPlate,
+      showPlateContextMenu,
       FormatUtils
     }
   }

@@ -72,7 +72,7 @@ import {useQuasar} from 'quasar'
 
 import WellUtils from "@/lib/WellUtils.js"
 import SelectionBoxHelper from "@/lib/SelectionBoxHelper.js"
-import WellSlot from "@/components/widgets/WellSlot.vue"
+import WellSlot from "@/components/well/WellSlot.vue"
 
 export default {
   props: {
