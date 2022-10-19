@@ -116,6 +116,7 @@
 import {computed, ref} from 'vue'
 import {useStore} from 'vuex'
 import {useRoute, useRouter} from 'vue-router'
+import {useCurveDataStore} from "@/stores/curvedata";
 
 import TagList from "@/components/tag/TagList"
 import EditPlate from "./EditPlate";
@@ -132,6 +133,7 @@ import DeleteDialog from "@/components/widgets/DeleteDialog";
 const store = useStore()
 const route = useRoute()
 const router = useRouter()
+const curvedataStore = useCurveDataStore()
 
 const plateId = parseInt(route.params.id);
 
@@ -148,6 +150,8 @@ store.dispatch('plates/loadById', plateId).then(() => {
     });
   }
 })
+
+curvedataStore.loadPlateCurves(plateId)
 
 const activeTab = ref('layout')
 const editdialog = ref(false)

@@ -74,6 +74,5 @@ const saveProtocol = () => {
 
 const addNewFeature = (feature) => {
   store.dispatch('features/addNewFeatureToProtocol', feature)
-  // protocolUpdated.value = true
 }
 </script>

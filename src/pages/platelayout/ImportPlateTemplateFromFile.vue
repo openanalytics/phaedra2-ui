@@ -34,7 +34,6 @@ import {useTemplateStore} from "@/stores/template";
 const wellTypeOptions = ['LC', 'HC', 'NC', 'PC']
 
 const router = useRouter()
-// const store = useStore()
 const templateStore = useTemplateStore()
 
 const importFile = ref(null)
@@ -52,44 +51,21 @@ const onSubmit = async () => {
   const reader = new FileReader();
   reader.onload = (res) => {
     const data = res.target.result
-    const data_rows = data.split("\r\n")
-    const headers = data_rows[0].split(";")
 
-    for (let i = 1; i < data_rows.length; i++) {
-      let [barcode, wellNr, rowNr, colNr, wellType, substanceType, substanceName, concentration, isValid] = data_rows[i].split(";")
-      const wellInfo = {
-        "column": parseInt(colNr),
-        "row": parseInt(rowNr),
-        "wellType": wellType,
-        "substanceType": substanceType,
-        'substanceName': substanceName,
-        "concentration": concentration
-      }
-      if (newPlateTemplate.wells)
-        newPlateTemplate.wells.push(wellInfo)
-      else
-        newPlateTemplate.wells = [wellInfo]
-    }
-
-    newPlateTemplate.rows = Math.max(...newPlateTemplate.wells.map(w => w.row))
-    newPlateTemplate.columns = Math.max(...newPlateTemplate.wells.map(w => w.column))
+    const plateTemplate = JSON.parse(data);
+    newPlateTemplate.name = plateTemplate.name
+    newPlateTemplate.rows = plateTemplate.rows
+    newPlateTemplate.columns = plateTemplate.columns
+    newPlateTemplate.wells = plateTemplate.wells
 
     saveTemplate()
+    console.log(plateTemplate)
   }
   reader.readAsText(importFile.value);
 }
 
 const saveTemplate = () => {
-  // const createdTemplate = store.dispatch('templates/createNewPlateTemplate', newPlateTemplate);
   templateStore.creatNewTemplate(newPlateTemplate).then(() => {
-    for (let i = 0; i < templateStore.template.wells.length; i++) {
-      templateStore.template.wells[i].substanceType = newPlateTemplate.wells[i].substanceType;
-      templateStore.template.wells[i].substanceName = newPlateTemplate.wells[i].substanceName;
-      templateStore.template.wells[i].concentration = newPlateTemplate.wells[i].concentration;
-      templateStore.template.wells[i].wellType = newPlateTemplate.wells[i].wellType;
-      templateStore.template.wells[i].skipped = newPlateTemplate.wells[i].wellType === 'EMPTY';
-    }
-    // templateStore.saveTemplate()
     router.push("/template/" + templateStore.template.id);
   })
 }

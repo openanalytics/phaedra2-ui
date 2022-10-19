@@ -129,12 +129,13 @@ const newFeature = ref({
   sequence: 0,
   protocolId: props.protocol.id ? props.protocol.id : null,
   formulaId: null,
-  drcModel: {
-    name: null,
-    description: null,
-    method: null,
-    slope: null
-  },
+  drcModel: null,
+  // drcModel: {
+  //   name: null,
+  //   description: null,
+  //   method: null,
+  //   slope: null
+  // },
   civs: null,
   formula: null,
   trigger: null
