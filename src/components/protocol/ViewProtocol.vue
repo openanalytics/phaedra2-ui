@@ -79,7 +79,9 @@
           </div>
         </div>
       </div>
-      <q-separator inset />
+    </div>
+
+    <div class="q-pt-md">
       <FeatureList :protocol="props.protocol" :editMode="props.editMode"/>
     </div>
   </div>

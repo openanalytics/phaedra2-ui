@@ -1,7 +1,6 @@
 <template>
-  <div class="q-pa-md" v-if="!showNewFeatureTab && !showEditFeatureSection">
+  <div v-if="!showNewFeatureTab && !showEditFeatureSection">
     <oa-section-header :title="'Features'" :icon="'functions'"/>
-    <div class="oa-section-body">
       <q-table
           table-header-class="text-grey"
           :rows="features"
@@ -12,7 +11,7 @@
           :filter-method="filterMethod"
           :loading="loading"
           :visible-columns="visibleColumns"
-          dense>
+          flat dense>
 
         <template v-if="props.editMode" v-slot:top-left>
           <div class="col action-button on-left">
@@ -41,12 +40,6 @@
             <div class="row items-center cursor-pointer" @click="showFormulaInfo(props.row.formulaId)">
               {{ getFormulaName(props.row.formulaId) }}
             </div>
-<!--            <q-icon name="info" size="xs" class="text-info cursor-pointer"-->
-<!--                    @click="showFormulaTooltip[props.rowIndex] = true">-->
-<!--              <q-tooltip v-model="showFormulaTooltip[props.rowIndex]" :delay="2000">-->
-<!--                <FormulaInspector :formulaId="props.row.formulaId"/>-->
-<!--              </q-tooltip>-->
-<!--            </q-icon>-->
           </q-td>
         </template>
         <template v-if="props.editMode" v-slot:body-cell-menu="props">
@@ -63,12 +56,14 @@
           </div>
         </template>
       </q-table>
-    </div>
   </div>
 
-  <new-feature v-if="showNewFeatureTab" v-model:show="showNewFeatureTab" :protocol="props.protocol" @addFeature="addNewFeature"/>
-  <edit-feature v-if="showEditFeatureSection" v-model:show="showEditFeatureSection" />
-  <view-feature v-if="showFeatureDetails" v-model:show="showFeatureDetails" />
+
+    <new-feature v-if="showNewFeatureTab" v-model:show="showNewFeatureTab" :protocol="props.protocol" @addFeature="addNewFeature"/>
+    <edit-feature v-if="showEditFeatureSection" v-model:show="showEditFeatureSection" />
+  <div class="q-pt-md">
+    <view-feature v-if="showFeatureDetails" v-model:show="showFeatureDetails" />
+  </div>
 
   <table-config v-model:show="configDialog" v-model:visibleColumns="visibleColumns" v-model:columns="columns"/>
 </template>
@@ -88,8 +83,6 @@ import EditFeature from "@/components/feature/EditFeature";
 import ViewFeature from "@/components/feature/ViewFeature";
 import NewFeature from "@/components/feature/NewFeature";
 import TableConfig from "@/components/table/TableConfig";
-// import FormulaInspector from "@/components/widgets/FormulaInspector";
-
 
 const columns = ref([
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},

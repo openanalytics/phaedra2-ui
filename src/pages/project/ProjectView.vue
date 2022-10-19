@@ -9,7 +9,6 @@
     <div class="q-pa-md">
 
       <oa-section-header v-if="!project" :title="'Loading project...'" :icon="'folder'"/>
-
       <div v-else>
         <oa-section-header :title="project.name" :icon="'folder'"/>
         <div class="row q-pa-md oa-section-body">

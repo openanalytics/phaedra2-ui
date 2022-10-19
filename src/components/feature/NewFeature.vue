@@ -1,5 +1,5 @@
 <template>
-  <div class="q-pa-md">
+  <div>
     <oa-section-header :title="'New Feature'" :icon="'edit'"/>
     <div class="oa-section-body">
       <q-card-section>

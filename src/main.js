@@ -28,7 +28,7 @@ import ImportProtocolView from "./pages/protocol/ImportProtocolView";
 import FeatureView from "@/pages/feature/FeatureView";
 import FormulaTab  from "@/pages/feature/FormulaTab.vue";
 
-import FormulasView from "@/pages/calculation/formula/FormulasView";
+import FormulasView from "@/pages/calculation/formula/BrowseFormulas";
 import FormulaView from "@/pages/calculation/formula/FormulaView";
 
 import CaptureJobsView from '@/pages/datacapture/CaptureJobsView.vue'
@@ -89,7 +89,7 @@ const routes = [
     { name: "newPlateTemplateFromFile", path: "/template/new", component: ImportPlateTemplateFromFile},
 
 
-    { name: "calcFormulas", path: "/calc/formulas", component: FormulasView },
+    { name: "calcFormulas", path: "/calc/formulas", component: BrowseFormulas },
     { name: "calcFormula", path: "/calc/formula/:id", component: FormulaView },
 
     { name: "dataCaptureJobs", path: "/datacapture/jobs", component: CaptureJobsView },
@@ -123,6 +123,7 @@ import Plotly from "plotly.js-dist-min"
 
 import { createPinia, setActivePinia } from "pinia"
 import App from "./App.vue"
+import BrowseFormulas from "@/pages/calculation/formula/BrowseFormulas";
 
 const pinia = createPinia()
 
