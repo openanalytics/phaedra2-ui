@@ -15,7 +15,7 @@
 <script>
 import {ref, computed, watchEffect} from 'vue'
 import {useStore} from 'vuex'
-import WellGrid from "@/components/widgets/WellGrid.vue"
+import WellGrid from "@/components/well/WellGrid.vue"
 import FeatureSelector from "@/components/widgets/FeatureSelector.vue"
 import ColorUtils from "@/lib/ColorUtils.js"
 import WellUtils from "@/lib/WellUtils.js"

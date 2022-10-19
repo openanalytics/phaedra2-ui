@@ -13,9 +13,9 @@
 </template>
 
 <script setup>
-import {reactive, ref} from 'vue'
-import WellGrid from "@/components/widgets/WellGrid.vue"
-import WellEditor from "@/components/widgets/WellEditor.vue"
+import {ref} from 'vue'
+import WellGrid from "@/components/well/WellGrid.vue"
+import WellEditor from "@/components/well/WellEditor.vue"
 import WellUtils from "@/lib/WellUtils.js"
 import {useUIStore} from "@/stores/ui";
 

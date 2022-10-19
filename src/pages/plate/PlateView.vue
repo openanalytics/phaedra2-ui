@@ -61,9 +61,9 @@
       >
         <q-tab name="layout" icon="view_module" label="Layout"/>
         <q-tab name="heatmap" icon="view_module" label="Heatmap"/>
-        <q-tab name="measurements" icon="text_snippet" label="Measurements"/>
         <q-tab name="wells" icon="table_rows" label="Well List"/>
-        <q-tab name="results" icon="assignment_turned_in" label="Results"/>
+        <q-tab name="measurements" icon="text_snippet" label="Measurements"/>
+        <q-tab name="results" icon="functions" label="Calculations"/>
         <q-tab name="curve" icon="show_chart" label="Dose Response Curve"/>
       </q-tabs>
       <div class="row oa-section-body">
@@ -74,11 +74,11 @@
           <q-tab-panel name="heatmap">
             <PlateHeatmap :plate="plate" />
           </q-tab-panel>
-          <q-tab-panel name="measurements" icon="view_module" label="Layout">
-            <MeasList :plate="plate" />
-          </q-tab-panel>
           <q-tab-panel name="wells">
             <WellList :plate="plate" />
+          </q-tab-panel>
+          <q-tab-panel name="measurements" icon="view_module" label="Layout">
+            <MeasList :plate="plate" />
           </q-tab-panel>
           <q-tab-panel name="results">
             <ResultSetList :plate="plate" />

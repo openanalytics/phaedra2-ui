@@ -1,12 +1,22 @@
 <template>
     <div>
-        <q-icon :name="flag.name" :color="flag.color">
+        <q-icon :class="flag.class" :name="flag.name" :color="flag.color">
           <q-tooltip v-if="statusReason != null">
             {{ statusReason }}
           </q-tooltip>
         </q-icon>
     </div>
 </template>
+
+<style scoped>
+    .rotate {
+        animation: rotating 2s linear infinite;
+    }
+    @keyframes rotating {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+</style>
 
 <script>
 import {computed} from "vue";
@@ -20,6 +30,7 @@ export default {
         const negativeFlag = { name: 'cancel', color: 'negative' };
         const positiveFlag = { name: 'check_circle', color: 'positive' };
         const neutralFlag = { name: 'horizontal_rule', color: '' };
+        const loadingFlag = { name: 'autorenew', color: 'primary', class: 'rotate' };
 
         const statusValue = computed(() => props.object[props.statusField] || 'unknown');
 
@@ -28,6 +39,7 @@ export default {
 
             'CALCULATION_NEEDED': neutralFlag,
             'CALCULATION_OK': positiveFlag,
+            'CALCULATION_IN_PROGRESS': loadingFlag,
             'CALCULATION_NOT_POSSIBLE': negativeFlag,
             'CALCULATION_ERROR': negativeFlag,
 
@@ -42,7 +54,7 @@ export default {
             'NOT_LINKED': neutralFlag,
             'LINKED': positiveFlag
         };
-        const flag = computed(() => flags[statusValue.value]);
+        const flag = computed(() => flags[statusValue.value] || neutralFlag);
 
         const statusReason = computed(() => {
             if (statusValue.value == 'INVALIDATED') return props.object.invalidatedReason;

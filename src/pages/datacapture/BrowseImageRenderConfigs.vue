@@ -6,7 +6,7 @@
                 <q-table
                     class="full-width"
                     table-header-class="text-grey"
-                    flat
+                    flat dense
                     :rows="configs"
                     :columns="columns"
                     row-key="id"

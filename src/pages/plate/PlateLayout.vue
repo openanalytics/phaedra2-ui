@@ -1,25 +1,23 @@
 <template>
-  <div class="row">
-    <div class="col-9">
-      <WellGrid :plate="plate"
-                :wellColorFunction="wellColorFunction"
-                :wellLabelFunctions="wellLabelFunctions"
-                @wellSelection="handleWellSelection"/>
+    <div class="row">
+        <div class="col-9">
+            <WellGrid   :plate="plate"
+                        :wellColorFunction="wellColorFunction"
+                        :wellLabelFunctions="wellLabelFunctions"
+                        @wellSelection="handleWellSelection" />
+        </div>
+        <div class="col-3 q-pa-sm">
+            <WellTypeLegend :wells=wells></WellTypeLegend>
+        </div>
     </div>
-    <div class="col-3 q-pa-sm">
-      <WellTypeLegend :wells=wells></WellTypeLegend>
-      <WellInspector :wells=selectedWells :gridType="'layout'"></WellInspector>
-    </div>
-  </div>
 </template>
 
 <script setup>
 import {ref, computed, watchEffect} from 'vue'
 import {useStore} from 'vuex'
 
-import WellGrid from "@/components/widgets/WellGrid.vue"
-import WellTypeLegend from "@/components/widgets/WellTypeLegend.vue"
-import WellInspector from "@/components/widgets/WellInspector.vue"
+import WellGrid from "@/components/well/WellGrid.vue"
+import WellTypeLegend from "@/components/well/WellTypeLegend.vue"
 import WellUtils from "@/lib/WellUtils.js"
 
 const props = defineProps(['plate'])

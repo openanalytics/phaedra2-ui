@@ -64,16 +64,16 @@ export default {
     exported.measurements = computed(() => store.getters['measurements/getAll']())
 
     exported.columns = ref([
-      {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
-      {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
+      {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
+      {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
       {name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
+      {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
       {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
+      {name: 'layout', align: 'left', label: 'Dimensions', field: 'layout', sortable: true, format: (val, row) => row.rows + " x " + row.columns },
       {name: 'wellColumns', align: 'left', label: 'WellData Columns', field: row => (row?.wellColumns?.length || 0), sortable: true },
       {name: 'subWellColumns', align: 'left', label: 'SubwellData Columns', field: row => (row?.subWellColumns?.length || 0), sortable: true },
       {name: 'imageChannels', align: 'left', label: 'Image Channels', field: row => (row?.imageChannels?.length || 0), sortable: true },
-      {name: 'layout', align: 'left', label: 'Dimensions', field: 'layout', sortable: true, format: (val, row) => row.rows + " x " + row.columns },
-      {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
-      {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
+      {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
     ])
     exported.visibleColumns = exported.columns.value.map(a => a.name)
     exported.configdialog = ref(false)

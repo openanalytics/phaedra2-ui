@@ -3,15 +3,16 @@
     <q-icon name="science" class="on-left"/>Experiments
   </div>
   <q-table
+      table-header-class="text-grey"
+      flat square dense
       :columns="columns"
       :rows="experiments"
       row-key="id"
-      :pagination="{ rowsPerPage: 10 }"
+      :pagination="{ rowsPerPage: 10, sortBy: 'name' }"
       :filter="filter"
       :filter-method="filterMethod"
       :visible-columns="visibleColumns"
       :loading="loading"
-      square
   >
     <template v-slot:top-left>
       <div class="row action-button on-left">
