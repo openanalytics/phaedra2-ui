@@ -5,11 +5,11 @@
     <div class="col q-pa-md oa-section-body">
       <div class="row q-pa-md">
         <div class="col-4 q-gutter-xs">
-          <q-input v-model="newProtocol.name" label="Name: " />
-          <q-input v-model="newProtocol.description" label="Description: "/>
-          <q-select v-model="newProtocol.lowWelltype" label="Low well type:" :options="wellTypeOptions"/>
-          <q-select v-model="newProtocol.highWelltype" label="High well type:" :options="wellTypeOptions"/>
-          <q-input v-model="newProtocol.versionNumber" label="Version:" mask="#.#.#" hint="Mask: #.#.#, Example: 1.0.0"/>
+          <q-input v-model="newProtocol.name" label="Name:" dense/>
+          <q-input v-model="newProtocol.description" label="Description:" dense/>
+          <q-select v-model="newProtocol.lowWelltype" label="Low well type:" :options="wellTypeOptions" dense/>
+          <q-select v-model="newProtocol.highWelltype" label="High well type:" :options="wellTypeOptions" dense/>
+          <q-input v-model="newProtocol.versionNumber" label="Version:" mask="#.#.#" hint="Mask: #.#.#, Example: 1.0.0" dense/>
         </div>
 
         <div class="col-7">
@@ -32,7 +32,8 @@
           </div>
         </div>
       </div>
-      <q-separator inset />
+    </div>
+    <div class="q-pt-md">
       <FeatureList :protocol="newProtocol" @addFeature="addNewFeature"/>
     </div>
   </div>
