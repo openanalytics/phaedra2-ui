@@ -14,6 +14,7 @@ import templates from './modules/templates'
 import metadata from './modules/metadata'
 import userinfo from './modules/userinfo'
 import ui from './modules/ui'
+import charting from "./modules/charting";
 
 const debug = process.env.NODE_ENV !== 'production'
 
@@ -32,7 +33,8 @@ export default createStore({
     templates,
     metadata,
     userinfo,
-    ui
+    ui,
+    charting
   },
   strict: debug,
   plugins: debug ? [createLogger()] : []

@@ -2,10 +2,10 @@
   <div class="viewer-panel relative-position">
     <q-select id="x" v-model="x" :options="getKeys(wells[0])" label="X-axis"/>
     <q-select v-model="y" :options="getKeys(wells[0])" label="Y-axis"/>
-    <ScatterPlot v-if="chartType==='scatter2D'" :data="data"/>
-    <BoxPlot v-else-if="chartType==='boxplot'" :data="data"/>
-    <BarPlot v-else-if="chartType==='barplot'" :data="data"/>
-    <LinePlot v-else-if="chartType==='lineplot'" :data="data"/>
+    <ScatterPlot v-if="chartTemplate.type==='scatter'" :data="data"/>
+    <BoxPlot v-else-if="chartTemplate.type==='boxplot'" :data="data"/>
+    <BarPlot v-else-if="chartTemplate.type==='barplot'" :data="data"/>
+    <LinePlot v-else-if="chartTemplate.type==='lineplot'" :data="data"/>
   </div>
 </template>
 
@@ -23,9 +23,12 @@ const store = useStore();
 // Get chart type
 const chartType = computed(() => store.getters['ui/getChartType']())
 
+// Get chart template
+const chartTemplate = computed(() => store.getters['charting/getChartTemplate'](chartType.value))
+
 const plateId = 101;
 const wells = computed(() => {
-  let wells = store.getters['resultdata/getMockWellData'](plateId)
+  let wells = store.getters['charting/getChartEntity'](plateId)
   return wells
 });
 
