@@ -5,9 +5,9 @@
     </div>
 
     <div v-if="plate" style="width: 100%;" class="gridContainer"
-         @mousedown="selectionBoxSupport.dragStart"
-         @mousemove="selectionBoxSupport.dragMove"
-         @mouseup="selectionBoxSupport.dragEnd">
+        @mousedown="selectionBoxSupport.dragStart"
+        @mousemove="selectionBoxSupport.dragMove"
+        @mouseup="selectionBoxSupport.dragEnd">
 
       <div><!-- Corner slot --></div>
 
@@ -23,7 +23,7 @@
         </div>
         <!-- Plate row -->
         <template v-for="c in plate.columns" :key="c">
-          <WellSlot :ref="refWellSlot"
+          <WellSlot :ref="slot => addWellSlot(slot, r, c)"
                     :well="wells[WellUtils.getWellNr(r, c, plate.columns) - 1] || {}"
                     :wellColorFunction="wellColorFunction"
                     :wellLabelFunctions="wellLabelFunctions"
@@ -37,37 +37,39 @@
 </template>
 
 <style scoped>
-.loadingAnimation {
-  position: absolute;
-  z-index: 10;
-  justify-self: center;
-  align-self: center;
-}
+  .loadingAnimation {
+    position: absolute;
+    z-index: 10;
+    justify-self: center;
+    align-self: center;
+  }
 
-.gridContainer {
-  display: grid;
-  grid-template-columns: v-bind(gridColumnStyle);
-  min-height: 400px;
-}
+  .gridContainer {
+    display: grid;
+    grid-template-columns: v-bind(gridColumnStyle);
+    min-height: 400px;
+  }
 
-.gridHeaderSlot {
-  background-color: grey;
-  border: 1px solid black;
-  margin: 1px;
-  font-size: 65%;
-  text-align: center;
-  cursor: pointer;
-}
+  .gridHeaderSlot {
+    background-color: grey;
+    border: 1px solid black;
+    margin: 1px;
+    font-size: 65%;
+    text-align: center;
+    cursor: pointer;
+  }
 
-.wellSlot {
-  min-height: v-bind(wellSlotMinHeight);
-  font-size: v-bind(wellSlotFontSize);
-}
+  .wellSlot {
+    min-height: v-bind(wellSlotMinHeight);
+    font-size: v-bind(wellSlotFontSize);
+  }
 </style>
 
 <script>
 import {ref, computed, watchEffect} from 'vue'
 import {useStore} from 'vuex'
+import {useQuasar} from 'quasar'
+
 import WellUtils from "@/lib/WellUtils.js"
 import SelectionBoxHelper from "@/lib/SelectionBoxHelper.js"
 import WellSlot from "@/components/well/WellSlot.vue"
@@ -136,13 +138,13 @@ export default {
     // Well selection handling
     exported.rootElement = ref(null);
     exported.wellSlots = ref([]);
-    exported.refWellSlot = function (slot) {
-      if (!slot || !slot.well) return;
-      const wellNr = WellUtils.getWellNr(slot.well.row, slot.well.column, props.plate.columns);
+    exported.addWellSlot = (slot, row, col) => {
+      // Note: use wellNr, as wells may not be loaded yet at this point.
+      const wellNr = WellUtils.getWellNr(row, col, props.plate.columns);
       exported.wellSlots.value[wellNr - 1] = slot;
-    }
-    exported.selectionBoxSupport = SelectionBoxHelper.addSelectionBoxSupport(exported.rootElement, exported.wellSlots, (wells, append) => {
-      emitWellSelection(wells, append);
+    };
+    exported.selectionBoxSupport = SelectionBoxHelper.addSelectionBoxSupport(exported.rootElement, exported.wellSlots, (wellNrs, append) => {
+      emitWellSelection(exported.wells.value.filter((well, i) => wellNrs.find(nr => nr === i + 1)), append);
     });
 
     exported.selectRow = (n, append) => {
@@ -160,6 +162,21 @@ export default {
     })
 
     exported.WellUtils = WellUtils;
+
+    const $q = useQuasar();
+    exported.showDialog = () => {
+      $q.dialog({
+        title: 'Alert<em>!</em>',
+        message: '<em>I can</em> <span class="text-red">use</span> <strong>HTML</strong>',
+        html: true
+      }).onOk(() => {
+        // console.log('OK')
+      }).onCancel(() => {
+        // console.log('Cancel')
+      }).onDismiss(() => {
+        // console.log('I am triggered on both OK and Cancel')
+      })
+    }
 
     return exported;
   },
