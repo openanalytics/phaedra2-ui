@@ -12,17 +12,29 @@
             </q-item-section>
             <q-menu>
               <q-list>
-                <q-item dense clickable @click="chart()">
+                <q-item dense clickable @click="chart('scatter2D')">
                   <q-item-section avatar>
                     <q-icon name="insert_chart" />
                   </q-item-section>
                   <q-item-section>Scatterplot 2D</q-item-section>
                 </q-item>
-                <q-item dense clickable>
+                <q-item dense clickable @click="chart('boxplot')">
                   <q-item-section avatar>
                     <q-icon name="insert_chart" />
                   </q-item-section>
-                  <q-item-section>Chart 2</q-item-section>
+                  <q-item-section>Boxplot</q-item-section>
+                </q-item>
+                <q-item dense clickable @click="chart('barplot')">
+                  <q-item-section avatar>
+                    <q-icon name="insert_chart" />
+                  </q-item-section>
+                  <q-item-section>Barplot</q-item-section>
+                </q-item>
+                <q-item dense clickable @click="chart('lineplot')">
+                  <q-item-section avatar>
+                    <q-icon name="insert_chart" />
+                  </q-item-section>
+                  <q-item-section>Lineplot</q-item-section>
                 </q-item>
               </q-list>
             </q-menu>
@@ -161,14 +173,16 @@
                 deletePlate() {
                     refDeleteDialog.value.showDialog = true;
                 },
-                chart() {
+                chart(type) {
+                  //Set the chart type
+                  store.dispatch('ui/setChartType', type);
                   // load wells by plate id
-                  store.dispatch('wells/fetchByPlateId', props.plate.id).then(() => {
-                  const wells = store.getters['wells/getWells'](props.plate.id);
-                  console.log(wells);
-                  store.dispatch('ui/selectWells', wells)
-                  store.dispatch('ui/openSideView', 'chart' )}
-                  )
+                  // store.dispatch('wells/fetchByPlateId', props.plate.id).then(() => {
+                  // const wells = store.getters['wells/getWells'](props.plate.id);
+                  // console.log(wells);
+                  // store.dispatch('ui/selectWells', wells)
+                  store.dispatch('ui/openSideView', 'chart' )//}
+                  //)
                 }
             }
         }

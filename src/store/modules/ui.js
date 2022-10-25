@@ -8,7 +8,8 @@ const state = () => ({
         { id: 'chart', label: 'Chart', icon: 'chart', componentPath: 'chart/ChartViewer.vue' },
     ],
     // Selection Handling
-    selectedWells: []
+    selectedWells: [],
+    chartType: null,
 })
 
 const getters = {
@@ -26,6 +27,9 @@ const getters = {
     },
     getSelectedWells: (state) => () => {
         return [...state.selectedWells];
+    },
+    getChartType: (state) => () => {
+        return state.chartType;
     }
 }
 
@@ -48,6 +52,9 @@ const actions = {
     },
     selectWells: (ctx, wells) => {
         ctx.commit('setSelectedWells', wells);
+    },
+    setChartType: (ctx, type) => {
+        ctx.commit('setChartType', type);
     }
 }
 
@@ -64,6 +71,9 @@ const mutations = {
     },
     setSelectedWells: (state, wells) => {
         state.selectedWells = [...wells];
+    },
+    setChartType: (state, type) => {
+        state.chartType = type;
     }
 }
 

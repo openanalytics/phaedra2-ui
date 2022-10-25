@@ -1,8 +1,11 @@
 <template>
   <div class="viewer-panel relative-position">
-    <q-select id="x" v-model="x" :options="getKeys(selectedWells[0])" label="X-axis"/>
-    <q-select v-model="y" :options="getKeys(selectedWells[0])" label="Y-axis"/>
-    <ScatterPlot :data="data"/>
+    <q-select id="x" v-model="x" :options="getKeys(wells[0])" label="X-axis"/>
+    <q-select v-model="y" :options="getKeys(wells[0])" label="Y-axis"/>
+    <ScatterPlot v-if="chartType==='scatter2D'" :data="data"/>
+    <BoxPlot v-else-if="chartType==='boxplot'" :data="data"/>
+    <BarPlot v-else-if="chartType==='barplot'" :data="data"/>
+    <LinePlot v-else-if="chartType==='lineplot'" :data="data"/>
   </div>
 </template>
 
@@ -11,35 +14,20 @@ import PlotLy from 'plotly.js-dist'
 import {useStore} from 'vuex'
 import {computed, reactive, ref, watchEffect} from "vue";
 import ScatterPlot from "./ScatterPlot.vue";
+import BoxPlot from "./BoxPlot.vue";
+import BarPlot from "./BarPlot.vue";
+import LinePlot from "./LinePlot.vue";
 
 const store = useStore();
 
-const selectedWells = computed(() => {
-  let wells = store.getters['ui/getSelectedWells']();
-  if (wells) return getWellData(wells);
-  return null;
-});
+// Get chart type
+const chartType = computed(() => store.getters['ui/getChartType']())
 
-const getWellData = (wells) => {
-  // // Get data from wellSubstance
-  // let wellSubstance = wells.map(w => w.wellSubstance);
-  // console.log(wellSubstance);
-  // return wellSubstance;
-  //Flat out the data
-  let data = [];
-  wells.forEach(w => {
-    //Deep copy the well
-    let well = JSON.parse(JSON.stringify(w));
-    const wellSubstance = well.wellSubstance;
-    well['wellSubstance-id'] = wellSubstance.id;
-    well['wellSubstance-type'] = wellSubstance.type;
-    well['wellSubstance-name'] = wellSubstance.name;
-    well['wellSubstance-concentration'] = wellSubstance.concentration;
-    delete well.wellSubstance;
-    data.push(well);
-  });
-  return data;
-};
+const plateId = 101;
+const wells = computed(() => {
+  let wells = store.getters['resultdata/getMockWellData'](plateId)
+  return wells
+});
 
 //Make a method to return the property keys of an object
 const getKeys = (obj) => {
@@ -47,21 +35,20 @@ const getKeys = (obj) => {
   return Object.keys(obj);
 };
 //first property of selectedWells
-const x = ref(getKeys(selectedWells.value[0])[0]);
+const x = ref(getKeys(wells.value[0])[0]);
 //second property of selectedWells
-const y = ref(getKeys(selectedWells.value[0])[1]);
+const y = ref(getKeys(wells.value[0])[1]);
 
+//Make a reactive object to hold the data for the plot
 let data = reactive({
-  x: selectedWells.value.map(well => well[x.value]),
-  y: selectedWells.value.map(well => well[y.value]),
-  mode: 'markers',
-  type: 'scatter',
-  marker: {color: 'red'}
+  x: wells.value.map(well => well[x.value]),
+  y: wells.value.map(well => well[y.value]),
 });
 
+//Update properties when x or y changes
 watchEffect(() => {
-  data.x = selectedWells.value.map(well => well[x.value]);
-  data.y = selectedWells.value.map(well => well[y.value]);
+  data.x = wells.value.map(well => well[x.value]);
+  data.y = wells.value.map(well => well[y.value]);
 });
 
 </script>

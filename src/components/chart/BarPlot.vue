@@ -13,7 +13,7 @@ const plotData = () => {
     x: props.data.x,
     y: props.data.y,
     mode: 'markers',
-    type: 'scatter',
+    type: 'bar',
     marker: {color: 'red'},
   }
 }
