@@ -66,16 +66,14 @@ function addSelectionBoxSupport(rootElement, wellSlots, selectionHandler) {
                 { x: this.dragStartPosition.x - this.scrollError.left, y: this.dragStartPosition.y - this.scrollError.top},
                 { x: event.pageX- this.scrollError.left, y: event.pageY-this.scrollError.top }
             );
-            let selectedWells = []
-            wellSlots.value.forEach(slot => {
-                if (slot) {
-                    let bounds = slot.$el.getBoundingClientRect()
-                    if (boxesOverlap(bounds, selectedArea)) {
-                        selectedWells.push(slot.well)
-                    }
+            let selectedWellNrs = []
+            wellSlots.value.forEach((slot, i) => {
+                let bounds = slot.$el.getBoundingClientRect()
+                if (boxesOverlap(bounds, selectedArea)) {
+                    selectedWellNrs.push(i + 1)
                 }
             })
-            this.selectionHandler(selectedWells, event.ctrlKey);
+            this.selectionHandler(selectedWellNrs, event.ctrlKey);
         }
     }
     return selectionBoxSupport
