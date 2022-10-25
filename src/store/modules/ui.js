@@ -4,7 +4,8 @@ const state = () => ({
     showSidePanel: false,
     openSideViews: [],
     sideViewConfigs: [
-        { id: 'wellImage', label: 'Well Image', icon: 'image', componentPath: 'image/WellImageViewer.vue' }
+        { id: 'wellImage', label: 'Well Image', icon: 'image', componentPath: 'image/WellImageViewer.vue' },
+        { id: 'doseResponseCurve', label: 'Dose Response Curve', icon: 'show_chart', componentPath: 'curve/DoseResponseCurve.vue' }
     ],
     // Selection Handling
     selectedWells: []

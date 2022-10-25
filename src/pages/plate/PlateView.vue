@@ -126,7 +126,7 @@ import PlateHeatmap from "@/pages/plate/PlateHeatmap";
 import MeasList from "@/pages/plate/MeasList";
 import WellList from "@/pages/plate/WellList";
 import ResultSetList from "./ResultSetList";
-import DoseResponseCurve from "@/components/plate/DoseResponseCurve"
+import DoseResponseCurve from "@/components/curve/DoseResponseCurve"
 import OaSectionHeader from "@/components/widgets/OaSectionHeader";
 import DeleteDialog from "@/components/widgets/DeleteDialog";
 

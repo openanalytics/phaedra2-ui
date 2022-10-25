@@ -11,12 +11,12 @@
         <q-form class="full-width" @submit="onSubmit" @reset="onReset">
 
           <q-input label="Name" v-model="newProject.name" lazy-rules
-                   :rules="[ val => val && val.length > 0 || 'Project name is required']"/>
+                   :rules="[ val => val && val.length > 0 || 'Project name is required']" dense/>
 
-          <q-input label="Description" v-model="newProject.description" class="q-mb-md"/>
+          <q-input label="Description" v-model="newProject.description" class="q-mb-md" dense/>
 
           <q-select label="Admin Team" v-model="newProject.adminTeam" :options="teamNames" lazy-rules
-                    :rules="[ val => val && val.length > 0 || 'An admin team must be selected']"/>
+                    :rules="[ val => val && val.length > 0 || 'An admin team must be selected']" dense/>
 
           <div class="row justify-end q-pt-md">
             <router-link :to="{ name: 'browseProjects'}" class="nav-link">

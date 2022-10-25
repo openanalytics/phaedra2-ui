@@ -8,35 +8,30 @@
     </div>
     <div class="q-pa-xs oa-section-body">
       <div class="col-12 q-mb-sm">
-        <q-checkbox v-if="tab==='overview'" v-model="skipped" label="Skip Wells"
-                   @click="updateWells('skipped', skipped)"/>
-        <q-select dense v-if="tab==='well-type'" v-model="selectedType" :label="previousType" :options="wellTypes"
-                  @update:model-value="updateWells('wellType', selectedType)"></q-select>
-        <q-input dense v-if="tab==='substance'" v-model="substanceType" square autofocus label="Substance Type"
-                 @change="updateWells('substanceType', substanceType)"></q-input>
-        <q-input dense v-if="tab==='substance'" v-model="name" square autofocus label="Substance Name"
-                 @change="updateWells('substanceName', name)"></q-input>
-        <q-input dense v-if="tab==='substance'" v-model="concentration" square autofocus label="Concentration"
-                 @change="updateWells('concentration', concentration)"></q-input>
+        <q-checkbox v-if="tab==='overview'" v-model="skipped" label="Skip Wells" @click="updateWells('skipped', skipped)"/>
+        <q-select dense v-if="tab==='well-type'" v-model="selectedType" :label="previousType" :options="wellTypes" @update:model-value="updateWells('wellType', selectedType)"></q-select>
+        <q-input dense v-if="tab==='substance'" v-model="substanceType" square autofocus label="Substance Type" @change="updateWells('substanceType', substanceType)"></q-input>
+        <q-input dense v-if="tab==='substance'" v-model="name" square autofocus label="Substance Name" @change="updateWells('substanceName', name)"></q-input>
+        <q-input dense v-if="tab==='substance'" v-model="concentration" square autofocus label="Concentration" @change="updateWells('concentration', concentration)"></q-input>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.legendRow {
-  width: 200px;
-}
+  .legendRow {
+    width: 200px;
+  }
 </style>
 
 <script setup>
 import {computed, ref} from "vue";
-import { useTemplateStore } from "@/stores/template";
+import {useTemplateStore } from "@/stores/template";
 import {useUIStore} from "@/stores/ui";
-// import {useStore} from 'vuex'
+import {useStore} from 'vuex'
 
 const props = defineProps(['wells', 'plateId', 'tab'])
-// const store = useStore()
+const store = useStore()
 const templateStore = useTemplateStore()
 const uiStore = useUIStore()
 
@@ -56,6 +51,7 @@ const updateWells = (field, newValue) => {
   console.log(field + ": " + newValue)
   const selectedWells = JSON.parse(JSON.stringify(props.wells));
   templateStore.updateTemplateWells(selectedWells, field, newValue)
+  // store.dispatch('templates/updateWellTemplates', {wells: selectedWells, field: field, entry: newValue})
 }
 
 const onlyUnique = (value, index, self) => {

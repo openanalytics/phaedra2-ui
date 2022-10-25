@@ -78,12 +78,12 @@
             </q-item>
         </q-list>
 
-      <invalidate-dialog v-model:show="showInvalidateDialog" :plateId="plate.id"/>
-      <approve-dialog v-model:show="showApproveDialog" :plateId="plate.id"/>
-      <disapprove-dialog v-model:show="showDisapproveDialog" :plateId="plate.id"/>
-      <calculate-plate-dialog v-model:show="showCalculateDialog" :plateId="plate.id"/>
-      <link-plate-dialog v-model:show="showLinkDialog" :plateId="plate.id"/>
-      <delete-dialog v-model:show="showDeleteDialog" :id="plate.id" :name="plate.barcode" :objectClass="'plate'"/>
+      <invalidate-dialog v-model:show="showInvalidateDialog" :plateId="props.plate.id"/>
+      <approve-dialog v-model:show="showApproveDialog" :plateId="props.plate.id"/>
+      <disapprove-dialog v-model:show="showDisapproveDialog" :plateId="props.plate.id"/>
+      <calculate-plate-dialog v-model:show="showCalculateDialog" :plateId="props.plate.id"/>
+      <link-plate-dialog v-model:show="showLinkDialog" :plateId="props.plate.id"/>
+      <delete-dialog v-model:show="showDeleteDialog" :id="props.plate.id" :name="props.plate.barcode" :objectClass="'plate'"/>
     </q-menu>
 
 </template>
@@ -111,7 +111,6 @@ const showLinkDialog = ref(false);
 const showDeleteDialog = ref(null);
 
 const props = defineProps(['plate']);
-const plate = ref(props.plate)
 
 const validate = () => {
   store.dispatch('plates/editPlate', {id: props.plate.id, validationStatus: 'VALIDATED'})

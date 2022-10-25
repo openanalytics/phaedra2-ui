@@ -65,115 +65,103 @@
 }
 </style>
 
-<script setup>
-import {ref, computed, watchEffect, defineProps, defineEmits} from 'vue'
+<script>
+import {ref, computed, watchEffect} from 'vue'
 import {useStore} from 'vuex'
-import {useQuasar} from 'quasar'
-
 import WellUtils from "@/lib/WellUtils.js"
 import SelectionBoxHelper from "@/lib/SelectionBoxHelper.js"
 import WellSlot from "@/components/well/WellSlot.vue"
 
-const store = useStore();
+export default {
+  props: {
+    plate: Object,
+    loading: Boolean,
+    wellColorFunction: Function,
+    wellLabelFunctions: Array
+  },
+  components: {
+    WellSlot
+  },
+  emits: ['wellSelection'],
+  setup(props, {emit}) {
+    const exported = {};
 
-const props = defineProps({
-  plate: Object,
-  loading: Boolean,
-  wellColorFunction: Function,
-  wellLabelFunctions: Array
-})
-const emit = defineEmits(['wellSelection'])
+    exported.selectedWells = ref([]);
 
-const selectedWells = ref([]);
+    const store = useStore();
+    exported.wells = computed(() => store.getters['wells/getWells'](props.plate.id) || []);
+    watchEffect(() => {
+      if (props?.plate?.wells) {
+        // If the plate object has wells, it's a plate template instead of a regular plate, whose wells are in the wells store.
+        exported.wells = ref(props.plate.wells);
+        return;
+      }
+      if (props?.plate?.id && !store.getters['wells/areWellsLoaded'](props.plate.id)) {
+        store.dispatch('wells/fetchByPlateId', props.plate.id);
+      }
+    })
 
+    const emitWellSelection = (wells, append) => {
+      if (!append) exported.selectedWells.value.splice(0);
+      for (const well of wells) {
+        if (append && exported.selectedWells.value.some(w => w.id == well.id)) continue;
+        exported.selectedWells.value.push(well);
+      }
+      store.dispatch('ui/selectWells', exported.selectedWells.value);
+      emit('wellSelection', exported.selectedWells.value);
+    }
 
-let wells = computed(() => store.getters['wells/getWells'](props.plate.id) || []);
-watchEffect(() => {
-  if (props?.plate?.wells) {
-    // If the plate object has wells, it's a plate template instead of a regular plate, whose wells are in the wells store.
-    wells = ref(props.plate.wells);
-    return;
-  }
-  if (props?.plate?.id && !store.getters['wells/areWellsLoaded'](props.plate.id)) {
-    store.dispatch('wells/fetchByPlateId', props.plate.id);
-  }
-})
+    window.addEventListener('keyup', function (event) {
+      if (exported.selectedWells.value.length == 0) return;
+      let currentWell = exported.selectedWells.value[0];
+      let nextPosition = [];
+      switch (event.key) {
+        case "ArrowUp":
+          nextPosition = [ currentWell.row - 1, currentWell.column ];
+          break;
+        case "ArrowDown":
+          nextPosition = [ currentWell.row + 1, currentWell.column ];
+          break;
+        case "ArrowLeft":
+          nextPosition = [ currentWell.row, currentWell.column - 1 ];
+          break;
+        case "ArrowRight":
+          nextPosition = [ currentWell.row, currentWell.column + 1 ];
+          break;
+      }
+      const nextWell = WellUtils.getWell(exported.wells.value, nextPosition[0], nextPosition[1]);
+      if (nextWell) emitWellSelection([nextWell]);
+    });
 
-const emitWellSelection = (wells, append) => {
-  if (!append) selectedWells.value.splice(0);
-  for (const well of wells) {
-    if (append && selectedWells.value.some(w => w.id == well.id)) continue;
-    selectedWells.value.push(well);
-  }
-  store.dispatch('ui/selectWells', selectedWells.value);
-  emit('wellSelection', selectedWells.value);
-}
+    // Well selection handling
+    exported.rootElement = ref(null);
+    exported.wellSlots = ref([]);
+    exported.refWellSlot = function (slot) {
+      if (!slot || !slot.well) return;
+      const wellNr = WellUtils.getWellNr(slot.well.row, slot.well.column, props.plate.columns);
+      exported.wellSlots.value[wellNr - 1] = slot;
+    }
+    exported.selectionBoxSupport = SelectionBoxHelper.addSelectionBoxSupport(exported.rootElement, exported.wellSlots, (wells, append) => {
+      emitWellSelection(wells, append);
+    });
 
-window.addEventListener('keyup', function (event) {
-  if (selectedWells.value.length == 0) return;
-  let currentWell = selectedWells.value[0];
-  let nextPosition = [];
-  switch (event.key) {
-    case "ArrowUp":
-      nextPosition = [currentWell.row - 1, currentWell.column];
-      break;
-    case "ArrowDown":
-      nextPosition = [currentWell.row + 1, currentWell.column];
-      break;
-    case "ArrowLeft":
-      nextPosition = [currentWell.row, currentWell.column - 1];
-      break;
-    case "ArrowRight":
-      nextPosition = [currentWell.row, currentWell.column + 1];
-      break;
-  }
-  const nextWell = WellUtils.getWell(wells.value, nextPosition[0], nextPosition[1]);
-  if (nextWell) emitWellSelection([nextWell]);
-});
+    exported.selectRow = (n, append) => {
+      emitWellSelection(exported.wells.value.filter(w => w.row == n), append);
+    };
+    exported.selectColumn = (n, append) => {
+      emitWellSelection(exported.wells.value.filter(w => w.column == n), append);
+    };
 
-// Well selection handling
-const rootElement = ref(null);
-const wellSlots = ref([]);
-const refWellSlot = function (slot) {
-  if (!slot || !slot.well) return;
-  const wellNr = WellUtils.getWellNr(slot.well.row, slot.well.column, props.plate.columns);
-  wellSlots.value[wellNr - 1] = slot;
-}
-const selectionBoxSupport = SelectionBoxHelper.addSelectionBoxSupport(rootElement, wellSlots, (wells, append) => {
-  emitWellSelection(wells, append);
-});
+    exported.gridColumnStyle = computed(() => { return "repeat(" + (props.plate.columns + 1) + ", 1fr)" });
+    exported.wellSlotMinHeight = (props.wellLabelFunctions.length * 15) + "px";
 
-const selectRow = (n, append) => {
-  emitWellSelection(wells.value.filter(w => w.row == n), append);
-};
-const selectColumn = (n, append) => {
-  emitWellSelection(wells.value.filter(w => w.column == n), append);
-};
+    watchEffect(() => {
+      exported.wellSlotFontSize = (props.plate.columns > 24) ? "0.4vw" : "65%";
+    })
 
-const gridColumnStyle = computed(() => {
-  return "repeat(" + (props.plate.columns + 1) + ", 1fr)"
-});
-const wellSlotMinHeight = (props.wellLabelFunctions.length * 15) + "px";
+    exported.WellUtils = WellUtils;
 
-let wellSlotFontSize = null;
-watchEffect(() => {
-  wellSlotFontSize = (props.plate.columns > 24) ? "0.4vw" : "65%";
-})
-
-// WellUtils = WellUtils;
-
-const $q = useQuasar();
-const showDialog = () => {
-  $q.dialog({
-    title: 'Alert<em>!</em>',
-    message: '<em>I can</em> <span class="text-red">use</span> <strong>HTML</strong>',
-    html: true
-  }).onOk(() => {
-    // console.log('OK')
-  }).onCancel(() => {
-    // console.log('Cancel')
-  }).onDismiss(() => {
-    // console.log('I am triggered on both OK and Cancel')
-  })
+    return exported;
+  },
 }
 </script>

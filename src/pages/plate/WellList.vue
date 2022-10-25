@@ -76,6 +76,8 @@ const columns = ref([
 
 const configdialog = ref(false)
 const visibleColumns = columns.value.map(a => a.name);
+const filter = ref('')
+const filterMethod = FilterUtils.defaultTableFilter()
 
 const wells = computed(() => store.getters['wells/getWells'](props.plate.id) || []);
 watchEffect(() => {
