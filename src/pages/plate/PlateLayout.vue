@@ -1,15 +1,9 @@
 <template>
-    <div class="row">
-        <div class="col-9">
-            <WellGrid   :plate="plate"
-                        :wellColorFunction="wellColorFunction"
-                        :wellLabelFunctions="wellLabelFunctions"
-                        @wellSelection="handleWellSelection" />
-        </div>
-        <div class="col-3 q-pa-sm">
-            <WellTypeLegend :wells=wells></WellTypeLegend>
-        </div>
-    </div>
+  <WellGrid :plate="plate"
+            :wellColorFunction="wellColorFunction"
+            :wellLabelFunctions="wellLabelFunctions"
+            @wellSelection="handleWellSelection"/>
+  <WellTypeLegend :wells=wells></WellTypeLegend>
 </template>
 
 <script setup>

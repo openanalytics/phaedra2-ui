@@ -1,40 +1,16 @@
 <template>
-  <div class="viewer-panel relative-position">
-    <div class="col">
-      <div class="row curve-view" id="chart" ref="el" />
-<!--      <div class="row">-->
-<!--        <q-select-->
-<!--            v-model="selectedSubstances"-->
-<!--            :options="selectedWellSubstances"-->
-<!--            multiple-->
-<!--            label="Select substance"-->
-<!--            @update:model-value="value => updateDRCPlotView"-->
-<!--            dense>-->
-<!--          <template v-slot:append>-->
-<!--            <q-icon-->
-<!--                v-if="selectedWellSubstances !== null"-->
-<!--                class="cursor-pointer"-->
-<!--                name="clear"-->
-<!--                @click.stop.prevent="clear()"-->
-<!--            />-->
-<!--          </template>-->
-<!--        </q-select>-->
-<!--      </div>-->
-    </div>
-
-  </div>
+    <div class="curve-view" id="chart" ref="el"/>
 </template>
 
 <script setup>
 
 import Plotly from "plotly.js-dist-min";
-import ColorUtils from "@/lib/ColorUtils";
 import {computed, onMounted, ref, watch} from "vue";
 import {useCurveDataStore} from "@/stores/curvedata";
 import {useStore} from "vuex";
 
 const minCharViewWidth = ref('600px');
-const minCharViewHeight = ref('400px');
+const minCharViewHeight = ref('600px');
 
 const props = defineProps(['plate'])
 
@@ -51,15 +27,20 @@ const selectedWellSubstances = computed(() => {
 const selectedSubstances = ref(selectedWellSubstances.value)
 const plateIds = [...new Set(selectedWells.value.map(well => well.plateId))]
 
-var layout = {
-  autosize: true
-};
-
 const el = ref()
 
 onMounted(() => {
   updateDRCPlotView()
 })
+
+const layout = {
+  title: 'Create a Static Chart',
+  showlegend: false
+};
+
+const config = {
+  responsive: true
+}
 
 const updateDRCPlotView = () => {
   const dcCurves = curvedataStore.getCurvesByPlateIdAndSubstances(plateIds, selectedWellSubstances.value)
@@ -74,6 +55,7 @@ const updateDRCPlotView = () => {
           color: c.color
         },
         showlegend: true,
+        legendgroup: c.substanceName,
         name: c.substanceName
       }
 
@@ -92,6 +74,7 @@ const updateDRCPlotView = () => {
           }
         },
         showlegend: false,
+        legendgroup: c.substanceName,
         name: c.substanceName
       }
       return {"substanceName": c.substanceName, "curve": curve, "datapoints": datapoints}
@@ -100,7 +83,7 @@ const updateDRCPlotView = () => {
     const line = curveData.map(cData => cData.curve)
     const scatter = curveData.map(cData => cData.datapoints)
     const data = line.concat(scatter)
-    Plotly.newPlot(el.value, data, layout, {responsive: true});
+    Plotly.newPlot(el.value, data, layout, config);
   }
 }
 
@@ -115,10 +98,7 @@ watch(selectedWells, updateDRCPlotView);
 
 <style scoped>
 .curve-view {
-  /*overflow: scroll;*/
   min-width: v-bind(minCharViewWidth);
   min-height: v-bind(minCharViewHeight);
-  height: max-content;
-  width: max-content;
 }
 </style>
