@@ -62,6 +62,7 @@
   .wellSlot {
     min-height: v-bind(wellSlotMinHeight);
     font-size: v-bind(wellSlotFontSize);
+    overflow: hidden;
   }
 </style>
 
