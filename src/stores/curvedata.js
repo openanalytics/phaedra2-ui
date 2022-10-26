@@ -26,7 +26,10 @@ export const useCurveDataStore = defineStore("curvedata", {
             return this.curvedata[plateId].map(cd => cd.substanceName)
         },
         getCurvesByPlateIdAndSubstances(plateId, substances) {
-            return this.curvedata[plateId].filter(cd => substances.includes(cd.substanceName))
+            if (plateId && substances)
+                return this.curvedata[plateId].filter(cd => substances.includes(cd.substanceName))
+            else
+                return null
         }
     }
 })

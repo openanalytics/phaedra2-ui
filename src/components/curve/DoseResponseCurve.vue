@@ -1,7 +1,7 @@
 <template>
   <div class="viewer-panel relative-position">
-    <div class="col" style="width: auto">
-      <div class="row" style="width: auto" id="chart" ref="el" />
+    <div class="col">
+      <div class="row curve-view" id="chart" ref="el" />
 <!--      <div class="row">-->
 <!--        <q-select-->
 <!--            v-model="selectedSubstances"-->
@@ -33,6 +33,9 @@ import {computed, onMounted, ref, watch} from "vue";
 import {useCurveDataStore} from "@/stores/curvedata";
 import {useStore} from "vuex";
 
+const minCharViewWidth = ref('600px');
+const minCharViewHeight = ref('400px');
+
 const props = defineProps(['plate'])
 
 const store = useStore()
@@ -45,8 +48,8 @@ const selectedWellSubstances = computed(() => {
   return selectedWells.value.map(well => well.wellSubstance.name)
 })
 
+const selectedSubstances = ref(selectedWellSubstances.value)
 const plateIds = [...new Set(selectedWells.value.map(well => well.plateId))]
-// curvedataStore.loadPlateCurves(plateIds)
 
 var layout = {
   autosize: true
@@ -54,14 +57,10 @@ var layout = {
 
 const el = ref()
 
-// onMounted(() => {
-//   const data = curveData.value.map(drc => drc.curve)
-//   Plotly.newPlot(el.value, data, layout);
-// })
+onMounted(() => {
+  updateDRCPlotView()
+})
 
-
-
-const selectedSubstances = ref(selectedWellSubstances.value)
 const updateDRCPlotView = () => {
   const dcCurves = curvedataStore.getCurvesByPlateIdAndSubstances(plateIds, selectedWellSubstances.value)
   if (dcCurves) {
@@ -101,7 +100,7 @@ const updateDRCPlotView = () => {
     const line = curveData.map(cData => cData.curve)
     const scatter = curveData.map(cData => cData.datapoints)
     const data = line.concat(scatter)
-    Plotly.newPlot(el.value, data, layout, {responsive: true, displaylogo: false});
+    Plotly.newPlot(el.value, data, layout, {responsive: true});
   }
 }
 
@@ -113,3 +112,13 @@ const clear = () => {
 watch(selectedWells, updateDRCPlotView);
 
 </script>
+
+<style scoped>
+.curve-view {
+  /*overflow: scroll;*/
+  min-width: v-bind(minCharViewWidth);
+  min-height: v-bind(minCharViewHeight);
+  height: max-content;
+  width: max-content;
+}
+</style>
