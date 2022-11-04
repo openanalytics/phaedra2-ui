@@ -31,23 +31,23 @@ const config = {
 }
 onMounted(() => {
   const curve = {
-    x: props.curvedata.plotDoseData.map(d => (d / 2.303)),
-    y: props.curvedata.plotPredictionData,
+    x: props.curvedata?.plotDoseData?.map(d => (d / 2.303)),
+    y: props.curvedata?.plotPredictionData,
     mode: 'lines',
     line: {
       shape: 'spline',
-      color: props.curvedata.color
+      color: props.curvedata?.color
     },
     showlegend: false,
   }
 
   const datapoints = {
-    x: props.curvedata.wellConcentrations,
-    y: props.curvedata.featureValues,
+    x: props.curvedata?.wellConcentrations,
+    y: props.curvedata?.featureValues,
     mode: 'markers',
     marker: {
       size: 10,
-      color: props.curvedata.color,
+      color: props.curvedata?.color,
     },
     showlegend: false,
   }

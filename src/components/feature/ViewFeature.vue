@@ -1,6 +1,6 @@
 <template>
   <div>
-    <oa-section-header :title="featureStore.feature.name" :icon="'view'"/>
+    <oa-section-header :title="props.feature.name" :icon="'view'"/>
     <div class="oa-section-body">
       <q-card-section>
         <q-tabs v-model="activeTab" align="left" class="q-px-sm oa-section-title" inline-label dense no-caps>
@@ -16,27 +16,27 @@
             <q-tab-panel name="general" label="General Info" class="col">
               <q-field label="Name" stack-label square autofocus>
                 <template v-slot:control>
-                  <div class="self-center full-width no-outline" tabindex="0">{{featureStore.feature.name}}</div>
+                  <div class="self-center full-width no-outline" tabindex="0">{{props.feature.name}}</div>
                 </template>
               </q-field>
               <q-field label="Alias" stack-label square>
                 <template v-slot:control>
-                  <div class="self-center full-width no-outline" tabindex="0">{{featureStore.feature.alias}}</div>
+                  <div class="self-center full-width no-outline" tabindex="0">{{props.feature.alias}}</div>
                 </template>
               </q-field>
               <q-field label="Description" stack-label square>
                 <template v-slot:control>
-                  <div class="self-center full-width no-outline" tabindex="0">{{featureStore.feature.description}}</div>
+                  <div class="self-center full-width no-outline" tabindex="0">{{props.feature.description}}</div>
                 </template>
               </q-field>
               <q-field label="Format" placeholder="#.##" stack-label square>
                 <template v-slot:control>
-                  <div class="self-center full-width no-outline" tabindex="0">{{featureStore.feature.format}}</div>
+                  <div class="self-center full-width no-outline" tabindex="0">{{props.feature.format}}</div>
                 </template>
               </q-field>
               <q-field label="Type" stack-label square>
                 <template v-slot:control>
-                  <div class="self-center full-width no-outline" tabindex="0">{{featureStore.feature.type}}</div>
+                  <div class="self-center full-width no-outline" tabindex="0">{{props.feature.type}}</div>
                 </template>
               </q-field>
             </q-tab-panel>
@@ -44,15 +44,15 @@
               <div class="q-pa-xs col">
                 <q-field label="Formula" stack-label square>
                   <template v-slot:control>
-                    <div class="self-center full-width no-outline" tabindex="0">{{featureStore.feature.formula.name}}</div>
+                    <div class="self-center full-width no-outline" tabindex="0">{{props.feature.formula.name}}</div>
                   </template>
                 </q-field>
-                <div v-if="(featureStore.feature.civs.length > 0)">
+                <div v-if="(props.feature.civs.length > 0)">
                   <div>
                     <q-field label="Formula variables" stack-label borderless>
                       <template v-slot:control>
                         <div class="row col-12">
-                          <template :key="variable.variableName" v-for="variable in featureStore.feature.civs">
+                          <template :key="variable.variableName" v-for="variable in props.feature.civs">
                               <div class="col-7">
                                 <q-field :label="variable.variableName" stack-label square>
                                   <template v-slot:control>
@@ -79,12 +79,12 @@
                 <br/>
                 <q-field label="Sequence" stack-label square>
                   <template v-slot:control>
-                    <div class="self-center full-width no-outline" tabindex="0">{{featureStore.feature.sequence}}</div>
+                    <div class="self-center full-width no-outline" tabindex="0">{{props.feature.sequence}}</div>
                   </template>
                 </q-field>
                 <q-field label="Trigger" stack-label square>
                   <template v-slot:control>
-                    <div class="self-center full-width no-outline" tabindex="0">{{featureStore.feature.trigger}}</div>
+                    <div class="self-center full-width no-outline" tabindex="0">{{props.feature.trigger}}</div>
                   </template>
                 </q-field>
               </div>
@@ -94,22 +94,22 @@
               <div class="col">
                 <q-field label="Model" stack-label square>
                   <template v-slot:control>
-                    <div class="self-center full-width no-outline" tabindex="0">{{featureStore.feature.drcModel.name}}</div>
+                    <div class="self-center full-width no-outline" tabindex="0">{{props.feature.drcModel?.name}}</div>
                   </template>
                 </q-field>
                 <q-field label="Description" stack-label square>
                   <template v-slot:control>
-                    <div class="self-center full-width no-outline" tabindex="0">{{featureStore.feature.drcModel.description}}</div>
+                    <div class="self-center full-width no-outline" tabindex="0">{{props.feature.drcModel?.description}}</div>
                   </template>
                 </q-field>
                 <q-field label="Method" stack-label square>
                   <template v-slot:control>
-                    <div class="self-center full-width no-outline" tabindex="0">{{featureStore.feature.drcModel.method}}</div>
+                    <div class="self-center full-width no-outline" tabindex="0">{{props.feature.drcModel?.method}}</div>
                   </template>
                 </q-field>
                 <q-field label="Slope type" stack-label square>
                   <template v-slot:control>
-                    <div class="self-center full-width no-outline" tabindex="0">{{featureStore.feature.drcModel.slope}}</div>
+                    <div class="self-center full-width no-outline" tabindex="0">{{props.feature.drcModel?.slope}}</div>
                   </template>
                 </q-field>
               </div>

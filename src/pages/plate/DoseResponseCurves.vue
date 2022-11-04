@@ -1,13 +1,48 @@
 <template>
   <q-table v-if="curves.length > 0"
            table-header-class="text-grey"
-           flat square dense
+           flat square dense bordered
+           separator="cell"
+           selection="multiple"
            :rows="curveData"
            :columns="curveTableColumns"
-          :row-key="name">
+           row-key="name">
+    <template v-slot:header="props">
+      <q-tr>
+        <q-th colspan="1"/>
+        <q-th colspan="3"/>
+        <q-th v-for="feat in features" :key="feat.id" colspan="7">{{ feat.name }}</q-th>
+      </q-tr>
+      <q-tr :props="props">
+        <q-th></q-th>
+        <q-th v-for="col in props.cols" :key="col.name" :props="props">
+          {{ col.label }}
+        </q-th>
+      </q-tr>
+    </template>
+    <template v-slot:body-cell-substance="props">
+      <q-td :props="props">
+        {{props.row.substance}}
+      </q-td>
+    </template>
+    <template v-slot:body-cell-plate="props">
+      <q-td :props="props">
+        {{props.row.plateBarcode}}
+      </q-td>
+    </template>
+    <template v-slot:body-cell-samples="props">
+      <q-td :props="props">
+        {{props.row.samples}}
+      </q-td>
+    </template>
+    <template v-slot:body-cell="props">
+      <q-td :props="props">
+        {{props.row.curve_info[props.col.featureId][props.col.name]}}
+      </q-td>
+    </template>
     <template v-slot:body-cell-curve="props">
       <q-td :props="props">
-        <MiniDoseResponseCurve :curvedata="props.value"></MiniDoseResponseCurve>
+        <MiniDoseResponseCurve :curvedata="props.row.curve_info[props.col.featureId].curve"></MiniDoseResponseCurve>
       </q-td>
     </template>
   </q-table>
@@ -32,29 +67,86 @@ const curves = computed(() => {
 const featureIds = [...new Set(curves.value?.map(c => c.featureId))]
 store.dispatch('features/loadByIds', featureIds)
 
-const curveData = curves.value.map(curve => {
-  return {
-    'id': curve.id,
-    'plateBarcode': (store.getters['plates/getById'](curve.plateId) || {}).barcode,
-    'substanceType': curve.substanceName,
-    'substance': curve.substanceName,
-    'samples': curve.wells.length,
-    'featureId': (store.getters['features/getById'](curve.featureId) || {}).name,
-    'curve': curve
-}})
+const features = computed(() => store.getters['features/getByIds'](featureIds))
+const selected = ref([])
 
+const substances = [...new Set(curves.value?.map(c => c.substanceName))]
 
+const curveData = ref([])
+
+curves.value.map(curve => {
+  let result = curveData.value.filter(cd => cd.substance === curve.substanceName);
+  if (result.length > 0) {
+    result[0].curve_info[curve.featureId] = {
+      'ic50': curve.pic50,
+      'slope': curve.slope,
+      'emin': curve.emin,
+      'emin_conc': curve.eminConc,
+      'emax': curve.emax,
+      'emax_conc': curve.emaxConc,
+      'curve': curve
+    }
+  } else {
+    result = {
+      'plateBarcode': (store.getters['plates/getById'](curve.plateId) || {}).barcode,
+      'substance': curve.substanceName,
+      'samples': curve.wells.length,
+      'curve_info': {}
+    }
+
+    for (let f in featureIds) {
+      if (featureIds[f] === curve.featureId) {
+        result['curve_info'][curve.featureId] = {
+          'ic50': curve.pic50,
+          'slope': curve.slope,
+          'emin': curve.emin,
+          'emin_conc': curve.eminConc,
+          'emax': curve.emax,
+          'emax_conc': curve.emaxConc,
+          'curve': curve
+        }
+      } else {
+        result['curve_info'][featureIds[f]] = {
+          'ic50': 'NaN',
+          'slope': 'NaN',
+          'emin': 'NaN',
+          'emin_conc': 'NaN',
+          'emax': 'NaN',
+          'emax_conc': 'NaN',
+          'curve': null
+        }
+      }
+    }
+    curveData.value.push(result)
+  }
+})
+
+// const columnSelection = 'name'
+// const computedCurveBodyCellName = computed(() => {return 'body-cell-' + columnSelection})
 
 const curveTableColumns = ref([
-  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
-  {name: 'plate', align: 'left', label: 'Plate(s)', field: 'plateBarcode', sortable: true},
-  {name: 'substanceType', align: 'left', label: 'Substance Type', field: 'substanceType', sortable: true},
+  // {name: 'substanceType', align: 'left', label: 'Substance Type', field: 'substanceType', sortable: true},
   {name: 'substance', align: 'left', label: 'Substance', field: 'substance', sortable: true},
+  {name: 'plate', align: 'left', label: 'Plate(s)', field: 'plateBarcode', sortable: true},
   {name: 'samples', align: 'left', label: 'Samples', field: 'samples', sortable: true},
-  {name: 'featureId', align: 'left', label: 'Feature', field: 'featureId', sortable: true},
-  {name: 'curve', align: 'left', label: 'Curve', field: 'curve', sortable: false},
 ])
 
+const curveFeatureCols = (feature) => {
+  const result = ref([
+    {name: 'ic50', align: 'left', label: 'IC50', field: 'curve_info.ic50', sortable: true, featureId: feature.id},
+    {name: 'slope', align: 'left', label: 'Slope', field: 'curve_info.slope', sortable: true, featureId: feature.id},
+    {name: 'emin', align: 'left', label: 'eMin', field: 'curve_info.emin', sortable: true, featureId: feature.id},
+    {name: 'emin_conc', align: 'left', label: 'eMin Conc', field: 'curve_info.emin_conc', sortable: true, featureId: feature.id},
+    {name: 'emax', align: 'left', label: 'eMax', field: 'curve_info.emax', sortable: true, featureId: feature.id},
+    {name: 'emax_conc', align: 'left', label: 'eMax Conc', field: 'curve_info.emax_conc', sortable: true, featureId: feature.id},
+    {name: 'curve', align: 'center', label: 'Curve', field: 'curve_info.curve', sortable: false, featureId: feature.id},
+  ])
+  return result;
+}
+
+for (let feature in features.value) {
+  curveTableColumns.value = curveTableColumns.value.concat(curveFeatureCols(features.value[feature]).value)
+}
 </script>
 
 <style scoped>

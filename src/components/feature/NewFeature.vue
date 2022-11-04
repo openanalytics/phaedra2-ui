@@ -129,13 +129,13 @@ const newFeature = ref({
   sequence: 0,
   protocolId: props.protocol.id ? props.protocol.id : null,
   formulaId: null,
-  drcModel: null,
-  // drcModel: {
-  //   name: null,
-  //   description: null,
-  //   method: null,
-  //   slope: null
-  // },
+  // drcModel: null,
+  drcModel: {
+    name: null,
+    description: null,
+    method: null,
+    slope: null
+  },
   civs: null,
   formula: null,
   trigger: null
@@ -150,6 +150,13 @@ const dcrModelMethodOptions = ref(null)
 const drcModelSlopeTypesOptions = ref(null)
 
 const onDRCModelSelection = (selectedDCRModel) => {
+  newFeature.value.drcModel = {
+    name: null,
+    description: null,
+    method: null,
+    slope: null
+  }
+
   newFeature.value.drcModel.name = selectedDCRModel.name
   newFeature.value.drcModel.description = selectedDCRModel.description
 

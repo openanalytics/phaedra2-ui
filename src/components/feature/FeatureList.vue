@@ -62,7 +62,7 @@
     <new-feature v-if="showNewFeatureTab" v-model:show="showNewFeatureTab" :protocol="props.protocol" @addFeature="addNewFeature"/>
     <edit-feature v-if="showEditFeatureSection" v-model:show="showEditFeatureSection" />
   <div class="q-pt-md">
-    <view-feature v-if="showFeatureDetails" v-model:show="showFeatureDetails" />
+    <view-feature v-if="showFeatureDetails" v-model:show="showFeatureDetails" :feature="featureStore.feature"/>
   </div>
 
   <table-config v-model:show="configDialog" v-model:visibleColumns="visibleColumns" v-model:columns="columns"/>
