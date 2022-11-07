@@ -1,5 +1,5 @@
 <template>
-    <div class="curve-view" id="chart" ref="el"/>
+  <div class="curve-view" id="chart" ref="el"/>
 </template>
 
 <script setup>
@@ -20,12 +20,16 @@ const curvedataStore = useCurveDataStore()
 const selectedWells = computed( () => {
     return store.getters['ui/getSelectedWells']();
 })
-const selectedWellSubstances = computed(() => {
-  return selectedWells.value.map(well => well.wellSubstance.name)
+
+const selectedWellSubstances = computed( () => {
+  return store.getters['ui/getSelectedSubstances']();
 })
 
-const selectedSubstances = ref(selectedWellSubstances.value)
-const plateIds = [...new Set(selectedWells.value.map(well => well.plateId))]
+const selectedPlates =computed( () => {
+  return store.getters['ui/getSelectedPlates']();
+})
+
+const plateIds = [...new Set(selectedPlates.value)]
 
 const el = ref()
 
@@ -34,8 +38,11 @@ onMounted(() => {
 })
 
 const layout = {
-  title: 'Create a Static Chart',
-  showlegend: false
+  showlegend: false,
+  autosize: true,
+  width: 500,
+  height: 500,
+  margin: { l: 20, r: 20, b: 20, t: 20, pad: 4 }
 };
 
 const config = {
@@ -66,7 +73,7 @@ const updateDRCPlotView = () => {
         y: c.featureValues,
         mode: 'markers',
         marker: {
-          size: 15,
+          size: c.weights?.map(w => w * 10),
           color: c.color,
           line: {
             color: colors,
@@ -93,6 +100,7 @@ const clear = () => {
 }
 
 watch(selectedWells, updateDRCPlotView);
+watch(selectedWellSubstances, updateDRCPlotView);
 
 </script>
 

@@ -1,3 +1,4 @@
+import {computed} from "vue";
 
 const state = () => ({
     // Side Panel
@@ -8,7 +9,8 @@ const state = () => ({
         { id: 'doseResponseCurve', label: 'Dose Response Curve', icon: 'show_chart', componentPath: 'curve/DoseResponseCurve.vue' }
     ],
     // Selection Handling
-    selectedWells: []
+    selectedWells: [],
+    selectedSubstances: new Map([]),
 })
 
 const getters = {
@@ -26,6 +28,12 @@ const getters = {
     },
     getSelectedWells: (state) => () => {
         return [...state.selectedWells];
+    },
+    getSelectedSubstances: (state) => () => {
+        return [...state.selectedSubstances.keys()];
+    },
+    getSelectedPlates: (state) => () => {
+        return [...new Set(state.selectedSubstances.values())]
     }
 }
 
@@ -47,7 +55,11 @@ const actions = {
         ctx.commit('removeOpenSideView', viewID);
     },
     selectWells: (ctx, wells) => {
-        ctx.commit('setSelectedWells', wells);
+        ctx.commit('setSelectedWells', wells)
+
+        const selectedSubstances = wells?.map(well => { return { "name": well.wellSubstance.name, "plates": well.plateId }})
+        ctx.commit('clearSelectedSubstance')
+        ctx.commit('addSelectedSubstances', selectedSubstances)
     }
 }
 
@@ -64,6 +76,19 @@ const mutations = {
     },
     setSelectedWells: (state, wells) => {
         state.selectedWells = [...wells];
+    },
+    addSelectedSubstances: (state, substances) => {
+        substances.forEach(substance => {
+            state.selectedSubstances.set(substance.name, substance.plates)
+        })
+    },
+    removeSelectedSubstances: (state, substances) => {
+        substances.forEach(substance => {
+            state.selectedSubstances.delete(substance.name, substance.plates)
+        })
+    },
+    clearSelectedSubstance: (state) => {
+        state.selectedSubstances = new Map([])
     }
 }
 

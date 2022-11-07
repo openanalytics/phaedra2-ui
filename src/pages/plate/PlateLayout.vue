@@ -19,6 +19,14 @@ const store = useStore();
 
 const wells = computed(() => store.getters['wells/getWells'](props.plate.id) || []);
 
+const activeMeasurement = computed( () => store.getters['measurements/getActivePlateMeasurement'](props.plate.id))
+if (activeMeasurement.value) {
+  const plateResults = computed(() => store.getters['resultdata/getPlateResults'](props.plate.id, activeMeasurement.value.measurementId));
+  const protocolIds = [...new Set(plateResults.value.map(rs => rs.protocolId))];
+  const protocols = computed(() => store.getters['protocols/getByIds'](protocolIds))
+}
+
+
 const wellColorFunction = (well) => {
   return WellUtils.getWellTypeColor(well.wellType)
 }

@@ -1,12 +1,15 @@
 <template>
   <q-table v-if="curves.length > 0"
+           class="my-sticky-column-table"
            table-header-class="text-grey"
            flat square dense bordered
            separator="cell"
-           selection="multiple"
            :rows="curveData"
            :columns="curveTableColumns"
-           row-key="name">
+           row-key="substance"
+           selection="multiple"
+           v-model:selected="selected"
+           @selection="handleSelection">
     <template v-slot:header="props">
       <q-tr>
         <q-th colspan="1"/>
@@ -41,7 +44,7 @@
       </q-td>
     </template>
     <template v-slot:body-cell-curve="props">
-      <q-td :props="props">
+      <q-td :props="props" @click="props.selected = !props.selected">
         <MiniDoseResponseCurve :curvedata="props.row.curve_info[props.col.featureId].curve"></MiniDoseResponseCurve>
       </q-td>
     </template>
@@ -51,7 +54,6 @@
 <script setup>
 import {useCurveDataStore} from "@/stores/curvedata";
 import {computed, ref} from "vue";
-import FormatUtils from "@/lib/FormatUtils";
 import {useStore} from "vuex";
 import MiniDoseResponseCurve from "@/components/curve/MiniDoseResponseCurve"
 
@@ -68,9 +70,6 @@ const featureIds = [...new Set(curves.value?.map(c => c.featureId))]
 store.dispatch('features/loadByIds', featureIds)
 
 const features = computed(() => store.getters['features/getByIds'](featureIds))
-const selected = ref([])
-
-const substances = [...new Set(curves.value?.map(c => c.substanceName))]
 
 const curveData = ref([])
 
@@ -88,6 +87,7 @@ curves.value.map(curve => {
     }
   } else {
     result = {
+      'plateId': curve.plateId,
       'plateBarcode': (store.getters['plates/getById'](curve.plateId) || {}).barcode,
       'substance': curve.substanceName,
       'samples': curve.wells.length,
@@ -121,9 +121,6 @@ curves.value.map(curve => {
   }
 })
 
-// const columnSelection = 'name'
-// const computedCurveBodyCellName = computed(() => {return 'body-cell-' + columnSelection})
-
 const curveTableColumns = ref([
   // {name: 'substanceType', align: 'left', label: 'Substance Type', field: 'substanceType', sortable: true},
   {name: 'substance', align: 'left', label: 'Substance', field: 'substance', sortable: true},
@@ -147,8 +144,21 @@ const curveFeatureCols = (feature) => {
 for (let feature in features.value) {
   curveTableColumns.value = curveTableColumns.value.concat(curveFeatureCols(features.value[feature]).value)
 }
+
+const selectedWellSubstances = computed( () => { return store.getters['ui/getSelectedSubstances']() })
+const selected = ref([...curveData.value.filter(cd => selectedWellSubstances.value.includes(cd.substance))])
+const handleSelection = ({ rows, added, evt }) => {
+  if (rows.length === 0) {
+    return
+  }
+
+  if (added) {
+    store.commit('ui/addSelectedSubstances', rows.map(row => {return {"name": row.substance, "plates": row.plateId}}))
+  } else {
+    store.commit('ui/removeSelectedSubstances', rows.map(row => {return {"name": row.substance, "plates": row.plateId}}))
+  }
+}
 </script>
 
 <style scoped>
-
 </style>
