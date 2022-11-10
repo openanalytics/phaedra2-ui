@@ -11,42 +11,46 @@
     <div class="q-pa-md" v-if="!editdialog">
       <oa-section-header v-if="!plate" :title="'Loading plate...'" :icon="'view_module'"/>
       <div v-else>
-        <oa-section-header :title="plate.barcode" :icon="'view_module'"/>
-        <div class="row q-pa-md oa-section-body">
-          <div class="col-4 q-gutter-xs">
-            <div class="row">
-              <div class="col-3 text-weight-bold">ID:</div>
-              <div class="col">{{ plate.id }}</div>
+        <q-expansion-item :label="plate.barcode" icon="view_module"
+                          header-class="text-h6 oa-section-title"
+                          expand-icon-class="text-white"
+                          default-opened dense>
+          <div class="row q-pa-md oa-section-body">
+            <div class="col-4 q-gutter-xs">
+              <div class="row">
+                <div class="col-3 text-weight-bold">ID:</div>
+                <div class="col">{{ plate.id }}</div>
+              </div>
+              <div class="row">
+                <div class="col-3 text-weight-bold">Dimensions:</div>
+                <div class="col">{{ plate.rows }} x {{ plate.columns }} ({{ plate.rows * plate.columns }} wells)</div>
+              </div>
+              <div class="row">
+                <div class="col-3 text-weight-bold">Description:</div>
+                <div class="col">{{ plate.description }}</div>
+              </div>
+              <div class="row">
+                <div class="col-3 text-weight-bold">Tags:</div>
+                <div class="col">
+                  <TagList :objectInfo="plate" :objectClass="'PLATE'" />
+                </div>
+              </div>
             </div>
-            <div class="row">
-              <div class="col-3 text-weight-bold">Dimensions:</div>
-              <div class="col">{{ plate.rows }} x {{ plate.columns }} ({{ plate.rows * plate.columns }} wells)</div>
+
+            <div class="col col-4">
+              <PropertyTable :objectInfo="plate" :objectClass="'PLATE'"/>
             </div>
-            <div class="row">
-              <div class="col-3 text-weight-bold">Description:</div>
-              <div class="col">{{ plate.description }}</div>
-            </div>
-            <div class="row">
-              <div class="col-3 text-weight-bold">Tags:</div>
-              <div class="col">
-                <TagList :objectInfo="plate" :objectClass="'PLATE'" />
+
+            <div class="col col-4">
+              <div class="row justify-end action-button">
+                <q-btn size="sm" color="primary" icon="edit" class="oa-button-edit" label="Edit" @click="editdialog = true"/>
+              </div>
+              <div class="row justify-end action-button">
+                <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete" @click="openDeleteDialog"/>
               </div>
             </div>
           </div>
-
-          <div class="col col-4">
-            <PropertyTable :objectInfo="plate" :objectClass="'PLATE'"/>
-          </div>
-
-          <div class="col col-4">
-            <div class="row justify-end action-button">
-              <q-btn size="sm" color="primary" icon="edit" class="oa-button-edit" label="Edit" @click="editdialog = true"/>
-            </div>
-            <div class="row justify-end action-button">
-              <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete" @click="openDeleteDialog"/>
-            </div>
-          </div>
-        </div>
+        </q-expansion-item>
       </div>
     </div>
 
@@ -110,6 +114,7 @@
   margin: 10px;
   padding-bottom: 10px;
 }
+
 </style>
 
 <script setup>

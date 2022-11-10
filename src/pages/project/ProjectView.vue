@@ -10,8 +10,12 @@
 
       <oa-section-header v-if="!project" :title="'Loading project...'" :icon="'folder'"/>
       <div v-else>
-        <oa-section-header :title="project.name" :icon="'folder'"/>
-        <div class="row q-pa-md oa-section-body">
+<!--        <oa-section-header :title="project.name" :icon="'folder'"/>-->
+        <q-expansion-item :label="project.name" icon="folder"
+                          header-class="text-h6 oa-section-title"
+                          expand-icon-class="text-white"
+                          default-opened dense>
+          <div class="row q-pa-md oa-section-body">
             <div class="col-5 q-gutter-xs">
               <div class="row">
                 <div class="col-3 text-weight-bold">ID:</div>
@@ -56,10 +60,11 @@
               </div>
             </div>
           </div>
+        </q-expansion-item>
         </div>
       </div>
 
-    <div class="q-pa-md">
+    <div class="q-pl-md q-pr-md">
       <ExperimentList :projectId="projectId"></ExperimentList>
     </div>
 

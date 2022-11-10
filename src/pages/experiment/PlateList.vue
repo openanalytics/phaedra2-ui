@@ -13,9 +13,7 @@
       @row-contextmenu="selectPlate"
   >
     <template v-slot:top-left>
-      <div class="action-button">
-        <q-btn size="sm" color="primary" icon="add" label="New Plate" @click="openNewPlateTab()"/>
-      </div>
+        <q-btn size="sm" icon="add" label="New Plate" @click="openNewPlateTab()" class="oa-button"/>
     </template>
     <template v-slot:top-right>
       <div class="row">

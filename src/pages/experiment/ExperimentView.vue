@@ -13,10 +13,11 @@
       <oa-section-header v-if="!experiment" :title="'Loading experiment...'" :icon="'science'"/>
 
       <div v-else>
-        <oa-section-header :title="experiment.name" :icon="'science'"/>
-
-        <div class="row q-pa-md oa-section-body">
-
+        <q-expansion-item :label="experiment.name" icon="science"
+                          header-class="text-h6 oa-section-title"
+                          expand-icon-class="text-white"
+                          default-opened dense>
+          <div class="row q-pa-md oa-section-body">
           <div class="col-4 q-gutter-xs">
             <div class="row">
               <div class="col-3 text-weight-bold">ID:</div>
@@ -48,14 +49,15 @@
 
           <div class="col-4">
             <div class="row justify-end action-button">
-              <q-btn size="sm" color="primary" icon="edit" class="oa-button-edit" label="Edit" @click="editdialog = true"/>
+              <q-btn size="sm" icon="edit" class="oa-button-edit" label="Edit" @click="editdialog = true"/>
             </div>
             <div class="row justify-end action-button">
-              <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete" @click="openDeleteDialog" />
+              <q-btn size="sm" icon="delete" class="oa-button-delete" label="Delete" @click="openDeleteDialog"/>
             </div>
           </div>
 
         </div>
+        </q-expansion-item>
       </div>
     </div>
 
