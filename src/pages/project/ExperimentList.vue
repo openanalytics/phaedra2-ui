@@ -1,7 +1,8 @@
 <template>
-  <div class="row text-h6 items-center q-px-md oa-section-title">
-    <q-icon name="science" class="on-left"/>Experiments
-  </div>
+<!--  <div class="row text-h6 items-center q-px-md oa-section-title" style="min-width: 56px">-->
+<!--    <q-icon name="science" class="on-left"/>Experiments-->
+<!--  </div>-->
+  <oa-section-header :title="'Experiments'" :icon="'science'"/>
   <q-table
       table-header-class="text-grey"
       flat square dense
@@ -128,6 +129,7 @@ import ProgressBarField from "@/components/widgets/ProgressBarField";
 import TagList from "@/components/tag/TagList";
 import UserChip from "@/components/widgets/UserChip";
 import ExperimentMenu from "@/components/experiment/ExperimentMenu";
+import OaSectionHeader from "@/components/widgets/OaSectionHeader";
 
 import FormatUtils from "@/lib/FormatUtils.js"
 import FilterUtils from "@/lib/FilterUtils.js"
