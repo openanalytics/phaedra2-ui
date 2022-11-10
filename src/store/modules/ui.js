@@ -28,6 +28,9 @@ const getters = {
     getSelectedWells: (state) => () => {
         return [...state.selectedWells];
     },
+    getSelectedWellIds: (state) => () => {
+        return state.selectedWells.map(el => el.id);
+    },
     getChartType: (state) => () => {
         return state.chartType;
     }

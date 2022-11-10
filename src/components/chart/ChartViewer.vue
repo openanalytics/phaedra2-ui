@@ -2,7 +2,8 @@
   <div class="viewer-panel relative-position">
     <q-select id="x" v-model="x" :options="getKeys(wells[0])" label="X-axis"/>
     <q-select v-model="y" :options="getKeys(wells[0])" label="Y-axis"/>
-    <ScatterPlot v-if="chartTemplate.type==='scatter'" :data="data"/>
+    <q-select v-model="grouper" :options="getKeys(wells[0])" label="Grouper"/>
+    <ScatterPlot mounted v-if="chartTemplate.type==='scatter'" :data="data"/>
     <BoxPlot v-else-if="chartTemplate.type==='boxplot'" :data="data"/>
     <BarPlot v-else-if="chartTemplate.type==='barplot'" :data="data"/>
     <LinePlot v-else-if="chartTemplate.type==='lineplot'" :data="data"/>
@@ -28,7 +29,8 @@ const chartTemplate = computed(() => store.getters['charting/getChartTemplate'](
 
 const plateId = 101;
 const wells = computed(() => {
-  let wells = store.getters['charting/getChartEntity'](plateId)
+  const wellIds = store.getters['ui/getSelectedWellIds']();
+  let wells = store.getters['charting/getChartEntity'](wellIds);
   return wells
 });
 
@@ -38,20 +40,22 @@ const getKeys = (obj) => {
   return Object.keys(obj);
 };
 //first property of selectedWells
-const x = ref(getKeys(wells.value[0])[0]);
+const x = ref(chartTemplate.value.axisXExpression);
 //second property of selectedWells
-const y = ref(getKeys(wells.value[0])[1]);
+const y = ref(chartTemplate.value.axisYExpression);
+//grouping property of selectedWells
+const grouper = ref(chartTemplate.value.grouperExpression);
 
 //Make a reactive object to hold the data for the plot
 let data = reactive({
-  x: wells.value.map(well => well[x.value]),
-  y: wells.value.map(well => well[y.value]),
+  wells: wells.value.map(well => {return {x: well[x.value], y: well[y.value], grouper: well[chartTemplate.value.grouperExpression]}}),
+  template: chartTemplate.value
 });
 
 //Update properties when x or y changes
 watchEffect(() => {
-  data.x = wells.value.map(well => well[x.value]);
-  data.y = wells.value.map(well => well[y.value]);
+  data.wells = wells.value.map(well => {return {x: well[x.value], y: well[y.value], grouper: well[grouper.value]}}),
+  data.template = chartTemplate.value
 });
 
 </script>
