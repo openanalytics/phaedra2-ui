@@ -23,6 +23,9 @@
         </q-th>
       </q-tr>
     </template>
+    <template v-slot:body-selection="props">
+      <q-toggle :model-value="props.selected" @click="props.selected = !props.selected"/>
+    </template>
     <template v-slot:body-cell-substance="props">
       <q-td :props="props">
         {{props.row.substance}}
@@ -44,7 +47,7 @@
       </q-td>
     </template>
     <template v-slot:body-cell-curve="props">
-      <q-td :props="props" @click="props.selected = !props.selected">
+      <q-td :props="props" @click="props.selected = !props.selected" @contextmenu="props.selected = !props.selected">
         <MiniDoseResponseCurve :curvedata="props.row.curve_info[props.col.featureId].curve"></MiniDoseResponseCurve>
       </q-td>
     </template>
@@ -148,15 +151,12 @@ for (let feature in features.value) {
 const selectedWellSubstances = computed( () => { return store.getters['ui/getSelectedSubstances']() })
 const selected = ref([...curveData.value.filter(cd => selectedWellSubstances.value.includes(cd.substance))])
 const handleSelection = ({ rows, added, evt }) => {
-  if (rows.length === 0) {
-    return
-  }
+  if (rows.length === 0)  return
 
-  if (added) {
+  if (added)
     store.commit('ui/addSelectedSubstances', rows.map(row => {return {"name": row.substance, "plates": row.plateId}}))
-  } else {
+  else
     store.commit('ui/removeSelectedSubstances', rows.map(row => {return {"name": row.substance, "plates": row.plateId}}))
-  }
 }
 </script>
 
