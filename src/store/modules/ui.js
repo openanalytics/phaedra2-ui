@@ -57,7 +57,8 @@ const actions = {
     selectWells: (ctx, wells) => {
         ctx.commit('setSelectedWells', wells)
 
-        const selectedSubstances = wells?.map(well => { return { "name": well.wellSubstance.name, "plates": well.plateId }})
+        const selectedSubstances = wells?.filter(well => well.wellSubstance !== undefined)
+            .map(well => { return { "name": well.wellSubstance.name, "plates": well.plateId }})
         ctx.commit('clearSelectedSubstance')
         ctx.commit('addSelectedSubstances', selectedSubstances)
     }

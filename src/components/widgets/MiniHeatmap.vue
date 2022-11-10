@@ -7,7 +7,7 @@
       </div>
     </div>
     <div class="q-pa-xs oa-section-body">
-      <canvas ref="canvas"></canvas>
+      <canvas ref="canvas"/>
     </div>
   </div>
 </template>
@@ -46,7 +46,7 @@ export default {
 
       const rsDataValues = props.plateResult.find(rs => rs.featureId == props.feature.id)?.values || [];
       lut.value = ColorUtils.createLUT(rsDataValues, ColorUtils.defaultHeatmapGradients);
-      
+
       setTimeout(draw());
     });
 
@@ -88,7 +88,7 @@ export default {
           let wellNr = WellUtils.getWellNr(r + 1, c + 1, props.plate.columns);
           let well = wells.value[wellNr - 1];
           if (!well) continue;
-          
+
           let x = c * (wellSize[0] + 2)
           let y = r * (wellSize[1] + 2)
 

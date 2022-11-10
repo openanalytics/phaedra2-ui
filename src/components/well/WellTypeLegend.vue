@@ -1,5 +1,5 @@
 <template>
-  <div class="q-pa-sm oa-section-body row justify-center">
+  <div class="q-pa-sm row justify-center">
       <WellTypeLegendItem v-for="wellType in wellTypes" :key="wellType" :wellType="wellType"/>
   </div>
 </template>

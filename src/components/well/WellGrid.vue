@@ -1,5 +1,5 @@
 <template>
-  <div class="row oa-section relative-position" ref="rootElement">
+  <div class="row relative-position" ref="rootElement">
     <div class="loadingAnimation" v-if="loading">
       <q-spinner-pie color="info" size="10em"/>
     </div>
@@ -80,7 +80,8 @@ export default {
     plate: Object,
     loading: Boolean,
     wellColorFunction: Function,
-    wellLabelFunctions: Array
+    wellLabelFunctions: Array,
+    plateResults: Array
   },
   components: {
     WellSlot
