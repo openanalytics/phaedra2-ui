@@ -53,12 +53,19 @@
                 <q-item-section>Calculate plate</q-item-section>
             </q-item>
 
+            <q-item dense clickable @click="fitCurves()">
+              <q-item-section avatar>
+                <q-icon name="show_chart"/>
+              </q-item-section>
+              <q-item-section>Fit Dose-Response Curves</q-item-section>
+            </q-item>
+
             <q-item clickable @click="linkPlate()">
                 <q-item-section avatar><q-icon name="playlist_add"/></q-item-section>
                 <q-item-section>Link Plate Template</q-item-section>
             </q-item>
 
-            <q-item clickable @click="showPlateInspector()">
+            <q-item clickable @click="openPlateInspector()">
                 <q-item-section avatar><q-icon color="primary" name="info"/></q-item-section>
                 <q-item-section>Plate Inspector</q-item-section>
             </q-item>
@@ -71,19 +78,20 @@
             </q-item>
         </q-list>
 
-        <invalidate-dialog v-model:show="showInvalidateDialog" :plateId="props.plate.id" />
-        <approve-dialog v-model:show="showApproveDialog" :plateId="props.plate.id" />
-        <disapprove-dialog v-model:show="showDisapproveDialog" :plateId="props.plate.id" />
-        <calculate-plate-dialog v-model:show="showCalculateDialog" :plateId="props.plate.id" />
-        <link-plate-dialog v-model:show="showLinkDialog" :plateId="props.plate.id" />
-        <delete-dialog ref="refDeleteDialog" :id="props.plate.id" :name="props.plate.barcode" objectClass="plate" />
+      <invalidate-dialog v-model:show="showInvalidateDialog" :plateId="props.plate.id"/>
+      <approve-dialog v-model:show="showApproveDialog" :plateId="props.plate.id"/>
+      <disapprove-dialog v-model:show="showDisapproveDialog" :plateId="props.plate.id"/>
+      <calculate-plate-dialog v-model:show="showCalculateDialog" :plateId="props.plate.id"/>
+      <link-plate-dialog v-model:show="showLinkDialog" :plateId="props.plate.id"/>
+      <delete-dialog v-model:show="showDeleteDialog" :id="props.plate.id" :name="props.plate.barcode" :objectClass="'plate'"/>
     </q-menu>
 
 </template>
 
 <script setup>
-    import {ref} from "vue";
-    import {useStore} from 'vuex'
+import {ref} from "vue";
+import {useStore} from 'vuex'
+import {usePlateStore} from "@/stores/plate";
 
     import InvalidateDialog from "@/components/plate/InvalidateDialog";
     import DisapproveDialog from "@/components/plate/DisapproveDialog";
@@ -92,47 +100,59 @@
     import LinkPlateDialog from "@/components/plate/LinkPlateDialog";
     import DeleteDialog from "@/components/widgets/DeleteDialog";
 
-    const store = useStore();
+const store = useStore();
+const plateStore = usePlateStore();
 
-    const showInvalidateDialog = ref(false);
-    const showApproveDialog = ref(false);
-    const showDisapproveDialog = ref(false);
-    const showCalculateDialog = ref(false);
-    const showLinkDialog = ref(false);
-    const refDeleteDialog = ref(null);
+const showInvalidateDialog = ref(false);
+const showApproveDialog = ref(false);
+const showDisapproveDialog = ref(false);
+const showCalculateDialog = ref(false);
+const showLinkDialog = ref(false);
+const showDeleteDialog = ref(null);
 
-    const props = defineProps(['plate']);
+const props = defineProps(['plate']);
 
-    const validate = () => {
-        store.dispatch('plates/editPlate', {id: props.plate.id, validationStatus: 'VALIDATED'})
-    }
-    const invalidate = () => {
-        showInvalidateDialog.value = true;
-    }
-    const resetValidation = () => {
-        store.dispatch('plates/editPlate', {
-            id: props.plate.id,
-            validationStatus: 'VALIDATION_NOT_SET',
-            invalidatedReason: ""
-        });
-    }
+const validate = () => {
+  store.dispatch('plates/editPlate', {id: props.plate.id, validationStatus: 'VALIDATED'})
+}
 
-    const approve = () => {
-        showApproveDialog.value = true;
-    }
-    const disapprove = () => {
-        showDisapproveDialog.value = true;
-    }
-    const calculatePlate = () => {
-        showCalculateDialog.value = true;
-    }
-    const linkPlate = () => {
-        showLinkDialog.value = true;
-    }
-    const showPlateInspector = () => {
-        store.dispatch('ui/openSideView', 'plateInspector');
-    }
-    const deletePlate = () => {
-        refDeleteDialog.value.showDialog = true;
-    }
+const invalidate = () => {
+  showInvalidateDialog.value = true;
+}
+
+const resetValidation = () => {
+  store.dispatch('plates/editPlate', {
+    id: props.plate.id,
+    validationStatus: 'VALIDATION_NOT_SET',
+    invalidatedReason: ""
+  })
+}
+
+const approve = () => {
+  showApproveDialog.value = true;
+}
+
+const disapprove = () => {
+  showDisapproveDialog.value = true;
+}
+
+const calculatePlate = () => {
+  showCalculateDialog.value = true;
+}
+
+const fitCurves = () => {
+
+}
+
+const linkPlate = () => {
+  showLinkDialog.value = true;
+}
+
+const deletePlate = () => {
+  showDeleteDialog.value = true;
+}
+
+const openPlateInspector = () => {
+  store.dispatch('ui/openSideView', 'plateInspector');
+}
 </script>

@@ -24,56 +24,48 @@
   }
 </style>
 
-<script>
-  import {computed, ref} from "vue";
-  import {useStore} from 'vuex'
+<script setup>
+import {computed, ref} from "vue";
+import {useTemplateStore } from "@/stores/template";
+import {useUIStore} from "@/stores/ui";
+import {useStore} from 'vuex'
 
-  export default {
-    props: {
-      wells: Array,
-      plateId: Number,
-      tab: String
-    },
-    setup(props) {
-      const store = useStore()
+const props = defineProps(['wells', 'plateId', 'tab'])
+const store = useStore()
+const templateStore = useTemplateStore()
+const uiStore = useUIStore()
 
-      const wellTypes = ["EMPTY", "SAMPLE", "LC", "HC", "NC", "PC"]
-      const selectedType = ref(null)
-      const skipped = ref(true)
+const wellTypes = ["EMPTY", "SAMPLE", "LC", "HC", "NC", "PC"]
+const selectedType = ref(null)
+const skipped = ref(false)
+const name = ref(null)
+const substanceType = ref(null)
+const concentration = ref(null)
 
-      const updateWells = function(field, newValue) {
-        const selectedWells = JSON.parse(JSON.stringify(props.wells));
-        store.dispatch('templates/updateWellTemplates', {wells: selectedWells, field: field, entry: newValue});
-      }
+if (uiStore.selectedWells && uiStore.selectedWells.length > 0)
+  skipped.value = uiStore.selectedWells[0].skipped
+else
+  skipped.value = false
 
-      function onlyUnique(value, index, self) {
-        return self.indexOf(value) === index;
-      }
-      const getWellType = function () {
-        const countTypes = props.wells.map(w => w.wellType).filter(onlyUnique)
-        return (countTypes?.length === 1) ? props.wells[0].wellType : ""
-      }
+const updateWells = (field, newValue) => {
+  console.log(field + ": " + newValue)
+  const selectedWells = JSON.parse(JSON.stringify(props.wells));
+  templateStore.updateTemplateWells(selectedWells, field, newValue)
+  // store.dispatch('templates/updateWellTemplates', {wells: selectedWells, field: field, entry: newValue})
+}
 
-      const previousType = computed(() => {
-        if (props.wells.length < 1) return "Well Type"
-        return getWellType(props.wells)
-      })
+const onlyUnique = (value, index, self) => {
+  return self.indexOf(value) === index;
+}
 
-      const templateId = computed(() => {
-        return props.plateId
-      })
+const getWellType = () => {
+  const countTypes = props.wells.map(w => w.wellType).filter(onlyUnique)
+  return (countTypes?.length === 1) ? props.wells[0].wellType : ""
+}
 
-      return {
-        updateWells,
-        wellTypes,
-        selectedType,
-        previousType,
-        skipped,
-        templateId,
-        name: ref(null),
-        substanceType: ref(null),
-        concentration: ref(null)
-      }
-    }
-  }
+const previousType = computed(() => {
+  if (props.wells.length < 1) return "Well Type"
+  return getWellType(props.wells)
+})
+
 </script>

@@ -10,7 +10,7 @@
       <div class="row q-pa-md oa-section-body">
         <q-table
             table-header-class="text-grey"
-            flat
+            flat dense
             :rows="protocols"
             :columns="columns"
             row-key="id"

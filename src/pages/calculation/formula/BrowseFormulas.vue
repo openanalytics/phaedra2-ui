@@ -11,7 +11,7 @@
         <q-table
             table-header-class="text-grey"
             class="full-width"
-            flat
+            flat dense
             :rows="formulas"
             :columns="columns"
             row-key="id"

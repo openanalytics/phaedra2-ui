@@ -1,58 +1,53 @@
 <template>
-  <div class="row">
-    <div class="col-auto" style="min-width: 75%">
+    <div class="col" style="min-width: 75%">
+      <FeatureSelector class="q-pb-md" :protocols=protocols :plateResults=plateResults @featureSelection="handleFeatureSelection"/>
       <WellGrid :plate="plate"
                 :loading="dataLoading"
                 :wellColorFunction="wellColorFunction"
-                :wellLabelFunctions="wellLabelFunctions"/>
+                :wellLabelFunctions="wellLabelFunctions"
+                :plateResults="plateResults"/>
+      <ColorLegend class="q-pt-sm" :rangeValues="rangeValues" :plate="plate"/>
     </div>
-    <div class="col q-pa-sm">
-      <FeatureSelector :protocols=protocols :plateResults=plateResults @featureSelection="handleFeatureSelection"/>
-    </div>
-  </div>
 </template>
 
-<script>
-import {ref, computed, watchEffect} from 'vue'
+<style>
+</style>
+
+<script setup>
+import {ref, computed, watchEffect, defineProps} from 'vue'
 import {useStore} from 'vuex'
 import WellGrid from "@/components/well/WellGrid.vue"
 import FeatureSelector from "@/components/widgets/FeatureSelector.vue"
+import ColorLegend from "@/components/widgets/ColorLegend.vue"
 import ColorUtils from "@/lib/ColorUtils.js"
 import WellUtils from "@/lib/WellUtils.js"
 
-export default {
-  components: {
-    WellGrid,
-    FeatureSelector
-  },
-  props: {
-    plate: Object
-  },
-  setup(props) {
-    const exported = {};
+  const props = defineProps(['plate'])
+    const exported = ref({});
     const store = useStore()
 
-    exported.plateResults = ref([]);
-    exported.protocols = ref([]);
-    exported.selectedFeature = ref(null);
-    exported.dataLoading = ref(true);
+    const plateResults = ref([]);
+    const protocols = ref([]);
+    const selectedFeature = ref(null);
+    const dataLoading = ref(true);
+    const rangeValues = ref(null)
 
     // Load resultdata to display
     const activeMeasurement = store.getters['measurements/getActivePlateMeasurement'](props.plate.id);
     if (activeMeasurement) {
-      exported.plateResults.value = store.getters['resultdata/getPlateResults'](props.plate.id, activeMeasurement.measurementId);
-      let protocolIds = [...new Set(exported.plateResults.value.map(rs => rs.protocolId))];
+      plateResults.value = store.getters['resultdata/getPlateResults'](props.plate.id, activeMeasurement.measurementId);
+      let protocolIds = [...new Set(plateResults.value.map(rs => rs.protocolId))];
       store.dispatch('protocols/loadByIds', protocolIds).then(() => {
-        exported.protocols.value = store.getters['protocols/getByIds'](protocolIds);
-        exported.dataLoading.value = false;
+        protocols.value = store.getters['protocols/getByIds'](protocolIds);
+        dataLoading.value = false;
       })
     } else {
-      exported.dataLoading.value = false;
+      dataLoading.value = false;
     }
 
     const selectedFeatureData = computed(() => {
-      if (!exported.selectedFeature.value) return undefined;
-      let rsData = exported.plateResults.value.filter(rs => (rs.featureId == exported.selectedFeature.value.id));
+      if (!selectedFeature.value) return undefined;
+      let rsData = plateResults.value.filter(rs => (rs.featureId == selectedFeature.value.id));
       return rsData.sort((t1, t2) => t2.id - t1.id)[0];
     })
 
@@ -63,24 +58,34 @@ export default {
       }
     });
 
-    exported.wellColorFunction = function (well) {
+    const wellColorFunction = function (well) {
       if (!selectedFeatureData.value) return WellUtils.getWellTypeColor("EMPTY");
       const wellNr = WellUtils.getWellNr(well.row, well.column, props.plate.columns);
       return lut.value.getColor(selectedFeatureData.value.values[wellNr - 1]);
     }
 
-    exported.wellLabelFunctions = [
+    const wellLabelFunctions = [
       function (well) {
         let wellNr = WellUtils.getWellNr(well.row, well.column, props.plate.columns);
         return (selectedFeatureData.value) ? (Math.round(selectedFeatureData.value.values[wellNr - 1] * 100) / 100) : "";
       }
     ]
 
-    exported.handleFeatureSelection = function (feature) {
-      exported.selectedFeature.value = feature
+    const handleFeatureSelection = function (feature) {
+      selectedFeature.value = feature
+      rangeValues.value = calcRangeValues()
     }
 
-    return exported;
-  }
-}
+    const calcRangeValues = () => {
+      if (Array.isArray(plateResults.value)) {
+        const result = plateResults.value.filter(rs => (rs.featureId == selectedFeature.value.id));
+        if (result.length > 0) {
+          const min = Math.min(...result[0].values.filter(v => !isNaN(v)));
+          const mean = result[0].values.reduce((x, y) => x + y, 0) / result[0].values.length;
+          const max = Math.max(...result[0].values.filter(v => !isNaN(v)));
+          return {min: min, mean: mean, max: max}
+        }
+      }
+      return {min: 0, mean: 50, max: 100};
+    }
 </script>

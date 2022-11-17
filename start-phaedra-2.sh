@@ -3,5 +3,5 @@ ACCESS_TOKEN=$(curl --location --request POST 'https://keycloak.phaedra.poc.open
 ENV_FILE=.env.local
 sed -i '' -e "s/^VUE_APP_API_BEARER_TOKEN=.*/VUE_APP_API_BEARER_TOKEN=$ACCESS_TOKEN/g" "$ENV_FILE"
 
-kubectl port-forward -n phaedra2 "service/phaedra-gateway" 8081:8080 &
+kubectl.docker port-forward -n phaedra2 "service/phaedra-gateway" 8081:8080 &
 npm run serve &

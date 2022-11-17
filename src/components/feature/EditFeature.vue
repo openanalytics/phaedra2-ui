@@ -1,5 +1,5 @@
 <template>
-  <div class="q-pa-md">
+  <div>
     <oa-section-header :title="'Edit Feature'" :icon="'edit'"/>
     <div class="oa-section-body">
       <q-card-section>
@@ -76,14 +76,14 @@
             <q-tab-panel name="curve_fitting">
               <div class="col">
                 <q-select label="Model" stack-label square
-                          v-model="featureStore.feature.drcModel.name" :options="drcModelOptions" option-label="name" option-value="name"
+                          v-model="drcModel.name" :options="drcModelOptions" option-label="name" option-value="name"
                           @update:model-value="onDRCModelSelection"/>
                 <q-input label="Description" stack-label square readonly
-                         v-model="featureStore.feature.drcModel.description"/>
+                         v-model="drcModel.description"/>
                 <q-select label="Method" stack-label square
-                          v-model="featureStore.feature.drcModel.method" :options="dcrModelMethodOptions"/>
+                          v-model="drcModel.method" :options="dcrModelMethodOptions"/>
                 <q-select label="Slope type" stack-label square
-                          v-model="featureStore.feature.drcModel.slope" :options="drcModelSlopeTypesOptions"/>
+                          v-model="drcModel.slope" :options="drcModelSlopeTypesOptions"/>
               </div>
             </q-tab-panel>
 
@@ -127,13 +127,19 @@ const activeTab = ref('general');
 const featureTypes = ['CALCULATION', 'NORMALIZATION', 'RAW']
 const inputSource = ['MEASUREMENT', 'FEATURE']
 
+const drcModel = ref({
+  name: featureStore.feature.drcModel?.name,
+  description: featureStore.feature.drcModel?.description,
+  method: featureStore.feature.drcModel?.method,
+  slope: featureStore.feature.drcModel?.slope
+})
 const dcrModelMethodOptions = ref(null)
 const drcModelSlopeTypesOptions = ref(null)
 const formulaInputs = ref(featureStore.feature.civs)
 
 const onDRCModelSelection = (args) => {
-  featureStore.feature.drcModel.name = args.name
-  featureStore.feature.drcModel.description = args.description
+  drcModel.value.name = args.name
+  drcModel.value.description = args.description
   dcrModelMethodOptions.value = args.methods
   drcModelSlopeTypesOptions.value = args.slopeTypes
 }
@@ -208,6 +214,12 @@ const editFeature = () => {
     featureStore.feature.formulaId = featureStore.feature.formula.id
     featureStore.feature.civs = formulaInputs.value
   // }
+  if (drcModel.value.name !== null) {
+    featureStore.feature.drcModel = drcModel.value;
+    featureStore.feature.drcModel.featureId = featureStore.feature.id;
+  }
+
+
   emit('update:show', false)
 }
 

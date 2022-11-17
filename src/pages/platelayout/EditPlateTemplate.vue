@@ -4,15 +4,15 @@
     <div class="row col-12 q-pa-md oa-section-body">
       <q-card-section class="row" style="min-width: 95vw">
         <div class="col col-5">
-          <q-input v-model="name" square autofocus label="Name"></q-input><br>
+          <q-input v-model="templateStore.template.name" square autofocus label="Name"></q-input><br>
           <q-btn flat label="Cancel" color="primary" @click="$emit('update:show',false)"/>
         </div>
         <div class="col col-1">
 
         </div>
         <div class="col col-4">
-          <q-input v-model="description" square label="Description"></q-input><br>
-          <router-link :to="'/template/' + plateTemplate.id" class="nav-link">
+          <q-input v-model="templateStore.template.description" square label="Description"></q-input><br>
+          <router-link :to="'/template/' + templateStore.template.id" class="nav-link">
             <q-btn label="Edit template" v-close-popup color="primary" @click="editPlateTemplate" />
           </router-link>
         </div>
@@ -21,41 +21,17 @@
   </div>
 </template>
 
-<script>
-
-import {useStore} from "vuex";
-import {computed, ref} from "vue";
+<script setup>
 import OaSectionHeader from "../../components/widgets/OaSectionHeader";
+import {useTemplateStore} from "@/stores/template";
 
-export default {
-  name: 'EditPlateTemplate',
-  components: {OaSectionHeader},
-  setup(props) {
-    const store = useStore();
+const templateStore = useTemplateStore()
 
-    const plateTemplate = computed(() => store.getters['templates/getCurrentPlateTemplate']());
+const props = defineProps(["show"])
+const emit = defineEmits(["update:show"])
 
-    const name = ref(plateTemplate.value.name);
-    const description = ref(plateTemplate.value.description);
-    return {
-      props,
-      plateTemplate,
-      name,
-      description
-    }
-  },
-  data() {
-    return {
-      editdialog: this.props.show
-    }
-  },
-  methods: {
-    editPlateTemplate() {
-      this.$store.dispatch('templates/updatePlateTemplate', {id: this.plateTemplate.id, name: this.name, description: this.description});
-      this.$emit('update:show',false);
-    }
-  },
-  props: ['show'],
-  emits: ['update:show']
+const editPlateTemplate = () => {
+  templateStore.saveTemplate()
+  emit('update:show', false)
 }
 </script>

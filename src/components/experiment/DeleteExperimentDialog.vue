@@ -22,26 +22,25 @@
     </q-dialog>
 </template>
 
-<script>
-    import {ref, computed} from 'vue';
-    import {useStore} from 'vuex';
+<script setup>
+import {ref, computed} from 'vue';
+import {useStore} from 'vuex';
 
-    export default {
-        props: {
-            experimentId: Number
-        },
-        emits: ['onDeleted'],
-        setup(props, {emit}) {
-            const store = useStore();
-            return {
-                experiment: computed(() => store.getters['experiments/getById'](props.experimentId)),
-                showDialog: ref(false),
-                experimentName: ref(null),
-                confirmDelete: () => {
-                    store.dispatch('experiments/deleteExperiment', props.experimentId);
-                    emit('onDeleted');
-                }
-            };
-        }
-    }
+const store = useStore();
+
+const props = defineProps(['experimentId', 'show'])
+const emits = defineEmits(['onDeleted', 'update:show'])
+
+const showDialog = computed({
+  get: () => props.show,
+  set: (v) => emit('update:show', v)
+});
+const experiment = computed(() => store.getters['experiments/getById'](props.experimentId))
+
+const experimentName = ref(null)
+
+const confirmDelete = () => {
+  store.dispatch('experiments/deleteExperiment', props.experimentId);
+  emit('onDeleted');
+}
 </script>

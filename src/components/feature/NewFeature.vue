@@ -1,5 +1,5 @@
 <template>
-  <div class="q-pa-md">
+  <div>
     <oa-section-header :title="'New Feature'" :icon="'edit'"/>
     <div class="oa-section-body">
       <q-card-section>
@@ -129,6 +129,7 @@ const newFeature = ref({
   sequence: 0,
   protocolId: props.protocol.id ? props.protocol.id : null,
   formulaId: null,
+  // drcModel: null,
   drcModel: {
     name: null,
     description: null,
@@ -149,6 +150,13 @@ const dcrModelMethodOptions = ref(null)
 const drcModelSlopeTypesOptions = ref(null)
 
 const onDRCModelSelection = (selectedDCRModel) => {
+  newFeature.value.drcModel = {
+    name: null,
+    description: null,
+    method: null,
+    slope: null
+  }
+
   newFeature.value.drcModel.name = selectedDCRModel.name
   newFeature.value.drcModel.description = selectedDCRModel.description
 
@@ -202,7 +210,7 @@ const onFeatureTypeSelection = () => {
           inputSource: 'MEASUREMENT',
           sourceMeasColName: undefined,
           sourceFeatureId: undefined,
-          featureId: featureStore.feature.id,
+          featureId: newFeature.value.id,
           formulaId: copyRawDataFormulaId
         }
       })
@@ -229,7 +237,7 @@ const onFormulaSelection = () => {
           inputSource: 'MEASUREMENT',
           sourceMeasColName: undefined,
           sourceFeatureId: undefined,
-          featureId: featureStore.feature.id,
+          featureId: newFeature.value.id,
           formulaId: selectedFormula.value.id
         }
       })
@@ -241,10 +249,12 @@ let variables = reactive({list: []})
 watch(formulaInputs, (i) => {
   variables.list = i.map(i => {
     return {
-      variableName: i,
-      inputSource: 'MEASUREMENT',
-      sourceMeasColName: undefined,
-      sourceFeatureId: undefined
+      variableName: i.variableName,
+      inputSource: i.inputSource,
+      sourceMeasColName: i.sourceMeasColName,
+      sourceFeatureId: i.sourceFeatureId,
+      featureId: newFeature.value.id,
+      formulaId: selectedFormula.value.id
     }
   })
 })

@@ -1,37 +1,13 @@
 <template>
-  <div class="oa-section">
-    <div class="oa-section-title2">
-      <div class="row items-center q-pa-xs">
-        <q-icon name="biotech" size="24px" class="q-mr-sm"/>
-        Feature Selector
-      </div>
-    </div>
-    <div class="q-pa-xs oa-section-body">
-      <q-select
-          outlined square dense
-          v-model="selectedProtocol" :options="protocols"
-          option-label="name" option-value="id"
-          @update:model-value="onProtocolSelected"
-          class="selectBox" label="Protocol">
-        <template v-slot:prepend>
-          <q-icon name="text_snippet"/>
-        </template>
-      </q-select>
-      <q-select
-          outlined square dense
-          v-model="selectedFeature" :options="filteredFeatures"
-          use-input input-debounce="0" @filter="applyFeatureFilter"
-          option-label="name" option-value="id"
-          @update:model-value="onFeatureSelected"
-          class="selectBox" label="Feature">
-        <template v-slot:prepend>
-          <q-icon name="biotech"/>
-        </template>
-      </q-select>
-      <div class="q-py-sm">
-        <ColorLegend :rangeValues=rangeValues />
-      </div>
-    </div>
+  <div class="q-gutter-xs row">
+    <q-select class="col-4" v-model="selectedProtocol" :options="protocols" option-label="name" option-value="id"
+        @update:model-value="onProtocolSelected" label="Protocol" dense>
+    </q-select>
+    <div class="col-1"/>
+    <q-select class="col-4" v-model="selectedFeature" :options="filteredFeatures" input-debounce="0" @filter="applyFeatureFilter"
+        option-label="name" option-value="id" @update:model-value="onFeatureSelected"
+        label="Feature" dense>
+    </q-select>
   </div>
 </template>
 
@@ -41,24 +17,14 @@
 }
 </style>
 
-<script>
+<script setup>
   import {ref, watch, toRefs} from 'vue'
   import {useStore} from 'vuex'
-
   import ColorLegend from "@/components/widgets/ColorLegend.vue"
 
-  export default {
-    props: {
-      protocols: Array,
-      plateResults: Array
-    },
-    components: {
-      ColorLegend
-    },
-    emits: [
-      'featureSelection'
-    ],
-    setup(props, context) {
+  // export default {
+  const props = defineProps(['protocols', 'plateResults'])
+  const emits = defineEmits(['featureSelection'])
       const store = useStore()
 
       watch(toRefs(props).protocols, () => {
@@ -85,7 +51,7 @@
       const filteredFeatures = ref(allFeatures.value)
       const selectedFeature = ref(null)
       const onFeatureSelected = (value) => {
-        context.emit('featureSelection', value)
+        emits('featureSelection', value)
         calcRangeValues()
       }
       const applyFeatureFilter = (val, update) => {
@@ -105,27 +71,14 @@
         if (!selectedFeature.value) rangeValues.value = { min: 0, mean: 50, max: 100 }
         if (Array.isArray(props.plateResults)) {
           const result = props.plateResults.filter(rs => (rs.featureId == selectedFeature.value.id));
-          const min = Math.min(...result[0].values.filter(v => !isNaN(v)));
-          const mean = result[0].values.reduce((x, y) => x + y, 0) / result[0].values.length;
-          const max = Math.max(...result[0].values.filter(v => !isNaN(v)));
-          rangeValues.value = {min: min, mean: mean, max: max}
+          if (result.length > 0) {
+            const min = Math.min(...result[0].values.filter(v => !isNaN(v)));
+            const mean = result[0].values.reduce((x, y) => x + y, 0) / result[0].values.length;
+            const max = Math.max(...result[0].values.filter(v => !isNaN(v)));
+            rangeValues.value = {min: min, mean: mean, max: max}
+          }
         } else {
           rangeValues.value = null
         }
-
       }
-
-      return {
-        selectedProtocol,
-        onProtocolSelected,
-
-        filteredFeatures,
-        selectedFeature,
-        onFeatureSelected,
-        applyFeatureFilter,
-
-        rangeValues
-      }
-    }
-  }
 </script>

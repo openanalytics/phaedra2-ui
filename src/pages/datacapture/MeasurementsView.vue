@@ -4,18 +4,18 @@
       <oa-section-header :title="'Captured Measurements'" :icon="'text_snippet'"/>
       <div class="row q-pa-lg oa-section-body">
         <q-table
-          table-header-class="text-grey"
-          flat dense
-          :rows="measurements"
-          :columns="columns"
-          row-key="id"
-          class="full-width"
-          :pagination="{ rowsPerPage: 20, sortBy: 'createdOn', descending: true}"
-          :filter="filterValue"
-          :filter-method="filterMethod"
-          @row-click="(e, row) => router.push('/datacapture/meas/' + row.id)"
-          :loading="loading"
-          >
+            table-header-class="text-grey"
+            flat dense
+            :rows="measurements"
+            :columns="columns"
+            row-key="id"
+            class="full-width"
+            :pagination="{ rowsPerPage: 20, sortBy: 'createdOn', descending: true}"
+            :filter="filterValue"
+            :filter-method="filterMethod"
+            @row-click="(e, row) => router.push('/datacapture/meas/' + row.id)"
+            :loading="loading"
+        >
           <template v-slot:top-right>
             <div class="row">
               <q-input outlined dense debounce="300" v-model="filterValue" placeholder="Search">
@@ -28,17 +28,18 @@
           </template>
           <template v-slot:body-cell-createdBy="props">
             <q-td :props="props">
-              <UserChip :id="props.row.createdBy" />
+              <UserChip :id="props.row.createdBy"/>
             </q-td>
-        </template>
+          </template>
         </q-table>
       </div>
     </div>
-    <table-config v-model:show="configdialog" v-model:visibleColumns="visibleColumns" v-model:columns="columns"></table-config>
+    <table-config v-model:show="configdialog" v-model:visibleColumns="visibleColumns"
+                  v-model:columns="columns"></table-config>
   </q-page>
 </template>
 
-<script>
+<script setup>
 import {computed, ref} from 'vue'
 import {useStore} from "vuex";
 import {useRouter} from "vue-router";
@@ -48,39 +49,34 @@ import TableConfig from "@/components/table/TableConfig";
 import OaSectionHeader from "@/components/widgets/OaSectionHeader";
 import UserChip from "@/components/widgets/UserChip";
 
-export default {
-  name: 'CapturedMeasurementsView',
-  components: { TableConfig, OaSectionHeader, UserChip },
-  setup() {
-    const exported = {}
-
-    exported.router = useRouter()
-    exported.loading = ref(false);
-    const store = useStore()
-    if (!store.getters["measurements/isLoaded"]()){
-      exported.loading.value = true;
-      store.dispatch('measurements/loadAll').then(() => exported.loading.value = false);
-    }
-    exported.measurements = computed(() => store.getters['measurements/getAll']())
-
-    exported.columns = ref([
-      {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
-      {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
-      {name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
-      {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
-      {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-      {name: 'layout', align: 'left', label: 'Dimensions', field: 'layout', sortable: true, format: (val, row) => row.rows + " x " + row.columns },
-      {name: 'wellColumns', align: 'left', label: 'WellData Columns', field: row => (row?.wellColumns?.length || 0), sortable: true },
-      {name: 'subWellColumns', align: 'left', label: 'SubwellData Columns', field: row => (row?.subWellColumns?.length || 0), sortable: true },
-      {name: 'imageChannels', align: 'left', label: 'Image Channels', field: row => (row?.imageChannels?.length || 0), sortable: true },
-      {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
-    ])
-    exported.visibleColumns = exported.columns.value.map(a => a.name)
-    exported.configdialog = ref(false)
-    exported.filterMethod = FilterUtils.defaultTableFilter()
-    exported.filterValue = ref('')
-
-    return exported
-  }
+const router = useRouter()
+const loading = ref(false);
+const store = useStore()
+if (!store.getters["measurements/isLoaded"]()) {
+  loading.value = true;
+  store.dispatch('measurements/loadAll').then(() => loading.value = false);
 }
+const measurements = computed(() => store.getters['measurements/getAll']())
+
+const columns = ref([
+  {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
+  {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
+  {name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
+  {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
+  {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
+  {name: 'layout', align: 'left', label: 'Dimensions', field: 'layout', sortable: true, format: (val, row) => row.rows + " x " + row.columns},
+  {name: 'wellColumns', align: 'left', label: 'WellData Columns', field: row => (row?.wellColumns?.length || 0), sortable: true},
+  {name: 'subWellColumns', align: 'left', label: 'SubwellData Columns', field: row => (row?.subWellColumns?.length || 0), sortable: true},
+  {name: 'imageChannels', align: 'left', label: 'Image Channels', field: row => (row?.imageChannels?.length || 0), sortable: true},
+  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
+])
+
+const visibleColumns = columns.value.map(a => a.name)
+const configdialog = ref(false)
+const filterMethod = FilterUtils.defaultTableFilter()
+const filterValue = ref('')
+
 </script>
+
+<style scoped>
+</style>

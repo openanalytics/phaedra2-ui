@@ -17,7 +17,7 @@
       <!-- Default template -->
       <template v-slot:default-header="prop">
         <div class="row items-center">
-          <q-icon :name="prop.node.icon" size="28px" class="q-mr-sm text-primary" />
+          <q-icon :name="prop.node.icon" size="28px" class="q-mr-sm text-primary"/>
           <div>
             <router-link :to="{ name: prop.node.route }" class="nav-link">{{ prop.node.label }}</router-link>
           </div>
@@ -27,7 +27,7 @@
       <!-- Template for top-level links, e.g. Dashboard (header: "link") -->
       <template v-slot:header-link="prop">
         <div class="row items-center" style="padding-left: 8px;">
-          <q-icon :name="prop.node.icon" size="28px" class="q-mr-sm text-primary" />
+          <q-icon :name="prop.node.icon" size="28px" class="q-mr-sm text-primary"/>
           <div class="text-weight-bold">
             <router-link :to="{ name: prop.node.route }" class="nav-link">{{ prop.node.label }}</router-link>
           </div>
@@ -37,144 +37,150 @@
       <!-- Template for folders (header: "category") -->
       <template v-slot:header-category="prop">
         <div class="row items-center">
-          <q-icon :name="prop.node.icon || 'folder'" size="28px" class="q-mr-sm text-primary" />
+          <q-icon :name="prop.node.icon || 'folder'" size="28px" class="q-mr-sm text-primary"/>
           <div class="text-weight-bold">{{ prop.node.label }}</div>
         </div>
       </template>
 
       <!-- Template for templates (header: "template") -->
       <template v-slot:header-template="prop">
-        <router-link v-if="prop.node.id === 'new'" :to="{ name: 'newPlateTemplate', params: { id: prop.node.id } }" class="nav-link">
-          <q-icon name="add" class="text-primary" />
+        <router-link v-if="prop.node.id === 'new'" :to="{ name: 'newPlateTemplate', params: { id: prop.node.id } }"
+                     class="nav-link">
+          <q-icon name="add" class="text-primary"/>
           {{ prop.node.label }}
         </router-link>
         <router-link v-else :to="{ name: 'template', params: { id: prop.node.id } }" class="nav-link">
-          <q-icon name="border_outer" class="text-primary" />
+          <q-icon name="border_outer" class="text-primary"/>
           {{ prop.node.label }}
         </router-link>
       </template>
     </q-tree>
-  <!-- </q-drawer> -->
+    <!-- </q-drawer> -->
   </div>
 </template>
 
 <style lang="scss">
-  .nav-link {
-    text-decoration: none;
-    color: black;
-  }
+.nav-link {
+  text-decoration: none;
+  color: black;
+}
 </style>
 
 <script>
-  import {ref, computed} from 'vue'
+import {ref, computed} from 'vue'
 
-  export default {
-    methods: {
-      toggleDrawer() {
-        this.drawerOpen = !this.drawerOpen;
-        this.drawerIcon = this.drawerIcons[this.drawerOpen];
-        this.$emit("onDrawerToggled");
-      }
-    },
-    setup() {
+export default {
+  methods: {
+    toggleDrawer() {
+      this.drawerOpen = !this.drawerOpen;
+      this.drawerIcon = this.drawerIcons[this.drawerOpen];
+      this.$emit("onDrawerToggled");
+    }
+  },
+  setup() {
 
-      const navTree = computed(() => {
+    const navTree = computed(() => {
 
-        return [
-          {
-            label: "Dashboard",
-            header: "link",
-            route: 'dashboard',
-            icon: 'home'
-          },
-          {
-            label: "Projects",
-            header: "category",
-            children: [
-              {
-                label: "New Project...",
-                icon: "add",
-                route: "newProject",
-              }, {
-                label: "Browse Projects",
-                icon: 'folder_open',
-                route: 'browseProjects',
-              }
-            ]
-          },
-          {
-            label: "Calculation",
-            header: "category",
-            icon: 'calculate',
-            children: [
-              {
-                label: "New Protocol...",
-                icon: "add",
-                route: "newProtocol",
-              }, {
-                label: "Browse Protocols",
-                icon: 'ballot',
-                route: 'browseProtocols',
-              },
-              {
-                label: "Browse Formulas",
-                icon: 'functions',
-                route: 'calcFormulas',
-              }
-            ]
-          },
-          {
-            label: "Plate Layouts",
-            header: "category",
-            icon: "border_all",
-            children: [
-              {
-                label: "New Template...",
-                icon: "add",
-                route: "newPlateTemplate",
-              }, {
-                label: "Browse Templates",
-                icon: 'border_outer',
-                route: 'browseTemplates',
-              }
-            ]
-          },
-          {
-            label: "Data Capture",
-            header: "category",
-            icon: 'scanner',
-            children: [
-              {
-                label: "Capture Jobs",
-                icon: 'list_alt',
-                route: 'dataCaptureJobs',
-              },
-              {
-                label: "Measurements",
-                icon: 'text_snippet',
-                route: 'measurements'
-              },
-              {
-                label: "Render Settings",
-                icon: 'palette',
-                route: 'imageRenderConfigs'
-              }
-            ]
-          },
-        ]
-      })
-
-      return {
-        drawerIcons: {
-          true: "chevron_left",
-          false: "chevron_right"
+      return [
+        {
+          label: "Dashboard",
+          header: "link",
+          route: 'dashboard',
+          icon: 'home'
         },
-        selected: ref(null),
-        drawerVisible: ref(true),
-        drawerOpen: ref(true),
-        drawerIcon: ref("chevron_left"),
-        navTree
-      }
+        {
+          label: "Projects",
+          header: "category",
+          children: [
+            {
+              label: "New Project...",
+              icon: "add",
+              route: "newProject",
+            }, {
+              label: "Browse Projects",
+              icon: 'folder_open',
+              route: 'browseProjects',
+            }
+          ]
+        },
+        {
+          label: "Calculation",
+          header: "category",
+          icon: 'calculate',
+          children: [
+            {
+              label: "New Protocol...",
+              icon: "add",
+              route: "newProtocol",
+            }, {
+              label: "Browse Protocols",
+              icon: 'ballot',
+              route: 'browseProtocols',
+            },
+            {
+              label: "Browse Formulas",
+              icon: 'functions',
+              route: 'calcFormulas',
+            }
+          ]
+        },
+        {
+          label: "Plate Layouts",
+          header: "category",
+          icon: "border_all",
+          children: [
+            {
+              label: "New Template...",
+              icon: "add",
+              route: "newPlateTemplate",
+            },
+            {
+              label: "New Template From File...",
+              icon: "import_export",
+              route: "newPlateTemplateFromFile",
+            }, {
+              label: "Browse Templates",
+              icon: 'border_outer',
+              route: 'browseTemplates',
+            }
+          ]
+        },
+        {
+          label: "Data Capture",
+          header: "category",
+          icon: 'scanner',
+          children: [
+            {
+              label: "Capture Jobs",
+              icon: 'list_alt',
+              route: 'dataCaptureJobs',
+            },
+            {
+              label: "Measurements",
+              icon: 'text_snippet',
+              route: 'measurements'
+            },
+            {
+              label: "Render Settings",
+              icon: 'palette',
+              route: 'imageRenderConfigs'
+            }
+          ]
+        },
+      ]
+    })
+
+    return {
+      drawerIcons: {
+        true: "chevron_left",
+        false: "chevron_right"
+      },
+      selected: ref(null),
+      drawerVisible: ref(true),
+      drawerOpen: ref(true),
+      drawerIcon: ref("chevron_left"),
+      navTree
     }
   }
+}
 </script>

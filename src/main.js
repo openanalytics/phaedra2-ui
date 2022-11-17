@@ -28,7 +28,7 @@ import ImportProtocolView from "./pages/protocol/ImportProtocolView";
 import FeatureView from "@/pages/feature/FeatureView";
 import FormulaTab  from "@/pages/feature/FormulaTab.vue";
 
-import FormulasView from "@/pages/calculation/formula/FormulasView";
+import FormulasView from "@/pages/calculation/formula/BrowseFormulas";
 import FormulaView from "@/pages/calculation/formula/FormulaView";
 
 import CaptureJobsView from '@/pages/datacapture/CaptureJobsView.vue'
@@ -48,9 +48,10 @@ import PlateHeatmap from "@/pages/plate/PlateHeatmap.vue"
 import WellList from "@/pages/plate/WellList.vue"
 import MeasList from "@/pages/plate/MeasList.vue"
 
-import PlateTemplateView from "./pages/platelayout/PlateTemplateView";
-import NewPlateTemplateView from "./pages/platelayout/NewPlateTemplateView";
-import BrowseTemplates from "./pages/platelayout/BrowseTemplates";
+import PlateTemplateView from "@/pages/platelayout/PlateTemplateView";
+import NewPlateTemplateView from "@/pages/platelayout/NewPlateTemplateView";
+import ImportPlateTemplateFromFile from "@/pages/platelayout/ImportPlateTemplateFromFile"
+import BrowseTemplates from "@/pages/platelayout/BrowseTemplates";
 
 const routes = [
     { name: "dashboard", path: "/", component: Dashboard },
@@ -85,8 +86,10 @@ const routes = [
     { name: "browseTemplates", path: "/templates", component: BrowseTemplates},
     { name: "template", path: "/template/:id", component: PlateTemplateView},
     { name: "newPlateTemplate", path: "/template/new", component: NewPlateTemplateView},
+    { name: "newPlateTemplateFromFile", path: "/template/new", component: ImportPlateTemplateFromFile},
 
-    { name: "calcFormulas", path: "/calc/formulas", component: FormulasView },
+
+    { name: "calcFormulas", path: "/calc/formulas", component: BrowseFormulas },
     { name: "calcFormula", path: "/calc/formula/:id", component: FormulaView },
 
     { name: "dataCaptureJobs", path: "/datacapture/jobs", component: CaptureJobsView },
@@ -116,15 +119,20 @@ import 'splitpanes/dist/splitpanes.css'
 // Create Vue App
 // --------------------------------------------------------------------
 import { createApp } from "vue"
+import Plotly from "plotly.js-dist-min"
+
 import { createPinia, setActivePinia } from "pinia"
 import App from "./App.vue"
+import BrowseFormulas from "@/pages/calculation/formula/BrowseFormulas";
 
 const pinia = createPinia()
+
 const app = createApp(App)
 
 app.use(pinia)
 app.use(router)
 app.use(store)
+app.use(Plotly)
 app.use(Quasar, {
     config: {
         brand: {

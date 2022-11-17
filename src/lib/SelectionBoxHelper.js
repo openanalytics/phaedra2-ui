@@ -5,7 +5,7 @@ function addSelectionBoxSupport(rootElement, wellSlots, selectionHandler) {
         rootElement: rootElement,
         wellSlots: wellSlots,
         selectionHandler: selectionHandler,
-        
+
         rootOffset: null,
         dragInProgress: false,
         dragStartPosition: {x:0,y:0},
@@ -79,7 +79,7 @@ function addSelectionBoxSupport(rootElement, wellSlots, selectionHandler) {
     return selectionBoxSupport
 }
 
-/******************** 
+/********************
  * Helper functions
  ********************/
 

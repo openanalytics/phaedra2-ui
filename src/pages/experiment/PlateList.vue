@@ -13,9 +13,7 @@
       @row-contextmenu="selectPlate"
   >
     <template v-slot:top-left>
-      <div class="action-button">
-        <q-btn size="sm" color="primary" icon="add" label="New Plate" @click="openNewPlateTab()"/>
-      </div>
+        <q-btn size="sm" icon="add" label="New Plate" @click="openNewPlateTab()" class="oa-button"/>
     </template>
     <template v-slot:top-right>
       <div class="row">
@@ -82,7 +80,7 @@
       <q-td :props="props">
         <div class="row items-center cursor-pointer">
           <q-btn flat round icon="more_horiz" size="sm" >
-            <plate-action-menu :plate="props.row" />
+            <plate-action-menu :plate="props.row" @showPlateInspector="openPlateInspector(props.row)"/>
           </q-btn>
         </div>
       </q-td>
@@ -110,7 +108,7 @@
 }
 </style>
 
-<script>
+<script setup>
 import {computed, ref} from "vue";
 import {useStore} from 'vuex'
 import {useRoute} from "vue-router";
@@ -123,22 +121,19 @@ import StatusFlag from "@/components/widgets/StatusFlag";
 import FilterUtils from "@/lib/FilterUtils";
 import FormatUtils from "@/lib/FormatUtils";
 
-export default {
-  components: {TableConfig, UserChip, TagList, StatusFlag, PlateActionMenu},
-  props: ['experiment', 'newPlateTab'],
-  emits: ['update:newPlateTab'],
+const props = defineProps(['experiment', 'newPlateTab'])
+const emit = defineEmits(['update:newPlateTab', 'showPlateInspector'])
 
-  setup(props, { emit }) {
-    const store = useStore()
-    const route = useRoute()
+const store = useStore()
+const route = useRoute()
 
-    const loading = ref(true)
+const loading = ref(true)
 
-    const experimentId = parseInt(route.params.id);
-    const plates = computed(() => store.getters['plates/getByExperimentId'](experimentId))
-    store.dispatch('plates/loadByExperimentId', experimentId).then(() => {
-      loading.value = false
-    })
+const experimentId = parseInt(route.params.id);
+const plates = computed(() => store.getters['plates/getByExperimentId'](experimentId))
+store.dispatch('plates/loadByExperimentId', experimentId).then(() => {
+  loading.value = false
+})
 
     let columns = ref([
       {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
@@ -154,7 +149,7 @@ export default {
       {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
       {name: 'menu', align: 'left', field: 'menu', sortable: false}
     ])
-    
+
     const selectedPlate = ref({});
     const showPlateContextMenu = ref(false);
     const selectPlate = (event, row) => {
@@ -162,22 +157,16 @@ export default {
       showPlateContextMenu.value = true;
     }
 
-    return {
-      columns,
-      visibleColumns: columns.value.map(a => a.name),
-      filter: ref(''),
-      filterMethod: FilterUtils.defaultTableFilter(),
-      loading,
-      plates,
-      configdialog: ref(false),
-      openNewPlateTab: () => {
-        emit('update:newPlateTab',true)
-      },
-      selectPlate,
-      selectedPlate,
-      showPlateContextMenu,
-      FormatUtils
-    }
-  }
+let visibleColumns = columns.value.map(a => a.name)
+const filter = ref('')
+const filterMethod = FilterUtils.defaultTableFilter()
+const configdialog = ref(false)
+
+const openNewPlateTab = () => {
+  emit('update:newPlateTab', true)
+}
+
+const openPlateInspector = (plate) => {
+  emit('showPlateInspector', plate)
 }
 </script>
