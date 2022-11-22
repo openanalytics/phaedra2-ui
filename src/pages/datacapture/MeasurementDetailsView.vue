@@ -92,16 +92,10 @@
                             </q-tab-panel>
                             <q-tab-panel name="imageData">
                                 <div class="row">
-                                    <div class="col-2">
-                                        <q-scroll-area style="height: 500px;">
-                                            <q-list bordered separator dense>
-                                                <q-item clickable :active="well.nr == selectedWell?.nr" v-for="well in wells" :key="well.nr" @click="selectWell(well)">
-                                                    {{ well.coord }}
-                                                </q-item>
-                                            </q-list>
-                                        </q-scroll-area>
+                                    <div class="col-8">
+                                        <WellGrid :plate="plate" :wellImageFunction="wellImageFunction" />
                                     </div>
-                                    <div class="col-10 q-px-sm">
+                                    <div class="col-4 q-px-sm">
                                         <WellImageViewer></WellImageViewer>
                                     </div>
                                 </div>
@@ -121,6 +115,7 @@
 
     import OaSectionHeader from "@/components/widgets/OaSectionHeader";
     import WellImageViewer from "@/components/image/WellImageViewer";
+    import WellGrid from "@/components/well/WellGrid";
 
     import WellUtils from "@/lib/WellUtils";
     import FilterUtils from "@/lib/FilterUtils";
@@ -165,4 +160,20 @@
         return columns.map(col => { return { name: col, values: dataMap[col] }});
     });
     store.dispatch('measurements/loadWellData', measId).then(() => loading.value = false);
+
+    const plate = computed(() => { return {
+        rows: meas.value.rows,
+        columns: meas.value.columns,
+        wells: [...Array(meas.value.rows * meas.value.columns).keys()].map(i => {
+            let pos = WellUtils.getWellPosition(i + 1, meas.value.columns);
+            return { row: pos[0], column: pos[1], nr: i+1 };
+        })
+    }});
+    const wellImageFunction = (well) => {
+        //TODO
+        // const img = store.getters['measurements/getMeasImage']({ measId: meas.value.id, wellNr: well.nr });
+        // if (!img) store.dispatch('measurements/loadMeasImage', { measId: meas.value.id, wellNr: well.nr, scale: 0.01 });
+        // return img;
+        return "";
+    }
 </script>

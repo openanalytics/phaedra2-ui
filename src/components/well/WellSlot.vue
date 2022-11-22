@@ -8,7 +8,7 @@
     <div v-if="wellImageFunction" class="full-height row items-center justify-center">
         <img :src="wellImageFunction(well)" />
     </div>
-    <div v-else>
+    <div v-if="wellLabelFunctions">
         <span v-for="wellLabelFunction in wellLabelFunctions" :key="wellLabelFunction" class="wellLabel" style="white-space: pre;">
             {{ wellLabelFunction(well) }}
         </span>
@@ -78,7 +78,7 @@
         wellLabelFunctions: Array,
     });
 
-    const bgColor = computed(() => props.wellColorFunction(props.well))
+    const bgColor = computed(() => props.wellColorFunction ? props.wellColorFunction(props.well) : '#969696')
     const fgColor = computed(() => ColorUtils.calculateTextColor(bgColor.value))
     const isSelected = computed(() => props.selectedWells.find(w => props.well.row == w.row && props.well.column == w.column))
 </script>

@@ -144,7 +144,7 @@
   };
 
   const gridColumnStyle = computed(() => { return "repeat(" + (props.plate.columns + 1) + ", 1fr)" });
-  const wellSlotMinHeight = (props.wellLabelFunctions.length * 15) + "px";
+  const wellSlotMinHeight = ((props.wellLabelFunctions?.length || 1) * 15) + "px";
 
   const wellSlotFontSize = ref(null);
   watchEffect(() => {
