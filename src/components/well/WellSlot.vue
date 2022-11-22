@@ -5,9 +5,14 @@
     <div v-if="well.status === 'REJECTED'" class="absolute-center">
         <img src="/rejected_cross.svg" class="vertical-middle" style="width: 100%; height: 100%;"/>
     </div>
-    <span v-for="wellLabelFunction in wellLabelFunctions" :key="wellLabelFunction" class="wellLabel" style="white-space: pre;">
-        {{ wellLabelFunction(well) }}
-    </span>
+    <div v-if="wellImageFunction" class="full-height row items-center justify-center">
+        <img :src="wellImageFunction(well)" />
+    </div>
+    <div v-else>
+        <span v-for="wellLabelFunction in wellLabelFunctions" :key="wellLabelFunction" class="wellLabel" style="white-space: pre;">
+            {{ wellLabelFunction(well) }}
+        </span>
+    </div>
     
     <q-tooltip :delay="3000" class="bg-secondary q-pa-xs">
         <div class="tooltipContainer">
@@ -69,6 +74,7 @@
         well: Object,
         selectedWells: Array,
         wellColorFunction: Function,
+        wellImageFunction: Function,
         wellLabelFunctions: Array,
     });
 

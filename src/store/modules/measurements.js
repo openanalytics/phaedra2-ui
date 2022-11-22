@@ -5,7 +5,8 @@ const state = () => ({
     measurements: [],
     plateMeasurements: {},
     renderConfigs: [],
-    wellData: {}
+    wellData: {},
+    measImages: {}
 })
 
 const getters = {
@@ -35,6 +36,9 @@ const getters = {
     },
     getWellData: (state) => (measId) => {
         return state.wellData[measId];
+    },
+    getMeasImage: (state) => ({ measId, wellNr }) => {
+        return state.measImages[measId + '#' + wellNr];
     }
 }
 
@@ -106,6 +110,10 @@ const actions = {
         await measAPI.deleteRenderConfig(id);
         ctx.commit('uncacheRenderConfig', id);
     },
+    async loadMeasImage(ctx, { measId, wellNr, scale }) {
+        const image = await measAPI.getMeasImage(measId, wellNr, scale);
+        ctx.commit('cacheMeasImage', { measId: measId, wellNr: wellNr, image: image });
+    }
 }
 
 const mutations = {
@@ -158,6 +166,9 @@ const mutations = {
     },
     cacheWellData(state, { measId, wellData }) {
         state.wellData[measId] = wellData;
+    },
+    cacheMeasImage(state, { measId, wellNr, image }) {
+        state.measImages[measId + '#' + wellNr] = image;
     }
 }
 
