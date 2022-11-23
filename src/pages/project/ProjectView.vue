@@ -16,7 +16,7 @@
                           expand-icon-class="text-white"
                           default-opened dense>
           <div class="row q-pa-md oa-section-body">
-            <div class="col-5 q-gutter-xs">
+            <div class="col-4 q-gutter-xs">
               <div class="row">
                 <div class="col-3 text-weight-bold">ID:</div>
                 <div class="col">{{ project.id }}</div>
@@ -47,11 +47,11 @@
               </div>
             </div>
 
-            <div class="col-6">
+            <div class="col-4">
               <PropertyTable :objectInfo="project" :objectClass="'PROJECT'"/>
             </div>
 
-            <div class="col-1">
+            <div class="col-4">
               <div class="row justify-end action-button">
                 <q-btn size="sm" icon="edit" label="Rename" class="oa-button" @click="newProjectName = project.name; showRenameDialog = true"/>
               </div>
