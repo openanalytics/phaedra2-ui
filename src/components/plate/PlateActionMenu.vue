@@ -188,7 +188,7 @@ const deletePlate = () => {
   showDeleteDialog.value = true;
 }
 
-const chart = () => {
+const chart = (type) => {
   //Set the chart type
   store.dispatch('ui/setChartType', type);
   // load wells by plate id

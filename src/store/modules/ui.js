@@ -71,6 +71,7 @@ const actions = {
         ctx.commit('setSelectedWells', wells);
     },
     setChartType: (ctx, type) => {
+        console.log('change type to', type)
         ctx.commit('setChartType', type);
     }
 }

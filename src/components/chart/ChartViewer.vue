@@ -26,7 +26,7 @@ const chartType = computed(() => store.getters['ui/getChartType']())
 
 // Get chart template
 const chartTemplate = computed(() => store.getters['charting/getChartTemplate'](chartType.value))
-
+console.log(chartType.value)
 const plateId = 101;
 const wells = computed(() => {
   const wellIds = store.getters['ui/getSelectedWellIds']();
