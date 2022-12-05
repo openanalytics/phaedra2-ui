@@ -17,6 +17,7 @@
     "kafka-client": "^3.0.0",
     "material-icons": "^1.2.0",
     "pinia": "^2.0.27",
+    "plotly.js-dist": "^2.16.3",
     "plotly.js-dist-min": "^2.16.3",
     "quasar": "^2.7.7",
     "roboto-fontface": "*",
