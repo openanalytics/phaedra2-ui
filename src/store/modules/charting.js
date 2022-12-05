@@ -1,5 +1,5 @@
 const state = () => ({
-    mockChartEntity: [{id: 8795, plateId: 101, row: 1, column: 1, wellType: 'LC', featureName: 0.232, featurename2: 0.324},
+    mockChartEntity: [{id: 8795, plateId: 101, row: 1, column: 1, wellType: 'LC', featureName: 0.232, featurename2: 0.324}, //+ wellnumber
         {id: 8796, plateId: 101, row: 1, column: 2, wellType: 'LC', featureName: 0.484, featurename2: 0.87},
         {id: 8797, plateId: 101, row: 1, column: 3, wellType: 'LC', featureName: 0.567, featurename2: 0.23},
         {id: 8798, plateId: 101, row: 1, column: 4, wellType: 'LC', featureName: 0.234, featurename2: 0.45},

@@ -1,12 +1,12 @@
 <template>
   <div class="viewer-panel relative-position">
-    <q-select id="x" v-model="x" :options="getKeys(wells[0])" label="X-axis"/>
-    <q-select v-model="y" :options="getKeys(wells[0])" label="Y-axis"/>
-    <q-select v-model="grouper" :options="getKeys(wells[0])" label="Grouper"/>
     <ScatterPlot mounted v-if="chartTemplate.type==='scatter'" :data="data"/>
     <BoxPlot v-else-if="chartTemplate.type==='boxplot'" :data="data"/>
     <BarPlot v-else-if="chartTemplate.type==='barplot'" :data="data"/>
     <LinePlot v-else-if="chartTemplate.type==='lineplot'" :data="data"/>
+    <q-select id="x" v-model="x" :options="getKeys(wells[0])" label="X-axis"/>
+    <q-select v-model="y" :options="getKeys(wells[0])" label="Y-axis"/>
+    <q-select v-model="grouper" :options="getKeys(wells[0])" label="Group by"/>
   </div>
 </template>
 
