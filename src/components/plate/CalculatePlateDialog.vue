@@ -7,15 +7,12 @@
       </q-card-section>
 
       <q-card-section v-if="activeMeasurement && checkDimensions()">
-        <div class="row">
-          <div class="col-10">
-            <span>Select the protocol that will be used for the calculation.</span><br><br>
-          </div>
+        <div class="q-pb-sm">
+          Select the protocol to use for calculation:
         </div>
-        <div class="q-pa-md">
-          <protocol-selectable-list v-model:selected="selected"></protocol-selectable-list>
-        </div>
+        <protocol-selectable-list v-model:selected="selected"></protocol-selectable-list>
       </q-card-section>
+      
       <q-card-section v-if="!activeMeasurement">
         <q-icon name="warning" color="negative" class="on-left"/>
         <span class="text-accent text-weight-bold">Cannot calculate: this plate has no active measurement.</span>

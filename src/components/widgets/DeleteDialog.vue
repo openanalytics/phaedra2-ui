@@ -27,35 +27,54 @@
   </q-dialog>
 </template>
 
-<script>
-import {ref} from 'vue';
+<script setup>
+import {computed, ref} from 'vue';
 import {useStore} from 'vuex';
+import {useRoute, useRouter} from "vue-router";
 
-export default {
-  props: {
-    id: Number,
-    name: String,
-    objectClass: String,
-  },
-  emits: ['onDeleted'],
-  setup(props, {emit}) {
-    const store = useStore();
-    return {
-      showDialog: ref(false),
-      nameModel: ref(null),
-      confirmDelete: () => {
-        switch (props.objectClass){
-          case 'project': store.dispatch('projects/deleteProject', props.id);break;
-          case 'experiment': store.dispatch('experiments/deleteExperiment', props.id);break;
-          case 'plate': store.dispatch('plates/deletePlate', props.id);break;
-          case 'protocol': store.dispatch('protocols/deleteProtocol',props.id);break;
-          case 'template': store.dispatch('templates/deletePlateTemplate',props.id);break;
-          case 'feature': store.dispatch('features/deleteFeature',props.id);break;
-          case 'formula': store.dispatch('calculations/deleteFormula',props.id);break;
-        }
-        emit('onDeleted');
-      }
-    };
+const store = useStore()
+const route = useRoute();
+const router = useRouter();
+
+const props = defineProps(['id', 'name', 'objectClass', 'show'])
+const emit = defineEmits(['onDeleted', 'update:show'])
+
+const showDialog = computed({
+  get: () => props.show,
+  set: (v) => emit('update:show', v)
+});
+const nameModel = ref(null)
+
+const confirmDelete = () => {
+  switch (props.objectClass) {
+    case 'project':
+      store.dispatch('projects/deleteProject', props.id).then( () => {
+        router.push({name: "browseProjects"});
+      });
+      break;
+    case 'experiment':
+      store.dispatch('experiments/deleteExperiment', props.id);
+      break;
+    case 'plate':
+      store.dispatch('plates/deletePlate', props.id);
+      break;
+    case 'protocol':
+      store.dispatch('protocols/deleteProtocol', props.id).then( () => {
+        router.push({name: "browseProtocols"});
+      });
+      break;
+    case 'template':
+      store.dispatch('templates/deletePlateTemplate', props.id).then( () => {
+        router.push({name: "browseTemplates"});
+      });
+      break;
+    case 'feature':
+      store.dispatch('features/deleteFeature', props.id);
+      break;
+    case 'formula':
+      store.dispatch('calculations/deleteFormula', props.id);
+      break;
   }
+  emit('onDeleted');
 }
 </script>

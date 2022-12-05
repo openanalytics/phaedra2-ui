@@ -40,7 +40,7 @@ const getters = {
 const actions = {
     async loadByProjectId(ctx, id) {
         const experiments = await experimentAPI.loadByProjectId(id);
-        
+
         // Load and attach experiment summaries
         const summaries = await experimentAPI.loadExperimentSummariesByProjectId(id);
         for (const exp of experiments) {
@@ -49,7 +49,7 @@ const actions = {
 
         const experimentIds = experiments.map(exp => exp.id);
         ctx.dispatch('metadata/loadMetadata', { objectId: experimentIds, objectClass: 'EXPERIMENT' }, {root:true});
-        
+
         ctx.commit('cacheExperiments', experiments);
     },
     async loadById(ctx, experimentId) {
@@ -96,10 +96,8 @@ const actions = {
             })
     },
     async deleteExperiment(ctx, id) {
-        await experimentAPI.deleteExperiment(id)
-            .then(() => {
-                ctx.commit('deleteExperiment', id)
-            })
+        await experimentAPI.deleteExperiment(id);
+        ctx.commit('deleteExperiment', id)
     },
     async editExperiment(ctx, experiment) {
         await experimentAPI.editExperiment(experiment)

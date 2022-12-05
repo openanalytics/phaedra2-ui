@@ -1,24 +1,24 @@
 <template>
   <q-dialog v-model="showDialog" persistent>
     <q-card style="min-width: 60vw">
+
       <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
         <q-avatar icon="playlist_add" color="primary" text-color="white"/>
-        Link Plate
+        Link Plates
       </q-card-section>
 
       <q-card-section>
         <div class="row q-pb-md">
-          <span>By linking plates with the system they were defined in, substance and control information can be retrieved and applied to the plate(s).</span>
+          <span>By linking plates with a layout definition, substance and control information can be retrieved and applied to the plate(s).</span>
         </div>
 
         <div v-if="!quickView">
-          <oa-section-header :title="'Plates'" :icon="'view_module'"/>
           <q-table
-              table-header-class="text-white bg-primary"
-              square flat dense class="full-width"
+              table-header-class="text-grey"
+              square flat dense hide-bottom
               :rows="plates"
               :columns="plateColumns"
-              :pagination="{ rowsPerPage: 10 }"
+              :pagination="{ rowsPerPage: 5 }"
               selection="multiple"
               v-model:selected="selectedPlates"
           >
@@ -36,31 +36,17 @@
           <span v-if="!checkPlateDimensions()" class="text-accent">The selected plates have different dimensions.</span><br>
         </div>
 
-        <div v-if="!quickView">
-          <div class="row text-h6 items-center q-px-sm oa-section-title full-width">
-            <q-icon name="playlist_add" class="on-left"/>
-            Link with
-          </div>
-          <q-select class="full-width" v-model="source" label="Source:" :options="sourceOptions"></q-select>
-          <br>
-        </div>
-
         <div>
-          <div class="row justify-between">
-            <oa-section-header :title="'Templates'" :icon="'border_outer'"/>
-            <div class="action-button">
-              <q-btn v-if="!quickView" size="sm" color="primary" icon="remove_red_eye" label="Show Quick view"
-                     :disable="!isTemplateSelected()" @click="quickView=!quickView"/>
-              <q-btn v-if="quickView" size="sm" color="accent" icon="remove_red_eye" label="Hide Quick view"
-                     @click="quickView=!quickView"/>
-            </div>
+          <div class="row justify-end">
+            <q-btn v-if="!quickView" size="sm" color="primary" icon="remove_red_eye" label="Show Quick view" :disable="!isTemplateSelected()" @click="quickView=!quickView"/>
+            <q-btn v-if="quickView" size="sm" color="accent" icon="remove_red_eye" label="Hide Quick view" @click="quickView=!quickView"/>
           </div>
           <q-table
-              table-header-class="text-white bg-primary"
-              square flat dense class="full-width"
+              table-header-class="text-grey"
+              square flat dense hide-bottom
               :rows="allTemplates"
               :columns="templateColumns"
-              :pagination="{ rowsPerPage: 10 }"
+              :pagination="{ rowsPerPage: 5 }"
               selection="single"
               v-model:selected="selectedTemplates"
               :filter="selectedPlates"
@@ -98,8 +84,8 @@
   import {useStore} from "vuex";
   import {useRoute} from "vue-router";
 
+  import FormatUtils from "@/lib/FormatUtils";
   import TemplateQuickView from "@/components/layout/TemplateQuickView";
-  import OaSectionHeader from "@/components/widgets/OaSectionHeader";
   import StatusFlag from "@/components/widgets/StatusFlag";
 
   const props = defineProps(['show','plateId']);
@@ -122,23 +108,20 @@
   const selectedPlates = ref(plates.value.filter(p => p.id === props.plateId));
   const allTemplates = computed(() => store.getters['templates/getPlateTemplatesByPlateDimensions'](selectedPlates.value[0]));
   const selectedTemplates = ref([]);
-
-  const source = ref('Layout Template')
-  const sourceOptions = ['Layout Template']
   const quickView = ref(false);
 
   const plateColumns = ref([
-    {name: 'sequence', align: 'left', label: 'Sequence', field: 'sequence', sortable: true},
     {name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
     {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
     {name: 'dimensions', align: 'left', label: 'Dimensions', field: 'dimensions', sortable: true},
-    {name: 'link-status', align: 'center', label: 'Link status', field: 'link-status', sortable: true}
+    {name: 'link-status', align: 'left', label: 'Link status', field: 'link-status', sortable: true}
   ]);
 
   const templateColumns = [
-    {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
+    {name: 'name', align: 'left', label: 'Template Name', field: 'name', sortable: true},
     {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-    {name: 'layout', align: 'center', label: 'Dimensions', field: 'layout', sortable: true}
+    {name: 'layout', align: 'left', label: 'Dimensions', field: 'layout', sortable: true},
+    {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate },
   ];
 
   const linkPlate = () => {

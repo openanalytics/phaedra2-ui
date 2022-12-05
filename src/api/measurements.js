@@ -42,4 +42,11 @@ export default {
     async deleteRenderConfig(id) {
         await axios.delete(apiURL + '/render-config/' + id);
     },
+    async getMeasImage(measId, wellNr, scale) {
+        const response = await axios.get(apiURL + `/image/${measId}/${wellNr}?renderConfigId=4&scale=${scale}`, {
+            responseType: 'arraybuffer'
+        });
+        // Return as a base64-encoded string that can be used directly in img tags
+        return 'data:image/jpeg;base64,' + Buffer.from(response.data, 'binary').toString('base64');
+    },
 }

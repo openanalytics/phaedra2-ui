@@ -1,15 +1,14 @@
 <template>
   <q-table
-      table-header-class="text-dark"
-      flat square
+      table-header-class="text-grey"
+      flat square dense
       :rows="plateMeasurements"
       :columns="columns"
       row-key="id"
       no-data-label="No measurements associated with this plate"
   >
-    <template v-slot:top-right>
-      <q-btn dense color="primary" label="Set measurement" @click="addMeasDialog">
-      </q-btn>
+    <template v-slot:top-left>
+      <q-btn size="sm" icon="add" class="oa-button q-mb-md" label="Link Measurement" @click="addMeasDialog" />
     </template>
     <template v-slot:body-cell="props">
       <q-td :props="props" :class="props.row.active ? 'text-dark' : 'text-grey'">
@@ -17,7 +16,7 @@
       </q-td>
     </template>
     <template v-slot:body-cell-dimensions="props">
-      <q-td :props="props">
+      <q-td :props="props" :class="props.row.active ? 'text-dark' : 'text-grey'">
         {{ props.row.rows }} x {{ props.row.columns }}
       </q-td>
     </template>
@@ -26,6 +25,11 @@
         <q-toggle
             :model-value="props.row.active"
             @update:model-value="val => openConfirmDialog(val, props.row)"/>
+      </q-td>
+    </template>
+    <template v-slot:body-cell-createdBy="props">
+      <q-td :props="props">
+        <UserChip :id="props.row.createdBy" />
       </q-td>
     </template>
   </q-table>
@@ -53,92 +57,83 @@
 
   <q-dialog v-model="confirm" persistent>
     <q-card>
-      <q-card-section class="row items-center">
-        <span class="q-ml-sm">Are you sure you want to change the active measurement?</span>
+      <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
+        <q-avatar icon="sync" color="primary" text-color="white"/>
+        Change Active Measurement
       </q-card-section>
 
-      <q-card-actions align="right">
-        <q-btn flat label="Cancel" color="primary" v-close-popup />
-        <q-btn flat label="Yes" color="primary" v-close-popup @click="updateActiveState"/>
+      <q-card-section class="row items-center">
+        <span class="q-ml-sm">Are you sure you want to change the active measurement for this plate?</span>
+      </q-card-section>
+
+      <q-card-actions align="right" class="text-primary">
+        <q-btn flat label="Cancel" v-close-popup/>
+        <q-btn label="Yes" color="primary" v-close-popup @click="updateActiveState"/>
       </q-card-actions>
     </q-card>
   </q-dialog>
 </template>
 
-<script>
-import {ref} from 'vue'
-// import {useStore} from 'vuex'
-import FormatUtils from "@/lib/FormatUtils";
+<script setup>
 
-const columns = [
-  {name: 'active', align: 'left', label: 'Active?', field: 'active', sortable: true},
-  {name: 'measurementId', align: 'left', label: 'ID', field: 'measurementId', sortable: true},
-  {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
-  {name: 'dimensions', align: 'left', label: 'Dimensions', field: 'dimensions', sortable: false},
-  {name: 'wellColumns', align: 'left', label: 'Well Columns', field: 'wellColumns', sortable: true, format: val => `${val?.length || 0}` },
-  {name: 'subWellColumns', align: 'left', label: 'SubWell Columns', field: 'subWellColumns', sortable: true, format: val => `${val?.length || 0}` },
-  {name: 'imageChannels', align: 'left', label: 'Image Channels', field: 'imageChannels', sortable: true, format: val => `${val?.length || 0}` },
-  {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate },
-  {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true}
-]
+  import {ref, computed} from 'vue'
+  import {useStore} from 'vuex'
 
-export default {
-  props: {
+  import UserChip from "@/components/widgets/UserChip";
+  import FormatUtils from "@/lib/FormatUtils";
+
+  const store = useStore();
+  const props = defineProps({
     plate: Object
-  },
-  setup() {
-    return {
-      columns
-    }
-  },
-  data() {
-    return {
-      openMeasDialog: ref(false),
-      confirm: ref(false),
-      selectedMeasurement: ref(),
-      newActiveMeas: ref()
-    }
-  },
-  methods: {
-    addMeasDialog() {
-      this.$store.dispatch("measurements/loadAvailableMeasurements", this.plate);
-      this.openMeasDialog = true;
-    },
-    addMeasurement() {
-      const activePlateMeasurement = {
-        plateId: this.plate.id,
-        measurementId: this.selectedMeasurement.id,
-        active: true,
-        linkedBy: "sasa.berberovic", //TODO: select logged in username
-        linkedOn: new Date(),
-        ...this.selectedMeasurement
-      };
+  });
 
-      this.$store.dispatch('measurements/addMeasurement', activePlateMeasurement);
-    },
-    openConfirmDialog(active, { plateId, measurementId}) {
-      const current = this.$store.getters['measurements/getActivePlateMeasurement'](plateId);
-      this.newActiveMeas = {active, plateId, measurementId};
-      if (current && active) {
-        this.confirm = true;
-      } else {
-        this.updateActiveState();
-      }
-    },
-    updateActiveState() {
-      console.log("Change active state");
-      if (this.newActiveMeas)
-        this.$store.dispatch('measurements/setActiveMeasurement',  this.newActiveMeas);
+  const columns = [
+    {name: 'active', align: 'left', label: 'Active?', field: 'active', sortable: true},
+    {name: 'measurementId', align: 'left', label: 'ID', field: 'measurementId', sortable: true},
+    {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
+    {name: 'dimensions', align: 'left', label: 'Dimensions', field: 'dimensions', sortable: false},
+    {name: 'wellColumns', align: 'left', label: 'Well Columns', field: 'wellColumns', sortable: true, format: val => `${val?.length || 0}` },
+    {name: 'subWellColumns', align: 'left', label: 'SubWell Columns', field: 'subWellColumns', sortable: true, format: val => `${val?.length || 0}` },
+    {name: 'imageChannels', align: 'left', label: 'Image Channels', field: 'imageChannels', sortable: true, format: val => `${val?.length || 0}` },
+    {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate },
+    {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true}
+  ];
+
+  const openMeasDialog = ref(false);
+  const confirm = ref(false);
+  const selectedMeasurement = ref();
+  const newActiveMeas = ref();
+
+  const addMeasDialog = () => {
+    store.dispatch("measurements/loadAvailableMeasurements", props.plate);
+    openMeasDialog.value = true;
+  };
+
+  const addMeasurement = () => {
+    const activePlateMeasurement = {
+      plateId: props.plate.id,
+      measurementId: selectedMeasurement.value.id,
+      active: true,
+      ...selectedMeasurement.value
+    };
+    store.dispatch('measurements/addMeasurement', activePlateMeasurement);
+  };
+
+  const openConfirmDialog = (active, { plateId, measurementId}) => {
+    const current = store.getters['measurements/getActivePlateMeasurement'](plateId);
+    newActiveMeas.value = {active, plateId, measurementId};
+    if (current && active) {
+      confirm.value = true;
+    } else {
+      updateActiveState();
     }
-  },
-  computed: {
-    plateMeasurements() {
-      return this.$store.getters['measurements/getPlateMeasurements'](this.plate.id);
-    },
-    availableMeasurements() {
-      return this.$store.getters['measurements/getAll']();
-    }
-  }
-}
+  };
+
+  const updateActiveState = () => {
+    if (newActiveMeas.value) store.dispatch('measurements/setActiveMeasurement',  newActiveMeas.value);
+  };
+
+  const plateMeasurements = computed(() => store.getters['measurements/getPlateMeasurements'](props.plate.id) || []);
+  const availableMeasurements = computed(() => store.getters['measurements/getAll']() || []);
 
 </script>

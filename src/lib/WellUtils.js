@@ -30,7 +30,7 @@ function getWellNr(row, column, colCount) {
 
 function getWellPosition(wellNr, columnCount) {
     wellNr--;
-    let rowNr = 1 + wellNr / columnCount;
+    let rowNr = 1 + Math.floor(wellNr / columnCount);
     let colNr = 1 + wellNr % columnCount;
     return [ rowNr, colNr ];
 }

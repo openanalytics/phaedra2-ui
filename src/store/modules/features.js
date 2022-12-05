@@ -70,7 +70,7 @@ const actions = {
             })
     },
     async deleteFeature(ctx, id) {
-        featuresAPI.deleteFeature(id)
+        await featuresAPI.deleteFeature(id)
         ctx.commit('deleteFeature', id)
     },
     async editFeature(ctx, args) {
@@ -117,6 +117,9 @@ const actions = {
     },
     async deleteCalculationInputValue(ctx, args){
         await featuresAPI.deleteCalculationInputValue(args.id)
+    },
+    async addNewFeatureToProtocol(ctx, feature) {
+        ctx.commit('cacheInProtocol', feature)
     }
 }
 
@@ -164,7 +167,7 @@ const mutations = {
         }
     },
     cacheCalculationInputValues(state, civ) {
-        if (civ)
+        if (civ && civ.length > 0)
             state.calculationInputValuesInFeature[civ[0].featureId] = civ;
     },
     cacheCalculationInputValue(state,civ) {

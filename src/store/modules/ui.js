@@ -6,10 +6,12 @@ const state = () => ({
     sideViewConfigs: [
         { id: 'wellImage', label: 'Well Image', icon: 'image', componentPath: 'image/WellImageViewer.vue' },
         { id: 'chart', label: 'Chart', icon: 'chart', componentPath: 'chart/ChartViewer.vue' },
+        { id: 'doseResponseCurve', label: 'Dose Response Curve', icon: 'show_chart', componentPath: 'curve/DoseResponseCurve.vue' }
     ],
     // Selection Handling
     selectedWells: [],
     chartType: null,
+    selectedSubstances: new Map([]),
 })
 
 const getters = {
@@ -27,6 +29,12 @@ const getters = {
     },
     getSelectedWells: (state) => () => {
         return [...state.selectedWells];
+    },
+    getSelectedSubstances: (state) => () => {
+        return [...state.selectedSubstances.keys()];
+    },
+    getSelectedPlates: (state) => () => {
+        return [...new Set(state.selectedSubstances.values())]
     },
     getSelectedWellIds: (state) => () => {
         return state.selectedWells.map(el => el.id);
@@ -54,6 +62,12 @@ const actions = {
         ctx.commit('removeOpenSideView', viewID);
     },
     selectWells: (ctx, wells) => {
+        ctx.commit('setSelectedWells', wells)
+
+        const selectedSubstances = wells?.filter(well => well.wellSubstance !== undefined)
+            .map(well => { return { "name": well.wellSubstance.name, "plates": well.plateId }})
+        ctx.commit('clearSelectedSubstance')
+        ctx.commit('addSelectedSubstances', selectedSubstances)
         ctx.commit('setSelectedWells', wells);
     },
     setChartType: (ctx, type) => {
@@ -77,6 +91,19 @@ const mutations = {
     },
     setChartType: (state, type) => {
         state.chartType = type;
+    },
+    addSelectedSubstances: (state, substances) => {
+        substances.forEach(substance => {
+            state.selectedSubstances.set(substance.name, substance.plates)
+        })
+    },
+    removeSelectedSubstances: (state, substances) => {
+        substances.forEach(substance => {
+            state.selectedSubstances.delete(substance.name, substance.plates)
+        })
+    },
+    clearSelectedSubstance: (state) => {
+        state.selectedSubstances = new Map([])
     }
 }
 

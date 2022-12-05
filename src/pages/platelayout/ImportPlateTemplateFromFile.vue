@@ -1,0 +1,74 @@
+<template>
+  <q-breadcrumbs class="oa-breadcrumb">
+    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
+    <q-breadcrumbs-el :label="'New Plate Layout Template'"/>
+  </q-breadcrumbs>
+
+  <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
+    <div class="q-pa-md">
+      <oa-section-header :title="'New Template from file'" :icon="'add'"/>
+
+      <div class="row q-pa-lg oa-section-body">
+        <q-form class="col" @submit="onSubmit" @reset="onReset">
+          <q-file v-model="importFile" label="Plate template"></q-file>
+
+          <div class="row justify-end q-pt-md">
+            <q-btn label="Submit" type="submit" color="primary"></q-btn>
+            <router-link :to="{name: 'browseTemplates'}" class="nav-link">
+              <q-btn label="Cancel" type="reset" color="primary" flat class="a-ml-sm"></q-btn>
+            </router-link>
+          </div>
+        </q-form>
+      </div>
+    </div>
+  </q-page>
+</template>
+
+<script setup>
+import {ref} from 'vue'
+import {useStore} from 'vuex'
+import {useRouter} from 'vue-router'
+import OaSectionHeader from "@/components/widgets/OaSectionHeader";
+import {useTemplateStore} from "@/stores/template";
+
+const wellTypeOptions = ['LC', 'HC', 'NC', 'PC']
+
+const router = useRouter()
+const templateStore = useTemplateStore()
+
+const importFile = ref(null)
+
+const newPlateTemplate = {
+  "id": null,
+  "name": null,
+  "rows": null,
+  "columns": null,
+  "wells": null
+}
+
+const onSubmit = async () => {
+  console.log(importFile)
+  const reader = new FileReader();
+  reader.onload = (res) => {
+    const data = res.target.result
+
+    const plateTemplate = JSON.parse(data);
+    newPlateTemplate.name = plateTemplate.name
+    newPlateTemplate.rows = plateTemplate.rows
+    newPlateTemplate.columns = plateTemplate.columns
+    newPlateTemplate.wells = plateTemplate.wells
+
+    saveTemplate()
+    console.log(plateTemplate)
+  }
+  reader.readAsText(importFile.value);
+}
+
+const saveTemplate = () => {
+  templateStore.creatNewTemplate(newPlateTemplate).then(() => {
+    router.push("/template/" + templateStore.template.id);
+  })
+}
+const onReset = () => {
+}
+</script>

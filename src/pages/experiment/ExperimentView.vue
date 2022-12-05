@@ -13,10 +13,11 @@
       <oa-section-header v-if="!experiment" :title="'Loading experiment...'" :icon="'science'"/>
 
       <div v-else>
-        <oa-section-header :title="experiment.name" :icon="'science'"/>
-
-        <div class="row q-pa-md oa-section-body">
-
+        <q-expansion-item :label="experiment.name" icon="science"
+                          header-class="text-h6 oa-section-title"
+                          expand-icon-class="text-white"
+                          default-opened dense>
+          <div class="row q-pa-md oa-section-body">
           <div class="col-4 q-gutter-xs">
             <div class="row">
               <div class="col-3 text-weight-bold">ID:</div>
@@ -48,14 +49,15 @@
 
           <div class="col-4">
             <div class="row justify-end action-button">
-              <q-btn size="sm" color="primary" icon="edit" class="oa-button-edit" label="Edit" @click="editdialog = true"/>
+              <q-btn size="sm" icon="edit" class="oa-button-edit" label="Edit" @click="editdialog = true"/>
             </div>
             <div class="row justify-end action-button">
-              <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete" @click="$refs.deleteDialog.showDialog = true" />
+              <q-btn size="sm" icon="delete" class="oa-button-delete" label="Delete" @click="openDeleteDialog"/>
             </div>
           </div>
 
         </div>
+        </q-expansion-item>
       </div>
     </div>
 
@@ -77,7 +79,7 @@
         <!--        <router-view v-model:experiment="experiment" v-model:newPlateTab="newPlateTab"></router-view>-->
         <q-tab-panels v-model="activeTab" animated style="width: 100%">
           <q-tab-panel name="overview" class="q-px-none">
-            <PlateList :experiment="experiment" v-model:newPlateTab="newPlateTab"/>
+            <PlateList :experiment="experiment" v-model:newPlateTab="newPlateTab" @showPlateInspector="openPlateInspector()"/>
           </q-tab-panel>
           <q-tab-panel name="statistics" class="q-px-none">
             <PlateStatsList :experiment="experiment"/>
@@ -113,7 +115,8 @@
       </div>
     </div>
 
-    <delete-dialog ref="deleteDialog" :id="experiment.id" :name="experiment.name" :objectClass="'experiment'" @onDeleted="onDeleted" />
+    <delete-dialog v-model:show="showDialog" :id="experiment.id" :name="experiment.name" :objectClass="'experiment'" @onDeleted="onDeleted" />
+    <plate-inspector v-if="showPlateInspector" :plate="selectedPlate" @hidePlateInspector="closePlateInspector()"/>
   </q-page>
 </template>
 
@@ -131,7 +134,7 @@
 }
 </style>
 
-<script>
+<script setup>
 import {ref, computed} from 'vue'
 import {useStore} from 'vuex'
 import {useRoute, useRouter} from 'vue-router'
@@ -146,70 +149,62 @@ import PlateGrid from "@/pages/experiment/PlateGrid";
 import DeleteDialog from "../../components/widgets/DeleteDialog";
 import OaSectionHeader from "../../components/widgets/OaSectionHeader";
 import FormatUtils from "@/lib/FormatUtils.js"
+import PlateInspector from "@/components/plate/PlateInspector"
 
-export default {
-  name: 'Experiment',
-  components: {
-    TagList,
-    UserChip,
-    EditExperiment,
-    PropertyTable,
-    PlateList,
-    PlateStatsList,
-    PlateGrid,
-    DeleteDialog,
-    OaSectionHeader
-  },
-  methods: {
-    createNewPlate(){
-      this.newPlate.sequence = "1"
-      this.newPlate.experimentId = this.experimentId
-      this.$store.dispatch('plates/createNewPlate',this.newPlate)
-      this.newPlateTab = false
-    },
-  },
-  setup() {
-    const store = useStore()
-    const route = useRoute()
-    const router = useRouter()
+const store = useStore()
+const route = useRoute()
+const router = useRouter()
 
-    const experimentId = parseInt(route.params.id);
-    const projectId = ref(null);
-    const experiment = computed(() => store.getters['experiments/getById'](experimentId) || {})
-    const project = computed(() => store.getters['projects/getById'](projectId.value))
-    store.dispatch('experiments/loadById', experimentId).then(() => {
-      projectId.value = experiment.value.projectId;
-      store.dispatch('projects/loadById', projectId.value);
-    })
+const experimentId = parseInt(route.params.id);
 
-    return {
-      experimentId,
-      experiment,
-      project,
-      activeTab: ref('overview'),
-      FormatUtils,
-      onDeleted: () => {
-        router.push({name: 'project', params: {id: project.value.id}})
-      }
-    }
-  },
-  data() {
-    return {
-      newPlateTab: ref(false),
-      newPlate: {
-        barcode: null,
-        description: null,
-        rows: null,
-        columns: null,
-        sequence: null,
-        linkStatus: "NOT_LINKED",
-        calculationStatus: "CALCULATION_NEEDED",
-        validationStatus: "VALIDATION_NOT_SET",
-        approvalStatus: "APPROVAL_NOT_SET",
-      },
-      experimentName: ref(""),
-      editdialog:ref(false)
-    }
-  }
+const projectId = ref(null);
+const activeTab = ref('overview')
+
+const newPlateTab = ref(false)
+const newPlate = ref({
+  barcode: null,
+  description: null,
+  rows: null,
+  columns: null,
+  sequence: null,
+  linkStatus: "NOT_LINKED",
+  calculationStatus: "CALCULATION_NEEDED",
+  validationStatus: "VALIDATION_NOT_SET",
+  approvalStatus: "APPROVAL_NOT_SET",
+})
+const experimentName = ref("")
+const editdialog = ref(false)
+const showDialog = ref(false);
+const showPlateInspector = ref(false);
+
+const experiment = computed(() => store.getters['experiments/getById'](experimentId) || {})
+const project = computed(() => store.getters['projects/getById'](projectId.value))
+
+store.dispatch('experiments/loadById', experimentId).then(() => {
+  projectId.value = experiment.value.projectId;
+  store.dispatch('projects/loadById', projectId.value);
+})
+
+const createNewPlate = () => {
+  newPlate.value.sequence = "1"
+  newPlate.value.experimentId = experimentId
+  store.dispatch('plates/createNewPlate', newPlate.value)
+  newPlateTab.value = false
+}
+
+const openDeleteDialog = () => {
+  showDialog.value = true;
+}
+
+const onDeleted = () => {
+  router.push({name: 'project', params: {id: project.value.id}})
+}
+
+const openPlateInspector = () => {
+  showPlateInspector.value = true;
+}
+
+const closePlateInspector = () => {
+  showPlateInspector.value = false
 }
 </script>

@@ -5,7 +5,7 @@ function addSelectionBoxSupport(rootElement, wellSlots, selectionHandler) {
         rootElement: rootElement,
         wellSlots: wellSlots,
         selectionHandler: selectionHandler,
-        
+
         rootOffset: null,
         dragInProgress: false,
         dragStartPosition: {x:0,y:0},
@@ -25,12 +25,13 @@ function addSelectionBoxSupport(rootElement, wellSlots, selectionHandler) {
             this.dragInProgress = true
             this.dragStartPosition = { x: event.pageX, y: event.pageY }
 
-            let parentBounds = rootElement.value.parentNode.getBoundingClientRect()
-            let rootStyle = window.getComputedStyle(rootElement.value)
+            let rootStyle = window.getComputedStyle(rootElement.value);
+            let rootParentStyle = window.getComputedStyle(rootElement.value.parentNode);
+            let rootParentBounds = rootElement.value.parentNode.getBoundingClientRect();
             this.rootOffset = {
-                left: parentBounds.left + parseInt(rootStyle.marginLeft) + this.scrollError.left,
-                top: parentBounds.top + parseInt(rootStyle.marginTop) + this.scrollError.top
-            }
+                left: rootParentBounds.left + parseInt(rootParentStyle.paddingLeft) + parseInt(rootStyle.marginLeft) + this.scrollError.left,
+                top: rootParentBounds.top + parseInt(rootParentStyle.paddingTop) + parseInt(rootStyle.marginTop) + this.scrollError.top
+            };
 
             this.selectionRectangle = createSelectionBoxDiv(document, event, this.rootOffset);
             this.rootElement.value.appendChild(this.selectionRectangle);
@@ -66,22 +67,20 @@ function addSelectionBoxSupport(rootElement, wellSlots, selectionHandler) {
                 { x: this.dragStartPosition.x - this.scrollError.left, y: this.dragStartPosition.y - this.scrollError.top},
                 { x: event.pageX- this.scrollError.left, y: event.pageY-this.scrollError.top }
             );
-            let selectedWells = []
-            wellSlots.value.forEach(slot => {
-                if (slot) {
-                    let bounds = slot.$el.getBoundingClientRect()
-                    if (boxesOverlap(bounds, selectedArea)) {
-                        selectedWells.push(slot.well)
-                    }
+            let selectedWellNrs = []
+            wellSlots.value.forEach((slot, i) => {
+                let bounds = slot.$el.getBoundingClientRect()
+                if (boxesOverlap(bounds, selectedArea)) {
+                    selectedWellNrs.push(i + 1)
                 }
             })
-            this.selectionHandler(selectedWells, event.ctrlKey);
+            this.selectionHandler(selectedWellNrs, event.ctrlKey);
         }
     }
     return selectionBoxSupport
 }
 
-/******************** 
+/********************
  * Helper functions
  ********************/
 

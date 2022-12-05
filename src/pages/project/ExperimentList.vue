@@ -1,16 +1,19 @@
 <template>
-  <div class="row text-h6 items-center q-px-md oa-section-title">
-    <q-icon name="science" class="on-left"/>Experiments
-  </div>
+<!--  <div class="row text-h6 items-center q-px-md oa-section-title" style="min-width: 56px">-->
+<!--    <q-icon name="science" class="on-left"/>Experiments-->
+<!--  </div>-->
+  <oa-section-header :title="'Experiments'" :icon="'science'"/>
   <q-table
+      table-header-class="text-grey"
+      flat square dense
       :columns="columns"
       :rows="experiments"
       row-key="id"
-      :pagination="{ rowsPerPage: 10 }"
+      :pagination="{ rowsPerPage: 10, sortBy: 'name' }"
       :filter="filter"
       :filter-method="filterMethod"
       :visible-columns="visibleColumns"
-      square
+      :loading="loading"
   >
     <template v-slot:top-left>
       <div class="row action-button on-left">
@@ -68,7 +71,7 @@
       <q-td :props="props">
         <div class="row items-center cursor-pointer">
           <q-btn flat round icon="more_horiz" size="sm" >
-            <ExperimentMenu :experimentId="props.row.id" />
+            <ExperimentMenu :experiment="props.row" />
           </q-btn>
         </div>
       </q-td>
@@ -117,79 +120,74 @@
   }
 </style>
 
-<script>
-  import {ref, computed} from 'vue'
-  import {useStore} from 'vuex'
+<script setup>
+import {ref, computed} from 'vue'
+import {useStore} from 'vuex'
 
-  import TableConfig from "@/components/table/TableConfig";
-  import ProgressBarField from "@/components/widgets/ProgressBarField";
-  import TagList from "@/components/tag/TagList";
-  import UserChip from "@/components/widgets/UserChip";
-  import ExperimentMenu from "@/components/experiment/ExperimentMenu";
+import TableConfig from "@/components/table/TableConfig";
+import ProgressBarField from "@/components/widgets/ProgressBarField";
+import TagList from "@/components/tag/TagList";
+import UserChip from "@/components/widgets/UserChip";
+import ExperimentMenu from "@/components/experiment/ExperimentMenu";
+import OaSectionHeader from "@/components/widgets/OaSectionHeader";
 
-  import FormatUtils from "@/lib/FormatUtils.js"
-  import FilterUtils from "@/lib/FilterUtils.js"
+import FormatUtils from "@/lib/FormatUtils.js"
+import FilterUtils from "@/lib/FilterUtils.js"
 
-  export default {
-    props: {
-      projectId: Number
-    },
-    components: {
-      TableConfig,
-      TagList,
-      UserChip,
-      ProgressBarField,
-      ExperimentMenu
-    },
-    setup(props) {
-      const store = useStore()
-      const loading = ref(true)
+const columns = ref([
+  {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
+  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
+  {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
+  {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
+  {
+    name: 'createdOn',
+    align: 'left',
+    label: 'Created On',
+    field: 'createdOn',
+    sortable: true,
+    format: FormatUtils.formatDate
+  },
+  {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
 
-      const experiments = computed(() => store.getters['experiments/getByProjectId'](props.projectId))
-      store.dispatch('experiments/loadByProjectId', props.projectId).then(() => {
-        loading.value = false
-      })
+  {
+    name: 'nrPlates',
+    align: 'left',
+    label: 'Plates',
+    field: row => (row.summary ? row.summary.nrPlates : 0),
+    sortable: true
+  },
+  {name: 'nrPlatesCalculated', align: 'left', label: 'Calculated', sortable: true},
+  {name: 'nrPlatesValidated', align: 'left', label: 'Validated', sortable: true},
+  {name: 'nrPlatesApproved', align: 'left', label: 'Approved', sortable: true},
 
-      const columns = ref([
-          {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
-          {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
-          {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-          {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
-          {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate },
-          {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true },
+  {name: 'menu', align: 'left', field: 'menu', sortable: false}
+])
 
-          {name: 'nrPlates', align: 'left', label: 'Plates', field: row => (row.summary ? row.summary.nrPlates : 0), sortable: true},
-          {name: 'nrPlatesCalculated', align: 'left', label: 'Calculated', sortable: true},
-          {name: 'nrPlatesValidated', align: 'left', label: 'Validated', sortable: true},
-          {name: 'nrPlatesApproved', align: 'left', label: 'Approved', sortable: true},
+const store = useStore()
 
-          {name: 'menu', align: 'left', field: 'menu', sortable: false}
-      ])
-        
-      const showNewExperimentDialog = ref(false)
-      const newExperimentName = ref('')
-      const doCreateNewExperiment = function() {
-        store.dispatch('experiments/createNewExperiment', {
-          projectId: props.projectId,
-          name: newExperimentName.value,
-          status: 'OPEN',
-          createdOn: new Date()
-        })
-      }
+const props = defineProps({
+  projectId: Number
+})
 
-      return {
-        filter: ref(''),
-        filterMethod: FilterUtils.defaultTableFilter(),
-        loading,
-        experiments,
-        FormatUtils,
-        columns,
-        visibleColumns: columns.value.map(a => a.name),
-        showConfigDialog: ref(false),
-        showNewExperimentDialog,
-        newExperimentName,
-        doCreateNewExperiment
-      }
-    }
-  }
+const loading = ref(true)
+const experiments = computed(() => store.getters['experiments/getByProjectId'](props.projectId))
+store.dispatch('experiments/loadByProjectId', props.projectId).then(() => {
+  loading.value = false
+})
+
+const showNewExperimentDialog = ref(false)
+const newExperimentName = ref('')
+const doCreateNewExperiment = () => {
+  store.dispatch('experiments/createNewExperiment', {
+    projectId: props.projectId,
+    name: newExperimentName.value,
+    status: 'OPEN',
+    createdOn: new Date()
+  })
+}
+
+const filter = ref('')
+const filterMethod = FilterUtils.defaultTableFilter()
+const visibleColumns = columns.value.map(a => a.name)
+const showConfigDialog = ref(false)
 </script>

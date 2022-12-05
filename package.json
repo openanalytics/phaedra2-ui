@@ -1,4 +1,4 @@
-{
+ {
   "name": "phaedra2-ui",
   "version": "0.1.0",
   "private": true,
@@ -12,8 +12,12 @@
     "axios": "^0.23.0",
     "bootstrap": "^5.1.0",
     "core-js": "^3.6.5",
+    "express-throttle-bandwidth": "^1.0.1",
+    "formidable": "^2.0.1",
+    "kafka-client": "^3.0.0",
     "material-icons": "^1.2.0",
-    "plotly.js-dist": "^2.14.0",
+    "pinia": "^2.0.20",
+    "plotly.js-dist-min": "^2.14.0",
     "quasar": "^2.7.7",
     "roboto-fontface": "*",
     "splitpanes": "^3.1.1",

@@ -1,248 +1,54 @@
 <template>
-  <q-breadcrumbs class="oa-breadcrumb" v-if="protocol">
+  <q-breadcrumbs class="oa-breadcrumb" v-if="protocol" @click="resetStores">
     <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
     <q-breadcrumbs-el :label="'Protocols'" icon="list" :to="'/protocols'"/>
     <q-breadcrumbs-el :label="protocol.name" icon="ballot"/>
   </q-breadcrumbs>
 
-  <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs" v-if="protocol">
-    <div class="q-pa-md" v-if="!showEditProtocolDialog">
-      <oa-section-header :title="protocol.name" :icon="'ballot'"/>
-
-      <div class="row q-pa-md oa-section-body">
-        <div class="col-4 q-gutter-xs">
-          <div class="row">
-            <div class="col-3 text-weight-bold">ID:</div>
-            <div class="col">{{ protocol.id }}</div>
-          </div>
-          <div class="row">
-            <div class="col-3 text-weight-bold">Description:</div>
-            <div class="col"><EditableField :object="protocol" :fieldName="'description'" @valueChanged="onDescriptionChanged" /></div>
-          </div>
-          <div class="row">
-            <div class="col-3 text-weight-bold">Low Well Type:</div>
-            <div class="col">{{ protocol.lowWelltype }}</div>
-            <div class="col-3 text-weight-bold">High Well Type:</div>
-            <div class="col">{{ protocol.highWelltype }}</div>
-          </div>
-          <div class="row">
-            <div class="col-3 text-weight-bold">Created On:</div>
-            <div class="col">{{ FormatUtils.formatDate(protocol.createdOn) || '-' }} <span class="text-weight-bold">by</span> {{ protocol.createdBy || '-' }}</div>
-          </div>
-          <div class="row">
-            <div class="col-3 text-weight-bold">Updated On:</div>
-            <div class="col">{{ FormatUtils.formatDate(protocol.updatedOn) || '-' }} <span class="text-weight-bold">by</span> {{ protocol.updatedBy || '-' }}</div>
-          </div>
-          <div class="row">
-            <div class="col-3 text-weight-bold">Tags:</div>
-            <div class="col">
-              <TagList :objectInfo="protocol" :objectClass="'PROTOCOL'" />
-            </div>
-          </div>
-        </div>
-
-        <div class="col-4">
-          <PropertyTable :objectInfo="protocol" :objectClass="'PROTOCOL'"/>
-        </div>
-
-        <div class="col-4 q-gutter-xs">
-          <div class="row justify-end">
-            <q-btn size="sm" color="primary" icon="edit" class="oa-button-edit" label="Edit" @click="showEditProtocolDialog = true"/>
-          </div>
-          <div class="row justify-end">
-            <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete" @click="$refs.deleteDialog.showDialog = true"/>
-          </div>
-          <div class="row justify-end">
-            <q-btn size="sm" color="primary" icon="import_export" class="oa-button-delete" label="Export" @click="exportToJson(protocolId)"/>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <EditProtocol v-model:show="showEditProtocolDialog" v-model:protocol="protocol"></EditProtocol>
-
-    <div class="q-pa-md" v-if="!showNewFeatureTab && !showEditFeatureSection">
-      <oa-section-header :title="'Features'" :icon="'functions'"/>
-      <q-table
-        table-header-class="text-grey"
-        :rows="features"
-        row-key="id"
-        :pagination="{ rowsPerPage: 20, sortBy: 'name' }"
-        :columns="columns"
-        :filter="filter"
-        :filter-method="filterMethod"
-        :loading="loading"
-        :visible-columns="visibleColumns"
-        dense>
-
-        <template v-slot:top-left>
-          <div class="col action-button on-left">
-            <q-btn size="sm" icon="add" class="oa-button" label="New Feature" @click="showNewFeatureTab = true"/>
-          </div>
-        </template>
-        <template v-slot:top-right>
-          <div class="row">
-            <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
-              <template v-slot:append>
-                <q-icon name="search"/>
-              </template>
-            </q-input>
-            <q-btn flat round color="primary" icon="settings" class="on-right" @click="configdialog=true"/>
-          </div>
-        </template>
-      <template v-slot:body-cell-name="props">
-        <q-td :props="props">
-          <router-link :to="'/feature/' + props.row.id" class="nav-link">
-            <div class="row items-center cursor-pointer">
-              {{ props.row.name }}
-            </div>
-          </router-link>
-        </q-td>
-      </template>
-        <template v-slot:body-cell-formulaId="props">
-          <q-td :props="props">
-            {{getFormulaName(props.row.formulaId)}}
-            <q-icon name="info" size="xs" class="text-info cursor-pointer" @click="showFormulaTooltip[props.rowIndex] = true">
-              <q-tooltip v-model="showFormulaTooltip[props.rowIndex]" :delay="2000">
-                <FormulaInspector :formulaId="props.row.formulaId"/>
-              </q-tooltip>
-            </q-icon>
-          </q-td>
-        </template>
-        <template v-slot:body-cell-menu="props">
-          <q-td :props="props">
-            <div class="row items-center cursor-pointer">
-              <q-btn flat round icon="more_horiz" size="sm" >
-                <q-menu>
-                  <q-list>
-                    <q-item dense clickable @click="selectedFeature=props.row;showEditFeatureSection=true">
-                      <q-item-section avatar><q-icon name="edit"/></q-item-section>
-                      <q-item-section>Edit feature</q-item-section>
-                    </q-item>
-                    <q-item dense clickable @click="selectedFeature=props.row;$refs.deleteDialogFeature.showDialog = true">
-                      <q-item-section avatar><q-icon name="delete"/></q-item-section>
-                      <q-item-section>Delete feature</q-item-section>
-                    </q-item>
-                  </q-list>
-                </q-menu>
-              </q-btn>
-            </div>
-          </q-td>
-        </template>
-        <template v-slot:no-data>
-          <div class="full-width row text-info">
-            <span>No features to show.</span>
-          </div>
-        </template>
-      </q-table>
-    </div>
-
-    <new-feature v-if="showNewFeatureTab" v-model:show="showNewFeatureTab" v-model:protocolId="protocolId"></new-feature>
-    <edit-feature v-if="showEditFeatureSection" v-model:show="showEditFeatureSection" v-model:originalFeature="selectedFeature"></edit-feature>
-
-    <delete-dialog ref="deleteDialog" v-model:id="protocol.id" v-model:name="protocol.name" :objectClass="'protocol'" @onDeleted="onDeleted" />
-    <delete-dialog ref="deleteDialogFeature" v-model:id="selectedFeature.id" v-model:name="selectedFeature.name" :objectClass="'feature'" />
-    <table-config v-model:show="configdialog" v-model:visibleColumns="visibleColumns" v-model:columns="columns"></table-config>
+  <q-page class="oa-root-div" v-if="protocol">
+    <ViewProtocol v-if="!editMode" :editMode ="editMode" :protocol="protocol" @editMode="setEditMode"/>
+    <EditProtocol v-if="editMode" :editMode="editMode" :protocol="protocol" @editMode="setEditMode" @saveChanges="saveChanges"/>
   </q-page>
 </template>
 
-<script>
-import {useStore} from "vuex";
-import {useRoute, useRouter} from "vue-router";
+<script setup>
+import {useRoute} from "vue-router";
 import {computed, ref} from "vue";
+import {useProtocolStore} from "@/stores/protocol";
+import {useFormulasStore} from "@/stores/formulas";
+import {useFeatureStore} from "@/stores/feature";
+import ViewProtocol from "@/components/protocol/ViewProtocol";
+import EditProtocol from "@/components/protocol/EditProtocol";
 
-import EditProtocol from "./EditProtocol";
-import FilterUtils from "@/lib/FilterUtils.js"
-import FormatUtils from "@/lib/FormatUtils.js"
-import TagList from "@/components/tag/TagList"
-import FormulaInspector from "@/components/widgets/FormulaInspector";
-import OaSectionHeader from "@/components/widgets/OaSectionHeader";
-import TableConfig from "@/components/table/TableConfig";
-import EditFeature from "@/components/protocol/EditFeature";
-import NewFeature from "@/components/protocol/NewFeature";
-import PropertyTable from "@/components/property/PropertyTable";
-import DeleteDialog from "@/components/widgets/DeleteDialog";
-import EditableField from "@/components/widgets/EditableField";
+const route = useRoute();
+const protocolStore = useProtocolStore();
+const featureStore = useFeatureStore()
 
-export default {
-  components: {
-    TagList,
-    PropertyTable,
-    EditProtocol,
-    TableConfig,
-    EditFeature,
-    NewFeature,
-    FormulaInspector,
-    OaSectionHeader,
-    DeleteDialog,
-    EditableField
-  },
-  setup() {
-    const store = useStore();
-    const route = useRoute();
-    const router = useRouter();
+const loading = ref(false);
 
-    const loading = ref(false);
+const protocolId = parseInt(route.params.id);
+protocolStore.loadProtocol(protocolId)
 
-    const protocolId = parseInt(route.params.id);
-    const protocol = computed(() => store.getters['protocols/getById'](protocolId))
-    store.dispatch('protocols/loadById', protocolId);
+const protocol = computed(() => {
+  return protocolStore.protocol
+})
 
-    const features = computed(() => store.getters['features/getByProtocolId'](protocolId))
-    if (!store.getters['features/isProtocolLoaded'](protocolId)) {
-      loading.value = true;
-      store.dispatch('features/loadByProtocolId', protocolId).then(() => {
-        loading.value = false;
-      });
-    }
+const formulasStore = useFormulasStore();
+formulasStore.loadAllFormulas();
 
-    const formulas = computed(() => store.getters['calculations/getFormulas']())
-    store.dispatch('calculations/getAllFormulas')
+const editMode = ref(false)
+const setEditMode = (input) => {
+  editMode.value = input
+}
 
-    const onDescriptionChanged = (newDescription) => {
-      store.dispatch('protocols/editProtocol', { id: protocolId, description: newDescription });
-    };
+const saveChanges = () => {
+  protocolStore.saveProtocol().then(() => {
+    console.info("Protocol saved successfully!!")
+  })
+}
 
-    let columns = ref([
-      {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
-      {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
-      {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-      {name: 'format', align: 'left', label: 'Format', field: 'format', sortable: true},
-      {name: 'type', align: 'left', label: 'Type', field: 'type', sortable: true},
-      {name: 'formulaId', align: 'left', label: 'Formula', field: 'formulaId', sortable: true},
-      {name: 'menu', align: 'left', field: 'menu', sortable: false}
-    ])
-
-    return {
-      protocolId,
-      protocol,
-      featureTypes: ['CALCULATION', 'NORMALIZATION', 'RAW'],
-      formulas,
-      features,
-      loading,
-      columns,
-      visibleColumns: columns.value.map(a => a.name),
-      configdialog: ref(false),
-      filter: ref(''),
-      filterMethod: FilterUtils.defaultTableFilter(),
-      onDeleted: () => {
-        router.push({name: 'browseProtocols'})
-      },
-      onDescriptionChanged,
-      getFormulaName: (id) => {
-        const formula = formulas.value.find(formula => {return formula.id === id});
-        return (formula || {}).name;
-      },
-      exportToJson: (id) => {
-        store.dispatch('protocols/downloadAsJson',id)
-      },
-      showFormulaTooltip: ref([]),
-      showEditProtocolDialog: ref(false),
-      showEditFeatureSection: ref(false),
-      showNewFeatureTab: ref(false),
-      selectedFeature: ref({}),
-      FormatUtils
-    }
-  }
+const resetStores = () => {
+  protocolStore.$reset()
+  featureStore.$reset()
 }
 </script>

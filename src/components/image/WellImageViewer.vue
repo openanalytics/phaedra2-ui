@@ -12,8 +12,11 @@
         <div class="absolute-center" v-if="loading">
             <q-spinner-pie color="info" size="7em"/>
         </div>
+        <div class="absolute-center" v-if="selectedWell && errorInfo">
+            <q-badge color="negative">{{ errorInfo }}</q-badge>
+        </div>
         <div class="absolute-top-left q-pl-sm q-pt-sm">
-            <q-badge color="blue">{{ selectedWellCoordinate }}, Zoom: {{scale*100}}%</q-badge>
+            <q-badge color="blue">{{ selectedWellInfo }}</q-badge>
             <q-btn color="blue" size="xs" round class="on-right" icon="zoom_in" @click="doZoom(1)"><q-tooltip>Zoom In</q-tooltip></q-btn>
             <q-btn color="blue" size="xs" round class="on-right" icon="zoom_out" @click="doZoom(-1)"><q-tooltip>Zoom Out</q-tooltip></q-btn>
         </div>
@@ -101,16 +104,20 @@
         if (wells && wells.length > 0) return wells[0];
         return null;
     });
-    const selectedWellCoordinate = computed(() => {
+    const selectedWellInfo = computed(() => {
+        let info = '';
         if (selectedWell.value?.row && selectedWell.value?.column) {
-            return WellUtils.getWellCoordinate(selectedWell.value.row, selectedWell.value.column);
+            info += WellUtils.getWellCoordinate(selectedWell.value.row, selectedWell.value.column);
         } else if (selectedWell.value?.nr && selectedWell.value?.measId) {
             let meas = store.getters['measurements/getById'](selectedWell.value.measId);
             let pos = WellUtils.getWellPosition(selectedWell.value.nr, meas.columns);
-            return WellUtils.getWellCoordinate(pos[0], pos[1]);
+            info += WellUtils.getWellCoordinate(pos[0], pos[1]);
+        } else {
+            return "No Well Selected";
         }
-        return "No Well Selected";
+        return `${info}, Zoom: ${scale.value * 100}%`;
     });
+    const errorInfo = ref(null);
 
     const getImageURL = () => {
         if (selectedChannels.value.length == 0) return;
@@ -149,10 +156,15 @@
     watch(selectedWell, reloadImage);
 
     const image = new Image();
-    image.addEventListener('load', function() {
+    image.addEventListener('load', () => {
         loading.value = false;
+        errorInfo.value = null;
         calculateCanvasHeight();
         setTimeout(draw());
+    }, false);
+    image.addEventListener('error', e => {
+        loading.value = false;
+        errorInfo.value = 'Failed to load image!';
     }, false);
 
     const canvas = ref(null);

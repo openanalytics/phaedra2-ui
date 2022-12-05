@@ -78,11 +78,20 @@ function asRGBColor(color) {
     if (color.red && color.green && color.blue) {
         return color
     }
-    else if (typeof color === "string" && color.charAt(0) == "#") {
-        return {
-            red: parseInt(color.substring(1, 3), 16),
-            green: parseInt(color.substring(3, 5), 16),
-            blue: parseInt(color.substring(5, 7), 16)
+    else if (typeof color === "string") {
+        if (color.charAt(0) == "#") {
+            return {
+                red: parseInt(color.substring(1, 3), 16),
+                green: parseInt(color.substring(3, 5), 16),
+                blue: parseInt(color.substring(5, 7), 16)
+            }
+        } else if (color.startsWith("rgb(")) {
+            let parts = color.substring(4, color.length - 1).split(",");
+            return {
+                red: parseInt(parts[0]),
+                green: parseInt(parts[1]),
+                blue: parseInt(parts[2])
+            }
         }
     }
     else if (typeof color === "number") {
@@ -93,6 +102,11 @@ function asRGBColor(color) {
         }
     }
     return color
+}
+
+function asColorInteger(color) {
+    let colorObj = asRGBColor(color);
+    return (colorObj.red << 16) + (colorObj.green << 8) + colorObj.blue;
 }
 
 const defaultHeatmapGradients = createMultiGradients([
@@ -119,6 +133,14 @@ function getCaptureJobEventTypeColor(eventType) {
     }
 }
 
+function generateRGBColor() {
+    const r = Math.floor(Math.random() * 256);
+    const g = Math.floor(Math.random() * 256);
+    const b = Math.floor(Math.random() * 256);
+    const rgbColor = "rgb(" + r + "," + g + "," + b + ")";
+    return rgbColor;
+}
+
 export default {
     createGradients,
     createMultiGradients,
@@ -127,7 +149,9 @@ export default {
     calculateTextColor,
     asCSSColor,
     asRGBColor,
+    asColorInteger,
     defaultHeatmapGradients,
     getCaptureJobStatusColor,
-    getCaptureJobEventTypeColor
+    getCaptureJobEventTypeColor,
+    generateRGBColor
 }

@@ -63,19 +63,8 @@ const actions = {
             });
     },
     async loadRecentCalculations(ctx, n) {
-        await resultdataAPI.getAllResults()
-            .then(result => {
-                console.log(result)
-                //Sort before mutation because actions can only be dispatched from actions
-                const list = result.sort((p1, p2) => {
-                    let p1Time = new Date((p1.executionEndTimeStamp)?p1.executionEndTimeStamp:p1.executionStartTimeStamp).getTime()
-                    let p2Time = new Date((p2.executionEndTimeStamp)?p2.executionEndTimeStamp:p2.executionStartTimeStamp).getTime()
-                    return  p2Time - p1Time;
-                }).slice(0,n)
-                //Load plates that are used in calculations to display barcode + first check if they are in cache
-                list.forEach(calc => {if(!ctx.rootGetters["plates/isLoaded"](calc.plateId))ctx.dispatch('plates/loadPlateForCalculation', calc.plateId, { root: true })})
-                ctx.commit('cacheRecentCalculations',list)
-            })
+        const result = await resultdataAPI.getRecentCalculationResults(n);
+        ctx.commit('cacheRecentCalculations', result)
     }
 }
 

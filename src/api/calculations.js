@@ -29,6 +29,14 @@ export default {
     async startCalculation(calcRequest) {
         const response = await axios.post(apiURL + '/calculation', calcRequest);
         return response.data;
+    },
+    async fitDoseResponseCurves(drCurvesRequest) {
+        const response = await axios.put(apiURL + '/dr-curve', drCurvesRequest);
+        return response.data;
+    },
+    async getCalculationJobStatus(jobId) {
+        const response = await axios.get(apiURL + '/status?resultSetId=' + jobId);
+        return response.data;
     }
 }
 

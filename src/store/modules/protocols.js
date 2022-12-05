@@ -52,8 +52,8 @@ const actions = {
         ctx.dispatch('metadata/loadMetadata', { objectId: protocolIds, objectClass: 'PROTOCOL' }, {root:true});
         ctx.commit('cacheProtocols', protocols);
     },
-    //TODO Rename to saveNewProtocol
-    async saveProtocol(ctx, protocol) {
+
+    async saveNewProtocol(ctx, protocol) {
         const newProtocol = await protocolAPI.createNewProtocol(protocol);
         ctx.commit('cacheProtocols', [newProtocol]);
         ctx.commit('setCurrentProtocolId', newProtocol.id);
@@ -61,7 +61,7 @@ const actions = {
     },
     async deleteProtocol(ctx, id) {
         await protocolAPI.deleteProtocol(id);
-        ctx.commit('deleteProtocol', id);
+        await ctx.commit('deleteProtocol', id);
     },
     async editProtocol(ctx, protocol) {
         const updatedProtocol = await protocolAPI.editProtocol(protocol);
@@ -103,7 +103,7 @@ const actions = {
         const features = json.features
         delete json.features
         //Add new protocol without features
-        const protocol = await dispatch('saveProtocol', json)
+        const protocol = await dispatch('saveNewProtocol', json)
         //Add new features without formulaName, with new protocolId
         if (features){
         features.forEach(f => {
@@ -129,7 +129,7 @@ const mutations = {
         });
         state.protocols = newProtocols;
     },
-    deleteProtocol(state, id) {
+    async deleteProtocol(state, id) {
         state.protocols = state.protocols.filter(protocol => protocol.id !== id)
     }
 }

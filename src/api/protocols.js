@@ -35,8 +35,11 @@ export default {
     async editProtocol(protocol) {
         try {
             const response = await axios.put(apiURL + '/protocols', protocol);
-            if (response.status === 200) return response.data;
+            if (response.status === 200) {
+                return response.data;
+            }
         } catch (err) {
+            return protocol;
             console.log(err);
         }
     }

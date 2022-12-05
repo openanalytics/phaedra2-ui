@@ -24,29 +24,21 @@
   </div>
 </template>
 
-<script>
+<script setup>
+
 import {useStore} from "vuex";
 import {computed} from "vue";
 
-export default {
-  props: {
-    project: Object
-  },
-  setup(props) {
-    const store = useStore()
-    store.dispatch('experiments/loadByProjectId', props.project.id)
+const props = defineProps({
+  project: Object
+})
+const store = useStore()
+store.dispatch('experiments/loadByProjectId', props.project.id)
 
-    const total = computed(() => store.getters['experiments/getNrOfExperiments'](props.project.id));
-    const open = computed(() => store.getters['experiments/getNrOfOpenExperiments'](props.project.id));
-    const closed = computed(() => store.getters['experiments/getNrOfClosedExperiments'](props.project.id));
+const total = computed(() => store.getters['experiments/getNrOfExperiments'](props.project.id));
+const open = computed(() => store.getters['experiments/getNrOfOpenExperiments'](props.project.id));
+const closed = computed(() => store.getters['experiments/getNrOfClosedExperiments'](props.project.id));
 
-    return {
-      total,
-      open,
-      closed
-    }
-  }
-}
 </script>
 
 <style lang="scss">

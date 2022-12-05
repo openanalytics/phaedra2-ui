@@ -26,7 +26,7 @@ export default {
         objectClass: props.objectClass,
       });
     }
-    
+
     return exported;
   }
 }
