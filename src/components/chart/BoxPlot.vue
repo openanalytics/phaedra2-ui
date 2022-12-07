@@ -9,11 +9,8 @@ import ChartUtils from "@/lib/ChartUtils";
 
 const props = defineProps(['data']);
 
-//Get colors per grouper value
-let colors = ChartUtils.getGrouperColors(props.data.wells);
-
 const getColor = (well) => {
-  return colors[well.grouper]
+  return props.data.colors[well.grouper]
 }
 
 const plotData = () => {
@@ -41,7 +38,6 @@ watch(props.data, () => {
 
 // Watch for changes in grouper
 watch(() => props.data.wells[0].grouper, () => {
-  colors = ChartUtils.getGrouperColors(props.data.wells);
   PlotLy.newPlot('plot', [plotData()], {width: 300, height: 400});
 });
 

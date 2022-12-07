@@ -18,7 +18,7 @@ function excludeGroupFromTemplate(template, grouper, value) {
 function mapWellsToData(wells, x, y, grouper, notSelected) {
     console.log('notSelected', notSelected)
     //Create a data object for each well, filter out wells that are not selected if grouper value is in notSelected array
-    return wells.filter(well => !notSelected.some(s => s.value === well[grouper])).map(well => {
+    return wells.filter(well => !notSelected.some(s => String(s.value) === String(well[grouper]))).map(well => {
         console.log(well[grouper])
         return {
             x: well[x],

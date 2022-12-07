@@ -20,8 +20,7 @@
 </template>
 
 <script setup>
-import {computed, ref, watch} from "vue";
-import {useStore} from "vuex";
+import {ref, watch} from "vue";
 
 const props = defineProps(['grouperValues'])
 const emits = defineEmits(['grouperSelection'])
@@ -37,13 +36,12 @@ const columns = [
 
 const updateSelected = () => {
   // Filter out selected values if {value: 'value', color: 'color'} is in selected
-  const notSelected = props.grouperValues.filter(v => !selected.value.some(s => s.value === v.value))
+  const notSelected = props.grouperValues.filter(v => !selected.value.some(s => String(s.value) === String(v.value)))
   emits('grouperSelection', notSelected);
 }
 
 //If the grouperValues props changes, we update the selected list
 watch(props, () => {
-  console.log('watch props', props.grouperValues)
   selected.value = [...props.grouperValues];
 })
 </script>
