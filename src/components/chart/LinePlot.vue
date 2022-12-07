@@ -36,7 +36,7 @@ watch(props.data, () => {
 });
 
 // Watch for changes in grouper
-watch(() => props.data.wells[0].grouper, () => {
+watch(() => props.data.wells[0]?props.data.wells[0].grouper:null, () => {
   PlotLy.newPlot('plot', [plotData()], {width: 300, height: 400});
 });
 

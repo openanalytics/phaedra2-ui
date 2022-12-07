@@ -16,18 +16,14 @@ function excludeGroupFromTemplate(template, grouper, value) {
 
 //Map well data to data usable by the chart
 function mapWellsToData(wells, x, y, grouper, notSelected) {
-    console.log('notSelected', notSelected)
     //Create a data object for each well, filter out wells that are not selected if grouper value is in notSelected array
     return wells.filter(well => !notSelected.some(s => String(s.value) === String(well[grouper]))).map(well => {
-        console.log(well[grouper])
         return {
             x: well[x],
             y: well[y],
             grouper: well[grouper],
-            notSelected: notSelected
         }
     })
-    return data
 }
 
 //Colouring the grouper values
