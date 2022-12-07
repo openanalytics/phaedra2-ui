@@ -1,3 +1,36 @@
+//Filter
+function excludeGroupFromTemplate(template, grouper, value) {
+    //If transforms is not defined, create it
+    if (!template.transforms) {
+        template.transforms = []
+    }
+    //Add transformation to exclude the group from the template
+    template.transforms.push({
+        type: "filter",
+        target: grouper,
+        operation: "!=", //Exclude
+        value: value
+    })
+    return template
+}
+
+//Map well data to data usable by the chart
+function mapWellsToData(wells, x, y, grouper, notSelected) {
+    console.log('notSelected', notSelected)
+    //Create a data object for each well, filter out wells that are not selected if grouper value is in notSelected array
+    return wells.filter(well => !notSelected.some(s => s.value === well[grouper])).map(well => {
+        console.log(well[grouper])
+        return {
+            x: well[x],
+            y: well[y],
+            grouper: well[grouper],
+            notSelected: notSelected
+        }
+    })
+    return data
+}
+
+//Colouring the grouper values
 function getGrouperColor(well) {
     //Count amount of unique well.grouper values
     let uniqueGrouperValues = [...new Set(well.grouper)]
@@ -68,4 +101,6 @@ function hslToHex(h, s, l) {
 
 export default {
     getGrouperColors,
+    excludeGroupFromTemplate,
+    mapWellsToData,
 }

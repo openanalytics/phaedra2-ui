@@ -4,6 +4,9 @@
     <q-select id="x" v-model="x" :options="getKeys(wells[0])" label="X-axis"/>
     <q-select v-model="y" :options="getKeys(wells[0])" label="Y-axis"/>
     <q-select v-model="grouper" :options="getKeys(wells[0])" label="Group by"/>
+    {{grouper}}
+    {{data.grouperCopy}}
+    <GroupBySelectableTable :grouperValues="grouperRows" @grouperSelection="updateGroupsShown"/>
   </div>
 </template>
 
@@ -12,7 +15,8 @@ import PlotLy from 'plotly.js-dist'
 import {useStore} from 'vuex'
 import {computed, reactive, ref, watchEffect} from "vue";
 import Chart from "./Chart";
-
+import GroupBySelectableTable from "./GroupBySelectableTable";
+import ChartUtils from "@/lib/ChartUtils";
 const store = useStore();
 
 // Get chart type
@@ -39,17 +43,53 @@ const x = ref(chartTemplate.value.axisXExpression);
 const y = ref(chartTemplate.value.axisYExpression);
 //grouping property of selectedWells
 const grouper = ref(chartTemplate.value.grouperExpression);
+//not selected list of grouper values
+let notSelected = [];
+//colors for each grouper value
+let colors = [];
+
+//Tuple list (grouperValue, boolean) to enable/disable grouper values
+const grouperValues = computed(() => {
+  let values = [];
+  wells.value.forEach(well => {
+    if (!values.includes(well[grouper.value])) {
+      values.push(well[grouper.value]);
+    }
+  });
+  return values;
+});
+const grouperRows = computed(() => {
+  let rows = [];
+  grouperValues.value.forEach(grouperValue => {
+    rows.push({
+      value: grouperValue,
+      color: data.colors[grouperValue]
+    })
+  });
+  return rows;
+});
 
 //Make a reactive object to hold the data for the plot
 let data = reactive({
-  wells: wells.value.map(well => {return {x: well[x.value], y: well[y.value], grouper: well[chartTemplate.value.grouperExpression]}}),
-  template: chartTemplate.value
+  wells: ChartUtils.mapWellsToData(wells.value, x.value, y.value, grouper.value, notSelected),
+  template: chartTemplate.value,
+  colors: ChartUtils.getGrouperColors(wells.value),
+  grouperCopy: null
 });
 
+const updateData = () => {
+    data.wells = ChartUtils.mapWellsToData(wells.value, x.value, y.value, grouper.value, notSelected),
+    data.template = chartTemplate.value,
+    data.colors = (data.grouperCopy===grouper.value)?data.colors:ChartUtils.getGrouperColors(data.wells),
+    data.grouperCopy = grouper.value;
+}
+
+const updateGroupsShown = (notSelectedList) => {
+  notSelected = notSelectedList;
+  updateData();
+}
+
 //Update properties when x or y changes
-watchEffect(() => {
-  data.wells = wells.value.map(well => {return {x: well[x.value], y: well[y.value], grouper: well[grouper.value]}}),
-  data.template = chartTemplate.value
-});
+watchEffect(() => updateData());
 
 </script>

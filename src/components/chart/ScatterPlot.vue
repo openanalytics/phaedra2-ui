@@ -13,7 +13,8 @@ const props = defineProps(['data']);
 let colors = ChartUtils.getGrouperColors(props.data.wells);
 
 const getColor = (well) => {
-  return colors[well.grouper]
+  console.log(props.data.colors)
+  return props.data.colors[well.grouper]
 }
 
 const plotData = () => {
