@@ -4,7 +4,7 @@
     <q-select id="x" v-model="x" :options="getKeys(wells[0])" label="X-axis"/>
     <q-select v-model="y" :options="getKeys(wells[0])" label="Y-axis"/>
     <q-select v-model="grouper" :options="getKeys(wells[0])" label="Group by"/>
-    <GroupBySelectableTable :grouperValues="grouperRows" @grouperSelection="updateGroupsShown"/>
+    <GroupBySelectableTable v-if="grouper!='NONE'" :grouperValues="grouperRows" @grouperSelection="updateGroupsShown"/>
   </div>
 </template>
 
@@ -32,7 +32,10 @@ const wells = computed(() => {
 //Method to return the property keys of an object
 const getKeys = (obj) => {
   if (null) return null;
-  return Object.keys(obj);
+  var keys = JSON.parse(JSON.stringify(Object.keys(obj)));
+  //Add NONE option in the front
+  keys.unshift("NONE");
+  return keys;
 };
 
 //first property of selectedWells

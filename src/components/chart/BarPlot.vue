@@ -21,7 +21,7 @@ const plotData = () => {
     type: 'bar',
     marker: {
       color: props.data.wells.map(well => getColor(well)),
-      size: props.data.template.chartSettings.pointSize?props.data.template.chartSettings.pointSize:10
+      size: props.data.template.chartSettings.pointSize || 10
     },
   }
 }
