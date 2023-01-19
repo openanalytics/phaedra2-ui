@@ -1,6 +1,6 @@
 <template>
     <div class="col" style="min-width: 75%">
-      <FeatureSelector class="q-pb-md" :protocols=protocols :plateResults=plateResults @featureSelection="handleFeatureSelection"/>
+      <FeatureSelector class="q-pb-md" :protocols=protocols :plateResults=plateResults :plate="plate" @featureSelection="handleFeatureSelection"/>
       <WellGrid :plate="plate"
                 :loading="dataLoading"
                 :wellColorFunction="wellColorFunction"
