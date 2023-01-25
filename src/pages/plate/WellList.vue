@@ -6,7 +6,7 @@
            :columns="columns"
            row-key="id"
            column-key="name"
-           :pagination="{ rowsPerPage: 50 }"
+           :pagination="{ rowsPerPage: 10 }"
            :filter="filter"
            :filter-method="filterMethod"
            :visible-columns="visibleColumns"
