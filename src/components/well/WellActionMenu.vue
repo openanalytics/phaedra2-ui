@@ -5,10 +5,6 @@
                 <q-item-section avatar><q-icon color="primary" name="image"/></q-item-section>
                 <q-item-section>Show Well Image</q-item-section>
             </q-item>
-            <q-item clickable v-close-popup @click="viewDoseResponseCurve">
-              <q-item-section avatar><q-icon color="primary" name="show_chart"/></q-item-section>
-              <q-item-section>View Dose Response Curve</q-item-section>
-            </q-item>
             <q-separator />
             <q-item clickable v-close-popup>
                 <q-item-section avatar><q-icon color="positive" name="check_circle"/></q-item-section>
