@@ -11,6 +11,9 @@ const getters = {
     areWellsLoaded: (state) => (plateId) => {
         return state.wellsByPlate[plateId] != null;
     },
+    getWellsByPlateIdAndSubstance: (state) => (plateId, substance) => {
+        return state.wellsByPlate[plateId].filter(well => (well.wellSubstance && well.wellSubstance.name === substance))
+    }
 }
 
 const actions = {
