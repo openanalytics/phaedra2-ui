@@ -54,8 +54,9 @@ const closed = computed(() => store.getters['experiments/getNrOfClosedExperiment
   display: grid;
   align-items: center;
   text-align: center;
-  width: 80px;
-  height: 60px;
+  //font-size: 1vw;
+  width: 30%;
+  height: fit-content;
 }
 
 .project-stat-total {

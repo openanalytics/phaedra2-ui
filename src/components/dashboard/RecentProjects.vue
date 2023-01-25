@@ -1,7 +1,7 @@
 <template>
   <div class="q-pa-md">
     <oa-section-header :title="'Recent Projects'" :icon="'folder'"/>
-    <div class="row col-4 q-pa-lg oa-section-body">
+    <div class="row q-pa-xs oa-section-body">
       <ProjectCard :project="project" v-for="project in projects" :key="project.id"/>
     </div>
   </div>

@@ -1,7 +1,7 @@
 <template>
-  <div class="row text-h6 items-center q-px-md oa-section-title">
-    <div style="justify-content: center; min-width: 56px;" class="column"><q-icon :name="icon" /></div>
-    <div class="column">{{title}}</div>
+  <div class="row q-pa-xs oa-section-title">
+    <div style="justify-content: center" class="column"><q-icon class="" :name="icon" /></div>
+    <div style="justify-content: center" class="column">{{title}}</div>
   </div>
 </template>
 
