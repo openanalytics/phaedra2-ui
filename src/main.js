@@ -15,7 +15,7 @@ import { createWebHistory, createRouter } from "vue-router"
 
 import { publicPath } from '../vue.config'
 
-import Dashboard from '@/pages/Dashboard.vue'
+import Dashboard from '@/pages/dashboard/Dashboard.vue'
 
 import BrowseProjects from "./pages/project/BrowseProjects";
 import ProjectView from '@/pages/project/ProjectView.vue'
@@ -31,11 +31,12 @@ import FormulaTab  from "@/pages/feature/FormulaTab.vue";
 import FormulasView from "@/pages/calculation/formula/BrowseFormulas";
 import FormulaView from "@/pages/calculation/formula/FormulaView";
 
-import CaptureJobsView from '@/pages/datacapture/CaptureJobsView.vue'
-import MeasurementsView from "@/pages/datacapture/MeasurementsView";
-import MeasurementDetailsView from "@/pages/datacapture/MeasurementDetailsView";
-import BrowseImageRenderConfigs from "@/pages/datacapture/BrowseImageRenderConfigs";
-import ImageRenderConfigDetails from "@/pages/datacapture/ImageRenderConfigDetails";
+import ScanJobsView from '@/pages/datacapture/ScanJobsView'
+import CaptureJobsView from '@/pages/datacapture/CaptureJobsView'
+import MeasurementsView from "@/pages/datacapture/MeasurementsView"
+import MeasurementDetailsView from "@/pages/datacapture/MeasurementDetailsView"
+import BrowseImageRenderConfigs from "@/pages/datacapture/BrowseImageRenderConfigs"
+import ImageRenderConfigDetails from "@/pages/datacapture/ImageRenderConfigDetails"
 
 import ExperimentView from '@/pages/experiment/ExperimentView.vue'
 import PlateList from "@/pages/experiment/PlateList.vue"
@@ -92,6 +93,7 @@ const routes = [
     { name: "calcFormulas", path: "/calc/formulas", component: BrowseFormulas },
     { name: "calcFormula", path: "/calc/formula/:id", component: FormulaView },
 
+    { name: "scanJobs", path: "/datacapture/scan", component: ScanJobsView },
     { name: "dataCaptureJobs", path: "/datacapture/jobs", component: CaptureJobsView },
     { name: "measurements", path: "/datacapture/meas", component: MeasurementsView},
     { name: "measurementDetails", path: "/datacapture/meas/:id", component: MeasurementDetailsView},
@@ -122,6 +124,7 @@ import { createApp } from "vue"
 import Plotly from "plotly.js-dist-min"
 
 import { createPinia, setActivePinia } from "pinia"
+import VueGridLayout from 'vue-grid-layout'
 import App from "./App.vue"
 import BrowseFormulas from "@/pages/calculation/formula/BrowseFormulas";
 
@@ -159,6 +162,9 @@ app.mixin({
         pageStyleFnForBreadcrumbs(offset) {
             return { minHeight: offset ? `calc(100vh - ${offset}px - 50px)` : '100vh' }
         }
+    },
+    computed: {
+        console: () => console
     }
 })
 

@@ -148,8 +148,13 @@ export default {
         {
           label: "Data Capture",
           header: "category",
-          icon: 'scanner',
+          icon: 'input',
           children: [
+            {
+              label: "Scan Jobs",
+              icon: "scanner",
+              route: "scanJobs"
+            },
             {
               label: "Capture Jobs",
               icon: 'list_alt',
