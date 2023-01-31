@@ -1,13 +1,13 @@
 <template>
   <div class="curve-view" id="drCurve" ref="drCurve">
-    <q-menu context-menu>
-      <q-list dense>
-        <q-item clickable v-close-popup @click="viewDoseResponseCurve">
-          <q-item-section avatar><q-icon color="primary" name="show_chart"/></q-item-section>
-          <q-item-section>View Dose Response Curve</q-item-section>
-        </q-item>
-      </q-list>
-    </q-menu>
+<!--    <q-menu context-menu>-->
+<!--      <q-list dense>-->
+<!--        <q-item clickable v-close-popup @click="viewDoseResponseCurve">-->
+<!--          <q-item-section avatar><q-icon color="primary" name="show_chart"/></q-item-section>-->
+<!--          <q-item-section>View Dose Response Curve</q-item-section>-->
+<!--        </q-item>-->
+<!--      </q-list>-->
+<!--    </q-menu>-->
   </div>
 </template>
 
@@ -61,9 +61,9 @@ onMounted(() => {
   Plotly.newPlot(drCurve.value, data, layout, config)
 })
 
-const viewDoseResponseCurve = () => {
-  store.dispatch('ui/openSideView', 'doseResponseCurve')
-}
+// const viewDoseResponseCurve = () => {
+//   store.dispatch('ui/openSideView', 'doseResponseCurve')
+// }
 
 </script>
 

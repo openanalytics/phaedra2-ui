@@ -61,6 +61,10 @@ const actions = {
             .map(well => { return { "name": well.wellSubstance.name, "plates": well.plateId }})
         ctx.commit('clearSelectedSubstance')
         ctx.commit('addSelectedSubstances', selectedSubstances)
+    },
+    //TODO: Add selectSubstance function
+    selectSubstance: (ctx,  substance) => {
+
     }
 }
 
@@ -77,6 +81,12 @@ const mutations = {
     },
     setSelectedWells: (state, wells) => {
         state.selectedWells = [...wells];
+    },
+    addSelectedWells: (state, wells) => {
+        state.selectedWells.push([...wells]);
+    },
+    removeSelectedWells: (state, wells) => {
+        wells.forEach(selectedWell => (state.selectedWells = state.selectedWells.filter(well => well.id === selectedWell.id)))
     },
     addSelectedSubstances: (state, substances) => {
         substances.forEach(substance => {

@@ -1,15 +1,17 @@
 <template>
-  <q-table v-if="curves.length > 0"
-           class="my-sticky-column-table"
-           table-header-class="text-grey"
-           flat square dense bordered
-           separator="cell"
-           :rows="curveData"
-           :columns="curveTableColumns"
-           row-key="substance"
-           selection="multiple"
-           v-model:selected="selected"
-           @selection="handleSelection">
+  <q-table
+      class="my-sticky-column-table"
+      table-header-class="text-grey"
+      flat square dense bordered
+      separator="cell"
+      :rows="curveData"
+      :columns="curveTableColumns"
+      row-key="substance"
+      selection="multiple"
+      v-model:selected="selected"
+      ref="curveTable"
+      @selection="handleSelection"
+      @update:pagination="handleUpdatePagination">
     <template v-slot:header="props">
       <q-tr>
         <q-th colspan="1"/>
@@ -28,22 +30,22 @@
     </template>
     <template v-slot:body-cell-substance="props">
       <q-td :props="props">
-        {{props.row.substance}}
+        {{ props.row.substance }}
       </q-td>
     </template>
     <template v-slot:body-cell-plate="props">
       <q-td :props="props">
-        {{props.row.plateBarcode}}
+        {{ props.row.plateBarcode }}
       </q-td>
     </template>
     <template v-slot:body-cell-samples="props">
       <q-td :props="props">
-        {{props.row.samples}}
+        {{ props.row.samples }}
       </q-td>
     </template>
     <template v-slot:body-cell="props">
       <q-td :props="props">
-        {{props.row.curve_info[props.col.featureId][props.col.name]}}
+        {{ FormatUtils.formatToScientificNotation(props.row.curve_info[props.col.featureId][props.col.name], 2) }}
       </q-td>
     </template>
     <template v-slot:body-cell-curve="props">
@@ -55,28 +57,25 @@
 </template>
 
 <script setup>
-import {useCurveDataStore} from "@/stores/curvedata";
-import {computed, ref} from "vue";
+import {computed, ref, watch} from "vue";
 import {useStore} from "vuex";
 import MiniDoseResponseCurve from "@/components/curve/MiniDoseResponseCurve"
+import FormatUtils from "@/lib/FormatUtils";
 
 const store = useStore()
-const curvedataStore = useCurveDataStore()
 
-const props = defineProps(['plate'])
+const props = defineProps(['plate', 'curves'])
+const emit = defineEmits(['handleSelection'])
 
-const curves = computed(() => {
-  return curvedataStore.getCurvesByPlateId(props.plate.id)
-})
+const curves = ref(props.curves)
 
 const featureIds = [...new Set(curves.value?.map(c => c.featureId))]
-store.dispatch('features/loadByIds', featureIds)
-
 const features = computed(() => store.getters['features/getByIds'](featureIds))
 
 const curveData = ref([])
+const curveTable = ref(null)
 
-curves.value.map(curve => {
+curves.value?.map(curve => {
   let result = curveData.value.filter(cd => cd.substance === curve.substanceName);
   if (result.length > 0) {
     result[0].curve_info[curve.featureId] = {
@@ -91,7 +90,7 @@ curves.value.map(curve => {
   } else {
     result = {
       'plateId': curve.plateId,
-      'plateBarcode': (store.getters['plates/getById'](curve.plateId) || {}).barcode,
+      'plateBarcode': props.plate.barcode,
       'substance': curve.substanceName,
       'samples': curve.wells.length,
       'curve_info': {}
@@ -131,32 +130,63 @@ const curveTableColumns = ref([
   {name: 'samples', align: 'left', label: 'Samples', field: 'samples', sortable: true},
 ])
 
-const curveFeatureCols = (feature) => {
+const curveFeatureCols = (featureId) => {
   const result = ref([
-    {name: 'ic50', align: 'left', label: 'IC50', field: 'curve_info.ic50', sortable: true, featureId: feature.id},
-    {name: 'slope', align: 'left', label: 'Slope', field: 'curve_info.slope', sortable: true, featureId: feature.id},
-    {name: 'emin', align: 'left', label: 'eMin', field: 'curve_info.emin', sortable: true, featureId: feature.id},
-    {name: 'emin_conc', align: 'left', label: 'eMin Conc', field: 'curve_info.emin_conc', sortable: true, featureId: feature.id},
-    {name: 'emax', align: 'left', label: 'eMax', field: 'curve_info.emax', sortable: true, featureId: feature.id},
-    {name: 'emax_conc', align: 'left', label: 'eMax Conc', field: 'curve_info.emax_conc', sortable: true, featureId: feature.id},
-    {name: 'curve', align: 'center', label: 'Curve', field: 'curve_info.curve', sortable: false, featureId: feature.id},
+    {name: 'ic50', align: 'left', label: 'IC50', field: 'curve_info.ic50', sortable: true, featureId: featureId, format: (val, row) => FormatUtils.formatToScientificNotation(val, 2)},
+    {name: 'slope', align: 'left', label: 'Slope', field: 'curve_info.slope', sortable: true, featureId: featureId},
+    {name: 'emin', align: 'left', label: 'eMin', field: 'curve_info.emin', sortable: true, featureId: featureId},
+    {
+      name: 'emin_conc',
+      align: 'left',
+      label: 'eMin Conc',
+      field: 'curve_info.emin_conc',
+      sortable: true,
+      featureId: featureId
+    },
+    {name: 'emax', align: 'left', label: 'eMax', field: 'curve_info.emax', sortable: true, featureId: featureId},
+    {
+      name: 'emax_conc',
+      align: 'left',
+      label: 'eMax Conc',
+      field: 'curve_info.emax_conc',
+      sortable: true,
+      featureId: featureId
+    },
+    {name: 'curve', align: 'center', label: 'Curve', field: 'curve_info.curve', sortable: false, featureId: featureId},
   ])
   return result;
 }
 
-for (let feature in features.value) {
-  curveTableColumns.value = curveTableColumns.value.concat(curveFeatureCols(features.value[feature]).value)
+for (let fId in featureIds) {
+  curveTableColumns.value = curveTableColumns.value.concat(curveFeatureCols(featureIds[fId]).value)
 }
 
-const selectedWellSubstances = computed( () => { return store.getters['ui/getSelectedSubstances']() })
-const selected = ref([...curveData.value.filter(cd => selectedWellSubstances.value.includes(cd.substance))])
-const handleSelection = ({ rows, added, evt }) => {
-  if (rows.length === 0)  return
+const selectedWells = computed( () => store.getters['ui/getSelectedWells']())
+const selectedWellSubstances = computed( () => store.getters['ui/getSelectedSubstances']())
 
-  if (added)
-    store.commit('ui/addSelectedSubstances', rows.map(row => {return {"name": row.substance, "plates": row.plateId}}))
-  else
-    store.commit('ui/removeSelectedSubstances', rows.map(row => {return {"name": row.substance, "plates": row.plateId}}))
+const selected = ref([...curveData.value.filter(cd => selectedWellSubstances.value.includes(cd.substance))])
+const updateSelected = () => {
+  selected.value = [...curveData.value.filter(cd => selectedWellSubstances.value.includes(cd.substance))]
+}
+
+watch(selectedWells, updateSelected);
+watch(selectedWellSubstances, updateSelected);
+const handleSelection = ({rows, added, evt}) => {
+  if (rows.length === 0) return
+
+  const selectedWells = computed(() => store.getters['wells/getWellsByPlateIdAndSubstance'](props.plate.id, rows[0].substance))
+  if (added) {
+    store.commit('ui/addSelectedWells', selectedWells.value)
+    store.commit('ui/addSelectedSubstances', rows.map(row => ({"name": row.substance, "plates": row.plateId})))
+  } else {
+    store.commit('ui/removeSelectedWells', selectedWells.value)
+    store.commit('ui/removeSelectedSubstances', rows.map(row => ({"name": row.substance, "plates": row.plateId})))
+  }
+  emit('handleSelection', curveTable.value.$el.offsetHeight)
+}
+
+const handleUpdatePagination = (newPagination) => {
+  console.log("New pagination object: " + newPagination)
 }
 </script>
 
