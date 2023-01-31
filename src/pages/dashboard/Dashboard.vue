@@ -66,12 +66,10 @@
 import {computed} from "vue";
 import {useStore} from "vuex";
 import RecentProjects from "@/components/dashboard/RecentProjects";
-import RecentCalculations from "../components/dashboard/RecentCalculations";
+import RecentCalculations from "../../components/dashboard/RecentCalculations";
 import UserChip from "@/components/widgets/UserChip";
 import FormatUtils from "@/lib/FormatUtils.js";
-import OaSectionHeader from "../components/widgets/OaSectionHeader";
-import DoseResponseCurveD3 from "@/components/curve/DoseResponseCurveD3";
-import ScatterPlot from "@/components/curve/ScatterPlot";
+import OaSectionHeader from "../../components/widgets/OaSectionHeader";
 
 const store = useStore();
 const nrOfExperiments = 10
@@ -99,13 +97,6 @@ const columns = [
   {name: 'project', label: 'Project', align: 'left', field: 'projectId'}
 ]
 
-// let data = [];
-// const doses = [9.699, 8.699, 8.222, 7.699, 7.222, 6.699, 6.222, 5.699]
-// const responses = [0.026662437245249748, 0.02455262653529644, 0.024466577917337418, 0.0282649714499712, 0.02487374097108841, 0.024409836158156395, 0.024715760722756386, 0.023414188995957375]
-// for (let i = 0; i < doses.length; i++) {
-//   const drPoint = {"dose": doses[i], "response": responses[i], "x": doses[i], "y": responses[i]}
-//   data.push(drPoint)
-// }
 const getProjectName = (projectId) => {
   const project = projects.value?.find(project => {
     return project.id === projectId
