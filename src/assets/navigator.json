@@ -1,0 +1,92 @@
+[
+  {
+    "label": "Dashboard",
+    "header": "link",
+    "route": "dashboard",
+    "icon": "home"
+  },
+  {
+    "label": "Projects",
+    "header": "category",
+    "children": [
+      {
+        "label": "New Project...",
+        "icon": "add",
+        "route": "newProject"
+      }, {
+        "label": "Browse Projects",
+        "icon": "folder_open",
+        "route": "browseProjects"
+      }
+    ]
+  },
+  {
+    "label": "Calculation",
+    "header": "category",
+    "icon": "calculate",
+    "children": [
+      {
+        "label": "New Protocol...",
+        "icon": "add",
+        "route": "newProtocol"
+      }, {
+        "label": "Browse Protocols",
+        "icon": "ballot",
+        "route": "browseProtocols"
+      },
+      {
+        "label": "Browse Formulas",
+        "icon": "functions",
+        "route": "calcFormulas"
+      }
+    ]
+  },
+  {
+    "label": "Plate Layouts",
+    "header": "category",
+    "icon": "border_all",
+    "children": [
+      {
+        "label": "New Template...",
+        "icon": "add",
+        "route": "newPlateTemplate"
+      },
+      {
+        "label": "New Template From File...",
+        "icon": "import_export",
+        "route": "newPlateTemplateFromFile"
+      }, {
+        "label": "Browse Templates",
+        "icon": "border_outer",
+        "route": "browseTemplates"
+      }
+    ]
+  },
+  {
+    "label": "Data Capture",
+    "header": "category",
+    "icon": "input",
+    "children": [
+      {
+        "label": "Scan Jobs",
+        "icon": "scanner",
+        "route": "scanJobs"
+      },
+      {
+        "label": "Capture Jobs",
+        "icon": "list_alt",
+        "route": "dataCaptureJobs"
+      },
+      {
+        "label": "Measurements",
+        "icon": "text_snippet",
+        "route": "measurements"
+      },
+      {
+        "label": "Render Settings",
+        "icon": "palette",
+        "route": "imageRenderConfigs"
+      }
+    ]
+  }
+]
