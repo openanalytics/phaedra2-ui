@@ -53,6 +53,10 @@ import NewPlateTemplateView from "@/pages/platelayout/NewPlateTemplateView";
 import ImportPlateTemplateFromFile from "@/pages/platelayout/ImportPlateTemplateFromFile"
 import BrowseTemplates from "@/pages/platelayout/BrowseTemplates";
 
+import BrowsePipelines from "@/pages/pipeline/BrowsePipelines";
+import PipelineDetails from "@/pages/pipeline/PipelineDetails";
+import NewPipeline from "@/pages/pipeline/NewPipeline";
+
 const routes = [
     { name: "dashboard", path: "/", component: Dashboard },
     { name: 'browseProjects', path: "/projects", component: BrowseProjects},
@@ -97,6 +101,10 @@ const routes = [
     { name: "measurementDetails", path: "/datacapture/meas/:id", component: MeasurementDetailsView},
     { name: "imageRenderConfigs", path: "/datacapture/render-configs", component: BrowseImageRenderConfigs},
     { name: "imageRenderConfigDetails", path: "/datacapture/render-config/:id", component: ImageRenderConfigDetails},
+
+    { name: "browsePipelines", path: "/pipelines", component: BrowsePipelines},
+    { name: "pipelineDetails", path: "/pipeline/:id", component: PipelineDetails },
+    { name: "newPipeline", path: "/pipeline/new", component: NewPipeline },
 ]
 const router = createRouter({
     history: createWebHistory(publicPath),

@@ -167,6 +167,23 @@ export default {
             }
           ]
         },
+        {
+          label: "Pipelines",
+          header: "category",
+          icon: 'route',
+          children: [
+            {
+              label: "New Pipeline...",
+              icon: "add",
+              route: "newPipeline",
+            },
+            {
+              label: "Browse Pipelines",
+              icon: 'route',
+              route: 'browsePipelines',
+            }
+          ]
+        },
       ]
     })
 
