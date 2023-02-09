@@ -46,8 +46,8 @@ const actions = {
         await pipelineAPI.deletePipeline(id);
         ctx.commit('uncachePipeline', id);
     },
-    async loadAllPipelineExecutions(ctx) {
-        const executions = await pipelineAPI.getAllPipelineExecutions();
+    async loadAllPipelineExecutions(ctx, range) {
+        const executions = await pipelineAPI.getAllPipelineExecutions(range);
         ctx.commit('cachePipelineExecutions', executions);
     },
     async loadPipelineExecutionById(ctx, id) {

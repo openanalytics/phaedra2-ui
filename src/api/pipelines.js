@@ -31,8 +31,8 @@ export default {
         const response = await axios.get(apiURL + '/execution/' + id + '/log');
         return response.data;
     },
-    async getAllPipelineExecutions() {
-        const response = await axios.get(apiURL + '/executions');
+    async getAllPipelineExecutions(range) {
+        const response = await axios.get(apiURL + '/executions', {params: range});
         return response.data;
     },
 }
