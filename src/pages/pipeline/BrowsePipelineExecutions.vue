@@ -1,25 +1,25 @@
 <template>
     <q-breadcrumbs class="oa-breadcrumb">
         <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}" />
-        <q-breadcrumbs-el label="Pipelines" icon="route"/>
+        <q-breadcrumbs-el label="Pipeline Executions" icon="play_circle_outline"/>
     </q-breadcrumbs>
 
     <q-page class="oa-root-div">
         <div class="q-pa-md">
-            <oa-section-header title="Pipelines" icon="route"/>
+            <oa-section-header title="Pipeline Executions" icon="play_circle_outline"/>
             <div class="row q-pa-md oa-section-body">
                 <q-table
                     table-header-class="text-grey"
                     flat dense
-                    :rows="pipelines"
+                    :rows="executions"
                     :columns="columns"
                     row-key="id"
                     class="full-width"
-                    :pagination="{ rowsPerPage: 20, sortBy: 'name' }"
+                    :pagination="{ rowsPerPage: 20, sortBy: 'createdOn', descending: true }"
                     :filter="filter"
                     :filter-method="filterMethod"
                     :loading="loading"
-                    @row-click="(e, row) => router.push('/pipeline/' + row.id)"
+                    @row-click="(e, row) => router.push('/pipeline-execution/' + row.id)"
                     >
                     <template v-slot:top-right>
                         <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
@@ -27,15 +27,6 @@
                                 <q-icon name="search"/>
                             </template>
                         </q-input>
-                    </template>
-                    <template v-slot:body-cell-name="props">
-                        <q-td :props="props">
-                            <router-link :to="'/pipeline/' + props.row.id" class="nav-link">
-                            <div class="row items-center cursor-pointer">
-                                {{ props.row.name }}
-                            </div>
-                            </router-link>
-                        </q-td>
                     </template>
                     <template v-slot:body-cell-createdBy="props">
                         <q-td :props="props">
@@ -74,18 +65,16 @@
     const filter = ref('');
     const filterMethod = FilterUtils.defaultTableFilter();
 
-    const pipelines = computed(() => store.getters['pipelines/getAllPipelines']());
-    store.dispatch('pipelines/loadAllPipelines').then(() => { loading.value = false });
+    const executions = computed(() => store.getters['pipelines/getAllPipelineExecutions']());
+    store.dispatch('pipelines/loadAllPipelineExecutions').then(() => { loading.value = false });
 
     const columns = ref([
-        {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
-        {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
-        {name: 'version', align: 'left', label: 'Version', field: 'versionNumber', sortable: true},
-        {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
         {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
         {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
         {name: 'updatedOn', align: 'left', label: 'Updated On', field: 'updatedOn', sortable: true, format: FormatUtils.formatDate},
         {name: 'updatedBy', align: 'left', label: 'Updated By', field: 'updatedBy', sortable: true},
+        {name: 'currentStep', align: 'center', label: 'Current Step', field: 'currentStep'},
+        {name: 'pipelineId', align: 'center', label: 'Pipeline ID', field: 'pipelineId'},
         {name: 'status', align: 'center', label: 'Status', field: 'status'},
     ]);
 </script>

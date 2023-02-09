@@ -56,6 +56,8 @@ import BrowseTemplates from "@/pages/platelayout/BrowseTemplates";
 import BrowsePipelines from "@/pages/pipeline/BrowsePipelines";
 import PipelineDetails from "@/pages/pipeline/PipelineDetails";
 import NewPipeline from "@/pages/pipeline/NewPipeline";
+import BrowsePipelineExecutions from "@/pages/pipeline/BrowsePipelineExecutions";
+import PipelineExecutionDetails from "@/pages/pipeline/PipelineExecutionDetails";
 
 const routes = [
     { name: "dashboard", path: "/", component: Dashboard },
@@ -105,6 +107,8 @@ const routes = [
     { name: "browsePipelines", path: "/pipelines", component: BrowsePipelines},
     { name: "pipelineDetails", path: "/pipeline/:id", component: PipelineDetails },
     { name: "newPipeline", path: "/pipeline/new", component: NewPipeline },
+    { name: "browsePipelineExecutions", path: "/pipeline-executions", component: BrowsePipelineExecutions},
+    { name: "pipelineExecutionDetails", path: "/pipeline-execution/:id", component: PipelineExecutionDetails },
 ]
 const router = createRouter({
     history: createWebHistory(publicPath),

@@ -22,5 +22,17 @@ export default {
     async deletePipeline(id) {
         const response = await axios.delete(apiURL + '/pipeline/' + id);
         if (response.status === 200) return response.data;
-    }
+    },
+    async getPipelineExecutionById(id) {
+        const response = await axios.get(apiURL + '/execution/' + id);
+        return response.data;
+    },
+    async getPipelineExecutionLogById(id) {
+        const response = await axios.get(apiURL + '/execution/' + id + '/log');
+        return response.data;
+    },
+    async getAllPipelineExecutions() {
+        const response = await axios.get(apiURL + '/executions');
+        return response.data;
+    },
 }

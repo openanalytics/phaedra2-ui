@@ -181,6 +181,11 @@ export default {
               label: "Browse Pipelines",
               icon: 'route',
               route: 'browsePipelines',
+            },
+            {
+              label: "Browse Pipeline Executions",
+              icon: 'play_circle_outline',
+              route: 'browsePipelineExecutions',
             }
           ]
         },

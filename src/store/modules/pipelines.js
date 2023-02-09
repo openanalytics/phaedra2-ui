@@ -1,7 +1,9 @@
 import pipelineAPI from '@/api/pipelines.js'
 
 const state = () => ({
-    pipelines: []
+    pipelines: [],
+    executions: [],
+    executionLogs: {}
 })
 
 const getters = {
@@ -10,7 +12,16 @@ const getters = {
     },
     getAllPipelines: (state) => () => {
         return [...state.pipelines]
-    }
+    },
+    getAllPipelineExecutions: (state) => () => {
+        return [...state.executions]
+    },
+    getPipelineExecutionById: (state) => (id) => {
+        return state.executions.find(exec => exec.id == id)
+    },
+    getPipelineExecutionLogById: (state) => (id) => {
+        return state.executionLogs[id];
+    },
 }
 
 const actions = {
@@ -35,10 +46,22 @@ const actions = {
         await pipelineAPI.deletePipeline(id);
         ctx.commit('uncachePipeline', id);
     },
+    async loadAllPipelineExecutions(ctx) {
+        const executions = await pipelineAPI.getAllPipelineExecutions();
+        ctx.commit('cachePipelineExecutions', executions);
+    },
+    async loadPipelineExecutionById(ctx, id) {
+        const exec = await pipelineAPI.getPipelineExecutionById(id);
+        ctx.commit('cachePipelineExecutions', [exec]);
+    },
+    async loadPipelineExecutionLogById(ctx, id) {
+        const log = await pipelineAPI.getPipelineExecutionLogById(id);
+        ctx.commit('cachePipelineExecutionLog', {id, log});
+    },
 }
 
 const mutations = {
-    cachePipelines (state, pipelines) {
+    cachePipelines(state, pipelines) {
         let newPipelines = [...state.pipelines];
         pipelines.forEach(pipeline => {
             let index = newPipelines.findIndex(p => p.id === pipeline.id);
@@ -49,6 +72,18 @@ const mutations = {
     },
     uncachePipeline(state, id) {
         state.pipelines = state.pipelines.filter(p => p.id !== id)
+    },
+    cachePipelineExecutions(state, executions) {
+        let newExecutions = [...state.executions];
+        executions.forEach(exec => {
+            let index = newExecutions.findIndex(p => p.id === exec.id);
+            if (index >= 0) newExecutions.splice(index, 1);
+            newExecutions.push(exec);
+        });
+        state.executions = newExecutions;
+    },
+    cachePipelineExecutionLog(state, data) {
+        state.executionLogs[data.id] = data.log;
     },
 }
 
