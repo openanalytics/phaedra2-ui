@@ -21,6 +21,9 @@
                     :loading="loading"
                     @row-click="(e, row) => router.push('/pipeline-execution/' + row.id)"
                     >
+                    <template v-slot:top-left>
+                        <q-btn color="primary" icon="refresh" size="sm" @click="refreshList" class="on-left"/>
+                    </template>                    
                     <template v-slot:top-right>
                         <date-range-selector v-model:from="dateFrom" v-model:to="dateTo" @rangeChanged="refreshList" />
                         <q-input outlined dense debounce="300" v-model="filter" placeholder="Search" class="on-right">
@@ -70,13 +73,15 @@
     const dateFrom = ref(new Date());
     const dateTo = ref(new Date());
     dateFrom.value.setDate(dateTo.value.getDate() - 14);
+    const getDateRange = () => { 
+        return { from: Date.parse(dateFrom.value), to: Date.parse(dateTo.value) };
+    };
     const refreshList = () => {
         loading.value = true;
-        store.dispatch('pipelines/loadAllPipelineExecutions', { from: Date.parse(dateFrom.value), to: Date.parse(dateTo.value) }).then(() => { loading.value = false });
-    }
-
-    const executions = computed(() => store.getters['pipelines/getAllPipelineExecutions']());
-    store.dispatch('pipelines/loadAllPipelineExecutions', { from: Date.parse(dateFrom.value), to: Date.parse(dateTo.value) }).then(() => { loading.value = false });
+        store.dispatch('pipelines/loadAllPipelineExecutions', getDateRange()).then(() => { loading.value = false });
+    };
+    const executions = computed(() => store.getters['pipelines/getAllPipelineExecutions'](getDateRange()));
+    refreshList();
 
     const columns = ref([
         {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},

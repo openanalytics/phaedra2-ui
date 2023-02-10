@@ -13,8 +13,9 @@ const getters = {
     getAllPipelines: (state) => () => {
         return [...state.pipelines]
     },
-    getAllPipelineExecutions: (state) => () => {
-        return [...state.executions]
+    getAllPipelineExecutions: (state) => (range) => {
+        if (range) return state.executions.filter(exec => Date.parse(exec.createdOn) >= range.from && Date.parse(exec.createdOn) <= range.to);
+        else return [...state.executions]
     },
     getPipelineExecutionById: (state) => (id) => {
         return state.executions.find(exec => exec.id == id)

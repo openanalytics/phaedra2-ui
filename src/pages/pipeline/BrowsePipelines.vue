@@ -21,6 +21,9 @@
                     :loading="loading"
                     @row-click="(e, row) => router.push('/pipeline/' + row.id)"
                     >
+                    <template v-slot:top-left>
+                        <q-btn color="primary" icon="add" size="sm" label="New Pipeline..." @click="router.push('/pipeline/new')"/>
+                    </template>
                     <template v-slot:top-right>
                         <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
                             <template v-slot:append>
