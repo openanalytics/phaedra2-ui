@@ -52,10 +52,6 @@
         "route": "newPlateTemplate"
       },
       {
-        "label": "New Template From File...",
-        "icon": "import_export",
-        "route": "newPlateTemplateFromFile"
-      }, {
         "label": "Browse Templates",
         "icon": "border_outer",
         "route": "browseTemplates"
