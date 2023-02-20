@@ -1,27 +1,24 @@
 <template>
-  <q-breadcrumbs class="oa-breadcrumb">
-    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
-    <q-breadcrumbs-el :label="'New Plate Layout Template'"/>
-  </q-breadcrumbs>
+<!--  <q-breadcrumbs class="oa-breadcrumb">-->
+<!--    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>-->
+<!--    <q-breadcrumbs-el :label="'New Plate Layout Template'"/>-->
+<!--  </q-breadcrumbs>-->
 
-  <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
+  <q-dialog v-model="importFromFile" persistent>
     <div class="q-pa-md">
-      <oa-section-header :title="'New Template from file'" :icon="'add'"/>
 
       <div class="row q-pa-lg oa-section-body">
         <q-form class="col" @submit="onSubmit" @reset="onReset">
           <q-file v-model="importFile" label="Plate template"></q-file>
 
           <div class="row justify-end q-pt-md">
-            <q-btn label="Submit" type="submit" color="primary"></q-btn>
-            <router-link :to="{name: 'browseTemplates'}" class="nav-link">
-              <q-btn label="Cancel" type="reset" color="primary" flat class="a-ml-sm"></q-btn>
-            </router-link>
+              <q-btn label="Submit" color="primary" square></q-btn>
+              <q-btn label="Cancel" type="reset" color="primary" flat square class="a-ml-sm"></q-btn>
           </div>
         </q-form>
       </div>
     </div>
-  </q-page>
+  </q-dialog>
 </template>
 
 <script setup>
@@ -30,12 +27,14 @@ import {useStore} from 'vuex'
 import {useRouter} from 'vue-router'
 import OaSectionHeader from "@/components/widgets/OaSectionHeader";
 import {useTemplateStore} from "@/stores/template";
+import NewPlateTemplateView from "@/pages/platelayout/NewPlateTemplateView.vue";
 
 const wellTypeOptions = ['LC', 'HC', 'NC', 'PC']
 
 const router = useRouter()
 const templateStore = useTemplateStore()
 
+const importFromFile = ref(false)
 const importFile = ref(null)
 
 const newPlateTemplate = {
@@ -58,7 +57,8 @@ const onSubmit = async () => {
     newPlateTemplate.columns = plateTemplate.columns
     newPlateTemplate.wells = plateTemplate.wells
 
-    saveTemplate()
+    router.push({ name: "newPlateTemplate", params: { plateTemplate: newPlateTemplate }})
+    // saveTemplate()
     console.log(plateTemplate)
   }
   reader.readAsText(importFile.value);

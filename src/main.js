@@ -84,10 +84,10 @@ const routes = [
         ]
     },
 
-    { name: "browseTemplates", path: "/templates", component: BrowseTemplates},
-    { name: "template", path: "/template/:id", component: PlateTemplateView},
-    { name: "newPlateTemplate", path: "/template/new", component: NewPlateTemplateView},
-    { name: "newPlateTemplateFromFile", path: "/template/new", component: ImportPlateTemplateFromFile},
+    { name: "browseTemplates", path: "/templates", component: BrowseTemplates },
+    { name: "template", path: "/template/:id", component: PlateTemplateView },
+    { name: "newPlateTemplate", path: "/template/new", component: NewPlateTemplateView, props: true },
+    { name: "newPlateTemplateFromFile", path: "/template/new", component: ImportPlateTemplateFromFile },
 
 
     { name: "calcFormulas", path: "/calc/formulas", component: BrowseFormulas },
