@@ -7,7 +7,6 @@
 
   <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
     <div class="q-pa-md">
-
       <oa-section-header v-if="!project" :title="'Loading project...'" :icon="'folder'"/>
       <div v-else>
 <!--        <oa-section-header :title="project.name" :icon="'folder'"/>-->
@@ -16,35 +15,73 @@
                           expand-icon-class="text-white"
                           default-opened dense>
           <div class="row q-pa-md oa-section-body">
-            <div class="col-4 q-gutter-xs">
-              <div class="row">
-                <div class="col-3 text-weight-bold">ID:</div>
-                <div class="col">{{ project.id }}</div>
-              </div>
-              <div class="row">
-                <div class="col-3 text-weight-bold">Created On:</div>
-                <div class="col">{{ FormatUtils.formatDate(project.createdOn) }}</div>
-              </div>
-              <div class="row">
-                <div class="col-3 text-weight-bold">Created By:</div>
-                <div class="col"><UserChip :id="project.createdBy" /></div>
-              </div>
-              <div class="row">
-                <div class="col-3 text-weight-bold">Description:</div>
-                <div class="col"><EditableField :object="project" :fieldName="'description'" @valueChanged="onDescriptionChanged" /></div>
-              </div>
-              <div class="row">
-                <div class="col-3 text-weight-bold">Access:</div>
-                <div class="col">
-                  <AccessControlList :projectId="project.id" />
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-3 text-weight-bold">Tags:</div>
-                <div class="col">
-                  <TagList :objectInfo="project" :objectClass="'PROJECT'" />
-                </div>
-              </div>
+            <div class="col-4">
+              <q-field label="ID" stack-label disable dense>
+                <template v-slot:control>
+                  <div class="self-center full-width no-outline">{{ project.id }}</div>
+                </template>
+              </q-field>
+<!--              <div class="row">-->
+<!--                <div class="col-3 text-weight-bold">ID:</div>-->
+<!--                <div class="col">{{ project.id }}</div>-->
+<!--              </div>-->
+              <q-field label="Created On" stack-label disable dense>
+                <template v-slot:control>
+                  <div class="self-center full-width no-outline">{{ FormatUtils.formatDate(project.createdOn) }}</div>
+                </template>
+              </q-field>
+<!--              <div class="row">-->
+<!--                <div class="col-3 text-weight-bold">Created On:</div>-->
+<!--                <div class="col">{{ FormatUtils.formatDate(project.createdOn) }}</div>-->
+<!--              </div>-->
+              <q-field label="Created By" stack-label disable dense>
+                <template v-slot:control>
+                  <div class="self-center full-width no-outline">
+                    <UserChip :id="project.createdBy" />
+                  </div>
+                </template>
+              </q-field>
+<!--              <div class="row">-->
+<!--                <div class="col-3 text-weight-bold">Created By:</div>-->
+<!--                <div class="col"><UserChip :id="project.createdBy" /></div>-->
+<!--              </div>-->
+              <q-field label="Description" stack-label dense>
+                <template v-slot:control>
+                  <div class="self-center full-width no-outline">
+                    <EditableField :object="project" :fieldName="'description'" @valueChanged="onDescriptionChanged" />
+                  </div>
+                </template>
+              </q-field>
+<!--              <div class="row">-->
+<!--                <div class="col-3 text-weight-bold">Description:</div>-->
+<!--                <div class="col"><EditableField :object="project" :fieldName="'description'" @valueChanged="onDescriptionChanged" /></div>-->
+<!--              </div>-->
+              <q-field label="Access" stack-label dense>
+                <template v-slot:control>
+                  <div class="self-center full-width no-outline">
+                    <AccessControlList :projectId="project.id" />
+                  </div>
+                </template>
+              </q-field>
+<!--              <div class="row">-->
+<!--                <div class="col-3 text-weight-bold">Access:</div>-->
+<!--                <div class="col">-->
+<!--                  <AccessControlList :projectId="project.id" />-->
+<!--                </div>-->
+<!--              </div>-->
+              <q-field label="Tags" stack-label dense>
+                <template v-slot:control>
+                  <div class="self-center full-width no-outline">
+                    <TagList :objectInfo="project" :objectClass="'PROJECT'" />
+                  </div>
+                </template>
+              </q-field>
+<!--              <div class="row">-->
+<!--                <div class="col-3 text-weight-bold">Tags:</div>-->
+<!--                <div class="col">-->
+<!--                  <TagList :objectInfo="project" :objectClass="'PROJECT'" />-->
+<!--                </div>-->
+<!--              </div>-->
             </div>
 
             <div class="col-4">
