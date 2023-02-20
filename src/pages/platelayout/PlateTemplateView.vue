@@ -10,49 +10,74 @@
       <oa-section-header v-if="!template" :title="'Loading template...'" :icon="'border_outer'"/>
       <div v-else>
         <oa-section-header :title="template.name" :icon="'border_outer'"/>
-        <div class="row col-5 q-pa-md oa-section-body">
+        <div class="row q-pa-md oa-section-body">
           <div class="col col-4">
-            <div class="row">
-              <div class="col-3 text-weight-bold">ID:</div>
-              <div class="col">{{ template.id }}</div>
-            </div>
-            <div class="row">
-              <div class="col-3 text-weight-bold">Dimensions:</div>
-              <div class="col">{{ template.rows }} x {{ template.columns }}
-                ({{ template.rows * template.columns }} wells)
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-3 text-weight-bold">Description:</div>
-              <div class="col">{{ template.description }}</div>
-            </div>
-            <div class="row">
-              <div class="col-3 text-weight-bold">Tags:</div>
-              <div class="col">
-                <TagList :objectInfo="template" :objectClass="'PLATE_TEMPLATE'"/>
-              </div>
-            </div>
+            <q-field label="ID" stack-label disable dense>
+              <template v-slot:control>
+                <div class="self-center full-width no-outline">
+                  {{ template.id }}
+                </div>
+              </template>
+            </q-field>
+<!--            <div class="row">-->
+<!--              <div class="col-3 text-weight-bold">ID:</div>-->
+<!--              <div class="col">{{ template.id }}</div>-->
+<!--            </div>-->
+            <q-field label="Dimensions" stack-label disable dense>
+              <template v-slot:control>
+                <div class="self-center full-width no-outline">
+                  {{ template.rows }} x {{ template.columns }}
+                  ({{ template.rows * template.columns }} wells)
+                </div>
+              </template>
+            </q-field>
+<!--            <div class="row">-->
+<!--              <div class="col-3 text-weight-bold">Dimensions:</div>-->
+<!--              <div class="col">{{ template.rows }} x {{ template.columns }}-->
+<!--                ({{ template.rows * template.columns }} wells)-->
+<!--              </div>-->
+<!--            </div>-->
+            <q-field label="Description" stack-label disable dense>
+              <template v-slot:control>
+                <div class="self-center full-width no-outline">
+                  {{ template.description }}
+                </div>
+              </template>
+            </q-field>
+<!--            <div class="row">-->
+<!--              <div class="col-3 text-weight-bold">Description:</div>-->
+<!--              <div class="col">{{ template.description }}</div>-->
+<!--            </div>-->
+            <q-field label="Tags" stack-label disable dense>
+              <template v-slot:control>
+                <div class="self-center full-width no-outline">
+                  <TagList :objectInfo="templateStore.template" :objectClass="'PLATE_TEMPLATE'"/>
+                </div>
+              </template>
+            </q-field>
+<!--            <div class="row">-->
+<!--              <div class="col-3 text-weight-bold">Tags:</div>-->
+<!--              <div class="col">-->
+<!--                <TagList :objectInfo="template" :objectClass="'PLATE_TEMPLATE'"/>-->
+<!--              </div>-->
+<!--            </div>-->
           </div>
 
-          <div class="col-6">
-            <PropertyTable :objectInfo="template" :objectClass="'PLATE_TEMPLATE'"/>
+          <div class="col-4">
+            <PropertyTable :objectInfo="templateStore.template" :objectClass="'PLATE_TEMPLATE'" :read-only="true"/>
           </div>
 
-          <div class="col-1 q-gutter-xs">
+          <div class="col-4">
             <div class="row justify-end action-button">
-              <q-btn size="sm" color="primary" icon="save" class="oa-button-edit" label="Save"
+              <q-btn size="sm" icon="save" class="oa-action-button" label="Save"
                      @click="savePlateTemplate"/>
             </div>
             <div class="row justify-end action-button">
-              <q-btn size="sm" color="primary" icon="edit" class="oa-button-edit" label="Edit"
+              <q-btn size="sm" icon="edit" class="oa-action-button" label="Edit"
                      @click="editdialog = true"/>
             </div>
-<!--            <div class="row justify-end action-button">-->
-<!--&lt;!&ndash;              <q-file ref="importFile" />&ndash;&gt;-->
-<!--              <q-btn size="sm" color="primary" icon="import_export" class="oa-button-edit" label="Import..." @click="importTemplateFromFile"/>-->
-<!--            </div>-->
             <div class="row justify-end action-button">
-              <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete"
+              <q-btn size="sm" icon="delete" class="oa-action-button" label="Delete"
                      @click="openDeleteDialog"/>
             </div>
           </div>
@@ -91,13 +116,6 @@
 
   </q-page>
 </template>
-
-<style scoped>
-.action-button {
-  margin: 3px;
-}
-</style>
-
 
 <script setup>
 import {computed, onMounted, ref} from "vue"
