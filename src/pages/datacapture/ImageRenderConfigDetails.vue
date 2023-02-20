@@ -12,31 +12,60 @@
             <div v-else>
                 <oa-section-header :title="config.name" icon="palette"/>
                 <div class="row q-pa-md oa-section-body">
-                    <div class="col-6 q-gutter-xs">
-                        <div class="row">
-                            <div class="col-3 text-weight-bold">ID:</div>
-                            <div class="col">{{ config.id }}</div>
-                        </div>
-                        <div class="row">
-                            <div class="col-3 text-weight-bold">Name:</div>
-                            <div class="col">
-                                <EditableField :object="config" fieldName="name" @valueChanged="onNameChanged" />
-                            </div>
-                        </div>
+                    <div class="col-5">
+                      <q-field label="ID" stack-label disable dense>
+                        <template v-slot:control>
+                          <div class="self-center full-width no-outline">
+                            {{ config.id }}
+                          </div>
+                        </template>
+                      </q-field>
+<!--                        <div class="row">-->
+<!--                            <div class="col-3 text-weight-bold">ID:</div>-->
+<!--                            <div class="col">{{ config.id }}</div>-->
+<!--                        </div>-->
+                      <q-field label="Name" stack-label dense>
+                        <template v-slot:control>
+                          <div class="self-center full-width no-outline">
+                            <EditableField :object="config" fieldName="name" @valueChanged="onNameChanged" />
+                          </div>
+                        </template>
+                      </q-field>
+<!--                        <div class="row">-->
+<!--                            <div class="col-3 text-weight-bold">Name:</div>-->
+<!--                            <div class="col">-->
+<!--                                <EditableField :object="config" fieldName="name" @valueChanged="onNameChanged" />-->
+<!--                            </div>-->
+<!--                        </div>-->
                     </div>
-                    <div class="col-6">
-                        <div class="row">
-                            <div class="col-3 text-weight-bold">Gamma:</div>
-                            <div class="col">
-                                <EditableField :object="config.config" fieldName="gamma" :number="true" @valueChanged="(newValue) => onConfigValueChanged('gamma', newValue)" />
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-3 text-weight-bold">Scale:</div>
-                            <div class="col">
-                                <EditableField :object="config.config" fieldName="scale" :number="true" @valueChanged="(newValue) => onConfigValueChanged('scale', newValue)" />
-                            </div>
-                        </div>
+                  <div class="col-1"/>
+                    <div class="col-5">
+                      <q-field label="Gamme" stack-label dense>
+                        <template v-slot:control>
+                          <div class="self-center full-width no-outline">
+                            <EditableField :object="config.config" fieldName="gamma" :number="true" @valueChanged="(newValue) => onConfigValueChanged('gamma', newValue)" />
+                          </div>
+                        </template>
+                      </q-field>
+<!--                        <div class="row">-->
+<!--                            <div class="col-3 text-weight-bold">Gamma:</div>-->
+<!--                            <div class="col">-->
+<!--                                <EditableField :object="config.config" fieldName="gamma" :number="true" @valueChanged="(newValue) => onConfigValueChanged('gamma', newValue)" />-->
+<!--                            </div>-->
+<!--                        </div>-->
+                      <q-field label="Scale" stack-label dense>
+                        <template v-slot:control>
+                          <div class="self-center full-width no-outline">
+                            <EditableField :object="config.config" fieldName="scale" :number="true" @valueChanged="(newValue) => onConfigValueChanged('scale', newValue)" />
+                          </div>
+                        </template>
+                      </q-field>
+<!--                        <div class="row">-->
+<!--                            <div class="col-3 text-weight-bold">Scale:</div>-->
+<!--                            <div class="col">-->
+<!--                                <EditableField :object="config.config" fieldName="scale" :number="true" @valueChanged="(newValue) => onConfigValueChanged('scale', newValue)" />-->
+<!--                            </div>-->
+<!--                        </div>-->
                     </div>
                 </div>
             </div>
@@ -107,7 +136,7 @@
     import OaSectionHeader from "@/components/widgets/OaSectionHeader";
     import ColorButton from "@/components/image/ColorButton";
     import DeleteChannelDialog from "@/components/image/DeleteChannelDialog";
-    
+
     const store = useStore();
     const route = useRoute();
     const configId = parseInt(route.params.id);
