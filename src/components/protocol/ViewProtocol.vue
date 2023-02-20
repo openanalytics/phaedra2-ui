@@ -2,9 +2,8 @@
   <div v-if="props.protocol" class="q-pa-md">
     <oa-section-header :title="props.protocol.name" :icon="'ballot'"/>
 
-    <div class="col q-pa-md oa-section-body">
-      <div class="row q-pa-md">
-        <div class="col-4 q-gutter-xs">
+      <div class="row q-pa-md oa-section-body">
+        <div class="col-4">
           <q-field label="Name" stack-label disable dense>
             <template v-slot:control>
               <div class="self-center full-width no-outline">{{ props.protocol.name }}</div>
@@ -60,26 +59,22 @@
           </q-field>
         </div>
 
-        <div class="col-7">
-          <PropertyTable :objectInfo="props.protocol" :objectClass="'PROTOCOL'" :read-only="!props.editMode"/>
+        <div class="col-4">
+          <PropertyTable :objectInfo="props.protocol" :objectClass="'PROTOCOL'" :read-only="true"/>
         </div>
 
-        <div class="col-1 q-gutter-xs">
-          <div class="row justify-center">
-            <q-btn flat size="sm" color="secondary" icon="edit" class="oa-button-edit" label="Edit"
-                   @click="$emit('editMode', true)"/>
+        <div class="col-4">
+          <div class="row justify-end action-button">
+            <q-btn size="sm" icon="edit" class="oa-button" label="Edit" @click="$emit('editMode', true)"/>
           </div>
-          <div class="row justify-center">
-            <q-btn flat size="sm" color="secondary" icon="import_export" class="oa-button-delete" label="Export"
-                   @click="exportToJson(protocolId)"/>
+          <div class="row justify-end action-button">
+            <q-btn size="sm" icon="import_export" class="oa-button" label="Export" @click="exportToJson(protocolId)"/>
           </div>
-          <div class="row justify-center">
-            <q-btn flat size="sm" color="secondary" icon="delete" class="oa-button-delete" label="Delete"
-                   @click="openDeleteDialog"/>
+          <div class="row justify-end action-button">
+            <q-btn size="sm" icon="delete" class="oa-button" label="Delete" @click="openDeleteDialog"/>
           </div>
         </div>
       </div>
-    </div>
 
     <div class="q-pt-md">
       <FeatureList :protocol="props.protocol" :editMode="props.editMode"/>
@@ -89,6 +84,12 @@
   <DeleteDialog v-if="props.protocol" :id="props.protocol.id" :name="props.protocol.name" :objectClass="'protocol'"
                 v-model:show="showDialog"/>
 </template>
+
+<style scoped lang="scss">
+.action-button {
+  margin: 3px;
+}
+</style>
 
 <script setup>
   import {useStore} from "vuex";
