@@ -1,7 +1,10 @@
 <template>
-  <q-badge color="green">
-    {{ tagInfo.tag }} <q-btn size="xs" flat dense icon-right="close" v-show="!readOnly" @click="removeTag"/>
-  </q-badge>
+  <div class="q-pt-sm">
+    <q-badge color="green" >
+      {{ tagInfo.tag }}
+      <q-btn size="xs" flat dense icon-right="close" v-show="!readOnly" @click="removeTag"/>
+    </q-badge>
+  </div>
 </template>
 
 <script>
