@@ -13,26 +13,50 @@
                         header-class="q-pa-xs oa-section-title"
                         expand-icon-class="text-white"
                         default-opened dense>
-        <div class="row q-pa-sm oa-section-body">
-          <div class="col-4 q-gutter-xs">
-            <div class="row">
-              <div class="col-3 text-weight-bold">ID:</div>
-              <div class="col">{{ plate.id }}</div>
-            </div>
-            <div class="row">
-              <div class="col-3 text-weight-bold">Dimensions:</div>
-              <div class="col">{{ plate.rows }} x {{ plate.columns }} ({{ plate.rows * plate.columns }} wells)</div>
-            </div>
-            <div class="row">
-              <div class="col-3 text-weight-bold">Description:</div>
-              <div class="col">{{ plate.description }}</div>
-            </div>
-            <div class="row">
-              <div class="col-3 text-weight-bold">Tags:</div>
-              <div class="col">
-                <TagList :objectInfo="plate" :objectClass="'PLATE'"/>
-              </div>
-            </div>
+        <div class="row q-pa-md oa-section-body">
+          <div class="col-4">
+            <q-field label="ID" stack-label disable dense>
+              <template v-slot:control>
+                <div class="self-center full-width no-outline">{{ plate.id }}</div>
+              </template>
+            </q-field>
+<!--            <div class="row">-->
+<!--              <div class="col-3 text-weight-bold">ID:</div>-->
+<!--              <div class="col">{{ plate.id }}</div>-->
+<!--            </div>-->
+            <q-field label="Dimensions" stack-label disable dense>
+              <template v-slot:control>
+                <div class="self-center full-width no-outline">
+                  {{ plate.rows }} x {{ plate.columns }} ({{ plate.rows * plate.columns }} wells)
+                </div>
+              </template>
+            </q-field>
+<!--            <div class="row">-->
+<!--              <div class="col-3 text-weight-bold">Dimensions:</div>-->
+<!--              <div class="col">{{ plate.rows }} x {{ plate.columns }} ({{ plate.rows * plate.columns }} wells)</div>-->
+<!--            </div>-->
+            <q-field label="Description" stack-label disable dense>
+              <template v-slot:control>
+                <div class="self-center full-width no-outline">{{ plate.description }}</div>
+              </template>
+            </q-field>
+<!--            <div class="row">-->
+<!--              <div class="col-3 text-weight-bold">Description:</div>-->
+<!--              <div class="col">{{ plate.description }}</div>-->
+<!--            </div>-->
+            <q-field label="Tags" stack-label dense>
+              <template v-slot:control>
+                <div class="self-center full-width no-outline">
+                  <TagList :objectInfo="plate" :objectClass="'PLATE'"/>
+                </div>
+              </template>
+            </q-field>
+<!--            <div class="row">-->
+<!--              <div class="col-3 text-weight-bold">Tags:</div>-->
+<!--              <div class="col">-->
+<!--                <TagList :objectInfo="plate" :objectClass="'PLATE'"/>-->
+<!--              </div>-->
+<!--            </div>-->
           </div>
 
           <div class="col col-4">
@@ -49,7 +73,8 @@
                      @click="openDeleteDialog"/>
             </div>
             <div class="row justify-end action-button">
-              <q-btn size="sm" color="primary" icon="" class="oa-button" label="Recalculate"/>
+              <q-btn size="sm" color="primary" icon="calculate" class="oa-button" label="Recalculate"
+                     @click="openCalculatePlateDialog"/>
             </div>
           </div>
         </div>
@@ -105,7 +130,7 @@
               <Pane :size="chartPaneHeight">
                 <DoseResponseCurve :plate="plate" :width="width" :height="height"/>
               </Pane>
-              <Pane :size="chartPaneHeight">
+              <Pane :size="chartPaneHeight" style="overflow: auto">
                 <DoseResponseCurveProperties :plate="plate"></DoseResponseCurveProperties>
               </Pane>
             </Splitpanes>
@@ -115,6 +140,8 @@
     </div>
     <delete-dialog ref="deleteDialog" v-model:id="plate.id" v-model:name="plate.barcode" v-model:show="showDialog"
                    :objectClass="'plate'" @onDeleted="onDeleted"/>
+
+    <calculate-plate-dialog v-model:show="showCalculateDialog" :plateId="plate.id"/>
   </q-page>
 </template>
 
@@ -131,17 +158,18 @@ import {useRoute, useRouter} from 'vue-router'
 import { Splitpanes, Pane } from 'splitpanes'
 
 import TagList from "@/components/tag/TagList"
-import EditPlate from "./EditPlate";
-import PropertyTable from "@/components/property/PropertyTable";
-import PlateLayout from "@/pages/plate/PlateLayout";
-import PlateHeatmap from "@/pages/plate/PlateHeatmap";
-import MeasList from "@/pages/plate/MeasList";
-import WellList from "@/pages/plate/WellList";
-import ResultSetList from "./ResultSetList";
-import DoseResponseCurves from "@/pages/plate/DoseResponseCurves"
-import DeleteDialog from "@/components/widgets/DeleteDialog";
-import DoseResponseCurve from "@/components/curve/DoseResponseCurve";
-import DoseResponseCurveProperties from "@/components/curve/DoseResponseCurveProperties";
+import EditPlate from "./EditPlate"
+import PropertyTable from "@/components/property/PropertyTable"
+import PlateLayout from "@/pages/plate/PlateLayout"
+import PlateHeatmap from "@/pages/plate/PlateHeatmap"
+import MeasList from "@/pages/plate/MeasList"
+import WellList from "@/pages/plate/WellList"
+import ResultSetList from "./ResultSetList"
+import DoseResponseCurves from "@/components/curve/DoseResponseCurves"
+import DeleteDialog from "@/components/widgets/DeleteDialog"
+import DoseResponseCurve from "@/components/curve/DoseResponseCurve"
+import DoseResponseCurveProperties from "@/components/curve/DoseResponseCurveProperties"
+import CalculatePlateDialog from "@/components/plate/CalculatePlateDialog"
 
 const store = useStore()
 
@@ -154,6 +182,7 @@ const plate = computed(() => store.getters['plates/getCurrentPlate']());
 const experiment = computed(() => store.getters['experiments/getCurrentExperiment']());
 const project = computed(() => store.getters['projects/getCurrentProject']());
 
+const activeTab = ref('layout')
 const sizeChartPane = ref(0)
 
 store.dispatch('plates/loadById', plateId).then(() => {
@@ -174,13 +203,19 @@ store.dispatch('curvedata/loadPlateCurves', plateId).then(() => {
   }
 })
 
-const activeTab = ref('layout')
 const editdialog = ref(false)
 const showDialog = ref(false)
+const showCalculateDialog = ref(false);
+
 const curvelist = ref(null)
+
 
 const openDeleteDialog = () => {
   showDialog.value = true;
+}
+
+const openCalculatePlateDialog = () => {
+  showCalculateDialog.value = true;
 }
 
 const height = ref(400);
