@@ -9,7 +9,6 @@
     <div class="q-pa-md">
       <oa-section-header v-if="!project" :title="'Loading project...'" :icon="'folder'"/>
       <div v-else>
-<!--        <oa-section-header :title="project.name" :icon="'folder'"/>-->
         <q-expansion-item :label="project.name" icon="folder"
                           header-class="text-h6 oa-section-title"
                           expand-icon-class="text-white"
