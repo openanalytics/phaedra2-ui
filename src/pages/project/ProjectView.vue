@@ -88,11 +88,11 @@
             </div>
 
             <div class="col-4">
-              <div class="row justify-end action-button">
-                <q-btn size="sm" icon="edit" label="Rename" class="oa-button" @click="newProjectName = project.name; showRenameDialog = true"/>
+              <div class="row justify-end">
+                <q-btn size="sm" icon="edit" label="Rename" class="oa-action-button" @click="newProjectName = project.name; showRenameDialog = true"/>
               </div>
-              <div class="row justify-end action-button">
-                <q-btn size="sm" icon="delete" label="Delete" class="oa-button" @click="openDeleteDialog"/>
+              <div class="row justify-end">
+                <q-btn size="sm" icon="delete" label="Delete" class="oa-action-button" @click="openDeleteDialog"/>
               </div>
             </div>
           </div>
