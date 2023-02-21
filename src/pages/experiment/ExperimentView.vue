@@ -9,38 +9,69 @@
 
   <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
     <div class="q-pa-md" v-if="!editdialog">
-
       <oa-section-header v-if="!experiment" :title="'Loading experiment...'" :icon="'science'"/>
-
       <div v-else>
         <q-expansion-item :label="experiment.name" icon="science"
                           header-class="text-h6 oa-section-title"
                           expand-icon-class="text-white"
                           default-opened dense>
           <div class="row q-pa-md oa-section-body">
-          <div class="col-4 q-gutter-xs">
-            <div class="row">
-              <div class="col-3 text-weight-bold">ID:</div>
-              <div class="col">{{ experiment.id }}</div>
-            </div>
-            <div class="row">
-              <div class="col-3 text-weight-bold">Created On:</div>
-              <div class="col">{{ FormatUtils.formatDate(experiment.createdOn) }}</div>
-            </div>
-            <div class="row">
-              <div class="col-3 text-weight-bold">Created By:</div>
-              <div class="col"><UserChip :id="experiment.createdBy" /></div>
-            </div>
-            <div class="row">
-              <div class="col-3 text-weight-bold">Description:</div>
-              <div class="col">{{ experiment.description }}</div>
-            </div>
-            <div class="row">
-              <div class="col-3 text-weight-bold">Tags:</div>
-              <div class="col">
-                <TagList :objectInfo="experiment" :objectClass="'EXPERIMENT'" />
-              </div>
-            </div>
+          <div class="col-4">
+            <q-field label="ID" stack-label disable dense>
+              <template v-slot:control>
+                <div class="self-center full-width no-outline">{{ experiment.id }}</div>
+              </template>
+            </q-field>
+<!--            <div class="row">-->
+<!--              <div class="col-3 text-weight-bold">ID:</div>-->
+<!--              <div class="col">{{ experiment.id }}</div>-->
+<!--            </div>-->
+            <q-field label="Created On" stack-label disable dense>
+              <template v-slot:control>
+                <div class="self-center full-width no-outline">
+                  {{ FormatUtils.formatDate(experiment.createdOn) }}
+                </div>
+              </template>
+            </q-field>
+<!--            <div class="row">-->
+<!--              <div class="col-3 text-weight-bold">Created On:</div>-->
+<!--              <div class="col">{{ FormatUtils.formatDate(experiment.createdOn) }}</div>-->
+<!--            </div>-->
+            <q-field label="Created By" stack-label disable dense>
+              <template v-slot:control>
+                <div class="self-center full-width no-outline">
+                  <UserChip :id="experiment.createdBy"/>
+                </div>
+              </template>
+            </q-field>
+<!--            <div class="row">-->
+<!--              <div class="col-3 text-weight-bold">Created By:</div>-->
+<!--              <div class="col"><UserChip :id="experiment.createdBy" /></div>-->
+<!--            </div>-->
+            <q-field label="Description" stack-label disable dense>
+              <template v-slot:control>
+                <div class="self-center full-width no-outline">
+                  {{ experiment.description }}
+                </div>
+              </template>
+            </q-field>
+<!--            <div class="row">-->
+<!--              <div class="col-3 text-weight-bold">Description:</div>-->
+<!--              <div class="col">{{ experiment.description }}</div>-->
+<!--            </div>-->
+            <q-field label="Tags" stack-label disable dense>
+              <template v-slot:control>
+                <div class="self-center full-width no-outline">
+                  <TagList :objectInfo="experiment" :objectClass="'EXPERIMENT'" />
+                </div>
+              </template>
+            </q-field>
+<!--            <div class="row">-->
+<!--              <div class="col-3 text-weight-bold">Tags:</div>-->
+<!--              <div class="col">-->
+<!--                <TagList :objectInfo="experiment" :objectClass="'EXPERIMENT'" />-->
+<!--              </div>-->
+<!--            </div>-->
           </div>
 
           <div class="col-4">
