@@ -18,8 +18,13 @@ const formatJSON = function(json) {
     return JSON.stringify(jsonObject, null, 4)
 }
 
+const formatToScientificNotation = function (num, decimals){
+    return Number.parseFloat(num).toExponential(decimals);
+}
+
 export default {
     formatDate,
     formatTextMaxLength,
-    formatJSON
+    formatJSON,
+    formatToScientificNotation
 }

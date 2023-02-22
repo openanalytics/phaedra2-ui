@@ -95,7 +95,7 @@
   const emitWellSelection = (wells, append) => {
     if (!append) selectedWells.value.splice(0);
     for (const well of wells) {
-      if (append && selectedWells.value.some(w => w.id == well.id)) continue;
+      if (append && selectedWells.value.some(w => w.id === well.id)) continue;
       selectedWells.value.push(well);
     }
     store.dispatch('ui/selectWells', selectedWells.value);
@@ -103,7 +103,7 @@
   };
 
   window.addEventListener('keyup', function (event) {
-    if (selectedWells.value.length == 0) return;
+    if (selectedWells.value.length === 0) return;
     let currentWell = selectedWells.value[0];
     let nextPosition = [];
     switch (event.key) {
@@ -137,10 +137,10 @@
   });
 
   const selectRow = (n, append) => {
-    emitWellSelection(wells.value.filter(w => w.row == n), append);
+    emitWellSelection(wells.value.filter(w => w.row === n), append);
   };
   const selectColumn = (n, append) => {
-    emitWellSelection(wells.value.filter(w => w.column == n), append);
+    emitWellSelection(wells.value.filter(w => w.column === n), append);
   };
 
   const gridColumnStyle = computed(() => { return "repeat(" + (props.plate.columns + 1) + ", 1fr)" });
@@ -150,5 +150,5 @@
   watchEffect(() => {
     wellSlotFontSize.value = (props?.plate?.columns > 24) ? "0.4vw" : "65%";
   });
-  
+
 </script>

@@ -1,7 +1,5 @@
 /**
  * Default table filter method
- * @param rows
- * @param term
  * @returns {*}
  */
 const defaultTableFilter = function () {

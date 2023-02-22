@@ -10,7 +10,7 @@ const getters = {
         if (state.currentProtocolId) return state.protocols.find(p => p.id === state.currentProtocolId);
     },
     getById: (state) => (id) => {
-        return state.protocols.find(protocol => protocol.id == id)
+        return state.protocols.find(protocol => protocol.id === id)
     },
     getByIds: (state) => (ids) => {
         return state.protocols.filter(protocol => ids && ids.includes(protocol.id))
@@ -19,7 +19,7 @@ const getters = {
         return [...state.protocols]
     },
     isLoaded: (state) => (id) => {
-        return state.protocols.find(protocol => protocol.id == id) != null
+        return state.protocols.find(protocol => protocol.id === id) != null
     },
     getLoadedIds: (state) => () => {
         return new Set(state.protocols.map(f => f.id))

@@ -16,7 +16,7 @@
         </q-card-section>
         <q-card-actions align="right" class="text-primary">
           <q-btn flat label="Cancel" v-close-popup/>
-          <q-btn label="Delete experiment" color="accent" v-if="experiment.name==experimentName" v-close-popup @click="confirmDelete"/>
+          <q-btn label="Delete experiment" color="accent" v-if="experiment.name===experimentName" v-close-popup @click="confirmDelete"/>
         </q-card-actions>
       </q-card>
     </q-dialog>

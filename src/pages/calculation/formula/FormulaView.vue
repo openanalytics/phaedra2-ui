@@ -66,7 +66,7 @@ export default {
     OaSectionHeader,
     DeleteDialog
   },
-  setup() {
+  setup: function () {
     const exported = {};
 
     const route = useRoute();
@@ -83,9 +83,9 @@ export default {
     }
 
     exported.saveChanges = async () => {
-      if (formulaId == 0) {
+      if (formulaId === 0) {
         const newFormula = await store.dispatch('calculations/createFormula', exported.formula.value);
-        router.push("/calc/formula/" + newFormula.id);
+        await router.push("/calc/formula/" + newFormula.id);
       } else {
         await store.dispatch('calculations/updateFormula', {id: formulaId, formula: exported.formula.value});
         fetchFormulaWorkingCopy();
@@ -94,7 +94,7 @@ export default {
     }
 
     exported.cancelEditMode = () => {
-      if (formulaId == 0) {
+      if (formulaId === 0) {
         router.push("/calc/formulas");
       } else {
         exported.editMode.value = false;
@@ -110,7 +110,7 @@ export default {
       exported.formula.value = {...originalFormula}
     }
 
-    if (formulaId == 0) {
+    if (formulaId === 0) {
       exported.editMode.value = true;
     } else {
       store.dispatch('calculations/getFormula', formulaId).then(fetchFormulaWorkingCopy);

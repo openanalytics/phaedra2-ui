@@ -14,7 +14,7 @@
 
     <q-page-container>
       <Splitpanes class="default-theme" @resize="updatePanelSizes">
-        <Pane :size="navigatorSize" style="background-color: #ffffff;">
+        <Pane :size="navigatorSize" style="background-color: #ffffff;" min-size="10">
           <Navigator></Navigator>
         </Pane>
         <Pane :size="100 - (navigatorSize + sidePanelSize)" style="background-color: #ffffff;">

@@ -1,10 +1,10 @@
 <template>
     <div class="row">
-        <div>
-            <q-badge class="q-mr-xs q-mb-xs" v-for="pa in projectAccess" :key="pa.id">
+        <div class="q-pt-sm">
+            <q-badge class="q-mr-xs" v-for="pa in projectAccess" :key="pa.id">
                 {{ pa.teamName }} ({{ pa.accessLevel }}) <q-btn size="xs" flat dense icon-right="close" v-show="!readOnly" @click="askRemoveAccess(pa)"/>
             </q-badge>
-            <q-btn round dense icon="add" size="xs" v-show="!readOnly" @click="showAddAccessDialog = true">
+            <q-btn class="q-mb-xs" icon="add" size="xs" v-show="!readOnly" @click="showAddAccessDialog = true" round dense>
                 <q-tooltip :delay="500" class="text-black bg-secondary">Add Team Access</q-tooltip>
             </q-btn>
         </div>
@@ -56,11 +56,11 @@
             const store = useStore();
 
             exported.projectAccess = computed(() => store.getters['projects/getProjectAccess'](props.projectId));
-            
+
             const userInfo = computed(() => store.getters['userinfo/getUserInfo']());
             exported.teamNames = computed(() => userInfo.value.teams);
             exported.accessLevels = ref([ "Read", "Write", "Admin" ]);
-            
+
             exported.showAddAccessDialog = ref(false);
             exported.newAccess = ref({});
             exported.doAddAccess = function() {

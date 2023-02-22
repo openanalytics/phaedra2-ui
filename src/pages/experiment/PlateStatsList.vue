@@ -109,8 +109,7 @@ export default {
       }
       await Promise.all(calls);
       for (const plateId of plateIds) {
-        const plateResult = store.getters['resultdata/getLatestPlateResult'](plateId);
-        plateResults[plateId] = plateResult;
+        plateResults[plateId] = store.getters['resultdata/getLatestPlateResult'](plateId);
       }
 
       // 3. Load feature info
@@ -134,7 +133,7 @@ export default {
               const key = 'stat-' + rs.featureId + '-' + stat.name;
               statColumns[key] = {
                 name: key,
-                label: isFirst ? features.find(f => f.id == rs.featureId).name : '',
+                label: isFirst ? features.find(f => f.id === rs.featureId).name : '',
                 label2: stat.name,
                 align: 'center'
               }

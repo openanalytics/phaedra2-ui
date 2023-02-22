@@ -36,7 +36,7 @@
                         <div class="row col-12">
                           <template :key="variable.variableName" v-for="variable in variables.list">
                             <div v-if="!isRaw(newFeature.type)" class="row col-12">
-                              <div class="col-7">
+                              <div class="col-5">
                                 <q-input v-model="variable.sourceMeasColName"
                                          v-if="variable.inputSource === 'MEASUREMENT'"
                                          :label="variable.variableName"/>
@@ -47,6 +47,10 @@
                                           :label="variable.variableName"/>
                               </div>
                               <div class="col-1"/>
+                              <div class="vol-2">
+<!--                                <q-select v-model="variable.dataLevel" :options="dataLevel" label="Input source"-->
+<!--                                          square/>-->
+                              </div>
                               <div class="col-4">
                                 <q-select v-model="variable.inputSource" :options="inputSource" label="Input source"
                                           square/>
@@ -187,7 +191,7 @@ const isCalculation = (featureType, formulaCategory) => {
 }
 
 const isRaw = (featureType) => {
-  return featureType === 'RAW' ? true : false
+  return featureType === 'RAW'
 }
 
 const availableFeatures = (feature) => {

@@ -36,7 +36,7 @@ function getWellPosition(wellNr, columnCount) {
 }
 
 function getWell(wells, row, column) {
-    return wells.find(w => w.row == row && w.column == column)
+    return wells.find(w => w.row === row && w.column === column)
 }
 
 export default {

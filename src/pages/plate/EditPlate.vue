@@ -1,27 +1,29 @@
 <template>
   <div class="q-pa-md" v-if="props.show">
     <oa-section-header :title="'Edit Plate'" :icon="'edit'"/>
-    <div class="oa-section-body">
-      <q-card-section>
-        <div class="row">
+    <div class="row q-pa-md oa-section-body">
+<!--      <q-card-section>-->
           <div class="col-5">
-            <q-input v-model="editedPlate.barcode" square autofocus label="Barcode"></q-input>
-            <br>
+            <div class="self-center full-width no-outline">
+              <q-input v-model="editedPlate.barcode" label="Barcode" stack-label autofocus/>
+            </div>
+            <div class="self-center full-width no-outline">
+              <q-input v-model="editedPlate.description" label="Description" stack-label/>
+            </div>
           </div>
-          <div class="col-1">
+
+          <div class="col-2">
 
           </div>
           <div class="col-5">
-            <q-input v-model="editedPlate.description" square label="Description"></q-input>
-            <br>
+            <div class="row justify-end">
+              <q-btn size="sm" icon="edit" label="Edit" class="oa-action-button" @click="editPlate"/>
+            </div>
+            <div class="row justify-end">
+              <q-btn size="sm" icon="cancel" label="Cancel" class="oa-action-button" @click="$emit('update:show',false)"/>
+            </div>
           </div>
-        </div>
-        <br>
-        <div class="row justify-end">
-          <q-btn flat label="Cancel" color="primary" @click="$emit('update:show',false)"/>
-          <q-btn align="right" label="Edit plate" v-close-popup color="primary" @click="editPlate"/>
-        </div>
-      </q-card-section>
+<!--      </q-card-section>-->
     </div>
   </div>
 </template>

@@ -121,8 +121,8 @@ const mutations = {
         }
     },
     uncacheProjectAccess(state, projectAccessId) {
-        for (var projectId of Object.keys(state.projectAccess)) {
-            let index = state.projectAccess[projectId].findIndex(pa => pa.id == projectAccessId);
+        for (let projectId of Object.keys(state.projectAccess)) {
+            let index = state.projectAccess[projectId].findIndex(pa => pa.id === projectAccessId);
             if (index >= 0) state.projectAccess[projectId].splice(index, 1);
         }
     },

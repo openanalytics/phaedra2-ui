@@ -20,7 +20,7 @@
       </q-card-section>
       <q-card-actions align="right" class="text-primary">
         <q-btn flat label="Cancel" v-close-popup/>
-          <q-btn :label="'Delete '+objectClass" color="accent" v-if="name==nameModel" v-close-popup
+          <q-btn :label="'Delete '+objectClass" color="accent" v-if="name===nameModel" v-close-popup
                  @click="confirmDelete"/>
       </q-card-actions>
     </q-card>

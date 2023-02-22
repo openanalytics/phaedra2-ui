@@ -5,8 +5,7 @@
       :rows="plateMeasurements"
       :columns="columns"
       row-key="id"
-      no-data-label="No measurements associated with this plate"
-  >
+      no-data-label="No measurements associated with this plate">
     <template v-slot:top-left>
       <q-btn size="sm" icon="add" class="oa-button q-mb-md" label="Link Measurement" @click="addMeasDialog" />
     </template>
@@ -15,6 +14,15 @@
         {{ props.value }}
       </q-td>
     </template>
+<!--    {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},-->
+    <template v-slot:body-cell-name="props">
+      <q-td :props="props">
+        <div @click="onSelectMeasurement(props.row.measurementId)" class="cursor-pointer">
+          {{ props.row.name }}
+        </div>
+      </q-td>
+    </template>
+
     <template v-slot:body-cell-dimensions="props">
       <q-td :props="props" :class="props.row.active ? 'text-dark' : 'text-grey'">
         {{ props.row.rows }} x {{ props.row.columns }}
@@ -81,8 +89,11 @@
 
   import UserChip from "@/components/widgets/UserChip";
   import FormatUtils from "@/lib/FormatUtils";
+  import {useRouter} from "vue-router";
 
   const store = useStore();
+  const router = useRouter();
+
   const props = defineProps({
     plate: Object
   });
@@ -135,5 +146,9 @@
 
   const plateMeasurements = computed(() => store.getters['measurements/getPlateMeasurements'](props.plate.id) || []);
   const availableMeasurements = computed(() => store.getters['measurements/getAll']() || []);
+
+  const onSelectMeasurement = (measurementId) => {
+    router.push("/datacapture/meas/" + measurementId);
+  }
 
 </script>

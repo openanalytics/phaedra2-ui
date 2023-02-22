@@ -44,7 +44,7 @@ const actions = {
         // Load and attach experiment summaries
         const summaries = await experimentAPI.loadExperimentSummariesByProjectId(id);
         for (const exp of experiments) {
-            exp.summary = summaries.find(s => s.experimentId == exp.id) || {};
+            exp.summary = summaries.find(s => s.experimentId === exp.id) || {};
         }
 
         const experimentIds = experiments.map(exp => exp.id);
@@ -133,7 +133,7 @@ const mutations = {
 }
 
 function containsExperiment(state, experiment) {
-    for (var i = 0; i < state.experiments.length; i++) {
+    for (let i = 0; i < state.experiments.length; i++) {
         if (state.experiments[i].id === experiment.id) {
             return true;
         }
@@ -142,7 +142,7 @@ function containsExperiment(state, experiment) {
 }
 
 function containsSummary(state, summary) {
-    for (var i = 0; i < state.recentExperimentSummaries.length; i++) {
+    for (let i = 0; i < state.recentExperimentSummaries.length; i++) {
         if (state.recentExperimentSummaries[i].experimentId === summary.experimentId) {
             return true;
         }

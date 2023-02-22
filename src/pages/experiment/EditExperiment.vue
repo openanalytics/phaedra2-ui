@@ -2,28 +2,34 @@
   <div class="q-pa-md" v-if="props.show">
     <oa-section-header :title="'Edit Experiment'" :icon="'edit'"/>
     <div class="oa-section-body">
-      <q-card-section>
-        <div class="row">
+<!--      <q-card-section>-->
+        <div class="row q-pa-md oa-section-body">
           <div class="col-5">
             <q-input v-model="editedExperiment.name" square autofocus label="Name"></q-input>
-            <br>
-          </div>
-          <div class="col-1">
-
-          </div>
-          <div class="col-5">
             <q-input v-model="editedExperiment.description" square label="Description"></q-input>
             <br>
           </div>
+          <div class="col-2">
+
+          </div>
+          <div class="col-5">
+            <div class="row justify-end">
+              <router-link :to="'/experiment/' + experiment.id" class="nav-link">
+                <q-btn size="sm" label="Edit" icon="edit" class="oa-action-button" @click="editExperiment"/>
+              </router-link>
+            </div>
+            <div class="row justify-end">
+              <router-link :to="'/experiment/' + experiment.id" class="nav-link">
+                <q-btn size="sm" label="Cancel" icon="cancel" class="oa-action-button" @click="$emit('update:show',false)"/>
+              </router-link>
+            </div>
+          </div>
         </div>
         <br>
-        <div class="row justify-end">
-          <router-link :to="'/experiment/' + experiment.id" class="nav-link">
-            <q-btn flat label="Cancel" color="primary" @click="$emit('update:show',false)"/>
-            <q-btn label="Edit experiment" v-close-popup color="primary" @click="editExperiment"/>
-          </router-link>
+        <div >
+
         </div>
-      </q-card-section>
+<!--      </q-card-section>-->
     </div>
   </div>
 </template>

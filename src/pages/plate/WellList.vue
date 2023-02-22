@@ -1,17 +1,17 @@
 <template>
   <q-table
-           table-header-class="text-grey"
+           class="oa-data-table"
            flat square dense
+           virtual-scroll
+           :rows-per-page-options="[0]"
            :rows="rows"
            :columns="columns"
            row-key="id"
            column-key="name"
-           :pagination="{ rowsPerPage: 50 }"
            :filter="filter"
            :filter-method="filterMethod"
            :visible-columns="visibleColumns"
-           :loading="loading"
-  >
+           :loading="loading">
     <template v-slot:top-right>
       <div class="row">
         <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
@@ -101,7 +101,7 @@ const resultSet = computed(() => store.getters['resultdata/getLatestPlateResult'
 // When resultSet becomes available, add new columns to table.
 watchEffect(() => {
   if (!resultSet.value || !loading.value) return;
-  if (resultSet.value.length == 0) {
+  if (resultSet.value.length === 0) {
     loading.value = false;
     return;
   }
@@ -130,3 +130,9 @@ watchEffect(() => {
   })
 })
 </script>
+
+<style scoped>
+.oa-data-table {
+  max-height: 400px;
+}
+</style>

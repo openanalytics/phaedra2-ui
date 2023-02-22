@@ -21,10 +21,10 @@ const getters = {
         return state.openSideViews;
     },
     isSideViewOpen: (state) => (id) => {
-        return state.openSideViews.find(el => el == id);
+        return state.openSideViews.find(el => el === id);
     },
     getSideViewConfig: (state) => (id) => {
-        return state.sideViewConfigs.find(el => el.id == id);
+        return state.sideViewConfigs.find(el => el.id === id);
     },
     getSelectedWells: (state) => () => {
         return [...state.selectedWells];
@@ -40,18 +40,18 @@ const getters = {
 const actions = {
     toggleSidePanel: (ctx, newShowState) => {
         let currentShowState = ctx.getters.isShowSidePanel();
-        if (newShowState != currentShowState) ctx.commit('setShowSidePanel', newShowState);
+        if (newShowState !== currentShowState) ctx.commit('setShowSidePanel', newShowState);
     },
     openSideView: (ctx, viewID) => {
         let openSideViews = ctx.getters.getOpenSideViews();
-        if (openSideViews.find(el => el == viewID)) return;
-        if (openSideViews.length == 0) ctx.commit('setShowSidePanel', true);
+        if (openSideViews.find(el => el === viewID)) return;
+        if (openSideViews.length === 0) ctx.commit('setShowSidePanel', true);
         ctx.commit('addOpenSideView', viewID);
     },
     closeSideView: (ctx, viewID) => {
         let openSideViews = ctx.getters.getOpenSideViews();
-        if (!openSideViews.find(el => el == viewID)) return;
-        if (openSideViews.length == 1) ctx.commit('setShowSidePanel', false);
+        if (!openSideViews.find(el => el === viewID)) return;
+        if (openSideViews.length === 1) ctx.commit('setShowSidePanel', false);
         ctx.commit('removeOpenSideView', viewID);
     },
     selectWells: (ctx, wells) => {
@@ -61,6 +61,10 @@ const actions = {
             .map(well => { return { "name": well.wellSubstance.name, "plates": well.plateId }})
         ctx.commit('clearSelectedSubstance')
         ctx.commit('addSelectedSubstances', selectedSubstances)
+    },
+    //TODO: Add selectSubstance function
+    selectSubstance: (ctx,  substance) => {
+
     }
 }
 
@@ -72,11 +76,17 @@ const mutations = {
         state.openSideViews.push(viewID);
     },
     removeOpenSideView: (state, viewID) => {
-        let index = state.openSideViews.findIndex(el => el == viewID);
+        let index = state.openSideViews.findIndex(el => el === viewID);
         state.openSideViews.splice(index, 1);
     },
     setSelectedWells: (state, wells) => {
         state.selectedWells = [...wells];
+    },
+    addSelectedWells: (state, wells) => {
+        state.selectedWells.push([...wells]);
+    },
+    removeSelectedWells: (state, wells) => {
+        wells.forEach(selectedWell => (state.selectedWells = state.selectedWells.filter(well => well.id === selectedWell.id)))
     },
     addSelectedSubstances: (state, substances) => {
         substances.forEach(substance => {

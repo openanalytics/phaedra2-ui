@@ -2,9 +2,8 @@
   <div class="q-pa-md">
     <oa-section-header :title="'Edit Protocol'" :icon="'ballot'"/>
 
-    <div class="col q-pa-md oa-section-body">
-      <div class="row q-pa-md">
-        <div class="col-5 q-gutter-xs">
+    <div class="row q-pa-md oa-section-body">
+        <div class="col-4">
           <q-input v-model="protocolStore.protocol.name" label="Name:" dense/>
           <q-input v-model="protocolStore.protocol.description" label="Description:" dense/>
           <q-select v-model="protocolStore.protocol.lowWelltype" label="Low well type:" :options="wellTypeOptions" dense/>
@@ -20,27 +19,23 @@
           </q-field>
         </div>
 
-        <div class="col-6">
+        <div class="col-4">
           <PropertyTable :objectInfo="protocolStore.protocol" :objectClass="'PROTOCOL'"/>
         </div>
 
-        <div class="col-1 q-gutter-xs">
-          <div class="row justify-end">
+        <div class="col-4">
+          <div class="row justify-end action-button">
             <router-link :to="{ name: 'importProtocol' }" class="nav-link">
-              <q-btn flat size="sm" color="secondary" icon="import_export" class="oa-button-delete" label="Import"/>
+              <q-btn size="sm" icon="import_export" class="oa-button" label="Import"/>
             </router-link>
           </div>
-          <div class="row justify-end">
-            <q-btn flat size="sm" label="Save" color="secondary" icon="save" class="oa-button-edit"
-                   @click="saveProtocol()"/>
+          <div class="row justify-end action-button">
+            <q-btn size="sm" label="Save" icon="save" class="oa-button" @click="saveProtocol()"/>
           </div>
-          <div class="row justify-end">
-            <q-btn flat size="sm" label="Cancel" color="secondary" icon="cancel" class="oa-button-edit"
-                   @click="$emit('editMode',false)"/>
+          <div class="row justify-end action-button">
+            <q-btn size="sm" label="Cancel" icon="cancel" class="oa-button" @click="$emit('editMode',false)"/>
           </div>
         </div>
-
-      </div>
     </div>
 
     <div class="q-pt-md">
@@ -48,6 +43,12 @@
     </div>
   </div>
 </template>
+
+<style scoped lang="scss">
+.action-button {
+  margin: 3px;
+}
+</style>
 
 <script setup>
 

@@ -118,7 +118,7 @@ const actions = {
 
 const mutations = {
     cacheMeasurement(state, meas) {
-        var measurement = state.measurements.find(m => m.id === meas.id);
+        const measurement = state.measurements.find(m => m.id === meas.id);
         if (measurement === undefined)
             state.measurements.push(meas);
     },
@@ -149,14 +149,14 @@ const mutations = {
         }
     },
     cacheRenderConfig(state, cfg) {
-        var existingConfigIndex = state.renderConfigs.findIndex(el => el.id === cfg.id);
+        const existingConfigIndex = state.renderConfigs.findIndex(el => el.id === cfg.id);
         if (existingConfigIndex >= 0) {
             state.renderConfigs.splice(existingConfigIndex, 1);
         }
         state.renderConfigs.push(cfg);
     },
     uncacheRenderConfig(state, id) {
-        var existingConfigIndex = state.renderConfigs.findIndex(el => el.id === id);
+        const existingConfigIndex = state.renderConfigs.findIndex(el => el.id === id);
         if (existingConfigIndex >= 0) {
             state.renderConfigs.splice(existingConfigIndex, 1);
         }
