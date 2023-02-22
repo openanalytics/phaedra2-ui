@@ -12,6 +12,6 @@
     const statusCodesBad = [ 'error', 'failed' ];
 
     let statusColor = 'info';
-    if (statusCodesGood.find(s => s == statusCode)) statusColor = 'positive';
-    if (statusCodesBad.find(s => s == statusCode)) statusColor = 'negative';
+    if (statusCodesGood.find(s => s === statusCode)) statusColor = 'positive';
+    if (statusCodesBad.find(s => s === statusCode)) statusColor = 'negative';
 </script>

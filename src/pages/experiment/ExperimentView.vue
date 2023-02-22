@@ -151,20 +151,6 @@
   </q-page>
 </template>
 
-<style scoped lang="scss">
-.experiment-header {
-  margin: 10px;
-}
-
-.experiment-body {
-  margin: 10px;
-}
-
-.action-button {
-  margin: 3px;
-}
-</style>
-
 <script setup>
 import {ref, computed} from 'vue'
 import {useStore} from 'vuex'

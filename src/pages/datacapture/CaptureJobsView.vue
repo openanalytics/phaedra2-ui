@@ -215,9 +215,9 @@ const newJob = ref({
   captureConfig: JSON.stringify({})
 });
 const submitJobAction = async () => {
-  if (newJob.value.sourcePath == '') alert('No source path specified!')
+  if (newJob.value.sourcePath === '') alert('No source path specified!')
   await store.dispatch('datacapture/submitJob', newJob.value);
   refreshJobs();
 };
-const canSubmitJob = computed(() => (newJob.value.sourcePath != ''));
+const canSubmitJob = computed(() => (newJob.value.sourcePath !== ''));
 </script>

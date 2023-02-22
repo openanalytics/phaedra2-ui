@@ -10,7 +10,7 @@
                 <q-icon name="person" class="q-pr-sm"/>
                 {{userInfo.fullName}}
             </q-card-section>
-        
+
             <q-card-section>
                 <span class="text-h6 row">Team Memberships</span>
                 <q-list>
@@ -19,7 +19,7 @@
                         {{team}}
                     </q-item>
                 </q-list>
-                <span v-show="userInfo.teams.length == 0" class="text-info">You have no team memberships</span>
+                <span v-show="userInfo.teams.length === 0" class="text-info">You have no team memberships</span>
 
                 <span class="text-h6 row">Additional Roles</span>
                 <div v-show="userInfo.admin">

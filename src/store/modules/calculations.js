@@ -75,9 +75,9 @@ const actions = {
         const jobStatus = await calculationsAPI.getCalculationJobStatus(calculationRequest.jobId);
         jobStatus.jobId = calculationRequest.jobId;
         ctx.commit('cacheCalculationJobStatus', jobStatus);
-        
+
         // Keep updating until the job has been processed.
-        if (jobStatus.statusCode == 'SCHEDULED') {
+        if (jobStatus.statusCode === 'SCHEDULED') {
             setTimeout(() => {
                 ctx.dispatch('refreshCalculationJobStatus', calculationRequest);
             }, 2000);
@@ -90,12 +90,12 @@ const mutations = {
         state.formulas = formulas;
     },
     cacheFormula(state, formula) {
-        let i = state.formulas.findIndex(f => f.id == formula.id);
+        let i = state.formulas.findIndex(f => f.id === formula.id);
         if (i >= 0) state.formulas.splice(i, 1);
         state.formulas.push(formula);
     },
     uncacheFormula(state, id) {
-        let i = state.formulas.findIndex(f => f.id == id);
+        let i = state.formulas.findIndex(f => f.id === id);
         if (i >= 0) state.formulas.splice(i, 1);
     },
     cacheFormulaInputs(state, info) {

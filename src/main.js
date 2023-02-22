@@ -124,7 +124,6 @@ import { createApp } from "vue"
 import Plotly from "plotly.js-dist-min"
 
 import { createPinia, setActivePinia } from "pinia"
-import VueGridLayout from 'vue-grid-layout'
 import App from "./App.vue"
 import BrowseFormulas from "@/pages/calculation/formula/BrowseFormulas";
 

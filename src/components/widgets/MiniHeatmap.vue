@@ -44,7 +44,7 @@ export default {
     watchEffect(() => {
       if (!props.plateResult || !props.feature) return;
 
-      const rsDataValues = props.plateResult.find(rs => rs.featureId == props.feature.id)?.values || [];
+      const rsDataValues = props.plateResult.find(rs => rs.featureId === props.feature.id)?.values || [];
       lut.value = ColorUtils.createLUT(rsDataValues, ColorUtils.defaultHeatmapGradients);
 
       setTimeout(draw());
@@ -53,7 +53,7 @@ export default {
     const wellColorFunction = (well) => {
       if (!props.plateResult || !props.feature) return WellUtils.getWellTypeColor("EMPTY");
 
-      const rsDataValues = props.plateResult.find(rs => rs.featureId == props.feature.id)?.values;
+      const rsDataValues = props.plateResult.find(rs => rs.featureId === props.feature.id)?.values;
       if (!rsDataValues) return WellUtils.getWellTypeColor("EMPTY");
 
       const wellNr = WellUtils.getWellNr(well.row, well.column, props.plate.columns);
@@ -80,8 +80,8 @@ export default {
       canvas.value.width = (wellWidth + 2) * props.plate.columns
       canvas.value.height = (wellWidth + 2) * props.plate.rows
 
-      for (var r = 0; r < props.plate.rows; r++) {
-        for (var c = 0; c < props.plate.columns; c++) {
+      for (let r = 0; r < props.plate.rows; r++) {
+        for (let c = 0; c < props.plate.columns; c++) {
           //Note: getWell takes ~1sec for 1536 wells
           // let well = WellUtils.getWell(wells.value, r + 1, c + 1)
           // This optimization assumes wells are always sorted by number:
@@ -95,7 +95,7 @@ export default {
           ctx.fillStyle = wellColorFunction(well)
           ctx.fillRect(x, y, wellSize[0], wellSize[1])
 
-          if (well.status == "REJECTED") {
+          if (well.status === "REJECTED") {
             ctx.strokeStyle = "yellow"
             ctx.moveTo(x, y);
             ctx.lineTo(x + wellWidth, y + wellWidth);

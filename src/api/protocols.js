@@ -39,8 +39,8 @@ export default {
                 return response.data;
             }
         } catch (err) {
-            return protocol;
             console.log(err);
+            return protocol;
         }
     }
 }

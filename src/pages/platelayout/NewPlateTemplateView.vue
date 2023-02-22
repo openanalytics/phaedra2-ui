@@ -81,7 +81,7 @@ const templatePreview = ref(null)
 const onSubmit = async () => {
   newPlateTemplate.value.createdOn = new Date();
   const createdTemplate = await store.dispatch('templates/createNewPlateTemplate', newPlateTemplate.value);
-  router.push("/template/" + createdTemplate.id);
+  await router.push("/template/" + createdTemplate.id);
 };
 const onReset = () => {
   importFile.value = null

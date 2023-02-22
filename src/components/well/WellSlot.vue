@@ -13,7 +13,7 @@
             {{ wellLabelFunction(well) }}
         </span>
     </div>
-    
+
     <q-tooltip :delay="3000" class="bg-secondary q-pa-xs">
         <div class="tooltipContainer">
             <WellInspector minimal :wells="[well]"></WellInspector>
@@ -80,5 +80,5 @@
 
     const bgColor = computed(() => props.wellColorFunction ? props.wellColorFunction(props.well) : '#969696')
     const fgColor = computed(() => ColorUtils.calculateTextColor(bgColor.value))
-    const isSelected = computed(() => props.selectedWells.find(w => props.well.row == w.row && props.well.column == w.column))
+    const isSelected = computed(() => props.selectedWells.find(w => props.well.row === w.row && props.well.column === w.column))
 </script>

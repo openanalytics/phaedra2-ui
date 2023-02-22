@@ -72,14 +72,14 @@
         let maxPanelHeight = document.documentElement.clientHeight - (50 + 8 + 36 + 1 + 16);
         maxCanvasHeight.value = (maxPanelHeight - 17 - (configPanel.value ? configPanel.value.clientHeight : 0)) + 'px';
     };
-    
+
     const store = useStore();
     const loading = ref(false);
 
     let renderConfigId = 4;
     const renderConfig = computed(() => store.getters['measurements/getRenderConfig'](renderConfigId) || {});
     store.dispatch('measurements/loadRenderConfig', renderConfigId).then(() => {
-        if (selectedChannels.value.length == 0) {
+        if (selectedChannels.value.length === 0) {
             let channels = renderConfig.value.config.channelConfigs;
             if (channels.length > 0) selectedChannels.value = [ channels[0] ];
         }
@@ -120,16 +120,16 @@
     const errorInfo = ref(null);
 
     const getImageURL = () => {
-        if (selectedChannels.value.length == 0) return;
+        if (selectedChannels.value.length === 0) return;
         let channelNames = selectedChannels.value.map(c => c.name).join(',');
         let measId = null;
         let wellNr = null;
-        
+
         let well = selectedWell.value;
         if (well?.plateId) {
             //TODO Assuming here that meas is already stored.
             let measLink = store.getters['measurements/getActivePlateMeasurement'](well.plateId);
-            if (measLink == null) return null;
+            if (measLink === null) return null;
             measId = measLink.measurementId;
             wellNr = WellUtils.getWellNr(well.row, well.column, measLink.columns);
         } else if (well?.measId && well?.nr) {
@@ -138,7 +138,7 @@
         } else {
             return null;
         }
-        
+
         let baseURL = process.env.VUE_APP_API_BASE_URL;
         return baseURL + `/measurement-service/image/${measId}/${wellNr}/${channelNames}?renderConfigId=${renderConfigId}&scale=${scale.value}`;
     }
@@ -173,7 +173,7 @@
     function draw() {
         console.log("WellImageViewer Draw " + image.src)
         if (canvas.value === null) return;
-        
+
         let ctx = canvas.value.getContext('2d');
         if (image.src && !image.src.endsWith('/null')) {
             canvas.value.width = image.width;
@@ -197,7 +197,7 @@
         canvasDragEnd(event);
     }
     // const canvasMouseScroll = (event) => {
-    //     if (event.deltaY == 0 || !isMouseOnCanvas) return;
+    //     if (event.deltaY === 0 || !isMouseOnCanvas) return;
     //     event.preventDefault();
 
     //     let isZoomIn = event.deltaY < 0;

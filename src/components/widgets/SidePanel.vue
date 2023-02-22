@@ -10,7 +10,7 @@
         </q-tabs>
 
         <q-separator />
-        
+
         <div class="row oa-section-body">
             <q-tab-panels v-model="activeTab" animated>
                 <q-tab-panel v-for="cfg in openSideViewConfigs" :key="cfg.id" :name="cfg.id" class="q-pa-sm">
@@ -31,7 +31,7 @@
     const openSideViews = computed(() => store.getters['ui/getOpenSideViews']());
     const openSideViewConfigs = computed(() => openSideViews.value.map(id => store.getters['ui/getSideViewConfig'](id)));
     watchEffect(() => {
-        if (activeTab.value == null && openSideViews.value.length > 0) activeTab.value = openSideViews.value[0];
+        if (activeTab.value === null && openSideViews.value.length > 0) activeTab.value = openSideViews.value[0];
     });
     const loadAsyncComponent = (path) => {
         // Needs a hardcoded prefix, see here for info: https://github.com/webpack/webpack/issues/6680

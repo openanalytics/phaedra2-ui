@@ -102,13 +102,13 @@ const mutations = {
         const modifiedWells = [];
         state.currentPlateTemplate.wells.forEach(well => modifiedWells.push({...well}));
         args.wells.forEach(well => {
-            const modifiedWell = modifiedWells.find(w => w.row == well.row && w.column == well.column);
+            const modifiedWell = modifiedWells.find(w => w.row === well.row && w.column === well.column);
             modifiedWell[args.field] = args.entry;
         })
         state.currentPlateTemplate.wells = [...modifiedWells];
     },
     async savePlateTemplate(state) {
-        templateAPI.editWellTemplates(state.currentPlateTemplate.wells)
+        await templateAPI.editWellTemplates(state.currentPlateTemplate.wells)
     }
 }
 

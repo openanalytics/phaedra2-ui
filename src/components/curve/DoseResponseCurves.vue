@@ -1,17 +1,18 @@
 <template>
   <q-table
-      class="my-sticky-column-table"
-      table-header-class="text-grey"
       flat square dense bordered
+      virtual-scroll
+      :rows-per-page-options="[0]"
       separator="cell"
       :rows="curveData"
       :columns="curveTableColumns"
       row-key="substance"
       selection="multiple"
-      v-model:selected="selected"
+      :selected="selected"
+      :pagination="pagination"
       ref="curveTable"
       @selection="handleSelection"
-      @update:pagination="handleUpdatePagination">
+      class="oa-data-table">
     <template v-slot:header="props">
       <q-tr>
         <q-th colspan="1"/>
@@ -59,8 +60,9 @@
 <script setup>
 import {computed, ref, watch} from "vue";
 import {useStore} from "vuex";
-import MiniDoseResponseCurve from "@/components/curve/MiniDoseResponseCurve"
+import MiniDoseResponseCurve from "@/components/curve/MiniDoseResponseCurve.vue"
 import FormatUtils from "@/lib/FormatUtils";
+import FeatureSelector from "@/components/widgets/FeatureSelector"
 
 const store = useStore()
 
@@ -74,6 +76,10 @@ const features = computed(() => store.getters['features/getByIds'](featureIds))
 
 const curveData = ref([])
 const curveTable = ref(null)
+
+const plateResults = ref([]);
+const protocols = ref([]);
+const selectedFeature = ref(null);
 
 curves.value?.map(curve => {
   let result = curveData.value.filter(cd => cd.substance === curve.substanceName);
@@ -131,8 +137,16 @@ const curveTableColumns = ref([
 ])
 
 const curveFeatureCols = (featureId) => {
-  const result = ref([
-    {name: 'ic50', align: 'left', label: 'IC50', field: 'curve_info.ic50', sortable: true, featureId: featureId, format: (val, row) => FormatUtils.formatToScientificNotation(val, 2)},
+  return ref([
+    {
+      name: 'ic50',
+      align: 'left',
+      label: 'IC50',
+      field: 'curve_info.ic50',
+      sortable: true,
+      featureId: featureId,
+      format: (val, row) => FormatUtils.formatToScientificNotation(val, 2)
+    },
     {name: 'slope', align: 'left', label: 'Slope', field: 'curve_info.slope', sortable: true, featureId: featureId},
     {name: 'emin', align: 'left', label: 'eMin', field: 'curve_info.emin', sortable: true, featureId: featureId},
     {
@@ -153,9 +167,10 @@ const curveFeatureCols = (featureId) => {
       featureId: featureId
     },
     {name: 'curve', align: 'center', label: 'Curve', field: 'curve_info.curve', sortable: false, featureId: featureId},
-  ])
-  return result;
+  ]);
 }
+
+const pagination = ref({rowsPerPage: 0})
 
 for (let fId in featureIds) {
   curveTableColumns.value = curveTableColumns.value.concat(curveFeatureCols(featureIds[fId]).value)
@@ -185,10 +200,13 @@ const handleSelection = ({rows, added, evt}) => {
   emit('handleSelection', curveTable.value.$el.offsetHeight)
 }
 
-const handleUpdatePagination = (newPagination) => {
-  console.log("New pagination object: " + newPagination)
+const handleFeatureSelection = function (feature) {
+  selectedFeature.value = feature
 }
 </script>
 
 <style scoped>
+.oa-data-table {
+  max-height: 800px;
+}
 </style>

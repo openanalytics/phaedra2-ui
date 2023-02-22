@@ -84,10 +84,10 @@ export default {
       {name: 'id', align: 'left', label: 'ID', field: 'resultSetId', sortable: true},
       {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdTimestamp', sortable: true, format: FormatUtils.formatDate},
       {name: 'protocol', align: 'left', label: 'Protocol', field: 'protocolId', sortable: true, format: val => (store.getters['protocols/getById'](val) || {}).name},
-      {name: 'measurement', align: 'left', label: 'Measurement', field: 'measId', sortable: true, format: val => (activeMeasurement?.measurementId == val) ? activeMeasurement.name : ''},
+      {name: 'measurement', align: 'left', label: 'Measurement', field: 'measId', sortable: true, format: val => (activeMeasurement?.measurementId === val) ? activeMeasurement.name : ''},
       {name: 'features', align: 'left', label: 'Features', sortable: true, format: (val, row) => resultDatas.value.filter(a => a.resultSetId === row.resultSetId).length },
       {name: 'status', align: 'left', label: 'Status', sortable: true, format:
-        (val, row) => (resultDatas.value.some(a => a.resultSetId === row.resultSetId && a.statusCode != 'SUCCESS')) ? 'FAILURE' : 'SUCCESS' }
+        (val, row) => (resultDatas.value.some(a => a.resultSetId === row.resultSetId && a.statusCode !== 'SUCCESS')) ? 'FAILURE' : 'SUCCESS' }
     ])
 
     const resultSet = ref([])
@@ -111,8 +111,8 @@ export default {
     filterMethod(rows,term){
       return rows.filter(row => {
         return ((row.resultSetId+' ').includes(term.toString())
-            || this.$store.getters['protocols/getAll']().find(protocol => protocol.id == row.protocolId).name.toLowerCase().includes(term)
-            || this.$store.getters['measurements/getAll']().find(meas => meas.id == row.measId).name.toLowerCase().includes(term))
+            || this.$store.getters['protocols/getAll']().find(protocol => protocol.id === row.protocolId).name.toLowerCase().includes(term)
+            || this.$store.getters['measurements/getAll']().find(meas => meas.id === row.measId).name.toLowerCase().includes(term))
       })
     },
   }

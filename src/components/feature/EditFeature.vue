@@ -159,7 +159,7 @@ const isCalculation = (featureType, formulaCategory) => {
 }
 
 const isRaw = (featureType) => {
-  return featureType === 'RAW' ? true : false
+  return featureType === 'RAW'
 }
 
 const availableFeatures = (feature) => {

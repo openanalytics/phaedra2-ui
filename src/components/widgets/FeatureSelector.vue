@@ -15,9 +15,6 @@
 </template>
 
 <style scoped>
-.selectBox {
-  margin: 5px;
-}
 .gridContainer {
   display: grid;
   grid-template-columns: v-bind(gridColumnStyle);
@@ -85,7 +82,7 @@ import {ref, watch, toRefs, computed} from 'vue'
       const calcRangeValues = () => {
         if (!selectedFeature.value) rangeValues.value = { min: 0, mean: 50, max: 100 }
         if (Array.isArray(props.plateResults)) {
-          const result = props.plateResults.filter(rs => (rs.featureId == selectedFeature.value.id));
+          const result = props.plateResults.filter(rs => (rs.featureId === selectedFeature.value.id));
           if (result.length > 0) {
             const min = Math.min(...result[0].values.filter(v => !isNaN(v)));
             const mean = result[0].values.reduce((x, y) => x + y, 0) / result[0].values.length;
