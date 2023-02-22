@@ -35,4 +35,8 @@ export default {
         const response = await axios.get(apiURL + '/executions', {params: range});
         return response.data;
     },
+    async cancelPipelineExecution(id) {
+        const response = await axios.put(apiURL + '/execution/' + id + '/cancel');
+        if (response.status === 200) return response.data;
+    },
 }

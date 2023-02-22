@@ -59,6 +59,10 @@ const actions = {
         const log = await pipelineAPI.getPipelineExecutionLogById(id);
         ctx.commit('cachePipelineExecutionLog', {id, log});
     },
+    async cancelPipelineExecution(ctx, id) {
+        await pipelineAPI.cancelPipelineExecution(id);
+        ctx.dispatch('loadPipelineExecutionById', id);
+    },
 }
 
 const mutations = {

@@ -8,78 +8,83 @@
     <q-page class="oa-root-div">
         <div class="q-pa-md">
             <oa-section-header v-if="!pipeline" title="Loading..." icon="route"/>
+
             <div v-else>
-                <oa-section-header :title="pipeline.name" icon="route"/>
-                <div class="row q-pa-md oa-section-body">
-                    <div class="col-4 q-gutter-xs">
-                        <div class="row">
-                            <div class="col-3 text-weight-bold">ID:</div>
-                            <div class="col">{{ pipeline.id }}</div>
+                <q-expansion-item :label="pipeline.name" icon="route" 
+                    expand-icon-class="text-white" header-class="text-h6 oa-section-title" default-opened dense>
+                    <div class="row q-pa-md oa-section-body">
+                        <div class="col-4 q-gutter-xs">
+                            <div class="row">
+                                <div class="col-3 text-weight-bold">ID:</div>
+                                <div class="col">{{ pipeline.id }}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-3 text-weight-bold">Name:</div>
+                                <div class="col"><EditableField :object="pipeline" fieldName="name" @valueChanged="(val) => onPipelineEdited('name', val)" /></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-3 text-weight-bold">Version:</div>
+                                <div class="col">{{ pipeline.versionNumber }}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-3 text-weight-bold">Description:</div>
+                                <div class="col"><EditableField :object="pipeline" fieldName="description" @valueChanged="(val) => onPipelineEdited('description', val)" /></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-3 text-weight-bold">Status:</div>
+                                <div class="col text-grey">
+                                    <StatusLabel :status="pipeline.status" />
+                                    <q-toggle class="on-right" dense v-model="pipelineStatusToggle" @update:model-value="onStatusToggle" />
+                                </div>
+                            </div>
                         </div>
-                        <div class="row">
-                            <div class="col-3 text-weight-bold">Name:</div>
-                            <div class="col"><EditableField :object="pipeline" fieldName="name" @valueChanged="(val) => onPipelineEdited('name', val)" /></div>
+                        <div class="col-4 q-gutter-xs">
+                            <div class="row">
+                                <div class="col-3 text-weight-bold">Created On:</div>
+                                <div class="col">{{ FormatUtils.formatDate(pipeline.createdOn) }}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-3 text-weight-bold">Created By:</div>
+                                <div class="col"><UserChip :id="pipeline.createdBy" /></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-3 text-weight-bold">Updated On:</div>
+                                <div class="col">{{ FormatUtils.formatDate(pipeline.updatedOn) }}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-3 text-weight-bold">Updated By:</div>
+                                <div class="col"><UserChip :id="pipeline.updatedBy" /></div>
+                            </div>
                         </div>
-                        <div class="row">
-                            <div class="col-3 text-weight-bold">Version:</div>
-                            <div class="col">{{ pipeline.versionNumber }}</div>
-                        </div>
-                        <div class="row">
-                            <div class="col-3 text-weight-bold">Description:</div>
-                            <div class="col"><EditableField :object="pipeline" fieldName="description" @valueChanged="(val) => onPipelineEdited('description', val)" /></div>
-                        </div>
-                        <div class="row">
-                            <div class="col-3 text-weight-bold">Status:</div>
-                            <div class="col text-grey">
-                                <StatusLabel :status="pipeline.status" />
-                                <q-toggle class="on-right" dense v-model="pipelineStatusToggle" @update:model-value="onStatusToggle" />
+                        <div class="col-4 q-gutter-xs">
+                            <div class="row justify-end action-button">
+                                <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete" @click="showDeleteDialog = true"/>
                             </div>
                         </div>
                     </div>
-                    <div class="col-4 q-gutter-xs">
-                        <div class="row">
-                            <div class="col-3 text-weight-bold">Created On:</div>
-                            <div class="col">{{ FormatUtils.formatDate(pipeline.createdOn) }}</div>
-                        </div>
-                        <div class="row">
-                            <div class="col-3 text-weight-bold">Created By:</div>
-                            <div class="col"><UserChip :id="pipeline.createdBy" /></div>
-                        </div>
-                        <div class="row">
-                            <div class="col-3 text-weight-bold">Updated On:</div>
-                            <div class="col">{{ FormatUtils.formatDate(pipeline.updatedOn) }}</div>
-                        </div>
-                        <div class="row">
-                            <div class="col-3 text-weight-bold">Updated By:</div>
-                            <div class="col"><UserChip :id="pipeline.updatedBy" /></div>
-                        </div>
-                    </div>
-                    <div class="col-4 q-gutter-xs">
-                        <div class="row justify-end action-button">
-                            <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete" @click="showDeleteDialog = true"/>
-                        </div>
-                    </div>
-                </div>
+                </q-expansion-item>
 
-                <oa-section-header title="Configuration" icon="settings" class="q-mt-md" />
-                <div class="row oa-section-body">
-                    <div class="col-12 q-pa-md">
-                        <q-card square class="bg-grey-3">
-                            <div class="row q-pa-sm">
-                                <div class="col-11">
-                                    <q-input v-model="configWorkingCopy" type="textarea" outlined :readonly="!editMode" input-style="padding-top: 0px;"></q-input>
-                                </div>
-                                <div class="col-1">
-                                    <div class="row justify-end">
-                                        <q-btn size="sm" color="primary" icon="edit" label="Edit" v-show="!editMode" @click="editMode = true" />
-                                        <q-btn size="sm" color="primary" icon="save" label="Save" v-show="editMode" @click="exitEditMode(true)" />
-                                        <q-btn size="sm" color="primary" icon="cancel" label="Cancel" v-show="editMode" @click="exitEditMode(false)" class="q-mt-sm" />
+                <q-expansion-item label="Configuration" icon="settings" class="q-mt-md"
+                    expand-icon-class="text-white" header-class="text-h6 oa-section-title" default-opened dense>
+                    <div class="row oa-section-body">
+                        <div class="col-12 q-pa-md">
+                            <q-card square class="bg-grey-3">
+                                <div class="row q-pa-sm">
+                                    <div class="col-11">
+                                        <q-input v-model="configWorkingCopy" type="textarea" outlined :readonly="!editMode" input-style="padding-top: 0px;"></q-input>
+                                    </div>
+                                    <div class="col-1">
+                                        <div class="row justify-end">
+                                            <q-btn size="sm" color="primary" icon="edit" label="Edit" v-show="!editMode" @click="editMode = true" />
+                                            <q-btn size="sm" color="primary" icon="save" label="Save" v-show="editMode" @click="exitEditMode(true)" />
+                                            <q-btn size="sm" color="primary" icon="cancel" label="Cancel" v-show="editMode" @click="exitEditMode(false)" class="q-mt-sm" />
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </q-card>
+                            </q-card>
+                        </div>
                     </div>
-                </div>
+                </q-expansion-item>
             </div>
         </div>
     </q-page>
