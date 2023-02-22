@@ -2,9 +2,8 @@
   <div class="q-pa-md">
     <oa-section-header :title="'New Protocol'" :icon="'ballot'"/>
 
-    <div class="col q-pa-md oa-section-body">
-      <div class="row q-pa-md">
-        <div class="col-4 q-gutter-xs">
+    <div class="row q-pa-md oa-section-body">
+        <div class="col-5">
           <q-input v-model="newProtocol.name" label="Name:" dense/>
           <q-input v-model="newProtocol.description" label="Description:" dense/>
           <q-select v-model="newProtocol.lowWelltype" label="Low well type:" :options="wellTypeOptions" dense/>
@@ -12,31 +11,32 @@
           <q-input v-model="newProtocol.versionNumber" label="Version:" mask="#.#.#" hint="Mask: #.#.#, Example: 1.0.0" dense/>
         </div>
 
-        <div class="col-7">
-          <PropertyTable :objectInfo="newProtocol" :objectClass="'PROTOCOL'"/>
-        </div>
+      <div class="col-2"/>
+<!--        <div class="col-4">-->
+<!--          <PropertyTable :objectInfo="newProtocol" :objectClass="'PROTOCOL'"/>-->
+<!--        </div>-->
 
-        <div class="col-1 q-gutter-xs">
+        <div class="col-5">
           <div class="row justify-end">
             <router-link :to="{ name: 'importProtocol' }" class="nav-link">
-              <q-btn size="sm" label="Import ..." color="primary" class="oa-button-delete" />
+              <q-btn size="sm" label="Import ..." class="oa-action-button" />
             </router-link>
           </div>
           <div class="row justify-end">
-            <q-btn size="sm" label="Save" @click="saveProtocol()" color="primary" class="oa-button-edit"/>
+            <q-btn size="sm" label="Save" @click="saveProtocol()" class="oa-action-button"/>
           </div>
           <div class="row justify-end">
             <router-link :to="{ name: 'browseProtocols' }" class="nav-link">
-              <q-btn size="sm" label="Cancel" @click="onReset" color="primary" class="oa-button-edit"/>
+              <q-btn size="sm" label="Cancel" @click="onReset" class="oa-action-button"/>
             </router-link>
           </div>
         </div>
       </div>
     </div>
-    <div class="q-pt-md">
+
+    <div class="q-pa-md">
       <FeatureList :protocol="newProtocol" @addFeature="addNewFeature"/>
     </div>
-  </div>
 
 </template>
 

@@ -8,7 +8,7 @@
   </q-breadcrumbs>
 
   <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
-    <div v-if="!editdialog">
+    <div class="q-pa-md" v-if="!editdialog">
       <q-expansion-item :label="plate.barcode" icon="view_module"
                         header-class="q-pa-xs oa-section-title"
                         expand-icon-class="text-white"
@@ -83,7 +83,7 @@
 
     <edit-plate v-model:show="editdialog" v-model:plate="plate"></edit-plate>
 
-    <div class="q-pa-sm" v-if="plate">
+    <div class="q-pa-md" v-if="plate">
       <q-tabs
           inline-label dense no-caps
           align="left"
@@ -116,7 +116,7 @@
         </q-tab-panels>
       </div>
     </div>
-    <div class="q-pa-sm" v-if="plate && curves">
+    <div class="q-pa-md" v-if="plate && curves">
       <q-expansion-item label="Dose-Response Curves" icon="show_chart"
                         header-class="q-pa-xs oa-section-title"
                         expand-icon-class="text-white"

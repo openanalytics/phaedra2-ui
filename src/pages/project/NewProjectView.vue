@@ -8,21 +8,26 @@
     <div class="q-pa-md">
       <oa-section-header  :title="'New Project'" :icon="'folder'"/>
       <div class="row q-pa-md oa-section-body">
-        <q-form class="full-width" @submit="onSubmit" @reset="onReset">
+        <q-form class="row full-width" @submit="onSubmit" @reset="onReset">
+          <div class="col-5">
+            <q-input label="Name" v-model="newProject.name" lazy-rules
+                     :rules="[ val => val && val.length > 0 || 'Project name is required']" dense/>
+            <q-input label="Description" v-model="newProject.description" dense/>
+            <q-select label="Admin Team" v-model="newProject.adminTeam" :options="teamNames" lazy-rules
+                      :rules="[ val => val && val.length > 0 || 'An admin team must be selected']" dense/>
+          </div>
 
-          <q-input label="Name" v-model="newProject.name" lazy-rules
-                   :rules="[ val => val && val.length > 0 || 'Project name is required']" dense/>
+          <div class="col-2"/>
 
-          <q-input label="Description" v-model="newProject.description" class="q-mb-md" dense/>
-
-          <q-select label="Admin Team" v-model="newProject.adminTeam" :options="teamNames" lazy-rules
-                    :rules="[ val => val && val.length > 0 || 'An admin team must be selected']" dense/>
-
-          <div class="row justify-end q-pt-md">
-            <router-link :to="{ name: 'browseProjects'}" class="nav-link">
-              <q-btn label="Cancel" type="reset" color="primary" flat class="on-right"/>
-            </router-link>
-            <q-btn label="Create" type="submit" color="primary"/>
+          <div class="col-5">
+            <div class="row justify-end">
+              <q-btn size="sm" label="Create" type="submit" class="oa-action-button"/>
+            </div>
+            <div class="row justify-end">
+              <router-link :to="{ name: 'browseProjects'}" class="nav-link">
+                <q-btn size="sm" label="Cancel" type="reset" class="oa-action-button"/>
+              </router-link>
+            </div>
           </div>
         </q-form>
       </div>

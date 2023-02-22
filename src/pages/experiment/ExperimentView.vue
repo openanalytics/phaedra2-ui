@@ -59,7 +59,7 @@
 <!--              <div class="col-3 text-weight-bold">Description:</div>-->
 <!--              <div class="col">{{ experiment.description }}</div>-->
 <!--            </div>-->
-            <q-field label="Tags" stack-label disable dense>
+            <q-field label="Tags" stack-label dense>
               <template v-slot:control>
                 <div class="self-center full-width no-outline">
                   <TagList :objectInfo="experiment" :objectClass="'EXPERIMENT'" />
@@ -79,11 +79,11 @@
           </div>
 
           <div class="col-4">
-            <div class="row justify-end action-button">
-              <q-btn size="sm" icon="edit" class="oa-button-edit" label="Edit" @click="editdialog = true"/>
+            <div class="row justify-end">
+              <q-btn size="sm" icon="edit" class="oa-action-button" label="Edit" @click="editdialog = true"/>
             </div>
-            <div class="row justify-end action-button">
-              <q-btn size="sm" icon="delete" class="oa-button-delete" label="Delete" @click="openDeleteDialog"/>
+            <div class="row justify-end">
+              <q-btn size="sm" icon="delete" class="oa-action-button" label="Delete" @click="openDeleteDialog"/>
             </div>
           </div>
 
@@ -140,8 +140,8 @@
           </div>
         </div>
         <div class="row justify-end">
-          <q-btn flat label="Cancel" color="primary" @click="newPlateTab = false"/>
-          <q-btn align="right" label="Add plate" v-close-popup color="primary" @click="createNewPlate"/>
+          <q-btn size="sm" label="Cancel" class="oa-action-button" @click="newPlateTab = false"/>
+          <q-btn size="sm" label="Add plate" class="oa-action-button" @click="createNewPlate"/>
         </div>
       </div>
     </div>

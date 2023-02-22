@@ -1,6 +1,6 @@
 <template>
   <div class="col" style="min-width: 75%">
-    <FeatureSelector class="q-pb-md" :protocols=protocols :plateResults=plateResults :plate="plate"
+    <FeatureSelector class="q-pb-xs" :protocols=protocols :plateResults=plateResults :plate="plate"
                      @featureSelection="handleFeatureSelection"/>
     <WellGrid :plate="plate"
               :loading="dataLoading"
@@ -17,9 +17,9 @@
 <script setup>
 import {ref, computed, watchEffect, defineProps} from 'vue'
 import {useStore} from 'vuex'
-import WellGrid from "@/components/well/WellGrid.vue"
-import FeatureSelector from "@/components/widgets/FeatureSelector.vue"
-import ColorLegend from "@/components/widgets/ColorLegend.vue"
+import WellGrid from "@/components/well/WellGrid"
+import FeatureSelector from "@/components/widgets/FeatureSelector"
+import ColorLegend from "@/components/widgets/ColorLegend"
 import ColorUtils from "@/lib/ColorUtils.js"
 import WellUtils from "@/lib/WellUtils.js"
 
@@ -48,7 +48,7 @@ if (activeMeasurement) {
 
 const selectedFeatureData = computed(() => {
   if (!selectedFeature.value) return undefined;
-  let rsData = plateResults.value.filter(rs => (rs.featureId == selectedFeature.value.id));
+  let rsData = plateResults.value.filter(rs => (rs.featureId === selectedFeature.value.id));
   return rsData.sort((t1, t2) => t2.id - t1.id)[0];
 })
 
@@ -79,7 +79,7 @@ const handleFeatureSelection = function (feature) {
 
 const calcRangeValues = () => {
   if (Array.isArray(plateResults.value)) {
-    const result = plateResults.value.filter(rs => (rs.featureId == selectedFeature.value.id));
+    const result = plateResults.value.filter(rs => (rs.featureId === selectedFeature.value.id));
     if (result.length > 0) {
       const min = Math.min(...result[0].values.filter(v => !isNaN(v)));
       const mean = result[0].values.reduce((x, y) => x + y, 0) / result[0].values.length;
