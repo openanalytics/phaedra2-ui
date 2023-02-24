@@ -124,9 +124,16 @@
             </div>
           </q-card-section>
           <q-card-section class="q-pa-sm q-gutter-sm">
-            <q-input v-model="newJob.sourcePath" label="Source Path"/>
-            <q-input v-model="newJob.captureConfig" type="textarea" autogrow label="Capture Configuration"/>
+            <q-select v-model="newJob.inputType" label="Input type" :options="inputTypes" dense stack-label/>
+            <div v-if="newJob.inputType === 'FolderScanner'">
+              <q-file v-model="newJob.sourcePath" label="Source path" dense stack-label/>
+              <q-select v-model="newJob.captureConfig"/>
+            </div>
           </q-card-section>
+<!--          <q-card-section class="q-pa-sm q-gutter-sm">-->
+<!--            <q-input v-model="newJob.sourcePath" label="Source Path"/>-->
+<!--            <q-input v-model="newJob.captureConfig" type="textarea" autogrow label="Capture Configuration"/>-->
+<!--          </q-card-section>-->
           <q-card-section class="row q-pa-sm q-gutter-sm justify-end">
             <q-btn color="primary" label="Cancel" flat v-close-popup/>
             <q-btn color="primary" label="Submit" @click="submitJobAction" :disable="!canSubmitJob" v-close-popup/>
@@ -136,6 +143,29 @@
     </div>
   </q-page>
 </template>
+<!--{-->
+<!--"name": "csv.file.capture.config",-->
+<!--"wellData": {-->
+<!--"parserId": "csv.welldata.hts.file.parser",-->
+<!--"filePattern": ".*\\.[cC][sS][vV]",-->
+<!--"endLinePattern": "(,,,.*)|(Exported.*)",-->
+<!--"columnSeparator": ",",-->
+<!--"startLinePattern": "Plate,Barcode,Well,",-->
+<!--"dataLineSeparator": "\n",-->
+<!--"startLinePlateInfoPattern": "Plate information"-->
+<!--},-->
+<!--"barcodePattern": "\\d+",-->
+<!--"barcodeColumnPattern": "Barcode"-->
+<!--}-->
+<!--{-->
+<!--"name": "xml.file.capture.config",-->
+<!--"wellData": {-->
+<!--"parserId": "xml.welldata.file.parser",-->
+<!--"filePattern": "PlateResults.*\\.(.*)",-->
+<!--"recordAllEvaluations": false-->
+<!--},-->
+<!--"experimentPattern": "(.*)_(\\d+)(_.*)?"-->
+<!--}-->
 
 <script setup>
 import {ref, computed, onMounted, onBeforeUnmount} from 'vue'
@@ -180,6 +210,8 @@ const visibleColumns = columns.value.map(a => a.name);
 const configdialog = ref(false);
 const filter = ref('');
 const filterMethod = FilterUtils.defaultTableFilter();
+
+const inputTypes = ref(['FolderScanner', 'S3 Bucket', 'Colombus'])
 
 const refreshJobs = () => {
   toDate.value = new Date();
