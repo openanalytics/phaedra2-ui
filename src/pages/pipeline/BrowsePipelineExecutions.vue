@@ -1,55 +1,52 @@
 <template>
     <q-breadcrumbs class="oa-breadcrumb">
         <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}" />
-        <q-breadcrumbs-el label="Pipeline Executions" icon="play_circle_outline"/>
+        <q-breadcrumbs-el label="Pipeline Executions" icon="list"/>
     </q-breadcrumbs>
 
     <q-page class="oa-root-div">
-        <div class="q-pa-md">
-            <oa-section-header title="Pipeline Executions" icon="play_circle_outline"/>
-            <div class="row q-pa-md oa-section-body">
-                <q-table
-                    table-header-class="text-grey"
-                    flat dense
-                    :rows="executions"
-                    :columns="columns"
-                    row-key="id"
-                    class="full-width"
-                    :pagination="{ rowsPerPage: 20, sortBy: 'createdOn', descending: true }"
-                    :filter="filter"
-                    :filter-method="filterMethod"
-                    :loading="loading"
-                    @row-click="(e, row) => router.push('/pipeline-execution/' + row.id)"
-                    >
-                    <template v-slot:top-left>
-                        <q-btn color="primary" icon="refresh" size="sm" @click="refreshList" class="on-left"/>
-                    </template>                    
-                    <template v-slot:top-right>
-                        <date-range-selector v-model:from="dateFrom" v-model:to="dateTo" @rangeChanged="refreshList" />
-                        <q-input outlined dense debounce="300" v-model="filter" placeholder="Search" class="on-right">
-                            <template v-slot:append>
-                                <q-icon name="search"/>
-                            </template>
-                        </q-input>
-                    </template>
-                    <template v-slot:body-cell-createdBy="props">
-                        <q-td :props="props">
-                            <UserChip :id="props.row.createdBy" />
-                        </q-td>
-                    </template>
-                    <template v-slot:body-cell-updatedBy="props">
-                        <q-td :props="props">
-                            <UserChip :id="props.row.updatedBy" />
-                        </q-td>
-                    </template>
-                    <template v-slot:body-cell-status="props">
-                        <q-td :props="props">
-                            <StatusLabel :status="props.row.status" />
-                        </q-td>
-                    </template>
-                </q-table>
-            </div>
-        </div>
+        <oa-section title="Pipeline Executions" icon="play_circle_outline" class="q-pa-md">
+            <q-table
+                table-header-class="text-grey"
+                flat dense
+                :rows="executions"
+                :columns="columns"
+                row-key="id"
+                class="full-width"
+                :pagination="{ rowsPerPage: 20, sortBy: 'createdOn', descending: true }"
+                :filter="filter"
+                :filter-method="filterMethod"
+                :loading="loading"
+                @row-click="(e, row) => router.push('/pipeline-execution/' + row.id)"
+                >
+                <template v-slot:top-left>
+                    <q-btn color="primary" icon="refresh" size="sm" @click="refreshList" class="on-left"/>
+                </template>                    
+                <template v-slot:top-right>
+                    <date-range-selector v-model:from="dateFrom" v-model:to="dateTo" @rangeChanged="refreshList" />
+                    <q-input outlined dense debounce="300" v-model="filter" placeholder="Search" class="on-right">
+                        <template v-slot:append>
+                            <q-icon name="search"/>
+                        </template>
+                    </q-input>
+                </template>
+                <template v-slot:body-cell-createdBy="props">
+                    <q-td :props="props">
+                        <UserChip :id="props.row.createdBy" />
+                    </q-td>
+                </template>
+                <template v-slot:body-cell-updatedBy="props">
+                    <q-td :props="props">
+                        <UserChip :id="props.row.updatedBy" />
+                    </q-td>
+                </template>
+                <template v-slot:body-cell-status="props">
+                    <q-td :props="props">
+                        <StatusLabel :status="props.row.status" />
+                    </q-td>
+                </template>
+            </q-table>
+        </oa-section>
     </q-page>
 </template>
 
@@ -61,7 +58,7 @@
     import FormatUtils from "@/lib/FormatUtils.js"
     import UserChip from "@/components/widgets/UserChip";
     import StatusLabel from "@/components/widgets/StatusLabel";
-    import OaSectionHeader from "@/components/widgets/OaSectionHeader";
+    import OaSection from "@/components/widgets/OaSection";
     import DateRangeSelector from "@/components/widgets/DateRangeSelector";
 
     const store = useStore();

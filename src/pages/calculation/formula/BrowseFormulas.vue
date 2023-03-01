@@ -6,8 +6,7 @@
 
   <q-page class="oa-root-div">
     <div class="q-pa-md">
-      <oa-section-header :title="'Calculation Formulas'" :icon="'functions'"/>
-      <div class="row q-pa-md oa-section-body">
+      <oa-section title="Calculation Formulas" icon="functions">
         <q-table
             table-header-class="text-grey"
             class="full-width"
@@ -67,7 +66,7 @@
             </q-td>
           </template>
         </q-table>
-      </div>
+      </oa-section>
     </div>
   </q-page>
   <DeleteFormulaDialog :ref="el => deleteDialog = el"/>
@@ -80,13 +79,13 @@ import {useRouter} from 'vue-router'
 import FormatUtils from "@/lib/FormatUtils.js"
 import DeleteFormulaDialog from "@/pages/calculation/formula/DeleteFormulaDialog.vue";
 import UserChip from "@/components/widgets/UserChip";
-import OaSectionHeader from "../../../components/widgets/OaSectionHeader";
+import OaSection from "@/components/widgets/OaSection";
 
 export default {
   components: {
     DeleteFormulaDialog,
     UserChip,
-    OaSectionHeader
+    OaSection
   },
   setup() {
     const exported = {};

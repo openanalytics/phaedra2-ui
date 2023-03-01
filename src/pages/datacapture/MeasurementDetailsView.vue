@@ -7,153 +7,113 @@
 
   <q-page class="oa-root-div">
     <div class="q-pa-md">
-      <oa-section-header v-if="!meas" title="Loading..." icon="text_snippet"/>
-
-      <div v-else>
-        <oa-section-header :title="meas.barcode" :icon="'text_snippet'"/>
-        <div class="row q-pa-md oa-section-body">
-          <div class="col-5">
-            <q-field label="ID" stack-label disable dense>
+      <oa-section v-if="!meas" title="Loading..." icon="text_snippet"/>
+      <oa-section v-else :title="meas.barcode" icon="text_snippet" :collapsible="true">
+        <div class="row q-pa-md">
+          <div class="col-4">
+            <q-field label="ID" stack-label borderless dense>
               <template v-slot:control>
-                <div class="self-center full-width no-outline">
-                  {{ meas.id }}
-                </div>
+                {{ meas.id }}
               </template>
             </q-field>
-            <!--                        <div class="row">-->
-            <!--                            <div class="col-3 text-weight-bold">ID:</div>-->
-            <!--                            <div class="col">{{ meas.id }}</div>-->
-            <!--                        </div>-->
-            <q-field label="Name" stack-label disable dense>
+            <q-field label="Barcode" stack-label borderless dense>
               <template v-slot:control>
-                <div class="self-center full-width no-outline">
-                  {{ meas.name }}
-                </div>
+                {{ meas.barcode }}
               </template>
             </q-field>
-            <!--                        <div class="row">-->
-            <!--                            <div class="col-3 text-weight-bold">Name:</div>-->
-            <!--                            <div class="col">{{ meas.name }}</div>-->
-            <!--                        </div>-->
-            <q-field label="Barcode" stack-label disable dense>
-              <template v-slot:control>
-                <div class="self-center full-width no-outline">
-                  {{ meas.barcode }}
-                </div>
-              </template>
-            </q-field>
-            <!--                        <div class="row">-->
-            <!--                            <div class="col-3 text-weight-bold">Barcode:</div>-->
-            <!--                            <div class="col">{{ meas.barcode }}</div>-->
-            <!--                        </div>-->
-            <q-field label="Dimensions" stack-label disable dense>
+            <q-field label="Dimensions" stack-label borderless dense>
               <template v-slot:control>
                 <div class="self-center full-width no-outline">
                   {{ meas.rows }} x {{ meas.columns }} ({{ meas.rows * meas.columns }} wells)
                 </div>
               </template>
             </q-field>
-            <!--                        <div class="row">-->
-            <!--                            <div class="col-3 text-weight-bold">Dimensions:</div>-->
-            <!--                            <div class="col">{{ meas.rows }} x {{ meas.columns }} ({{ meas.rows * meas.columns }} wells)</div>-->
-            <!--                        </div>-->
           </div>
-          <div class="col-1"/>
-          <div class="col-5">
-            <q-field label="WellData Columns" stack-label disable dense>
+          <div class="col-4">
+            <q-field label="WellData Columns" stack-label borderless dense>
               <template v-slot:control>
-                <div class="self-center full-width no-outline">
-                  {{ meas?.wellColumns?.length || 0 }}
-                </div>
+                {{ meas?.wellColumns?.length || 0 }}
               </template>
             </q-field>
-            <!--                        <div class="row">-->
-            <!--                            <div class="col-3 text-weight-bold">WellData Columns:</div>-->
-            <!--                            <div class="col">{{ meas?.wellColumns?.length || 0 }}</div>-->
-            <!--                        </div>-->
-            <q-field label="SubWellData Columns" stack-label disable dense>
+            <q-field label="SubWellData Columns" stack-label borderless dense>
               <template v-slot:control>
-                <div class="self-center full-width no-outline">
-                  {{ meas?.subWellColumns?.length || 0 }}
-                </div>
+                {{ meas?.subWellColumns?.length || 0 }}
               </template>
             </q-field>
-            <!--                        <div class="row">-->
-            <!--                            <div class="col-3 text-weight-bold">SubWellData Columns:</div>-->
-            <!--                            <div class="col">{{ meas?.subWellColumns?.length || 0 }}</div>-->
-            <!--                        </div>-->
-            <q-field label="Image Channels" stack-label disable dense>
+            <q-field label="Image Channels" stack-label borderless dense>
               <template v-slot:control>
-                <div class="self-center full-width no-outline">
-                  {{ (meas?.imageChannels).join(', ') || "No image data" }}
-                </div>
+                {{ (meas?.imageChannels).join(', ') || "No image data" }}
               </template>
             </q-field>
-            <!--                        <div class="row">-->
-            <!--                            <div class="col-3 text-weight-bold">Image Channels:</div>-->
-            <!--                            <div class="col" v-if="meas?.imageChannels">{{ (meas?.imageChannels).join(', ') }}</div>-->
-            <!--                            <div class="col text-grey" v-else>No image data</div>-->
-            <!--                        </div>-->
+          </div>
+          <div class="col-4">
+            <q-field label="Created On" stack-label dense borderless>
+                <template v-slot:control>
+                    {{ FormatUtils.formatDate(meas?.createdOn) }}
+                </template>
+            </q-field>
+            <q-field label="Created By" stack-label dense borderless>
+                <template v-slot:control>
+                    <div class="q-pt-xs">
+                        <UserChip :id="meas?.createdBy"/>
+                    </div>
+                </template>
+            </q-field>
           </div>
         </div>
+      </oa-section>
 
-        <div class="row q-pt-md">
-          <q-tabs
-              inline-label dense no-caps
-              align="left"
-              class="q-px-sm oa-section-title"
-              v-model="activeTab"
-          >
-            <q-tab name="wellData" icon="table_rows" label="Well Data"/>
-            <q-tab name="subWellData" icon="table_rows" label="SubWell Data"/>
-            <q-tab name="imageData" icon="image" label="Image Data"/>
-          </q-tabs>
-          <div class="row oa-section-body">
-            <q-tab-panels v-model="activeTab" animated style="width: 100%">
-              <q-tab-panel name="wellData">
-                <q-table
-                    table-header-class="text-grey"
-                    flat dense
-                    :rows="wellData"
-                    :columns="wellDataColumns"
-                    row-key="id"
-                    :pagination="{ rowsPerPage: 100 }"
-                    :filter="filter"
-                    :filter-method="filterMethod"
-                    :loading="loading"
-                >
-                  <template v-slot:top-left>
-                    <div v-if="wellNrLimit > 0">
-                      <span class="text-info">Showing first {{ wellNrLimit }} wells.</span>
-                      <q-btn class="on-right" size="xs" color="info" @click="wellNrLimit = -1">Load all</q-btn>
-                    </div>
-                  </template>
-                  <template v-slot:top-right>
-                    <div class="row">
-                      <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
-                        <template v-slot:append>
-                          <q-icon name="search"/>
-                        </template>
-                      </q-input>
-                    </div>
-                  </template>
-                </q-table>
-              </q-tab-panel>
-              <q-tab-panel name="subWellData">
-                <span class="text-info">TODO</span>
-              </q-tab-panel>
-              <q-tab-panel name="imageData">
-                <div class="row">
-                  <div class="col-8">
-                    <WellGrid :plate="plate" :wellImageFunction="wellImageFunction"/>
+      <div class="q-pt-md">
+        <q-tabs inline-label dense no-caps class="oa-section-title" v-model="activeTab" align="left">
+          <q-tab name="wellData" icon="table_rows" label="Well Data"/>
+          <q-tab name="subWellData" icon="table_rows" label="SubWell Data"/>
+          <q-tab name="imageData" icon="image" label="Image Data"/>
+        </q-tabs>
+        <div class="row oa-section-body">
+          <q-tab-panels v-model="activeTab" animated class="full-width">
+            <q-tab-panel name="wellData" class="q-px-none">
+              <q-table
+                  table-header-class="text-grey"
+                  flat dense
+                  :rows="wellData"
+                  :columns="wellDataColumns"
+                  row-key="id"
+                  :pagination="{ rowsPerPage: 100 }"
+                  :filter="filter"
+                  :filter-method="filterMethod"
+                  :loading="loading"
+              >
+                <template v-slot:top-left>
+                  <div v-if="wellNrLimit > 0">
+                    <span class="text-info">Showing first {{ wellNrLimit }} wells.</span>
+                    <q-btn class="on-right" size="xs" color="info" @click="wellNrLimit = -1">Load all</q-btn>
                   </div>
-                  <div class="col-4 q-px-sm">
-                    <WellImageViewer></WellImageViewer>
+                </template>
+                <template v-slot:top-right>
+                  <div class="row">
+                    <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
+                      <template v-slot:append>
+                        <q-icon name="search"/>
+                      </template>
+                    </q-input>
                   </div>
+                </template>
+              </q-table>
+            </q-tab-panel>
+            <q-tab-panel name="subWellData" class="q-px-none">
+              <span class="text-info q-pa-md">TODO</span>
+            </q-tab-panel>
+            <q-tab-panel name="imageData" class="q-px-none">
+              <div class="row q-px-sm">
+                <div class="col-8">
+                  <WellGrid :plate="plate" :wellImageFunction="wellImageFunction"/>
                 </div>
-              </q-tab-panel>
-            </q-tab-panels>
-          </div>
+                <div class="col-4 q-px-sm">
+                  <WellImageViewer></WellImageViewer>
+                </div>
+              </div>
+            </q-tab-panel>
+          </q-tab-panels>
         </div>
       </div>
     </div>
@@ -165,12 +125,14 @@ import {computed, ref} from 'vue'
 import {useStore} from "vuex";
 import {useRoute} from 'vue-router'
 
-import OaSectionHeader from "@/components/widgets/OaSectionHeader";
+import OaSection from "@/components/widgets/OaSection";
+import UserChip from "@/components/widgets/UserChip";
 import WellImageViewer from "@/components/image/WellImageViewer";
 import WellGrid from "@/components/well/WellGrid";
 
 import WellUtils from "@/lib/WellUtils";
 import FilterUtils from "@/lib/FilterUtils";
+import FormatUtils from "@/lib/FormatUtils";
 
 const activeTab = ref('wellData');
 const loading = ref(true);
@@ -187,6 +149,7 @@ const filterMethod = FilterUtils.defaultTableFilter();
 
 const wellNrLimit = ref(20);
 const wells = computed(() => {
+  if (!meas.value) return [];
   let nrs = [...Array(meas.value.rows * meas.value.columns).keys()].map(i => i + 1);
   return nrs.map(nr => {
     let pos = WellUtils.getWellPosition(nr, meas.value.columns);

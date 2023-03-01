@@ -1,91 +1,92 @@
 <template>
     <q-breadcrumbs class="oa-breadcrumb" v-if="pipeline">
         <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
-        <q-breadcrumbs-el label="Pipelines" icon="route" :to="'/pipelines'"/>
+        <q-breadcrumbs-el label="Pipelines" icon="list" :to="'/pipelines'"/>
         <q-breadcrumbs-el :label="pipeline.name" icon="route"/>
     </q-breadcrumbs>
 
     <q-page class="oa-root-div">
         <div class="q-pa-md">
-            <oa-section-header v-if="!pipeline" title="Loading..." icon="route"/>
-
-            <div v-else>
-                <q-expansion-item :label="pipeline.name" icon="route" 
-                    expand-icon-class="text-white" header-class="text-h6 oa-section-title" default-opened dense>
-                    <div class="row q-pa-md oa-section-body">
-                        <div class="col-4 q-gutter-xs">
-                            <div class="row">
-                                <div class="col-3 text-weight-bold">ID:</div>
-                                <div class="col">{{ pipeline.id }}</div>
-                            </div>
-                            <div class="row">
-                                <div class="col-3 text-weight-bold">Name:</div>
-                                <div class="col"><EditableField :object="pipeline" fieldName="name" @valueChanged="(val) => onPipelineEdited('name', val)" /></div>
-                            </div>
-                            <div class="row">
-                                <div class="col-3 text-weight-bold">Version:</div>
-                                <div class="col">{{ pipeline.versionNumber }}</div>
-                            </div>
-                            <div class="row">
-                                <div class="col-3 text-weight-bold">Description:</div>
-                                <div class="col"><EditableField :object="pipeline" fieldName="description" @valueChanged="(val) => onPipelineEdited('description', val)" /></div>
-                            </div>
-                            <div class="row">
-                                <div class="col-3 text-weight-bold">Status:</div>
-                                <div class="col text-grey">
-                                    <StatusLabel :status="pipeline.status" />
-                                    <q-toggle class="on-right" dense v-model="pipelineStatusToggle" @update:model-value="onStatusToggle" />
+            <oa-section v-if="!pipeline" title="Loading..." icon="route"/>
+            <oa-section v-else :title="pipeline.name" icon="route" :collapsible="true">
+                <div class="row q-pa-md">
+                    <div class="col-4">
+                        <q-field label="ID" stack-label dense borderless>
+                            <template v-slot:control>
+                                {{ pipeline.id }}
+                            </template>
+                        </q-field>
+                        <q-field label="Description" stack-label dense borderless>
+                            <template v-slot:control>
+                                <EditableField :object="pipeline" fieldName="description" @valueChanged="(val) => onPipelineEdited('description', val)" />
+                            </template>
+                        </q-field>
+                        <q-field label="Version" stack-label dense borderless>
+                            <template v-slot:control>
+                                {{ pipeline.versionNumber }}
+                            </template>
+                        </q-field>
+                        <q-field label="Status" stack-label dense borderless>
+                            <template v-slot:control>
+                                <StatusLabel :status="pipeline.status" />
+                                <q-toggle class="on-right" dense v-model="pipelineStatusToggle" @update:model-value="onStatusToggle" />
+                            </template>
+                        </q-field>
+                    </div>
+                    <div class="col-4">
+                        <q-field label="Created On" stack-label dense borderless>
+                            <template v-slot:control>
+                                {{ FormatUtils.formatDate(pipeline.createdOn) }}
+                            </template>
+                        </q-field>
+                        <q-field label="Created By" stack-label dense borderless>
+                            <template v-slot:control>
+                                <div class="q-pt-xs">
+                                    <UserChip :id="pipeline.createdBy"/>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="col-4 q-gutter-xs">
-                            <div class="row">
-                                <div class="col-3 text-weight-bold">Created On:</div>
-                                <div class="col">{{ FormatUtils.formatDate(pipeline.createdOn) }}</div>
-                            </div>
-                            <div class="row">
-                                <div class="col-3 text-weight-bold">Created By:</div>
-                                <div class="col"><UserChip :id="pipeline.createdBy" /></div>
-                            </div>
-                            <div class="row">
-                                <div class="col-3 text-weight-bold">Updated On:</div>
-                                <div class="col">{{ FormatUtils.formatDate(pipeline.updatedOn) }}</div>
-                            </div>
-                            <div class="row">
-                                <div class="col-3 text-weight-bold">Updated By:</div>
-                                <div class="col"><UserChip :id="pipeline.updatedBy" /></div>
-                            </div>
-                        </div>
-                        <div class="col-4 q-gutter-xs">
-                            <div class="row justify-end action-button">
-                                <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete" @click="showDeleteDialog = true"/>
-                            </div>
+                            </template>
+                        </q-field>
+                        <q-field label="Updated On" stack-label dense borderless>
+                            <template v-slot:control>
+                                {{ FormatUtils.formatDate(pipeline.updatedOn) }}
+                            </template>
+                        </q-field>
+                        <q-field label="Updated By" stack-label dense borderless>
+                            <template v-slot:control>
+                                <div class="q-pt-xs">
+                                    <UserChip :id="pipeline.updatedBy"/>
+                                </div>
+                            </template>
+                        </q-field>
+                    </div>
+                    <div class="col-4 q-gutter-xs">
+                        <div class="row justify-end action-button">
+                            <q-btn size="sm" color="primary" icon="delete" class="oa-button-delete" label="Delete" @click="showDeleteDialog = true"/>
                         </div>
                     </div>
-                </q-expansion-item>
+                </div>
+            </oa-section>
 
-                <q-expansion-item label="Configuration" icon="settings" class="q-mt-md"
-                    expand-icon-class="text-white" header-class="text-h6 oa-section-title" default-opened dense>
-                    <div class="row oa-section-body">
-                        <div class="col-12 q-pa-md">
-                            <q-card square class="bg-grey-3">
-                                <div class="row q-pa-sm">
-                                    <div class="col-11">
-                                        <q-input v-model="configWorkingCopy" type="textarea" outlined :readonly="!editMode" input-style="padding-top: 0px;"></q-input>
-                                    </div>
-                                    <div class="col-1">
-                                        <div class="row justify-end">
-                                            <q-btn size="sm" color="primary" icon="edit" label="Edit" v-show="!editMode" @click="editMode = true" />
-                                            <q-btn size="sm" color="primary" icon="save" label="Save" v-show="editMode" @click="exitEditMode(true)" />
-                                            <q-btn size="sm" color="primary" icon="cancel" label="Cancel" v-show="editMode" @click="exitEditMode(false)" class="q-mt-sm" />
-                                        </div>
+            <oa-section title="Configuration" icon="settings" :collapsible="true" class="q-pt-md">
+                <div class="row oa-section-body">
+                    <div class="col-12 q-pa-md">
+                        <q-card square class="bg-grey-3">
+                            <div class="row q-pa-sm">
+                                <div class="col-11">
+                                    <q-input v-model="configWorkingCopy" type="textarea" outlined :readonly="!editMode" input-style="padding-top: 0px;"></q-input>
+                                </div>
+                                <div class="col-1">
+                                    <div class="row justify-end">
+                                        <q-btn size="sm" color="primary" icon="edit" label="Edit" v-show="!editMode" @click="editMode = true" />
+                                        <q-btn size="sm" color="primary" icon="save" label="Save" v-show="editMode" @click="exitEditMode(true)" />
+                                        <q-btn size="sm" color="primary" icon="cancel" label="Cancel" v-show="editMode" @click="exitEditMode(false)" class="q-mt-sm" />
                                     </div>
                                 </div>
-                            </q-card>
-                        </div>
+                            </div>
+                        </q-card>
                     </div>
-                </q-expansion-item>
-            </div>
+                </div>
+            </oa-section>
         </div>
     </q-page>
 
@@ -100,7 +101,7 @@
     import FormatUtils from "@/lib/FormatUtils.js";
     import UserChip from "@/components/widgets/UserChip";
     import StatusLabel from "@/components/widgets/StatusLabel";
-    import OaSectionHeader from "@/components/widgets/OaSectionHeader";
+    import OaSection from "@/components/widgets/OaSection";
     import DeleteDialog from "@/components/widgets/DeleteDialog";
     import ConfirmDialog from "@/components/widgets/ConfirmDialog";
     import EditableField from "@/components/widgets/EditableField";

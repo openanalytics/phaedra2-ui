@@ -1,21 +1,13 @@
 <template>
-    <div style="min-height: 20px;" @mouseover="toggleEditBtn(true)" @mouseleave="toggleEditBtn(false)">
-        <span>
-            {{object[fieldName]}}
-        </span>
-        <q-btn round dense icon="edit" size="xs" :class="{'on-right': object[fieldName]}" v-show="editBtnShown || !object[fieldName]" @click="showEditDialog = true" />
-    </div>
-
-    <q-dialog v-model="showEditDialog">
+    <q-dialog v-model="showDialog">
         <q-card style="min-width: 30vw">
             <q-card-section class="text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
                 <q-icon name="edit" class="q-pr-sm"/>
-                Edit {{fieldName}}
+                Rename {{objectClass}}
             </q-card-section>
         
             <q-card-section>
-                <q-input v-if="props.number" v-model.number="fieldValue" type="number" />
-                <q-input v-else dense v-model="fieldValue" />
+                <q-input dense v-model="fieldValue" />
             </q-card-section>
 
             <q-card-actions align="right" class="text-primary">
@@ -30,24 +22,24 @@
     import {ref, computed} from "vue";
 
     const props = defineProps({
+        objectClass: String,
         object: Object,
         fieldName: String,
-        number: Boolean
+        show: Boolean
     });
-    const emit = defineEmits(['valueChanged']);
+    const emit = defineEmits([ 'valueChanged', 'update:show' ]);
+
+    const showDialog = computed({
+        get: () => props.show,
+        set: (v) => emit('update:show', v)
+    });
 
     const newFieldValue = ref(null);
-
-    const editBtnShown = ref(false);
-    const toggleEditBtn = (show) => {
-        editBtnShown.value = show;
-    }
-    const showEditDialog = ref(false);
     const fieldValue = computed({
-        get: () => props.object[props.fieldName],
+        get: () => props.object[props.fieldName || 'name'],
         set: (newValue) => { newFieldValue.value = newValue }
     });
-    
+
     const cancelChanges = () => {
         newFieldValue.value = null;
     };

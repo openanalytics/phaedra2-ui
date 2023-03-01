@@ -31,7 +31,6 @@ import FormulaTab  from "@/pages/feature/FormulaTab.vue";
 import FormulasView from "@/pages/calculation/formula/BrowseFormulas";
 import FormulaView from "@/pages/calculation/formula/FormulaView";
 
-import ScanJobsView from '@/pages/datacapture/ScanJobsView'
 import CaptureJobsView from '@/pages/datacapture/CaptureJobsView'
 import MeasurementsView from "@/pages/datacapture/MeasurementsView"
 import MeasurementDetailsView from "@/pages/datacapture/MeasurementDetailsView"
@@ -99,7 +98,6 @@ const routes = [
     { name: "calcFormulas", path: "/calc/formulas", component: BrowseFormulas },
     { name: "calcFormula", path: "/calc/formula/:id", component: FormulaView },
 
-    { name: "scanJobs", path: "/datacapture/scan", component: ScanJobsView },
     { name: "dataCaptureJobs", path: "/datacapture/jobs", component: CaptureJobsView },
     { name: "measurements", path: "/datacapture/meas", component: MeasurementsView},
     { name: "measurementDetails", path: "/datacapture/meas/:id", component: MeasurementDetailsView},

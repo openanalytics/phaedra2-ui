@@ -100,11 +100,9 @@ const actions = {
         ctx.commit('deleteExperiment', id)
     },
     async editExperiment(ctx, experiment) {
-        await experimentAPI.editExperiment(experiment)
-            .then(() =>{
-                ctx.commit('deleteExperiment',experiment.id)
-                ctx.commit('loadExperiment',experiment)
-            })
+        await experimentAPI.editExperiment(experiment);
+        ctx.commit('deleteExperiment',experiment.id);
+        ctx.dispatch('loadById', experiment.id);
     }
 }
 

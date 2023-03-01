@@ -5,20 +5,19 @@
     </q-breadcrumbs>
 
     <q-page class="oa-root-div">
-        <div class="q-pa-md">
-            <oa-section-header  title="New Pipeline" icon="route"/>
-            <div class="row q-pa-md oa-section-body">
+        <oa-section  title="New Pipeline" icon="route" class="q-pa-md">
+            <div class="row q-pa-md">
                 <q-form class="full-width" @submit="saveNewPipeline">
                     <q-input label="Name" v-model="newPipeline.name" lazy-rules :rules="[ val => val && val.length > 0 || 'Name is required']" dense/>
                     <div class="row justify-end q-pt-md">
                         <router-link :to="{ name: 'browsePipelines'}" class="nav-link">
-                            <q-btn label="Cancel" type="reset" color="primary" flat class="on-right"/>
+                            <q-btn label="Cancel" type="reset" color="primary" flat/>
                         </router-link>
-                        <q-btn label="Create" type="submit" color="primary"/>
+                        <q-btn label="Create" type="submit" color="primary" class="on-right"/>
                     </div>
                 </q-form>
             </div>
-        </div>
+        </oa-section>
     </q-page>
 </template>
 
@@ -26,7 +25,7 @@
     import {ref} from "vue";
     import {useStore} from 'vuex';
     import {useRouter} from 'vue-router';
-    import OaSectionHeader from "@/components/widgets/OaSectionHeader";
+    import OaSection from "@/components/widgets/OaSection";
 
     const store = useStore();
     const router = useRouter();

@@ -1,39 +1,35 @@
 <template>
   <q-breadcrumbs class="oa-breadcrumb">
     <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}" />
-    <q-breadcrumbs-el :label="'New Plate Layout Template'" />
+    <q-breadcrumbs-el icon="list" label="Templates" :to="'/templates'"/>
+    <q-breadcrumbs-el label="New Template" />
   </q-breadcrumbs>
 
   <q-page class="oa-root-div">
     <div class="q-pa-md">
-      <oa-section-header :title="'New Template'" :icon="'add'"/>
-
-      <div class="row q-pa-md oa-section-body">
-<!--        <q-form class="row" @submit="onSubmit" @reset="onReset">-->
-          <div class="col-5">
-          <q-input v-model="newPlateTemplate.name" label="Name: " dense/>
-          <q-input v-model="newPlateTemplate.description" label="Description: " dense/>
-          <q-input v-model="newPlateTemplate.rows" label="Rows: " dense/>
-          <q-input v-model="newPlateTemplate.columns" label="Columns: " dense/>
-          </div>
-
-          <div class="col-2"/>
-
-          <div class="col-5">
-            <div class="row justify-end">
-              <q-btn size="sm" label="Import ..." class="oa-action-button" @click="importFromFile = true"/>
+      <oa-section title="New Template" icon="add">
+        <div class="row q-pa-md">
+            <div class="col-10">
+              <q-input v-model="newPlateTemplate.name" label="Name: " dense/>
+              <q-input v-model="newPlateTemplate.description" label="Description: " dense/>
+              <q-input v-model="newPlateTemplate.rows" label="Rows: " dense/>
+              <q-input v-model="newPlateTemplate.columns" label="Columns: " dense/>
             </div>
-            <div class="row justify-end">
-              <q-btn size="sm" label="Save" class="oa-action-button" @click="onSubmit"/>
+            <div class="col-2">
+              <div class="row justify-end">
+                <q-btn size="sm" label="Import ..." class="oa-action-button" @click="importFromFile = true"/>
+              </div>
+              <div class="row justify-end">
+                <q-btn size="sm" label="Save" class="oa-action-button" @click="onSubmit"/>
+              </div>
+              <div class="row justify-end">
+                <router-link :to="{name: 'browseTemplates'}" class="nav-link">
+                  <q-btn size="sm" label="Cancel" class="oa-action-button"/>
+                </router-link>
+              </div>
             </div>
-            <div class="row justify-end">
-              <router-link :to="{name: 'browseTemplates'}" class="nav-link">
-                <q-btn size="sm" label="Cancel" class="oa-action-button"/>
-              </router-link>
-            </div>
-          </div>
-<!--        </q-form>-->
-      </div>
+        </div>
+      </oa-section>
     </div>
   </q-page>
 
@@ -55,8 +51,7 @@
 import {ref} from 'vue'
 import {useStore} from 'vuex'
 import {useRouter} from 'vue-router'
-import OaSectionHeader from "@/components/widgets/OaSectionHeader"
-import PropertyTable from "@/components/property/PropertyTable"
+import OaSection from "@/components/widgets/OaSection"
 
 const router = useRouter();
 const store = useStore();

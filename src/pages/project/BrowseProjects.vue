@@ -1,13 +1,11 @@
 <template>
   <q-breadcrumbs class="oa-breadcrumb">
     <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}" />
-    <q-breadcrumbs-el :label="'Projects'" icon="list"/>
+    <q-breadcrumbs-el label="Projects" icon="list"/>
   </q-breadcrumbs>
 
   <q-page class="oa-root-div">
-    <div class="q-pa-md">
-      <oa-section-header :title="'Projects'" :icon="'folder'"/>
-      <div class="row q-pa-md oa-section-body">
+      <oa-section title="Projects" icon="folder" class="q-pa-md">
         <q-table
             table-header-class="text-grey"
             flat dense
@@ -34,17 +32,16 @@
           </template>
           <template v-slot:body-cell-tags="props">
             <q-td :props="props">
-              <TagList :objectInfo="props.row" :objectClass="'PROJECT'" :readOnly="true" />
-            </q-td>
-          </template>
-          <template v-slot:body-cell-createdBy="props">
-            <q-td :props="props">
-              <UserChip :id="props.row.createdBy" />
-            </q-td>
-          </template>
-        </q-table>
-      </div>
-    </div>
+            <TagList :objectInfo="props.row" :objectClass="'PROJECT'" :readOnly="true" />
+          </q-td>
+        </template>
+        <template v-slot:body-cell-createdBy="props">
+          <q-td :props="props">
+            <UserChip :id="props.row.createdBy" />
+          </q-td>
+        </template>
+      </q-table>
+    </oa-section>
   </q-page>
 </template>
 
@@ -57,13 +54,13 @@ import FormatUtils from "@/lib/FormatUtils.js"
 
 import TagList from "@/components/tag/TagList";
 import UserChip from "@/components/widgets/UserChip";
-import OaSectionHeader from "../../components/widgets/OaSectionHeader";
+import OaSection from "@/components/widgets/OaSection";
 
 export default {
   components: {
     TagList,
     UserChip,
-    OaSectionHeader
+    OaSection
   },
   setup() {
     const store = useStore();

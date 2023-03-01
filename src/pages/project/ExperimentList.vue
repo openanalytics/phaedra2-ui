@@ -1,87 +1,85 @@
 <template>
-<!--  <div class="row text-h6 items-center q-px-md oa-section-title" style="min-width: 56px">-->
-<!--    <q-icon name="science" class="on-left"/>Experiments-->
-<!--  </div>-->
-  <oa-section-header :title="'Experiments'" :icon="'science'"/>
-  <q-table
-      table-header-class="text-grey"
-      flat square dense
-      :columns="columns"
-      :rows="experiments"
-      row-key="id"
-      :pagination="{ rowsPerPage: 10, sortBy: 'name' }"
-      :filter="filter"
-      :filter-method="filterMethod"
-      :visible-columns="visibleColumns"
-      :loading="loading"
-  >
-    <template v-slot:top-left>
-      <div class="row action-button on-left">
-        <q-btn size="sm" icon="add" class="oa-button" label="New Experiment" @click="showNewExperimentDialog = true"/>
-      </div>
-    </template>
-    <template v-slot:top-right>
-      <div class="row">
-        <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
-          <template v-slot:append>
-            <q-icon name="search"/>
-          </template>
-        </q-input>
-        <q-btn flat round color="primary" icon="settings" class="on-right" @click="showConfigDialog=true">
-          <q-tooltip>Configure Table Columns</q-tooltip>
-        </q-btn>
-      </div>
-    </template>
-    <template v-slot:body-cell-name="props">
-      <q-td :props="props">
-        <router-link :to="'/experiment/' + props.row.id" class="nav-link">
-          <div class="row items-center cursor-pointer">
-            <q-icon name="science" class="icon q-pr-sm"/>
-            {{ props.row.name }}
-          </div>
-        </router-link>
-      </q-td>
-    </template>
-    <template v-slot:body-cell-tags="props">
-      <q-td :props="props">
-        <TagList :objectInfo="props.row" :objectClass="'EXPERIMENT'" :readOnly="true" />
-      </q-td>
-    </template>
-    <template v-slot:body-cell-createdBy="props">
-      <q-td :props="props">
-        <UserChip :id="props.row.createdBy" />
-      </q-td>
-    </template>
-    <template v-slot:body-cell-nrPlatesCalculated="props">
-      <q-td :props="props">
-        <ProgressBarField :object="props.row.summary" :valueFieldName="props.col.name" :maxValueFieldName="'nrPlates'" />
-      </q-td>
-    </template>
-    <template v-slot:body-cell-nrPlatesValidated="props">
-      <q-td :props="props">
-        <ProgressBarField :object="props.row.summary" :valueFieldName="props.col.name" :maxValueFieldName="'nrPlates'" />
-      </q-td>
-    </template>
-    <template v-slot:body-cell-nrPlatesApproved="props">
-      <q-td :props="props">
-        <ProgressBarField :object="props.row.summary" :valueFieldName="props.col.name" :maxValueFieldName="'nrPlates'" />
-      </q-td>
-    </template>
-    <template v-slot:body-cell-menu="props">
-      <q-td :props="props">
-        <div class="row items-center cursor-pointer">
-          <q-btn flat round icon="more_horiz" size="sm" >
-            <ExperimentMenu :experiment="props.row" />
+  <oa-section title="Experiments" icon="science">
+    <q-table
+        table-header-class="text-grey"
+        flat dense
+        :columns="columns"
+        :rows="experiments"
+        row-key="id"
+        :pagination="{ rowsPerPage: 10, sortBy: 'name' }"
+        :filter="filter"
+        :filter-method="filterMethod"
+        :visible-columns="visibleColumns"
+        :loading="loading"
+    >
+      <template v-slot:top-left>
+        <div class="row action-button on-left">
+          <q-btn size="sm" icon="add" class="oa-button" label="New Experiment" @click="showNewExperimentDialog = true"/>
+        </div>
+      </template>
+      <template v-slot:top-right>
+        <div class="row">
+          <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
+            <template v-slot:append>
+              <q-icon name="search"/>
+            </template>
+          </q-input>
+          <q-btn flat round color="primary" icon="settings" class="on-right" @click="showConfigDialog=true">
+            <q-tooltip>Configure Table Columns</q-tooltip>
           </q-btn>
         </div>
-      </q-td>
-    </template>
-    <template v-slot:no-data>
-      <div class="full-width row text-info">
-        <span>No experiments to show.</span>
-      </div>
-    </template>
-  </q-table>
+      </template>
+      <template v-slot:body-cell-name="props">
+        <q-td :props="props">
+          <router-link :to="'/experiment/' + props.row.id" class="nav-link">
+            <div class="row items-center cursor-pointer">
+              <q-icon name="science" class="icon q-pr-sm"/>
+              {{ props.row.name }}
+            </div>
+          </router-link>
+        </q-td>
+      </template>
+      <template v-slot:body-cell-tags="props">
+        <q-td :props="props">
+          <TagList :objectInfo="props.row" :objectClass="'EXPERIMENT'" :readOnly="true" />
+        </q-td>
+      </template>
+      <template v-slot:body-cell-createdBy="props">
+        <q-td :props="props">
+          <UserChip :id="props.row.createdBy" />
+        </q-td>
+      </template>
+      <template v-slot:body-cell-nrPlatesCalculated="props">
+        <q-td :props="props">
+          <ProgressBarField :object="props.row.summary" :valueFieldName="props.col.name" :maxValueFieldName="'nrPlates'" />
+        </q-td>
+      </template>
+      <template v-slot:body-cell-nrPlatesValidated="props">
+        <q-td :props="props">
+          <ProgressBarField :object="props.row.summary" :valueFieldName="props.col.name" :maxValueFieldName="'nrPlates'" />
+        </q-td>
+      </template>
+      <template v-slot:body-cell-nrPlatesApproved="props">
+        <q-td :props="props">
+          <ProgressBarField :object="props.row.summary" :valueFieldName="props.col.name" :maxValueFieldName="'nrPlates'" />
+        </q-td>
+      </template>
+      <template v-slot:body-cell-menu="props">
+        <q-td :props="props">
+          <div class="row items-center cursor-pointer">
+            <q-btn flat round icon="more_horiz" size="sm" >
+              <ExperimentMenu :experiment="props.row" />
+            </q-btn>
+          </div>
+        </q-td>
+      </template>
+      <template v-slot:no-data>
+        <div class="full-width row text-info">
+          <span>No experiments to show.</span>
+        </div>
+      </template>
+    </q-table>
+  </oa-section>
 
   <q-dialog v-model="showNewExperimentDialog">
     <q-card style="min-width: 30vw">
@@ -129,7 +127,7 @@ import ProgressBarField from "@/components/widgets/ProgressBarField";
 import TagList from "@/components/tag/TagList";
 import UserChip from "@/components/widgets/UserChip";
 import ExperimentMenu from "@/components/experiment/ExperimentMenu";
-import OaSectionHeader from "@/components/widgets/OaSectionHeader";
+import OaSection from "@/components/widgets/OaSection";
 
 import FormatUtils from "@/lib/FormatUtils.js"
 import FilterUtils from "@/lib/FilterUtils.js"
