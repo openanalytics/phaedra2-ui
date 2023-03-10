@@ -1,13 +1,12 @@
 <template>
   <div>
-    <oa-section-header :title="props.feature.name" :icon="'view'"/>
-    <div class="oa-section-body">
+    <oa-section :title="feature.name" icon="functions" :collapsible="true">
       <q-card-section>
         <q-tabs v-model="activeTab" align="left" class="q-px-sm oa-section-title" inline-label dense no-caps>
           <q-tab name="general" icon="info" label="General Info"/>
           <q-tab name="calculation" icon="functions" label="Calculation"/>
-          <q-tab name="curve_fitting" label="Dose-Response Curve Fitting"/>
-          <q-tab name="outlier_detection" label="Outlier Detection"/>
+          <q-tab name="curve_fitting" icon="show_chart" label="Dose-Response Curve Fitting"/>
+          <q-tab name="outlier_detection" icon="sms_failed" label="Outlier Detection"/>
           <q-tab name="hit_calling" icon="rules" label="Hit Calling"/>
         </q-tabs>
 
@@ -128,7 +127,7 @@
           <q-btn flat class="on-left" label="Cancel" color="primary" @click="onCancel"/>
         </div>
       </q-card-section>
-    </div>
+    </oa-section>
   </div>
 </template>
 
@@ -137,7 +136,7 @@
 import { ref } from "vue";
 import { useProtocolStore} from "@/stores/protocol";
 import { useFeatureStore } from "@/stores/feature";
-import OaSectionHeader from "../widgets/OaSectionHeader";
+import OaSection from "@/components/widgets/OaSection";
 
 const protocolStore = useProtocolStore()
 const featureStore = useFeatureStore()

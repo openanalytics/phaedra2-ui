@@ -1,30 +1,22 @@
 <template>
   <WellGrid :plate="plate"
             :wellColorFunction="wellColorFunction"
-            :wellLabelFunctions="wellLabelFunctions"
-            @wellSelection="handleWellSelection"/>
+            :wellLabelFunctions="wellLabelFunctions"/>
   <WellTypeLegend :wells=wells></WellTypeLegend>
 </template>
 
 <script setup>
-import {ref, computed, watchEffect, watch} from 'vue'
+import {ref, computed, watchEffect} from 'vue'
 import {useStore} from 'vuex'
 
 import WellGrid from "@/components/well/WellGrid.vue"
 import WellTypeLegend from "@/components/well/WellTypeLegend.vue"
 import WellUtils from "@/lib/WellUtils.js"
 
-const props = defineProps(['plate'])
+const props = defineProps(['plate']);
 const store = useStore();
 
 const wells = computed(() => store.getters['wells/getWells'](props.plate.id) || []);
-
-const activeMeasurement = computed(() => store.getters['measurements/getActivePlateMeasurement'](props.plate.id))
-if (activeMeasurement.value) {
-  const plateResults = computed(() => store.getters['resultdata/getPlateResults'](props.plate.id, activeMeasurement.value.measurementId));
-  const protocolIds = [...new Set(plateResults.value.map(rs => rs.protocolId))];
-  const protocols = computed(() => store.getters['protocols/getByIds'](protocolIds))
-}
 
 const wellColorFunction = (well) => {
   return WellUtils.getWellTypeColor(well.wellType);
@@ -34,18 +26,4 @@ const wellLabelFunctions = ref([]);
 watchEffect(() => {
   if (props.plate.columns <= 24) wellLabelFunctions.value.push(well => well.wellType);
 });
-
-// const selectedWells = ref([])
-
-const selectedWells = computed(() => store.getters['ui/getSelectedWells']())
-const selectedWellSubstances = computed(() => store.getters['ui/getSelectedSubstances']())
-const updateSelectedWells = () => {
-  selectedWells.value = computed(() => store.getters['ui/getSelectedWells']())
-}
-
-watch(selectedWells, updateSelectedWells);
-watch(selectedWellSubstances, updateSelectedWells);
-const handleWellSelection = (wells) => {
-  selectedWells.value = wells;
-}
 </script>

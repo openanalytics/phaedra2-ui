@@ -26,71 +26,69 @@
 
 <script setup>
 import {ref, watch, toRefs, computed} from 'vue'
-  import {useStore} from 'vuex'
-  import ColorLegend from "@/components/widgets/ColorLegend.vue"
+import {useStore} from 'vuex'
 
-  // export default {
-  const props = defineProps(['protocols', 'plateResults', 'plate'])
+const props = defineProps(['protocols', 'plateResults', 'plate'])
 
-  const gridColumnStyle = computed(() => { return "repeat(" + (props.plate.columns + 1) + ", 1fr)" });
-  const featureSelectorStartColumn = ref(2);
-  const featureSelectorEndColumn = ref(props.plate.columns + 1)
+const gridColumnStyle = computed(() => { return props.plate ? ("repeat(" + (props.plate.columns + 1) + ", 1fr)") : "repeat(3, 1fr)" });
+const featureSelectorStartColumn = ref(props.plate ? 2 : 1);
+const featureSelectorEndColumn = ref(props.plate ? (props.plate.columns + 1) : 3)
 
-  const emits = defineEmits(['featureSelection'])
-      const store = useStore()
+const emits = defineEmits(['featureSelection'])
+const store = useStore()
 
-      watch(toRefs(props).protocols, () => {
-        selectedProtocol.value = props.protocols[0]
-        onProtocolSelected()
-      })
+watch(toRefs(props).protocols, () => {
+  selectedProtocol.value = props.protocols[0]
+  onProtocolSelected()
+})
 
-      // Protocol selection
-      const selectedProtocol = ref(null)
-      const onProtocolSelected = () => {
-        if (selectedProtocol.value) {
-          store.dispatch('features/loadByProtocolId', selectedProtocol.value.id).then(() => {
-            allFeatures.value = store.getters['features/getByProtocolId'](selectedProtocol.value.id)
-            if (allFeatures.value && allFeatures.value.length > 0) {
-              selectedFeature.value = allFeatures.value[0]
-              onFeatureSelected(selectedFeature.value)
-            }
-          })
-        }
+// Protocol selection
+const selectedProtocol = ref(null)
+const onProtocolSelected = () => {
+  if (selectedProtocol.value) {
+    store.dispatch('features/loadByProtocolId', selectedProtocol.value.id).then(() => {
+      allFeatures.value = store.getters['features/getByProtocolId'](selectedProtocol.value.id)
+      if (allFeatures.value && allFeatures.value.length > 0) {
+        selectedFeature.value = allFeatures.value[0]
+        onFeatureSelected(selectedFeature.value)
       }
+    })
+  }
+}
 
-      // Feature selection
-      const allFeatures = ref([])
-      const filteredFeatures = ref(allFeatures.value)
-      const selectedFeature = ref(null)
-      const onFeatureSelected = (value) => {
-        emits('featureSelection', value)
-        calcRangeValues()
-      }
-      const applyFeatureFilter = (val, update) => {
-        if (val === '') {
-          update(() => {
-            filteredFeatures.value = allFeatures.value
-          })
-          return
-        }
-        update(() => {
-          filteredFeatures.value = allFeatures.value.filter(v => v.name.toLowerCase().indexOf(val.toLowerCase()) > -1)
-        })
-      }
+// Feature selection
+const allFeatures = ref([])
+const filteredFeatures = ref(allFeatures.value)
+const selectedFeature = ref(null)
+const onFeatureSelected = (value) => {
+  emits('featureSelection', value)
+  calcRangeValues()
+}
+const applyFeatureFilter = (val, update) => {
+  if (val === '') {
+    update(() => {
+      filteredFeatures.value = allFeatures.value
+    })
+    return
+  }
+  update(() => {
+    filteredFeatures.value = allFeatures.value.filter(v => v.name.toLowerCase().indexOf(val.toLowerCase()) > -1)
+  })
+}
 
-      const rangeValues = ref(null)
-      const calcRangeValues = () => {
-        if (!selectedFeature.value) rangeValues.value = { min: 0, mean: 50, max: 100 }
-        if (Array.isArray(props.plateResults)) {
-          const result = props.plateResults.filter(rs => (rs.featureId === selectedFeature.value.id));
-          if (result.length > 0) {
-            const min = Math.min(...result[0].values.filter(v => !isNaN(v)));
-            const mean = result[0].values.reduce((x, y) => x + y, 0) / result[0].values.length;
-            const max = Math.max(...result[0].values.filter(v => !isNaN(v)));
-            rangeValues.value = {min: min, mean: mean, max: max}
-          }
-        } else {
-          rangeValues.value = null
-        }
-      }
+const rangeValues = ref(null)
+const calcRangeValues = () => {
+  if (!selectedFeature.value) rangeValues.value = { min: 0, mean: 50, max: 100 }
+  if (Array.isArray(props.plateResults)) {
+    const result = props.plateResults.filter(rs => (rs.featureId === selectedFeature.value.id));
+    if (result.length > 0) {
+      const min = Math.min(...result[0].values.filter(v => !isNaN(v)));
+      const mean = result[0].values.reduce((x, y) => x + y, 0) / result[0].values.length;
+      const max = Math.max(...result[0].values.filter(v => !isNaN(v)));
+      rangeValues.value = {min: min, mean: mean, max: max}
+    }
+  } else {
+    rangeValues.value = null
+  }
+}
 </script>

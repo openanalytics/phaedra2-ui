@@ -1,13 +1,12 @@
 <template>
   <div>
-    <oa-section-header :title="'Edit Feature'" :icon="'edit'"/>
-    <div class="oa-section-body">
+    <oa-section title="Edit Feature" icon="edit">
       <q-card-section>
         <q-tabs v-model="activeTab" align="left" class="q-px-sm oa-section-title" inline-label dense no-caps>
           <q-tab name="general" icon="info" label="General Info"/>
           <q-tab name="calculation" icon="functions" label="Calculation"/>
-          <q-tab name="curve_fitting" label="Dose-Response Curve Fitting"/>
-          <q-tab name="outlier_detection" label="Outlier Detection"/>
+          <q-tab name="curve_fitting" icon="show_chart" label="Dose-Response Curve Fitting"/>
+          <q-tab name="outlier_detection" icon="sms_failed" label="Outlier Detection"/>
           <q-tab name="hit_calling" icon="rules" label="Hit Calling"/>
         </q-tabs>
 
@@ -36,8 +35,8 @@
                             <div v-if="!isRaw(featureStore.feature.type)" class="row col-12">
                               <div class="col-7">
                                 <q-input v-model="variable.sourceMeasColName"
-                                         v-if="variable.inputSource === 'MEASUREMENT'"
-                                         :label="variable.variableName"/>
+                                        v-if="variable.inputSource === 'MEASUREMENT'"
+                                        :label="variable.variableName"/>
                                 <q-select :options="availableFeatures(featureStore.feature)"
                                           v-model="variable.sourceFeatureId"
                                           option-value="id" option-label="name" emit-value map-options
@@ -79,7 +78,7 @@
                           v-model="drcModel.name" :options="drcModelOptions" option-label="name" option-value="name"
                           @update:model-value="onDRCModelSelection"/>
                 <q-input label="Description" stack-label square readonly
-                         v-model="drcModel.description"/>
+                        v-model="drcModel.description"/>
                 <q-select label="Method" stack-label square
                           v-model="drcModel.method" :options="dcrModelMethodOptions"/>
                 <q-select label="Slope type" stack-label square
@@ -101,7 +100,7 @@
           <q-btn label="Edit feature" v-close-popup color="primary" @click="editFeature"/>
         </div>
       </q-card-section>
-    </div>
+    </oa-section>
   </div>
 </template>
 
@@ -111,8 +110,8 @@ import { computed, ref} from "vue";
 import { useProtocolStore } from "@/stores/protocol";
 import { useFormulasStore } from "@/stores/formulas";
 import { useFeatureStore } from "@/stores/feature";
-import OaSectionHeader from "@/components/widgets/OaSectionHeader";
 import drcModelOptions from "@/resources/dose_response_curve_fit_models.json"
+import OaSection from "@/components/widgets/OaSection";
 
 const protocolStore = useProtocolStore();
 const formulasStore = useFormulasStore()

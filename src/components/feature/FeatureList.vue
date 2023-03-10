@@ -1,6 +1,6 @@
 <template>
   <div v-if="!showNewFeatureTab && !showEditFeatureSection">
-    <oa-section-header :title="'Features'" :icon="'functions'"/>
+    <oa-section title="Features" icon="functions" :collapsible="true">
       <q-table
           table-header-class="text-grey"
           :rows="features"
@@ -56,6 +56,7 @@
           </div>
         </template>
       </q-table>
+    </oa-section>
   </div>
 
 
@@ -78,7 +79,7 @@ import {useFeatureStore} from "@/stores/feature";
 import {useProtocolStore} from "@/stores/protocol";
 import {useFormulasStore} from "@/stores/formulas";
 
-import OaSectionHeader from "@/components/widgets/OaSectionHeader";
+import OaSection from "@/components/widgets/OaSection";
 import EditFeature from "@/components/feature/EditFeature";
 import ViewFeature from "@/components/feature/ViewFeature";
 import NewFeature from "@/components/feature/NewFeature";

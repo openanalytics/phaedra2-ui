@@ -7,10 +7,10 @@ const state = () => ({
 
 const getters = {
     getPlateResults: (state) => (plateId, measId) => {
-        return state.plateResults[plateId]?.filter(pr => measId === null || pr.measId === measId);
+        return state.plateResults[plateId]?.filter(pr => measId == null || pr.measId === measId);
     },
     getLatestPlateResult: (state) => (plateId, measId) => {
-        return state.latestPlateResult[plateId]?.filter(pr => measId === null || pr.measId === measId);
+        return state.latestPlateResult[plateId]?.filter(pr => measId == null || pr.measId === measId);
     },
     getLatestPlateResultFeatureIds: (state) => (plateIds) => {
         const result = [];

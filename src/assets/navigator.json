@@ -64,11 +64,6 @@
     "icon": "input",
     "children": [
       {
-        "label": "Scan Jobs",
-        "icon": "scanner",
-        "route": "scanJobs"
-      },
-      {
         "label": "Capture Jobs",
         "icon": "list_alt",
         "route": "dataCaptureJobs"

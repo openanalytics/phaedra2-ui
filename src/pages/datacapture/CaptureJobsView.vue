@@ -1,8 +1,11 @@
 <template>
-  <q-page class="oa-root-div q-pa-md">
-    <oa-section-header title="Data Capture Jobs" icon="list_alt"/>
+  <q-breadcrumbs class="oa-breadcrumb">
+    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
+    <q-breadcrumbs-el label="Data Capture Jobs" icon="list"/>
+  </q-breadcrumbs>
 
-    <div class="row q-pa-lg oa-section-body">
+  <q-page class="oa-root-div q-pa-md">
+    <oa-section title="Data Capture Jobs" icon="list_alt" :collapsible="true">
       <q-table
           table-header-class="text-grey"
           class="full-width"
@@ -140,7 +143,7 @@
           </q-card-section>
         </q-card>
       </q-dialog>
-    </div>
+    </oa-section>
   </q-page>
 </template>
 <!--{-->
@@ -171,7 +174,7 @@
 import {ref, computed, onMounted, onBeforeUnmount} from 'vue'
 import {useStore} from 'vuex'
 
-import OaSectionHeader from "@/components/widgets/OaSectionHeader";
+import OaSection from "@/components/widgets/OaSection";
 import CaptureJobDetailsPanel from "./CaptureJobDetailsPanel";
 import TableConfig from "@/components/table/TableConfig";
 import UserChip from "@/components/widgets/UserChip";

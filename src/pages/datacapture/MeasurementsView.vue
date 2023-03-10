@@ -1,8 +1,12 @@
 <template>
+  <q-breadcrumbs class="oa-breadcrumb">
+    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
+    <q-breadcrumbs-el :label="'Measurements'" icon="list"/>
+  </q-breadcrumbs>
+
   <q-page class="oa-root-div">
     <div class="q-pa-md">
-      <oa-section-header :title="'Captured Measurements'" :icon="'text_snippet'"/>
-      <div class="row q-pa-lg oa-section-body">
+      <oa-section title="Captured Measurements" icon="text_snippet">
         <q-table
             table-header-class="text-grey"
             flat dense
@@ -32,7 +36,7 @@
             </q-td>
           </template>
         </q-table>
-      </div>
+      </oa-section>
     </div>
     <table-config v-model:show="configdialog" v-model:visibleColumns="visibleColumns"
                   v-model:columns="columns"></table-config>
@@ -46,7 +50,7 @@ import {useRouter} from "vue-router";
 import FormatUtils from "@/lib/FormatUtils";
 import FilterUtils from "@/lib/FilterUtils";
 import TableConfig from "@/components/table/TableConfig";
-import OaSectionHeader from "@/components/widgets/OaSectionHeader";
+import OaSection from "@/components/widgets/OaSection";
 import UserChip from "@/components/widgets/UserChip";
 
 const router = useRouter()
@@ -68,7 +72,6 @@ const columns = ref([
   {name: 'wellColumns', align: 'left', label: 'WellData Columns', field: row => (row?.wellColumns?.length || 0), sortable: true},
   {name: 'subWellColumns', align: 'left', label: 'SubwellData Columns', field: row => (row?.subWellColumns?.length || 0), sortable: true},
   {name: 'imageChannels', align: 'left', label: 'Image Channels', field: row => (row?.imageChannels?.length || 0), sortable: true},
-  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
 ])
 
 const visibleColumns = columns.value.map(a => a.name)

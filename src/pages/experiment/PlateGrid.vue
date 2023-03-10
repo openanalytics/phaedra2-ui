@@ -1,9 +1,9 @@
 <template>
-  <div class="row" style="width: 100%">
-    <div class="col-2 q-pa-sm">
+  <div style="width: 100%">
+    <div class="row q-pa-sm">
       <FeatureSelector :protocols=protocols :plateResults=plateResults @featureSelection="handleFeatureSelection"/>
     </div>
-    <div class="col-10 gridContainer">
+    <div class="row gridContainer">
       <div v-for="plate in plates" :key="plate.id" class="q-pa-sm">
         <MiniHeatmap :plate=plate :feature=selectedFeature :plate-result="plateResults[plate.id]"/>
       </div>
@@ -48,7 +48,7 @@ export default {
       // 2. Load plateResults
       const reqs = [];
       for (const plateId of plateIds) {
-        let res = plateResults[plateId] = store.getters['resultdata/getLatestPlateResult'](plateId);
+        let res = store.getters['resultdata/getLatestPlateResult'](plateId);
         if (res) {
           plateResults[plateId] = res;
         } else {
