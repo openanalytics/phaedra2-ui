@@ -6,8 +6,8 @@
           <q-tab name="general" icon="info" label="General Info"/>
           <q-tab name="calculation" icon="functions" label="Calculation"/>
           <q-tab name="curve_fitting" icon="show_chart" label="Dose-Response Curve Fitting"/>
-          <q-tab name="outlier_detection" icon="sms_failed" label="Outlier Detection"/>
-          <q-tab name="hit_calling" icon="rules" label="Hit Calling"/>
+          <!-- <q-tab name="outlier_detection" icon="sms_failed" label="Outlier Detection"/>
+          <q-tab name="hit_calling" icon="rules" label="Hit Calling"/> -->
         </q-tabs>
 
         <div class="row oa-section-body">
@@ -15,43 +15,44 @@
             <q-tab-panel name="general" label="General Info" class="col">
               <q-field label="Name" stack-label square autofocus>
                 <template v-slot:control>
-                  <div class="self-center full-width no-outline" tabindex="0">{{props.feature.name}}</div>
+                  <div class="self-center full-width no-outline" tabindex="0">{{feature.name}}</div>
                 </template>
               </q-field>
               <q-field label="Alias" stack-label square>
                 <template v-slot:control>
-                  <div class="self-center full-width no-outline" tabindex="0">{{props.feature.alias}}</div>
+                  <div class="self-center full-width no-outline" tabindex="0">{{feature.alias}}</div>
                 </template>
               </q-field>
               <q-field label="Description" stack-label square>
                 <template v-slot:control>
-                  <div class="self-center full-width no-outline" tabindex="0">{{props.feature.description}}</div>
+                  <div class="self-center full-width no-outline" tabindex="0">{{feature.description}}</div>
                 </template>
               </q-field>
               <q-field label="Format" placeholder="#.##" stack-label square>
                 <template v-slot:control>
-                  <div class="self-center full-width no-outline" tabindex="0">{{props.feature.format}}</div>
+                  <div class="self-center full-width no-outline" tabindex="0">{{feature.format}}</div>
                 </template>
               </q-field>
-              <q-field label="Type" stack-label square>
+              <!-- <q-field label="Type" stack-label square>
                 <template v-slot:control>
-                  <div class="self-center full-width no-outline" tabindex="0">{{props.feature.type}}</div>
+                  <div class="self-center full-width no-outline" tabindex="0">{{feature.type}}</div>
                 </template>
-              </q-field>
+              </q-field> -->
             </q-tab-panel>
             <q-tab-panel name="calculation" label="calculation">
               <div class="q-pa-xs col">
                 <q-field label="Formula" stack-label square>
                   <template v-slot:control>
-                    <div class="self-center full-width no-outline" tabindex="0">{{props.feature.formula.name}}</div>
+                    <div class="self-center full-width no-outline" tabindex="0">{{feature.formula?.name}}</div>
                   </template>
                 </q-field>
-                <div v-if="(props.feature.civs.length > 0)">
+
+                <div v-if="(feature.civs.length > 0)" class="q-pt-md">
                   <div>
                     <q-field label="Formula variables" stack-label borderless>
                       <template v-slot:control>
                         <div class="row col-12">
-                          <template :key="variable.variableName" v-for="variable in props.feature.civs">
+                          <template :key="variable.variableName" v-for="variable in feature.civs">
                               <div class="col-7">
                                 <q-field :label="variable.variableName" stack-label square>
                                   <template v-slot:control>
@@ -75,17 +76,17 @@
                   </div>
                 </div>
 
-                <br/>
                 <q-field label="Sequence" stack-label square>
                   <template v-slot:control>
-                    <div class="self-center full-width no-outline" tabindex="0">{{props.feature.sequence}}</div>
+                    <div class="self-center full-width no-outline" tabindex="0">{{feature.sequence}}</div>
                   </template>
                 </q-field>
-                <q-field label="Trigger" stack-label square>
+
+                <!-- <q-field label="Trigger" stack-label square>
                   <template v-slot:control>
-                    <div class="self-center full-width no-outline" tabindex="0">{{props.feature.trigger}}</div>
+                    <div class="self-center full-width no-outline" tabindex="0">{{feature.trigger}}</div>
                   </template>
-                </q-field>
+                </q-field> -->
               </div>
             </q-tab-panel>
 
@@ -93,38 +94,38 @@
               <div class="col">
                 <q-field label="Model" stack-label square>
                   <template v-slot:control>
-                    <div class="self-center full-width no-outline" tabindex="0">{{props.feature.drcModel?.name}}</div>
+                    <div class="self-center full-width no-outline" tabindex="0">{{feature.drcModel?.name}}</div>
                   </template>
                 </q-field>
                 <q-field label="Description" stack-label square>
                   <template v-slot:control>
-                    <div class="self-center full-width no-outline" tabindex="0">{{props.feature.drcModel?.description}}</div>
+                    <div class="self-center full-width no-outline" tabindex="0">{{feature.drcModel?.description}}</div>
                   </template>
                 </q-field>
                 <q-field label="Method" stack-label square>
                   <template v-slot:control>
-                    <div class="self-center full-width no-outline" tabindex="0">{{props.feature.drcModel?.method}}</div>
+                    <div class="self-center full-width no-outline" tabindex="0">{{feature.drcModel?.method}}</div>
                   </template>
                 </q-field>
                 <q-field label="Slope type" stack-label square>
                   <template v-slot:control>
-                    <div class="self-center full-width no-outline" tabindex="0">{{props.feature.drcModel?.slope}}</div>
+                    <div class="self-center full-width no-outline" tabindex="0">{{feature.drcModel?.slope}}</div>
                   </template>
                 </q-field>
               </div>
             </q-tab-panel>
 
-            <q-tab-panel name="outlier_detection">
+            <!-- <q-tab-panel name="outlier_detection">
               <div>Not yet implemented!</div>
             </q-tab-panel>
             <q-tab-panel name="hit_calling">
               <div>Not yet implemented!</div>
-            </q-tab-panel>
+            </q-tab-panel> -->
           </q-tab-panels>
         </div>
         <br>
         <div class="row justify-end">
-          <q-btn flat class="on-left" label="Cancel" color="primary" @click="onCancel"/>
+          <q-btn flat class="on-left" label="Close" color="primary" @click="onCancel"/>
         </div>
       </q-card-section>
     </oa-section>
@@ -132,23 +133,21 @@
 </template>
 
 <script setup>
+  import { ref } from "vue";
+  import { useProtocolStore} from "@/stores/protocol";
+  import { useFeatureStore } from "@/stores/feature";
+  import OaSection from "@/components/widgets/OaSection";
 
-import { ref } from "vue";
-import { useProtocolStore} from "@/stores/protocol";
-import { useFeatureStore } from "@/stores/feature";
-import OaSection from "@/components/widgets/OaSection";
+  const protocolStore = useProtocolStore()
+  const featureStore = useFeatureStore()
 
-const protocolStore = useProtocolStore()
-const featureStore = useFeatureStore()
+  const props = defineProps(['show', 'feature'])
+  const emit = defineEmits('update:show')
 
-const props = defineProps(['show', 'feature'])
-const emit = defineEmits('update:show')
+  const activeTab = ref('general');
 
-const activeTab = ref('general');
-
-const onCancel = () => {
-  featureStore.$reset()
-  emit('update:show', false)
-}
-
+  const onCancel = () => {
+    featureStore.$reset()
+    emit('update:show', false)
+  }
 </script>

@@ -38,7 +38,9 @@
         <template v-slot:body-cell-formulaId="props">
           <q-td :props="props">
             <div class="row items-center cursor-pointer" @click="showFormulaInfo(props.row.formulaId)">
-              {{ getFormulaName(props.row.formulaId) }}
+              <q-chip square dense class="q-ma-none">
+                {{ getFormulaName(props.row.formulaId) }}
+              </q-chip>
             </div>
           </q-td>
         </template>
@@ -91,6 +93,7 @@ const columns = ref([
   {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
   {name: 'format', align: 'left', label: 'Format', field: 'format', sortable: true},
   {name: 'type', align: 'left', label: 'Type', field: 'type', sortable: true},
+  {name: 'sequence', align: 'left', label: 'Sequence', field: 'sequence', sortable: true},
   {name: 'formulaId', align: 'left', label: 'Formula', field: 'formula.id', sortable: true},
   {name: 'menu', align: 'left', field: 'menu', sortable: false}
 ])
