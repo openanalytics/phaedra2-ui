@@ -23,17 +23,17 @@ export default {
     },
     async getAllResults() {
         let result = [];
-        await axios.get(apiURL + '/resultset', {params: {filter:{},outcome:'SUCCESS'}})
+        await axios.get(apiURL + '/resultsets', {params: {filter:{},outcome:'SUCCESS'}})
             .then(response => {
                 if (response.status === 200)
                     result = result.concat(response.data.data);
             });
-        await axios.get(apiURL + '/resultset', {params: {filter:{},outcome:'SCHEDULED'}})
+        await axios.get(apiURL + '/resultsets', {params: {filter:{},outcome:'SCHEDULED'}})
             .then(response => {
                 if (response.status === 200)
                     result = result.concat(response.data.data);
             });
-        await axios.get(apiURL + '/resultset', {params: {filter:{},outcome:'FAILURE'}})
+        await axios.get(apiURL + '/resultsets', {params: {filter:{},outcome:'FAILURE'}})
             .then(response => {
                 if (response.status === 200)
                     result = result.concat(response.data.data);
@@ -41,7 +41,7 @@ export default {
         return result;
     },
     async getRecentCalculationResults(n = 10) {
-        const result = await axios.get(apiURL + '/resultset/latest', { params: { n: n }});
+        const result = await axios.get(apiURL + '/resultsets/latest', { params: { n: n }});
         if (result.status === 200)
             return result.data;
         else

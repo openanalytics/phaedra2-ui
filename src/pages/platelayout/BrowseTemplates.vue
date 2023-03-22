@@ -73,6 +73,7 @@
         {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
         {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
         {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
+        {name: 'dimensions', align: 'left', label: 'Dimensions', sortable: true, field: t => `${t.rows} x ${t.columns}` },
         {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
         {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
         {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
