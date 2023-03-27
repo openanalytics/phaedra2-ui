@@ -3,7 +3,7 @@ pipeline {
     agent {
         kubernetes {
             yamlFile 'kubernetesPod.yaml'
-            defaultContainer 'builder'
+            defaultContainer 'kaniko'
         }
     }
 
@@ -19,12 +19,23 @@ pipeline {
                     env.ARTIFACT_ID = packageJson.name
                     env.VERSION = packageJson.version
                     env.REPO = "openanalytics/${env.ARTIFACT_ID}"
+                    env.REGISTRY = "registry.openanalytics.eu"
                 }
             }
         }
 
         stage('Build Docker image') {
             steps {
+                container('kaniko'){
+                    sh """
+                    /kaniko/executor \
+                            -v info \
+                            --context ${env.WORKSPACE} \
+                            --cache=true \
+                            --cache-repo ${env.REGISTRY}/${env.REPO} \
+                            --destination ${env.REGISTRY}/${env.REPO}
+                    """
+                }
                 container('builder') {
                     sh "docker build -f Dockerfile . -t ${env.REPO}"
                 }
