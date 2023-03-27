@@ -23,20 +23,10 @@ pipeline {
             }
         }
 
-        stage('Build') {
-            steps {
-                container('builder') {
-                    sh "npm run build"
-                }
-            }
-        }
-
         stage('Build Docker image') {
             steps {
-                dir('server') {
-                    container('builder') {
-                        sh "docker build -f Dockerfile . -t ${env.REPO}"
-                    }
+                container('builder') {
+                    sh "docker build -f Dockerfile . -t ${env.REPO}"
                 }
             }
         }
