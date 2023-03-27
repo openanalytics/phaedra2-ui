@@ -9,5 +9,5 @@ COPY . .
 RUN npm run build
 
 FROM registry.openanalytics.eu/proxy/library/nginx
-COPY nginx.conf /etc/nginx/nginx.conf
-COPY ./dist /www/data/phaedra/ui
+COPY --from=0 /opt/phaedra/nginx.conf /etc/nginx/nginx.conf
+COPY --from=0 /opt/phaedra/dist /www/data/phaedra/ui
