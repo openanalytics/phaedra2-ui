@@ -36,9 +36,6 @@ pipeline {
                             --destination ${env.REGISTRY}/${env.REPO}
                     """
                 }
-                container('builder') {
-                    sh "docker build -f Dockerfile . -t ${env.REPO}"
-                }
             }
         }
     }
