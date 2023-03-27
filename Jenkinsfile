@@ -15,7 +15,7 @@ pipeline {
         stage('Prepare environment') {
             steps {
                 script {
-                    def packageJson = readJSON file: 'package.json'
+                    def packageJson = readJSON(text: readFile("./package.json").trim())
                     env.ARTIFACT_ID = packageJson.name
                     env.VERSION = packageJson.version
                     env.REPO = "openanalytics/${env.ARTIFACT_ID}"
