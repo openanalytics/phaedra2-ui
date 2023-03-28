@@ -42,7 +42,7 @@
             </q-field>
             <q-field label="Image Channels" stack-label borderless dense>
               <template v-slot:control>
-                {{ (meas?.imageChannels).join(', ') || "No image data" }}
+                {{ (meas?.imageChannels || []).join(', ') || "No image data" }}
               </template>
             </q-field>
           </div>
