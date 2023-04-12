@@ -94,42 +94,30 @@
     ];
     
     const plates = computed(() => store.getters['plates/getByExperimentId'](props.experiment.id));
-    store.dispatch('plates/loadByExperimentId', props.experiment.id);
-
-    const loadResultSetProgress = ref(0);
-    const loadResultStatsProgress = ref(0);
-
-    watch(plates, () => {
-        // When plates are available, load their active meas and result sets
-        plates.value.map(p => structuredClone(p)).forEach(p => rows.value.push(p));
-        plates.value.map(p => p.id).forEach(pId => {
-            store.dispatch('resultdata/loadResultSets', pId).then(() => loadResultSetProgress.value++);
-            store.dispatch('measurements/loadByPlateId', pId).then(() => loadResultSetProgress.value++);
-        });
-    });
-
     const activeMeasurements = computed(() => store.getters['measurements/getActivePlateMeasurements'](plates.value.map(p => p.id)));
     const resultSets = computed(() => activeMeasurements.value.map(m => store.getters['resultdata/getLatestResultSetsForPlateMeas'](m.plateId, m.measurementId)).flat());
-    
-    watch(loadResultSetProgress, () => {
-        // When all resultSets are available, load their stats
-        if (loadResultSetProgress.value != plates.value.length * 2) return;
-        resultSets.value.forEach(rs => store.dispatch('resultdata/loadResultStats', rs.id).then(() => loadResultStatsProgress.value++));
-    });
-
     const resultStats = computed(() => resultSets.value.map(rs => store.getters['resultdata/getResultStats'](rs.id)).flat());
     const features = computed(() => store.getters['features/getByIds'](ArrayUtils.distinctBy(resultStats.value, 'featureId')));
 
-    watch(loadResultStatsProgress, () => {
-        // When all resultStats are available, load their features
-        if (loadResultStatsProgress.value != resultSets.value.length) return;
-        store.dispatch('features/loadByIds', ArrayUtils.distinctBy(resultStats.value, 'featureId'));
-    });
+    watch(props.experiment, async () => {
+        if (!props.experiment) return;
 
-    watch(features, () => {
-        if (!loading.value || features.value.length == 0) return;
+        await store.dispatch('plates/loadByExperimentId', props.experiment.id);
+        for (const plate of plates.value) {
+            rows.value.push(structuredClone(plate));
+        }
+
+        for (const plate of plates.value) {
+            await store.dispatch('resultdata/loadResultSets', plate.id);
+            await store.dispatch('measurements/loadByPlateId', plate.id);
+            for (const rs of resultSets.value.filter(rs => rs.plateId == plate.id)) {
+                await store.dispatch('resultdata/loadResultStats', rs.id);
+            }
+        }
+        
+        await store.dispatch('features/loadByIds', ArrayUtils.distinctBy(resultStats.value, 'featureId'));
         buildTableColumns();
-    })
+    }, { immediate: true });
 
     const buildTableColumns = () => {
         const statNames = ArrayUtils.distinctBy(resultStats.value, 'statisticName').sort();
