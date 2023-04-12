@@ -26,8 +26,11 @@ const getters = {
       return state.plateMeasurements[plateId];
     },
     getActivePlateMeasurement: (state) => (plateId) => {
-         return state.plateMeasurements[plateId]?.filter(pm => pm.active === true)[0];
+         return state.plateMeasurements[plateId]?.find(pm => pm.active === true);
     },
+    getActivePlateMeasurements: (state) => (plateIds) => {
+        return Object.values(state.plateMeasurements).flat().filter(pm => pm.active === true && plateIds.includes(pm.plateId));
+   },
     getRenderConfig: (state) => (id) => {
         return state.renderConfigs.find(cfg => cfg.id === id);
     },
@@ -61,10 +64,10 @@ const actions = {
             }
         }
     },
-    async loadByPlateId(ctx, args){
-        await plateAPI.getPlateMeasurementsByPlateId(args.plateId)
+    async loadByPlateId(ctx, plateId){
+        await plateAPI.getPlateMeasurementsByPlateId(plateId)
             .then(results => {
-                ctx.commit('cachePlateMeasurements', { plateId: args.plateId, measurements: results });
+                ctx.commit('cachePlateMeasurements', { plateId: plateId, measurements: results });
             });
     },
     async addMeasurement(ctx, plateMeasurement) {

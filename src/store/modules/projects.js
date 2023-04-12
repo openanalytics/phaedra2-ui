@@ -3,7 +3,6 @@ import projectAPI from '@/api/projects.js'
 const state = () => ({
     currentProject: {},
     projects: [],
-    recentProjects: [],
     projectAccess: {},
 })
 
@@ -23,8 +22,8 @@ const getters = {
     isLoaded: (state) => (id) => {
         return state.projects.find(project => project.id === id)
     },
-    getNRecentProjects: (state) => (n) => {
-        return state.recentProjects?.slice(0, n)
+    getRecentProjects: (state) => (n) => {
+        return [...state.projects].sort((p1, p2) => p2.createdOn.localeCompare(p1.createdOn)).slice(0, n);
     }
 }
 
@@ -63,12 +62,6 @@ const actions = {
 
         const projectIds = projects.map(p => p.id);
         ctx.dispatch('metadata/loadMetadata', { objectId: projectIds, objectClass: 'PROJECT' }, {root:true});
-    },
-    async loadRecentProjects(ctx, n) {
-        await projectAPI.loadRecentProjects()
-            .then(response => {
-                ctx.commit('cacheNRecentProjects', {projects: response,n: n})
-            })
     },
     async createNewProject(ctx, newProject) {
         const createdProject = await projectAPI.createNewProject(newProject);
@@ -147,14 +140,6 @@ const mutations = {
     cacheAllProjects(state, projects) {
         state.projects = projects;
     },
-    cacheNRecentProjects(state, payload) {
-        state.recentProjects = payload.projects
-        state.recentProjects = state.recentProjects.sort((p1, p2) => {
-            let p1Time = new Date((p1.updatedOn)?p1.updatedOn:p1.createdOn).getTime()
-            let p2Time = new Date((p2.updatedOn)?p2.updatedOn:p2.createdOn).getTime()
-            return  p2Time - p1Time;
-        })
-    }
 }
 
 function containsProject(state, project) {

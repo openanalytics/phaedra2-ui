@@ -11,9 +11,6 @@ export default {
         const response = await axios.get(`${apiURL}/projects`);
         if (response.status === 200) return response.data;
     },
-    async loadRecentProjects() {
-        return getAllProjects();
-    },
     async deleteProject(id) {
         const response = await axios.delete(`${apiURL}/projects/${id}`);
         if (response.status === 200) return response.data;
