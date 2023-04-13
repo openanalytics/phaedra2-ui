@@ -10,11 +10,11 @@
     const props = defineProps(['status']);
 
     const statusCodesGood = [ 'success', 'complete', 'completed', 'ok', 'enabled' ];
-    const statusCodesBad = [ 'error', 'failed', 'disabled' ];
+    const statusCodesBad = [ 'error', 'failed', 'failure', 'disabled' ];
 
     const statusColor = computed(() => {
-        if (statusCodesGood.find(s => s.toUpperCase() == props.status.toUpperCase())) return 'positive';
-        if (statusCodesBad.find(s => s.toUpperCase() == props.status.toUpperCase())) return 'negative';
+        if (statusCodesGood.find(s => s.toUpperCase() == props.status?.toUpperCase())) return 'positive';
+        if (statusCodesBad.find(s => s.toUpperCase() == props.status?.toUpperCase())) return 'negative';
         return 'info';
     });
 </script>
