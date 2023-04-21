@@ -80,6 +80,8 @@
     import {useStore} from 'vuex'
     import FilterUtils from "@/lib/FilterUtils";
     import ArrayUtils from "@/lib/ArrayUtils";
+    
+    const statsToShow = ['zprime', 'cv', 'stdev', 'min', 'mean', 'median', 'max'];
 
     const props = defineProps(['experiment']);
     const store = useStore();
@@ -96,17 +98,16 @@
     const plates = computed(() => store.getters['plates/getByExperimentId'](props.experiment.id));
     const activeMeasurements = computed(() => store.getters['measurements/getActivePlateMeasurements'](plates.value.map(p => p.id)));
     const resultSets = computed(() => activeMeasurements.value.map(m => store.getters['resultdata/getLatestResultSetsForPlateMeas'](m.plateId, m.measurementId)).flat());
+    //TODO filter on non-welltype stats
     const resultStats = computed(() => resultSets.value.map(rs => store.getters['resultdata/getResultStats'](rs.id)).flat());
     const features = computed(() => store.getters['features/getByIds'](ArrayUtils.distinctBy(resultStats.value, 'featureId')));
 
     watch(props.experiment, async () => {
         if (!props.experiment) return;
-
         await store.dispatch('plates/loadByExperimentId', props.experiment.id);
         for (const plate of plates.value) {
             rows.value.push(structuredClone(plate));
         }
-
         for (const plate of plates.value) {
             await store.dispatch('resultdata/loadResultSets', plate.id);
             await store.dispatch('measurements/loadByPlateId', plate.id);
@@ -114,16 +115,14 @@
                 await store.dispatch('resultdata/loadResultStats', rs.id);
             }
         }
-        
         await store.dispatch('features/loadByIds', ArrayUtils.distinctBy(resultStats.value, 'featureId'));
         buildTableColumns();
     }, { immediate: true });
 
     const buildTableColumns = () => {
-        const statNames = ArrayUtils.distinctBy(resultStats.value, 'statisticName').sort();
         features.value.map(f => f.id).sort().forEach(fId => {
             let isFirstStat = true;
-            statNames.forEach(statName => {
+            statsToShow.forEach(statName => {
                 columns.push({
                     name: `stat-${fId}-${statName}`,
                     label: isFirstStat ? (features.value.find(f => f.id === fId) || {}).name : '',
@@ -137,7 +136,7 @@
         plates.value.forEach(p => {
             let row = rows.value.find(r => r.id == p.id);
             let plateResultSetIds = resultSets.value.filter(rs => rs.plateId == p.id).map(rs => rs.id);
-            resultStats.value.filter(stat => plateResultSetIds.includes(stat.resultSetId)).forEach(stat => {
+            resultStats.value.filter(stat => !stat.welltype && plateResultSetIds.includes(stat.resultSetId)).forEach(stat => {
                 const key = `stat-${stat.featureId}-${stat.statisticName}`;
                 row[key] = stat ? Math.round(stat.value * 100) / 100 : NaN;
             });

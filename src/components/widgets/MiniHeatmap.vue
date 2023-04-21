@@ -27,10 +27,10 @@
     watch(() => props.plate, () => {
         if (props.plate?.id) store.dispatch('wells/fetchByPlateId', props.plate.id);
     })
-    const resultDataForFeature = computed(() => (props.resultData.find(rd => rd.featureId == props.feature?.id) || {}));
+    const resultDataForFeature = computed(() => (props.resultData.find(rd => rd.featureId == props.feature?.id && rd.plateId == props.plate?.id) || {}));
     
     watch(resultDataForFeature, () => {
-        if (!resultDataForFeature.value || !resultDataForFeature.value.values) return;
+        if (!resultDataForFeature.value || !resultDataForFeature.value.values) return
         lut.value = ColorUtils.createLUT(resultDataForFeature.value.values, ColorUtils.defaultHeatmapGradients);
         setTimeout(draw());
     });
