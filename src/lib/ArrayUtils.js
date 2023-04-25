@@ -5,6 +5,14 @@ var groupBy = function(array, key) {
     }, {});
 };
 
+var toMap = function(array, key) {
+    let map = {};
+    for (const el of array) {
+        map[el[key]] = el;
+    }
+    return map;
+};
+
 var mergeBy = function(a1, a2, key) {
     let newArray = [...a1];
     a2.forEach(o => {
