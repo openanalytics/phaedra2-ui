@@ -52,6 +52,13 @@
   border-radius: 0;
 }
 
+.oa-button-auto {
+  background-color: $primary;
+  color: $secondary;
+  width: auto;
+  border-radius: 0;
+}
+
 .oa-button-edit, .oa-button-delete, .oa-button-tag {
   @extend .oa-button;
 }

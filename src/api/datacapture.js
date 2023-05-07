@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const apiURL = process.env.VUE_APP_API_BASE_URL + '/datacapture-service';
-
+// const apiURL = 'http://localhost:3004/phaedra/datacapture-service';
 export default {
     async getJobs(args) {
         let result = null;
@@ -30,4 +30,21 @@ export default {
             })
         return result;
     },
+    async uploadData(data) {
+        const response = await axios.post(apiURL + '/upload-data', data, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                'Accept': '*/*'
+            }
+        })
+        return response.data;
+    },
+    async getAllCaptureConfigurations() {
+        const response = await axios.get(apiURL + '/capture-configs')
+        return response.data
+    },
+    async getCaptureConfiguration(configName) {
+        const response = await axios.get(apiURL + '/capture-configs', {params: {name: configName}})
+        return response.data
+    }
 }

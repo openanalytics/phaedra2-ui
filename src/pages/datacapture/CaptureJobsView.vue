@@ -127,11 +127,21 @@
             </div>
           </q-card-section>
           <q-card-section class="q-pa-sm q-gutter-sm">
-            <q-select v-model="newJob.inputType" label="Input type" :options="inputTypes" dense stack-label/>
+            <q-select v-model="newJob.inputType" label="Input type"
+                      :options="inputTypes" dense stack-label/>
             <div v-if="newJob.inputType === 'FolderScanner'">
-              <q-file v-model="newJob.sourcePath" label="Source path" dense stack-label/>
-              <q-select v-model="newJob.captureConfig"/>
+<!--              <q-file v-model="newJob.sourcePath" label="Source path" dense stack-label/>-->
+<!--              <q-input v-model="newJob.sourcePath" label="Source path" dense stack-label/>-->
+<!--              <input type="file" @change="handleDirectorySelect" webkitdirectory directory />-->
+              <DirectorySelector/>
+              <q-select v-model="newJob.captureConfig" label="Select capture configuration"
+                        :options="captureConfigList" dense stack-label/>
             </div>
+            <ul>
+              <li v-for="item in directoryItems" :key="item.path">
+                {{ item.name }} ({{ item.type }})
+              </li>
+            </ul>
           </q-card-section>
 <!--          <q-card-section class="q-pa-sm q-gutter-sm">-->
 <!--            <q-input v-model="newJob.sourcePath" label="Source Path"/>-->
@@ -182,8 +192,10 @@ import StatusLabel from "@/components/widgets/StatusLabel";
 
 import FormatUtils from "@/lib/FormatUtils.js"
 import FilterUtils from "@/lib/FilterUtils";
+import DirectorySelector from "@/components/widgets/DirectorySelector.vue";
 
 const store = useStore();
+const directoryItems = ref([]);
 
 const toDate = ref(new Date());
 const fromDate = ref(new Date());
@@ -191,6 +203,9 @@ fromDate.value.setDate(toDate.value.getDate() - 14);
 
 const jobs = computed(() => store.getters['datacapture/getJobs']());
 store.dispatch('datacapture/loadJobs', {fromDate: Date.parse(fromDate.value), toDate: Date.parse(toDate.value)});
+
+const captureConfigList = computed(() => store.getters['datacapture/getAllCaptureConfigs']());
+store.dispatch('datacapture/loadCaptureConfigs');
 
 const columns = ref([
   {
@@ -223,6 +238,29 @@ const refreshJobs = () => {
 const cancelJob = (id) => {
   store.dispatch('datacapture/cancelJob', id);
 };
+
+const handleDirectorySelect = (event) => {
+  const files = event.target.files;
+  const items = files.map((file) => ({
+    name: file.name,
+    // path: event.target.files[0].path}/${file.name}`,
+    type: file.isDirectory() ? 'directory' : 'file',
+  }));
+  directoryItems.value = items;
+}
+
+const browseDirectory = () => {
+  const remote = require('electron').remote;
+  const dialog = remote.dialog;
+  const selectedPaths = dialog.showOpenDialogSync(remote.getCurrentWindow(), {
+    properties: ['openDirectory'],
+  });
+
+  if (selectedPaths && selectedPaths.length > 0) {
+    newJob.value.sourcePath = selectedPaths[0];
+  }
+}
+
 
 // Auto-refresh
 let timer = null;
