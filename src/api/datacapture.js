@@ -1,5 +1,8 @@
 import axios from "axios";
 
+const fs = require('fs');
+const FormData = require('form-data');
+
 const apiURL = process.env.VUE_APP_API_BASE_URL + '/datacapture-service';
 // const apiURL = 'http://localhost:3004/phaedra/datacapture-service';
 export default {
@@ -13,7 +16,7 @@ export default {
     },
     async postJob(newJob) {
         const response = await axios.post(apiURL + '/job', newJob.captureConfig, {
-            params: { sourcePath: newJob.sourcePath },
+            params: { sourcePath:  newJob.captureConfig.sourcePath ? newJob.captureConfig.sourcePath : '/usr/app/uploads' },
             headers: { 'Content-Type': 'application/json' }
         })
         return response.data;
@@ -31,7 +34,9 @@ export default {
         return result;
     },
     async uploadData(data) {
-        const response = await axios.post(apiURL + '/upload-data', data, {
+        const formData = new FormData()
+        formData.append("file", data)
+        const response = await axios.post(apiURL + '/upload-data', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
                 'Accept': '*/*'
@@ -44,7 +49,7 @@ export default {
         return response.data
     },
     async getCaptureConfiguration(configName) {
-        const response = await axios.get(apiURL + '/capture-configs', {params: {name: configName}})
+        const response = await axios.get(apiURL + '/capture-config', {params: {name: configName}})
         return response.data
     }
 }

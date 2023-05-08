@@ -127,26 +127,28 @@
             </div>
           </q-card-section>
           <q-card-section class="q-pa-sm q-gutter-sm">
-            <q-select v-model="newJob.inputType" label="Input type"
-                      :options="inputTypes" dense stack-label/>
+<!--            <q-select v-model="newJob.inputType" label="Input type"-->
+<!--                      :options="inputTypes" dense stack-label/>-->
             <div v-if="newJob.inputType === 'FolderScanner'">
-<!--              <q-file v-model="newJob.sourcePath" label="Source path" dense stack-label/>-->
-<!--              <q-input v-model="newJob.sourcePath" label="Source path" dense stack-label/>-->
-<!--              <input type="file" @change="handleDirectorySelect" webkitdirectory directory />-->
-              <DirectorySelector/>
-              <q-select v-model="newJob.captureConfig" label="Select capture configuration"
-                        :options="captureConfigList" dense stack-label/>
+              <q-file label="Select source file(s)" v-model="newJob.files"
+                      multiple dense stack-label>
+                <template v-slot:append>
+                  <q-icon name="folder"/>
+                </template>
+              </q-file>
+              <q-select v-model="newJob.captureConfigName" label="Select capture configuration"
+                        :options="captureConfigList" @update:model-value="fetchConfig()" dense stack-label/>
             </div>
-            <ul>
-              <li v-for="item in directoryItems" :key="item.path">
-                {{ item.name }} ({{ item.type }})
-              </li>
-            </ul>
+            <div class="row">
+              <div class="col">
+                <q-card square v-if="showConfig" class="bg-grey-3">
+                  <pre class="q-ma-none q-pa-sm">{{ FormatUtils.formatJSON(config) }}</pre>
+                </q-card>
+                <q-btn v-if="!showConfig" label="Show" @click="showConfig=true" size="sm" color="primary" icon="remove_red_eye"/>
+                <q-btn v-if="showConfig" label="Hide " @click="showConfig=false" class="q-mt-sm" size="sm" color="primary" icon="remove_red_eye"/>
+              </div>
+            </div>
           </q-card-section>
-<!--          <q-card-section class="q-pa-sm q-gutter-sm">-->
-<!--            <q-input v-model="newJob.sourcePath" label="Source Path"/>-->
-<!--            <q-input v-model="newJob.captureConfig" type="textarea" autogrow label="Capture Configuration"/>-->
-<!--          </q-card-section>-->
           <q-card-section class="row q-pa-sm q-gutter-sm justify-end">
             <q-btn color="primary" label="Cancel" flat v-close-popup/>
             <q-btn color="primary" label="Submit" @click="submitJobAction" :disable="!canSubmitJob" v-close-popup/>
@@ -156,32 +158,9 @@
     </oa-section>
   </q-page>
 </template>
-<!--{-->
-<!--"name": "csv.file.capture.config",-->
-<!--"wellData": {-->
-<!--"parserId": "csv.welldata.hts.file.parser",-->
-<!--"filePattern": ".*\\.[cC][sS][vV]",-->
-<!--"endLinePattern": "(,,,.*)|(Exported.*)",-->
-<!--"columnSeparator": ",",-->
-<!--"startLinePattern": "Plate,Barcode,Well,",-->
-<!--"dataLineSeparator": "\n",-->
-<!--"startLinePlateInfoPattern": "Plate information"-->
-<!--},-->
-<!--"barcodePattern": "\\d+",-->
-<!--"barcodeColumnPattern": "Barcode"-->
-<!--}-->
-<!--{-->
-<!--"name": "xml.file.capture.config",-->
-<!--"wellData": {-->
-<!--"parserId": "xml.welldata.file.parser",-->
-<!--"filePattern": "PlateResults.*\\.(.*)",-->
-<!--"recordAllEvaluations": false-->
-<!--},-->
-<!--"experimentPattern": "(.*)_(\\d+)(_.*)?"-->
-<!--}-->
 
 <script setup>
-import {ref, computed, onMounted, onBeforeUnmount} from 'vue'
+import {ref, computed, onMounted, onBeforeUnmount, reactive} from 'vue'
 import {useStore} from 'vuex'
 
 import OaSection from "@/components/widgets/OaSection";
@@ -192,7 +171,6 @@ import StatusLabel from "@/components/widgets/StatusLabel";
 
 import FormatUtils from "@/lib/FormatUtils.js"
 import FilterUtils from "@/lib/FilterUtils";
-import DirectorySelector from "@/components/widgets/DirectorySelector.vue";
 
 const store = useStore();
 const directoryItems = ref([]);
@@ -229,38 +207,16 @@ const configdialog = ref(false);
 const filter = ref('');
 const filterMethod = FilterUtils.defaultTableFilter();
 
-const inputTypes = ref(['FolderScanner', 'S3 Bucket', 'Colombus'])
+// const inputTypes = ref(['FileScanner', 'FolderScanner', 'S3 Bucket', 'Colombus'])
 
 const refreshJobs = () => {
   toDate.value = new Date();
   store.dispatch('datacapture/loadJobs', {fromDate: Date.parse(fromDate.value), toDate: Date.parse(toDate.value)});
 };
+
 const cancelJob = (id) => {
   store.dispatch('datacapture/cancelJob', id);
 };
-
-const handleDirectorySelect = (event) => {
-  const files = event.target.files;
-  const items = files.map((file) => ({
-    name: file.name,
-    // path: event.target.files[0].path}/${file.name}`,
-    type: file.isDirectory() ? 'directory' : 'file',
-  }));
-  directoryItems.value = items;
-}
-
-const browseDirectory = () => {
-  const remote = require('electron').remote;
-  const dialog = remote.dialog;
-  const selectedPaths = dialog.showOpenDialogSync(remote.getCurrentWindow(), {
-    properties: ['openDirectory'],
-  });
-
-  if (selectedPaths && selectedPaths.length > 0) {
-    newJob.value.sourcePath = selectedPaths[0];
-  }
-}
-
 
 // Auto-refresh
 let timer = null;
@@ -283,14 +239,26 @@ const doShowJobDetails = (job) => {
 
 // Submit new job
 const showSubmitJobDialog = ref(false);
-const newJob = ref({
+const newJob = reactive({
+  inputType: 'FolderScanner',
+  captureConfigName: null,
+  captureConfig: null,
   sourcePath: '',
-  captureConfig: JSON.stringify({})
+  files: null,
 });
+
 const submitJobAction = async () => {
-  if (newJob.value.sourcePath === '') alert('No source path specified!')
-  await store.dispatch('datacapture/submitJob', newJob.value);
+  // if (newJob.sourcePath === '') alert('No source path specified!')
+  if (!newJob.files) alert('No files specified')
+  await store.dispatch('datacapture/submitJob', newJob);
   refreshJobs();
 };
-const canSubmitJob = computed(() => (newJob.value.sourcePath !== ''));
+const canSubmitJob = computed(() => (newJob.sourcePath !== '' || newJob.files !== null) && newJob.captureConfig !== null);
+
+const config = computed(() => store.getters['datacapture/getConfig']());
+const showConfig = ref(false);
+const fetchConfig = () => {
+  newJob.captureConfig = computed(() => store.getters['datacapture/getConfig']())
+  store.dispatch('datacapture/loadCaptureConfigByName', newJob.captureConfigName)
+};
 </script>

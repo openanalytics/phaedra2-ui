@@ -20,6 +20,9 @@ const getters = {
 
 const actions = {
     async submitJob(ctx, job) {
+        for (let i = 0; i < job.files.length; i++) {
+            await datacaptureAPI.uploadData(job.files[i])
+        }
         await datacaptureAPI.postJob(job);
     },
     async loadJobs(ctx, args) {
@@ -40,6 +43,10 @@ const actions = {
     async loadCaptureConfigs(ctx) {
         const capturedConfigs = await datacaptureAPI.getAllCaptureConfigurations();
         ctx.commit('allCaptureConfigs', capturedConfigs)
+    },
+    async loadCaptureConfigByName(ctx, configName) {
+        const config = await datacaptureAPI.getCaptureConfiguration(configName)
+        ctx.commit('cacheCaptureJobConfig', config)
     }
 }
 
