@@ -29,8 +29,9 @@ const actions = {
             }
         else {
             const curvedata = await curvedataAPI.getLatestCurvesByPlateId(plateIds);
+            const colorList = ColorUtils.getColorList(curvedata.length)
             for (let i = 0; i < curvedata.length; i++) {
-                curvedata[i]["color"] = ColorUtils.generateRGBColor()
+                curvedata[i]["color"] = colorList[i]
             }
             const data = [plateIds, curvedata]
             ctx.commit('cacheCurvedata', data)
