@@ -27,28 +27,20 @@
         <template v-slot:top-right>
           <div class="row q-gutter-sm">
             <q-input dense label="From" stack-label v-model="fromDate">
-              <template v-slot:prepend>
+              <template v-slot:append>
                 <q-icon name="event" class="cursor-pointer">
-                  <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                    <q-date v-model="fromDate" mask="DD-MM-YYYY" @update:model-value="refreshJobs">
-                      <div class="row items-center justify-end">
-                        <q-btn v-close-popup label="Close" color="primary" flat/>
-                      </div>
-                    </q-date>
+                  <q-popup-proxy cover transition-show="scale" transition-hide="scale" ref="fromDateProxy">
+                    <q-date v-model="fromDate" mask="DD-MM-YYYY" @update:model-value="refreshJobs"/>
                   </q-popup-proxy>
                 </q-icon>
               </template>
             </q-input>
 
             <q-input dense label="Until" stack-label v-model="toDate">
-              <template v-slot:prepend>
+              <template v-slot:append>
                 <q-icon name="event" class="cursor-pointer">
-                  <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                    <q-date v-model="toDate" mask="DD-MM-YYYY" @update:model-value="refreshJobs">
-                      <div class="row items-center justify-end">
-                        <q-btn v-close-popup label="Close" color="primary" flat/>
-                      </div>
-                    </q-date>
+                  <q-popup-proxy cover transition-show="scale" transition-hide="scale" ref="toDateProxy">
+                    <q-date v-model="toDate" mask="DD-MM-YYYY" @update:model-value="refreshJobs"/>
                   </q-popup-proxy>
                 </q-icon>
               </template>
@@ -155,6 +147,8 @@ import DateUtils from "@/lib/DateUtils";
 
 const store = useStore();
 const directoryItems = ref([]);
+const fromDateProxy = ref(null)
+const toDateProxy = ref(null)
 
 const fromDate = ref(new Date().toLocaleDateString());
 const toDate = ref(new Date().toLocaleDateString());
@@ -185,7 +179,8 @@ const filterMethod = FilterUtils.defaultTableFilter();
 const inputTypes = ref(['FolderScanner', 'S3 Bucket', 'Colombus'])
 
 const refreshJobs = () => {
-  // toDate.value = new Date();
+  fromDateProxy.value.hide()
+  toDateProxy.value.hide()
   store.dispatch('datacapture/loadJobs', {fromDate: DateUtils.parseLocaleDateString(fromDate.value), toDate: DateUtils.parseLocaleDateString(toDate.value)});
 };
 

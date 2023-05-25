@@ -21,7 +21,7 @@ const getters = {
 const actions = {
     async submitJob(ctx, job) {
         for (let i = 0; i < job.files.length; i++) {
-            await datacaptureAPI.uploadData(job.files[i])
+            await datacaptureAPI.uploadData(job.sourcePath, job.files[i])
         }
         await datacaptureAPI.postJob(job);
     },
