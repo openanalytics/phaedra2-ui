@@ -26,56 +26,35 @@
         </template>
         <template v-slot:top-right>
           <div class="row q-gutter-sm">
-            <q-input outlined dense label="From" stack-label v-model="fromDate">
+            <q-input dense label="From" stack-label v-model="fromDate">
               <template v-slot:prepend>
                 <q-icon name="event" class="cursor-pointer">
                   <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                    <q-date v-model="fromDate" mask="YYYY-MM-DD HH:mm">
+                    <q-date v-model="fromDate" mask="DD-MM-YYYY" @update:model-value="refreshJobs">
                       <div class="row items-center justify-end">
                         <q-btn v-close-popup label="Close" color="primary" flat/>
                       </div>
                     </q-date>
-                  </q-popup-proxy>
-                </q-icon>
-              </template>
-              <template v-slot:append>
-                <q-icon name="access_time" class="cursor-pointer">
-                  <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                    <q-time v-model="fromDate" mask="YYYY-MM-DD HH:mm" format24h>
-                      <div class="row items-center justify-end">
-                        <q-btn v-close-popup label="Close" color="primary" flat/>
-                      </div>
-                    </q-time>
                   </q-popup-proxy>
                 </q-icon>
               </template>
             </q-input>
-            <q-input outlined dense label="Until" stack-label v-model="toDate">
+
+            <q-input dense label="Until" stack-label v-model="toDate">
               <template v-slot:prepend>
                 <q-icon name="event" class="cursor-pointer">
                   <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                    <q-date v-model="toDate" mask="YYYY-MM-DD HH:mm">
+                    <q-date v-model="toDate" mask="DD-MM-YYYY" @update:model-value="refreshJobs">
                       <div class="row items-center justify-end">
                         <q-btn v-close-popup label="Close" color="primary" flat/>
                       </div>
                     </q-date>
-                  </q-popup-proxy>
-                </q-icon>
-              </template>
-              <template v-slot:append>
-                <q-icon name="access_time" class="cursor-pointer">
-                  <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                    <q-time v-model="toDate" mask="YYYY-MM-DD HH:mm" format24h>
-                      <div class="row items-center justify-end">
-                        <q-btn v-close-popup label="Close" color="primary" flat/>
-                      </div>
-                    </q-time>
                   </q-popup-proxy>
                 </q-icon>
               </template>
             </q-input>
             <div>
-              <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
+              <q-input dense v-model="filter" placeholder="Search">
                 <template v-slot:append>
                   <q-icon name="search"/>
                 </template>
@@ -111,6 +90,7 @@
           </div>
         </template>
       </q-table>
+
       <table-config v-model:show="configdialog" v-model:columns="columns"
                     v-model:visibleColumns="visibleColumns"></table-config>
 
@@ -127,11 +107,11 @@
             </div>
           </q-card-section>
           <q-card-section class="q-pa-sm q-gutter-sm">
-<!--            <q-select v-model="newJob.inputType" label="Input type"-->
-<!--                      :options="inputTypes" dense stack-label/>-->
+            <q-select v-model="newJob.inputType" label="Measurement type"
+                      :options="inputTypes" dense stack-label/>
             <div v-if="newJob.inputType === 'FolderScanner'">
-              <q-file label="Select source file(s)" v-model="newJob.files"
-                      multiple dense stack-label>
+              <q-file label="Select source folder" :display-value="newJob.sourcePath" @update:model-value="handleSelection"
+                      multiple dense stack-label webkitdirectory>
                 <template v-slot:append>
                   <q-icon name="folder"/>
                 </template>
@@ -171,29 +151,24 @@ import StatusLabel from "@/components/widgets/StatusLabel";
 
 import FormatUtils from "@/lib/FormatUtils.js"
 import FilterUtils from "@/lib/FilterUtils";
+import DateUtils from "@/lib/DateUtils";
 
 const store = useStore();
 const directoryItems = ref([]);
 
-const toDate = ref(new Date());
-const fromDate = ref(new Date());
-fromDate.value.setDate(toDate.value.getDate() - 14);
+const fromDate = ref(new Date().toLocaleDateString());
+const toDate = ref(new Date().toLocaleDateString());
+
+// fromDate.value.setDate(toDate.value.getDate() - 14);
 
 const jobs = computed(() => store.getters['datacapture/getJobs']());
-store.dispatch('datacapture/loadJobs', {fromDate: Date.parse(fromDate.value), toDate: Date.parse(toDate.value)});
+store.dispatch('datacapture/loadJobs', {fromDate: DateUtils.parseLocaleDateString(fromDate.value), toDate: DateUtils.parseLocaleDateString(toDate.value)});
 
 const captureConfigList = computed(() => store.getters['datacapture/getAllCaptureConfigs']());
 store.dispatch('datacapture/loadCaptureConfigs');
 
 const columns = ref([
-  {
-    name: 'createDate',
-    align: 'left',
-    label: 'Created On',
-    field: 'createDate',
-    sortable: true,
-    format: FormatUtils.formatDate
-  },
+  {name: 'createDate', align: 'left', label: 'Created On', field: 'createDate', sortable: true, format: FormatUtils.formatDate },
   {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
   {name: 'sourcePath', align: 'left', label: 'Source Path', field: 'sourcePath', sortable: true},
   {name: 'statusCode', label: 'Status', field: 'statusCode', sortable: true},
@@ -207,11 +182,11 @@ const configdialog = ref(false);
 const filter = ref('');
 const filterMethod = FilterUtils.defaultTableFilter();
 
-// const inputTypes = ref(['FileScanner', 'FolderScanner', 'S3 Bucket', 'Colombus'])
+const inputTypes = ref(['FolderScanner', 'S3 Bucket', 'Colombus'])
 
 const refreshJobs = () => {
-  toDate.value = new Date();
-  store.dispatch('datacapture/loadJobs', {fromDate: Date.parse(fromDate.value), toDate: Date.parse(toDate.value)});
+  // toDate.value = new Date();
+  store.dispatch('datacapture/loadJobs', {fromDate: DateUtils.parseLocaleDateString(fromDate.value), toDate: DateUtils.parseLocaleDateString(toDate.value)});
 };
 
 const cancelJob = (id) => {
@@ -247,13 +222,20 @@ const newJob = reactive({
   files: null,
 });
 
+const handleSelection = (value) => {
+  console.log(value)
+  newJob.files = value
+  newJob.sourcePath = value[0].webkitRelativePath.split('/')[0]
+}
+
 const submitJobAction = async () => {
   // if (newJob.sourcePath === '') alert('No source path specified!')
   if (!newJob.files) alert('No files specified')
   await store.dispatch('datacapture/submitJob', newJob);
   refreshJobs();
 };
-const canSubmitJob = computed(() => (newJob.sourcePath !== '' || newJob.files !== null) && newJob.captureConfig !== null);
+// const canSubmitJob = computed(() => (newJob.sourcePath !== '' || newJob.files !== null) && newJob.captureConfig !== null);
+const canSubmitJob = computed(() => (newJob.sourcePath !== '' || newJob.files !== null));
 
 const config = computed(() => store.getters['datacapture/getConfig']());
 const showConfig = ref(false);
