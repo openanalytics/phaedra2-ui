@@ -1,34 +1,37 @@
 <template>
   <div>
     <oa-section :title="feature.name" icon="functions" :collapsible="true">
-      <q-card-section>
-        <q-tabs v-model="activeTab" align="left" class="q-px-sm oa-section-title" inline-label dense no-caps>
+
+      <q-card-section class="q-pa-sm">
+        
+        <q-tabs v-model="activeTab" align="left" class="oa-section-title" inline-label dense no-caps>
           <q-tab name="general" icon="info" label="General Info"/>
           <q-tab name="calculation" icon="functions" label="Calculation"/>
-          <q-tab name="curve_fitting" icon="show_chart" label="Dose-Response Curve Fitting"/>
+          <q-tab name="curve_fitting" icon="show_chart" label="Dose-Response Curve"/>
           <!-- <q-tab name="outlier_detection" icon="sms_failed" label="Outlier Detection"/>
           <q-tab name="hit_calling" icon="rules" label="Hit Calling"/> -->
         </q-tabs>
 
         <div class="row oa-section-body">
           <q-tab-panels v-model="activeTab" animated style="width: 100%">
-            <q-tab-panel name="general" label="General Info" class="col">
-              <q-field label="Name" stack-label square autofocus>
+
+            <q-tab-panel name="general" label="General Info" class="col q-pa-sm">
+              <q-field label="Name" stack-label dense>
                 <template v-slot:control>
                   <div class="self-center full-width no-outline" tabindex="0">{{feature.name}}</div>
                 </template>
               </q-field>
-              <q-field label="Alias" stack-label square>
+              <q-field label="Alias" stack-label dense>
                 <template v-slot:control>
                   <div class="self-center full-width no-outline" tabindex="0">{{feature.alias}}</div>
                 </template>
               </q-field>
-              <q-field label="Description" stack-label square>
+              <q-field label="Description" stack-label dense>
                 <template v-slot:control>
                   <div class="self-center full-width no-outline" tabindex="0">{{feature.description}}</div>
                 </template>
               </q-field>
-              <q-field label="Format" placeholder="#.##" stack-label square>
+              <q-field label="Format" placeholder="#.##" stack-label dense>
                 <template v-slot:control>
                   <div class="self-center full-width no-outline" tabindex="0">{{feature.format}}</div>
                 </template>
@@ -39,22 +42,23 @@
                 </template>
               </q-field> -->
             </q-tab-panel>
-            <q-tab-panel name="calculation" label="calculation">
-              <div class="q-pa-xs col">
-                <q-field label="Formula" stack-label square>
+
+            <q-tab-panel name="calculation" label="calculation" class="q-pa-sm">
+              <div class="col">
+                <q-field label="Formula" stack-label dense>
                   <template v-slot:control>
                     <div class="self-center full-width no-outline" tabindex="0">{{feature.formula?.name}}</div>
                   </template>
                 </q-field>
 
-                <div v-if="(feature.civs.length > 0)" class="q-pt-md">
+                <div v-if="(feature.civs.length > 0)" class="q-pt-sm">
                   <div>
-                    <q-field label="Formula variables" stack-label borderless>
+                    <q-field label="Formula variables:" stack-label borderless dense>
                       <template v-slot:control>
-                        <div class="row col-12">
+                        <div class="row col-8 q-pt-sm">
                           <template :key="variable.variableName" v-for="variable in feature.civs">
-                              <div class="col-7">
-                                <q-field :label="variable.variableName" stack-label square>
+                              <div class="col-4">
+                                <q-field :label="variable.variableName" stack-label dense>
                                   <template v-slot:control>
                                     <div v-if="variable.sourceFeatureId" class="self-center full-width no-outline" tabindex="0">{{protocolStore.getFeatureById(variable.sourceFeatureId).name}}</div>
                                     <div v-if="!variable.sourceFeatureId" class="self-center full-width no-outline" tabindex="0">{{variable.sourceMeasColName}}</div>
@@ -63,7 +67,7 @@
                               </div>
                               <div class="col-1"/>
                               <div class="col-4">
-                                <q-field label="Input source" stack-label square>
+                                <q-field label="Source" stack-label dense>
                                   <template v-slot:control>
                                     <div class="self-center full-width no-outline" tabindex="0">{{variable.inputSource}}</div>
                                   </template>
@@ -76,7 +80,7 @@
                   </div>
                 </div>
 
-                <q-field label="Sequence" stack-label square>
+                <q-field label="Sequence" stack-label dense>
                   <template v-slot:control>
                     <div class="self-center full-width no-outline" tabindex="0">{{feature.sequence}}</div>
                   </template>
@@ -90,24 +94,24 @@
               </div>
             </q-tab-panel>
 
-            <q-tab-panel name="curve_fitting">
+            <q-tab-panel name="curve_fitting" class="q-pa-sm">
               <div class="col">
-                <q-field label="Model" stack-label square>
+                <q-field label="Model" stack-label dense>
                   <template v-slot:control>
                     <div class="self-center full-width no-outline" tabindex="0">{{feature.drcModel?.name}}</div>
                   </template>
                 </q-field>
-                <q-field label="Description" stack-label square>
+                <q-field label="Description" stack-label dense>
                   <template v-slot:control>
                     <div class="self-center full-width no-outline" tabindex="0">{{feature.drcModel?.description}}</div>
                   </template>
                 </q-field>
-                <q-field label="Method" stack-label square>
+                <q-field label="Method" stack-label dense>
                   <template v-slot:control>
                     <div class="self-center full-width no-outline" tabindex="0">{{feature.drcModel?.method}}</div>
                   </template>
                 </q-field>
-                <q-field label="Slope type" stack-label square>
+                <q-field label="Slope type" stack-label dense>
                   <template v-slot:control>
                     <div class="self-center full-width no-outline" tabindex="0">{{feature.drcModel?.slope}}</div>
                   </template>

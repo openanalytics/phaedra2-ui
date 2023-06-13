@@ -1,62 +1,63 @@
 <template>
   <div>
     <oa-section title="Edit Feature" icon="edit">
-      <q-card-section>
+      <q-card-section class="q-pa-sm">
+
         <q-tabs v-model="activeTab" align="left" class="q-px-sm oa-section-title" inline-label dense no-caps>
           <q-tab name="general" icon="info" label="General Info"/>
           <q-tab name="calculation" icon="functions" label="Calculation"/>
-          <q-tab name="curve_fitting" icon="show_chart" label="Dose-Response Curve Fitting"/>
+          <q-tab name="curve_fitting" icon="show_chart" label="Dose-Response Curve"/>
           <!-- <q-tab name="outlier_detection" icon="sms_failed" label="Outlier Detection"/>
           <q-tab name="hit_calling" icon="rules" label="Hit Calling"/> -->
         </q-tabs>
 
         <div class="row oa-section-body">
           <q-tab-panels v-model="activeTab" animated style="width: 100%">
-            <q-tab-panel name="general" label="General Info" class="col">
-              <q-input v-model="featureStore.feature.name" label="Name" stack-label square autofocus/>
-              <q-input v-model="featureStore.feature.alias" label="Alias" stack-label square/>
-              <q-input v-model="featureStore.feature.description" label="Description" stack-label square/>
-              <q-input v-model="featureStore.feature.format" label="Format" placeholder="#.##" stack-label square/>
+            <q-tab-panel name="general" label="General Info" class="col q-pa-sm">
+              <q-input v-model="featureStore.feature.name" label="Name" stack-label dense autofocus/>
+              <q-input v-model="featureStore.feature.alias" label="Alias" stack-label dense/>
+              <q-input v-model="featureStore.feature.description" label="Description" dense-label square/>
+              <q-input v-model="featureStore.feature.format" label="Format" placeholder="#.##" stack-label dense/>
             </q-tab-panel>
-            <q-tab-panel name="calculation" label="calculation">
-              <div class="q-pa-xs col">
+
+            <q-tab-panel name="calculation" label="calculation" class="q-pa-sm">
+              <div class="col">
                 <q-select v-model="featureStore.feature.formula" label="Formula" stack-label
                           :options="formulas" option-value="id" option-label="name" @update:model-value="onFormulaSelection"/>
                 <div v-if="(formulaInputs.length > 0)">
-                  <q-field label="Formula variables" stack-label borderless>
+                  <q-field label="Formula variables:" stack-label borderless dense>
                     <template v-slot:control>
-                      <div class="row col-12">
+                      <div class="row col-8 q-pt-sm">
                         <template :key="variable.variableName" v-for="variable in formulaInputs">
-                          <div class="row col-12 q-col-gutter-sm">
-                            <div class="col-8">
+                            <div class="col-4">
                               <q-select v-if="variable.inputSource === 'FEATURE'" :options="availableFeatures(newFeature)"
                                         v-model="variable.sourceFeatureId" option-value="id" option-label="name" emit-value map-options
                                         :label="variable.variableName"/>
                               <q-input v-else v-model="variable.sourceMeasColName" :label="variable.variableName"/>
                             </div>
+                            <div class="col-1"/>
                             <div class="col-4">
-                              <q-select v-model="variable.inputSource" :options="inputSource" label="Input source" square/>
+                              <q-select v-model="variable.inputSource" :options="inputSource" label="Source" dense/>
                             </div>
-                          </div>
                         </template>
                       </div>
                     </template>
                   </q-field>
                 </div>
-                <q-input v-model="featureStore.feature.sequence" label="Sequence" stack-label/>
+                <q-input v-model="featureStore.feature.sequence" label="Sequence" stack-label dense/>
               </div>
             </q-tab-panel>
 
-            <q-tab-panel name="curve_fitting">
+            <q-tab-panel name="curve_fitting" class="q-pa-sm">
               <div class="col">
-                <q-select label="Model" stack-label square
+                <q-select label="Model" stack-label dense
                           v-model="drcModel.name" :options="drcModelOptions" option-label="name" option-value="name"
                           @update:model-value="onDRCModelSelection"/>
-                <q-input label="Description" stack-label square readonly
+                <q-input label="Description" stack-label dense readonly
                         v-model="drcModel.description"/>
-                <q-select label="Method" stack-label square
+                <q-select label="Method" stack-label dense
                           v-model="drcModel.method" :options="dcrModelMethodOptions"/>
-                <q-select label="Slope type" stack-label square
+                <q-select label="Slope type" stack-label dense
                           v-model="drcModel.slope" :options="drcModelSlopeTypesOptions"/>
               </div>
             </q-tab-panel>
@@ -69,7 +70,6 @@
             </q-tab-panel> -->
           </q-tab-panels>
         </div>
-        <br>
         <div class="row justify-end">
           <q-btn flat class="on-left" label="Cancel" color="primary" @click="onCancel"/>
           <q-btn label="Edit feature" v-close-popup color="primary" @click="editFeature"/>

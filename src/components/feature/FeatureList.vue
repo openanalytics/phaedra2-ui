@@ -61,9 +61,9 @@
     </oa-section>
   </div>
 
+  <new-feature v-if="showNewFeatureTab" v-model:show="showNewFeatureTab" :protocol="props.protocol" @addFeature="addNewFeature"/>
+  <edit-feature v-if="showEditFeatureSection" v-model:show="showEditFeatureSection" />
 
-    <new-feature v-if="showNewFeatureTab" v-model:show="showNewFeatureTab" :protocol="props.protocol" @addFeature="addNewFeature"/>
-    <edit-feature v-if="showEditFeatureSection" v-model:show="showEditFeatureSection" />
   <div class="q-pt-md">
     <view-feature v-if="showFeatureDetails" v-model:show="showFeatureDetails" :feature="featureStore.feature"/>
   </div>
@@ -92,7 +92,6 @@ const columns = ref([
   {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
   {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
   {name: 'format', align: 'left', label: 'Format', field: 'format', sortable: true},
-  {name: 'type', align: 'left', label: 'Type', field: 'type', sortable: true},
   {name: 'sequence', align: 'left', label: 'Sequence', field: 'sequence', sortable: true},
   {name: 'formulaId', align: 'left', label: 'Formula', field: 'formula.id', sortable: true},
   {name: 'menu', align: 'left', field: 'menu', sortable: false}
