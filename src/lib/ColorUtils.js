@@ -132,11 +132,25 @@ function getCaptureJobEventTypeColor(eventType) {
     }
 }
 
-function generateRGBColor() {
-    const r = Math.floor(Math.random() * 256);
-    const g = Math.floor(Math.random() * 256);
-    const b = Math.floor(Math.random() * 256);
+function generateRGBColor(index) {
+    const r = index ? index % 256 : Math.floor(Math.random() * 256);
+    const g = index ? index % 256 : Math.floor(Math.random() * 256);
+    const b = index ? index % 256 : Math.floor(Math.random() * 256);
     return "rgb(" + r + "," + g + "," + b + ")";
+}
+
+function getColorList(size) {
+    const colorList = [];
+
+    for (let i = 0; i < size; i++) {
+        const red = (i * 17) % 256;
+        const green = (i * 31) % 256;
+        const blue = (i * 53) % 256;
+
+        colorList.push(`rgb(${red}, ${green}, ${blue})`);
+    }
+
+    return colorList;
 }
 
 export default {
@@ -151,5 +165,6 @@ export default {
     defaultHeatmapGradients,
     getCaptureJobStatusColor,
     getCaptureJobEventTypeColor,
-    generateRGBColor
+    generateRGBColor,
+    getColorList
 }

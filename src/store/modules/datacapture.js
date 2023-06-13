@@ -2,7 +2,8 @@ import datacaptureAPI from "@/api/datacapture";
 
 const state = () => ({
     jobs: [],
-    config: ''
+    config: '',
+    captureConfigs: []
 })
 
 const getters = {
@@ -11,11 +12,17 @@ const getters = {
     },
     getConfig: (state) => () => {
         return state.config
+    },
+    getAllCaptureConfigs: (state) => () => {
+        return state.captureConfigs
     }
 }
 
 const actions = {
     async submitJob(ctx, job) {
+        for (let i = 0; i < job.files.length; i++) {
+            await datacaptureAPI.uploadData(job.sourcePath, job.files[i])
+        }
         await datacaptureAPI.postJob(job);
     },
     async loadJobs(ctx, args) {
@@ -28,6 +35,17 @@ const actions = {
     },
     async loadCaptureJobConfig(ctx, id) {
         const config = await datacaptureAPI.getCaptureJobConfig(id)
+        ctx.commit('cacheCaptureJobConfig', config)
+    },
+    async uploadData(ctx, data) {
+        await datacaptureAPI.uploadData(data);
+    },
+    async loadCaptureConfigs(ctx) {
+        const capturedConfigs = await datacaptureAPI.getAllCaptureConfigurations();
+        ctx.commit('allCaptureConfigs', capturedConfigs)
+    },
+    async loadCaptureConfigByName(ctx, configName) {
+        const config = await datacaptureAPI.getCaptureConfiguration(configName)
         ctx.commit('cacheCaptureJobConfig', config)
     }
 }
@@ -47,6 +65,9 @@ const mutations = {
     },
     cacheCaptureJobConfig(state, config) {
         state.config = config
+    },
+    allCaptureConfigs(state, config) {
+        state.captureConfigs = [...config]
     }
 }
 

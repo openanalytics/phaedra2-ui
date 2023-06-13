@@ -5,7 +5,7 @@
         <q-breadcrumbs-el :label="project.name" icon="folder" :to="{ name: 'project', params: { id: experiment.projectId } }"/>
         <q-breadcrumbs-el :label="experiment.name" icon="science"/>
     </q-breadcrumbs>
-    
+
     <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
         <div class="q-pa-md">
             <oa-section v-if="!experiment" title="Loading experiment..." icon="science" />
@@ -28,7 +28,7 @@
                             </template>
                         </q-field>
                     </div>
-                    
+
                     <div class="col-3">
                         <q-field label="Created On" stack-label dense borderless>
                             <template v-slot:control>
@@ -45,7 +45,7 @@
                     <div class="col-4">
                         <PropertyTable :objectInfo="experiment" :objectClass="'EXPERIMENT'"/>
                     </div>
-                    
+
                     <div class="col-2">
                         <div class="row justify-end">
                             <q-btn size="sm" icon="edit" label="Rename" class="oa-action-button" @click="showRenameDialog = true"/>
@@ -57,7 +57,7 @@
                 </div>
             </oa-section>
         </div>
-        
+
         <div class="q-pa-md" v-if="experiment">
             <q-tabs v-model="activeTab" inline-label dense no-caps align="left" class="oa-section-title">
                 <q-tab name="overview" icon="table_rows" label="Overview"/>
@@ -78,7 +78,7 @@
                 </q-tab-panels>
             </div>
         </div>
-        
+
         <div class="q-pa-md" v-if="newPlateTab">
             <oa-section title="New Plate" icon="add">
                 <div class="col-12 q-pa-md">
@@ -86,10 +86,10 @@
                         <div class="col col-5">
                             <q-input v-model="newPlate.barcode" square autofocus label="Barcode"></q-input>
                             <q-input v-model="newPlate.description" square label="Description"></q-input><br>
-                            
+
                         </div>
                         <div class="col col-1">
-                            
+
                         </div>
                         <div class="col col-4">
                             <q-input v-model="newPlate.rows" square label="Rows"></q-input>
@@ -103,7 +103,7 @@
                 </div>
             </oa-section>
         </div>
-        
+
         <rename-dialog v-model:show="showRenameDialog" objectClass="experiment" :object="experiment" @valueChanged="onNameChanged" />
         <delete-dialog v-model:show="showDeleteDialog" :id="experiment.id" :name="experiment.name" :objectClass="'experiment'" @onDeleted="onDeleted" />
     </q-page>
@@ -166,6 +166,7 @@ const createNewPlate = () => {
 const showRenameDialog = ref(false);
 const onNameChanged = function(newName) {
     store.dispatch('experiments/editExperiment', { id: experimentId, name: newName });
+    store.commit()
 };
 
 const showDeleteDialog = ref(false);
@@ -177,4 +178,3 @@ const onDescriptionChanged = (newDescription) => {
     store.dispatch('experiments/editExperiment', { id: experiment.value.id, description: newDescription });
 };
 </script>
-            
