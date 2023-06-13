@@ -16,7 +16,6 @@
                             <q-input v-model="formula.description" label="Description" :readonly="!editMode" stack-label dense :borderless="!editMode"></q-input>
                         </div>
                         <div class="col-3">
-                            <q-select v-model="formula.category" label="Category" :options="categories" options-dense :readonly=!editMode stack-label dense :borderless="!editMode"></q-select>
                             <q-select v-model="formula.language" label="Language" :options="languages" options-dense :readonly=!editMode stack-label dense :borderless="!editMode"></q-select>
                             <q-select v-model="formula.scope" label="Scope" :options="scopes" options-dense :readonly=!editMode stack-label dense :borderless="!editMode"></q-select>
                         </div>
@@ -63,7 +62,7 @@
                 <div class="q-pa-md" style="max-height: 750px">
                     <q-input v-model="formula.formula" label="Formula" type="textarea" square :readonly=!editMode></q-input>
                     <span class="text-grey text-caption">
-                        Input variables: {{ formulaInputs.length > 0 ? formulaInputs : 'None' }}
+                        Input variables detected: {{ formulaInputs.length > 0 ? formulaInputs.map(n => `\"${n}\"`).join(",") : 'None' }}
                     </span>
                 </div>
             </oa-section>

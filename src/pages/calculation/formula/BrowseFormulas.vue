@@ -100,8 +100,6 @@ export default {
       {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
       {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
       {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
-
-      {name: 'category', align: 'left', label: 'Category', field: 'category', sortable: true},
       {name: 'scope', align: 'left', label: 'Scope', field: 'scope', sortable: true},
       {name: 'language', align: 'left', label: 'Language', field: 'language', sortable: true},
       {
