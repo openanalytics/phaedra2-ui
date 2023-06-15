@@ -150,10 +150,9 @@ const directoryItems = ref([]);
 const fromDateProxy = ref(null)
 const toDateProxy = ref(null)
 
-const fromDate = ref(new Date().toLocaleDateString());
-const toDate = ref(new Date().toLocaleDateString());
-
-// fromDate.value.setDate(toDate.value.getDate() - 14);
+const now = new Date()
+const fromDate = ref(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7).toLocaleDateString())
+const toDate = ref(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).toLocaleDateString())
 
 const jobs = computed(() => store.getters['datacapture/getJobs']());
 store.dispatch('datacapture/loadJobs', {fromDate: DateUtils.parseLocaleDateString(fromDate.value), toDate: DateUtils.parseLocaleDateString(toDate.value)});
