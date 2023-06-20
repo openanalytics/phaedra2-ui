@@ -129,7 +129,7 @@ const mutations = {
         state.measurements = [...measurements];
     },
     cachePlateMeasurements(state, args) {
-        state.plateMeasurements[args.plateId] = args.measurements;
+        state.plateMeasurements[args.plateId] = args.measurements || [];
     },
     addMeasurement(state, plateMeasurement) {
         if (state.plateMeasurements[plateMeasurement.plateId]) {

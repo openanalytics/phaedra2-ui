@@ -8,7 +8,7 @@
         :pagination="{ rowsPerPage: 10, sortBy: 'active', descending: true }"
     >
         <template v-slot:top-left>
-            <q-btn size="sm" icon="add" class="oa-button q-mb-md" label="Link Measurement" @click="addMeasDialog" />
+            <q-btn size="sm" icon="add" class="oa-button q-mb-md" label="Link Measurement" @click="showLinkMeasDialog = true" />
         </template>
         <template v-slot:body-cell="props">
             <q-td :props="props" :class="props.row.active ? 'text-dark' : 'text-grey'">
@@ -24,7 +24,7 @@
         </template>
         <template v-slot:body-cell-active="props">
             <q-td :props="props">
-                <q-toggle
+                <q-toggle dense
                 :model-value="props.value"
                 @update:model-value="val => openConfirmDialog(val, props.row)"/>
             </q-td>
@@ -36,26 +36,7 @@
         </template>
     </q-table>
 
-    <q-dialog v-model="openMeasDialog" square persistent class="q-gutter-sm">
-        <q-card>
-            <q-card-section style="min-width: 350px">
-                <div class="text-h6">Select measurements:</div>
-            </q-card-section>
-            
-            <q-card-section class="row">
-                <div class="col col-12">
-                    <q-select v-model="selectedMeasurement" :options="availableMeasurements"
-                    option-label="barcode"
-                    option-value="id"/>
-                </div>
-            </q-card-section>
-            
-            <q-card-actions align="right">
-                <q-btn label="Cancel" color="primary" flat v-close-popup/>
-                <q-btn label="Save" color="primary" v-close-popup @click="addMeasurement"/>
-            </q-card-actions>
-        </q-card>
-    </q-dialog>
+    <LinkMeasurementDialog v-model:show="showLinkMeasDialog" :plate="plate"/>
 
     <q-dialog v-model="confirm" persistent>
         <q-card>
@@ -82,6 +63,7 @@
     import {useRouter} from "vue-router";
     import FormatUtils from "@/lib/FormatUtils";
     import UserChip from "@/components/widgets/UserChip";
+    import LinkMeasurementDialog from "@/components/measurement/LinkMeasurementDialog";
 
     const store = useStore();
     const router = useRouter();
@@ -89,40 +71,23 @@
     const props = defineProps({ plate: Object });
 
     const plateMeasurements = computed(() => store.getters['measurements/getPlateMeasurements'](props.plate.id) || []);
-    const availableMeasurements = computed(() => store.getters['measurements/getAll']() || []);
     store.dispatch('measurements/loadByPlateId', props.plate.id);
 
     const columns = [
         {name: 'active', align: 'left', label: 'Active?', field: row => (row.active === undefined) ? false : row.active, sortable: true},
         {name: 'measurementId', align: 'left', label: 'ID', field: 'measurementId', sortable: true},
-        {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
-        {name: 'dimensions', align: 'left', label: 'Dimensions', field: row => `${row.rows} x ${row.columns}`, sortable: false },
+        {name: 'name', align: 'left', label: 'Measurement Name', field: 'name', sortable: true},
         {name: 'wellColumns', align: 'left', label: 'Well Columns', field: 'wellColumns', sortable: true, format: val => `${val?.length || 0}` },
         {name: 'subWellColumns', align: 'left', label: 'SubWell Columns', field: 'subWellColumns', sortable: true, format: val => `${val?.length || 0}` },
         {name: 'imageChannels', align: 'left', label: 'Image Channels', field: 'imageChannels', sortable: true, format: val => `${val?.length || 0}` },
         {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate },
-        {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true}
+        {name: 'linkedOn', align: 'left', label: 'Linked On', field: 'linkedOn', sortable: true, format: FormatUtils.formatDate },
+        {name: 'menu', align: 'left', field: 'menu', sortable: false}
     ];
 
-    const openMeasDialog = ref(false);
+    const showLinkMeasDialog = ref(false);
     const confirm = ref(false);
-    const selectedMeasurement = ref();
     const newActiveMeas = ref();
-
-    const addMeasDialog = () => {
-        store.dispatch("measurements/loadAvailableMeasurements", props.plate);
-        openMeasDialog.value = true;
-    };
-
-    const addMeasurement = () => {
-        const activePlateMeasurement = {
-            plateId: props.plate.id,
-            measurementId: selectedMeasurement.value.id,
-            active: true,
-            ...selectedMeasurement.value
-        };
-        store.dispatch('measurements/addMeasurement', activePlateMeasurement);
-    };
 
     const openConfirmDialog = (active, { plateId, measurementId}) => {
         const current = store.getters['measurements/getActivePlateMeasurement'](plateId);
