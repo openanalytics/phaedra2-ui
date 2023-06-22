@@ -101,7 +101,27 @@
               </q-table>
             </q-tab-panel>
             <q-tab-panel name="subWellData" class="q-px-none">
-              <span class="text-info q-pa-md">TODO</span>
+              <div class="row q-pa-md">
+                <div class="col-8">
+                  <q-select :options="wellPositions" v-model="selectedWellPosition"
+                            @update:model-value="loadSubWellData" label="Select well" dense/>
+                  <q-select :options="subWellColumns" v-model="selectedSubWellColumn"
+                            @update:model-value="loadSubWellData" label="Select sub-well column" dense/>
+                </div>
+              </div>
+              <div>
+                <q-table
+                    table-header-class="text-grey"
+                    flat dense
+                    :rows="subWellDataRows"
+                    :columns="subWellDataColumns"
+                    row-key="id"
+                    :pagination="{ rowsPerPage: 100 }"
+                    :loading="loading">
+
+                </q-table>
+<!--                <TableComponent :rows="subWellDataRows" :columns="subWellDataColumns"/>-->
+              </div>
             </q-tab-panel>
             <q-tab-panel name="imageData" class="q-px-none">
               <div class="row q-px-sm">
@@ -129,6 +149,7 @@ import OaSection from "@/components/widgets/OaSection";
 import UserChip from "@/components/widgets/UserChip";
 import WellImageViewer from "@/components/image/WellImageViewer";
 import WellGrid from "@/components/well/WellGrid";
+import TableComponent from "@/components/table/TableComponent.vue";
 
 import WellUtils from "@/lib/WellUtils";
 import FilterUtils from "@/lib/FilterUtils";
@@ -147,6 +168,11 @@ store.dispatch('measurements/loadById', measId);
 const filter = ref('');
 const filterMethod = FilterUtils.defaultTableFilter();
 
+const wellPositions = computed(() => WellUtils.getWellPositions(meas.value.rows, meas.value.columns))
+const subWellColumns = computed(() => meas.value.subWellColumns)
+const selectedWellPosition = ref(null)
+const selectedSubWellColumn = ref(null)
+
 const wellNrLimit = ref(20);
 const wells = computed(() => {
   if (!meas.value) return [];
@@ -157,15 +183,17 @@ const wells = computed(() => {
     return {nr: nr, row: pos[0], columns: pos[1], coord: coord};
   });
 });
+
 const selectedWell = ref(null);
-const selectWell = (well) => {
-  selectedWell.value = {nr: well.nr, measId: meas.value.id};
-  store.dispatch('ui/selectWells', [selectedWell.value]);
-};
+// const selectWell = (well) => {
+//   selectedWell.value = {nr: well.nr, measId: meas.value.id};
+//   store.dispatch('ui/selectWells', [selectedWell.value]);
+// };
 
 const wellDataColumns = ref([
   {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true}
 ]);
+
 const wellData = computed(() => {
   let dataMap = store.getters['measurements/getWellData'](measId) || {};
   let columns = Object.keys(dataMap).sort();
@@ -184,6 +212,12 @@ const wellData = computed(() => {
 });
 store.dispatch('measurements/loadWellData', measId).then(() => loading.value = false);
 
+const subWellDataColumns = ref([
+  {name: 'wellNr', align: 'left', label: 'WellNr', field: 'wellNr', sortable: true},
+  {name: 'swColumn', align: 'left', label: 'Sub-Well Column', field: 'swColumn', sortable: true},
+])
+const subWellDataRows = computed(() => store.getters['measurements/getSubWellData'](measId, WellUtils.getWellNrByWellPos(selectedWellPosition.value), selectedSubWellColumn.value))
+
 const plate = computed(() => {
   return {
     rows: meas.value.rows,
@@ -194,6 +228,7 @@ const plate = computed(() => {
     })
   }
 });
+
 const wellImageFunction = (well) => {
   //TODO
   // const img = store.getters['measurements/getMeasImage']({ measId: meas.value.id, wellNr: well.nr });
@@ -201,4 +236,14 @@ const wellImageFunction = (well) => {
   // return img;
   return "";
 }
+
+const loadSubWellData = () => {
+  const wellNr = WellUtils.getWellNrByWellPos(selectedWellPosition.value)
+  store.dispatch('measurements/loadSubWellData', {measId: meas.value.id, wellNr: wellNr, subWellColumn: selectedSubWellColumn.value})
+
+  subWellDataColumns.value[1].label = selectedSubWellColumn.value
+  // subWellDataRows.value = computed(() => store.getters['measurements/getSubWellData'](measId, WellUtils.getWellNrByWellPos(selectedWellPosition.value), selectedSubWellColumn.value))
+}
+
+
 </script>
