@@ -1,4 +1,5 @@
 import datacaptureAPI from "@/api/datacapture";
+import ArrayUtils from "@/lib/ArrayUtils";
 
 const state = () => ({
     jobs: [],
@@ -20,8 +21,9 @@ const getters = {
 
 const actions = {
     async submitJob(ctx, job) {
-        for (let i = 0; i < job.files.length; i++) {
-            await datacaptureAPI.uploadData(job.sourcePath, job.files[i])
+        const fileGroups = ArrayUtils.groupItems(job.files, 5)
+        for (let i = 0; i < fileGroups.length; i++) {
+            await datacaptureAPI.uploadData(job.sourcePath, fileGroups[i])
         }
         await datacaptureAPI.postJob(job);
     },
