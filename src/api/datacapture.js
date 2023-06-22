@@ -1,4 +1,5 @@
 import axios from "axios"
+import ArrayUtils from "@/lib/ArrayUtils"
 
 const fs = require('fs')
 const path = require('path')
@@ -33,16 +34,19 @@ export default {
             })
         return result;
     },
-    async uploadData(sourcePath, data) {
+    async uploadData(sourcePath, files) {
         const formData = new FormData()
-        formData.append("file", data)
+        for (let i = 0; i < files.length; i++) {
+            formData.append("files", files[i])
+        }
+
         const response = await axios.post(apiURL + '/upload-data', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
                 'Accept': '*/*'
             },
             params: {
-                'destinationDir': path.dirname(data.webkitRelativePath)
+                'destinationDir': sourcePath
             }
         })
         return response.data;
