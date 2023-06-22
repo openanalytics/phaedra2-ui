@@ -6,6 +6,7 @@ const state = () => ({
     plateMeasurements: {},
     renderConfigs: [],
     wellData: {},
+    subWellData: {},
     measImages: {}
 })
 
@@ -23,14 +24,14 @@ const getters = {
         return state.measurements?.find(meas => meas.id === id) != null
     },
     getPlateMeasurements: (state) => (plateId) => {
-      return state.plateMeasurements[plateId];
+        return state.plateMeasurements[plateId];
     },
     getActivePlateMeasurement: (state) => (plateId) => {
-         return state.plateMeasurements[plateId]?.find(pm => pm.active === true);
+        return state.plateMeasurements[plateId]?.find(pm => pm.active === true);
     },
     getActivePlateMeasurements: (state) => (plateIds) => {
         return Object.values(state.plateMeasurements).flat().filter(pm => pm.active === true && plateIds.includes(pm.plateId));
-   },
+    },
     getRenderConfig: (state) => (id) => {
         return state.renderConfigs.find(cfg => cfg.id === id);
     },
@@ -40,7 +41,17 @@ const getters = {
     getWellData: (state) => (measId) => {
         return state.wellData[measId];
     },
-    getMeasImage: (state) => ({ measId, wellNr }) => {
+    getSubWellData: (state) => (measId, wellNr, subWellColumn) => {
+        if (state.subWellData[measId])
+            if (state.subWellData[measId][wellNr])
+                if (state.subWellData[measId][wellNr][subWellColumn])
+                return state.subWellData[measId][wellNr][subWellColumn]
+                    .map((value, index) => {
+                        return {"id": index, "wellNr": wellNr, "swColumn": value}
+                    })
+        return []
+    },
+    getMeasImage: (state) => ({measId, wellNr}) => {
         return state.measImages[measId + '#' + wellNr];
     }
 }
@@ -64,10 +75,10 @@ const actions = {
             }
         }
     },
-    async loadByPlateId(ctx, plateId){
+    async loadByPlateId(ctx, plateId) {
         await plateAPI.getPlateMeasurementsByPlateId(plateId)
             .then(results => {
-                ctx.commit('cachePlateMeasurements', { plateId: plateId, measurements: results });
+                ctx.commit('cachePlateMeasurements', {plateId: plateId, measurements: results});
             });
     },
     async addMeasurement(ctx, plateMeasurement) {
@@ -98,7 +109,7 @@ const actions = {
     },
     async loadWellData(ctx, measId) {
         const wellData = await measAPI.getWellData(measId);
-        ctx.commit("cacheWellData", { measId: measId, wellData: wellData });
+        ctx.commit("cacheWellData", {measId: measId, wellData: wellData});
     },
     async createRenderConfig(ctx, newConfig) {
         const savedConfig = await measAPI.createRenderConfig(newConfig);
@@ -106,16 +117,20 @@ const actions = {
         return savedConfig;
     },
     async updateRenderConfig(ctx, config) {
-        const  updatedConfig = await measAPI.updateRenderConfig(config);
+        const updatedConfig = await measAPI.updateRenderConfig(config);
         ctx.commit('cacheRenderConfig', updatedConfig);
     },
     async deleteRenderConfig(ctx, id) {
         await measAPI.deleteRenderConfig(id);
         ctx.commit('uncacheRenderConfig', id);
     },
-    async loadMeasImage(ctx, { measId, wellNr, scale }) {
+    async loadMeasImage(ctx, {measId, wellNr, scale}) {
         const image = await measAPI.getMeasImage(measId, wellNr, scale);
-        ctx.commit('cacheMeasImage', { measId: measId, wellNr: wellNr, image: image });
+        ctx.commit('cacheMeasImage', {measId: measId, wellNr: wellNr, image: image});
+    },
+    async loadSubWellData(ctx, {measId, wellNr, subWellColumn}) {
+        const subWellData = await measAPI.getSubWellData(measId, wellNr, subWellColumn)
+        ctx.commit("cacheSubWellData", {measId: measId, wellNr: wellNr, subWellColumn: subWellColumn, subWellData: subWellData});
     }
 }
 
@@ -140,7 +155,7 @@ const mutations = {
             state.plateMeasurements[plateMeasurement.plateId] = [plateMeasurement];
         }
     },
-    activateMeasurement(state, {plateId, measurementId, active }) {
+    activateMeasurement(state, {plateId, measurementId, active}) {
         for (let m in state.plateMeasurements[plateId]) {
             if (state.plateMeasurements[plateId][m].measurementId === measurementId)
                 state.plateMeasurements[plateId][m].active = active;
@@ -167,10 +182,15 @@ const mutations = {
     cacheRenderConfigs(state, cfgs) {
         state.renderConfigs = [...cfgs];
     },
-    cacheWellData(state, { measId, wellData }) {
+    cacheWellData(state, {measId, wellData}) {
         state.wellData[measId] = wellData;
     },
-    cacheMeasImage(state, { measId, wellNr, image }) {
+    cacheSubWellData(state, {measId, wellNr, subWellColumn, subWellData}) {
+        if (!state.subWellData[measId]) state.subWellData[measId] = {}
+        if (!state.subWellData[measId][wellNr]) state.subWellData[measId][wellNr] = {}
+        state.subWellData[measId][wellNr][subWellColumn] = subWellData
+    },
+    cacheMeasImage(state, {measId, wellNr, image}) {
         state.measImages[measId + '#' + wellNr] = image;
     }
 }

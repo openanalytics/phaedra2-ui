@@ -52,4 +52,8 @@ export default {
         // Return as a base64-encoded string that can be used directly in img tags
         return 'data:image/jpeg;base64,' + Buffer.from(response.data, 'binary').toString('base64');
     },
+    async getSubWellData(measId, wellNr, subWellColumn) {
+        const response = await axios.get(`${apiURL}/measurements/${measId}/subwelldata/${subWellColumn}/${wellNr}`)
+        return response.data;
+    }
 }

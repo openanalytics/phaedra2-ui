@@ -186,6 +186,7 @@ const updateSelected = () => {
 
 watch(selectedWells, updateSelected);
 watch(selectedWellSubstances, updateSelected);
+
 const handleSelection = ({rows, added, evt}) => {
   if (rows.length === 0) return
 
@@ -198,6 +199,34 @@ const handleSelection = ({rows, added, evt}) => {
     store.commit('ui/removeSelectedSubstances', rows.map(row => ({"name": row.substance, "plates": row.plateId})))
   }
   emit('handleSelection', curveTable.value.$el.offsetHeight)
+
+  const row = rows[ 0 ]
+  if (evt !== Object(evt) || (evt.ctrlKey !== true && evt.metaKey !== true)) {
+    if ((selected.value.length === 1 || selected.value.length === rows.length) && added !== true)
+      selected.value = []
+    else
+      selected.value = [...rows]
+    return
+  }
+
+  const operateSelection = added === true
+      ? selRow => {
+        const selectedIndex = selected.value.findIndex(obj => obj['substance'] === selRow.substance)
+        if (selectedIndex === -1) {
+          selected.value = selected.value.concat(selRow)
+        }
+      }
+      : selRow => {
+        const selectedIndex = selected.value.findIndex(obj => obj['substance'] === selRow.substance)
+        if (selectedIndex > -1) {
+          selected.value.splice(selectedIndex, 1)
+        }
+      }
+
+  if (evt.ctrlKey === true || evt.metaKey === true) {
+    operateSelection(row)
+    return
+  }
 }
 
 const handleFeatureSelection = function (feature) {
