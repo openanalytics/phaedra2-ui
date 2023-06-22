@@ -118,9 +118,7 @@
                     row-key="id"
                     :pagination="{ rowsPerPage: 100 }"
                     :loading="loading">
-
                 </q-table>
-<!--                <TableComponent :rows="subWellDataRows" :columns="subWellDataColumns"/>-->
               </div>
             </q-tab-panel>
             <q-tab-panel name="imageData" class="q-px-none">
@@ -149,7 +147,6 @@ import OaSection from "@/components/widgets/OaSection";
 import UserChip from "@/components/widgets/UserChip";
 import WellImageViewer from "@/components/image/WellImageViewer";
 import WellGrid from "@/components/well/WellGrid";
-import TableComponent from "@/components/table/TableComponent.vue";
 
 import WellUtils from "@/lib/WellUtils";
 import FilterUtils from "@/lib/FilterUtils";
