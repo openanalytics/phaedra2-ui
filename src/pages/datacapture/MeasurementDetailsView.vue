@@ -213,7 +213,7 @@ const subWellDataColumns = ref([
   {name: 'wellNr', align: 'left', label: 'WellNr', field: 'wellNr', sortable: true},
   {name: 'swColumn', align: 'left', label: 'Sub-Well Column', field: 'swColumn', sortable: true},
 ])
-const subWellDataRows = computed(() => store.getters['measurements/getSubWellData'](measId, WellUtils.getWellNrByWellPos(selectedWellPosition.value), selectedSubWellColumn.value))
+const subWellDataRows = computed(() => store.getters['measurements/getSubWellData'](measId, WellUtils.getWellNrByWellPos(selectedWellPosition.value, meas.value.columns), selectedSubWellColumn.value))
 
 const plate = computed(() => {
   return {
@@ -235,11 +235,10 @@ const wellImageFunction = (well) => {
 }
 
 const loadSubWellData = () => {
-  const wellNr = WellUtils.getWellNrByWellPos(selectedWellPosition.value)
+  const wellNr = WellUtils.getWellNrByWellPos(selectedWellPosition.value, meas.value.columns)
   store.dispatch('measurements/loadSubWellData', {measId: meas.value.id, wellNr: wellNr, subWellColumn: selectedSubWellColumn.value})
 
   subWellDataColumns.value[1].label = selectedSubWellColumn.value
-  // subWellDataRows.value = computed(() => store.getters['measurements/getSubWellData'](measId, WellUtils.getWellNrByWellPos(selectedWellPosition.value), selectedSubWellColumn.value))
 }
 
 

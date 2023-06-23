@@ -47,11 +47,10 @@ const getWellPositions = (rows, columns) => {
             positions.push(getWellCoordinate(i, j));
         }
     }
-
     return positions;
 }
 
-const getWellNrByWellPos = (wellPos) => {
+const getWellNrByWellPos = (wellPos, columnCount) => {
     const regex = /^([A-Z]+)(\d+)$/;
 
     const matches = wellPos?.match(regex);
@@ -71,7 +70,7 @@ const getWellNrByWellPos = (wellPos) => {
 
         const columnNr = parseInt(matches[2], 10);
 
-        return rowNr * columnNr;
+        return  ((rowNr-1) * columnCount) + columnNr;
     } else {
         return -1;
     }
