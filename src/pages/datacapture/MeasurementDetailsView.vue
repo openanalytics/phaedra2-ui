@@ -105,8 +105,19 @@
                 <div class="col-8">
                   <q-select :options="wellPositions" v-model="selectedWellPosition"
                             @update:model-value="loadSubWellData" label="Select well" dense/>
-                  <q-select :options="subWellColumns" v-model="selectedSubWellColumn"
-                            @update:model-value="loadSubWellData" label="Select sub-well column" dense/>
+                  <q-select :options="subWellColumns" v-model="selectedSubWellColumns"
+                            @update:model-value="loadSubWellData" label="Select sub-well column" dense multiple>
+                    <template v-slot:option="{ itemProps, opt, selected, toggleOption }">
+                      <q-item v-bind="itemProps">
+                        <q-item-section>
+                          <q-item-label v-html="opt" />
+                        </q-item-section>
+                        <q-item-section side>
+                          <q-toggle :model-value="selected" @update:model-value="toggleOption(opt)" />
+                        </q-item-section>
+                      </q-item>
+                    </template>
+                  </q-select>
                 </div>
               </div>
               <div>
@@ -168,7 +179,7 @@ const filterMethod = FilterUtils.defaultTableFilter();
 const wellPositions = computed(() => WellUtils.getWellPositions(meas.value.rows, meas.value.columns))
 const subWellColumns = computed(() => meas.value.subWellColumns)
 const selectedWellPosition = ref(null)
-const selectedSubWellColumn = ref(null)
+const selectedSubWellColumns = ref([])
 
 const wellNrLimit = ref(20);
 const wells = computed(() => {
@@ -180,12 +191,6 @@ const wells = computed(() => {
     return {nr: nr, row: pos[0], columns: pos[1], coord: coord};
   });
 });
-
-const selectedWell = ref(null);
-// const selectWell = (well) => {
-//   selectedWell.value = {nr: well.nr, measId: meas.value.id};
-//   store.dispatch('ui/selectWells', [selectedWell.value]);
-// };
 
 const wellDataColumns = ref([
   {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true}
@@ -211,9 +216,8 @@ store.dispatch('measurements/loadWellData', measId).then(() => loading.value = f
 
 const subWellDataColumns = ref([
   {name: 'wellNr', align: 'left', label: 'WellNr', field: 'wellNr', sortable: true},
-  {name: 'swColumn', align: 'left', label: 'Sub-Well Column', field: 'swColumn', sortable: true},
 ])
-const subWellDataRows = computed(() => store.getters['measurements/getSubWellData'](measId, WellUtils.getWellNrByWellPos(selectedWellPosition.value, meas.value.columns), selectedSubWellColumn.value))
+const subWellDataRows = computed(() => store.getters['measurements/getSubWellData'](measId, WellUtils.getWellNrByWellPos(selectedWellPosition.value, meas.value.columns), selectedSubWellColumns.value))
 
 const plate = computed(() => {
   return {
@@ -236,9 +240,11 @@ const wellImageFunction = (well) => {
 
 const loadSubWellData = () => {
   const wellNr = WellUtils.getWellNrByWellPos(selectedWellPosition.value, meas.value.columns)
-  store.dispatch('measurements/loadSubWellData', {measId: meas.value.id, wellNr: wellNr, subWellColumn: selectedSubWellColumn.value})
-
-  subWellDataColumns.value[1].label = selectedSubWellColumn.value
+  store.dispatch('measurements/loadSubWellData', {measId: meas.value.id, wellNr: wellNr, subWellColumns: selectedSubWellColumns.value})
+  subWellDataColumns.value = [{name: 'wellNr', align: 'left', label: 'WellNr', field: 'wellNr', sortable: true}]
+  for (const swColumn of selectedSubWellColumns.value) {
+    subWellDataColumns.value.push({name: [swColumn], align: 'left', label: [swColumn], field: [swColumn], sortable: true})
+  }
 }
 
 

@@ -1,5 +1,6 @@
 import measAPI from '@/api/measurements.js'
 import plateAPI from '@/api/plates.js'
+import index from "vuex";
 
 const state = () => ({
     measurements: [],
@@ -41,15 +42,26 @@ const getters = {
     getWellData: (state) => (measId) => {
         return state.wellData[measId];
     },
-    getSubWellData: (state) => (measId, wellNr, subWellColumn) => {
-        if (state.subWellData[measId])
-            if (state.subWellData[measId][wellNr])
-                if (state.subWellData[measId][wellNr][subWellColumn])
-                return state.subWellData[measId][wellNr][subWellColumn]
-                    .map((value, index) => {
-                        return {"id": index, "wellNr": wellNr, "swColumn": value}
-                    })
-        return []
+    getSubWellData: (state) => (measId, wellNr, subWellColumns) => {
+        let subWellData = []
+        if (state.subWellData[measId]) if (state.subWellData[measId][wellNr]) {
+            for (const swColumn of subWellColumns) {
+                if (state.subWellData[measId][wellNr][swColumn]) {
+                    subWellData.push(state.subWellData[measId][wellNr][swColumn]
+                        .map((value) => {
+                            return {[swColumn]: value}
+                        }))
+                }
+            }
+        }
+
+        const result = subWellData.reduce((result, innerArr) => {
+            innerArr.forEach((innerObj, index) => {
+                result[index] ? result[index] = {...result[index], ...innerObj} : result.push({id: index, wellNr: wellNr, ...innerObj})
+            })
+            return result
+        }, [])
+        return result
     },
     getMeasImage: (state) => ({measId, wellNr}) => {
         return state.measImages[measId + '#' + wellNr];
@@ -128,9 +140,9 @@ const actions = {
         const image = await measAPI.getMeasImage(measId, wellNr, scale);
         ctx.commit('cacheMeasImage', {measId: measId, wellNr: wellNr, image: image});
     },
-    async loadSubWellData(ctx, {measId, wellNr, subWellColumn}) {
-        const subWellData = await measAPI.getSubWellData(measId, wellNr, subWellColumn)
-        ctx.commit("cacheSubWellData", {measId: measId, wellNr: wellNr, subWellColumn: subWellColumn, subWellData: subWellData});
+    async loadSubWellData(ctx, {measId, wellNr, subWellColumns: subWellColumns}) {
+        const subWellData = await measAPI.getSubWellData(measId, wellNr, subWellColumns)
+        ctx.commit("cacheSubWellData", {measId: measId, wellNr: wellNr, subWellColumns: subWellColumns, subWellData: subWellData});
     }
 }
 
@@ -185,10 +197,12 @@ const mutations = {
     cacheWellData(state, {measId, wellData}) {
         state.wellData[measId] = wellData;
     },
-    cacheSubWellData(state, {measId, wellNr, subWellColumn, subWellData}) {
+    cacheSubWellData(state, {measId, wellNr, subWellColumns, subWellData}) {
         if (!state.subWellData[measId]) state.subWellData[measId] = {}
         if (!state.subWellData[measId][wellNr]) state.subWellData[measId][wellNr] = {}
-        state.subWellData[measId][wellNr][subWellColumn] = subWellData
+        for (const swColumn of subWellColumns) {
+            state.subWellData[measId][wellNr][swColumn] = subWellData[swColumn]
+        }
     },
     cacheMeasImage(state, {measId, wellNr, image}) {
         state.measImages[measId + '#' + wellNr] = image;
