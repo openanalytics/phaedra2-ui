@@ -57,8 +57,8 @@ export default {
         const flag = computed(() => flags[statusValue.value] || neutralFlag);
 
         const statusReason = computed(() => {
-            if (statusValue.value == 'INVALIDATED') return props.object.invalidatedReason;
-            if (statusValue.value == 'DISAPPROVED') return props.object.disapprovedReason;
+            if (statusValue.value === 'INVALIDATED') return props.object.invalidatedReason;
+            if (statusValue.value === 'DISAPPROVED') return props.object.disapprovedReason;
             return null;
         });
 

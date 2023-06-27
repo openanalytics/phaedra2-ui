@@ -12,6 +12,9 @@ const getters = {
     getById: (state) => (id) => {
         return state.plates.find(plate => plate.id === id);
     },
+    getByIds: (state) => (ids) => {
+        return state.plates.filter(plate => ids && ids.includes(plate.id));
+    },
     isLoaded: (state) => (id) => {
         return state.plates.find(plate => plate.id === id) != null;
     },
@@ -24,6 +27,20 @@ const getters = {
 }
 
 const actions = {
+    async loadById(ctx, plateId) {
+        const plate = await plateAPI.getPlateById(plateId);
+        ctx.commit('cacheCurrentPlate', plate);
+        ctx.commit('cachePlates', [plate]);
+        ctx.dispatch('metadata/loadMetadata', { objectId: plateId, objectClass: 'PLATE' }, {root:true});
+    },
+    async loadByIds(ctx, plateIds) {
+        let plates = [];
+        (plateIds || []).forEach(async id => {
+            const plate = await plateAPI.getPlateById(id);
+            plates.push(plate);
+        });
+        ctx.commit('cachePlates', plates);
+    },
     async loadByExperimentId(ctx, id) {
         if (!ctx.rootGetters['experiments/isLoaded'](id)) {
             ctx.dispatch('experiments/loadById', id, {root:true});
@@ -35,23 +52,6 @@ const actions = {
 
         const plateIds = plates.map(plate => plate.id);
         ctx.dispatch('metadata/loadMetadata', { objectId: plateIds, objectClass: 'PLATE' }, {root:true});
-    },
-    async loadById(ctx, plateId) {
-        const plate = await plateAPI.getPlateById(plateId);
-        ctx.commit('cacheCurrentPlate', plate);
-        ctx.commit('cachePlates', [plate]);
-
-        ctx.dispatch('metadata/loadMetadata', { objectId: plateId, objectClass: 'PLATE' }, {root:true});
-        ctx.dispatch('measurements/loadByPlateId', { plateId: plateId }, { root: true })
-        ctx.dispatch('resultdata/loadPlateResults', {plateId: plateId}, {root: true});
-    },
-    async loadByIds(ctx, plateIds) {
-        let plates = [];
-        for (let i in plateIds) {
-            const plate = await plateAPI.getPlateById(plateIds[i]);
-            plates.push(plate);
-        }
-        ctx.commit('cachePlates', plates);
     },
     async createNewPlate(ctx, plate) {
         const newPlate = await plateAPI.addPlate(plate);

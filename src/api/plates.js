@@ -5,7 +5,7 @@ const apiURL = process.env.VUE_APP_API_BASE_URL + '/plate-service';
 export default {
     async getPlateById(id) {
         try {
-            const response = await axios.get(apiURL + '/plate/' + id);
+            const response = await axios.get(apiURL + '/plates/' + id);
             if (response.status === 200) return response.data;
         } catch (error) {
             console.log(error);
@@ -13,7 +13,7 @@ export default {
     },
     async getPlatesByExperimentId(id) {
         try {
-            const response = await axios.get(apiURL + '/experiment/' + id + '/plates');
+            const response = await axios.get(apiURL + '/experiments/' + id + '/plates');
             if (response.status === 200) return response.data;
         } catch (error) {
             console.log(error);
@@ -21,19 +21,19 @@ export default {
     },
     async getPlateMeasurementsByPlateId(plateId) {
         try {
-            const response = await axios.get(apiURL + '/plate/' + plateId + '/measurements');
+            const response = await axios.get(apiURL + '/plates/' + plateId + '/measurements');
             if (response.status === 200) return response.data;
         } catch (error) {
             console.log(error);
         }
     },
     async addPlate(plate) {
-        const response = await axios.post(apiURL + '/plate', plate);
+        const response = await axios.post(apiURL + '/plates', plate);
         return response.data;
     },
     async deletePlateById(plateId) {
         try {
-            const response = await axios.delete(apiURL + '/plate/' + plateId);
+            const response = await axios.delete(apiURL + '/plates/' + plateId);
             if (response.status === 200) return response.data;
         } catch (error) {
             console.log(error);
@@ -41,7 +41,7 @@ export default {
     },
     async editPlate(newPlate) {
         try {
-            const response = await axios.put(apiURL + '/plate', newPlate);
+            const response = await axios.put(apiURL + '/plates', newPlate);
             if (response.status === 200) return response.data;
         } catch (error) {
             console.log(error);
@@ -49,19 +49,19 @@ export default {
     },
     async linkMeasurement(plateId, measurement) {
         try {
-            const response = await axios.post(apiURL + '/plate/' + plateId + '/measurement', measurement);
+            const response = await axios.post(apiURL + '/plates/' + plateId + '/measurements', measurement);
             if (response.status === 201) return response.data;
         } catch (error) {
             console.log(error);
         }
     },
     async setActivePlateMeasurement(plateMeasurement) {
-        const endpoint = apiURL + '/plate/' + plateMeasurement.plateId + '/measurement/' + plateMeasurement.measurementId;
+        const endpoint = apiURL + '/plates/' + plateMeasurement.plateId + '/measurements/' + plateMeasurement.measurementId;
         const response = await axios.put(endpoint, plateMeasurement);
         return response.data;
     },
     async linkPlate(plateId, plateTemplateId) {
-        const endpoint = apiURL + '/plate/' + plateId + '/link/' + plateTemplateId;
+        const endpoint = apiURL + '/plates/' + plateId + '/link/' + plateTemplateId;
         const response = await axios.put(endpoint);
         return response.data;
     }

@@ -3,7 +3,7 @@
         <span>
             {{object[fieldName]}}
         </span>
-        <q-btn round dense icon="edit" size="xs" class="on-right" v-show="editBtnShown" @click="showEditDialog = true" />
+        <q-btn round dense icon="edit" size="xs" :class="{'on-right': object[fieldName]}" v-show="editBtnShown || !object[fieldName]" @click="showEditDialog = true" />
     </div>
 
     <q-dialog v-model="showEditDialog">

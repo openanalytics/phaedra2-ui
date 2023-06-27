@@ -24,7 +24,7 @@ export const useTemplateStore = defineStore("template", {
         },
         async updateTemplateWells(wells, property, value) {
             for (let w in wells)
-                this.updateTemplateWell(wells[w], property, value)
+                await this.updateTemplateWell(wells[w], property, value)
         }
     }
 })

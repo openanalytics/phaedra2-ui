@@ -5,10 +5,10 @@
                class="oa-properties-table"
                table-header-class="bg-secondary"
                row-key="propertyName"
-               :pagination="{ rowsPerPage: 0 }"
-               hide-pagination
+               :pagination="pagination"
                dense flat bordered
-      >
+               virtual-scroll
+               :rows-per-page-options="[0]">
         <template v-slot:body-cell="props">
             <q-td :props="props" @mouseover="toggleDeleteBtn(true, props.rowIndex)" @mouseleave="toggleDeleteBtn(false, props.rowIndex)">
               {{props.row[props.col.name]}}
@@ -85,8 +85,8 @@ const doAddProperty = () => {
   store.dispatch('metadata/addProperty', {
     objectId: props.objectInfo.id,
     objectClass: props.objectClass,
-    propertyName: exported.newProperty.value.name,
-    propertyValue: exported.newProperty.value.value
+    propertyName: newProperty.value.name,
+    propertyValue: newProperty.value.value
   });
 }
 
@@ -104,4 +104,6 @@ for (const i in props.objectInfo.properties) deleteBtnShown[i] = false;
 const toggleDeleteBtn = (show, rowIndex) => {
   deleteBtnShown.value[rowIndex] = show;
 }
+
+const pagination = ref({rowsPerPage: 0})
 </script>

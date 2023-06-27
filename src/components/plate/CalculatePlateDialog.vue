@@ -12,7 +12,7 @@
         </div>
         <protocol-selectable-list v-model:selected="selected"></protocol-selectable-list>
       </q-card-section>
-      
+
       <q-card-section v-if="!activeMeasurement">
         <q-icon name="warning" color="negative" class="on-left"/>
         <span class="text-accent text-weight-bold">Cannot calculate: this plate has no active measurement.</span>
@@ -24,7 +24,7 @@
 
       <q-card-actions align="right" class="text-primary">
         <q-btn flat label="Cancel" v-close-popup @click="$emit('update:show',false)"/>
-        <q-btn label="Calculate" color="primary" :disable="!activeMeasurement || selected.length == 0 || !checkDimensions()" @click="calculatePlate" v-close-popup/>
+        <q-btn label="Calculate" color="primary" :disable="!activeMeasurement || selected.length === 0 || !checkDimensions()" @click="calculatePlate" v-close-popup/>
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -48,11 +48,8 @@ export default {
     },
     checkDimensions() {
       if (this.activeMeasurement) {
-        if (this.activeMeasurement.rows === this.plate.rows
-            && this.activeMeasurement.columns === this.plate.columns) {
-          return true
-        }
-        return false
+        return this.activeMeasurement.rows === this.plate.rows
+            && this.activeMeasurement.columns === this.plate.columns;
       }
       return true
     }
@@ -66,7 +63,7 @@ export default {
     watch(() => props.show, (newValue) => {
       if (newValue === true) store.dispatch('measurements/loadByPlateId', { plateId: props.plateId }, { root: true })
     });
-    
+
     return {
       props,
       activeMeasurement,

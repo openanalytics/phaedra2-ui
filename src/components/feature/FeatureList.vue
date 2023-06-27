@@ -1,6 +1,6 @@
 <template>
   <div v-if="!showNewFeatureTab && !showEditFeatureSection">
-    <oa-section-header :title="'Features'" :icon="'functions'"/>
+    <oa-section title="Features" icon="functions" :collapsible="true">
       <q-table
           table-header-class="text-grey"
           :rows="features"
@@ -38,7 +38,9 @@
         <template v-slot:body-cell-formulaId="props">
           <q-td :props="props">
             <div class="row items-center cursor-pointer" @click="showFormulaInfo(props.row.formulaId)">
-              {{ getFormulaName(props.row.formulaId) }}
+              <q-chip square dense class="q-ma-none">
+                {{ getFormulaName(props.row.formulaId) }}
+              </q-chip>
             </div>
           </q-td>
         </template>
@@ -56,11 +58,12 @@
           </div>
         </template>
       </q-table>
+    </oa-section>
   </div>
 
+  <new-feature v-if="showNewFeatureTab" v-model:show="showNewFeatureTab" :protocol="props.protocol" @addFeature="addNewFeature"/>
+  <edit-feature v-if="showEditFeatureSection" v-model:show="showEditFeatureSection" />
 
-    <new-feature v-if="showNewFeatureTab" v-model:show="showNewFeatureTab" :protocol="props.protocol" @addFeature="addNewFeature"/>
-    <edit-feature v-if="showEditFeatureSection" v-model:show="showEditFeatureSection" />
   <div class="q-pt-md">
     <view-feature v-if="showFeatureDetails" v-model:show="showFeatureDetails" :feature="featureStore.feature"/>
   </div>
@@ -78,7 +81,7 @@ import {useFeatureStore} from "@/stores/feature";
 import {useProtocolStore} from "@/stores/protocol";
 import {useFormulasStore} from "@/stores/formulas";
 
-import OaSectionHeader from "@/components/widgets/OaSectionHeader";
+import OaSection from "@/components/widgets/OaSection";
 import EditFeature from "@/components/feature/EditFeature";
 import ViewFeature from "@/components/feature/ViewFeature";
 import NewFeature from "@/components/feature/NewFeature";
@@ -89,7 +92,7 @@ const columns = ref([
   {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
   {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
   {name: 'format', align: 'left', label: 'Format', field: 'format', sortable: true},
-  {name: 'type', align: 'left', label: 'Type', field: 'type', sortable: true},
+  {name: 'sequence', align: 'left', label: 'Sequence', field: 'sequence', sortable: true},
   {name: 'formulaId', align: 'left', label: 'Formula', field: 'formula.id', sortable: true},
   {name: 'menu', align: 'left', field: 'menu', sortable: false}
 ])

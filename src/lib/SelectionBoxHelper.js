@@ -1,18 +1,17 @@
 function addSelectionBoxSupport(rootElement, wellSlots, selectionHandler) {
 
-    let selectionBoxSupport = {
-
+    return {
         rootElement: rootElement,
         wellSlots: wellSlots,
         selectionHandler: selectionHandler,
 
         rootOffset: null,
         dragInProgress: false,
-        dragStartPosition: {x:0,y:0},
+        dragStartPosition: {x: 0, y: 0},
         selectionRectangle: null,
-        scrollError: {left: 0,right: 0},
+        scrollError: {left: 0, right: 0},
 
-        dragStart: function(event) {
+        dragStart: function (event) {
             if (this.dragInProgress) return
             event.preventDefault()
 
@@ -23,7 +22,7 @@ function addSelectionBoxSupport(rootElement, wellSlots, selectionHandler) {
             }
 
             this.dragInProgress = true
-            this.dragStartPosition = { x: event.pageX, y: event.pageY }
+            this.dragStartPosition = {x: event.pageX, y: event.pageY}
 
             let rootStyle = window.getComputedStyle(rootElement.value);
             let rootParentStyle = window.getComputedStyle(rootElement.value.parentNode);
@@ -37,16 +36,16 @@ function addSelectionBoxSupport(rootElement, wellSlots, selectionHandler) {
             this.rootElement.value.appendChild(this.selectionRectangle);
         },
 
-        dragMove: function(event) {
+        dragMove: function (event) {
             if (!this.dragInProgress) return
-            let bounds = calcRectangleBounds(this.dragStartPosition, { x: event.pageX, y: event.pageY })
+            let bounds = calcRectangleBounds(this.dragStartPosition, {x: event.pageX, y: event.pageY})
             this.selectionRectangle.style.left = (bounds.left - this.rootOffset.left) + 'px'
             this.selectionRectangle.style.top = (bounds.top - this.rootOffset.top) + 'px'
             this.selectionRectangle.style.width = bounds.width + 'px'
             this.selectionRectangle.style.height = bounds.height + 'px'
         },
 
-        dragEnd: function(event) {
+        dragEnd: function (event) {
             event.preventDefault()
             this.dragInProgress = false
             if (this.rootElement.value && this.rootElement.value.contains(this.selectionRectangle)) {
@@ -54,7 +53,7 @@ function addSelectionBoxSupport(rootElement, wellSlots, selectionHandler) {
             }
 
             // Check if it is on grid
-            var gridContainerCoords = document.querySelector('.gridContainer').getBoundingClientRect()
+            const gridContainerCoords = document.querySelector('.gridContainer').getBoundingClientRect();
             if (gridContainerCoords.left - this.scrollError.left > event.pageX
                 || gridContainerCoords.right - this.scrollError.left < event.pageX
                 || gridContainerCoords.top - this.scrollError.right > event.pageY
@@ -64,8 +63,11 @@ function addSelectionBoxSupport(rootElement, wellSlots, selectionHandler) {
 
             // Calculate wells in selection
             let selectedArea = calcRectangleBounds(
-                { x: this.dragStartPosition.x - this.scrollError.left, y: this.dragStartPosition.y - this.scrollError.top},
-                { x: event.pageX- this.scrollError.left, y: event.pageY-this.scrollError.top }
+                {
+                    x: this.dragStartPosition.x - this.scrollError.left,
+                    y: this.dragStartPosition.y - this.scrollError.top
+                },
+                {x: event.pageX - this.scrollError.left, y: event.pageY - this.scrollError.top}
             );
             let selectedWellNrs = []
             wellSlots.value.forEach((slot, i) => {
@@ -77,7 +79,6 @@ function addSelectionBoxSupport(rootElement, wellSlots, selectionHandler) {
             this.selectionHandler(selectedWellNrs, event.ctrlKey);
         }
     }
-    return selectionBoxSupport
 }
 
 /********************

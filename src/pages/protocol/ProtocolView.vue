@@ -24,8 +24,6 @@ const route = useRoute();
 const protocolStore = useProtocolStore();
 const featureStore = useFeatureStore()
 
-const loading = ref(false);
-
 const protocolId = parseInt(route.params.id);
 protocolStore.loadProtocol(protocolId)
 

@@ -39,12 +39,12 @@ const getters = {
 
 const actions = {
     async loadByProjectId(ctx, id) {
-        const experiments = await experimentAPI.loadByProjectId(id);
+        const experiments = await experimentAPI.getExperimentsByProjectId(id);
 
         // Load and attach experiment summaries
-        const summaries = await experimentAPI.loadExperimentSummariesByProjectId(id);
+        const summaries = await experimentAPI.getExperimentSummariesByProjectId(id);
         for (const exp of experiments) {
-            exp.summary = summaries.find(s => s.experimentId == exp.id) || {};
+            exp.summary = summaries.find(s => s.experimentId === exp.id) || {};
         }
 
         const experimentIds = experiments.map(exp => exp.id);
@@ -58,7 +58,7 @@ const actions = {
             ctx.commit('loadExperiment', experiment);
         } else {
             try {
-                experiment = await experimentAPI.loadById(experimentId);
+                experiment = await experimentAPI.getExperimentById(experimentId);
                 ctx.commit('loadExperiment', experiment);
             } catch (err) {
                 console.error(err);
@@ -73,7 +73,7 @@ const actions = {
         return createdExperiment
     },
     async loadRecentExperiments(ctx,n) {
-        await experimentAPI.loadRecentExperiments()
+        await experimentAPI.getRecentExperiments()
             .then(response => {
                 const list = response.sort((p1, p2) => {
                     let p1Time = new Date((p1.updatedOn)?p1.updatedOn:p1.createdOn).getTime()
@@ -88,7 +88,7 @@ const actions = {
                 const unique = [...new Set(list.map(item => item.projectId))]
                 unique.forEach(id => {
                     //For each projectId, load experimentSummaries and add them to recent experiments.
-                    experimentAPI.loadExperimentSummariesByProjectId(id).then(summaries => {
+                    experimentAPI.getExperimentSummariesByProjectId(id).then(summaries => {
                         ctx.commit('cacheRecentExperimentSummaries',summaries)
                     });
                 })
@@ -100,11 +100,9 @@ const actions = {
         ctx.commit('deleteExperiment', id)
     },
     async editExperiment(ctx, experiment) {
-        await experimentAPI.editExperiment(experiment)
-            .then(() =>{
-                ctx.commit('deleteExperiment',experiment.id)
-                ctx.commit('loadExperiment',experiment)
-            })
+        await experimentAPI.editExperiment(experiment);
+        ctx.commit('deleteExperiment',experiment.id);
+        ctx.dispatch('loadById', experiment.id);
     }
 }
 
@@ -133,7 +131,7 @@ const mutations = {
 }
 
 function containsExperiment(state, experiment) {
-    for (var i = 0; i < state.experiments.length; i++) {
+    for (let i = 0; i < state.experiments.length; i++) {
         if (state.experiments[i].id === experiment.id) {
             return true;
         }
@@ -142,7 +140,7 @@ function containsExperiment(state, experiment) {
 }
 
 function containsSummary(state, summary) {
-    for (var i = 0; i < state.recentExperimentSummaries.length; i++) {
+    for (let i = 0; i < state.recentExperimentSummaries.length; i++) {
         if (state.recentExperimentSummaries[i].experimentId === summary.experimentId) {
             return true;
         }

@@ -2,132 +2,34 @@ import axios from "axios";
 
 const apiURL = process.env.VUE_APP_API_BASE_URL + '/plate-service';
 
-const demoExperiments = [
-    {
-        id: 1, name: 'Experiment 1', projectId: 1, description: 'This is experiment 1', createdOn: new Date(),
-        tags: ['HTS', 'Pilot'],
-        properties: [{key: "Prop1", value: "Value 1"}, {key: "Prop2", value: "Value 2"}],
-        closed: false
-    },
-    {
-        id: 2,
-        name: 'Experiment 2',
-        projectId: 1,
-        description: 'This is experiment 2',
-        createdOn: new Date(),
-        closed: true
-    },
-    {
-        id: 3,
-        name: 'Experiment 3',
-        projectId: 1,
-        description: 'This is experiment 3',
-        createdOn: new Date(),
-        closed: false
-    },
-    {
-        id: 4,
-        name: 'Experiment 4',
-        projectId: 2,
-        description: 'This is experiment 4',
-        createdOn: new Date(),
-        tags: ['Experimental'],
-        closed: false
-    },
-    {
-        id: 5,
-        name: 'Experiment 5',
-        projectId: 2,
-        description: 'This is experiment 5',
-        createdOn: new Date(),
-        closed: true
-    }
-]
-
 export default {
     async getExperimentById(id) {
-        console.log('Mocking a backend call...')
-        await wait(100)
-        return demoExperiments.find(exp => exp.id === id)
+        const response = await axios.get(`${apiURL}/experiments/${id}`);
+        if (response.status === 200) return response.data;
     },
-    getExperimentsByProjectId(id) {
-        console.log('Mocking a backend call...')
-        return demoExperiments.filter(exp => exp.projectId === id)
-    },
-    getRecentExperiments() {
-        console.log('Mocking a backend call...')
-        return demoExperiments.sort((e1, e2) => {
-            return e1.createdOn.getTime() - e2.createdOn.getTime();
-        })
+    async getRecentExperiments() {
+        const response = await axios.get(`${apiURL}/experiments`);
+        if (response.status === 200) return response.data;
     },
     async createExperiment(newExperiment) {
-        const response = await axios.post(apiURL + '/experiment', newExperiment);
-        return response.data;
+        const response = await axios.post(`${apiURL}/experiments`, newExperiment);
+        if (response.status === 201) return response.data;
     },
-    async loadByProjectId(id) {
-        let result = null;
-        await axios.get(apiURL + '/project/' + id + '/experiments')
-            .then(response => {
-                if (response.status === 200)
-                    result = response.data;
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
-        return result;
-    },
-    async loadExperimentSummariesByProjectId(id) {
-        const response = await axios.get(apiURL + '/project/' + id + '/experimentsummaries');
-        return response.data;
-    },
-    async loadById(id) {
-        let result = null;
-        await axios.get(apiURL + '/experiment/' + id)
-            .then(response => {
-                if (response.status === 200)
-                    result = response.data;
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
-        return result;
-    },
-    async editExperiment(newExperiment) {
-        let result = null;
-        await axios.put(apiURL + '/experiment', newExperiment)
-            .then(response => {
-                if (response.status === 200)
-                    result = response.data;
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
-        return result;
-    },
-    async loadRecentExperiments() {
-        let result = null;
-        await axios.get(apiURL + '/experiment')
-            .then(response => {
-                if (response.status === 200)
-                    result = response.data;
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
-        return result;
+    async editExperiment(experiment) {
+        const response = await axios.put(`${apiURL}/experiments/${experiment.id}`, experiment);
+        if (response.status === 200) return response.data;
     },
     async deleteExperiment(id) {
-        await axios.delete(apiURL + '/experiment/' + id)
-            .then(() => {})
-            .catch(function (error) {
-                console.log(error);
-            });
+        const response = await axios.delete(`${apiURL}/experiments/${id}`);
+        if (response.status === 200) return response.data;
     },
 
-}
-
-function wait(ms) {
-    return new Promise(resolve => {
-        setTimeout(resolve, ms)
-    })
+    async getExperimentsByProjectId(id) {
+        const response = await axios.get(`${apiURL}/projects/${id}/experiments`);
+        if (response.status === 200) return response.data;
+    },
+    async getExperimentSummariesByProjectId(id) {
+        const response = await axios.get(`${apiURL}/projects/${id}/experimentsummaries`);
+        return response.data;
+    },
 }

@@ -52,7 +52,7 @@ const actions = {
         if (properties) ctx.commit('cacheProperties', { objectId: args.objectId, objectClass: args.objectClass, properties: properties });
     },
     async loadMetadata(ctx, objectDescriptor) {
-        if (!objectDescriptor.objectId || objectDescriptor.objectId.length == 0) return;
+        if (!objectDescriptor.objectId || objectDescriptor.objectId.length === 0) return;
         const metadata = await metadataAPI.getMetadata(objectDescriptor.objectId, objectDescriptor.objectClass);
         ctx.commit('cacheMetadata', metadata);
     },
@@ -71,7 +71,7 @@ const mutations = {
             addTag(state.tags[key], tagDescriptor);
         }
     },
-    uncacheTag(state, tagDescriptor) { 
+    uncacheTag(state, tagDescriptor) {
         const key = getKey(tagDescriptor);
         if (state.tags[key]) removeTag(state.tags[key], tagDescriptor);
     },
@@ -120,23 +120,23 @@ function getKey(object) {
 
 function addTag(array, element) {
     const index = array.findIndex(el => el.tag === element.tag);
-    if (index == -1) array.push(element);
+    if (index === -1) array.push(element);
 }
 
 function removeTag(array, element) {
     const index = array.findIndex(el => el.tag === element.tag);
-    if (index != -1) array.splice(index, 1);
+    if (index !== -1) array.splice(index, 1);
 }
 
 function addProperty(array, element) {
     const index = array.findIndex(el => el.propertyName === element.propertyName);
-    if (index == -1) array.push(element);
+    if (index === -1) array.push(element);
     else array[index].propertyValue = element.propertyValue;
 }
 
 function removeProperty(array, element) {
     const index = array.findIndex(el => el.propertyName === element.propertyName);
-    if (index != -1) array.splice(index, 1);
+    if (index !== -1) array.splice(index, 1);
 }
 
 export default {

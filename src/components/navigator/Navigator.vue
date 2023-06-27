@@ -66,121 +66,26 @@
 }
 </style>
 
-<script>
+<script setup>
 import {ref, computed} from 'vue'
+import navigatorDef from '@/assets/navigator.json'
 
-export default {
-  methods: {
-    toggleDrawer() {
-      this.drawerOpen = !this.drawerOpen;
-      this.drawerIcon = this.drawerIcons[this.drawerOpen];
-      this.$emit("onDrawerToggled");
-    }
-  },
-  setup() {
-
-    const navTree = computed(() => {
-
-      return [
-        {
-          label: "Dashboard",
-          header: "link",
-          route: 'dashboard',
-          icon: 'home'
-        },
-        {
-          label: "Projects",
-          header: "category",
-          children: [
-            {
-              label: "New Project...",
-              icon: "add",
-              route: "newProject",
-            }, {
-              label: "Browse Projects",
-              icon: 'folder_open',
-              route: 'browseProjects',
-            }
-          ]
-        },
-        {
-          label: "Calculation",
-          header: "category",
-          icon: 'calculate',
-          children: [
-            {
-              label: "New Protocol...",
-              icon: "add",
-              route: "newProtocol",
-            }, {
-              label: "Browse Protocols",
-              icon: 'ballot',
-              route: 'browseProtocols',
-            },
-            {
-              label: "Browse Formulas",
-              icon: 'functions',
-              route: 'calcFormulas',
-            }
-          ]
-        },
-        {
-          label: "Plate Layouts",
-          header: "category",
-          icon: "border_all",
-          children: [
-            {
-              label: "New Template...",
-              icon: "add",
-              route: "newPlateTemplate",
-            },
-            {
-              label: "New Template From File...",
-              icon: "import_export",
-              route: "newPlateTemplateFromFile",
-            }, {
-              label: "Browse Templates",
-              icon: 'border_outer',
-              route: 'browseTemplates',
-            }
-          ]
-        },
-        {
-          label: "Data Capture",
-          header: "category",
-          icon: 'scanner',
-          children: [
-            {
-              label: "Capture Jobs",
-              icon: 'list_alt',
-              route: 'dataCaptureJobs',
-            },
-            {
-              label: "Measurements",
-              icon: 'text_snippet',
-              route: 'measurements'
-            },
-            {
-              label: "Render Settings",
-              icon: 'palette',
-              route: 'imageRenderConfigs'
-            }
-          ]
-        },
-      ]
-    })
-
-    return {
-      drawerIcons: {
-        true: "chevron_left",
-        false: "chevron_right"
-      },
-      selected: ref(null),
-      drawerVisible: ref(true),
-      drawerOpen: ref(true),
-      drawerIcon: ref("chevron_left"),
-      navTree
-    }
-  }
+const drawerIcons = {
+  true: "chevron_left",
+  false: "chevron_right"
 }
+const selected = ref(null)
+const drawerVisible = ref(true)
+const drawerOpen = ref(true)
+const drawerIcon = ref("chevron_left")
+
+const toggleDrawer = () => {
+  drawerOpen.value = !drawerOpen.value;
+  drawerIcon.value = drawerIcons[drawerOpen];
+  emit("onDrawerToggled");
+}
+
+const navTree = computed(() => {
+  return navigatorDef
+})
 </script>

@@ -15,7 +15,7 @@ import { createWebHistory, createRouter } from "vue-router"
 
 import { publicPath } from '../vue.config'
 
-import Dashboard from '@/pages/Dashboard.vue'
+import Dashboard from '@/pages/dashboard/Dashboard.vue'
 
 import BrowseProjects from "./pages/project/BrowseProjects";
 import ProjectView from '@/pages/project/ProjectView.vue'
@@ -31,11 +31,11 @@ import FormulaTab  from "@/pages/feature/FormulaTab.vue";
 import FormulasView from "@/pages/calculation/formula/BrowseFormulas";
 import FormulaView from "@/pages/calculation/formula/FormulaView";
 
-import CaptureJobsView from '@/pages/datacapture/CaptureJobsView.vue'
-import MeasurementsView from "@/pages/datacapture/MeasurementsView";
-import MeasurementDetailsView from "@/pages/datacapture/MeasurementDetailsView";
-import BrowseImageRenderConfigs from "@/pages/datacapture/BrowseImageRenderConfigs";
-import ImageRenderConfigDetails from "@/pages/datacapture/ImageRenderConfigDetails";
+import CaptureJobsView from '@/pages/datacapture/CaptureJobsView'
+import MeasurementsView from "@/pages/datacapture/MeasurementsView"
+import MeasurementDetailsView from "@/pages/datacapture/MeasurementDetailsView"
+import BrowseImageRenderConfigs from "@/pages/datacapture/BrowseImageRenderConfigs"
+import ImageRenderConfigDetails from "@/pages/datacapture/ImageRenderConfigDetails"
 
 import ExperimentView from '@/pages/experiment/ExperimentView.vue'
 import PlateList from "@/pages/experiment/PlateList.vue"
@@ -52,6 +52,12 @@ import PlateTemplateView from "@/pages/platelayout/PlateTemplateView";
 import NewPlateTemplateView from "@/pages/platelayout/NewPlateTemplateView";
 import ImportPlateTemplateFromFile from "@/pages/platelayout/ImportPlateTemplateFromFile"
 import BrowseTemplates from "@/pages/platelayout/BrowseTemplates";
+
+import BrowsePipelines from "@/pages/pipeline/BrowsePipelines";
+import PipelineDetails from "@/pages/pipeline/PipelineDetails";
+import NewPipeline from "@/pages/pipeline/NewPipeline";
+import BrowsePipelineExecutions from "@/pages/pipeline/BrowsePipelineExecutions";
+import PipelineExecutionDetails from "@/pages/pipeline/PipelineExecutionDetails";
 
 const routes = [
     { name: "dashboard", path: "/", component: Dashboard },
@@ -83,10 +89,10 @@ const routes = [
         ]
     },
 
-    { name: "browseTemplates", path: "/templates", component: BrowseTemplates},
-    { name: "template", path: "/template/:id", component: PlateTemplateView},
-    { name: "newPlateTemplate", path: "/template/new", component: NewPlateTemplateView},
-    { name: "newPlateTemplateFromFile", path: "/template/new", component: ImportPlateTemplateFromFile},
+    { name: "browseTemplates", path: "/templates", component: BrowseTemplates },
+    { name: "template", path: "/template/:id", component: PlateTemplateView },
+    { name: "newPlateTemplate", path: "/template/new", component: NewPlateTemplateView, props: true },
+    { name: "newPlateTemplateFromFile", path: "/template/new", component: ImportPlateTemplateFromFile },
 
 
     { name: "calcFormulas", path: "/calc/formulas", component: BrowseFormulas },
@@ -97,6 +103,12 @@ const routes = [
     { name: "measurementDetails", path: "/datacapture/meas/:id", component: MeasurementDetailsView},
     { name: "imageRenderConfigs", path: "/datacapture/render-configs", component: BrowseImageRenderConfigs},
     { name: "imageRenderConfigDetails", path: "/datacapture/render-config/:id", component: ImageRenderConfigDetails},
+
+    { name: "browsePipelines", path: "/pipelines", component: BrowsePipelines},
+    { name: "pipelineDetails", path: "/pipeline/:id", component: PipelineDetails },
+    { name: "newPipeline", path: "/pipeline/new", component: NewPipeline },
+    { name: "browsePipelineExecutions", path: "/pipeline-executions", component: BrowsePipelineExecutions},
+    { name: "pipelineExecutionDetails", path: "/pipeline-execution/:id", component: PipelineExecutionDetails },
 ]
 const router = createRouter({
     history: createWebHistory(publicPath),
@@ -159,6 +171,9 @@ app.mixin({
         pageStyleFnForBreadcrumbs(offset) {
             return { minHeight: offset ? `calc(100vh - ${offset}px - 50px)` : '100vh' }
         }
+    },
+    computed: {
+        console: () => console
     }
 })
 

@@ -32,7 +32,7 @@
 
             const store = useStore();
             const router = useRouter();
-            
+
             exported.showDialog = ref(false);
             exported.formulaToDelete = ref(null);
 
@@ -42,7 +42,7 @@
             }
             exported.confirmDelete = async () => {
                 await store.dispatch('calculations/deleteFormula', exported.formulaToDelete.value.id);
-                router.push("/calc/formulae");
+                await router.push("/calc/formulae");
             }
 
             return exported;

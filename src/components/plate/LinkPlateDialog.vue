@@ -102,7 +102,7 @@
     set: (v) => emit('update:show', v)
   });
   watch(() => props.show, (newValue) => {
-    if (newValue === true && allTemplates.value.length == 0) store.dispatch('templates/loadAll');
+    if (newValue === true && allTemplates.value.length === 0) store.dispatch('templates/loadAll');
   });
 
   const selectedPlates = ref(plates.value.filter(p => p.id === props.plateId));

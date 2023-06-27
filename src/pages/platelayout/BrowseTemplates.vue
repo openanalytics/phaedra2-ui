@@ -6,8 +6,7 @@
 
     <q-page class="oa-root-div">
         <div class="q-pa-md">
-            <oa-section-header title="Plate Layout Templates" :icon="'border_outer'"/>
-            <div class="row q-pa-md oa-section-body">
+            <oa-section title="Plate Layout Templates" icon="border_outer">
                 <q-table
                     table-header-class="text-grey"
                     flat dense
@@ -44,7 +43,7 @@
                         </q-td>
                     </template>
                 </q-table>
-            </div>
+            </oa-section>
         </div>
     </q-page>
 </template>
@@ -58,7 +57,7 @@
 
     import TagList from "@/components/tag/TagList";
     import UserChip from "@/components/widgets/UserChip";
-    import OaSectionHeader from "@/components/widgets/OaSectionHeader";
+    import OaSection from "@/components/widgets/OaSection";
 
     const store = useStore();
     const router = useRouter();
@@ -74,6 +73,7 @@
         {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
         {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
         {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
+        {name: 'dimensions', align: 'left', label: 'Dimensions', sortable: true, field: t => `${t.rows} x ${t.columns}` },
         {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
         {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
         {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},

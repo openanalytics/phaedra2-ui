@@ -64,7 +64,7 @@ export default {
     },
     async getFeatureStatsByFeatureId(id) {
         let result = null;
-        await axios.get(apiURL + '/features/' + id + '/featurestat')
+        await axios.get(apiURL + '/features/' + id + '/featurestats')
             .then(response => {
                 if (response.status === 200)
                     result = response.data;
@@ -76,7 +76,7 @@ export default {
     },
     async deleteFeatureStat(featureId, featureStatId) {
         let result = null;
-        await axios.delete(apiURL + '/features/' + featureId + '/featurestat/'+featureStatId)
+        await axios.delete(apiURL + '/features/' + featureId + '/featurestats/'+featureStatId)
             .then(response => {
                 if (response.status === 200)
                     result = response.data;
@@ -88,7 +88,7 @@ export default {
     },
     async getCalculationInputValue(featureId) {
         let result = null;
-        await axios.get(apiURL + '/features/' + featureId + '/calculationinputvalue')
+        await axios.get(apiURL + '/features/' + featureId + '/calculationinputvalues')
             .then(response => {
                 if (response.status === 200)
                     result = response.data;
@@ -100,7 +100,7 @@ export default {
     },
     async createCalculationInputValue(featureId, civ) {
         let result = null;
-        await axios.post(apiURL + '/features/' + featureId + '/calculationinputvalue', civ)
+        await axios.post(apiURL + '/features/' + featureId + '/calculationinputvalues', civ)
             .then(response => {
                 if (response.status === 201)
                     result = response.data;
@@ -112,7 +112,7 @@ export default {
     },
     async updateCalculationInputValue(featureId, civ) {
         let result = null;
-        await axios.put(apiURL + '/features/' + featureId + '/calculationinputvalue', civ)
+        await axios.put(apiURL + '/features/' + featureId + '/calculationinputvalues', civ)
             .then(response => {
                 if (response.status === 200)
                     result = response.data;
@@ -124,7 +124,7 @@ export default {
     },
     async deleteCalculationInputValue(id) {
         let result = null;
-        await axios.delete(apiURL + '/features/calculationinputvalue/'+id)
+        await axios.delete(apiURL + '/features/calculationinputvalues/'+id)
             .then(response => {
                 if (response.status === 200)
                     result = response.data;

@@ -4,7 +4,7 @@ function createGradients(start, end, steps) {
     let blue = (start.blue - end.blue) / steps
 
     let colors = []
-    for (var i=0; i <= steps; i++) {
+    for (let i=0; i <= steps; i++) {
         let newRed = Math.floor(start.red - (red * i))
         let newGreen = Math.floor(start.green - (green * i))
         let newBlue = Math.floor(start.blue - (blue * i))
@@ -19,9 +19,9 @@ function createMultiGradients(colorSteps, steps) {
     let colorsPerBlock = steps / colorBlocks;
 
     let colors = []
-    for (var i=0; i<colorBlocks; i++) {
+    for (let i=0; i<colorBlocks; i++) {
         let subset = createGradients(colorSteps[i], colorSteps[i+1], colorsPerBlock - 1)
-        for (var j=0; j<subset.length; j++) {
+        for (let j=0; j<subset.length; j++) {
             colors.push(subset[j])
         }
     }
@@ -56,8 +56,7 @@ function findGradientIndex(value, values, gradients) {
     let valueRange = max - min
 
     let scale = ((gradients.length - 1) / valueRange)
-    let index = Math.floor((value-min) * scale)
-    return index;
+    return Math.floor((value - min) * scale);
 }
 
 function calculateTextColor(backgroundColor) {
@@ -79,7 +78,7 @@ function asRGBColor(color) {
         return color
     }
     else if (typeof color === "string") {
-        if (color.charAt(0) == "#") {
+        if (color.charAt(0) === "#") {
             return {
                 red: parseInt(color.substring(1, 3), 16),
                 green: parseInt(color.substring(3, 5), 16),
@@ -133,12 +132,25 @@ function getCaptureJobEventTypeColor(eventType) {
     }
 }
 
-function generateRGBColor() {
-    const r = Math.floor(Math.random() * 256);
-    const g = Math.floor(Math.random() * 256);
-    const b = Math.floor(Math.random() * 256);
-    const rgbColor = "rgb(" + r + "," + g + "," + b + ")";
-    return rgbColor;
+function generateRGBColor(index) {
+    const r = index ? index % 256 : Math.floor(Math.random() * 256);
+    const g = index ? index % 256 : Math.floor(Math.random() * 256);
+    const b = index ? index % 256 : Math.floor(Math.random() * 256);
+    return "rgb(" + r + "," + g + "," + b + ")";
+}
+
+function getColorList(size) {
+    const colorList = [];
+
+    for (let i = 0; i < size; i++) {
+        const red = (i * 17) % 256;
+        const green = (i * 31) % 256;
+        const blue = (i * 53) % 256;
+
+        colorList.push(`rgb(${red}, ${green}, ${blue})`);
+    }
+
+    return colorList;
 }
 
 export default {
@@ -153,5 +165,6 @@ export default {
     defaultHeatmapGradients,
     getCaptureJobStatusColor,
     getCaptureJobEventTypeColor,
-    generateRGBColor
+    generateRGBColor,
+    getColorList
 }

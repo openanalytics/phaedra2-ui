@@ -1,11 +1,13 @@
 import measAPI from '@/api/measurements.js'
 import plateAPI from '@/api/plates.js'
+import index from "vuex";
 
 const state = () => ({
     measurements: [],
     plateMeasurements: {},
     renderConfigs: [],
     wellData: {},
+    subWellData: {},
     measImages: {}
 })
 
@@ -23,10 +25,13 @@ const getters = {
         return state.measurements?.find(meas => meas.id === id) != null
     },
     getPlateMeasurements: (state) => (plateId) => {
-      return state.plateMeasurements[plateId];
+        return state.plateMeasurements[plateId];
     },
     getActivePlateMeasurement: (state) => (plateId) => {
-         return state.plateMeasurements[plateId]?.filter(pm => pm.active === true)[0];
+        return state.plateMeasurements[plateId]?.find(pm => pm.active === true);
+    },
+    getActivePlateMeasurements: (state) => (plateIds) => {
+        return Object.values(state.plateMeasurements).flat().filter(pm => pm.active === true && plateIds.includes(pm.plateId));
     },
     getRenderConfig: (state) => (id) => {
         return state.renderConfigs.find(cfg => cfg.id === id);
@@ -37,7 +42,28 @@ const getters = {
     getWellData: (state) => (measId) => {
         return state.wellData[measId];
     },
-    getMeasImage: (state) => ({ measId, wellNr }) => {
+    getSubWellData: (state) => (measId, wellNr, subWellColumns) => {
+        let subWellData = []
+        if (state.subWellData[measId]) if (state.subWellData[measId][wellNr]) {
+            for (const swColumn of subWellColumns) {
+                if (state.subWellData[measId][wellNr][swColumn]) {
+                    subWellData.push(state.subWellData[measId][wellNr][swColumn]
+                        .map((value) => {
+                            return {[swColumn]: value}
+                        }))
+                }
+            }
+        }
+
+        const result = subWellData.reduce((result, innerArr) => {
+            innerArr.forEach((innerObj, index) => {
+                result[index] ? result[index] = {...result[index], ...innerObj} : result.push({id: index, wellNr: wellNr, ...innerObj})
+            })
+            return result
+        }, [])
+        return result
+    },
+    getMeasImage: (state) => ({measId, wellNr}) => {
         return state.measImages[measId + '#' + wellNr];
     }
 }
@@ -61,10 +87,10 @@ const actions = {
             }
         }
     },
-    async loadByPlateId(ctx, args){
-        await plateAPI.getPlateMeasurementsByPlateId(args.plateId)
+    async loadByPlateId(ctx, plateId) {
+        await plateAPI.getPlateMeasurementsByPlateId(plateId)
             .then(results => {
-                ctx.commit('cachePlateMeasurements', { plateId: args.plateId, measurements: results });
+                ctx.commit('cachePlateMeasurements', {plateId: plateId, measurements: results});
             });
     },
     async addMeasurement(ctx, plateMeasurement) {
@@ -95,7 +121,7 @@ const actions = {
     },
     async loadWellData(ctx, measId) {
         const wellData = await measAPI.getWellData(measId);
-        ctx.commit("cacheWellData", { measId: measId, wellData: wellData });
+        ctx.commit("cacheWellData", {measId: measId, wellData: wellData});
     },
     async createRenderConfig(ctx, newConfig) {
         const savedConfig = await measAPI.createRenderConfig(newConfig);
@@ -103,22 +129,26 @@ const actions = {
         return savedConfig;
     },
     async updateRenderConfig(ctx, config) {
-        const  updatedConfig = await measAPI.updateRenderConfig(config);
+        const updatedConfig = await measAPI.updateRenderConfig(config);
         ctx.commit('cacheRenderConfig', updatedConfig);
     },
     async deleteRenderConfig(ctx, id) {
         await measAPI.deleteRenderConfig(id);
         ctx.commit('uncacheRenderConfig', id);
     },
-    async loadMeasImage(ctx, { measId, wellNr, scale }) {
+    async loadMeasImage(ctx, {measId, wellNr, scale}) {
         const image = await measAPI.getMeasImage(measId, wellNr, scale);
-        ctx.commit('cacheMeasImage', { measId: measId, wellNr: wellNr, image: image });
+        ctx.commit('cacheMeasImage', {measId: measId, wellNr: wellNr, image: image});
+    },
+    async loadSubWellData(ctx, {measId, wellNr, subWellColumns: subWellColumns}) {
+        const subWellData = await measAPI.getSubWellData(measId, wellNr, subWellColumns)
+        ctx.commit("cacheSubWellData", {measId: measId, wellNr: wellNr, subWellColumns: subWellColumns, subWellData: subWellData});
     }
 }
 
 const mutations = {
     cacheMeasurement(state, meas) {
-        var measurement = state.measurements.find(m => m.id === meas.id);
+        const measurement = state.measurements.find(m => m.id === meas.id);
         if (measurement === undefined)
             state.measurements.push(meas);
     },
@@ -126,7 +156,7 @@ const mutations = {
         state.measurements = [...measurements];
     },
     cachePlateMeasurements(state, args) {
-        state.plateMeasurements[args.plateId] = args.measurements;
+        state.plateMeasurements[args.plateId] = args.measurements || [];
     },
     addMeasurement(state, plateMeasurement) {
         if (state.plateMeasurements[plateMeasurement.plateId]) {
@@ -137,7 +167,7 @@ const mutations = {
             state.plateMeasurements[plateMeasurement.plateId] = [plateMeasurement];
         }
     },
-    activateMeasurement(state, {plateId, measurementId, active }) {
+    activateMeasurement(state, {plateId, measurementId, active}) {
         for (let m in state.plateMeasurements[plateId]) {
             if (state.plateMeasurements[plateId][m].measurementId === measurementId)
                 state.plateMeasurements[plateId][m].active = active;
@@ -149,14 +179,14 @@ const mutations = {
         }
     },
     cacheRenderConfig(state, cfg) {
-        var existingConfigIndex = state.renderConfigs.findIndex(el => el.id === cfg.id);
+        const existingConfigIndex = state.renderConfigs.findIndex(el => el.id === cfg.id);
         if (existingConfigIndex >= 0) {
             state.renderConfigs.splice(existingConfigIndex, 1);
         }
         state.renderConfigs.push(cfg);
     },
     uncacheRenderConfig(state, id) {
-        var existingConfigIndex = state.renderConfigs.findIndex(el => el.id === id);
+        const existingConfigIndex = state.renderConfigs.findIndex(el => el.id === id);
         if (existingConfigIndex >= 0) {
             state.renderConfigs.splice(existingConfigIndex, 1);
         }
@@ -164,10 +194,17 @@ const mutations = {
     cacheRenderConfigs(state, cfgs) {
         state.renderConfigs = [...cfgs];
     },
-    cacheWellData(state, { measId, wellData }) {
+    cacheWellData(state, {measId, wellData}) {
         state.wellData[measId] = wellData;
     },
-    cacheMeasImage(state, { measId, wellNr, image }) {
+    cacheSubWellData(state, {measId, wellNr, subWellColumns, subWellData}) {
+        if (!state.subWellData[measId]) state.subWellData[measId] = {}
+        if (!state.subWellData[measId][wellNr]) state.subWellData[measId][wellNr] = {}
+        for (const swColumn of subWellColumns) {
+            state.subWellData[measId][wellNr][swColumn] = subWellData[swColumn]
+        }
+    },
+    cacheMeasImage(state, {measId, wellNr, image}) {
         state.measImages[measId + '#' + wellNr] = image;
     }
 }

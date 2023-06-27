@@ -1,4 +1,4 @@
-import { defineStore } from "pinia"
+import {defineStore} from "pinia"
 import calculationsAPI from "@/api/calculations"
 
 export const useFormulasStore = defineStore("formulas",  {
@@ -19,8 +19,7 @@ export const useFormulasStore = defineStore("formulas",  {
             this.formulas = await calculationsAPI.getAllFormulas();
         },
         async loadFormulaInputs(formulaId) {
-            const formulaInputs = await calculationsAPI.getFormulaInputs(formulaId)
-            this.formulaInputs[formulaId] = formulaInputs
+            this.formulaInputs[formulaId] = await calculationsAPI.getFormulaInputs(formulaId)
         }
     }
 

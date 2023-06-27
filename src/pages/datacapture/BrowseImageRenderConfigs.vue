@@ -1,59 +1,61 @@
 <template>
+    <q-breadcrumbs class="oa-breadcrumb">
+        <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
+        <q-breadcrumbs-el label="Image Render Configurations" icon="list"/>
+    </q-breadcrumbs>
+    
     <q-page class="oa-root-div">
-        <div class="q-pa-md">
-            <oa-section-header title="Image Render Configurations" icon="palette"/>
-            <div class="row q-pa-md oa-section-body">
-                <q-table
-                    class="full-width"
-                    table-header-class="text-grey"
-                    flat dense
-                    :rows="configs"
-                    :columns="columns"
-                    row-key="id"
-                    :loading="loading"
-                    :pagination="{ rowsPerPage: 20, sortBy: 'name' }"
-                    :filter="filter"
-                    :filter-method="filterMethod"
-                >
-                    <template v-slot:top-left>
-                        <div class="action-button">
-                            <q-btn size="sm" color="primary" icon="add" label="New..." @click="showNewConfigDialog = true"/>
+        <oa-section title="Image Render Configurations" icon="palette" class="q-pa-md">
+            <q-table
+                class="full-width"
+                table-header-class="text-grey"
+                flat dense
+                :rows="configs"
+                :columns="columns"
+                row-key="id"
+                :loading="loading"
+                :pagination="{ rowsPerPage: 20, sortBy: 'name' }"
+                :filter="filter"
+                :filter-method="filterMethod"
+            >
+                <template v-slot:top-left>
+                    <div class="action-button">
+                        <q-btn size="sm" color="primary" icon="add" label="New..." @click="showNewConfigDialog = true"/>
+                    </div>
+                </template>
+                <template v-slot:top-right>
+                    <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
+                        <template v-slot:append>
+                        <q-icon name="search"/>
+                        </template>
+                    </q-input>
+                </template>
+                <template v-slot:body-cell-name="props">
+                    <q-td :props="props">
+                        <router-link :to="`/datacapture/render-config/${props.row.id}`" class="nav-link">
+                            {{ props.row.name }}
+                        </router-link>
+                    </q-td>
+                </template>
+                <template v-slot:body-cell-channels="props">
+                    <q-td :props="props">
+                        <div class="row">
+                            <ColorButton class="q-mx-xs" v-for="ch in props.value" :key="ch" :rgb="ch.rgb" :tooltip="ch.name" :editable="false" />
                         </div>
-                    </template>
-                    <template v-slot:top-right>
-                        <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
-                            <template v-slot:append>
-                            <q-icon name="search"/>
-                            </template>
-                        </q-input>
-                    </template>
-                    <template v-slot:body-cell-name="props">
-                        <q-td :props="props">
-                            <router-link :to="`/datacapture/render-config/${props.row.id}`" class="nav-link">
-                                {{ props.row.name }}
-                            </router-link>
-                        </q-td>
-                    </template>
-                    <template v-slot:body-cell-channels="props">
-                        <q-td :props="props">
-                            <div class="row">
-                                <ColorButton class="q-mx-xs" v-for="ch in props.value" :key="ch" :rgb="ch.rgb" :tooltip="ch.name" :editable="false" />
-                            </div>
-                        </q-td>
-                    </template>
-                    <template v-slot:body-cell-createdBy="props">
-                        <q-td :props="props">
-                            <UserChip :id="props.row.createdBy" />
-                        </q-td>
-                    </template>
-                    <template v-slot:body-cell-menu="props">
-                        <q-td :props="props">
-                            <q-btn flat round icon="delete" size="sm" @click="deleteConfig(props.row.id)" />
-                        </q-td>
-                    </template>
-                </q-table>
-            </div>
-        </div>
+                    </q-td>
+                </template>
+                <template v-slot:body-cell-createdBy="props">
+                    <q-td :props="props">
+                        <UserChip :id="props.row.createdBy" />
+                    </q-td>
+                </template>
+                <template v-slot:body-cell-menu="props">
+                    <q-td :props="props">
+                        <q-btn flat round icon="delete" size="sm" @click="deleteConfig(props.row.id)" />
+                    </q-td>
+                </template>
+            </q-table>
+        </oa-section>
     </q-page>
 
     <CreateRenderConfigDialog v-model="showNewConfigDialog"/>
@@ -65,7 +67,7 @@
     import {useStore} from 'vuex'
     import FilterUtils from "@/lib/FilterUtils.js"
     import FormatUtils from "@/lib/FormatUtils.js"
-    import OaSectionHeader from "@/components/widgets/OaSectionHeader";
+    import OaSection from "@/components/widgets/OaSection";
     import UserChip from "@/components/widgets/UserChip";
     import ColorButton from "@/components/image/ColorButton";
     import CreateRenderConfigDialog from "@/components/image/CreateRenderConfigDialog";

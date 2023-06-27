@@ -177,7 +177,7 @@ const calculatePlate = () => {
 }
 
 const fitCurves = () => {
-
+  store.dispatch()
 }
 
 const linkPlate = () => {

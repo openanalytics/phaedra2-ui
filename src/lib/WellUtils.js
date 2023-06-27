@@ -1,4 +1,4 @@
-function getWellTypeColor(wellType) {
+const getWellTypeColor = (wellType) => {
     switch (wellType) {
       case "SAMPLE": return "#5050C8";
       case "NC": return "#C80000";
@@ -9,11 +9,11 @@ function getWellTypeColor(wellType) {
     }
 }
 
-function getWellCoordinate(row, column) {
+const getWellCoordinate = (row, column) => {
     return getWellRowLabel(row) + column;
 }
 
-function getWellRowLabel(row) {
+const getWellRowLabel = (row) => {
     let rowLabel = String.fromCharCode(64 + row);
     if (row > 26) {
         // After row Z, start with AA
@@ -24,20 +24,58 @@ function getWellRowLabel(row) {
     return rowLabel;
 }
 
-function getWellNr(row, column, colCount) {
+const getWellNr = (row, column, colCount) => {
     return ((row-1) * colCount) + column;
 }
 
-function getWellPosition(wellNr, columnCount) {
+const getWellPosition = (wellNr, columnCount) => {
     wellNr--;
     let rowNr = 1 + Math.floor(wellNr / columnCount);
     let colNr = 1 + wellNr % columnCount;
     return [ rowNr, colNr ];
 }
 
-function getWell(wells, row, column) {
-    return wells.find(w => w.row == row && w.column == column)
+const getWell = (wells, row, column) => {
+    return wells.find(w => w.row === row && w.column === column)
 }
+
+const getWellPositions = (rows, columns) => {
+    const positions = [];
+
+    for (let i = 1; i <= rows; i++) {
+        for (let j = 1; j <= columns; j++) {
+            positions.push(getWellCoordinate(i, j));
+        }
+    }
+    return positions;
+}
+
+const getWellNrByWellPos = (wellPos, columnCount) => {
+    const regex = /^([A-Z]+)(\d+)$/;
+
+    const matches = wellPos?.match(regex);
+    if (matches) {
+        const rowPart = matches[1];
+        let rowNr = 0;
+
+        if (rowPart.length === 1) {
+            // Single letter row label (A-Z)
+            rowNr = rowPart.charCodeAt(0) - 64;
+        } else if (rowPart.length === 2) {
+            // Double letter row label (AA-ZZ)
+            let div = rowPart.charCodeAt(0) - 64;
+            let mod = rowPart.charCodeAt(1) - 64;
+            rowNr = (div * 26) + mod;
+        }
+
+        const columnNr = parseInt(matches[2], 10);
+
+        return  ((rowNr-1) * columnCount) + columnNr;
+    } else {
+        return -1;
+    }
+}
+
 
 export default {
     getWellTypeColor,
@@ -45,5 +83,7 @@ export default {
     getWellRowLabel,
     getWellNr,
     getWellPosition,
-    getWell
+    getWell,
+    getWellPositions,
+    getWellNrByWellPos
 }

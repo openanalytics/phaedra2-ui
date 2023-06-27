@@ -9,8 +9,8 @@
         <div class="col-4">Selected: {{ wells.length }}</div>
       </div>
     </div>
-    <div class="oa-section-body" v-if="wells.length == 0">
-      <div v-if="wells.length == 0" class="text-info q-pa-sm">
+    <div class="oa-section-body" v-if="wells.length === 0">
+      <div v-if="wells.length === 0" class="text-info q-pa-sm">
         No well selected
       </div>
     </div>

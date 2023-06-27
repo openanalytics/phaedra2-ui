@@ -1,58 +1,33 @@
 <template>
-  <div class="curve-view" id="chart" ref="el"/>
+  <div id="chart" ref="curve"/>
 </template>
 
 <script setup>
-
 import Plotly from "plotly.js-dist-min";
-import {computed, onMounted, ref, watch} from "vue";
-import {useCurveDataStore} from "@/stores/curvedata";
+import {computed, ref, watch} from "vue";
 import {useStore} from "vuex";
 
-const minCharViewWidth = ref('600px');
-const minCharViewHeight = ref('600px');
-
-const props = defineProps(['plate'])
-
 const store = useStore()
-const curvedataStore = useCurveDataStore()
+const props = defineProps(['plate', 'width', 'height'])
 
-const selectedWells = computed( () => {
-    return store.getters['ui/getSelectedWells']();
-})
+const selectedWells = computed(() => store.getters['ui/getSelectedWells']())
+const selectedWellSubstances = computed(() => store.getters['ui/getSelectedSubstances']())
+const selectedCurves = computed(() => store.getters['curvedata/getCurvesByPlateIdAndSubstances'](props.plate.id, selectedWellSubstances))
 
-const selectedWellSubstances = computed( () => {
-  return store.getters['ui/getSelectedSubstances']();
-})
-
-const selectedPlates =computed( () => {
-  return store.getters['ui/getSelectedPlates']();
-})
-
-const plateIds = [...new Set(selectedPlates.value)]
-
-const el = ref()
-
-onMounted(() => {
-  updateDRCPlotView()
-})
-
-const layout = {
-  showlegend: false,
-  autosize: true,
-  width: 500,
-  height: 500,
-  margin: { l: 20, r: 20, b: 20, t: 20, pad: 4 }
-};
-
-const config = {
-  responsive: true
-}
+const curve = ref(null)
 
 const updateDRCPlotView = () => {
-  const dcCurves = curvedataStore.getCurvesByPlateIdAndSubstances(plateIds, selectedWellSubstances.value)
-  if (dcCurves) {
-    const curveData = dcCurves.map(c => {
+  const dcCurves = computed(() => store.getters['curvedata/getCurvesByPlateIdAndSubstances'](props.plate.id, selectedWellSubstances.value))
+  if (dcCurves.value) {
+    const layout = {
+      margin: {t: 0, b: 0},
+      showlegend: false,
+      width: curve.value.parentElement.offsetWidth > 0 ? curve.value.parentElement.offsetWidth : props.width,
+      height: curve.value.parentElement.offsetHeight > 0 ? curve.value.parentElement.offsetHeight : props.height
+    }
+    const config = {autosize: false, displaylogo: false}
+
+    const curveData = dcCurves.value.map(c => {
       const curve = {
         x: c.plotDoseData.map(d => (d / 2.303)),
         y: c.plotPredictionData,
@@ -90,23 +65,25 @@ const updateDRCPlotView = () => {
     const line = curveData.map(cData => cData.curve)
     const scatter = curveData.map(cData => cData.datapoints)
     const data = line.concat(scatter)
-    Plotly.newPlot(el.value, data, layout, config);
+    console.log("Execute updateDRCPlotView!")
+    Plotly.newPlot(curve?.value, data, layout, config);
   }
 }
 
-const clear = () => {
-  selectedSubstances.value = null;
-  Plotly.newPlot(el.value, dcCurves.map(drc => drc.curve), layout);
+const resizeDRCPlotView = () => {
+  const update = {
+    width: curve.value.parentElement.offsetWidth,
+    height: curve.value.parentElement.offsetHeight
+  }
+  Plotly.relayout(curve?.value, update)
 }
 
-watch(selectedWells, updateDRCPlotView);
-watch(selectedWellSubstances, updateDRCPlotView);
+watch(selectedWells, updateDRCPlotView)
+watch(selectedWellSubstances, updateDRCPlotView)
+watch(() => props.width, resizeDRCPlotView)
+watch(() => props.height, resizeDRCPlotView)
 
 </script>
 
 <style scoped>
-.curve-view {
-  min-width: v-bind(minCharViewWidth);
-  min-height: v-bind(minCharViewHeight);
-}
 </style>

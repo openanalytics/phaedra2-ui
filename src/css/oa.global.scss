@@ -19,20 +19,17 @@
 .oa-section-body {
   width: 100%;
   background-color: white;
-  //box-shadow: 0 1px 5px rgb(0 0 0 / 20%), 0 2px 2px rgb(0 0 0 / 14%), 0 3px 1px -2px rgb(0 0 0 / 12%);
 }
 
 .oa-section-title {
   background-color: $primary;
   color: $secondary;
-  //width: fit-content;
   height: fit-content;
-  //box-shadow: 0 1px 5px rgb(0 0 0 / 20%), 0 2px 2px rgb(0 0 0 / 14%), 0 3px 1px -2px rgb(0 0 0 / 12%);
 }
 
 .oa-section-title2 {
   background-color: $secondary;
-  border-radius: 0px;
+  border-radius: 0;
   color: $dark;
   width: 100%;
   height: fit-content;
@@ -51,22 +48,38 @@
 .oa-button {
   background-color: $primary;
   color: $secondary;
-  min-width: 125px;
-  border-radius: 0px;
+  min-width: 120px;
+  border-radius: 0;
+}
+
+.oa-button-auto {
+  background-color: $primary;
+  color: $secondary;
+  width: auto;
+  border-radius: 0;
 }
 
 .oa-button-edit, .oa-button-delete, .oa-button-tag {
   @extend .oa-button;
 }
 
+.oa-action-button {
+  @extend .oa-button;
+  margin: 3px;
+}
+
+.oa-data-table {
+  max-height: 400px;
+  border-radius: 0;
+}
+
 .oa-properties-table {
-  border-radius: 0px;
+  border-radius: 0;
   max-height: 225px;
 }
 
 .oa-breadcrumb {
-  margin: 12px;
-  margin-bottom: 13px;
+  margin: 12px 12px 13px;
 }
 
 .q-textarea .q-field__control {

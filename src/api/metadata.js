@@ -5,7 +5,7 @@ const apiURL = process.env.VUE_APP_API_BASE_URL + '/metadata-service';
 export default {
     async addTag(taggedObject) {
         try {
-            const response = await axios.post(apiURL + '/tag', taggedObject);
+            const response = await axios.post(`${apiURL}/tags`, taggedObject);
             return (response.status === 201);
         } catch (err) {
             console.log(err);
@@ -14,7 +14,7 @@ export default {
     },
     async removeTag(taggedObject) {
         try {
-            const response = await axios.delete(apiURL + '/tag', { data: taggedObject} );
+            const response = await axios.delete(`${apiURL}/tags`, { data: taggedObject} );
             return (response.status === 200);
         } catch (err) {
             console.log(err);
@@ -23,7 +23,7 @@ export default {
     },
     async getObjectTags(objectId, objectClass) {
         try {
-            const response = await axios.get(apiURL + '/tags', {params: {objectId: objectId, objectClass: objectClass}});
+            const response = await axios.get(`${apiURL}/tags`, {params: {objectId: objectId, objectClass: objectClass}});
             if (response.status === 200) return response.data;
         } catch (err) {
             console.log(err);
@@ -32,7 +32,7 @@ export default {
     },
     async addProperty(property) {
         try {
-            const response = await axios.post(apiURL + '/property', property);
+            const response = await axios.post(`${apiURL}/properties`, property);
             return (response.status === 201);
         } catch (err) {
             console.log(err);
@@ -41,7 +41,7 @@ export default {
     },
     async removeProperty(property) {
         try {
-            const response = await axios.delete(apiURL + '/property', {
+            const response = await axios.delete(`${apiURL}/properties`, {
                 params: {
                     propertyName: property.propertyName,
                     objectId: property.objectId,
@@ -56,7 +56,7 @@ export default {
     },
     async getObjectProperties(objectId, objectClass) {
         try {
-            const response = await axios.get(apiURL + '/properties', {params: {objectId: objectId, objectClass: objectClass}});
+            const response = await axios.get(`${apiURL}/properties`, {params: {objectId: objectId, objectClass: objectClass}});
             if (response.status === 200) return response.data;
         } catch (err) {
             console.log(err);
@@ -66,7 +66,7 @@ export default {
     async getMetadata(objectId, objectClass) {
         try {
             const objectIdArg = Array.isArray(objectId) ? objectId.join(',') : objectId;
-            const response = await axios.get(apiURL + '/metadata', {params: {objectId: objectIdArg, objectClass: objectClass}});
+            const response = await axios.get(`${apiURL}/metadata`, {params: {objectId: objectIdArg, objectClass: objectClass}});
             if (response.status === 200) return response.data;
         } catch (err) {
             console.log(err);
