@@ -6,10 +6,12 @@ const state = () => ({
     openSideViews: [],
     sideViewConfigs: [
         { id: 'wellImage', label: 'Well Image', icon: 'image', componentPath: 'image/WellImageViewer.vue' },
+        { id: 'chart', label: 'Chart', icon: 'chart', componentPath: 'chart/ChartViewer.vue' },
         { id: 'doseResponseCurve', label: 'Dose Response Curve', icon: 'show_chart', componentPath: 'curve/DoseResponseCurve.vue' }
     ],
     // Selection Handling
     selectedWells: [],
+    chartType: null,
     selectedSubstances: new Map([]),
 })
 
@@ -34,6 +36,12 @@ const getters = {
     },
     getSelectedPlates: (state) => () => {
         return [...new Set(state.selectedSubstances.values())]
+    },
+    getSelectedWellIds: (state) => () => {
+        return state.selectedWells.map(el => el.id);
+    },
+    getChartType: (state) => () => {
+        return state.chartType;
     }
 }
 
@@ -61,6 +69,11 @@ const actions = {
             .map(well => { return { "name": well.wellSubstance.name, "plates": well.plateId }})
         ctx.commit('clearSelectedSubstance')
         ctx.commit('addSelectedSubstances', selectedSubstances)
+        ctx.commit('setSelectedWells', wells);
+    },
+    setChartType: (ctx, type) => {
+        console.log('change type to', type)
+        ctx.commit('setChartType', type);
     },
     //TODO: Add selectSubstance function
     selectSubstance: (ctx,  substance) => {
@@ -87,6 +100,9 @@ const mutations = {
     },
     removeSelectedWells: (state, wells) => {
         wells.forEach(selectedWell => (state.selectedWells = state.selectedWells.filter(well => well.id === selectedWell.id)))
+    },
+    setChartType: (state, type) => {
+        state.chartType = type;
     },
     addSelectedSubstances: (state, substances) => {
         substances.forEach(substance => {

@@ -1,7 +1,44 @@
 <template>
     <q-menu>
         <q-list dense>
-
+          <!-- Charts -->
+          <q-item dense clickable>
+            <q-item-section avatar>
+              <q-icon name="insert_chart" />
+            </q-item-section>
+            <q-item-section>Charts</q-item-section>
+            <q-item-section side>
+              <q-icon name="keyboard_arrow_right"/>
+            </q-item-section>
+            <q-menu>
+              <q-list>
+                <q-item dense clickable @click="chart('scatter2D')">
+                  <q-item-section avatar>
+                    <q-icon name="insert_chart" />
+                  </q-item-section>
+                  <q-item-section>Scatterplot 2D</q-item-section>
+                </q-item>
+                <q-item dense clickable @click="chart('boxplot')">
+                  <q-item-section avatar>
+                    <q-icon name="insert_chart" />
+                  </q-item-section>
+                  <q-item-section>Boxplot</q-item-section>
+                </q-item>
+                <q-item dense clickable @click="chart('barplot')">
+                  <q-item-section avatar>
+                    <q-icon name="insert_chart" />
+                  </q-item-section>
+                  <q-item-section>Barplot</q-item-section>
+                </q-item>
+                <q-item dense clickable @click="chart('lineplot')">
+                  <q-item-section avatar>
+                    <q-icon name="insert_chart" />
+                  </q-item-section>
+                  <q-item-section>Lineplot</q-item-section>
+                </q-item>
+              </q-list>
+            </q-menu>
+          </q-item>
             <!-- Validation Menu -->
             <q-item clickable v-if="props.plate.approvalStatus === 'APPROVAL_NOT_SET'">
                 <q-item-section avatar><q-icon color="primary" name="outlined_flag"/></q-item-section>
@@ -85,7 +122,6 @@
       <link-plate-dialog v-model:show="showLinkDialog" :plateId="props.plate.id"/>
       <delete-dialog v-model:show="showDeleteDialog" :id="props.plate.id" :name="props.plate.barcode" :objectClass="'plate'"/>
     </q-menu>
-
 </template>
 
 <script setup>
@@ -150,6 +186,18 @@ const linkPlate = () => {
 
 const deletePlate = () => {
   showDeleteDialog.value = true;
+}
+
+const chart = (type) => {
+  //Set the chart type
+  store.dispatch('ui/setChartType', type);
+  // load wells by plate id
+  // store.dispatch('wells/fetchByPlateId', props.plate.id).then(() => {
+  // const wells = store.getters['wells/getWells'](props.plate.id);
+  // console.log(wells);
+  // store.dispatch('ui/selectWells', wells)
+  store.dispatch('ui/openSideView', 'chart' )//}
+
 }
 
 const openPlateInspector = () => {

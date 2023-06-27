@@ -16,6 +16,7 @@ import metadata from './modules/metadata'
 import userinfo from './modules/userinfo'
 import ui from './modules/ui'
 import curvedata from "./modules/curvedata";
+import charting from "./modules/charting";
 
 const debug = process.env.NODE_ENV !== 'production'
 
@@ -36,7 +37,8 @@ export default createStore({
     metadata,
     userinfo,
     ui,
-    curvedata
+    curvedata,
+    charting
   },
   strict: debug,
   plugins: debug ? [createLogger()] : []
