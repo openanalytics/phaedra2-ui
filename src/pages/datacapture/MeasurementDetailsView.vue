@@ -106,7 +106,8 @@
                   <q-select :options="wellPositions" v-model="selectedWellPosition"
                             @update:model-value="loadSubWellData" label="Select well" dense/>
                   <q-select :options="subWellColumns" v-model="selectedSubWellColumns"
-                            @update:model-value="loadSubWellData" label="Select sub-well column" dense multiple>
+                            @update:model-value="loadSubWellData" label="Select sub-well column"
+                            dense multiple>
                     <template v-slot:option="{ itemProps, opt, selected, toggleOption }">
                       <q-item v-bind="itemProps">
                         <q-item-section>
@@ -246,6 +247,5 @@ const loadSubWellData = () => {
     subWellDataColumns.value.push({name: [swColumn], align: 'left', label: [swColumn], field: [swColumn], sortable: true})
   }
 }
-
 
 </script>
