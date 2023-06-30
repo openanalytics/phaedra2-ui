@@ -12,6 +12,7 @@ const state = () => ({
     // Selection Handling
     selectedWells: [],
     chartType: null,
+    chartViews: [],
     selectedSubstances: new Map([]),
 })
 
@@ -42,6 +43,9 @@ const getters = {
     },
     getChartType: (state) => () => {
         return state.chartType;
+    },
+    getChartViews: (state) => () => {
+        return state.chartViews
     }
 }
 
@@ -75,6 +79,12 @@ const actions = {
         console.log('change type to', type)
         ctx.commit('setChartType', type);
     },
+    addChartView: (ctx, type) => {
+        ctx.commit('addChartView', type)
+    },
+    removeChartView: (ctx, chartId) => {
+        ctx.commit('removeChartView', chartId)
+    },
     //TODO: Add selectSubstance function
     selectSubstance: (ctx,  substance) => {
 
@@ -103,6 +113,15 @@ const mutations = {
     },
     setChartType: (state, type) => {
         state.chartType = type;
+    },
+    addChartView: (state, type) => {
+        state.chartViews.push({id: state.chartViews.length, type: type})
+    },
+    removeChartView: (state, chartId) => {
+        const index = state.chartViews.findIndex((chartView) => chartView.id === chartId)
+        if (index > -1) {
+            state.chartViews.splice(index, 1)
+        }
     },
     addSelectedSubstances: (state, substances) => {
         substances.forEach(substance => {

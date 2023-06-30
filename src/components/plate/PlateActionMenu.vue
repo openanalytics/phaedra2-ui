@@ -190,17 +190,18 @@ const deletePlate = () => {
 
 const chart = (type) => {
   //Set the chart type
-  store.dispatch('ui/setChartType', type);
+  // store.dispatch('ui/setChartType', type);
+  store.dispatch('ui/addChartView', type)
   // load wells by plate id
   // store.dispatch('wells/fetchByPlateId', props.plate.id).then(() => {
   // const wells = store.getters['wells/getWells'](props.plate.id);
   // console.log(wells);
   // store.dispatch('ui/selectWells', wells)
-  store.dispatch('ui/openSideView', 'chart' )//}
+  // store.dispatch('ui/openSideView', 'chart' )//}
 
 }
 
-const openPlateInspector = () => {
-  store.dispatch('ui/openSideView', 'plateInspector');
-}
+// const openPlateInspector = () => {
+//   store.dispatch('ui/openSideView', 'plateInspector');
+// }
 </script>
