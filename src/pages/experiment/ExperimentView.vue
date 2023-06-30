@@ -104,6 +104,11 @@
             </oa-section>
         </div>
 
+<!--      <Splitpanes class="default-theme" style="height: 400px">-->
+<!--          <ChartViewer v-for="chartView in chartViews" :key="chartView.id" :chartTemplate="chartView"/>-->
+      <ChartViewer />
+<!--      </Splitpanes>-->
+
         <rename-dialog v-model:show="showRenameDialog" objectClass="experiment" :object="experiment" @valueChanged="onNameChanged" />
         <delete-dialog v-model:show="showDeleteDialog" :id="experiment.id" :name="experiment.name" :objectClass="'experiment'" @onDeleted="onDeleted" />
     </q-page>
@@ -125,6 +130,8 @@ import DeleteDialog from "@/components/widgets/DeleteDialog";
 import RenameDialog from "@/components/widgets/RenameDialog";
 import OaSection from "@/components/widgets/OaSection";
 import FormatUtils from "@/lib/FormatUtils.js"
+import {Pane, Splitpanes} from "splitpanes";
+import ChartViewer from "@/components/chart/ChartViewer.vue";
 
 const store = useStore();
 const route = useRoute();
@@ -177,4 +184,8 @@ const onDeleted = () => {
 const onDescriptionChanged = (newDescription) => {
     store.dispatch('experiments/editExperiment', { id: experiment.value.id, description: newDescription });
 };
+
+const resizeChartView = (event) => {
+  console.log("resize:" + JSON.stringify(event))
+}
 </script>
