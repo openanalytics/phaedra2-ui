@@ -1,10 +1,12 @@
 import resultdataAPI from '@/api/resultdata.js'
 
 const state = () => ({
-    plateResults: {},
-    latestPlateResult: {},
-    recentCalculations: [],
+    resultSets: [],
+    resultData: [],
+    resultStats: [],
+
     latestResultSetIds: [],
+
     mockWellData:
         //List of well data
         [{id: 8795, plateId: 101, row: 1, column: 1, wellType: 'LC', featureName: 0.232, featurename2: 0.324},
@@ -23,10 +25,10 @@ const state = () => ({
 
 const getters = {
     getResultSets: (state) => (plateId) => {
-        return state.resultSets.filter(rs => rs.plateId === plateId);
+        return state.resultSets?.filter(rs => rs.plateId === plateId);
     },
     getLatestResultSets: (state) => () => {
-        return state.resultSets.filter(rs => state.latestResultSetIds.find(id => rs.id === id));
+        return state.resultSets?.filter(rs => state.latestResultSetIds.find(id => rs.id === id));
     },
     getLatestResultSetsForPlateMeas: (state) => (plateId, measId) => {
         return Object.values(state.resultSets
@@ -41,13 +43,13 @@ const getters = {
         );
     },
     getResultData: (state) => (resultSetId) => {
-        return state.resultData.filter(rd => rd.resultSetId === resultSetId);
+        return state.resultData?.filter(rd => rd.resultSetId === resultSetId);
     },
     getResultStats: (state) => (resultSetId) => {
-        return state.resultStats.filter(stat => stat.resultSetId === resultSetId);
+        return state.resultStats?.filter(stat => stat.resultSetId === resultSetId);
     },
     getMockWellData: (state) => (plateId) => {
-        return state.mockWellData.filter(wd => wd.plateId === plateId);
+        return state.mockWellData?.filter(wd => wd.plateId === plateId);
     }
 }
 
