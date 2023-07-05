@@ -12,25 +12,25 @@
             </q-item-section>
             <q-menu>
               <q-list>
-                <q-item dense clickable @click="chart('scatter2D')">
+                <q-item dense clickable @click="chart('scatter')" v-close-popup>
                   <q-item-section avatar>
                     <q-icon name="insert_chart" />
                   </q-item-section>
                   <q-item-section>Scatterplot 2D</q-item-section>
                 </q-item>
-                <q-item dense clickable @click="chart('boxplot')">
+                <q-item dense clickable @click="chart('box')" v-close-popup>
                   <q-item-section avatar>
                     <q-icon name="insert_chart" />
                   </q-item-section>
                   <q-item-section>Boxplot</q-item-section>
                 </q-item>
-                <q-item dense clickable @click="chart('barplot')">
+                <q-item dense clickable @click="chart('bar')" v-close-popup>
                   <q-item-section avatar>
                     <q-icon name="insert_chart" />
                   </q-item-section>
                   <q-item-section>Barplot</q-item-section>
                 </q-item>
-                <q-item dense clickable @click="chart('lineplot')">
+                <q-item dense clickable @click="chart('line')" v-close-popup>
                   <q-item-section avatar>
                     <q-icon name="insert_chart" />
                   </q-item-section>
@@ -189,19 +189,7 @@ const deletePlate = () => {
 }
 
 const chart = (type) => {
-  //Set the chart type
-  // store.dispatch('ui/setChartType', type);
   store.dispatch('ui/addChartView', type)
-  // load wells by plate id
-  // store.dispatch('wells/fetchByPlateId', props.plate.id).then(() => {
-  // const wells = store.getters['wells/getWells'](props.plate.id);
-  // console.log(wells);
-  // store.dispatch('ui/selectWells', wells)
-  // store.dispatch('ui/openSideView', 'chart' )//}
 
 }
-
-// const openPlateInspector = () => {
-//   store.dispatch('ui/openSideView', 'plateInspector');
-// }
 </script>

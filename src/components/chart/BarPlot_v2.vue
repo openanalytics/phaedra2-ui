@@ -1,9 +1,7 @@
 <template>
   <Pane>
-    <div>
-      <q-btn label="Close" icon="close" size="sm" class="oa-action-button" @click="removeChartView" flat dense/>
-    </div>
-    <div :id="`plot_${chartId}`" ref="plotDiv"/>
+    <q-btn label="Close" icon="close" size="sm" class="oa-action-button" @click="removeChartView" flat dense/>
+    <div :id="`plot_${chartId}`" class="q-ma-sm"/>
   </Pane>
 </template>
 
@@ -15,36 +13,20 @@ import {Pane} from "splitpanes";
 
 const store = useStore()
 
-const props = defineProps(["id", 'data', 'update']);
+const props = defineProps(["id", 'data', 'layout']);
 const chartId = ref(props.id)
-const plotDiv = ref(null)
-
-const plotData = () => {
-  return {
-    x: props.data.xValues,
-    y: props.data.yValues,
-    mode: 'markers',
-    type: 'bar',
-    marker: {
-      size: 10
-    },
-  }
-}
 
 // Wait for the DOM to be ready
 onMounted(() => {
-  Plotly.newPlot("plot_" + chartId.value, [plotData()], {autosize: true});
+  Plotly.newPlot("plot_" + chartId.value, [props.data], props.layout);
 });
 
-const handleResized = () => {
-  const maxWidth = plotDiv.value.parentElement.parentElement.offsetWidth
-  const chartIndex = props.update.length > chartId.value ? chartId.value : props.update.length - 1
-  const chartWidth = maxWidth * (props.update[chartIndex].size / 100)
-  Plotly.relayout("plot_" + chartId.value, {width: chartWidth})
+const handleLayout = () => {
+  Plotly.newPlot("plot_" + chartId.value, [props.data], props.layout);
 }
-watch(() => props.update, handleResized);
+watch(() => props.layout, handleLayout);
 
 const removeChartView = () => {
-  store.dispatch('ui/removeChartView', chartId.value)
+  store.dispatch('ui/removeChartView', props.id)
 }
 </script>

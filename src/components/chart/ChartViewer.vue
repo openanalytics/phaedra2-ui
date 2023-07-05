@@ -1,13 +1,16 @@
 <template>
-<!--  <div class="viewer-panel relative-position">-->
-  <Splitpanes @resized="updateChartLayout">
-    <Chart v-for="chart in charts" :key="chart.id" :id="chart.id" :type="chart.type" :data="data" :update="update"/>
-  </Splitpanes>
-<!--    <q-select id="x" v-model="x" :options="getKeys(wells[0])" label="X-axis"/>-->
-<!--    <q-select v-model="y" :options="getKeys(wells[0])" label="Y-axis"/>-->
-<!--    <q-select v-model="grouper" :options="getKeys(wells[0])" label="Group by"/>-->
-<!--    <GroupBySelectableTable v-if="grouper!='NONE'" :grouperValues="grouperRows" @grouperSelection="updateGroupsShown"/>-->
-<!--  </div>-->
+  <div class="col" v-if="charts.length > 0">
+    <Splitpanes @resized="handleResized" ref="splitPane">
+      <Chart v-for="chart in charts" :key="chart.id" :id="chart.id" :type="chart.type" :data="data(chart)" :layout="layout(chart)" :update="update" />
+    </Splitpanes>
+    <div class="row oa-section-body">
+      <q-select class="col q-pa-sm" v-model="selectedXAxisFeature" :options="availableFeatures" label="Select x feature"/>
+      <q-select class="col q-pa-sm" v-model="selectedYAxisFeature" :options="availableFeatures" label="Select y feature"/>
+      <q-select class="col q-pa-sm" v-model="groupBy" :options="groupByOptions" label="Group By"/>
+    </div>
+    <!--    <q-select v-model="grouper" :options="getKeys(wells[0])" label="Group by"/>-->
+    <!--    <GroupBySelectableTable v-if="grouper!='NONE'" :grouperValues="grouperRows" @grouperSelection="updateGroupsShown"/>-->
+  </div>
 </template>
 
 <script setup>
@@ -21,16 +24,49 @@ const props = defineProps(['chartTemplate'])
 
 const charts = computed(() => store.getters['ui/getChartViews']())
 const update = ref(Date.now())
-// Get chart type
-// const chartType = computed(() => store.getters['ui/getChartType']())
-// const chartId = ref(props.chartTemplate.id)
-// const chartType = ref(props.chartTemplate.type)
-const data = ref({
-  xValues: [1, 2, 3, 4, 5, 6, 6, 7, 7, 8, 8, 9],
-  yValues: [0, 3, 2, 3, 2, 21, 3, 6, 4, 3, 2, 7]
-})
+const splitPane = ref()
 
-const updateChartLayout = (event) => {
+const availableFeatures = ref(["feature1", "feature2", "feature3", "feature4"])
+const groupByOptions = ref(["Well Type"])
+
+const selectedXAxisFeature = ref(availableFeatures.value[0])
+const selectedYAxisFeature = ref(availableFeatures.value[1])
+const groupBy = ref()
+
+const data = (chart) => {
+  return {
+    x: [1, 2, 3, 4, 5, 6, 6, 7, 7, 8, 8, 9],
+    y: [0, 3, 2, 3, 2, 21, 3, 6, 4, 3, 2, 7],
+    mode: chart.type === 'scatter' ? 'markers' : null,
+    type: chart.type,
+    marker: {
+      size: 10
+    },
+  }
+}
+
+const layout = (chart) => {
+  return {
+    autosize: true,
+    width: chart.size ? chart.size : null,
+    xaxis: {
+      title: {
+        text: selectedXAxisFeature.value,
+      },
+    },
+    yaxis: {
+      title: {
+        text: selectedYAxisFeature.value,
+      }
+    }
+  }
+}
+
+const handleResized = (event) => {
+  const maxWidth = splitPane.value.$el.clientWidth
+  const chartWidths = event.map(e => maxWidth * (e.size / 100))
+
+  store.dispatch('ui/updateChartViewWidth', chartWidths)
   update.value = event
 }
 

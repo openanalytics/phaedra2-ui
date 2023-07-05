@@ -85,6 +85,9 @@ const actions = {
     removeChartView: (ctx, chartId) => {
         ctx.commit('removeChartView', chartId)
     },
+    updateChartViewWidth: (ctx, updates) => {
+        ctx.commit('updateChartViewWidth', updates)
+    },
     //TODO: Add selectSubstance function
     selectSubstance: (ctx,  substance) => {
 
@@ -122,6 +125,11 @@ const mutations = {
         if (index > -1) {
             state.chartViews.splice(index, 1)
         }
+    },
+    updateChartViewWidth: (state, updates) => {
+      state.chartViews.forEach((chartView, index) => {
+          chartView['size'] = updates[index]
+      })
     },
     addSelectedSubstances: (state, substances) => {
         substances.forEach(substance => {
