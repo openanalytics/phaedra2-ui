@@ -107,14 +107,15 @@ export default {
         }
         
         exported.saveChanges = async () => {
+            let newFormula = null;
             if (formulaId === 0) {
-                const newFormula = await store.dispatch('calculations/createFormula', exported.formula.value);
-                await router.push("/calc/formula/" + newFormula.id);
+                newFormula = await store.dispatch('calculations/createFormula', exported.formula.value);
             } else {
-                await store.dispatch('calculations/updateFormula', {id: formulaId, formula: exported.formula.value});
-                fetchFormulaWorkingCopy();
+                newFormula = await store.dispatch('calculations/updateFormula', {id: formulaId, formula: exported.formula.value});
+                // fetchFormulaWorkingCopy();
             }
-            exported.editMode.value = false;
+            router.push("/calc/formula/" + newFormula.id);
+            // exported.editMode.value = false;
         }
         
         exported.cancelEditMode = () => {
