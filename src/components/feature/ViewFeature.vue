@@ -45,6 +45,12 @@
 
             <q-tab-panel name="calculation" label="calculation" class="q-pa-sm">
               <div class="col">
+                <q-field label="Sequence" stack-label dense>
+                  <template v-slot:control>
+                    <div class="self-center full-width no-outline" tabindex="0">{{feature.sequence}}</div>
+                  </template>
+                </q-field>
+
                 <q-field label="Formula" stack-label dense>
                   <template v-slot:control>
                     <div class="self-center full-width no-outline" tabindex="0">{{feature.formula?.name}}</div>
@@ -52,45 +58,35 @@
                 </q-field>
 
                 <div v-if="(feature.civs.length > 0)" class="q-pt-sm">
-                  <div>
-                    <q-field label="Formula variables:" stack-label borderless dense>
-                      <template v-slot:control>
-                        <div class="row col-8 q-pt-sm">
-                          <template :key="variable.variableName" v-for="variable in feature.civs">
-                              <div class="col-4">
-                                <q-field :label="variable.variableName" stack-label dense>
-                                  <template v-slot:control>
-                                    <div v-if="variable.sourceFeatureId" class="self-center full-width no-outline" tabindex="0">{{protocolStore.getFeatureById(variable.sourceFeatureId).name}}</div>
-                                    <div v-if="!variable.sourceFeatureId" class="self-center full-width no-outline" tabindex="0">{{variable.sourceMeasColName}}</div>
-                                  </template>
-                                </q-field>
-                              </div>
-                              <div class="col-1"/>
-                              <div class="col-4">
-                                <q-field label="Source" stack-label dense>
-                                  <template v-slot:control>
-                                    <div class="self-center full-width no-outline" tabindex="0">{{variable.inputSource}}</div>
-                                  </template>
-                                </q-field>
-                              </div>
-                          </template>
+                  <q-card square>
+                    <q-card-section class="q-pa-sm">
+                      <div class="text-grey-7 text-subtitle-2">Formula Variables</div>
+                      <q-separator/>
+                      <template :key="variable.variableName" v-for="variable in feature.civs">
+                        <div class="row">
+                          <div class="col-1 self-center">
+                            <q-chip square dense>{{ variable.variableName }}</q-chip>
+                          </div>
+                          <div class="col-4 on-right">
+                            <q-field label="Source" stack-label dense>
+                              <template v-slot:control>
+                                <div class="self-center full-width no-outline" tabindex="0">{{variable.inputSource}}</div>
+                              </template>
+                            </q-field>
+                          </div>
+                          <div class="col-4 on-right">
+                            <q-field label="Name" stack-label dense>
+                              <template v-slot:control>
+                                <div v-if="variable.sourceFeatureId" class="self-center full-width no-outline" tabindex="0">{{protocolStore.getFeatureById(variable.sourceFeatureId).name}}</div>
+                                <div v-if="!variable.sourceFeatureId" class="self-center full-width no-outline" tabindex="0">{{variable.sourceMeasColName}}</div>
+                              </template>
+                            </q-field>
+                          </div>
                         </div>
                       </template>
-                    </q-field>
-                  </div>
+                    </q-card-section>
+                  </q-card>
                 </div>
-
-                <q-field label="Sequence" stack-label dense>
-                  <template v-slot:control>
-                    <div class="self-center full-width no-outline" tabindex="0">{{feature.sequence}}</div>
-                  </template>
-                </q-field>
-
-                <!-- <q-field label="Trigger" stack-label square>
-                  <template v-slot:control>
-                    <div class="self-center full-width no-outline" tabindex="0">{{feature.trigger}}</div>
-                  </template>
-                </q-field> -->
               </div>
             </q-tab-panel>
 

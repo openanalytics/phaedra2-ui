@@ -13,6 +13,15 @@ const toMap = (array, key) => {
     return map;
 }
 
+const sortBy = (array, key) => {
+    return array.sort((a,b) => {
+        let va = a[key];
+        let vb = b[key];
+        if (typeof va === 'string') return va.localeCompare(vb);
+        return va - vb;
+    });
+}
+
 const mergeBy = (a1, a2, key) => {
     let newArray = [...a1];
     a2.forEach(o => {
@@ -44,6 +53,7 @@ const groupItems = (array, groupSize)  => {
 
 export default {
     groupBy,
+    sortBy,
     mergeBy,
     distinctBy,
     groupItems

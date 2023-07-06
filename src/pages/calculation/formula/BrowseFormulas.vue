@@ -23,6 +23,7 @@
                     <q-btn size="sm" color="primary" icon="add" label="New Formula..." @click="createNewFormula"/>
                 </template>
                 <template v-slot:top-right>
+                    <q-toggle v-model="showDeprecated" dense label="Show Deprecated" size="sm" class="on-left"/>
                     <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
                         <template v-slot:append>
                             <q-icon name="search"/>
@@ -73,7 +74,7 @@
 </template>
 
 <script setup>
-import {computed, ref} from 'vue'
+import {computed, ref, watchEffect} from 'vue'
 import {useStore} from 'vuex'
 import {useRouter} from 'vue-router'
 import FormatUtils from "@/lib/FormatUtils.js"
@@ -83,13 +84,11 @@ import OaSection from "@/components/widgets/OaSection";
 
 const loading = ref(true);
 
+const showDeprecated = ref(true);
+
 const store = useStore()
 store.dispatch('calculations/getAllFormulas').then(() => loading.value = false);
-const formulas = computed(() => {
-    const af = store.getters['calculations/getFormulas']();
-    const oldVersions = af.map(f => f.previousVersionId);
-    return af.filter(f => !oldVersions.includes(f.id));
-});
+const formulas = computed(() => store.getters['calculations/getLatestFormulas']().filter(f => showDeprecated.value || !f.deprecated));
 
 const columns = [
     {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},

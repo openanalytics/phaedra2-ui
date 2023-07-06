@@ -18,6 +18,10 @@ const getters = {
     getFormulas: (state) => () => {
         return state.formulas
     },
+    getLatestFormulas: (state) => () => {
+        const oldVersions = state.formulas.map(f => f.previousVersionId);
+        return state.formulas.filter(f => !oldVersions.includes(f.id));
+    },
     areFormulasLoaded: (state) => () => {
         return state.formulas.length>1
     },

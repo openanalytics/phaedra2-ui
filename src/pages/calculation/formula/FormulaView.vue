@@ -14,10 +14,16 @@
                             <q-input v-model="formula.id" label="ID" readonly dense borderless></q-input>
                             <q-input v-model="formula.name" label="Name" :readonly="!editMode" stack-label dense :borderless="!editMode"></q-input>
                             <q-input v-model="formula.description" label="Description" :readonly="!editMode" stack-label dense :borderless="!editMode"></q-input>
+                            <q-field label="Deprecated" stack-label dense borderless>
+                                <template v-slot:control>
+                                    <q-toggle v-model="formula.deprecated" size="sm" dense :disable="!editMode" />
+                                </template>
+                            </q-field>
                         </div>
                         <div class="col-3">
                             <q-select v-model="formula.language" label="Language" :options="languages" options-dense :readonly=!editMode stack-label dense :borderless="!editMode"></q-select>
                             <q-select v-model="formula.scope" label="Scope" :options="scopes" options-dense :readonly=!editMode stack-label dense :borderless="!editMode"></q-select>
+                            <q-input v-model="formula.versionNumber" label="Version" stack-label dense borderless></q-input>
                         </div>
                         <div class="col-2">
                             <q-field label="Created On" stack-label dense borderless>
@@ -50,7 +56,6 @@
                         <div class="col-2">
                             <div class="row justify-end">
                                 <q-btn size="sm" color="primary" icon="edit" class="oa-action-button" label="Edit" v-show="!editMode" @click="toggleEditMode"/>
-                                <q-btn size="sm" color="primary" icon="delete" class="oa-action-button" label="Delete" v-show="!editMode" @click="$refs.deleteDialog.showDialog = true"/>
                                 <q-btn size="sm" color="primary" icon="save" class="oa-action-button" label="Save Changes" v-show="editMode" @click="saveChanges"/>
                                 <q-btn size="sm" color="primary" icon="cancel" class="oa-action-button" label="Cancel" v-show="editMode" @click="cancelEditMode"/>
                             </div>
@@ -68,89 +73,64 @@
             </oa-section>
         </div>
     </q-page>
-    <delete-dialog ref="deleteDialog" v-model:id="formula.id" v-model:name="formula.name" :objectClass="'formula'" @onDeleted="onDeleted" />
 </template>
 
-<script>
+<script setup>
 import {computed, ref} from 'vue'
 import {useStore} from 'vuex'
 import {useRoute, useRouter} from 'vue-router'
 
+import OaSection from "@/components/widgets/OaSection";
+import UserChip from "@/components/widgets/UserChip";
 import FormatUtils from "@/lib/FormatUtils.js"
 
-import OaSection from "@/components/widgets/OaSection";
-import DeleteDialog from "@/components/widgets/DeleteDialog";
-import UserChip from "@/components/widgets/UserChip";
+const route = useRoute();
+const router = useRouter();
+const formulaId = parseInt(route.params.id);
 
-export default {
-    components: {
-        OaSection,
-        DeleteDialog,
-        UserChip
-    },
-    setup: function () {
-        const exported = {
-            FormatUtils: FormatUtils
-        };
-        
-        const route = useRoute();
-        const router = useRouter();
-        const formulaId = parseInt(route.params.id);
-        
-        exported.editMode = ref(false);
-        exported.toggleEditMode = () => {
-            exported.editMode.value = !exported.editMode.value;
-        }
-        
-        exported.onDeleted = () => {
-            router.push({name: 'calcFormulas'})
-        }
-        
-        exported.saveChanges = async () => {
-            let newFormula = null;
-            if (formulaId === 0) {
-                newFormula = await store.dispatch('calculations/createFormula', exported.formula.value);
-            } else {
-                newFormula = await store.dispatch('calculations/updateFormula', {id: formulaId, formula: exported.formula.value});
-                // fetchFormulaWorkingCopy();
-            }
-            router.push("/calc/formula/" + newFormula.id);
-            // exported.editMode.value = false;
-        }
-        
-        exported.cancelEditMode = () => {
-            if (formulaId === 0) {
-                router.push("/calc/formulas");
-            } else {
-                exported.editMode.value = false;
-                fetchFormulaWorkingCopy();
-            }
-        }
-        
-        exported.formula = ref({});
-        const store = useStore();
-        const fetchFormulaWorkingCopy = () => {
-            let originalFormula = store.getters['calculations/getFormula'](formulaId) || {};
-            // Return a shallow copy of the formula for editing
-            exported.formula.value = {...originalFormula}
-        }
-        
-        if (formulaId === 0) {
-            exported.editMode.value = true;
-        } else {
-            store.dispatch('calculations/getFormula', formulaId).then(fetchFormulaWorkingCopy);
-        }
-        
-        exported.formulaInputs = computed(() => {
-            return store.getters['calculations/getFormulaInputs'](formulaId) || []
-        })
-        if (formulaId > 0) store.dispatch('calculations/getFormulaInputs', formulaId);
-        
-        exported.categories = computed(() => (store.getters['calculations/getCategories']() || []));
-        exported.languages = computed(() => (store.getters['calculations/getLanguages']() || []));
-        exported.scopes = computed(() => (store.getters['calculations/getScopes']() || []));
-        
-        return exported;
-    },
+const editMode = ref(false);
+const toggleEditMode = () => {
+    editMode.value = !editMode.value;
+};
+
+const saveChanges = async () => {
+    let newFormula = null;
+    if (formulaId === 0) {
+        newFormula = await store.dispatch('calculations/createFormula', formula.value);
+    } else {
+        newFormula = await store.dispatch('calculations/updateFormula', {id: formulaId, formula: formula.value});
+    }
+    router.push("/calc/formula/" + newFormula.id);
+};
+
+const cancelEditMode = () => {
+    if (formulaId === 0) {
+        router.push("/calc/formulas");
+    } else {
+        editMode.value = false;
+        fetchFormulaWorkingCopy();
+    }
+};
+
+const formula = ref({});
+const store = useStore();
+const fetchFormulaWorkingCopy = () => {
+    let originalFormula = store.getters['calculations/getFormula'](formulaId) || {};
+    // Return a shallow copy of the formula for editing
+    formula.value = {...originalFormula}
 }
+
+if (formulaId === 0) {
+    editMode.value = true;
+} else {
+    store.dispatch('calculations/getFormula', formulaId).then(fetchFormulaWorkingCopy);
+}
+
+const formulaInputs = computed(() => {
+    return store.getters['calculations/getFormulaInputs'](formulaId) || []
+});
+if (formulaId > 0) store.dispatch('calculations/getFormulaInputs', formulaId);
+
+const languages = computed(() => (store.getters['calculations/getLanguages']() || []));
+const scopes = computed(() => (store.getters['calculations/getScopes']() || []));
 </script>
