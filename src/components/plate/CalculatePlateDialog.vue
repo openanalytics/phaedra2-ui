@@ -1,94 +1,76 @@
 <template>
-  <q-dialog v-model="props.show" persistent>
-    <q-card style="min-width: 50vw">
-      <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
-        <q-avatar icon="calculate" color="primary" text-color="white"/>
-        Calculate Plate
-      </q-card-section>
-
-      <q-card-section v-if="activeMeasurement && checkDimensions()">
-        <div class="q-pb-sm">
-          Select the protocol to use for calculation:
-        </div>
-        <protocol-selectable-list v-model:selected="selected"></protocol-selectable-list>
-      </q-card-section>
-
-      <q-card-section v-if="!activeMeasurement">
-        <q-icon name="warning" color="negative" class="on-left"/>
-        <span class="text-accent text-weight-bold">Cannot calculate: this plate has no active measurement.</span>
-      </q-card-section>
-      <q-card-section v-if="!checkDimensions()">
-        <q-icon name="warning" color="negative" class="on-left"/>
-        <span class="text-accent text-weight-bold">Cannot calculate: the plate and measurement dimensions are different.</span>
-      </q-card-section>
-
-      <q-card-actions align="right" class="text-primary">
-        <q-btn flat label="Cancel" v-close-popup @click="$emit('update:show',false)"/>
-        <q-btn label="Calculate" color="primary" :disable="!activeMeasurement || selected.length === 0 || !checkDimensions()" @click="calculatePlate" v-close-popup/>
-      </q-card-actions>
-    </q-card>
-  </q-dialog>
+    <q-dialog v-model="showDialog" persistent>
+        <q-card style="min-width: 50vw">
+            <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
+                <q-avatar icon="calculate" color="primary" text-color="white"/>
+                Calculate Plate
+            </q-card-section>
+            
+            <q-card-section v-if="activeMeasurement && checkDimensions()">
+                <div class="q-pb-sm">
+                    Select the protocol to use for calculation:
+                </div>
+                <protocol-selectable-list v-model:selected="selected"></protocol-selectable-list>
+            </q-card-section>
+            
+            <q-card-section v-if="!activeMeasurement">
+                <q-icon name="warning" color="negative" class="on-left"/>
+                <span class="text-accent text-weight-bold">Cannot calculate: this plate has no active measurement.</span>
+            </q-card-section>
+            <q-card-section v-if="!checkDimensions()">
+                <q-icon name="warning" color="negative" class="on-left"/>
+                <span class="text-accent text-weight-bold">Cannot calculate: the plate and measurement dimensions are different.</span>
+            </q-card-section>
+            
+            <q-card-actions align="right" class="text-primary">
+                <q-btn flat label="Cancel" v-close-popup/>
+                <q-btn label="Calculate" color="primary" :disable="!activeMeasurement || selected.length === 0 || !checkDimensions()" @click="calculatePlate" v-close-popup/>
+            </q-card-actions>
+        </q-card>
+    </q-dialog>
 </template>
 
-<script>
+<script setup>
 
-import {computed,watch} from "vue";
+import {computed,ref,watch} from "vue";
 import {useStore} from "vuex";
 import ProtocolSelectableList from "@/components/protocol/ProtocolSelectableList";
 
-export default {
-  components: {ProtocolSelectableList},
-  methods: {
-    calculatePlate() {
-      this.calculation.measId = this.activeMeasurement.measurementId
-      this.calculation.plateId = this.plateId
-      this.calculation.protocolId = this.selected[0].id
-      this.$store.dispatch('calculations/startCalculation', this.calculation)
-      this.$emit('update:show', false)
-    },
-    checkDimensions() {
-      if (this.activeMeasurement) {
-        return this.activeMeasurement.rows === this.plate.rows
-            && this.activeMeasurement.columns === this.plate.columns;
-      }
-      return true
-    }
-  },
-  setup(props) {
-    const store = useStore()
+const props = defineProps(['show', 'plateId']);
+const emits = defineEmits(['update:show']);
 
-    const plate = computed(() => store.getters['plates/getById'](props.plateId));
-    const activeMeasurement = computed(() => store.getters['measurements/getActivePlateMeasurement'](props.plateId))
+const store = useStore();
+const plate = computed(() => store.getters['plates/getById'](props.plateId));
+const activeMeasurement = computed(() => store.getters['measurements/getActivePlateMeasurement'](props.plateId));
 
-    watch(() => props.show, (newValue) => {
-      if (newValue === true) store.dispatch('measurements/loadByPlateId', { plateId: props.plateId }, { root: true })
+const showDialog = computed({
+    get: () => props.show,
+    set: (v) => emits('update:show', v)
+});
+
+watch(() => props.show, (v) => {
+    if (v === true) store.dispatch('measurements/loadByPlateId', props.plateId);
+});
+
+watch(() => props.plateId, (v) => {
+    store.dispatch('plates/loadById', v);
+});
+
+const selected = ref([]);
+
+const calculatePlate = () => {
+    store.dispatch('calculations/startCalculation', {
+        protocolId:  selected.value[0].id,
+        plateId: props.plateId,
+        measId: activeMeasurement.value.measurementId
     });
+    emits('update:show', false);
+};
 
-    return {
-      props,
-      activeMeasurement,
-      store,
-      plate
+const checkDimensions = () => {
+    if (activeMeasurement.value) {
+        return activeMeasurement.value.rows === plate.value.rows && activeMeasurement.value.columns === plate.value.columns;
     }
-  },
-  data() {
-    return {
-      calculation: {
-        protocolId: null,
-        plateId: null,
-        measId: null
-      },
-      calculateDialog: this.props.show,
-
-      selected: []
-    }
-  },
-  props: ['show', 'plateId'],
-  emits: ['update:show'],
-  watch: {
-    plateId: function (newVal) {
-      this.store.dispatch('plates/loadById', newVal)
-    }
-  }
-}
+    return true;
+};
 </script>

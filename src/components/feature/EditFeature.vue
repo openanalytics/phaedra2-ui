@@ -23,7 +23,18 @@
                 <q-input v-model="featureStore.feature.sequence" label="Sequence" stack-label dense/>
 
                 <q-select v-model="featureStore.feature.formula" label="Formula" stack-label dense
-                          :options="formulas" option-value="id" option-label="name" @update:model-value="onFormulaSelection"/>
+                          :options="formulas" option-value="id" option-label="name"
+                          @filter="filterFormulas" use-input
+                          @update:model-value="onFormulaSelection">
+                  <template v-slot:option="scope">
+                    <q-item v-bind="scope.itemProps">
+                      <q-item-section>
+                        <q-item-label>{{ scope.opt.name }}</q-item-label>
+                        <q-item-label caption>{{ scope.opt.versionNumber }}</q-item-label>
+                      </q-item-section>
+                    </q-item>
+                  </template>
+                </q-select>
 
                 <div v-if="(formulaInputs.length > 0)" class="q-pt-sm">
                   <q-card square>
@@ -39,8 +50,11 @@
                             <q-select v-model="variable.inputSource" :options="inputSource" label="Source" dense/>
                           </div>
                           <div class="col-4 on-right">
-                            <q-select v-if="variable.inputSource === 'FEATURE'" :options="availableFeatures()"
-                                        v-model="variable.sourceFeatureId" option-value="id" option-label="name" emit-value map-options label="Name" dense/>
+                            <q-select v-if="variable.inputSource === 'FEATURE'" 
+                              v-model="variable.sourceFeatureId"
+                              :options="availableFeatures()"
+                              option-value="id" option-label="name"
+                              emit-value map-options label="Name" dense/>
                             <q-input v-else v-model="variable.sourceMeasColName" label="Name" dense/>
                           </div>
                         </div>
@@ -113,13 +127,16 @@
     drcModelSlopeTypesOptions.value = args.slopeTypes
   }
 
-  const formulas = computed(() => ArrayUtils.sortBy([...formulasStore.formulas], 'name'));
+  const formulaFilter = ref('');
+  const formulas = computed(() => ArrayUtils.sortBy([...formulasStore.formulas].filter(f => f.name.toLowerCase().includes(formulaFilter.value)), 'name'));
+  const filterFormulas = (val, update) => update(() => formulaFilter.value = val);
 
   const availableFeatures = () => {
     return protocolStore.getFeatures().filter((f) => { return f.id !== featureStore.feature.id && f.name !== featureStore.feature.name })
   }
 
   const onFormulaSelection = (args) => {
+    if (!args) return;
     formulasStore.loadFormulaInputs(args.id).then(() => {
       formulaInputs.value = formulasStore.formulaInputs[args.id].map(i => {
         return {
