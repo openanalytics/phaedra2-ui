@@ -226,17 +226,15 @@ const plate = computed(() => {
     columns: meas.value.columns,
     wells: [...Array(meas.value.rows * meas.value.columns).keys()].map(i => {
       let pos = WellUtils.getWellPosition(i + 1, meas.value.columns);
-      return {row: pos[0], column: pos[1], nr: i + 1};
+      return { row: pos[0], column: pos[1], nr: i + 1, measId: measId };
     })
   }
 });
 
 const wellImageFunction = (well) => {
-  //TODO
-  // const img = store.getters['measurements/getMeasImage']({ measId: meas.value.id, wellNr: well.nr });
-  // if (!img) store.dispatch('measurements/loadMeasImage', { measId: meas.value.id, wellNr: well.nr, scale: 0.01 });
-  // return img;
-  return "";
+  const img = store.getters['measurements/getMeasImage']({ measId: meas.value.id, wellNr: well.nr });
+  if (!img) store.dispatch('measurements/loadMeasImage', { measId: meas.value.id, wellNr: well.nr, scale: 0.01 });
+  return img;
 }
 
 const loadSubWellData = () => {
