@@ -24,17 +24,23 @@
               </q-item-section>
               <q-item-section>Boxplot</q-item-section>
             </q-item>
-            <q-item dense clickable @click="chart('bar', props.plate.id)" v-close-popup>
+<!--            <q-item dense clickable @click="chart('bar', props.plate.id)" v-close-popup>-->
+<!--              <q-item-section avatar>-->
+<!--                <q-icon name="insert_chart"/>-->
+<!--              </q-item-section>-->
+<!--              <q-item-section>Barplot</q-item-section>-->
+<!--            </q-item>-->
+<!--            <q-item dense clickable @click="chart('line', props.plate.id)" v-close-popup>-->
+<!--              <q-item-section avatar>-->
+<!--                <q-icon name="insert_chart"/>-->
+<!--              </q-item-section>-->
+<!--              <q-item-section>Lineplot</q-item-section>-->
+<!--            </q-item>-->
+            <q-item dense clickable @click="chart('histogram', props.plate.id)" v-close-popup>
               <q-item-section avatar>
                 <q-icon name="insert_chart"/>
               </q-item-section>
-              <q-item-section>Barplot</q-item-section>
-            </q-item>
-            <q-item dense clickable @click="chart('line', props.plate.id)" v-close-popup>
-              <q-item-section avatar>
-                <q-icon name="insert_chart"/>
-              </q-item-section>
-              <q-item-section>Lineplot</q-item-section>
+              <q-item-section>1D Histogram</q-item-section>
             </q-item>
           </q-list>
         </q-menu>

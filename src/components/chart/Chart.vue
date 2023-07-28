@@ -15,7 +15,7 @@
       <q-select class="q-pa-xs"
                 v-if="chartView.type === 'scatter'"
                 v-model="selectedXAxisFeature"
-                :options="protocolOptions[0]?.features"
+                :options="selectedProtocol?.features"
                 :option-value="'featureId'"
                 :option-label="'featureName'"
                 label="Select x feature"
@@ -23,7 +23,7 @@
                 dense/>
       <q-select class="q-pa-xs"
                 v-model="selectedYAxisFeature"
-                :options="protocolOptions[0]?.features"
+                :options="selectedProtocol?.features"
                 :option-value="'featureId'"
                 :option-label="'featureName'"
                 label="Select y feature"
@@ -74,7 +74,7 @@ const chartPlot = reactive([])
 const handleChartUpdate = () => {
   console.log("handleChartUpdate: chart has been updated!")
   const chartView = computed(() => store.getters['ui/getChartView'](props.chartId))
-  chartPlot.value = chartsGraphQlAPI.basicPlot(chartView.value.type, chartView.value.plateId, selectedXAxisFeature.value?.featureId, selectedYAxisFeature.value?.featureId, groupBy.value.value)
+  chartPlot.value = chartsGraphQlAPI.basicPlot(chartView.value.type, chartView.value.plateId, selectedProtocol.value?.protocolId, selectedXAxisFeature.value?.featureId, selectedYAxisFeature.value?.featureId, groupBy.value.value)
 }
 
 const handlePlotUpdate = () => {
@@ -121,6 +121,7 @@ watch(() => chartPlot.value, handlePlotUpdate)
 const handleProtocolSelection = (selectedProtocol) => {
   selectedXAxisFeature.value = selectedProtocol.features[0]
   selectedYAxisFeature.value = selectedProtocol.features[1]
+  handleChartUpdate()
 }
 
 const handleXAxisFeatureSelection = (selectedXAxisFeature) => {
