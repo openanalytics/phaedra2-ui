@@ -1,4 +1,4 @@
-import {computed} from "vue";
+import resultDataGraphQLAPI from "@/api/graphql/resultdata";
 
 const state = () => ({
     // Side Panel
@@ -44,6 +44,9 @@ const getters = {
     getChartType: (state) => () => {
         return state.chartType;
     },
+    getChartView: (state) => (chartId) => {
+        return state.chartViews.find(cv => cv.id == chartId)
+    },
     getChartViews: (state) => () => {
         return state.chartViews
     }
@@ -79,8 +82,8 @@ const actions = {
         console.log('change type to', type)
         ctx.commit('setChartType', type);
     },
-    addChartView: (ctx, type) => {
-        ctx.commit('addChartView', type)
+    async addChartView (ctx, chart) {
+        ctx.commit('addChartView', chart)
     },
     removeChartView: (ctx, chartId) => {
         ctx.commit('removeChartView', chartId)
@@ -88,7 +91,15 @@ const actions = {
     updateChartViewWidth: (ctx, updates) => {
         ctx.commit('updateChartViewWidth', updates)
     },
-    //TODO: Add selectSubstance function
+    async updateChartViewXAxisData(ctx, {chartId, plateId, xFeature})  {
+        const xValues = await resultDataGraphQLAPI.featureValuesByPlateIdAndFeatureId(plateId, xFeature.featureId)
+        ctx.commit('updateChartViewXAxisData', {'chartId': chartId, 'xFeature': xFeature, 'xValues': xValues.value})
+    },
+    async updateChartViewYAxisData(ctx, {chartId, plateId, yFeature}) {
+        const yValues = await resultDataGraphQLAPI.featureValuesByPlateIdAndFeatureId(plateId, yFeature.featureId)
+        ctx.commit('updateChartViewYAxisData', {'chartId': chartId, 'yFeature': yFeature, 'yValues': yValues.value})
+    },
+    //TODO: Add selectSubstance functionupdateChartViewXAxisData
     selectSubstance: (ctx,  substance) => {
 
     }
@@ -117,8 +128,8 @@ const mutations = {
     setChartType: (state, type) => {
         state.chartType = type;
     },
-    addChartView: (state, type) => {
-        state.chartViews.push({id: state.chartViews.length, type: type})
+    addChartView: (state, chart) => {
+        state.chartViews.push({id: state.chartViews.length, ...chart})
     },
     removeChartView: (state, chartId) => {
         const index = state.chartViews.findIndex((chartView) => chartView.id === chartId)
@@ -130,6 +141,16 @@ const mutations = {
       state.chartViews.forEach((chartView, index) => {
           chartView['size'] = updates[index]
       })
+    },
+    updateChartViewXAxisData: (state, {chartId, xFeature, xValues}) => {
+        const index = state.chartViews.findIndex(cv => cv.id == chartId)
+        state.chartViews[index].xFeature = xFeature
+        state.chartViews[index].xValues = xValues
+    },
+    updateChartViewYAxisData: (state, {chartId, yFeature, yValues}) => {
+        const index = state.chartViews.findIndex(cv => cv.id == chartId)
+        state.chartViews[index].yFeature = yFeature
+        state.chartViews[index].yValues = yValues
     },
     addSelectedSubstances: (state, substances) => {
         substances.forEach(substance => {

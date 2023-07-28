@@ -130,16 +130,27 @@ import 'splitpanes/dist/splitpanes.css'
 
 // Create Vue App
 // --------------------------------------------------------------------
-import { createApp } from "vue"
+import {createApp, provide, h} from "vue"
 import Plotly from "plotly.js-dist-min"
 
 import { createPinia, setActivePinia } from "pinia"
 import App from "./App.vue"
 import BrowseFormulas from "@/pages/calculation/formula/BrowseFormulas";
+import { apolloResultDataClient, apolloPlatesClient, apolloChartsClient } from '@/graphql/apollo.clients';
+import {ApolloClients} from "@vue/apollo-composable";
 
 const pinia = createPinia()
 
-const app = createApp(App)
+const app = createApp({
+    setup() {
+        provide(ApolloClients, {
+            resultDataClient: apolloResultDataClient,
+            platesClient: apolloPlatesClient,
+            chartsClient: apolloChartsClient
+        })
+    },
+    render: () => h(App)
+})
 
 app.use(pinia)
 app.use(router)

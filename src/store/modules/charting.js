@@ -1,3 +1,5 @@
+import chartsGraphQlAPI from '@/api/graphql/charts'
+
 const state = () => ({
     mockChartEntity: [{id: 8795, plateId: 101, row: 1, column: 1, wellType: 'LC', featureName: 0.232, featurename2: 0.324}, //+ wellnumber
         {id: 8796, plateId: 101, row: 1, column: 2, wellType: 'LC', featureName: 0.484, featurename2: 0.87},
@@ -98,6 +100,13 @@ const getters = {
         if (type == 'barplot') return state.mockChartTemplateBar;
         if (type == 'lineplot') return state.mockChartTemplateLine;
     },
+}
+
+const actions = {
+    scatterPlot: (ctx, inputVariables) => {
+        const scatterPlot = chartsGraphQlAPI.scatterPlot(inputVariables)
+
+    }
 }
 
 export default {

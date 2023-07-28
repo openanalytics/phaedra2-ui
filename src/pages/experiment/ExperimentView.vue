@@ -106,7 +106,9 @@
 
 <!--      <Splitpanes class="default-theme" style="height: 400px">-->
 <!--          <ChartViewer v-for="chartView in chartViews" :key="chartView.id" :chartTemplate="chartView"/>-->
-      <ChartViewer />
+      <div class="q-pa-md">
+        <ChartViewer/>
+      </div>
 <!--      </Splitpanes>-->
 
         <rename-dialog v-model:show="showRenameDialog" objectClass="experiment" :object="experiment" @valueChanged="onNameChanged" />
@@ -132,6 +134,7 @@ import OaSection from "@/components/widgets/OaSection";
 import FormatUtils from "@/lib/FormatUtils.js"
 import {Pane, Splitpanes} from "splitpanes";
 import ChartViewer from "@/components/chart/ChartViewer.vue";
+import {useGlobalQueryLoading} from "@vue/apollo-composable";
 
 const store = useStore();
 const route = useRoute();
@@ -141,6 +144,8 @@ const experimentId = parseInt(route.params.id);
 
 const projectId = ref(null);
 const activeTab = ref('overview')
+
+const charts = computed(() => store.getters['ui/getChartViews']())
 
 const newPlateTab = ref(false)
 const newPlate = ref({
