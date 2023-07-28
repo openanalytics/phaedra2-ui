@@ -30,7 +30,7 @@
         </template>
         <template v-slot:body-cell-name="props">
           <q-td :props="props">
-            <div class="row items-center cursor-pointer" @click="onViewFeature(props.row)">
+            <div class="row items-center cursor-pointer" @click="editMode ? onEditFeature(props.row) : onViewFeature(props.row)">
               {{ props.row.name }}
             </div>
           </q-td>
@@ -107,11 +107,6 @@ const emit = defineEmits(['addFeature'])
 const router = useRouter()
 
 const loading = ref(false)
-const editMode = ref(props.editMode)
-
-const pagination = {
-  rowsPerPage: 10
-}
 
 const features = computed(() => { return protocolStore.getFeatures() })
 
@@ -125,7 +120,6 @@ const getFormulaName = (id) => {
   return (formula || {}).name;
 }
 
-const showFormulaTooltip = ref([])
 const showEditFeatureSection = ref(false)
 const showFeatureDetails = ref(false)
 const showNewFeatureTab = ref(false)

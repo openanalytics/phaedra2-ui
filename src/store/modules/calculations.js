@@ -18,6 +18,10 @@ const getters = {
     getFormulas: (state) => () => {
         return state.formulas
     },
+    getLatestFormulas: (state) => () => {
+        const oldVersions = state.formulas.map(f => f.previousVersionId);
+        return state.formulas.filter(f => !oldVersions.includes(f.id));
+    },
     areFormulasLoaded: (state) => () => {
         return state.formulas.length>1
     },
@@ -59,6 +63,7 @@ const actions = {
     async updateFormula(ctx, args) {
         const formula = await calculationsAPI.updateFormula(args.id, args.formula);
         ctx.commit('cacheFormula', formula);
+        return formula;
     },
     async deleteFormula(ctx, id) {
         await calculationsAPI.deleteFormula(id);

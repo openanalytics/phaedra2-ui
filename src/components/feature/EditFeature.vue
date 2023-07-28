@@ -7,8 +7,6 @@
           <q-tab name="general" icon="info" label="General Info"/>
           <q-tab name="calculation" icon="functions" label="Calculation"/>
           <q-tab name="curve_fitting" icon="show_chart" label="Dose-Response Curve"/>
-          <!-- <q-tab name="outlier_detection" icon="sms_failed" label="Outlier Detection"/>
-          <q-tab name="hit_calling" icon="rules" label="Hit Calling"/> -->
         </q-tabs>
 
         <div class="row oa-section-body">
@@ -16,35 +14,54 @@
             <q-tab-panel name="general" label="General Info" class="col q-pa-sm">
               <q-input v-model="featureStore.feature.name" label="Name" stack-label dense autofocus/>
               <q-input v-model="featureStore.feature.alias" label="Alias" stack-label dense/>
-              <q-input v-model="featureStore.feature.description" label="Description" dense-label square/>
+              <q-input v-model="featureStore.feature.description" label="Description" stack-label dense/>
               <q-input v-model="featureStore.feature.format" label="Format" placeholder="#.##" stack-label dense/>
             </q-tab-panel>
 
             <q-tab-panel name="calculation" label="calculation" class="q-pa-sm">
               <div class="col">
-                <q-select v-model="featureStore.feature.formula" label="Formula" stack-label
-                          :options="formulas" option-value="id" option-label="name" @update:model-value="onFormulaSelection"/>
-                <div v-if="(formulaInputs.length > 0)">
-                  <q-field label="Formula variables:" stack-label borderless dense>
-                    <template v-slot:control>
-                      <div class="row col-8 q-pt-sm">
-                        <template :key="variable.variableName" v-for="variable in formulaInputs">
-                            <div class="col-4">
-                              <q-select v-if="variable.inputSource === 'FEATURE'" :options="availableFeatures(newFeature)"
-                                        v-model="variable.sourceFeatureId" option-value="id" option-label="name" emit-value map-options
-                                        :label="variable.variableName"/>
-                              <q-input v-else v-model="variable.sourceMeasColName" :label="variable.variableName"/>
-                            </div>
-                            <div class="col-1"/>
-                            <div class="col-4">
-                              <q-select v-model="variable.inputSource" :options="inputSource" label="Source" dense/>
-                            </div>
-                        </template>
-                      </div>
-                    </template>
-                  </q-field>
-                </div>
                 <q-input v-model="featureStore.feature.sequence" label="Sequence" stack-label dense/>
+
+                <q-select v-model="featureStore.feature.formula" label="Formula" stack-label dense
+                          :options="formulas" option-value="id" option-label="name"
+                          @filter="filterFormulas" use-input
+                          @update:model-value="onFormulaSelection">
+                  <template v-slot:option="scope">
+                    <q-item v-bind="scope.itemProps">
+                      <q-item-section>
+                        <q-item-label>{{ scope.opt.name }}</q-item-label>
+                        <q-item-label caption>{{ scope.opt.versionNumber }}</q-item-label>
+                      </q-item-section>
+                    </q-item>
+                  </template>
+                </q-select>
+
+                <div v-if="(formulaInputs.length > 0)" class="q-pt-sm">
+                  <q-card square>
+                    <q-card-section class="q-pa-sm">
+                      <div class="text-grey-7 text-subtitle-2">Formula Variables</div>
+                      <q-separator/>
+                      <template :key="variable.variableName" v-for="variable in formulaInputs">
+                        <div class="row">
+                          <div class="col-1 self-center">
+                            <q-chip square dense>{{ variable.variableName }}</q-chip>
+                          </div>
+                          <div class="col-4 on-right">
+                            <q-select v-model="variable.inputSource" :options="inputSource" label="Source" dense/>
+                          </div>
+                          <div class="col-4 on-right">
+                            <q-select v-if="variable.inputSource === 'FEATURE'" 
+                              v-model="variable.sourceFeatureId"
+                              :options="availableFeatures()"
+                              option-value="id" option-label="name"
+                              emit-value map-options label="Name" dense/>
+                            <q-input v-else v-model="variable.sourceMeasColName" label="Name" dense/>
+                          </div>
+                        </div>
+                      </template>
+                    </q-card-section>
+                  </q-card>
+                </div>
               </div>
             </q-tab-panel>
 
@@ -61,18 +78,11 @@
                           v-model="drcModel.slope" :options="drcModelSlopeTypesOptions"/>
               </div>
             </q-tab-panel>
-
-            <!-- <q-tab-panel name="outlier_detection">
-              <div>Not yet implemented!</div>
-            </q-tab-panel>
-            <q-tab-panel name="hit_calling">
-              <div>Not yet implemented!</div>
-            </q-tab-panel> -->
           </q-tab-panels>
         </div>
         <div class="row justify-end">
           <q-btn flat class="on-left" label="Cancel" color="primary" @click="onCancel"/>
-          <q-btn label="Edit feature" v-close-popup color="primary" @click="editFeature"/>
+          <q-btn label="Apply" v-close-popup color="primary" @click="editFeature"/>
         </div>
       </q-card-section>
     </oa-section>
@@ -86,6 +96,7 @@
   import { useFeatureStore } from "@/stores/feature";
   import drcModelOptions from "@/resources/dose_response_curve_fit_models.json"
   import OaSection from "@/components/widgets/OaSection";
+  import ArrayUtils from "@/lib/ArrayUtils";
 
   const protocolStore = useProtocolStore();
   const formulasStore = useFormulasStore()
@@ -116,13 +127,16 @@
     drcModelSlopeTypesOptions.value = args.slopeTypes
   }
 
-  const formulas = computed(() => formulasStore.formulas);
+  const formulaFilter = ref('');
+  const formulas = computed(() => ArrayUtils.sortBy([...formulasStore.formulas].filter(f => f.name.toLowerCase().includes(formulaFilter.value)), 'name'));
+  const filterFormulas = (val, update) => update(() => formulaFilter.value = val);
 
-  const availableFeatures = (feature) => {
-    return protocolStore.getFeatures().filter((f) => { return f.id !== feature.id && f.name !== feature.name })
+  const availableFeatures = () => {
+    return protocolStore.getFeatures().filter((f) => { return f.id !== featureStore.feature.id && f.name !== featureStore.feature.name })
   }
 
   const onFormulaSelection = (args) => {
+    if (!args) return;
     formulasStore.loadFormulaInputs(args.id).then(() => {
       formulaInputs.value = formulasStore.formulaInputs[args.id].map(i => {
         return {
