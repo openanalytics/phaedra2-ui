@@ -10,7 +10,7 @@
                 <q-item-section avatar><q-icon color="positive" name="check_circle"/></q-item-section>
                 <q-item-section>Accept Well</q-item-section>
             </q-item>
-            <q-item clickable v-close-popup>
+            <q-item clickable v-close-popup @click="rejectWells">
                 <q-item-section avatar><q-icon color="negative" name="cancel"/></q-item-section>
                 <q-item-section>Reject Well</q-item-section>
             </q-item>
@@ -29,6 +29,14 @@
 
     const viewDoseResponseCurve = () => {
       store.dispatch('ui/openSideView', 'doseResponseCurve')
+    }
+
+    const rejectWells = () => {
+      //TODO
+    }
+
+    const acceptWells = () => {
+      // TODO
     }
 
 </script>
