@@ -1,14 +1,10 @@
 <template>
-  <div class="row">
-    <div class="col-10">
-      <WellGrid :plate="props.plate"
-                :wellColorFunction="wellColorFunction"
-                :wellLabelFunctions="wellLabelFunctions"
-                @wellSelection="handleWellSelection"/>
-    </div>
-    <div class="col-2 q-pa-sm">
-      <WellEditor :wells="selectedWells" :plateId="props.plate.id" :tab="tab"/>
-    </div>
+  <div class="col-auto">
+    <WellEditor :plateId="props.plate.id" :tab="tab" :update="update"/>
+    <WellGrid :plate="props.plate"
+              :wellColorFunction="wellColorFunction"
+              :wellLabelFunctions="wellLabelFunctions"
+              @wellSelection="handleWellSelection"/>
   </div>
 </template>
 
@@ -22,6 +18,7 @@ import {useUIStore} from "@/stores/ui";
 const props = defineProps(["plate", "tab"])
 
 const uiStore = useUIStore()
+const update = ref(Date.now())
 
 const wellColorFunction = function (well) {
   return WellUtils.getWellTypeColor(well.wellType)
@@ -30,13 +27,17 @@ const wellColorFunction = function (well) {
 const wellLabelFunctions = [];
 if (props.tab === 'substance') {
   wellLabelFunctions.push((well) => well.substanceName);
+}
+if (props.tab === 'concentration') {
   wellLabelFunctions.push((well) => well.concentration);
 }
+if (props.tab === 'well-type') {
+  wellLabelFunctions.push((well) => well.wellType);
+}
 
-const selectedWells = ref([])
 const handleWellSelection = (wells) => {
-  selectedWells.value = wells;
   uiStore.selectedWells = wells
+  update.value = Date.now()
 }
 
 </script>

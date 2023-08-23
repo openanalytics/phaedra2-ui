@@ -39,9 +39,9 @@ export default {
             });
         return result;
     },
-    async editPlateTemplate(args) {
+    async editPlateTemplate(plateTemplate) {
         let result = null;
-        await axios.put(apiURL + '/platetemplates', args)
+        await axios.put(apiURL + '/platetemplates/' + plateTemplate.id, plateTemplate)
             .then(response => {
                 if (response.status === 200)
                     result = response.data;
@@ -51,9 +51,9 @@ export default {
             });
         return result;
     },
-    async createPlateTemplate(newPlateTemplate) {
+    async createPlateTemplate(plateTemplate) {
         let result = null;
-        await axios.post(apiURL + '/platetemplates', newPlateTemplate)
+        await axios.post(apiURL + '/platetemplates', plateTemplate)
             .then(response => {
                 if (response.status === 201)
                     result = response.data;
