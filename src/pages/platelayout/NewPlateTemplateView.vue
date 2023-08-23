@@ -36,7 +36,8 @@
   <q-dialog v-model="importFromFile" persistent>
     <div class="q-pa-md oa-section-body">
 <!--        <q-form class="col" @submit="onSubmit" @reset="onReset">-->
-          <q-file v-model="importFile" label="Plate template" @update:modelValue="onFileSelection"></q-file>
+<!--          <q-file v-model="importFile" label="Plate template" @update:modelValue="onFileSelection"></q-file>-->
+      <q-file v-model="importFile" label="Plate template"/>
 
           <div class="row justify-end q-pt-md">
             <q-btn size="sm" label="Update" class="oa-action-button" @click="onImportFile" v-close-popup/>
@@ -52,6 +53,7 @@ import {ref} from 'vue'
 import {useStore} from 'vuex'
 import {useRouter} from 'vue-router'
 import OaSection from "@/components/widgets/OaSection"
+import PlateUtils from "@/lib/PlateUtils";
 
 const router = useRouter();
 const store = useStore();
@@ -89,9 +91,10 @@ const onImportFile = async () => {
     const data = res.target.result
 
     const plateTemplate = JSON.parse(data);
-    newPlateTemplate.value.name = plateTemplate.name
-    newPlateTemplate.value.rows = plateTemplate.rows
-    newPlateTemplate.value.columns = plateTemplate.columns
+    const plateDims = PlateUtils.getPlateDimensions(plateTemplate.positions.length)
+    newPlateTemplate.value.name = plateTemplate.name ? plateTemplate.name : plateTemplate.barcode
+    newPlateTemplate.value.rows = plateDims.rows
+    newPlateTemplate.value.columns = plateDims.cols
     newPlateTemplate.value.wells = plateTemplate.wells
     console.log(plateTemplate)
   }
