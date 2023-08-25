@@ -1,13 +1,14 @@
 import { defineStore } from "pinia"
 import templateAPI from  "@/api/templates.js"
+import templatesGraphQlAPI from '@/api/graphql/templates'
 
 export const useTemplateStore = defineStore("template", {
     state: () => ({
         template: {}
     }),
     actions: {
-        async loadTemplate(templateId) {
-            this.template = await templateAPI.getPlateTemplateById(templateId)
+        loadTemplate(templateId) {
+           this.template = templatesGraphQlAPI.templateById(templateId)
         },
         async creatNewTemplate(newTemplate)  {
           this.template = await templateAPI.createPlateTemplate(newTemplate);

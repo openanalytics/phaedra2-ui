@@ -34,7 +34,7 @@
                     </template>
                     <template v-slot:body-cell-tags="props">
                         <q-td :props="props">
-                            <TagList :objectInfo="props.row" :objectClass="'PLATE_TEMPLATE'" :readOnly="true" />
+                          <q-badge v-for="tag in props.row.tags" :key="tag" color="green">{{tag}}</q-badge>
                         </q-td>
                     </template>
                     <template v-slot:body-cell-createdBy="props">
@@ -54,20 +54,22 @@
     import {useRouter} from 'vue-router'
     import FilterUtils from "@/lib/FilterUtils.js"
     import FormatUtils from "@/lib/FormatUtils.js"
+    import templatesGraphQlAPI from '@/api/graphql/templates'
 
-    import TagList from "@/components/tag/TagList";
     import UserChip from "@/components/widgets/UserChip";
     import OaSection from "@/components/widgets/OaSection";
 
     const store = useStore();
     const router = useRouter();
-    const loading = ref(true);
+    const loading = ref();
 
-    const templates = computed(() => store.getters['templates/getAll']());
-    store.dispatch('templates/loadAll').then(() => {
-        store.dispatch('metadata/loadMetadata', { objectClass: 'PLATE_TEMPLATE', objectId: templates.value.map(t => t.id) });
-        loading.value = false
-    });
+    const templates = templatesGraphQlAPI.templates()
+
+    // const templates = computed(() => store.getters['templates/getAll']());
+    // store.dispatch('templates/loadAll').then(() => {
+    //     store.dispatch('metadata/loadMetadata', { objectClass: 'PLATE_TEMPLATE', objectId: templates.value.map(t => t.id) });
+    //     loading.value = false
+    // });
 
     const columns = ref([
         {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
