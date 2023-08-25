@@ -32,7 +32,8 @@
           </template>
           <template v-slot:body-cell-tags="props">
             <q-td :props="props">
-            <TagList :objectInfo="props.row" :objectClass="'PROJECT'" :readOnly="true" />
+<!--            <TagList :objectInfo="props.row" :objectClass="'PROJECT'" :readOnly="true" />-->
+              <q-badge v-for="tag in props.row.tags" :key="tag" color="green">{{tag}}</q-badge>
           </q-td>
         </template>
         <template v-slot:body-cell-createdBy="props">
@@ -45,55 +46,37 @@
   </q-page>
 </template>
 
-<script>
-import {ref, computed} from 'vue'
+<script setup>
+import {ref} from 'vue'
 import {useStore} from 'vuex'
 import {useRouter} from 'vue-router'
 import FilterUtils from "@/lib/FilterUtils.js"
 import FormatUtils from "@/lib/FormatUtils.js"
+import projectsGraphQlAPI from "@/api/graphql/projects"
 
-import TagList from "@/components/tag/TagList";
 import UserChip from "@/components/widgets/UserChip";
 import OaSection from "@/components/widgets/OaSection";
 
-export default {
-  components: {
-    TagList,
-    UserChip,
-    OaSection
-  },
-  setup() {
-    const store = useStore();
-    const router = useRouter();
+const store = useStore();
+const router = useRouter();
 
-    const loading = ref(true);
+const loading = ref();
+const projects = projectsGraphQlAPI.projects()
 
-    const projects = computed(() => store.getters['projects/getAll']());
-    store.dispatch('projects/loadAll').then(() => {
-      loading.value = false
-    });
+const columns = ref([
+  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
+  {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
+  {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
+  {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
+  {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
+  {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
+  {name: 'menu', align: 'left', field: 'menu', sortable: false}
+]);
 
-    const columns = ref([
-      {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
-      {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
-      {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-      {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
-      {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
-      {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
-      {name: 'menu', align: 'left', field: 'menu', sortable: false}
-    ]);
-
-    const selectProject = (event, row) => {
-      router.push("/project/" + row.id);
-    };
-
-    return {
-      projects,
-      columns,
-      filter: ref(''),
-      filterMethod: FilterUtils.defaultTableFilter(),
-      selectProject
-    }
-  }
+const selectProject = (event, row) => {
+  router.push("/project/" + row.id);
 }
+
+const filter = ref('');
+const filterMethod = FilterUtils.defaultTableFilter();
 </script>
