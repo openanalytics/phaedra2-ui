@@ -49,7 +49,7 @@
 </template>
 
 <script setup>
-    import {ref, computed} from 'vue'
+    import {ref} from 'vue'
     import {useStore} from 'vuex'
     import {useRouter} from 'vue-router'
     import FilterUtils from "@/lib/FilterUtils.js"
@@ -64,12 +64,6 @@
     const loading = ref();
 
     const templates = templatesGraphQlAPI.templates()
-
-    // const templates = computed(() => store.getters['templates/getAll']());
-    // store.dispatch('templates/loadAll').then(() => {
-    //     store.dispatch('metadata/loadMetadata', { objectClass: 'PLATE_TEMPLATE', objectId: templates.value.map(t => t.id) });
-    //     loading.value = false
-    // });
 
     const columns = ref([
         {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
