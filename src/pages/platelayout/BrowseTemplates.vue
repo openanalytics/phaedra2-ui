@@ -49,37 +49,37 @@
 </template>
 
 <script setup>
-    import {ref} from 'vue'
-    import {useStore} from 'vuex'
-    import {useRouter} from 'vue-router'
-    import FilterUtils from "@/lib/FilterUtils.js"
-    import FormatUtils from "@/lib/FormatUtils.js"
-    import templatesGraphQlAPI from '@/api/graphql/templates'
+import {ref} from 'vue'
+import {useStore} from 'vuex'
+import {useRouter} from 'vue-router'
+import FilterUtils from "@/lib/FilterUtils.js"
+import FormatUtils from "@/lib/FormatUtils.js"
+import templatesGraphQlAPI from '@/api/graphql/templates'
 
-    import UserChip from "@/components/widgets/UserChip";
-    import OaSection from "@/components/widgets/OaSection";
+import UserChip from "@/components/widgets/UserChip";
+import OaSection from "@/components/widgets/OaSection";
 
-    const store = useStore();
-    const router = useRouter();
-    const loading = ref();
+const store = useStore();
+const router = useRouter();
+const loading = ref();
 
-    const templates = templatesGraphQlAPI.templates()
+const templates = templatesGraphQlAPI.templates()
 
-    const columns = ref([
-        {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
-        {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
-        {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-        {name: 'dimensions', align: 'left', label: 'Dimensions', sortable: true, field: t => `${t.rows} x ${t.columns}` },
-        {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
-        {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
-        {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
-        {name: 'menu', align: 'left', field: 'menu', sortable: false}
-    ]);
+const columns = ref([
+  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
+  {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
+  {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
+  {name: 'dimensions', align: 'left', label: 'Dimensions', sortable: true, field: t => `${t.rows} x ${t.columns}`},
+  {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
+  {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
+  {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
+  {name: 'menu', align: 'left', field: 'menu', sortable: false}
+]);
 
-    const selectTemplate = (event, row) => {
-        router.push("/template/" + row.id);
-    };
+const selectTemplate = (event, row) => {
+  router.push("/template/" + row.id);
+};
 
-    const filter = ref('');
-    const filterMethod = FilterUtils.defaultTableFilter();
+const filter = ref('');
+const filterMethod = FilterUtils.defaultTableFilter();
 </script>
