@@ -61,7 +61,6 @@ const accessLevels = ref(["Read", "Write", "Admin"]);
 const showAddAccessDialog = ref(false);
 const newAccess = ref({});
 const addAccess = () => {
-  console.log(JSON.stringify(newAccess.value))
   emits('addAccess', newAccess.value)
 }
 
