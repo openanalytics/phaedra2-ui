@@ -17,7 +17,5 @@
     if (!userInfoStore.userNamesLoaded)
       userInfoStore.loadUserNames()
 
-    console.log("UsernameID:" + props.id)
     const userName = computed(() => userInfoStore.userNames[props.id] ?? 'Unknown')
-    console.log("Username: " + userName.value)
 </script>
