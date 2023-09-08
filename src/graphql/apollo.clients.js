@@ -32,4 +32,30 @@ const apolloChartsClient = new ApolloClient({
     cache: new InMemoryCache()
 })
 
-export { apolloResultDataClient, apolloPlatesClient, apolloChartsClient }
+const apolloCurvesClient = new ApolloClient({
+    link: createHttpLink({
+        uri: 'https://phaedra.poc.openanalytics.io/phaedra/api/v1/curvedata-service/graphql',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    }),
+    cache: new InMemoryCache()
+})
+
+const apolloProtocolsClient = new ApolloClient({
+    link: createHttpLink({
+        uri: 'https://phaedra.poc.openanalytics.io/phaedra/api/v1/protocol-service/graphql',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    }),
+    cache: new InMemoryCache()
+})
+
+export {
+    apolloResultDataClient,
+    apolloPlatesClient,
+    apolloChartsClient,
+    apolloCurvesClient,
+    apolloProtocolsClient
+}
