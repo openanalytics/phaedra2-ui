@@ -34,6 +34,10 @@ export const useProjectStore = defineStore("project" , {
             const createdExperiment = await experimentAPI.createExperiment(experiment);
             this.experiments.push(createdExperiment)
         },
+        async createNewProject(newProject) {
+            const createdProject = await projectAPI.createNewProject(newProject)
+            this.project = createdProject
+        },
         async deleteExperiment(experimentId) {
             await experimentAPI.deleteExperiment(experimentId);
             const index = this.experiments.findIndex((e) => {
