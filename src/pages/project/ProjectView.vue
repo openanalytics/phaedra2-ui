@@ -42,7 +42,9 @@
                         </q-field>
                         <q-field label="Access" stack-label dense borderless>
                             <template v-slot:control>
-                                <AccessControlList :projectId="projectStore.project.id" class="q-mt-xs" />
+                                <AccessControlList :projectAccess="projectStore.projectAccess"
+                                                   @addAccess="onAddAccess"
+                                                   @removeAccess="onRemoveAccess" class="q-mt-xs"/>
                             </template>
                         </q-field>
                     </div>
@@ -125,5 +127,13 @@ const onCreateNewExperiment = (newExperiment) => {
 const onDeleted = () => {
   projectStore.deleteProject();
   router.push({name: 'browseProjects'})
+}
+
+const onAddAccess = (newAccess) => {
+  projectStore.createProjectAccess(newAccess)
+}
+
+const onRemoveAccess = (accessId) => {
+  projectStore.deleteProjectAccess(accessId)
 }
 </script>

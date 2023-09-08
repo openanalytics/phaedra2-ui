@@ -22,7 +22,7 @@
                 </q-card-section>
                 <q-card-actions align="right" class="text-primary">
                 <q-btn flat label="Cancel" v-close-popup />
-                <q-btn label="Add" v-close-popup color="primary" @click="doAddAccess" />
+                <q-btn label="Add" v-close-popup color="primary" @click="addAccess" />
                 </q-card-actions>
             </q-card>
         </q-dialog>
@@ -36,7 +36,7 @@
                     <span>Are you sure you want to remove <b>{{accessToRemove.accessLevel}}</b> access for team <b>{{accessToRemove.teamName}}</b> from this project?</span>
                 </q-card-section>
                 <q-card-actions align="right">
-                    <q-btn label="Remove" color="primary" v-close-popup @click="doRemoveAccess" />
+                    <q-btn label="Remove" color="primary" v-close-popup @click="removeAccess" />
                     <q-btn flat label="Cancel" v-close-popup />
                 </q-card-actions>
             </q-card>
@@ -46,32 +46,33 @@
 
 <script setup>
 import {ref, computed} from "vue";
-import {useStore} from 'vuex'
+import {useUserInfoStore} from "@/stores/userinfo";
 
-const props = defineProps(['projectId', 'readOnly'])
-const exported = {};
-const store = useStore();
+const props = defineProps(['projectAccess', 'readOnly'])
+const emits = defineEmits(['addAccess', 'removeAccess'])
+const userInfoStore = useUserInfoStore()
 
-const projectAccess = computed(() => store.getters['projects/getProjectAccess'](props.projectId));
+const projectAccess = computed(() => props.projectAccess)
 
-const userInfo = computed(() => store.getters['userinfo/getUserInfo']());
+const userInfo = computed(() => userInfoStore.userInfo);
 const teamNames = computed(() => userInfo.value.teams);
 const accessLevels = ref(["Read", "Write", "Admin"]);
 
 const showAddAccessDialog = ref(false);
 const newAccess = ref({});
-const doAddAccess = () => {
-  newAccess.value.projectId = props.projectId;
-  store.dispatch('projects/createProjectAccess', newAccess.value);
-};
+const addAccess = () => {
+  console.log(JSON.stringify(newAccess.value))
+  emits('addAccess', newAccess.value)
+}
 
 const confirmRemoveAccess = ref(false);
 const accessToRemove = ref(null);
 const askRemoveAccess = (projectAccess) => {
   accessToRemove.value = projectAccess;
   confirmRemoveAccess.value = true;
-};
-const doRemoveAccess = () => {
-  store.dispatch('projects/deleteProjectAccess', exported.accessToRemove.value.id);
+}
+
+const removeAccess = () => {
+  emits('removeAccess', accessToRemove.value)
 }
 </script>

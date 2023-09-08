@@ -22,6 +22,22 @@ export default {
         const query = provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY, null, defaultOptions))
         return computed(() => query.result.value?.projects ?? [])
     },
+    recentProjects(n) {
+        const QUERY = gql`
+            query getProjects {
+                projects:getProjects {
+                    id
+                    name
+                    description
+                    createdOn
+                    createdBy
+                    tags
+                }
+            }
+        `
+        const query = provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY, null, defaultOptions))
+        return computed(() => query.result.value?.projects.slice(0, n) ?? [])
+    },
     projectById(projectId) {
         const QUERY = gql`
             query projectById($projectId: ID) {
@@ -48,6 +64,13 @@ export default {
                     updatedOn
                     updatedBy
                 }
+
+                projectAccess:getProjectAccess(projectId: $projectId) {
+                    id
+                    projectId
+                    teamName
+                    accessLevel
+                }
             }
         `
         const variables = {'projectId': projectId}
@@ -56,7 +79,8 @@ export default {
             defaultOptions))
         return {
             'project': computed(() => query.result.value?.project ?? null),
-            'experiments': computed(() => query.result.value?.experiments ?? null)
+            'experiments': computed(() => query.result.value?.experiments ?? null),
+            'projectAccess': computed(() => query.result.value?.projectAccess ?? null)
         }
     },
     projectNameById(projectId) {
@@ -73,6 +97,21 @@ export default {
             variables,
             defaultOptions))
         return computed(() => query.result.value?.project ?? null)
+    },
+    getProjectAccess(projectId) {
+        const QUERY = gql`
+            query getProjectAccess($projectId: ID) {
+                projectAccess:getProjectAccess(projectId: $projectId) {
+                    id
+                    projectId
+                    teamName
+                    accessLevel
+                }
+            }
+        `
+        const variables = {'projectId': projectId}
+        const query = provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY, variables, defaultOptions))
+        return computed(() => query.result.value?.projectAccess ?? [])
     },
     experimentById(experimentId) {
         const QUERY = gql`

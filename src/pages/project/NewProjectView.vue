@@ -40,9 +40,11 @@ import {useStore} from 'vuex';
 import {useRouter} from 'vue-router';
 import OaSection from "@/components/widgets/OaSection";
 import {useProjectStore} from "@/stores/project";
+import {useUserInfoStore} from "@/stores/userinfo";
 
 const store = useStore();
 const projectStore = useProjectStore()
+const userInfoStore = useUserInfoStore()
 const router = useRouter();
 
 const newProject = ref({
@@ -61,7 +63,7 @@ const onReset = () => {
   newProject.value.description = null;
 }
 
-const userInfo = computed(() => store.getters['userinfo/getUserInfo']());
+const userInfo = computed(() => userInfoStore.userInfo);
 const teamNames = computed(() => userInfo.value.teams);
 
 </script>

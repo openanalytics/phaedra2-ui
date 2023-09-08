@@ -6,16 +6,15 @@ import experimentAPI from "@/api/experiments";
 export const useProjectStore = defineStore("project" , {
     state: () => ({
         project: {},
-        experiments: []
+        experiments: [],
+        projectAccess: []
     }),
     actions: {
         loadProject(projectId) {
-            console.log("Execute projectsGraphQlAPI.projectById(projectId)")
-            const {project, experiments} = projectsGraphQlAPI.projectById(projectId)
-            console.log("Result of  projectsGraphQlAPI.projectById(projectId)" + JSON.stringify(project.value))
-            console.log("Result of  projectsGraphQlAPI.projectById(projectId)" + JSON.stringify(experiments.value))
+            const {project, experiments, projectAccess} = projectsGraphQlAPI.projectById(projectId)
             this.project = project
             this.experiments = experiments
+            this.projectAccess = projectAccess
         },
         async renameProject(newName) {
             await projectAPI.editProject({ id: this.project.id, name: newName })
@@ -44,6 +43,18 @@ export const useProjectStore = defineStore("project" , {
                 return e.id === experimentId
             })
             this.experiments.splice(index, 1)
-        }
+        },
+        async createProjectAccess(newAccess) {
+            newAccess['projectId'] = this.project.id;
+            const response = await projectAPI.createProjectAccess(newAccess)
+            this.projectAccess.push(response)
+        },
+        async deleteProjectAccess(access) {
+            await projectAPI.deleteProjectAccess(access.id);
+            const index = this.projectAccess.findIndex((pa) => {
+                return pa.id === access.id
+            })
+            this.projectAccess.splice(index, 1)
+        },
     }
 })

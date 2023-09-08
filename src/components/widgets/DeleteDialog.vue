@@ -48,12 +48,8 @@ const nameModel = ref(null)
 const confirmDelete = () => {
   switch (props.objectClass) {
     case 'project':
-      store.dispatch('projects/deleteProject', props.id).then( () => {
-        router.push({name: "browseProjects"});
-      });
       break;
     case 'experiment':
-      store.dispatch('experiments/deleteExperiment', props.id);
       break;
     case 'plate':
       store.dispatch('plates/deletePlate', props.id);

@@ -13,7 +13,7 @@ import calculations from './modules/calculations'
 import datacapture from './modules/datacapture'
 import templates from './modules/templates'
 import metadata from './modules/metadata'
-import userinfo from './modules/userinfo'
+// import userinfo from './modules/userinfo'
 import ui from './modules/ui'
 import curvedata from "./modules/curvedata";
 import charting from "./modules/charting";
@@ -35,7 +35,7 @@ export default createStore({
     datacapture,
     templates,
     metadata,
-    userinfo,
+    // userinfo,
     ui,
     curvedata,
     charting
