@@ -31,7 +31,7 @@
       </template>
       <template v-slot:body-cell-name="props">
         <q-td :props="props">
-          <router-link :to="'/experiment/' + props.row.id" class="nav-link">
+          <router-link :to="'/project/' + props.row.projectId + '/experiment/' + props.row.id" class="nav-link">
             <div class="row items-center cursor-pointer">
               <q-icon name="science" class="icon q-pr-sm"/>
               {{ props.row.name }}
@@ -41,7 +41,8 @@
       </template>
       <template v-slot:body-cell-tags="props">
         <q-td :props="props">
-          <TagList :objectInfo="props.row" :objectClass="'EXPERIMENT'" :readOnly="true" />
+<!--          <TagList :objectInfo="props.row" :objectClass="'EXPERIMENT'" :readOnly="true" />-->
+          <q-badge v-for="tag in props.row.tags" :key="tag" color="green">{{tag}}</q-badge>
         </q-td>
       </template>
       <template v-slot:body-cell-createdBy="props">
@@ -124,7 +125,6 @@ import {useStore} from 'vuex'
 
 import TableConfig from "@/components/table/TableConfig";
 import ProgressBarField from "@/components/widgets/ProgressBarField";
-import TagList from "@/components/tag/TagList";
 import UserChip from "@/components/widgets/UserChip";
 import ExperimentMenu from "@/components/experiment/ExperimentMenu";
 import OaSection from "@/components/widgets/OaSection";
@@ -162,26 +162,26 @@ const columns = ref([
 ])
 
 const store = useStore()
-
 const props = defineProps({
-  projectId: Number
+  experiments: [Object],
+  project: Object
 })
 
-const loading = ref(true)
-const experiments = computed(() => store.getters['experiments/getByProjectId'](props.projectId))
-store.dispatch('experiments/loadByProjectId', props.projectId).then(() => {
-  loading.value = false
-})
+const emits = defineEmits(['createNewExperiment'])
+
+const loading = ref()
+const experiments = computed( () => props.experiments ? props.experiments : [])
 
 const showNewExperimentDialog = ref(false)
 const newExperimentName = ref('')
+
 const doCreateNewExperiment = () => {
-  store.dispatch('experiments/createNewExperiment', {
-    projectId: props.projectId,
+  const newExperiment = {
     name: newExperimentName.value,
     status: 'OPEN',
     createdOn: new Date()
-  })
+  }
+  emits('createNewExperiment', newExperiment)
 }
 
 const filter = ref('')
