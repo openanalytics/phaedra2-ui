@@ -44,43 +44,34 @@
     </div>
 </template>
 
-<script>
-    import {ref, computed} from "vue";
-    import {useStore} from 'vuex'
+<script setup>
+import {ref, computed} from "vue";
+import {useStore} from 'vuex'
 
-    export default {
-        props: {
-            projectId: Number,
-            readOnly: Boolean
-        },
-        setup(props) {
-            const exported = {};
-            const store = useStore();
+const props = defineProps(['projectId', 'readOnly'])
+const exported = {};
+const store = useStore();
 
-            exported.projectAccess = computed(() => store.getters['projects/getProjectAccess'](props.projectId));
+const projectAccess = computed(() => store.getters['projects/getProjectAccess'](props.projectId));
 
-            const userInfo = computed(() => store.getters['userinfo/getUserInfo']());
-            exported.teamNames = computed(() => userInfo.value.teams);
-            exported.accessLevels = ref([ "Read", "Write", "Admin" ]);
+const userInfo = computed(() => store.getters['userinfo/getUserInfo']());
+const teamNames = computed(() => userInfo.value.teams);
+const accessLevels = ref(["Read", "Write", "Admin"]);
 
-            exported.showAddAccessDialog = ref(false);
-            exported.newAccess = ref({});
-            exported.doAddAccess = function() {
-                exported.newAccess.value.projectId = props.projectId;
-                store.dispatch('projects/createProjectAccess', exported.newAccess.value);
-            };
+const showAddAccessDialog = ref(false);
+const newAccess = ref({});
+const doAddAccess = () => {
+  newAccess.value.projectId = props.projectId;
+  store.dispatch('projects/createProjectAccess', newAccess.value);
+};
 
-            exported.confirmRemoveAccess = ref(false);
-            exported.accessToRemove = ref(null);
-            exported.askRemoveAccess = function(projectAccess) {
-                exported.accessToRemove.value = projectAccess;
-                exported.confirmRemoveAccess.value = true;
-            };
-            exported.doRemoveAccess = function() {
-                store.dispatch('projects/deleteProjectAccess', exported.accessToRemove.value.id);
-            };
-
-            return exported;
-        },
-    }
+const confirmRemoveAccess = ref(false);
+const accessToRemove = ref(null);
+const askRemoveAccess = (projectAccess) => {
+  accessToRemove.value = projectAccess;
+  confirmRemoveAccess.value = true;
+};
+const doRemoveAccess = () => {
+  store.dispatch('projects/deleteProjectAccess', exported.accessToRemove.value.id);
+}
 </script>
