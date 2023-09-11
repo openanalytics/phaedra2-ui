@@ -20,23 +20,7 @@ export default {
             }
         `
         const query = provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY, null, defaultOptions))
-        return computed(() => query.result.value?.projects ?? [])
-    },
-    recentProjects(n) {
-        const QUERY = gql`
-            query getProjects {
-                projects:getProjects {
-                    id
-                    name
-                    description
-                    createdOn
-                    createdBy
-                    tags
-                }
-            }
-        `
-        const query = provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY, null, defaultOptions))
-        return computed(() => query.result.value?.projects.slice(0, n) ?? [])
+        return computed(() => query.result.value?.projects.sort((p1, p2) => p2.createdOn.localeCompare(p1.createdOn)) ?? [])
     },
     projectById(projectId) {
         const QUERY = gql`
@@ -78,9 +62,9 @@ export default {
             variables,
             defaultOptions))
         return {
-            'project': computed(() => query.result.value?.project ?? null),
-            'experiments': computed(() => query.result.value?.experiments ?? null),
-            'projectAccess': computed(() => query.result.value?.projectAccess ?? null)
+            'project': computed(() => query.result.value?.project ?? {}),
+            'experiments': computed(() => query.result.value?.experiments ?? []),
+            'projectAccess': computed(() => query.result.value?.projectAccess ?? [])
         }
     },
     projectNameById(projectId) {
@@ -112,6 +96,29 @@ export default {
         const variables = {'projectId': projectId}
         const query = provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY, variables, defaultOptions))
         return computed(() => query.result.value?.projectAccess ?? [])
+    },
+    experimentsByProjectId(projectId) {
+        const QUERY = gql`
+            query projectById($projectId: ID) {
+                experiments:getExperimentsByProjectId(projectId: $projectId) {
+                    id
+                    projectId
+                    name
+                    description
+                    status
+                    tags
+                    createdOn
+                    createdBy
+                    updatedOn
+                    updatedBy
+                }
+            }
+        `
+        const variables = {'projectId': projectId}
+        const query = provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY,
+            variables,
+            defaultOptions))
+        return computed(() => query.result.value?.experiments ?? [])
     },
     experimentById(experimentId) {
         const QUERY = gql`

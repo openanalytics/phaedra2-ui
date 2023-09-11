@@ -37,36 +37,6 @@
   </div>
 </template>
 
-<style scoped>
-  .loadingAnimation {
-    position: absolute;
-    z-index: 10;
-    justify-self: center;
-    align-self: center;
-  }
-
-  .gridContainer {
-    display: grid;
-    grid-template-columns: v-bind(gridColumnStyle);
-    min-height: 400px;
-  }
-
-  .gridHeaderSlot {
-    background-color: grey;
-    border: 1px solid black;
-    margin: 1px;
-    font-size: 65%;
-    text-align: center;
-    cursor: pointer;
-  }
-
-  .wellSlot {
-    min-height: v-bind(wellSlotMinHeight);
-    font-size: v-bind(wellSlotFontSize);
-    overflow: hidden;
-  }
-</style>
-
 <script setup>
   import {ref, computed, watchEffect} from 'vue'
   import {useStore} from 'vuex'
@@ -75,22 +45,12 @@
   import SelectionBoxHelper from "@/lib/SelectionBoxHelper.js"
   import WellSlot from "@/components/well/WellSlot.vue"
 
-  const props = defineProps(['plate', 'loading', 'wellColorFunction', 'wellImageFunction', 'wellLabelFunctions'])
+  const props = defineProps(['plate', 'wells', 'loading', 'wellColorFunction', 'wellImageFunction', 'wellLabelFunctions'])
   const emit = defineEmits(['wellSelection']);
   const store = useStore();
 
   const selectedWells = ref([]);
-  let wells = computed(() => store.getters['wells/getWells'](props.plate.id) || []);
-  watchEffect(() => {
-    if (props?.plate?.wells) {
-      // If the plate object has wells, it's a plate template instead of a regular plate, whose wells are in the wells store.
-      wells = ref(props.plate.wells);
-      return;
-    }
-    if (props?.plate?.id && !store.getters['wells/areWellsLoaded'](props.plate.id)) {
-      store.dispatch('wells/fetchByPlateId', props.plate.id);
-    }
-  });
+  const wells = ref(props.wells)
 
   const emitWellSelection = (wells, append) => {
     if (!append) selectedWells.value.splice(0);
@@ -98,7 +58,7 @@
       if (append && selectedWells.value.some(w => w.id === well.id)) continue;
       selectedWells.value.push(well);
     }
-    store.dispatch('ui/selectWells', selectedWells.value);
+    // store.dispatch('ui/selectWells', selectedWells.value);
     emit('wellSelection', selectedWells.value);
   };
 
@@ -152,3 +112,33 @@
   });
 
 </script>
+
+<style scoped>
+.loadingAnimation {
+  position: absolute;
+  z-index: 10;
+  justify-self: center;
+  align-self: center;
+}
+
+.gridContainer {
+  display: grid;
+  grid-template-columns: v-bind(gridColumnStyle);
+  min-height: 400px;
+}
+
+.gridHeaderSlot {
+  background-color: grey;
+  border: 1px solid black;
+  margin: 1px;
+  font-size: 65%;
+  text-align: center;
+  cursor: pointer;
+}
+
+.wellSlot {
+  min-height: v-bind(wellSlotMinHeight);
+  font-size: v-bind(wellSlotFontSize);
+  overflow: hidden;
+}
+</style>

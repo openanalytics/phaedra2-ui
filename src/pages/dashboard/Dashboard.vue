@@ -19,7 +19,7 @@
                         </template>
                         <template v-slot:body-cell-name="props">
                             <q-td :props="props">
-                                <router-link :to="'/experiment/' + props.row.id" class="nav-link">
+                                <router-link :to="'project/'+ props.row.projectId +'/experiment/' + props.row.id" class="nav-link">
                                     <div class="row items-center cursor-pointer">
                                         <q-icon name="science" class="icon q-pr-sm"/>
                                         {{ props.row.name }}
@@ -85,22 +85,26 @@
 <script setup>
 import {computed} from "vue";
 import {useStore} from "vuex";
-import RecentCalculations from "@/components/dashboard/RecentCalculations";
-import RecentProjects from "@/components/dashboard/RecentProjects";
-import UserChip from "@/components/widgets/UserChip";
-import FormatUtils from "@/lib/FormatUtils.js";
-import OaSection from "@/components/widgets/OaSection";
+import RecentCalculations from "@/components/dashboard/RecentCalculations"
+import RecentProjects from "@/components/dashboard/RecentProjects"
+import UserChip from "@/components/widgets/UserChip"
+import FormatUtils from "@/lib/FormatUtils.js"
+import OaSection from "@/components/widgets/OaSection"
+import projectsGraphQlAPI from "@/api/graphql/projects"
+import experimentsGraphQlAPI from "@/api/graphql/experiments"
 
 const store = useStore();
 
 //TODO: Add API to load recent projects
-store.dispatch('projects/loadAll');
-store.dispatch('experiments/loadRecentExperiments', 10);
+const projects = projectsGraphQlAPI.projects()
+const experiments = experimentsGraphQlAPI.experiments()
+// store.dispatch('experiments/loadRecentExperiments', 10);
 
-const recentProjects = computed(() => store.getters['projects/getRecentProjects'](3));
-const recentExperiments = computed(() => store.getters['experiments/getRecentExperiments']());
-const recentExperimentSummaries = computed(() => store.getters['experiments/getRecentExperimentSummaries']())
-const projects = computed(() => store.getters['projects/getAll']())
+const recentProjects = computed(() => projects.value.slice(0, 3));
+const recentExperiments = computed( () => experiments.value.slice(0, 10))
+const recentExperimentSummaries = experimentsGraphQlAPI.experimentSummaries()
+// const recentExperiments = computed(() => store.getters['experiments/getRecentExperiments']());
+// const recentExperimentSummaries = computed(() => store.getters['experiments/getRecentExperimentSummaries']())
 
 const columns = [
     {name: 'name', label: 'Name', align: 'left', field: 'name'},

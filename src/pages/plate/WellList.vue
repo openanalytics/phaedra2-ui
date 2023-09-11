@@ -112,7 +112,7 @@
 
         resultData.value.forEach(rd => {
             const featureName = features.value.find(feature => feature.id === rd.featureId)?.name;
-            
+
             columns.value.push({
                 name: featureName,
                 align: 'left',
@@ -121,12 +121,12 @@
                 sortable: true
             });
             visibleColumns.push(featureName);
-            
+
             rd.values.forEach((val, index) => {
                 rows.value[index].data[featureName] = val;
             });
         })
-        
+
         loading.value = false;
     });
 </script>

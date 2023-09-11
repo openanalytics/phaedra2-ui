@@ -1,5 +1,5 @@
 <template>
-    <q-breadcrumbs class="oa-breadcrumb" v-if="experiment && project">
+    <q-breadcrumbs class="oa-breadcrumb" v-if="experiment">
         <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
         <q-breadcrumbs-el :label="'Projects'" icon="list" :to="'/projects'"/>
         <q-breadcrumbs-el :label="project.name" icon="folder" :to="{ name: 'project', params: { id: experiment.projectId } }"/>
@@ -24,7 +24,8 @@
                         </q-field>
                         <q-field label="Tags" stack-label dense borderless>
                             <template v-slot:control>
-                                <TagList :objectInfo="experiment" :objectClass="'EXPERIMENT'" />
+<!--                                <TagList :objectInfo="experiment" :objectClass="'EXPERIMENT'" />-->
+                              <TagList :tags="experiment.tags" :objectId="experiment.id" :objectClass="'EXPERIMENT'"/>
                             </template>
                         </q-field>
                     </div>
@@ -67,7 +68,7 @@
             <div class="row oa-section-body">
                 <q-tab-panels v-model="activeTab" animated class="full-width">
                     <q-tab-panel name="overview" class="q-px-none">
-                        <PlateList :experiment="experiment" v-model:newPlateTab="newPlateTab" />
+                        <PlateList :experiment="experiment" :plates="plates" v-model:newPlateTab="newPlateTab" />
                     </q-tab-panel>
                     <q-tab-panel name="statistics" class="q-px-none">
                         <PlateStatsList :experiment="experiment"/>
@@ -104,15 +105,11 @@
             </oa-section>
         </div>
 
-<!--      <Splitpanes class="default-theme" style="height: 400px">-->
-<!--          <ChartViewer v-for="chartView in chartViews" :key="chartView.id" :chartTemplate="chartView"/>-->
       <div class="q-pa-md">
         <ChartViewer/>
       </div>
-<!--      </Splitpanes>-->
-
-        <rename-dialog v-model:show="showRenameDialog" objectClass="experiment" :object="experiment" @valueChanged="onNameChanged" />
-        <delete-dialog v-model:show="showDeleteDialog" :id="experiment.id" :name="experiment.name" :objectClass="'experiment'" @onDeleted="onDeleted" />
+      <rename-dialog v-model:show="showRenameDialog" objectClass="experiment" :object="experiment" @valueChanged="onNameChanged"/>
+      <delete-dialog v-model:show="showDeleteDialog" :id="experiment?.id" :name="experiment?.name" :objectClass="'experiment'" @onDeleted="onDeleted"/>
     </q-page>
 </template>
 
@@ -132,17 +129,17 @@ import DeleteDialog from "@/components/widgets/DeleteDialog";
 import RenameDialog from "@/components/widgets/RenameDialog";
 import OaSection from "@/components/widgets/OaSection";
 import FormatUtils from "@/lib/FormatUtils.js"
-import {Pane, Splitpanes} from "splitpanes";
+import projectsGraphQlAPI from "@/api/graphql/projects";
+
 import ChartViewer from "@/components/chart/ChartViewer.vue";
-import {useGlobalQueryLoading} from "@vue/apollo-composable";
 
 const store = useStore();
 const route = useRoute();
 const router = useRouter();
 
-const experimentId = parseInt(route.params.id);
+const projectId = parseInt(route.params.projectId)
+const experimentId = parseInt(route.params.experimentId)
 
-const projectId = ref(null);
 const activeTab = ref('overview')
 
 const charts = computed(() => store.getters['ui/getChartViews']())
@@ -160,13 +157,8 @@ const newPlate = ref({
     approvalStatus: "APPROVAL_NOT_SET",
 })
 
-const experiment = computed(() => store.getters['experiments/getById'](experimentId) || {});
-const project = computed(() => store.getters['projects/getById'](projectId.value));
-
-store.dispatch('experiments/loadById', experimentId).then(() => {
-    projectId.value = experiment.value.projectId;
-    store.dispatch('projects/loadById', projectId.value);
-})
+const project = projectsGraphQlAPI.projectNameById(projectId)
+const { experiment, plates } = projectsGraphQlAPI.experimentById(experimentId)
 
 const createNewPlate = () => {
     newPlate.value.sequence = "1";
@@ -177,8 +169,9 @@ const createNewPlate = () => {
 
 const showRenameDialog = ref(false);
 const onNameChanged = function(newName) {
-    store.dispatch('experiments/editExperiment', { id: experimentId, name: newName });
-    store.commit()
+    store.dispatch('experiments/editExperiment', { id: experimentId, name: newName }).then(
+        experiment.value.name = newName
+    )
 };
 
 const showDeleteDialog = ref(false);

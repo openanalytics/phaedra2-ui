@@ -113,7 +113,7 @@
 </template>
 
 <script setup>
-import {computed, ref} from "vue"
+import {ref} from "vue"
 import {useTemplateStore} from "@/stores/template";
 import {useRoute, useRouter} from "vue-router";
 
@@ -126,7 +126,6 @@ import EditPlateTemplate from "./EditPlateTemplate";
 import OaSection from "@/components/widgets/OaSection";
 import DeleteDialog from "@/components/widgets/DeleteDialog";
 import UserChip from "@/components/widgets/UserChip";
-import templatesGraphQlAPI from "@/api/graphql/templates";
 
 const route = useRoute()
 const router = useRouter()
@@ -138,7 +137,6 @@ const showDeleteDialog = ref(false)
 
 const templateId = parseInt(route.params.id);
 templateStore.loadTemplate(templateId)
-// const template = templateStore.template
 
 const savePlateTemplate = () => {
   templateStore.saveTemplate()
