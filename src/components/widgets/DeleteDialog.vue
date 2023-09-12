@@ -52,7 +52,6 @@ const confirmDelete = () => {
     case 'experiment':
       break;
     case 'plate':
-      store.dispatch('plates/deletePlate', props.id);
       break;
     case 'protocol':
       store.dispatch('protocols/deleteProtocol', props.id).then( () => {

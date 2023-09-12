@@ -68,7 +68,6 @@
     </template>
     <template v-slot:body-cell-tags="props">
       <q-td :props="props">
-<!--        <TagList :objectInfo="props.row" :objectClass="'PLATE'" :readOnly="true" />-->
         <q-badge v-for="tag in props.row.tags" :key="tag" color="green">{{tag}}</q-badge>
       </q-td>
     </template>
@@ -81,7 +80,7 @@
       <q-td :props="props">
         <div class="row items-center cursor-pointer">
           <q-btn flat round icon="more_horiz" size="sm" >
-            <plate-action-menu :plate="props.row" @showPlateInspector="openPlateInspector(props.row)"/>
+            <PlateActionMenu :plate="props.row" @showPlateInspector="openPlateInspector(props.row)" />
           </q-btn>
         </div>
       </q-td>
@@ -114,7 +113,6 @@ import {computed, ref} from "vue";
 import {useStore} from 'vuex'
 import {useRoute} from "vue-router";
 
-import TagList from "@/components/tag/TagList";
 import UserChip from "@/components/widgets/UserChip";
 import TableConfig from "@/components/table/TableConfig";
 import PlateActionMenu from "@/components/plate/PlateActionMenu";

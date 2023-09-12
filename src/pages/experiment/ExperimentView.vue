@@ -1,31 +1,30 @@
 <template>
-    <q-breadcrumbs class="oa-breadcrumb" v-if="experiment">
+    <q-breadcrumbs class="oa-breadcrumb" v-if="experimentStore.experiment">
         <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
         <q-breadcrumbs-el :label="'Projects'" icon="list" :to="'/projects'"/>
-        <q-breadcrumbs-el :label="project.name" icon="folder" :to="{ name: 'project', params: { id: experiment.projectId } }"/>
-        <q-breadcrumbs-el :label="experiment.name" icon="science"/>
+        <q-breadcrumbs-el :label="projectStore.project.name" icon="folder" :to="{ name: 'project', params: { id: projectStore.project.id } }"/>
+        <q-breadcrumbs-el :label="experimentStore.experiment.name" icon="science"/>
     </q-breadcrumbs>
 
     <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
         <div class="q-pa-md">
-            <oa-section v-if="!experiment" title="Loading experiment..." icon="science" />
-            <oa-section v-else :title="experiment.name" icon="science" :collapsible="true">
+            <oa-section v-if="!experimentStore.experiment" title="Loading experiment..." icon="science" />
+            <oa-section v-else :title="experimentStore.experiment.name" icon="science" :collapsible="true">
                 <div class="row q-pa-md">
                     <div class="col-3">
                         <q-field label="ID" stack-label dense borderless>
                             <template v-slot:control>
-                                {{ experiment.id }}
+                                {{ experimentStore.experiment.id }}
                             </template>
                         </q-field>
                         <q-field label="Description" stack-label dense borderless>
                             <template v-slot:control>
-                                <EditableField :object="experiment" fieldName="description" @valueChanged="onDescriptionChanged" />
+                                <EditableField :object="experimentStore.experiment" fieldName="description" @valueChanged="onDescriptionChanged" />
                             </template>
                         </q-field>
                         <q-field label="Tags" stack-label dense borderless>
                             <template v-slot:control>
-<!--                                <TagList :objectInfo="experiment" :objectClass="'EXPERIMENT'" />-->
-                              <TagList :tags="experiment.tags" :objectId="experiment.id" :objectClass="'EXPERIMENT'"/>
+                              <TagList :tags="experimentStore.experiment.tags" :objectId="experimentStore.experiment.id" :objectClass="'EXPERIMENT'"/>
                             </template>
                         </q-field>
                     </div>
@@ -33,18 +32,18 @@
                     <div class="col-3">
                         <q-field label="Created On" stack-label dense borderless>
                             <template v-slot:control>
-                                {{ FormatUtils.formatDate(experiment.createdOn) }}
+                                {{ FormatUtils.formatDate(experimentStore.experiment.createdOn) }}
                             </template>
                         </q-field>
                         <q-field label="Created By" stack-label dense borderless>
                             <template v-slot:control>
-                                <UserChip :id="experiment.createdBy"/>
+                                <UserChip :id="experimentStore.experiment.createdBy"/>
                             </template>
                         </q-field>
                     </div>
 
                     <div class="col-4">
-                        <PropertyTable :objectInfo="experiment" :objectClass="'EXPERIMENT'"/>
+                        <PropertyTable :objectInfo="experimentStore.experiment" :objectClass="'EXPERIMENT'"/>
                     </div>
 
                     <div class="col-2">
@@ -59,7 +58,7 @@
             </oa-section>
         </div>
 
-        <div class="q-pa-md" v-if="experiment">
+        <div class="q-pa-md" v-if="experimentStore.experiment">
             <q-tabs v-model="activeTab" inline-label dense no-caps align="left" class="oa-section-title">
                 <q-tab name="overview" icon="table_rows" label="Overview"/>
                 <q-tab name="statistics" icon="functions" label="Statistics"/>
@@ -68,13 +67,13 @@
             <div class="row oa-section-body">
                 <q-tab-panels v-model="activeTab" animated class="full-width">
                     <q-tab-panel name="overview" class="q-px-none">
-                        <PlateList :experiment="experiment" :plates="plates" v-model:newPlateTab="newPlateTab" />
+                        <PlateList :experiment="experimentStore.experiment" :plates="experimentStore.plates" v-model:newPlateTab="newPlateTab" />
                     </q-tab-panel>
                     <q-tab-panel name="statistics" class="q-px-none">
-                        <PlateStatsList :experiment="experiment"/>
+                        <PlateStatsList :experiment="experimentStore.experiment"/>
                     </q-tab-panel>
                     <q-tab-panel name="heatmaps" class="q-px-none">
-                        <PlateGrid :experiment="experiment"/>
+                        <PlateGrid :experiment="experimentStore.experiment"/>
                     </q-tab-panel>
                 </q-tab-panels>
             </div>
@@ -87,7 +86,6 @@
                         <div class="col col-5">
                             <q-input v-model="newPlate.barcode" square autofocus label="Barcode"></q-input>
                             <q-input v-model="newPlate.description" square label="Description"></q-input><br>
-
                         </div>
                         <div class="col col-1">
 
@@ -108,8 +106,8 @@
       <div class="q-pa-md">
         <ChartViewer/>
       </div>
-      <rename-dialog v-model:show="showRenameDialog" objectClass="experiment" :object="experiment" @valueChanged="onNameChanged"/>
-      <delete-dialog v-model:show="showDeleteDialog" :id="experiment?.id" :name="experiment?.name" :objectClass="'experiment'" @onDeleted="onDeleted"/>
+      <rename-dialog v-model:show="showRenameDialog" objectClass="experiment" :object="experimentStore.experiment" @valueChanged="onNameChanged"/>
+      <delete-dialog v-model:show="showDeleteDialog" :id="experimentStore.experiment?.id" :name="experimentStore.experiment?.name" :objectClass="'experiment'" @onDeleted="onDeleteExperiment"/>
     </q-page>
 </template>
 
@@ -129,16 +127,23 @@ import DeleteDialog from "@/components/widgets/DeleteDialog";
 import RenameDialog from "@/components/widgets/RenameDialog";
 import OaSection from "@/components/widgets/OaSection";
 import FormatUtils from "@/lib/FormatUtils.js"
-import projectsGraphQlAPI from "@/api/graphql/projects";
 
 import ChartViewer from "@/components/chart/ChartViewer.vue";
+import {useExperimentStore} from "@/stores/experiment";
+import {useProjectStore} from "@/stores/project";
 
 const store = useStore();
+const projectStore = useProjectStore()
+const experimentStore = useExperimentStore()
 const route = useRoute();
 const router = useRouter();
 
 const projectId = parseInt(route.params.projectId)
+if (projectStore.project || projectStore.project.id !== projectId)
+  projectStore.loadProject(projectId)
+
 const experimentId = parseInt(route.params.experimentId)
+experimentStore.loadExperiment(experimentId)
 
 const activeTab = ref('overview')
 
@@ -157,31 +162,27 @@ const newPlate = ref({
     approvalStatus: "APPROVAL_NOT_SET",
 })
 
-const project = projectsGraphQlAPI.projectNameById(projectId)
-const { experiment, plates } = projectsGraphQlAPI.experimentById(experimentId)
-
 const createNewPlate = () => {
-    newPlate.value.sequence = "1";
-    newPlate.value.experimentId = experimentId;
-    store.dispatch('plates/createNewPlate', newPlate.value);
-    newPlateTab.value = false;
+  newPlate.value.sequence = "1";
+  newPlate.value.experimentId = experimentId;
+  experimentStore.addPlate(newPlate.value)
+  newPlateTab.value = false;
 }
 
 const showRenameDialog = ref(false);
 const onNameChanged = function(newName) {
-    store.dispatch('experiments/editExperiment', { id: experimentId, name: newName }).then(
-        experiment.value.name = newName
-    )
+    experimentStore.renameExperiment(newName)
 };
 
 const showDeleteDialog = ref(false);
-const onDeleted = () => {
-    router.push({name: 'project', params: {id: project.value.id}})
+const onDeleteExperiment = () => {
+    experimentStore.deleteExperiment()
+    router.push({name: 'project', params: {id: projectStore.project.id}})
 }
 
 const onDescriptionChanged = (newDescription) => {
-    store.dispatch('experiments/editExperiment', { id: experiment.value.id, description: newDescription });
-};
+  experimentStore.editExperimentDescription(newDescription)
+}
 
 const resizeChartView = (event) => {
   console.log("resize:" + JSON.stringify(event))

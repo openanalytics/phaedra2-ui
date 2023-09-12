@@ -241,5 +241,25 @@ export default {
             'plate': computed(() => query.result.value?.plate ?? null),
             'wells': computed(() => query.result.value?.wells ?? null)
         }
+    },
+    activePlateMeasurement(plateId) {
+        const QUERY = gql`
+            query getPlateMeasurements($plateId: ID, $active: Boolean) {
+                plateMeasurement:getPlateMeasurements(plateId: $plateId, active: $active) {
+                    plateId
+                    barcode
+                    rows
+                    columns
+                    measurementId
+                    source
+                    active
+                }
+            }
+        `
+        const variables = {'plateId': plateId, 'active': true}
+        const query = provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY,
+            variables,
+            defaultOptions))
+        return computed(() => query.result.value?.plateMeasurement[0] ?? null)
     }
 }

@@ -16,7 +16,7 @@
           <q-table
               table-header-class="text-grey"
               square flat dense hide-bottom
-              :rows="plates"
+              :rows="experimentStore.plates"
               :columns="plateColumns"
               :pagination="{ rowsPerPage: 5 }"
               selection="multiple"
@@ -87,15 +87,16 @@
   import FormatUtils from "@/lib/FormatUtils";
   import TemplateQuickView from "@/components/layout/TemplateQuickView";
   import StatusFlag from "@/components/widgets/StatusFlag";
+  import {useExperimentStore} from "@/stores/experiment";
 
-  const props = defineProps(['show','plateId']);
-  const emit = defineEmits(['update:show']);
+  const props = defineProps(['show','plate']);
+  const emit = defineEmits(['update:show', "onLinkPlate"]);
 
   const store = useStore();
+  const experimentStore = useExperimentStore()
   const route = useRoute();
 
   const experimentId = parseInt(route.params.id);
-  const plates = computed(() => store.getters['plates/getByExperimentId'](experimentId).filter(p => props.plateId ? p.id === props.plateId : true));
 
   const showDialog = computed({
     get: () => props.show,
@@ -105,7 +106,7 @@
     if (newValue === true && allTemplates.value.length === 0) store.dispatch('templates/loadAll');
   });
 
-  const selectedPlates = ref(plates.value.filter(p => p.id === props.plateId));
+  const selectedPlates = ref(experimentStore.plates.filter(p => p.id === props.plate.id));
   const allTemplates = computed(() => store.getters['templates/getPlateTemplatesByPlateDimensions'](selectedPlates.value[0]));
   const selectedTemplates = ref([]);
   const quickView = ref(false);
@@ -125,15 +126,13 @@
   ];
 
   const linkPlate = () => {
-    //TODO change to linkplate api endpoint
     const copy = JSON.parse(JSON.stringify(selectedPlates.value));
     copy.forEach(plate => {
       plate.linkStatus = 'LINKED'
       plate.linkSource = 'layout-template'
       plate.linkTemplateId = selectedTemplates.value[0].id
       plate.linkedOn = new Date()
-      // store.dispatch('plates/editPlate', plate)
-      store.dispatch('plates/applyPlateLayout', plate)
+      experimentStore.linkPlate(plate)
     });
   };
   const checkPlateDimensions = () => {

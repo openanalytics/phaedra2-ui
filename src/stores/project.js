@@ -16,6 +16,10 @@ export const useProjectStore = defineStore("project" , {
             this.experiments = experiments
             this.projectAccess = projectAccess
         },
+        async createNewProject(newProject) {
+            const createdProject = await projectAPI.createNewProject(newProject)
+            this.project['id'] = createdProject.id
+        },
         async renameProject(newName) {
             await projectAPI.editProject({ id: this.project.id, name: newName })
             this.project.name = newName
@@ -26,16 +30,11 @@ export const useProjectStore = defineStore("project" , {
         },
         async deleteProject() {
             await projectAPI.deleteProject(this.project.id)
-            this.project = {}
         },
         async addExperiment(experiment) {
             experiment['projectId'] = this.project.id
             const createdExperiment = await experimentAPI.createExperiment(experiment);
             this.experiments.push(createdExperiment)
-        },
-        async createNewProject(newProject) {
-            const createdProject = await projectAPI.createNewProject(newProject)
-            this.project = createdProject
         },
         async deleteExperiment(experimentId) {
             await experimentAPI.deleteExperiment(experimentId);
