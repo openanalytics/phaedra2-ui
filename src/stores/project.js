@@ -18,7 +18,9 @@ export const useProjectStore = defineStore("project" , {
         },
         async createNewProject(newProject) {
             const createdProject = await projectAPI.createNewProject(newProject)
-            this.project['id'] = createdProject.id
+            this.project = {...this.project, ...createdProject }
+
+            await this.createProjectAccess({ projectId: createdProject.id, teamName: newProject.adminTeam, accessLevel: "Admin" })
         },
         async renameProject(newName) {
             await projectAPI.editProject({ id: this.project.id, name: newName })

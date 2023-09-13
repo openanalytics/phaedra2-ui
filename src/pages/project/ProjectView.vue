@@ -23,7 +23,6 @@
                         </q-field>
                         <q-field label="Tags" stack-label dense borderless>
                             <template v-slot:control>
-<!--                                <TagList :objectInfo="project" :objectClass="'PROJECT'" />-->
                                 <TagList :tags="projectStore.project.tags" :objectId="projectStore.project.id" :objectClass="'PROJECT'"/>
                             </template>
                         </q-field>
