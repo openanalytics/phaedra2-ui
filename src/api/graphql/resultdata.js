@@ -27,6 +27,9 @@ export default {
         ))
         return computed(() => query.result.value?.protocols ?? [])
     },
+    calculationsByPlateId(plateId) {
+
+    },
     featureValuesByPlateIdAndFeatureId(plateId, featureId){
         const FEATURE_VALUES_BY_PLATE_ID_AND_FEATURE_ID_QUERY = gql`
             query featureValuesByPlateIdAndFeatureId($plateId: ID, $featureId: ID) {
@@ -71,5 +74,43 @@ export default {
                 'yFeatureValues': query.result.value?.yFeatureValues?.map(fv => fv.value ?? [])
             }
         })
+    },
+    resultSetsByPlateId(plateId) {
+        const QUERY = gql`
+            query resultSetsByPlateId($plateId: ID) {
+                resultSets: resultSetsByPlateId(plateId: $plateId) {
+                    id
+                    executionStartTimeStamp
+                    executionEndTimeStamp
+                    measId
+                    protocolId
+                    outcome
+                    errorsText
+                }
+            }
+        `
+        const variables = {'plateId': plateId}
+        const query = provideApolloClient(apolloResultDataClient)(()=> useQuery(QUERY,
+            variables,
+            defaultOptions))
+        return computed(() => query.result.value?.resultSets ?? [])
+    },
+    resultSetFeatureStats(resultSetId) {
+        const QUERY = gql`
+            query resultSetsByPlateId($resultSetId: ID) {
+                rsFeatureStats: resultSetFeatureStats(resultSetId: $resultSetId) {
+                    featureId
+                    statisticName
+                    value
+                    statusCode
+                    statusMessage
+                }
+            }
+        `
+        const variables = {'resultSetId': resultSetId}
+        const query = provideApolloClient(apolloResultDataClient)(()=> useQuery(QUERY,
+            variables,
+            defaultOptions))
+        return computed(() => query.result.value?.rsFeatureStats ?? [])
     }
 }
