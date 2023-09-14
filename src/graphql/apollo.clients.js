@@ -52,10 +52,21 @@ const apolloProtocolsClient = new ApolloClient({
     cache: new InMemoryCache()
 })
 
+const apolloMeasurementsClient = new ApolloClient({
+    link: createHttpLink({
+        uri: 'https://phaedra.poc.openanalytics.io/phaedra/api/v1/measurement-service/graphql',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    }),
+    cache: new InMemoryCache()
+})
+
 export {
     apolloResultDataClient,
     apolloPlatesClient,
     apolloChartsClient,
     apolloCurvesClient,
-    apolloProtocolsClient
+    apolloProtocolsClient,
+    apolloMeasurementsClient
 }
