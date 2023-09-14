@@ -11,14 +11,19 @@ export const useProjectStore = defineStore("project" , {
     }),
     actions: {
         loadProject(projectId) {
-            const {project, experiments, projectAccess} = projectsGraphQlAPI.projectById(projectId)
-            this.project = project
-            this.experiments = experiments
-            this.projectAccess = projectAccess
+            if (!this.isLoaded(projectId)) {
+                const {project, experiments, projectAccess} = projectsGraphQlAPI.projectById(projectId)
+                this.project = project
+                this.experiments = experiments
+                this.projectAccess = projectAccess
+            }
+        },
+        isLoaded(projectId) {
+            return this.project && this.project.id === projectId
         },
         async createNewProject(newProject) {
             const createdProject = await projectAPI.createNewProject(newProject)
-            this.project = {...this.project, ...createdProject }
+            this.project = createdProject
 
             await this.createProjectAccess({ projectId: createdProject.id, teamName: newProject.adminTeam, accessLevel: "Admin" })
         },
