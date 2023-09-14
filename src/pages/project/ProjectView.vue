@@ -18,12 +18,12 @@
                         </q-field>
                         <q-field label="Description" stack-label dense borderless>
                             <template v-slot:control>
-                                <EditableField :object="projectStore.project" :fieldName="'description'" @valueChanged="onDescriptionChanged" />
+                                <EditableField :object="projectStore.project" fieldName="description" @valueChanged="onDescriptionChanged" />
                             </template>
                         </q-field>
                         <q-field label="Tags" stack-label dense borderless>
                             <template v-slot:control>
-                                <TagList :tags="projectStore.project.tags" :objectId="projectStore.project.id" :objectClass="'PROJECT'"/>
+                              <TagList :tags="projectStore.project.tags" :objectId="projectStore.project.id" :objectClass="'PROJECT'"/>
                             </template>
                         </q-field>
                     </div>

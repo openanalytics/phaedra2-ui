@@ -40,12 +40,12 @@
 </style>
 
 <script setup>
-import {ref} from "vue";
+import {computed, ref} from "vue";
 import Tag from "@/components/tag/Tag"
 import metadataAPI from '@/api/metadata.js'
 
 const props = defineProps(['tags', 'objectId', 'objectClass']);
-const tags = ref(props.tags ? [...props.tags] : [])
+const tags = computed(() => props.tags)
 
 const showAddTagDialog = ref(false);
 const newTag = ref('');
