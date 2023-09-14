@@ -80,13 +80,21 @@
     const executions = computed(() => store.getters['pipelines/getAllPipelineExecutions'](getDateRange()));
     refreshList();
 
+    store.dispatch('pipelines/loadAllPipelines');
+    const getPipelineDefinition = id => store.getters['pipelines/getPipelineById'](id);
+
     const columns = ref([
         {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
         {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
         {name: 'updatedOn', align: 'left', label: 'Updated On', field: 'updatedOn', sortable: true, format: FormatUtils.formatDate},
         {name: 'updatedBy', align: 'left', label: 'Updated By', field: 'updatedBy', sortable: true},
-        {name: 'currentStep', align: 'center', label: 'Current Step', field: 'currentStep'},
-        {name: 'pipelineId', align: 'center', label: 'Pipeline ID', field: 'pipelineId'},
+        {name: 'pipeline', align: 'center', label: 'Pipeline', field: 'pipelineId', format: v => getPipelineDefinition(v)?.name || v},
+        {name: 'currentStep', align: 'center', label: 'Current Step', field: 'currentStep', format: (v, e) => {
+            let def = getPipelineDefinition(e.pipelineId);
+            let stepName = def?.config?.steps[v-1]?.action?.type || "";
+            let stepCount = def?.config?.steps?.length || "?";
+            return `${stepName} (${v} / ${stepCount})`;
+        }},
         {name: 'status', align: 'center', label: 'Status', field: 'status'},
     ]);
 </script>
