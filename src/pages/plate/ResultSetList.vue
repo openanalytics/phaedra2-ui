@@ -3,14 +3,14 @@
         table-header-class="text-grey"
         flat square dense
         :title="'Result Sets'"
-        :rows="resultSets"
+        :rows="plateStore.resultSets"
         :columns="resultSetsColumns"
         row-key="id"
         :pagination="{ rowsPerPage: 10, sortBy: 'calculatedOn', descending: true }"
         :filter="filter"
         :filter-method="filterMethod"
         :loading="loading">
-        
+
         <template v-slot:top-right>
             <div class="row">
                 <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
@@ -49,27 +49,19 @@
 </template>
 
 <script setup>
-import {ref, computed, watchEffect} from 'vue'
+import {ref} from 'vue'
 import {useStore} from 'vuex'
 import FormatUtils from "../../lib/FormatUtils";
 import FilterUtils from "../../lib/FilterUtils";
 import StatusLabel from "@/components/widgets/StatusLabel"
 import ResultSetDetailsPanel from "@/components/resultdata/ResultSetDetailsPanel";
+import {usePlateStore} from "@/stores/plate";
 
 const props = defineProps({ plate: Object });
 const store = useStore();
 const loading = ref(true);
-
-const resultSets = computed(() => store.getters['resultdata/getResultSets'](props.plate.id) || []);
-store.dispatch('resultdata/loadResultSets', props.plate.id).then(() => loading.value = false)
-
-watchEffect(() => {
-    let protocolIds = [...new Set(resultSets.value?.map(rs => rs.protocolId))];
-    protocolIds.forEach(id => store.dispatch('protocols/loadById', id));
-
-    let measIds = [...new Set(resultSets.value?.map(rs => rs.measId))];
-    store.dispatch('measurements/loadByIds', measIds);
-});
+const plateStore = usePlateStore()
+loading.value = false
 
 // Details panel
 const showResultSetDetails = ref(false);
@@ -82,13 +74,13 @@ const doShowDetails = (rs) => {
 const filter = ref('');
 const filterMethod = FilterUtils.defaultTableFilter();
 
-let resultSetsColumns = ref([
+const resultSetsColumns = ref([
     { name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true },
     { name: 'calculatedOn', align: 'left', label: 'Calculated On', field: 'executionStartTimeStamp', sortable: true, format: FormatUtils.formatDate },
-    { name: 'measurement', align: 'left', label: 'Measurement', field: 'measId', sortable: true, format: val => (store.getters['measurements/getById'](val) || {}).name },
-    { name: 'protocol', align: 'left', label: 'Protocol', field: 'protocolId', sortable: true, format: val => (store.getters['protocols/getById'](val) || {}).name },
+    { name: 'measurement', align: 'left', label: 'Measurement', field: 'measId', sortable: true },
+    { name: 'protocol', align: 'left', label: 'Protocol', field: 'protocolId', sortable: true },
     { name: 'outcome', align: 'left', label: 'Outcome', sortable: true, field: 'outcome' },
-    {name: 'details'}
-]);
+    { name: 'details' }
+])
 
 </script>
