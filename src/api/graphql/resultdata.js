@@ -112,5 +112,47 @@ export default {
             variables,
             defaultOptions))
         return computed(() => query.result.value?.rsFeatureStats ?? [])
+    },
+    resultDataByResultSetId(resultSetId) {
+        const QUERY = gql`
+            query resultDataByResultSetId($resultSetId: ID) {
+                resultData: resultDataByResultSetId(resultSetId: $resultSetId) {
+                    id
+                    resultSetId
+                    featureId
+                    values
+                    statusCode
+                    statusMessage
+                    exitCode
+                    createdTimestamp
+                }
+            }
+        `
+        const variables = {'resultSetId': resultSetId}
+        const query = provideApolloClient(apolloResultDataClient)(()=> useQuery(QUERY,
+            variables,
+            defaultOptions))
+        return computed(() => query.result.value?.resultData ?? [])
+    },
+    resultDataByResultSetIdAndFeatureId(resultSetId, featureId) {
+        const QUERY = gql`
+            query resultDataByResultSetId($resultSetId: ID, $featureId: ID) {
+                resultData: resultDataByResultSetIdAndFeatureId(resultSetId: $resultSetId, featureId: $featureId) {
+                    id
+                    resultSetId
+                    featureId
+                    values
+                    statusCode
+                    statusMessage
+                    exitCode
+                    createdTimestamp
+                }
+            }
+        `
+        const variables = {'resultSetId': resultSetId, 'featureId': featureId}
+        const query = provideApolloClient(apolloResultDataClient)(() => useQuery(QUERY,
+            variables,
+            defaultOptions))
+        return computed(() => query.result.value?.resultData ?? [])
     }
 }
