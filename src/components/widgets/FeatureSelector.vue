@@ -1,18 +1,65 @@
 <template>
-  <div class="col justify-center gridContainer">
+  <div class="col justify-center">
     <div class="featureSelector row">
-      <q-select class="col-5" v-model="selectedProtocol" :options="protocols" option-label="name" option-value="id"
-                @update:model-value="onProtocolSelected" label="Protocol" dense>
+      <q-select class="col-5"
+                v-model="selectedProtocol"
+                :options="protocols"
+                option-value="id"
+                option-label="name"
+                label="Protocol"
+                @update:model-value="onProtocolSelected"
+                dense>
       </q-select>
       <div class="col-1"/>
-      <q-select class="col-6" v-model="selectedFeature" :options="filteredFeatures" input-debounce="0"
-                @filter="applyFeatureFilter"
-                option-label="name" option-value="id" @update:model-value="onFeatureSelected"
-                label="Feature" dense>
+      <q-select class="col-6"
+                v-model="selectedFeature"
+                :options="selectedProtocol?.features"
+                input-debounce="0"
+                option-value="id"
+                option-label="name"
+                label="Feature"
+                @update:model-value="onFeatureSelected"
+                dense>
       </q-select>
     </div>
   </div>
 </template>
+
+<script setup>
+import {ref, watch, toRefs, computed} from 'vue'
+import {useStore} from 'vuex'
+import resultDataGraphQlAPI from '@/api/graphql/resultdata'
+import {useRoute} from "vue-router";
+import {usePlateStore} from "@/stores/plate";
+
+const route = useRoute();
+const props = defineProps(['protocols', 'plateResults', 'plate'])
+const protocols = computed(() => [props.protocols])
+const plate = computed(() => props.plate)
+
+const gridColumnStyle = computed(() => { return plate.value ? ("repeat(" + (plate.value.columns + 1) + ", 1fr)") : "repeat(3, 1fr)" });
+const featureSelectorStartColumn = ref(plate.value ? 2 : 1);
+const featureSelectorEndColumn = ref(plate.value ? (plate.value.columns + 1) : 3)
+
+const emits = defineEmits(['featureSelection'])
+const store = useStore()
+
+const selectedProtocol = ref(null)
+const selectedFeature = ref(null)
+
+// Protocol selection
+const onProtocolSelected = () => {
+  if (selectedProtocol.value) {
+    selectedFeature.value = selectedProtocol.value.features[0]
+    onFeatureSelected(selectedFeature.value)
+  }
+}
+
+// Feature selection
+const onFeatureSelected = (selectedFeature) => {
+  emits('featureSelection', selectedFeature)
+}
+</script>
 
 <style scoped>
 .gridContainer {
@@ -23,72 +70,3 @@
   grid-column: v-bind(featureSelectorStartColumn) / v-bind(featureSelectorEndColumn + 1);
 }
 </style>
-
-<script setup>
-import {ref, watch, toRefs, computed} from 'vue'
-import {useStore} from 'vuex'
-
-const props = defineProps(['protocols', 'plateResults', 'plate'])
-
-const gridColumnStyle = computed(() => { return props.plate ? ("repeat(" + (props.plate.columns + 1) + ", 1fr)") : "repeat(3, 1fr)" });
-const featureSelectorStartColumn = ref(props.plate ? 2 : 1);
-const featureSelectorEndColumn = ref(props.plate ? (props.plate.columns + 1) : 3)
-
-const emits = defineEmits(['featureSelection'])
-const store = useStore()
-
-watch(toRefs(props).protocols, () => {
-  selectedProtocol.value = props.protocols[0]
-  onProtocolSelected()
-})
-
-// Protocol selection
-const selectedProtocol = ref(null)
-const onProtocolSelected = () => {
-  if (selectedProtocol.value) {
-    store.dispatch('features/loadByProtocolId', selectedProtocol.value.id).then(() => {
-      allFeatures.value = store.getters['features/getByProtocolId'](selectedProtocol.value.id)
-      if (allFeatures.value && allFeatures.value.length > 0) {
-        selectedFeature.value = allFeatures.value[0]
-        onFeatureSelected(selectedFeature.value)
-      }
-    })
-  }
-}
-
-// Feature selection
-const allFeatures = ref([])
-const filteredFeatures = ref(allFeatures.value)
-const selectedFeature = ref(null)
-const onFeatureSelected = (value) => {
-  emits('featureSelection', value)
-  calcRangeValues()
-}
-const applyFeatureFilter = (val, update) => {
-  if (val === '') {
-    update(() => {
-      filteredFeatures.value = allFeatures.value
-    })
-    return
-  }
-  update(() => {
-    filteredFeatures.value = allFeatures.value.filter(v => v.name.toLowerCase().indexOf(val.toLowerCase()) > -1)
-  })
-}
-
-const rangeValues = ref(null)
-const calcRangeValues = () => {
-  if (!selectedFeature.value) rangeValues.value = { min: 0, mean: 50, max: 100 }
-  if (Array.isArray(props.plateResults)) {
-    const result = props.plateResults.filter(rs => (rs.featureId === selectedFeature.value.id));
-    if (result.length > 0) {
-      const min = Math.min(...result[0].values.filter(v => !isNaN(v)));
-      const mean = result[0].values.reduce((x, y) => x + y, 0) / result[0].values.length;
-      const max = Math.max(...result[0].values.filter(v => !isNaN(v)));
-      rangeValues.value = {min: min, mean: mean, max: max}
-    }
-  } else {
-    rangeValues.value = null
-  }
-}
-</script>

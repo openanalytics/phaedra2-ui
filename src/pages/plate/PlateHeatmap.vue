@@ -1,12 +1,13 @@
 <template>
     <div class="col" style="min-width: 75%">
-        <FeatureSelector class="q-pb-xs" :protocols=protocols :plate="plate" @featureSelection="f => selectedFeature = f" />
-        <WellGrid :plate="plate"
-            :loading="dataLoading"
-            :wellColorFunction="wellColorFunction"
-            :wellLabelFunctions="wellLabelFunctions"
-        />
-        <ColorLegend class="q-pt-sm" :rangeValues="rangeValues" :plate="plate" />
+      <FeatureSelector class="q-pb-xs" :protocols=protocols :plate="plateStore.plate" @featureSelection="handleFeatureSelection"/>
+      <WellGrid :plate="plateStore.plate"
+                :wells="plateStore.wells"
+
+                :loading="dataLoading"
+                :wellColorFunction="wellColorFunction"
+                :wellLabelFunctions="wellLabelFunctions"/>
+      <ColorLegend class="q-pt-sm" :rangeValues="rangeValues" :plate="plate" />
     </div>
 </template>
 
@@ -19,47 +20,46 @@
     import ArrayUtils from "@/lib/ArrayUtils.js"
     import ColorUtils from "@/lib/ColorUtils.js"
     import WellUtils from "@/lib/WellUtils.js"
+    import resultDataGraphQlAPI from '@/api/graphql/resultdata'
+    import protocolsGraphQlAPI from "@/api/graphql/protocols";
+    import {usePlateStore} from "@/stores/plate";
+    import {json} from "formidable/src/plugins";
 
-    const props = defineProps(['plate']);
+    const props = defineProps(['plate', 'wells']);
     const store = useStore();
-    
-    const dataLoading = ref(true);
+    const plateStore = usePlateStore()
+
+    const dataLoading = ref(false);
     const rangeValues = ref({min: 0, mean: 50, max: 100});
     const lut = ref(ColorUtils.createLUT([], ColorUtils.defaultHeatmapGradients));
 
-    const activeMeasurement = computed(() => store.getters['measurements/getActivePlateMeasurement'](props.plate.id));
-    const resultSets = computed(() => store.getters['resultdata/getLatestResultSetsForPlateMeas'](props.plate.id, activeMeasurement.value?.measurementId));
-    const protocols = computed(() => store.getters['protocols/getByIds'](ArrayUtils.distinctBy(resultSets.value, 'protocolId')));
-    
-    const selectedFeature = ref(null);
-    const selectedFeatureResultSet = computed(() => (resultSets.value.find(rs => rs.protocolId == selectedFeature.value?.protocolId) || {}));
-    const selectedFeatureResultData = computed(() => (store.getters['resultdata/getResultData'](selectedFeatureResultSet.value.id) || [])
-        .find(rd => rd.featureId == selectedFeature.value?.id));
+    const activeMeasurement = plateStore.measurements.filter(m => m.active === true)[0]
+    const resultSet = plateStore.resultSets.find(rs => (Number.parseInt(rs.measId) === activeMeasurement.measurementId))
+    const protocols = protocolsGraphQlAPI.protocolById(resultSet?.protocolId)
+    const features = protocolsGraphQlAPI.featuresByProtocolId(resultSet?.protocolId)
+    const resultData = resultDataGraphQlAPI.resultDataByResultSetId(resultSet?.id)
+    const selectedFeatureData = ref(null)
 
-    store.dispatch('resultdata/loadResultSets', props.plate.id);
-    store.dispatch('measurements/loadByPlateId', props.plate.id);
+    const handleFeatureSelection = (feature) => {
+      selectedFeatureData.value = resultData.value.find(rd => rd.featureId === feature.id)
+    }
 
-    watch(resultSets, () => store.dispatch('protocols/loadByIds', ArrayUtils.distinctBy(resultSets.value, 'protocolId')));
-    watch(protocols, () => dataLoading.value = false);
-    watch(selectedFeatureResultSet, () => {
-        if (selectedFeatureResultSet.value.id) store.dispatch('resultdata/loadResultData', selectedFeatureResultSet.value.id);
-    });
-    watch(selectedFeatureResultData, () => {
-        if(!selectedFeatureResultData.value?.values) return;
-        lut.value = ColorUtils.createLUT(selectedFeatureResultData.value.values, ColorUtils.defaultHeatmapGradients);
-        rangeValues.value = calcRangeValues(selectedFeatureResultData.value.values);
+    watch(selectedFeatureData, () => {
+        if(!selectedFeatureData.value?.values) return;
+        lut.value = ColorUtils.createLUT(selectedFeatureData.value.values, ColorUtils.defaultHeatmapGradients);
+        rangeValues.value = calcRangeValues(selectedFeatureData.value.values);
     });
 
     const wellColorFunction = well => {
-        if (!selectedFeatureResultData.value?.values) return WellUtils.getWellTypeColor("EMPTY");
+        if (!selectedFeatureData.value?.values) return WellUtils.getWellTypeColor("EMPTY");
         const wellNr = WellUtils.getWellNr(well.row, well.column, props.plate.columns);
-        return lut.value.getColor(selectedFeatureResultData.value.values[wellNr - 1]);
+        return lut.value.getColor(selectedFeatureData.value.values[wellNr - 1]);
     };
 
     const wellLabelFunctions = [
         well => {
             let wellNr = WellUtils.getWellNr(well.row, well.column, props.plate.columns);
-            return (selectedFeatureResultData.value?.values) ? (Math.round(selectedFeatureResultData.value.values[wellNr - 1] * 100) / 100) : "";
+            return (selectedFeatureData.value?.values) ? (Math.round(selectedFeatureData.value.values[wellNr - 1] * 100) / 100) : "";
         }
     ];
 

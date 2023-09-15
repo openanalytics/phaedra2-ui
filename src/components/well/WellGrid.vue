@@ -50,6 +50,7 @@
   const store = useStore();
 
   const selectedWells = ref([]);
+  const plate = ref(props.plate)
   const wells = ref(props.wells)
 
   const emitWellSelection = (wells, append) => {
@@ -58,7 +59,6 @@
       if (append && selectedWells.value.some(w => w.id === well.id)) continue;
       selectedWells.value.push(well);
     }
-    // store.dispatch('ui/selectWells', selectedWells.value);
     emit('wellSelection', selectedWells.value);
   };
 
@@ -89,7 +89,7 @@
   const wellSlots = ref([]);
   const addWellSlot = (slot, row, col) => {
     // Note: use wellNr, as wells may not be loaded yet at this point.
-    const wellNr = WellUtils.getWellNr(row, col, props.plate.columns);
+    const wellNr = WellUtils.getWellNr(row, col, plate.value.columns);
     wellSlots.value[wellNr - 1] = slot;
   };
   const selectionBoxSupport = SelectionBoxHelper.addSelectionBoxSupport(rootElement, wellSlots, (wellNrs, append) => {
@@ -103,7 +103,7 @@
     emitWellSelection(wells.value.filter(w => w.column === n), append);
   };
 
-  const gridColumnStyle = computed(() => { return "repeat(" + (props.plate.columns + 1) + ", 1fr)" });
+  const gridColumnStyle = computed(() => { return "repeat(" + (plate.value.columns + 1) + ", 1fr)" });
   const wellSlotMinHeight = ((props.wellLabelFunctions?.length || 1) * 15) + "px";
 
   const wellSlotFontSize = ref(null);
