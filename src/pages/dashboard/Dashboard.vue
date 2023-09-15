@@ -66,7 +66,7 @@
 
         <div class="q-pa-md">
             <oa-section title="Recent Calculations" icon="calculate" :collapsible="true">
-                <RecentCalculations></RecentCalculations>
+                <RecentCalculations/>
             </oa-section>
         </div>
     </q-page>
