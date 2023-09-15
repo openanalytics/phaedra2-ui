@@ -40,7 +40,7 @@ export default {
         const query = provideApolloClient(apolloProtocolsClient)(() => useQuery(QUERY,
             variables,
             defaultOptions))
-        return computed(() => query.result.value?.protocol ?? null)
+        return computed(() => query.result.value?.protocol ?? {})
     },
     protocolsByTag(tag) {
 
