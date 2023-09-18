@@ -1,32 +1,27 @@
 <template>
     <div class="col" style="min-width: 75%">
-      <FeatureSelector class="q-pb-xs" :protocols=protocols :plate="plateStore.plate" @featureSelection="handleFeatureSelection"/>
       <WellGrid :plate="plateStore.plate"
                 :wells="plateStore.wells"
-
                 :loading="dataLoading"
                 :wellColorFunction="wellColorFunction"
                 :wellLabelFunctions="wellLabelFunctions"/>
       <ColorLegend class="q-pt-sm" :rangeValues="rangeValues" :plate="plate" />
+      <FeatureSelector class="q-pb-xs" :protocols=protocols :plate="plateStore.plate" @featureSelection="handleFeatureSelection"/>
     </div>
 </template>
 
 <script setup>
-    import {ref, computed, watch, defineProps} from 'vue'
-    import {useStore} from 'vuex'
+    import {ref, watch, defineProps} from 'vue'
     import WellGrid from "@/components/well/WellGrid"
     import FeatureSelector from "@/components/widgets/FeatureSelector"
     import ColorLegend from "@/components/widgets/ColorLegend"
-    import ArrayUtils from "@/lib/ArrayUtils.js"
     import ColorUtils from "@/lib/ColorUtils.js"
     import WellUtils from "@/lib/WellUtils.js"
     import resultDataGraphQlAPI from '@/api/graphql/resultdata'
     import protocolsGraphQlAPI from "@/api/graphql/protocols";
     import {usePlateStore} from "@/stores/plate";
-    import {json} from "formidable/src/plugins";
 
     const props = defineProps(['plate', 'wells']);
-    const store = useStore();
     const plateStore = usePlateStore()
 
     const dataLoading = ref(false);
