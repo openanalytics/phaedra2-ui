@@ -79,12 +79,13 @@
                     <q-table
                         table-header-class="text-grey"
                         flat dense
+                        :pagination="{ rowsPerPage: 20 }"
                         :rows="executionLog"
                         :columns="logColumns"
                     >
                         <template v-slot:body-cell-messageType="props">
                             <q-td :props="props">
-                                <q-badge color="info">{{ props.row.messageType }}</q-badge>
+                                <StatusLabel :status="props.row.messageType" />
                             </q-td>
                         </template>
                     </q-table>
