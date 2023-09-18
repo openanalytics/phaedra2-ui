@@ -26,11 +26,8 @@
 </template>
 
 <script setup>
-import {ref, watch, toRefs, computed} from 'vue'
-import {useStore} from 'vuex'
-import resultDataGraphQlAPI from '@/api/graphql/resultdata'
+import {ref, computed} from 'vue'
 import {useRoute} from "vue-router";
-import {usePlateStore} from "@/stores/plate";
 
 const route = useRoute();
 const props = defineProps(['protocols', 'plateResults', 'plate'])
@@ -42,10 +39,9 @@ const featureSelectorStartColumn = ref(plate.value ? 2 : 1);
 const featureSelectorEndColumn = ref(plate.value ? (plate.value.columns + 1) : 3)
 
 const emits = defineEmits(['featureSelection'])
-const store = useStore()
 
-const selectedProtocol = ref(null)
-const selectedFeature = ref(null)
+const selectedProtocol = computed(() => protocols.value[0] ?? null)
+const selectedFeature = ref( null)
 
 // Protocol selection
 const onProtocolSelected = () => {
