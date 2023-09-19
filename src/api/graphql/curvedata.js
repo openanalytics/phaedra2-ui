@@ -3,7 +3,7 @@ import gql from 'graphql-tag'
 import {computed} from "vue";
 import {apolloCurvesClient} from "@/graphql/apollo.clients";
 
-const defaultOptions = { fetchPolicy: 'no-cache'}
+const defaultOptions = { fetchPolicy: 'no-cache', errorPolicy: 'ignore'}
 
 export default {
     curvesByPlateId(plateId) {
