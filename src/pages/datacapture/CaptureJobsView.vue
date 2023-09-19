@@ -99,7 +99,7 @@
             </div>
           </q-card-section>
           <q-card-section class="q-pa-sm q-gutter-sm">
-            <q-select v-model="newJob.inputType" label="Measurement type"
+            <q-select v-model="newJob.inputType" label="Measurement source type"
                       :options="inputTypes" dense stack-label/>
             <div v-if="newJob.inputType === 'FolderScanner'">
               <q-file label="Select source folder" :display-value="newJob.sourcePath" @update:model-value="handleSelection"
