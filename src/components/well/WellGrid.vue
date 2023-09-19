@@ -59,6 +59,7 @@
       if (append && selectedWells.value.some(w => w.id === well.id)) continue;
       selectedWells.value.push(well);
     }
+    store.dispatch('ui/selectWells', selectedWells.value);
     emit('wellSelection', selectedWells.value);
   };
 
