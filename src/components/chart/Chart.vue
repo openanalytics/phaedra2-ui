@@ -7,8 +7,8 @@
       <q-select class="q-pa-xs"
                 v-model="selectedProtocol"
                 :options="protocolOptions"
-                :option-value="'protocolId'"
-                :option-label="'protocolName'"
+                :option-value="'id'"
+                :option-label="'name'"
                 label="Select protocol"
                 @update:model-value="handleProtocolSelection"
                 dense/>
@@ -16,16 +16,16 @@
                 v-if="chartView.type === 'scatter'"
                 v-model="selectedXAxisFeature"
                 :options="selectedProtocol?.features"
-                :option-value="'featureId'"
-                :option-label="'featureName'"
+                :option-value="'id'"
+                :option-label="'name'"
                 label="Select x feature"
                 @update:model-value="handleXAxisFeatureSelection"
                 dense/>
       <q-select class="q-pa-xs"
                 v-model="selectedYAxisFeature"
                 :options="selectedProtocol?.features"
-                :option-value="'featureId'"
-                :option-label="'featureName'"
+                :option-value="'id'"
+                :option-label="'name'"
                 label="Select y feature"
                 @update:model-value="handleYAxisFeatureSelection"
                 dense/>
@@ -74,7 +74,7 @@ const chartPlot = reactive([])
 const handleChartUpdate = () => {
   console.log("handleChartUpdate: chart has been updated!")
   const chartView = computed(() => store.getters['ui/getChartView'](props.chartId))
-  chartPlot.value = chartsGraphQlAPI.basicPlot(chartView.value.type, chartView.value.plateId, selectedProtocol.value?.protocolId, selectedXAxisFeature.value?.featureId, selectedYAxisFeature.value?.featureId, groupBy.value.value)
+  chartPlot.value = chartsGraphQlAPI.basicPlot(chartView.value.type, chartView.value.plateId, selectedProtocol.value?.id, selectedXAxisFeature.value?.id, selectedYAxisFeature.value?.id, groupBy.value.value)
 }
 
 const handlePlotUpdate = () => {
