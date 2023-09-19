@@ -50,7 +50,6 @@
 
 <script setup>
 import {ref} from 'vue'
-import {useStore} from 'vuex'
 import FormatUtils from "../../lib/FormatUtils";
 import FilterUtils from "../../lib/FilterUtils";
 import StatusLabel from "@/components/widgets/StatusLabel"
@@ -58,7 +57,6 @@ import ResultSetDetailsPanel from "@/components/resultdata/ResultSetDetailsPanel
 import {usePlateStore} from "@/stores/plate";
 
 const props = defineProps({ plate: Object });
-const store = useStore();
 const loading = ref(true);
 const plateStore = usePlateStore()
 loading.value = false
