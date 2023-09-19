@@ -99,10 +99,10 @@
             </div>
           </q-card-section>
           <q-card-section class="q-pa-sm q-gutter-sm">
-            <q-select v-model="newJob.inputType" label="Measurement source type"
-                      :options="inputTypes" dense stack-label/>
+<!--            <q-select v-model="newJob.inputType" label="Measurement source type"-->
+<!--                      :options="inputTypes" dense stack-label/>-->
             <div v-if="newJob.inputType === 'FolderScanner'">
-              <q-file label="Select source folder" :display-value="newJob.sourcePath" @update:model-value="handleSelection"
+              <q-file label="Select source location" :display-value="newJob.sourcePath" @update:model-value="handleSelection"
                       multiple dense stack-label webkitdirectory>
                 <template v-slot:append>
                   <q-icon name="folder"/>
