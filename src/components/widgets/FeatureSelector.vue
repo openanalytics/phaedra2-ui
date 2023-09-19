@@ -1,6 +1,7 @@
 <template>
   <div class="col justify-center">
-    <div class="featureSelector row">
+<!--    <div class="featureSelector row">-->
+    <div class="row">
       <q-select class="col-5"
                 v-model="selectedProtocol"
                 :options="protocols"
@@ -26,22 +27,27 @@
 </template>
 
 <script setup>
-import {ref, computed} from 'vue'
+import {ref, computed, watch} from 'vue'
 import {useRoute} from "vue-router";
 
 const route = useRoute();
-const props = defineProps(['protocols', 'plateResults', 'plate'])
-const protocols = computed(() => [props.protocols])
-const plate = computed(() => props.plate)
+const props = defineProps(['protocols'])
+const protocols = computed(() => props.protocols)
 
-const gridColumnStyle = computed(() => { return plate.value ? ("repeat(" + (plate.value.columns + 1) + ", 1fr)") : "repeat(3, 1fr)" });
-const featureSelectorStartColumn = ref(plate.value ? 2 : 1);
-const featureSelectorEndColumn = ref(plate.value ? (plate.value.columns + 1) : 3)
+// const plate = computed(() => props.plate)
+//
+// const gridColumnStyle = computed(() => { return plate.value ? ("repeat(" + (plate.value.columns + 1) + ", 1fr)") : "repeat(3, 1fr)" });
+// const featureSelectorStartColumn = ref(plate.value ? 2 : 1);
+// const featureSelectorEndColumn = ref(plate.value ? (plate.value.columns + 1) : 3)
 
 const emits = defineEmits(['featureSelection'])
 
 const selectedProtocol = computed(() => protocols.value[0] ?? null)
-const selectedFeature = ref( null)
+const selectedFeature = ref(null)
+
+watch(selectedProtocol, () => {
+  onProtocolSelected()
+})
 
 // Protocol selection
 const onProtocolSelected = () => {
@@ -53,7 +59,7 @@ const onProtocolSelected = () => {
 
 // Feature selection
 const onFeatureSelected = (selectedFeature) => {
-  emits('featureSelection', selectedFeature)
+  emits('featureSelection', selectedProtocol.value, selectedFeature)
 }
 </script>
 
