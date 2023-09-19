@@ -136,7 +136,9 @@
             <q-tab-panel name="imageData" class="q-px-none">
               <div class="row q-px-sm">
                 <div class="col-8">
-                  <WellGrid :plate="plate" :wellImageFunction="wellImageFunction"/>
+                  <WellGrid :plate="plate"
+                            :wells="plate.wells"
+                            :wellImageFunction="wellImageFunction"/>
                 </div>
                 <div class="col-4 q-px-sm">
                   <WellImageViewer></WellImageViewer>
