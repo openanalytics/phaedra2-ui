@@ -98,26 +98,26 @@
       </div>
     </div>
 
-    <div class="q-pa-md" v-if="plateStore.plate && plateStore.curves">
-      <oa-section title="Dose-Response Curves" icon="show_chart" :collapsible="true">
-        <Splitpanes class="default-theme" @resize="updateWidth">
-          <Pane :size="100 - sizeChartPane">
-            <DoseResponseCurves :plate="plateStore.plate" :curves="plateStore.curves" @handle-selection="showSelectedCurves"/>
-          </Pane>
-          <Pane :size="sizeChartPane">
-            <Splitpanes class="default-theme" horizontal="horizontal" @resize="updateHeight"
-                        :style="{height: chartPaneHeight + 'px'}">
-              <Pane :size="chartPaneHeight">
-                <DoseResponseCurve :plate="plateStore.plate" :width="width" :height="height"/>
-              </Pane>
-              <Pane :size="chartPaneHeight" style="overflow: auto">
-                <DoseResponseCurveProperties :plate="plateStore.plate"></DoseResponseCurveProperties>
-              </Pane>
-            </Splitpanes>
-          </Pane>
-        </Splitpanes>
-      </oa-section>
-    </div>
+<!--    <div class="q-pa-md" v-if="plateStore.plate && plateStore.curves">-->
+<!--      <oa-section title="Dose-Response Curves" icon="show_chart" :collapsible="true">-->
+<!--        <Splitpanes class="default-theme" @resize="updateWidth">-->
+<!--          <Pane :size="100 - sizeChartPane">-->
+<!--            <DoseResponseCurves :plate="plateStore.plate" :curves="plateStore.curves" @handle-selection="showSelectedCurves"/>-->
+<!--          </Pane>-->
+<!--          <Pane :size="sizeChartPane">-->
+<!--            <Splitpanes class="default-theme" horizontal="horizontal" @resize="updateHeight"-->
+<!--                        :style="{height: chartPaneHeight + 'px'}">-->
+<!--              <Pane :size="chartPaneHeight">-->
+<!--                <DoseResponseCurve :plate="plateStore.plate" :width="width" :height="height"/>-->
+<!--              </Pane>-->
+<!--              <Pane :size="chartPaneHeight" style="overflow: auto">-->
+<!--                <DoseResponseCurveProperties :plate="plateStore.plate"></DoseResponseCurveProperties>-->
+<!--              </Pane>-->
+<!--            </Splitpanes>-->
+<!--          </Pane>-->
+<!--        </Splitpanes>-->
+<!--      </oa-section>-->
+<!--    </div>-->
 
     <rename-dialog v-model:show="showRenameDialog" objectClass="plate" fieldName="barcode" :object="plateStore.plate" @valueChanged="onNameChanged"/>
     <delete-dialog v-model:show="showDeleteDialog" :id="plateStore.plate.id" :name="plateStore.plate.barcode" :objectClass="'plate'" @onDeleted="onDeleted"/>

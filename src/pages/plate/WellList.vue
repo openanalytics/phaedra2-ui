@@ -94,17 +94,18 @@
 
 
     watch([features, resultData], () => {
-      const featureCols = computed(() => (features.value ?? []).map(f => {
-        return {name: f.name, align: 'left', label: f.name, field: f.name, sortable: true, 'featureId': f.id}
-      }))
-      columns.value = [...columns.value, ...featureCols.value]
-      featureCols.value.forEach(fCol => {
-        const featValues = resultData.value.filter(rd => rd.featureId === fCol.featureId)[0]?.values ?? []
-        rows.value.forEach((row, index) => {
-          row[fCol.field] = featValues[index]
+      if (features.value !== undefined && resultData.value !== undefined) {
+        const featureCols = computed(() => (features.value ?? []).map(f => {
+          return {name: f.name, align: 'left', label: f.name, field: f.name, sortable: true, 'featureId': f.id}
+        }))
+        columns.value = [...columns.value, ...featureCols.value]
+        featureCols.value.forEach(fCol => {
+          const featValues = resultData.value.filter(rd => rd.featureId === fCol.featureId)[0]?.values ?? []
+          rows.value.forEach((row, index) => {
+            row[fCol.field] = featValues[index]
+          })
         })
-      })
-
+      }
       visibleColumns.value = [...columns.value.map(a => a.name)];
       loading.value = false
     })
