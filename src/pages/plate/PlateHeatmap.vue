@@ -11,7 +11,7 @@
 </template>
 
 <script setup>
-    import {ref, watch, defineProps} from 'vue'
+import {ref, watch, defineProps, computed} from 'vue'
     import WellGrid from "@/components/well/WellGrid"
     import FeatureSelector from "@/components/widgets/FeatureSelector"
     import ColorLegend from "@/components/widgets/ColorLegend"
@@ -19,10 +19,12 @@
     import WellUtils from "@/lib/WellUtils.js"
     import resultDataGraphQlAPI from '@/api/graphql/resultdata'
     import protocolsGraphQlAPI from "@/api/graphql/protocols";
-    import {usePlateStore} from "@/stores/plate";
+    import { usePlateStore } from "@/stores/plate";
 
     const props = defineProps(['plate', 'wells']);
     const plateStore = usePlateStore()
+
+    const protocols = resultDataGraphQlAPI.protocolsByPlateId(plateStore.plate.id)
 
     const dataLoading = ref(false);
     const rangeValues = ref({min: 0, mean: 50, max: 100});
@@ -30,12 +32,11 @@
 
     const activeMeasurement = plateStore.measurements.filter(m => m.active === true)[0]
     const resultSet = plateStore.resultSets.find(rs => (Number.parseInt(rs.measId) === activeMeasurement.measurementId))
-    const protocols = protocolsGraphQlAPI.protocolById(resultSet?.protocolId)
-    const features = protocolsGraphQlAPI.featuresByProtocolId(resultSet?.protocolId)
+
     const resultData = resultDataGraphQlAPI.resultDataByResultSetId(resultSet?.id)
     const selectedFeatureData = ref(null)
 
-    const handleFeatureSelection = (feature) => {
+    const handleFeatureSelection = (protocol, feature) => {
       selectedFeatureData.value = resultData.value.find(rd => rd.featureId === feature.id)
     }
 

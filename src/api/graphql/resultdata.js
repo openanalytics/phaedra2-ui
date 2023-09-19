@@ -10,11 +10,11 @@ export default {
         const PROTOCOLS_BY_PLATE_ID_QUERY = gql`
             query protocolsByPlateId($plateId: ID) {
                 protocols: protocolsByPlateId (plateId: $plateId) {
-                    protocolId
-                    protocolName
+                    id:protocolId
+                    name:protocolName
                     features {
-                        featureId
-                        featureName
+                        id:featureId
+                        name:featureName
                     }
                 }
             }
@@ -22,6 +22,27 @@ export default {
         const variables = {'plateId': plateId}
 
         const query = provideApolloClient(apolloResultDataClient)(()=> useQuery(PROTOCOLS_BY_PLATE_ID_QUERY,
+            variables,
+            defaultOptions
+        ))
+        return computed(() => query.result.value?.protocols ?? [])
+    },
+    protocolsByExperimentId(experimentId) {
+        const QUERY = gql `
+            query protocolsByExperimentId($experimentId: ID) {
+                protocols:protocolsByExperimentId(experimentId: $experimentId) {
+                    id:protocolId
+                    name:protocolName
+                    features {
+                        id:featureId
+                        name:featureName
+                    }
+                }
+            }
+        `
+        const variables = {'experimentId': experimentId}
+
+        const query = provideApolloClient(apolloResultDataClient)(()=> useQuery(QUERY,
             variables,
             defaultOptions
         ))
@@ -94,6 +115,26 @@ export default {
             variables,
             defaultOptions))
         return computed(() => query.result.value?.resultSets ?? [])
+    },
+    latestResultSetByPlateIdAndMeasurementId(plateId, measurementId) {
+        const QUERY = gql`
+            query resultSetsByPlateId($plateId: ID, $measurementId: ID) {
+                resultSets: resultSetsByPlateIdAndMeasurementId(plateId: $plateId, measurementId: $measurementId) {
+                    id
+                    executionStartTimeStamp
+                    executionEndTimeStamp
+                    measId
+                    protocolId
+                    outcome
+                    errorsText
+                }
+            }
+        `
+        const variables = {'plateId': plateId, 'measurementId': measurementId}
+        const query = provideApolloClient(apolloResultDataClient)(()=> useQuery(QUERY,
+            variables,
+            defaultOptions))
+        return computed(() => query.result.value?.resultSets[0] ?? {})
     },
     resultSetFeatureStats(resultSetId) {
         const QUERY = gql`
