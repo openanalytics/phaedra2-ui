@@ -39,7 +39,7 @@ export const usePlateStore = defineStore("plate", {
             return this.plate && this.plate.id === plateId
         },
         getActiveMeasurement() {
-          return this.measurements
+          return this.measurements.filter(m => m.active === true)[0]
         },
         getActiveResultSet() {
             const activeMeasId = this.getActiveMeasurement().id ?? null

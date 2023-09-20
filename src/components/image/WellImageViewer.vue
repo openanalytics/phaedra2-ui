@@ -64,6 +64,7 @@
     import {useStore} from 'vuex'
     import ColorUtils from '@/lib/ColorUtils';
     import WellUtils from "@/lib/WellUtils.js";
+    import {usePlateStore} from "@/stores/plate";
 
     const configPanel = ref(null);
     const maxCanvasHeight = ref(100);
@@ -74,6 +75,7 @@
     };
 
     const store = useStore();
+    const plateStore = usePlateStore()
     const loading = ref(false);
 
     let renderConfigId = 4;
@@ -129,6 +131,7 @@
         if (well?.plateId) {
             //TODO Assuming here that meas is already stored.
             let measLink = store.getters['measurements/getActivePlateMeasurement'](well.plateId);
+            if (measLink === undefined) measLink = plateStore.getActiveMeasurement()
             if (measLink === null) return null;
             measId = measLink.measurementId;
             wellNr = WellUtils.getWellNr(well.row, well.column, measLink.columns);
