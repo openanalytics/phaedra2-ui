@@ -140,7 +140,7 @@
         }
 
         let baseURL = process.env.VUE_APP_API_BASE_URL;
-        return baseURL + `/measurement-service/image/${measId}/${wellNr}/${channelNames}?renderConfigId=${renderConfigId}&scale=${scale.value}`;
+        return baseURL + `/measurement-service/measurements/${measId}/images/${wellNr}/${channelNames}?renderConfigId=${renderConfigId}&scale=${scale.value}`;
     }
     const reloadImage = () => {
         let url = getImageURL();

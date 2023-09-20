@@ -54,13 +54,11 @@ import OaSection from "@/components/widgets/OaSection";
 import UserChip from "@/components/widgets/UserChip";
 
 const router = useRouter()
-const loading = ref(false);
+const loading = ref(true);
 const store = useStore()
-if (!store.getters["measurements/isLoaded"]()) {
-  loading.value = true;
-  store.dispatch('measurements/loadAll').then(() => loading.value = false);
-}
-const measurements = computed(() => store.getters['measurements/getAll']())
+
+const measurements = computed(() => store.getters['measurements/getAll']() || [])
+store.dispatch('measurements/loadAll').then(() => loading.value = false);
 
 const columns = ref([
   {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
