@@ -42,8 +42,8 @@ export const usePlateStore = defineStore("plate", {
           return this.measurements.filter(m => m.active === true)[0]
         },
         getActiveResultSet() {
-            const activeMeasId = this.getActiveMeasurement().id ?? null
-            return this.resultSets.filter(rs => rs.measId === activeMeasId && rs.outcome === 'SUCCESS')[0] ?? null
+            const activeMeasId = this.measurements.filter(m => m.active === true)[0].measurementId ?? null
+            return this.resultSets.filter(rs => Number.parseInt(rs.measId) === activeMeasId && rs.outcome === 'SUCCESS')[0] ?? null
         },
         async fitDoseResponseCurves(plate) {
             await calculationsAPI.fitDoseResponseCurves()

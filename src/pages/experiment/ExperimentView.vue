@@ -62,7 +62,7 @@
             <q-tabs v-model="activeTab" inline-label dense no-caps align="left" class="oa-section-title">
                 <q-tab name="overview" icon="table_rows" label="Overview"/>
 <!--                <q-tab name="statistics" icon="functions" label="Statistics"/>-->
-<!--                <q-tab name="heatmaps" icon="view_module" label="Heatmaps"/>-->
+                <q-tab name="heatmaps" icon="view_module" label="Heatmaps"/>
             </q-tabs>
             <div class="row oa-section-body">
                 <q-tab-panels v-model="activeTab" animated class="full-width">
@@ -72,9 +72,9 @@
 <!--                    <q-tab-panel name="statistics" class="q-px-none">-->
 <!--                        <PlateStatsList :experiment="experimentStore.experiment" :plates="experimentStore.plates"/>-->
 <!--                    </q-tab-panel>-->
-<!--                    <q-tab-panel name="heatmaps" class="q-px-none">-->
-<!--                        <PlateGrid :experiment="experimentStore.experiment" :plates="experimentStore.plates"/>-->
-<!--                    </q-tab-panel>-->
+                    <q-tab-panel name="heatmaps" class="q-px-none">
+                        <PlateGrid :experiment="experimentStore.experiment" :plates="experimentStore.plates"/>
+                    </q-tab-panel>
                 </q-tab-panels>
             </div>
         </div>

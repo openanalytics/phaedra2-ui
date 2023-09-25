@@ -1,6 +1,5 @@
 <template>
   <div class="col justify-center">
-<!--    <div class="featureSelector row">-->
     <div class="row">
       <q-select class="col-5"
                 v-model="selectedProtocol"
@@ -34,18 +33,13 @@ const route = useRoute();
 const props = defineProps(['protocols'])
 const protocols = computed(() => props.protocols)
 
-// const plate = computed(() => props.plate)
-//
-// const gridColumnStyle = computed(() => { return plate.value ? ("repeat(" + (plate.value.columns + 1) + ", 1fr)") : "repeat(3, 1fr)" });
-// const featureSelectorStartColumn = ref(plate.value ? 2 : 1);
-// const featureSelectorEndColumn = ref(plate.value ? (plate.value.columns + 1) : 3)
-
 const emits = defineEmits(['featureSelection'])
 
-const selectedProtocol = computed(() => protocols.value[0] ?? null)
 const selectedFeature = ref(null)
+const selectedProtocol = ref(protocols.value[0])
 
-watch(selectedProtocol, () => {
+watch(protocols, () => {
+  selectedProtocol.value = protocols.value[0]
   onProtocolSelected()
 })
 
@@ -62,13 +56,3 @@ const onFeatureSelected = (selectedFeature) => {
   emits('featureSelection', selectedProtocol.value, selectedFeature)
 }
 </script>
-
-<style scoped>
-.gridContainer {
-  display: grid;
-  grid-template-columns: v-bind(gridColumnStyle);
-}
-.featureSelector {
-  grid-column: v-bind(featureSelectorStartColumn) / v-bind(featureSelectorEndColumn + 1);
-}
-</style>
