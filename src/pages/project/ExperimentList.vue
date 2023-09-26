@@ -50,6 +50,11 @@
           <UserChip :id="props.row.createdBy" />
         </q-td>
       </template>
+      <template v-slot:body-cell-nrPlates="props">
+        <q-td :props="props">
+          {{ props.row.summary ? props.row.summary.nrPlates : 0 }}
+        </q-td>
+      </template>
       <template v-slot:body-cell-nrPlatesCalculated="props">
         <q-td :props="props">
           <ProgressBarField :object="props.row.summary" :valueFieldName="props.col.name" :maxValueFieldName="'nrPlates'" />
@@ -137,27 +142,12 @@ const columns = ref([
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
   {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
   {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
-  {
-    name: 'createdOn',
-    align: 'left',
-    label: 'Created On',
-    field: 'createdOn',
-    sortable: true,
-    format: FormatUtils.formatDate
-  },
+  {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
   {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
-
-  {
-    name: 'nrPlates',
-    align: 'left',
-    label: 'Plates',
-    field: row => (row.summary ? row.summary.nrPlates : 0),
-    sortable: true
-  },
+  {name: 'nrPlates', align: 'left', label: 'Plates', sortable: true},
   {name: 'nrPlatesCalculated', align: 'left', label: 'Calculated', sortable: true},
   {name: 'nrPlatesValidated', align: 'left', label: 'Validated', sortable: true},
   {name: 'nrPlatesApproved', align: 'left', label: 'Approved', sortable: true},
-
   {name: 'menu', align: 'left', field: 'menu', sortable: false}
 ])
 

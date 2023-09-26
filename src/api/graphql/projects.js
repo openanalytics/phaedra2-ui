@@ -43,6 +43,12 @@ export default {
                     description
                     status
                     tags
+                    summary {
+                        nrPlates
+                        nrPlatesApproved
+                        nrPlatesCalculated
+                        nrPlatesValidated
+                    }
                     createdOn
                     createdBy
                     updatedOn
