@@ -32,31 +32,34 @@
 
 <script setup>
 
-import {computed,ref,watch} from "vue";
+import {computed, ref} from "vue";
 import {useStore} from "vuex";
 import ProtocolSelectableList from "@/components/protocol/ProtocolSelectableList";
 import {useCalcStore} from "@/stores/calculations";
-import projectsGraphQlAPI from "@/api/graphql/projects"
+import projectsGraphQlAPI from "@/api/graphql/projects";
+import {usePlateStore} from "@/stores/plate";
 
 const props = defineProps(['show', 'plate']);
 const emits = defineEmits(['update:show']);
 
 const store = useStore();
 const calculationStore = useCalcStore()
-const plate = computed(() => props.plate);
-const activeMeasurement = projectsGraphQlAPI.activePlateMeasurement(plate.value.id)
+const plate = ref(props.plate)
+
+const activeMeasurement = ref({})
+
+//TODO: Improve this solution!
+if (props.plate.id) {
+  const {onResult, onError} = projectsGraphQlAPI.activeMeasurementByPlateId(props.plate.id)
+  onResult(({data}) => activeMeasurement.value = data.plateMeasurement)
+} else {
+  const plateStore = usePlateStore()
+  plate.value = plateStore.plate
+}
 
 const showDialog = computed({
     get: () => props.show,
     set: (v) => emits('update:show', v)
-});
-
-watch(() => props.show, (v) => {
-  if (v) store.dispatch('measurements/loadByPlateId', plate.value.id)
-});
-
-watch(() => props.plate, (v) => {
-    store.dispatch('plates/loadById', v.id);
 });
 
 const selected = ref([]);

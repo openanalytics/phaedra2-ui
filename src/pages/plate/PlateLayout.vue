@@ -18,12 +18,8 @@ const props = defineProps(['plate', 'wells']);
 const plate = computed( () => props.plate)
 const wells = computed( () => props.wells)
 
-const wellColorFunction = (well) => {
-  return WellUtils.getWellTypeColor(well.wellType);
-}
+const wellColorFunction = (well) => WellUtils.getWellTypeColor(well.wellType)
 
-const wellLabelFunctions = ref([]);
-watchEffect(() => {
-  if (props.plate.columns <= 24) wellLabelFunctions.value.push(well => well.wellType);
-});
+const wellLabelFunctions = [];
+wellLabelFunctions.push((well) => well.wellType)
 </script>

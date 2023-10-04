@@ -35,8 +35,8 @@ const protocols = computed(() => props.protocols)
 
 const emits = defineEmits(['featureSelection'])
 
-const selectedFeature = ref(null)
 const selectedProtocol = ref(protocols.value[0])
+const selectedFeature = ref(null)
 
 watch(protocols, () => {
   selectedProtocol.value = protocols.value[0]

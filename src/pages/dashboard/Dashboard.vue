@@ -2,7 +2,7 @@
     <q-page class="oa-root-div">
         <div class="q-pa-md">
             <oa-section title="Recent Projects" icon="folder" :collapsible="true">
-                <RecentProjects :projects="recentProjects"></RecentProjects>
+                <RecentProjects v-if="recentProjects.length > 0" :projects="recentProjects"></RecentProjects>
             </oa-section>
         </div>
 
@@ -83,8 +83,7 @@
 </style>
 
 <script setup>
-import {computed} from "vue";
-import {useStore} from "vuex";
+import {onMounted, ref} from "vue";
 import RecentCalculations from "@/components/dashboard/RecentCalculations"
 import RecentProjects from "@/components/dashboard/RecentProjects"
 import UserChip from "@/components/widgets/UserChip"
@@ -93,18 +92,15 @@ import OaSection from "@/components/widgets/OaSection"
 import projectsGraphQlAPI from "@/api/graphql/projects"
 import experimentsGraphQlAPI from "@/api/graphql/experiments"
 
-const store = useStore();
+const recentProjects = ref([])
+const recentExperiments = ref([])
+const recentExperimentSummaries = ref([])
 
-//TODO: Add API to load recent projects
-const projects = projectsGraphQlAPI.projects()
-const experiments = experimentsGraphQlAPI.experiments()
-// store.dispatch('experiments/loadRecentExperiments', 10);
-
-const recentProjects = computed(() => projects.value.slice(0, 3));
-const recentExperiments = computed( () => experiments.value.slice(0, 10))
-const recentExperimentSummaries = experimentsGraphQlAPI.experimentSummaries()
-// const recentExperiments = computed(() => store.getters['experiments/getRecentExperiments']());
-// const recentExperimentSummaries = computed(() => store.getters['experiments/getRecentExperimentSummaries']())
+onMounted(() => {
+  fetchNRecentProject(3)
+  fetchNRecentExperiments(10)
+  fetchExperimentSummaries()
+})
 
 const columns = [
     {name: 'name', label: 'Name', align: 'left', field: 'name'},
@@ -119,12 +115,26 @@ const columns = [
     {name: 'project', label: 'Project', align: 'left', field: 'projectId'}
 ]
 
+const fetchNRecentProject = (n) => {
+  const {onResult, onError} = projectsGraphQlAPI.nMostRecentlyUpdatedProjects(n)
+  onResult(({data}) => recentProjects.value = data.projects)
+}
+
+const fetchNRecentExperiments = (n) => {
+  const {onResult, onError} = experimentsGraphQlAPI.nMostRecentExperiments(n)
+  onResult(({data}) => recentExperiments.value = data.experiments)
+}
+
+const fetchExperimentSummaries = () => {
+  const {onResult, onError} = experimentsGraphQlAPI.experimentSummaries()
+  onResult(({data}) => recentExperimentSummaries.value = data.experimentSummaries)
+}
+
 const getProjectName = (projectId) => {
-    const project = projects.value?.find(project => {
-        return project.id === projectId
-    })
+    const project = recentProjects.value?.filter(project => Number.parseInt(project.id) === projectId)[0] ?? null
     if (project) {
         return project.name
-    } else return 'NOT_IN_DB'
+    } else
+      return 'NOT_IN_DB'
 }
 </script>

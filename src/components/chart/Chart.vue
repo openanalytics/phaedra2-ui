@@ -53,8 +53,10 @@ const store = useStore();
 const props = defineProps(['chartId', 'update']);
 
 const chartView = computed(() => store.getters['ui/getChartView'](props.chartId))
+const protocolOptions = ref([])
 
-const protocolOptions = resultDataGraphQlAPI.protocolsByPlateId(chartView.value.plateId)
+const {onResult, onError} = resultDataGraphQlAPI.protocolsByPlateId(chartView.value.plateId)
+onResult(({data}) => protocolOptions.value = data.protocols)
 
 const selectedProtocol = ref()
 const selectedXAxisFeature = ref()

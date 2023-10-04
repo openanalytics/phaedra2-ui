@@ -126,8 +126,7 @@
 </template>
 
 <script setup>
-import {computed, ref} from 'vue'
-import {useStore} from 'vuex'
+import {ref} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import {Splitpanes, Pane} from 'splitpanes'
 
@@ -154,23 +153,24 @@ import {useProjectStore} from "@/stores/project";
 import {useExperimentStore} from "@/stores/experiment";
 import {usePlateStore} from "@/stores/plate";
 
-const store = useStore();
 const route = useRoute();
 const projectStore = useProjectStore()
 const experimentStore = useExperimentStore()
 const plateStore = usePlateStore()
 const router = useRouter();
 
-const projectId = parseInt(route.params.projectId);
-const experimentId = parseInt(route.params.experimentId);
 const plateId = parseInt(route.params.plateId);
-projectStore.loadProject(projectId)
-experimentStore.loadExperiment(experimentId)
 plateStore.loadPlate(plateId)
+
+const experimentId = parseInt(route.params.experimentId);
+experimentStore.loadExperiment(experimentId)
+
+const projectId = parseInt(route.params.projectId);
+projectStore.loadProject(projectId)
 
 console.log(JSON.stringify(plateStore.plate))
 
-const curves = curvesGraphQlAPI.curvesByPlateId(plateId)
+// const curves = curvesGraphQlAPI.curvesByPlateId(plateId)
 
 const activeTab = ref('layout')
 const sizeChartPane = ref(0)
@@ -179,12 +179,12 @@ const showDeleteDialog = ref(false);
 const showCalculateDialog = ref(false);
 
 const showRenameDialog = ref(false);
-const onNameChanged = function (newName) {
-  store.dispatch('plates/editPlate', {id: plateId, barcode: newName});
+const onNameChanged = function (newBarcode) {
+  plateStore.renamePlate(newBarcode)
 };
 
 const onDescriptionChanged = (newDescription) => {
-  store.dispatch('plates/editPlate', {id: plateId, description: newDescription});
+  plateStore.editPlateDescription(newDescription)
 };
 
 const height = ref(400);

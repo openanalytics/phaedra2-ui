@@ -139,14 +139,12 @@ const route = useRoute();
 const router = useRouter();
 
 const projectId = parseInt(route.params.projectId)
-if (projectStore.project || projectStore.project.id !== projectId)
-  projectStore.loadProject(projectId)
-
 const experimentId = parseInt(route.params.experimentId)
+
 experimentStore.loadExperiment(experimentId)
+projectStore.loadProject(projectId)
 
 const activeTab = ref('overview')
-
 const charts = computed(() => store.getters['ui/getChartViews']())
 
 const newPlateTab = ref(false)

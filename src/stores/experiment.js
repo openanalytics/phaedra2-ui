@@ -9,15 +9,18 @@ export const useExperimentStore = defineStore("experiment", {
         plates: []
     }),
     actions: {
-        loadExperiment(experimentId) {
+        async loadExperiment(experimentId) {
             if (!this.isLoaded(experimentId)) {
-                const { experiment, plates} = projectsGraphQlAPI.experimentById(experimentId)
-                this.experiment = experiment
-                this.plates = plates
+                const {onResult, onError} = projectsGraphQlAPI.experimentById(experimentId)
+
+                onResult(({data}) => {
+                    this.experiment = data.experiment
+                    this.plates = data.plates
+                })
             }
         },
         isLoaded(experimentId) {
-            return this.experiment && this.experiment.id === experimentId
+            return this.experiment.id === `${experimentId}`
         },
         async renameExperiment(newName) {
             await experimentAPI.editExperiment({ id: this.experiment.id, name: newName })

@@ -28,9 +28,28 @@ export default {
         const query = provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY, null, defaultOptions))
         return computed(() => query.result.value?.experiments ?? [])
     },
+    nMostRecentExperiments(n) {
+        const QUERY = gql`
+            query nMostRecentExperiments {
+                experiments:getNMostRecentExperiments(n: ${n}) {
+                    id
+                    name
+                    description
+                    status
+                    projectId
+                    createdOn
+                    createdBy
+                    updatedOn
+                    updatedBy
+                    tags
+                }
+            }
+        `
+        return provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY, null, defaultOptions))
+    },
     experimentById(experimentId) {
         const QUERY = gql`
-            query projectById($experimentId: ID) {
+            query experimentById($experimentId: ID) {
                 experiment:getExperimentById(experimentId: $experimentId) {
                     id
                     name
@@ -65,8 +84,7 @@ export default {
                 }
             }
         `
-        const query = provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY, null, defaultOptions))
-        return computed(() => query.result.value?.experimentSummaries ?? [])
+        return provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY, null, defaultOptions))
     }
 }
 

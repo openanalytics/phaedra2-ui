@@ -32,7 +32,6 @@
           </template>
           <template v-slot:body-cell-tags="props">
             <q-td :props="props">
-<!--            <TagList :objectInfo="props.row" :objectClass="'PROJECT'" :readOnly="true" />-->
               <q-badge v-for="tag in props.row.tags" :key="tag" color="green">{{tag}}</q-badge>
           </q-td>
         </template>
@@ -47,7 +46,7 @@
 </template>
 
 <script setup>
-import {ref} from 'vue'
+import {onMounted, ref} from 'vue'
 import {useStore} from 'vuex'
 import {useRouter} from 'vue-router'
 import FilterUtils from "@/lib/FilterUtils.js"
@@ -60,8 +59,15 @@ import OaSection from "@/components/widgets/OaSection";
 const store = useStore();
 const router = useRouter();
 
-const loading = ref();
-const projects = projectsGraphQlAPI.projects()
+const loading = ref(true);
+const projects = ref([])
+
+onMounted(() => {
+  fetchAllProjects()
+})
+
+const filter = ref('');
+const filterMethod = FilterUtils.defaultTableFilter();
 
 const columns = ref([
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
@@ -77,6 +83,13 @@ const selectProject = (event, row) => {
   router.push("/project/" + row.id);
 }
 
-const filter = ref('');
-const filterMethod = FilterUtils.defaultTableFilter();
+const fetchAllProjects = () => {
+  const {onResult, onError} = projectsGraphQlAPI.projects()
+  onResult(({data}) => {
+    projects.value = data.projects
+    loading.value = false
+  })
+  //TODO: implement onError event!
+}
+
 </script>

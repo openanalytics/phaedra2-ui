@@ -26,14 +26,20 @@
 
 <script setup>
 import projectsGraphQlAPI from "@/api/graphql/projects"
-import {computed} from "vue";
+import {ref} from "vue";
 
 const props = defineProps({ project: Object })
 
-const experiments = projectsGraphQlAPI.experimentsByProjectId(props.project.id)
-const total = computed(() => experiments.value.length)
-const open = computed(() => experiments.value.filter(exp => exp.status === 'OPEN').length)
-const closed = computed(() => experiments.value.filter(exp => exp.status === 'CLOSED').length);
+const total = ref(0)
+const open = ref(0)
+const closed = ref(0)
+
+projectsGraphQlAPI.experimentsByProjectId(props.project.id).then(experiments => {
+  total.value = experiments.length
+  open.value = experiments.filter(exp => exp.status === 'OPEN').length
+  closed.value = experiments.filter(exp => exp.status === 'CLOSED').length
+})
+
 </script>
 
 <style lang="scss">

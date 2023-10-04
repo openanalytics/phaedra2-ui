@@ -9,7 +9,7 @@ export default {
     templates() {
         const QUERY = gql`
             query getPlateTemplates {
-                getPlateTemplates {
+                plateTemplates:getPlateTemplates {
                     id
                     name
                     rows
@@ -21,8 +21,7 @@ export default {
                 }
             }
         `
-        const query = provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY, null, defaultOptions))
-        return computed(() => query.result.value?.getPlateTemplates ?? [])
+        return provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY, null, defaultOptions))
     },
     templateById(plateTemplateId) {
         const QUERY = gql`
@@ -54,9 +53,8 @@ export default {
             }
         `
         const variables = {'plateTemplateId': plateTemplateId}
-        const query = provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY,
+        return provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY,
             variables,
             defaultOptions))
-        return computed(() => query.result.value?.plateTemplate ?? null)
     }
 }

@@ -94,7 +94,10 @@
     const props = defineProps({ resultSet: Object });
     const store = useStore();
 
-    const protocol = protocolsGraphQlAPI.protocolById(props.resultSet.protocolId)
+    const protocol = ref(null)
+    protocolsGraphQlAPI.protocolById(props.resultSet.protocolId).then(result => {
+      protocol.value = result
+    })
     const resultSetFeatureStats = resultdataGraphQlAPI.resultSetFeatureStats(props.resultSet.id)
 
     const featureRows = computed(() => (protocol.value?.features || []).map(f => {

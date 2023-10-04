@@ -151,7 +151,7 @@
     <invalidate-dialog v-model:show="showInvalidateDialog" :plate="props.plate" @onInvalidate="onInvalidatePlate"/>
     <approve-dialog v-model:show="showApproveDialog" :plate="props.plate" @onApprove="onApprovePlate"/>
     <disapprove-dialog v-model:show="showDisapproveDialog" :plate="props.plate" @onDisapprove="onDisapprovePlate"/>
-    <calculate-plate-dialog v-model:show="showCalculateDialog" :plate="props.plate"/>
+    <calculate-plate-dialog v-model:show="showCalculateDialog" :plate="props.plate" />
     <link-plate-dialog v-model:show="showLinkDialog" :plate="props.plate"/>
     <delete-dialog v-model:show="showDeleteDialog" :id="props.plate.id" :name="props.plate.barcode" :objectClass="'plate'" @onDeleted="onDeletePlate"/>
   </q-menu>
@@ -169,9 +169,10 @@ import {ref} from "vue";
 import {useStore} from 'vuex'
 import {useExperimentStore} from "@/stores/experiment";
 
+const props = defineProps(['plate']);
+
 const store = useStore();
 const experimentStore = useExperimentStore()
-const props = defineProps(['plate']);
 
 const showInvalidateDialog = ref(false);
 const showApproveDialog = ref(false);

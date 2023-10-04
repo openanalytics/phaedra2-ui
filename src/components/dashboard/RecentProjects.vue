@@ -1,5 +1,5 @@
 <template>
-    <div class="row q-pa-sm">
+    <div v-if="projects.length > 0" class="row q-pa-sm">
         <ProjectCard :project="project" v-for="project in projects" :key="project.id"/>
     </div>
 </template>

@@ -17,11 +17,16 @@ import MiniHeatmap from "@/components/widgets/MiniHeatmap.vue"
 import FeatureSelector from "@/components/widgets/FeatureSelector.vue"
 import resultDataGraphQlAPI from "@/api/graphql/resultdata";
 
-const props = defineProps(['plates', 'experiment']);
 const gridColumnStyle = "repeat(3, 1fr)";
-const protocols = resultDataGraphQlAPI.protocolsByExperimentId(props.experiment.id)
+
+const props = defineProps(['plates', 'experiment']);
+
+const protocols = ref([])
 const selectedProtocol = ref(null)
 const selectedFeature = ref(null)
+
+const {onResult, onError} = resultDataGraphQlAPI.protocolsByExperimentId(props.experiment.id)
+onResult(({data}) => protocols.value = data.protocols)
 
 const plateDataPerPlate = ref(props.plates.map(p => ({"plate": p, "resultData": {}})))
 
@@ -32,13 +37,10 @@ const onFeatureSelection = (protocol, feature) => {
 }
 
 watch([selectedProtocol, selectedFeature], () => {
-  console.log("PlateGrid watch protocol: " + JSON.stringify(selectedProtocol.value))
-  console.log("PlateGrid watch feature: " + JSON.stringify(selectedFeature.value))
   for (let i = 0; i < plateDataPerPlate.value.length; i++) {
     const plateId = plateDataPerPlate.value[i].plate.id
     plateDataPerPlate.value[i].resultData = resultDataGraphQlAPI.resultDataByPlateIdAndProtocolIdAndFeatureId(plateId, selectedProtocol.value.id, selectedFeature.value.id)
   }
-  console.log("PlateGrid watch plateDataPerPlate: " + JSON.stringify(plateDataPerPlate.value))
 })
 </script>
 

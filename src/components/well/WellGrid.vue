@@ -50,8 +50,8 @@
   const store = useStore();
 
   const selectedWells = ref([]);
-  const plate = ref(props.plate)
-  const wells = ref(props.wells)
+  const plate = computed(() => props.plate)
+  const wells = computed(() => props.wells)
 
   const emitWellSelection = (wells, append) => {
     if (!append) selectedWells.value.splice(0);

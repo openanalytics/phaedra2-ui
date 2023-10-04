@@ -46,24 +46,26 @@
 
 <script setup>
     import {ref, computed, watch} from 'vue'
-    import {useStore} from "vuex"
     import WellUtils from "@/lib/WellUtils.js"
     import FilterUtils from "@/lib/FilterUtils"
     import TableConfig from "@/components/table/TableConfig"
     import {usePlateStore} from "@/stores/plate"
-    import protocolsGraphQlAPI from "@/api/graphql/protocols"
     import resultDataGraphQlAPI from "@/api/graphql/resultdata"
 
-    const store = useStore();
-    const plateStore = usePlateStore()
     const props = defineProps(['plate', 'wells']);
 
-    const loading = ref(true);
+    const plateStore = usePlateStore()
 
-    const activeMeasurement = plateStore.measurements.filter(m => m.active === true)[0]
-    const resultSet = plateStore.resultSets.find(rs => (Number.parseInt(rs.measId) === activeMeasurement.measurementId))
-    const features = protocolsGraphQlAPI.featuresByProtocolId(resultSet?.protocolId)
-    const resultData = resultDataGraphQlAPI.resultDataByResultSetId(resultSet?.id)
+    const loading = ref(true);
+    const features = ref([])
+    const resultData = ref([])
+
+    const resultSet = plateStore.activeResultSet
+    features.value = plateStore.featuresByProtocolId(resultSet?.protocolId)
+
+
+    const {onResult, onError} = resultDataGraphQlAPI.resultDataByResultSetId(resultSet?.id)
+    onResult(({data}) => resultData.value = data.resultData)
 
     const columns = ref([
     {
@@ -94,6 +96,8 @@
 
 
     watch([features, resultData], () => {
+      console.log("WellList: watch(features) = " + JSON.stringify(features))
+      console.log("WellList: watch(resultData) = " + JSON.stringify(resultData))
       if (features.value !== undefined && resultData.value !== undefined) {
         const featureCols = computed(() => (features.value ?? []).map(f => {
           return {name: f.name, align: 'left', label: f.name, field: f.name, sortable: true, 'featureId': f.id}

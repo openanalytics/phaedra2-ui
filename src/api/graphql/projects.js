@@ -4,6 +4,7 @@ import {computed} from "vue";
 import {apolloPlatesClient} from "@/graphql/apollo.clients";
 
 const defaultOptions = { fetchPolicy: 'no-cache', errorPolicy: 'ignore'}
+const axios = require("axios")
 
 export default {
     projects() {
@@ -19,8 +20,23 @@ export default {
                 }
             }
         `
-        const query = provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY, null, defaultOptions))
-        return computed(() => query.result.value?.projects.sort((p1, p2) => p2.createdOn.localeCompare(p1.createdOn)) ?? [])
+        return provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY, null, defaultOptions))
+        // return computed(() => query.result.value?.projects.sort((p1, p2) => p2.createdOn.localeCompare(p1.createdOn)) ?? [])
+    },
+    nMostRecentlyUpdatedProjects(n) {
+        const QUERY = gql`
+            query getNMostRecentlyUpdatedProjects {
+                projects:getNMostRecentlyUpdatedProjects(n: ${n}) {
+                    id
+                    name
+                    description
+                    createdOn
+                    createdBy
+                    tags
+                }
+            }
+        `
+        return provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY, null, defaultOptions))
     },
     projectById(projectId) {
         const QUERY = gql`
@@ -64,14 +80,9 @@ export default {
             }
         `
         const variables = {'projectId': projectId}
-        const query = provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY,
+        return provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY,
             variables,
             defaultOptions))
-        return {
-            'project': computed(() => query.result.value?.project ?? {}),
-            'experiments': computed(() => query.result.value?.experiments ?? []),
-            'projectAccess': computed(() => query.result.value?.projectAccess ?? [])
-        }
     },
     projectNameById(projectId) {
         const QUERY = gql`
@@ -101,30 +112,34 @@ export default {
         `
         const variables = {'projectId': projectId}
         const query = provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY, variables, defaultOptions))
+
         return computed(() => query.result.value?.projectAccess ?? [])
     },
-    experimentsByProjectId(projectId) {
-        const QUERY = gql`
-            query projectById($projectId: ID) {
-                experiments:getExperimentsByProjectId(projectId: $projectId) {
-                    id
-                    projectId
-                    name
-                    description
-                    status
-                    tags
-                    createdOn
-                    createdBy
-                    updatedOn
-                    updatedBy
-                }
+    async experimentsByProjectId(projectId) {
+        const result = await axios({
+            url: 'https://phaedra.poc.openanalytics.io/phaedra/api/v1/plate-service/graphql',
+            method: 'post',
+            data: {
+                query: `
+                    query getExperimentsByProjectId {
+                        experiments:getExperimentsByProjectId(projectId: ${projectId}) {
+                            id
+                            projectId
+                            name
+                            description
+                            status
+                            tags
+                            createdOn
+                            createdBy
+                            updatedOn
+                            updatedBy
+                        }
+                    }
+                `
             }
-        `
-        const variables = {'projectId': projectId}
-        const query = provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY,
-            variables,
-            defaultOptions))
-        return computed(() => query.result.value?.experiments ?? [])
+        })
+        console.log(result.data)
+        return result.data.data.experiments
     },
     experimentById(experimentId) {
         const QUERY = gql`
@@ -162,28 +177,9 @@ export default {
             }
         `
         const variables = {'experimentId': experimentId}
-        const query = provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY,
+        return provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY,
             variables,
             defaultOptions))
-        return {
-            'experiment': computed(() => query.result.value?.experiment ?? null),
-            'plates': computed(() => query.result.value?.plates ?? null)
-        }
-    },
-    experimentNameById(experimentId) {
-        const QUERY = gql`
-            query experimentById($experimentId: ID) {
-                experiment:getExperimentById(experimentId: $experimentId) {
-                    id
-                    name
-                }
-            }
-        `
-        const variables = {'experimentId': experimentId}
-        const query = provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY,
-            variables,
-            defaultOptions))
-        return computed(() => query.result.value?.experiment ?? null)
     },
     plateById(plateId) {
         const QUERY = gql`
@@ -240,32 +236,54 @@ export default {
             }
         `
         const variables = {'plateId': plateId}
-        const query = provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY,
+        return provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY,
             variables,
             defaultOptions))
-        return {
-            'plate': computed(() => query.result.value?.plate ?? null),
-            'wells': computed(() => query.result.value?.wells ?? null)
-        }
     },
-    activePlateMeasurement(plateId) {
+    measurementsByPlateId(plateId) {
         const QUERY = gql`
-            query getPlateMeasurements($plateId: ID, $active: Boolean) {
-                plateMeasurement:getPlateMeasurements(plateId: $plateId, active: $active) {
+            query getMeasurementsByPlateId($plateId: ID) {
+                plateMeasurements:getMeasurementsByPlateId(plateId: $plateId) {
+                    measurementId
+                    plateId
+                    active
+                    linkedBy
+                    linkedOn
+
+                    name
+                    barcode
+                    description
+                    rows
+                    columns
+                    createdOn
+                    createdBy
+                    wellColumns
+                    subWellColumns
+                    imageChannels
+                }
+            }
+        `
+        const variables = {'plateId': plateId}
+        return provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY,
+            variables,
+            defaultOptions))
+    },
+    activeMeasurementByPlateId(plateId) {
+        const QUERY = gql`
+            query getActiveMeasurementByPlateId($plateId: ID) {
+                plateMeasurement:getActiveMeasurementByPlateId(plateId: $plateId) {
                     plateId
                     barcode
                     rows
                     columns
                     measurementId
-                    source
                     active
                 }
             }
         `
-        const variables = {'plateId': plateId, 'active': true}
-        const query = provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY,
+        const variables = {'plateId': plateId}
+        return provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY,
             variables,
             defaultOptions))
-        return computed(() => query.result.value?.plateMeasurement[0] ?? null)
-    }
+    },
 }

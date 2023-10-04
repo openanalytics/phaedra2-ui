@@ -41,7 +41,6 @@
       </template>
       <template v-slot:body-cell-tags="props">
         <q-td :props="props">
-<!--          <TagList :objectInfo="props.row" :objectClass="'EXPERIMENT'" :readOnly="true" />-->
           <q-badge v-for="tag in props.row.tags" :key="tag" color="green">{{tag}}</q-badge>
         </q-td>
       </template>
@@ -113,17 +112,6 @@
   <table-config v-model:show="showConfigDialog" v-model:columns="columns" v-model:visibleColumns="visibleColumns"></table-config>
 </template>
 
-<style scoped>
-  .tag-icon {
-    margin-right: 5px;
-  }
-
-  .nav-link {
-    color: black;
-    text-decoration: none;
-  }
-</style>
-
 <script setup>
 import {ref, computed} from 'vue'
 import {useStore} from 'vuex'
@@ -179,3 +167,14 @@ const filterMethod = FilterUtils.defaultTableFilter()
 const visibleColumns = columns.value.map(a => a.name)
 const showConfigDialog = ref(false)
 </script>
+
+<style scoped>
+.tag-icon {
+  margin-right: 5px;
+}
+
+.nav-link {
+  color: black;
+  text-decoration: none;
+}
+</style>

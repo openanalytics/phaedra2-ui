@@ -24,6 +24,26 @@
   </div>
 </template>
 
+<script setup>
+import {computed} from 'vue'
+import ColorUtils from "@/lib/ColorUtils.js"
+import WellInspector from "@/components/well/WellInspector.vue"
+import WellActionMenu from "@/components/well/WellActionMenu.vue"
+
+const props = defineProps({
+  well: Object,
+  selectedWells: Array,
+  wellColorFunction: Function,
+  wellImageFunction: Function,
+  wellLabelFunctions: Array,
+
+});
+
+const bgColor = computed(() => props.wellColorFunction ? props.wellColorFunction(props.well) : '#969696')
+const fgColor = computed(() => ColorUtils.calculateTextColor(bgColor.value))
+const isSelected = computed(() => props.selectedWells.find(w => props.well.row === w.row && props.well.column === w.column))
+</script>
+
 <style scoped>
 .well {
     border: 1px solid black;
@@ -63,22 +83,3 @@
   );
 }
 </style>
-
-<script setup>
-    import {computed} from 'vue'
-    import ColorUtils from "@/lib/ColorUtils.js"
-    import WellInspector from "@/components/well/WellInspector.vue"
-    import WellActionMenu from "@/components/well/WellActionMenu.vue"
-
-    const props = defineProps({
-        well: Object,
-        selectedWells: Array,
-        wellColorFunction: Function,
-        wellImageFunction: Function,
-        wellLabelFunctions: Array,
-    });
-
-    const bgColor = computed(() => props.wellColorFunction ? props.wellColorFunction(props.well) : '#969696')
-    const fgColor = computed(() => ColorUtils.calculateTextColor(bgColor.value))
-    const isSelected = computed(() => props.selectedWells.find(w => props.well.row === w.row && props.well.column === w.column))
-</script>

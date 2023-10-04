@@ -2,48 +2,60 @@ import {provideApolloClient, useQuery} from '@vue/apollo-composable'
 import gql from 'graphql-tag'
 import {computed} from "vue";
 import {apolloProtocolsClient} from "@/graphql/apollo.clients";
+import axios from "axios";
 
+const token = process.env.VUE_APP_API_BEARER_TOKEN;
 const defaultOptions = { fetchPolicy: 'no-cache', errorPolicy: 'ignore'}
 
 export default {
-    protocols() {
-        const QUERY = gql`
-            query getProtocols {
-                protocols:getProtocols {
-                    id
-                    name
-                    description
-                    createdOn
-                    createdBy
-                }
-            }
-        `
-        const query = provideApolloClient(apolloProtocolsClient)(() => useQuery(QUERY, null, defaultOptions))
-        return computed(() => query.result.value?.protocols ?? [])
-    },
-    protocolById(protocolId) {
-        const QUERY = gql`
-            query getProtocolById($protocolId: ID) {
-                protocol:getProtocolById(protocolId: $protocolId) {
-                    id
-                    name
-                    description
-                    features {
-                        id
-                        name
-                        alias
+    async protocols() {
+        const result = await axios({
+            url: 'https://phaedra.poc.openanalytics.io/phaedra/api/v1/protocol-service/graphql',
+            method: 'post',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            data: {
+                query: `
+                    query getProtocols {
+                        protocols:getProtocols {
+                            id
+                            name
+                            description
+                            createdOn
+                            createdBy
+                        }
                     }
-                }
+                `
             }
-        `
-        const variables = {'protocolId': protocolId}
-        const query = provideApolloClient(apolloProtocolsClient)(() => useQuery(QUERY,
-            variables,
-            defaultOptions))
-        return computed(() => query.result.value?.protocol ?? {})
+        })
+        return result.data.data.protocols
     },
-    protocolsByTag(tag) {
-
+    async protocolById(protocolId) {
+        const result = await axios({
+            url: 'https://phaedra.poc.openanalytics.io/phaedra/api/v1/protocol-service/graphql',
+            method: 'post',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            data: {
+                query: `
+                    query {
+                        protocol:getProtocolById(protocolId: ${protocolId}) {
+                            id
+                            name
+                            description
+                            features {
+                                id
+                                name
+                                alias
+                            }
+                        }
+                    }
+                `
+            }
+        })
+        return result.data.data.protocol
     },
     featureById(featureId) {
         const QUERY = gql`
@@ -101,9 +113,8 @@ export default {
             }
         `
         const variables = {'protocolId': protocolId}
-        const query = provideApolloClient(apolloProtocolsClient)(() => useQuery(QUERY,
+        return provideApolloClient(apolloProtocolsClient)(() => useQuery(QUERY,
             variables,
             defaultOptions))
-        return computed(() => query.result.value?.features ?? null)
     }
 }

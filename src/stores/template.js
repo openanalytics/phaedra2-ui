@@ -8,7 +8,10 @@ export const useTemplateStore = defineStore("template", {
     }),
     actions: {
         loadTemplate(templateId) {
-            this.template = templatesGraphQlAPI.templateById(templateId)
+            const {onResult, onError} = templatesGraphQlAPI.templateById(templateId)
+            onResult(({data}) => {
+                this.template = data.plateTemplate
+            })
         },
         async creatNewTemplate(newTemplate)  {
           this.template = await templateAPI.createPlateTemplate(newTemplate);
