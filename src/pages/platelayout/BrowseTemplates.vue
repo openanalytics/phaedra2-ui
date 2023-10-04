@@ -49,7 +49,7 @@
 </template>
 
 <script setup>
-import {ref} from 'vue'
+import {onMounted, ref} from 'vue'
 import {useStore} from 'vuex'
 import {useRouter} from 'vue-router'
 import FilterUtils from "@/lib/FilterUtils.js"
@@ -63,7 +63,11 @@ const store = useStore();
 const router = useRouter();
 const loading = ref();
 
-const templates = templatesGraphQlAPI.templates()
+const templates = ref([])
+
+onMounted(() => {
+  fetchPlateTemplates()
+})
 
 const columns = ref([
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
@@ -78,7 +82,14 @@ const columns = ref([
 
 const selectTemplate = (event, row) => {
   router.push("/template/" + row.id);
-};
+}
+
+const fetchPlateTemplates = () => {
+  const {onResult, onError} = templatesGraphQlAPI.templates()
+  onResult(({data}) => templates.value = data.plateTemplates)
+
+  //TODO: implement onError event handling
+}
 
 const filter = ref('');
 const filterMethod = FilterUtils.defaultTableFilter();
