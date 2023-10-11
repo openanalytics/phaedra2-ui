@@ -95,10 +95,25 @@
     const store = useStore();
 
     const protocol = ref(null)
-    protocolsGraphQlAPI.protocolById(props.resultSet.protocolId).then(result => {
-      protocol.value = result
-    })
-    const resultSetFeatureStats = resultdataGraphQlAPI.resultSetFeatureStats(props.resultSet.id)
+    const resultSetFeatureStats = ref([])
+
+    const fetchProtocol = () => {
+      // TODO: implement onError event handler
+      const {onResult, onError} = protocolsGraphQlAPI.protocolById(props.resultSet.protocolId)
+      onResult(({data}) => {
+        protocol.value = data.protocol
+      })
+    }
+    fetchProtocol()
+
+    const fetchFeatureStats = () => {
+      //TODO: implement onError event handler
+      const {onResult, onError} = resultdataGraphQlAPI.resultSetFeatureStats(props.resultSet.id)
+      onResult(({data}) => {
+        resultSetFeatureStats.value = data.rsFeatureStats
+      })
+    }
+    fetchFeatureStats()
 
     const featureRows = computed(() => (protocol.value?.features || []).map(f => {
       const featureStats = resultSetFeatureStats.value.filter(rd => rd.featureId == f.id) || {};

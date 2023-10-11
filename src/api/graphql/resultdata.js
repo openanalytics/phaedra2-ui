@@ -99,10 +99,10 @@ export default {
             }
         `
         const variables = {'resultSetId': resultSetId}
-        const query = provideApolloClient(apolloResultDataClient)(()=> useQuery(QUERY,
+        return provideApolloClient(apolloResultDataClient)(()=> useQuery(QUERY,
             variables,
             defaultOptions))
-        return computed(() => query.result.value?.rsFeatureStats ?? [])
+        // return computed(() => query.result.value?.rsFeatureStats ?? [])
     },
     resultDataByResultSetId(resultSetId) {
         const QUERY = gql`
@@ -144,5 +144,39 @@ export default {
             variables,
             defaultOptions))
         return computed(() => query.result.value?.resultData ?? [])
+    },
+    latestResultSetByPlateId(plateId) {
+        const QUERY = gql`
+            query latestResultSetByPlateId($plateId: ID) {
+                resultSet:latestResultSetByPlateId(plateId: $plateId) {
+                    id
+                    plateId
+                    protocolId
+                    measId
+                    outcome
+                }
+            }
+        `
+        const variables = {'plateId': plateId}
+        return provideApolloClient(apolloResultDataClient)(() => useQuery(QUERY,
+            variables,
+            defaultOptions))
+    },
+    latestResultSetsByPlateIds(plateIds) {
+        const QUERY = gql`
+            query latestResultSetsByPlateIds($plateIds: [ID]) {
+                resultSets:latestResultSetsByPlateIds(plateIds: $plateIds) {
+                    id
+                    plateId
+                    protocolId
+                    measId
+                    outcome
+                }
+            }
+        `
+        const variables = {'plateIds': plateIds}
+        return provideApolloClient(apolloResultDataClient)(() => useQuery(QUERY,
+            variables,
+            defaultOptions))
     }
 }

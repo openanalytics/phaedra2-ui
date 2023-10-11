@@ -31,31 +31,23 @@ export default {
         })
         return result.data.data.protocols
     },
-    async protocolById(protocolId) {
-        const result = await axios({
-            url: 'https://phaedra.poc.openanalytics.io/phaedra/api/v1/protocol-service/graphql',
-            method: 'post',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            },
-            data: {
-                query: `
-                    query {
-                        protocol:getProtocolById(protocolId: ${protocolId}) {
-                            id
-                            name
-                            description
-                            features {
-                                id
-                                name
-                                alias
-                            }
-                        }
+    protocolById(protocolId) {
+        const QUERY = gql`
+            query getProtocolById {
+                protocol:getProtocolById(protocolId: ${protocolId}) {
+                    id
+                    name
+                    description
+                    features {
+                        id
+                        name
+                        alias
                     }
-                `
+                }
             }
-        })
-        return result.data.data.protocol
+        `
+        return provideApolloClient(apolloProtocolsClient)(() => useQuery(QUERY,
+            null, defaultOptions))
     },
     featureById(featureId) {
         const QUERY = gql`
