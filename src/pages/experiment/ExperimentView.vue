@@ -112,7 +112,7 @@
 </template>
 
 <script setup>
-import {ref, computed} from 'vue'
+import {ref, watchEffect, computed} from 'vue'
 import {useStore} from 'vuex'
 import {useRoute, useRouter} from 'vue-router'
 
@@ -138,11 +138,13 @@ const experimentStore = useExperimentStore()
 const route = useRoute();
 const router = useRouter();
 
-const projectId = parseInt(route.params.projectId)
 const experimentId = parseInt(route.params.experimentId)
-
 experimentStore.loadExperiment(experimentId)
-projectStore.loadProject(projectId)
+
+watchEffect(() => {
+  // Load parent project, if needed.
+  if (experimentStore.isLoaded(experimentId)) projectStore.loadProject(experimentStore.experiment.projectId);
+});
 
 const activeTab = ref('overview')
 const charts = computed(() => store.getters['ui/getChartViews']())

@@ -64,14 +64,14 @@ const routes = [
     { name: 'browseProjects', path: "/projects", component: BrowseProjects},
     { name: "project", path: "/project/:id", component: ProjectView },
     { name: "newProject", path: "/project/new", component: NewProjectView },
-    { name: "experiment", path: "/project/:projectId/experiment/:experimentId", component: ExperimentView,
+    { name: "experiment", path: "/experiment/:experimentId", component: ExperimentView,
         children: [
             { path: '', component: PlateList, name: "plateList" },
             { path: 'statistics', component: PlateStatsList },
             { path: 'heatmaps', component: PlateGrid }
         ]
     },
-    { name: "plate", path: "/project/:projectId/experiment/:experimentId/plate/:plateId", component: PlateView,
+    { name: "plate", path: "/plate/:plateId", component: PlateView,
         children: [
             { path: '', component: PlateLayout, name: "plateLayout" },
             { path: 'measurements', component: MeasList },
