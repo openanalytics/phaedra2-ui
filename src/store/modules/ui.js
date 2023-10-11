@@ -92,12 +92,21 @@ const actions = {
         ctx.commit('updateChartViewWidth', updates)
     },
     async updateChartViewXAxisData(ctx, {chartId, plateId, xFeature})  {
-        const xValues = await resultDataGraphQLAPI.featureValuesByPlateIdAndFeatureId(plateId, xFeature.featureId)
-        ctx.commit('updateChartViewXAxisData', {'chartId': chartId, 'xFeature': xFeature, 'xValues': xValues.value})
+        // TODO:  implement onError handler
+        const {onResult, onError} = resultDataGraphQLAPI.featureValuesByPlateIdAndFeatureId(plateId, xFeature.featureId)
+        onResult(({data}) => {
+            const xValues = data.featureValues
+            ctx.commit('updateChartViewXAxisData', {'chartId': chartId, 'xFeature': xFeature, 'xValues': xValues})
+        })
     },
     async updateChartViewYAxisData(ctx, {chartId, plateId, yFeature}) {
-        const yValues = await resultDataGraphQLAPI.featureValuesByPlateIdAndFeatureId(plateId, yFeature.featureId)
-        ctx.commit('updateChartViewYAxisData', {'chartId': chartId, 'yFeature': yFeature, 'yValues': yValues.value})
+        // TODO:  implement onError handler
+        const {onResult, onError} = resultDataGraphQLAPI.featureValuesByPlateIdAndFeatureId(plateId, yFeature.featureId)
+        onResult(({data}) => {
+            const yValues = data.featureValues
+            ctx.commit('updateChartViewYAxisData', {'chartId': chartId, 'yFeature': yFeature, 'yValues': yValues.value})
+        })
+
     },
     //TODO: Add selectSubstance functionupdateChartViewXAxisData
     selectSubstance: (ctx,  substance) => {
