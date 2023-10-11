@@ -8,7 +8,7 @@
     <q-page class="oa-root-div">
         <div class="q-pa-md">
             <oa-section v-if="!execution" title="Loading..." icon="play_circle_outline"/>
-            <oa-section v-else :title="FormatUtils.formatDate(execution.createdOn)" icon="play_circle_outline">
+            <oa-section v-else :title="FormatUtils.formatDate(execution.createdOn)" icon="play_circle_outline" :collapsible="true">
                 <div class="row q-pa-md">
                     <div class="col-2">
                         <q-field label="ID" stack-label dense borderless>
@@ -74,17 +74,43 @@
                 </div>
             </oa-section>
 
-            <oa-section title="Event Log" icon="event" class="q-mt-md">
+            <oa-section title="Event Log" icon="event" class="q-mt-md" :collapsible="true">
                 <div class="row q-pa-md oa-section-body">
                     <q-table
                         table-header-class="text-grey"
                         flat dense
+                        :pagination="{ rowsPerPage: 20 }"
                         :rows="executionLog"
                         :columns="logColumns"
                     >
                         <template v-slot:body-cell-messageType="props">
                             <q-td :props="props">
-                                <q-badge color="info">{{ props.row.messageType }}</q-badge>
+                                <StatusLabel :status="props.row.messageType" />
+                            </q-td>
+                        </template>
+                    </q-table>
+                </div>
+            </oa-section>
+
+            <oa-section title="Execution Variables" icon="dataset" class="q-mt-md" :collapsible="true">
+                <div class="row q-pa-md oa-section-body">
+                    <q-table
+                        table-header-class="text-grey"
+                        style="max-width: 95rem"
+                        flat dense
+                        :pagination="{ rowsPerPage: 20, sortBy: 'name' }"
+                        :rows="executionVars"
+                        :columns="varColumns"
+                    >
+                        <template v-slot:body-cell-value="props">
+                            <q-td :props="props">
+                                <router-link v-if="props.row[0] == 'measurementId'" :to="'/datacapture/meas/' + props.value">
+                                    <div class="row items-center cursor-pointer">{{ props.value }}</div>
+                                </router-link>
+                                <router-link v-else-if="props.row[0] == 'plateId'" :to="'/plate/' + props.value">
+                                    <div class="row items-center cursor-pointer">{{ props.value }}</div>
+                                </router-link>
+                                <span v-else>{{ props.value }}</span>
                             </q-td>
                         </template>
                     </q-table>
@@ -131,5 +157,14 @@
         {name: 'logDate', align: 'left', label: 'Date', field: 'logDate', sortable: true, format: FormatUtils.formatDate},
         {name: 'stepNr', align: 'left', label: 'Step', field: 'stepNr', sortable: true},
         {name: 'message', align: 'left', label: 'Message', field: 'message', sortable: true},
+    ]);
+
+    const executionVars =  computed(() => {
+        let vars = JSON.parse(execution.value?.variables || "{}");
+        return Object.entries(vars);
+    });
+    const varColumns = ref([
+        { name: 'name', align: 'left', label: 'Name', field: row => row[0], sortable: true},
+        { name: 'value', align: 'left', label: 'Value', field: row => row[1] },
     ]);
 </script>
