@@ -3,7 +3,7 @@
         <div class="oa-section-title2">
             <div class="row items-center">
                 <q-icon name="view_module" size="24px" class="q-mr-sm"/>
-                <router-link :to="'/project/' + projectId + '/experiment/' + experimentId + '/plate/' + plate?.id" class="nav-link">
+                <router-link :to="'/plate/' + plate?.id" class="nav-link">
                   {{ plate?.barcode }}
                 </router-link>
             </div>
@@ -20,14 +20,10 @@ import WellUtils from "@/lib/WellUtils.js"
 import ColorUtils from "@/lib/ColorUtils.js"
 import {useRoute} from "vue-router";
 
-const route = useRoute();
 const props = defineProps(['plate', 'plateData']);
 
 const plate = computed(() => props.plate)
 const plateData = computed(() => props.plateData)
-
-const projectId = parseInt(route.params.projectId)
-const experimentId = parseInt(route.params.experimentId);
 
 const canvas = ref(null);
 const lut = ref(ColorUtils.createLUT([], ColorUtils.defaultHeatmapGradients));

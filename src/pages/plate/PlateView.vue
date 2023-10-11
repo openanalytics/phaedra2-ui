@@ -2,8 +2,8 @@
   <q-breadcrumbs class="oa-breadcrumb" v-if="plateStore.plate && experimentStore.experiment && projectStore.project">
     <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
     <q-breadcrumbs-el label="Projects" icon="list" :to="'/projects'"/>
-    <q-breadcrumbs-el :label="projectStore.project.name" icon="folder" :to="'/project/' + projectId"/>
-    <q-breadcrumbs-el :label="experimentStore.experiment.name" icon="science" :to="'/project/' + projectId + '/experiment/' + experimentId"/>
+    <q-breadcrumbs-el :label="projectStore.project.name" icon="folder" :to="'/project/' + projectStore.project.id"/>
+    <q-breadcrumbs-el :label="experimentStore.experiment.name" icon="science" :to="'/experiment/' + experimentStore.experiment.id"/>
     <q-breadcrumbs-el :label="plateStore.plate.barcode" icon="view_module"/>
   </q-breadcrumbs>
 
@@ -126,7 +126,7 @@
 </template>
 
 <script setup>
-import {ref} from 'vue'
+import {ref, watchEffect} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import {Splitpanes, Pane} from 'splitpanes'
 
@@ -160,15 +160,16 @@ const plateStore = usePlateStore()
 const router = useRouter();
 
 const plateId = parseInt(route.params.plateId);
-plateStore.loadPlate(plateId)
+plateStore.loadPlate(plateId);
 
-const experimentId = parseInt(route.params.experimentId);
-experimentStore.loadExperiment(experimentId)
-
-const projectId = parseInt(route.params.projectId);
-projectStore.loadProject(projectId)
-
-console.log(JSON.stringify(plateStore.plate))
+watchEffect(() => {
+  // Load parent experiment and project, if needed.
+  if (plateStore.isLoaded(plateId)) {
+    const expId = plateStore.plate.experimentId;
+    experimentStore.loadExperiment(expId);
+    if (experimentStore.isLoaded(expId)) projectStore.loadProject(experimentStore.experiment.projectId);
+  }
+});
 
 // const curves = curvesGraphQlAPI.curvesByPlateId(plateId)
 
