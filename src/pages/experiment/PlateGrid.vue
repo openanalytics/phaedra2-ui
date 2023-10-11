@@ -39,7 +39,12 @@ const onFeatureSelection = (protocol, feature) => {
 watch([selectedProtocol, selectedFeature], () => {
   for (let i = 0; i < plateDataPerPlate.value.length; i++) {
     const plateId = plateDataPerPlate.value[i].plate.id
-    plateDataPerPlate.value[i].resultData = resultDataGraphQlAPI.resultDataByPlateIdAndProtocolIdAndFeatureId(plateId, selectedProtocol.value.id, selectedFeature.value.id)
+
+    // TODO: Implement onError handler
+    const {onResult, onError} = resultDataGraphQlAPI.resultDataByPlateIdAndProtocolIdAndFeatureId(plateId, selectedProtocol.value.id, selectedFeature.value.id)
+    onResult(({data}) => {
+      plateDataPerPlate.value[i].resultData = data.resultData
+    })
   }
 })
 </script>
