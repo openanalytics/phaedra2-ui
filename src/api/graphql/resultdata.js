@@ -1,8 +1,6 @@
 import {apolloResultDataClient} from "@/graphql/apollo.clients";
 import {provideApolloClient, useQuery} from '@vue/apollo-composable'
 import gql from 'graphql-tag'
-import {computed} from "vue";
-import axios from "axios";
 
 const token = process.env.VUE_APP_API_BEARER_TOKEN;
 const defaultOptions = { fetchPolicy: 'no-cache', errorPolicy: 'ignore'}
@@ -48,24 +46,15 @@ export default {
             defaultOptions
         ))
     },
-    async featureValuesByPlateIdAndFeatureId(plateId, featureId) {
-        const result = await axios({
-            url: 'https://phaedra.poc.openanalytics.io/phaedra/api/v1/resultdata-service/graphql',
-            method: 'post',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            },
-            data: {
-                query: `
-                    query {
-                        featureValues:featureValuesByPlateIdAndFeatureId (plateId: ${plateId}, featureId: ${featureId}) {
-                            value
-                        }
-                    }
-                `
+    featureValuesByPlateIdAndFeatureId(plateId, featureId) {
+        const QUERY = gql`
+            query featureValuesByPlateIdAndFeatureId {
+                featureValues:featureValuesByPlateIdAndFeatureId (plateId: ${plateId}, featureId: ${featureId}) {
+                    value
+                }
             }
-        })
-        return result.data.data.featureValues
+        `
+        return provideApolloClient(apolloResultDataClient)(()=> useQuery(QUERY, null, defaultOptions))
     },
     resultSetsByPlateId(plateId) {
         const QUERY = gql`
@@ -94,6 +83,7 @@ export default {
                     statisticName
                     value
                     statusCode
+                    welltype
                     statusMessage
                 }
             }
@@ -102,7 +92,6 @@ export default {
         return provideApolloClient(apolloResultDataClient)(()=> useQuery(QUERY,
             variables,
             defaultOptions))
-        // return computed(() => query.result.value?.rsFeatureStats ?? [])
     },
     resultDataByResultSetId(resultSetId) {
         const QUERY = gql`
@@ -140,10 +129,9 @@ export default {
             }
         `
         const variables = {'plateId': plateId, 'protocolId': protocolId, 'featureId': featureId}
-        const query = provideApolloClient(apolloResultDataClient)(() => useQuery(QUERY,
+        return provideApolloClient(apolloResultDataClient)(() => useQuery(QUERY,
             variables,
             defaultOptions))
-        return computed(() => query.result.value?.resultData ?? [])
     },
     latestResultSetByPlateId(plateId) {
         const QUERY = gql`
