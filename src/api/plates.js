@@ -39,9 +39,9 @@ export default {
             console.log(error);
         }
     },
-    async editPlate(modifiedPlate) {
+    async editPlate(plate) {
         try {
-            const response = await axios.put(apiURL + '/plates/' + modifiedPlate.id, modifiedPlate);
+            const response = await axios.put(apiURL + '/plates/' + plate.id, plate);
             if (response.status === 200) return response.data;
         } catch (error) {
             console.log(error);

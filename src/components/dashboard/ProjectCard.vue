@@ -25,19 +25,20 @@
 </template>
 
 <script setup>
+import projectsGraphQlAPI from "@/api/graphql/projects"
+import {ref} from "vue";
 
-import {useStore} from "vuex";
-import {computed} from "vue";
+const props = defineProps({ project: Object })
 
-const props = defineProps({
-  project: Object
+const total = ref(0)
+const open = ref(0)
+const closed = ref(0)
+
+projectsGraphQlAPI.experimentsByProjectId(props.project.id).then(experiments => {
+  total.value = experiments.length
+  open.value = experiments.filter(exp => exp.status === 'OPEN').length
+  closed.value = experiments.filter(exp => exp.status === 'CLOSED').length
 })
-const store = useStore()
-store.dispatch('experiments/loadByProjectId', props.project.id)
-
-const total = computed(() => store.getters['experiments/getNrOfExperiments'](props.project.id));
-const open = computed(() => store.getters['experiments/getNrOfOpenExperiments'](props.project.id));
-const closed = computed(() => store.getters['experiments/getNrOfClosedExperiments'](props.project.id));
 
 </script>
 

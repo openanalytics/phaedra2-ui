@@ -22,7 +22,7 @@
                 </q-card-section>
                 <q-card-actions align="right" class="text-primary">
                 <q-btn flat label="Cancel" v-close-popup />
-                <q-btn label="Add" v-close-popup color="primary" @click="doAddAccess" />
+                <q-btn label="Add" v-close-popup color="primary" @click="addAccess" />
                 </q-card-actions>
             </q-card>
         </q-dialog>
@@ -36,7 +36,7 @@
                     <span>Are you sure you want to remove <b>{{accessToRemove.accessLevel}}</b> access for team <b>{{accessToRemove.teamName}}</b> from this project?</span>
                 </q-card-section>
                 <q-card-actions align="right">
-                    <q-btn label="Remove" color="primary" v-close-popup @click="doRemoveAccess" />
+                    <q-btn label="Remove" color="primary" v-close-popup @click="removeAccess" />
                     <q-btn flat label="Cancel" v-close-popup />
                 </q-card-actions>
             </q-card>
@@ -44,43 +44,34 @@
     </div>
 </template>
 
-<script>
-    import {ref, computed} from "vue";
-    import {useStore} from 'vuex'
+<script setup>
+import {ref, computed} from "vue";
+import {useUserInfoStore} from "@/stores/userinfo";
 
-    export default {
-        props: {
-            projectId: Number,
-            readOnly: Boolean
-        },
-        setup(props) {
-            const exported = {};
-            const store = useStore();
+const props = defineProps(['projectAccess', 'readOnly'])
+const emits = defineEmits(['addAccess', 'removeAccess'])
+const userInfoStore = useUserInfoStore()
 
-            exported.projectAccess = computed(() => store.getters['projects/getProjectAccess'](props.projectId));
+const projectAccess = computed(() => props.projectAccess)
 
-            const userInfo = computed(() => store.getters['userinfo/getUserInfo']());
-            exported.teamNames = computed(() => userInfo.value.teams);
-            exported.accessLevels = ref([ "Read", "Write", "Admin" ]);
+const userInfo = computed(() => userInfoStore.userInfo);
+const teamNames = computed(() => userInfo.value.teams);
+const accessLevels = ref(["Read", "Write", "Admin"]);
 
-            exported.showAddAccessDialog = ref(false);
-            exported.newAccess = ref({});
-            exported.doAddAccess = function() {
-                exported.newAccess.value.projectId = props.projectId;
-                store.dispatch('projects/createProjectAccess', exported.newAccess.value);
-            };
+const showAddAccessDialog = ref(false);
+const newAccess = ref({});
+const addAccess = () => {
+  emits('addAccess', newAccess.value)
+}
 
-            exported.confirmRemoveAccess = ref(false);
-            exported.accessToRemove = ref(null);
-            exported.askRemoveAccess = function(projectAccess) {
-                exported.accessToRemove.value = projectAccess;
-                exported.confirmRemoveAccess.value = true;
-            };
-            exported.doRemoveAccess = function() {
-                store.dispatch('projects/deleteProjectAccess', exported.accessToRemove.value.id);
-            };
+const confirmRemoveAccess = ref(false);
+const accessToRemove = ref(null);
+const askRemoveAccess = (projectAccess) => {
+  accessToRemove.value = projectAccess;
+  confirmRemoveAccess.value = true;
+}
 
-            return exported;
-        },
-    }
+const removeAccess = () => {
+  emits('removeAccess', accessToRemove.value)
+}
 </script>

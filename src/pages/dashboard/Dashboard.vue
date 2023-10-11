@@ -2,7 +2,7 @@
     <q-page class="oa-root-div">
         <div class="q-pa-md">
             <oa-section title="Recent Projects" icon="folder" :collapsible="true">
-                <RecentProjects :projects="recentProjects"></RecentProjects>
+                <RecentProjects v-if="recentProjects.length > 0" :projects="recentProjects"></RecentProjects>
             </oa-section>
         </div>
 
@@ -19,7 +19,7 @@
                         </template>
                         <template v-slot:body-cell-name="props">
                             <q-td :props="props">
-                                <router-link :to="'/experiment/' + props.row.id" class="nav-link">
+                                <router-link :to="'project/'+ props.row.projectId +'/experiment/' + props.row.id" class="nav-link">
                                     <div class="row items-center cursor-pointer">
                                         <q-icon name="science" class="icon q-pr-sm"/>
                                         {{ props.row.name }}
@@ -66,7 +66,7 @@
 
         <div class="q-pa-md">
             <oa-section title="Recent Calculations" icon="calculate" :collapsible="true">
-                <RecentCalculations></RecentCalculations>
+                <RecentCalculations/>
             </oa-section>
         </div>
     </q-page>
@@ -83,24 +83,24 @@
 </style>
 
 <script setup>
-import {computed} from "vue";
-import {useStore} from "vuex";
-import RecentCalculations from "@/components/dashboard/RecentCalculations";
-import RecentProjects from "@/components/dashboard/RecentProjects";
-import UserChip from "@/components/widgets/UserChip";
-import FormatUtils from "@/lib/FormatUtils.js";
-import OaSection from "@/components/widgets/OaSection";
+import {onMounted, ref} from "vue";
+import RecentCalculations from "@/components/dashboard/RecentCalculations"
+import RecentProjects from "@/components/dashboard/RecentProjects"
+import UserChip from "@/components/widgets/UserChip"
+import FormatUtils from "@/lib/FormatUtils.js"
+import OaSection from "@/components/widgets/OaSection"
+import projectsGraphQlAPI from "@/api/graphql/projects"
+import experimentsGraphQlAPI from "@/api/graphql/experiments"
 
-const store = useStore();
+const recentProjects = ref([])
+const recentExperiments = ref([])
+const recentExperimentSummaries = ref([])
 
-//TODO: Add API to load recent projects
-store.dispatch('projects/loadAll');
-store.dispatch('experiments/loadRecentExperiments', 10);
-
-const recentProjects = computed(() => store.getters['projects/getRecentProjects'](3));
-const recentExperiments = computed(() => store.getters['experiments/getRecentExperiments']());
-const recentExperimentSummaries = computed(() => store.getters['experiments/getRecentExperimentSummaries']())
-const projects = computed(() => store.getters['projects/getAll']())
+onMounted(() => {
+  fetchNRecentProject(3)
+  fetchNRecentExperiments(10)
+  fetchExperimentSummaries()
+})
 
 const columns = [
     {name: 'name', label: 'Name', align: 'left', field: 'name'},
@@ -115,12 +115,26 @@ const columns = [
     {name: 'project', label: 'Project', align: 'left', field: 'projectId'}
 ]
 
+const fetchNRecentProject = (n) => {
+  const {onResult, onError} = projectsGraphQlAPI.nMostRecentlyUpdatedProjects(n)
+  onResult(({data}) => recentProjects.value = data.projects)
+}
+
+const fetchNRecentExperiments = (n) => {
+  const {onResult, onError} = experimentsGraphQlAPI.nMostRecentExperiments(n)
+  onResult(({data}) => recentExperiments.value = data.experiments)
+}
+
+const fetchExperimentSummaries = () => {
+  const {onResult, onError} = experimentsGraphQlAPI.experimentSummaries()
+  onResult(({data}) => recentExperimentSummaries.value = data.experimentSummaries)
+}
+
 const getProjectName = (projectId) => {
-    const project = projects.value?.find(project => {
-        return project.id === projectId
-    })
+    const project = recentProjects.value?.filter(project => Number.parseInt(project.id) === projectId)[0] ?? null
     if (project) {
         return project.name
-    } else return 'NOT_IN_DB'
+    } else
+      return 'NOT_IN_DB'
 }
 </script>

@@ -1,55 +1,57 @@
 <template >
-    <q-breadcrumbs class="oa-breadcrumb" v-if="project">
+    <q-breadcrumbs class="oa-breadcrumb" v-if="projectStore.project">
         <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}" />
         <q-breadcrumbs-el :label="'Projects'" icon="list" :to="'/projects'"/>
-        <q-breadcrumbs-el :label="project.name" icon="folder" />
+        <q-breadcrumbs-el :label="projectStore.project.name" icon="folder" />
     </q-breadcrumbs>
-    
+
     <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
         <div class="q-pa-md">
-            <oa-section v-if="!project" title="Loading project..." icon="folder" />
-            <oa-section v-else :title="project.name" icon="folder" :collapsible="true">
+            <oa-section v-if="!projectStore.project" title="Loading project..." icon="folder" />
+            <oa-section v-else :title="projectStore.project.name" icon="folder" :collapsible="true">
                 <div class="row q-pa-md">
                     <div class="col-3">
                         <q-field label="ID" stack-label dense borderless>
                             <template v-slot:control>
-                                {{ project.id }}
+                                {{ projectStore.project.id }}
                             </template>
                         </q-field>
                         <q-field label="Description" stack-label dense borderless>
                             <template v-slot:control>
-                                <EditableField :object="project" :fieldName="'description'" @valueChanged="onDescriptionChanged" />
+                                <EditableField :object="projectStore.project" fieldName="description" @valueChanged="onDescriptionChanged" />
                             </template>
                         </q-field>
                         <q-field label="Tags" stack-label dense borderless>
                             <template v-slot:control>
-                                <TagList :objectInfo="project" :objectClass="'PROJECT'" />
+                              <TagList :tags="projectStore.project.tags" :objectId="projectStore.project.id" :objectClass="'PROJECT'"/>
                             </template>
                         </q-field>
                     </div>
-                    
+
                     <div class="col-3 q-pl-md">
                         <q-field label="Created On" stack-label dense borderless>
                             <template v-slot:control>
-                                {{ FormatUtils.formatDate(project.createdOn) }}
+                                {{ FormatUtils.formatDate(projectStore.project.createdOn) }}
                             </template>
                         </q-field>
                         <q-field label="Created By" stack-label dense borderless>
                             <template v-slot:control>
-                                <UserChip :id="project.createdBy" />
+                                <UserChip :id="projectStore.project.createdBy" />
                             </template>
                         </q-field>
                         <q-field label="Access" stack-label dense borderless>
                             <template v-slot:control>
-                                <AccessControlList :projectId="project.id" class="q-mt-xs" />
+                                <AccessControlList :projectAccess="projectStore.projectAccess"
+                                                   @addAccess="onAddAccess"
+                                                   @removeAccess="onRemoveAccess" class="q-mt-xs"/>
                             </template>
                         </q-field>
                     </div>
-                    
+
                     <div class="col-4">
-                        <PropertyTable :objectInfo="project" objectClass="'PROJECT'"/>
+                        <PropertyTable :objectInfo="projectStore.project" objectClass="'PROJECT'"/>
                     </div>
-                    
+
                     <div class="col-2">
                         <div class="row justify-end">
                             <q-btn size="sm" icon="edit" label="Rename" class="oa-action-button" @click="showRenameDialog = true"/>
@@ -61,13 +63,13 @@
                 </div>
             </oa-section>
         </div>
-        
+
         <div class="q-pl-md q-pr-md">
-            <ExperimentList :projectId="projectId"></ExperimentList>
+            <ExperimentList :experiments="projectStore.experiments" :project="projectStore.project" @createNewExperiment="onCreateNewExperiment"/>
         </div>
-        
-        <rename-dialog v-model:show="showRenameDialog" objectClass="project" :object="project" @valueChanged="onNameChanged" />
-        <delete-dialog v-model:show="showDeleteDialog" :id="project.id" :name="project.name" :objectClass="'project'" @onDeleted="onDeleted" />
+
+        <rename-dialog v-model:show="showRenameDialog" objectClass="project" :object="projectStore.project" @valueChanged="onNameChanged" />
+        <delete-dialog v-model:show="showDeleteDialog" :id="projectStore.project?.id" :name="projectStore.project?.name" :objectClass="'project'" @onDeleted="onDeleted" />
     </q-page>
 </template>
 
@@ -78,7 +80,7 @@
 </style>
 
 <script setup>
-import {computed, ref} from 'vue'
+import {ref} from 'vue'
 import {useStore} from 'vuex'
 import {useRoute, useRouter} from 'vue-router'
 
@@ -93,31 +95,44 @@ import DeleteDialog from "@/components/widgets/DeleteDialog";
 import RenameDialog from "@/components/widgets/RenameDialog";
 
 import FormatUtils from "@/lib/FormatUtils.js"
+import {useProjectStore} from "@/stores/project";
 
-const store = useStore();
-const route = useRoute();
-const router = useRouter();
+const store = useStore()
+const projectStore = useProjectStore()
+const route = useRoute()
+const router = useRouter()
 
 const projectId = parseInt(route.params.id);
-const project = computed(() => store.getters['projects/getCurrentProject']());
-store.dispatch('projects/loadById', projectId);
+projectStore.loadProject(projectId)
 
 const showDeleteDialog = ref (false);
 const showRenameDialog = ref(false);
 const onNameChanged = function(newName) {
-    store.dispatch('projects/renameProject', { id: projectId, name: newName });
+  projectStore.renameProject(newName)
 };
 
 const onDescriptionChanged = (newDescription) => {
-    store.dispatch('projects/editProjectDescription', {id: projectId, description: newDescription});
+  projectStore.editProjectDescription(newDescription)
 };
 
 const openDeleteDialog = () => {
     showDeleteDialog.value = true
 }
 
-const onDeleted = () => {
-    router.push({name: 'browseProjects'})
+const onCreateNewExperiment = (newExperiment) => {
+  projectStore.addExperiment(newExperiment)
 }
-const projectName = ref("")
+
+const onDeleted = () => {
+  projectStore.deleteProject();
+  router.push({name: 'browseProjects'})
+}
+
+const onAddAccess = (newAccess) => {
+  projectStore.createProjectAccess(newAccess)
+}
+
+const onRemoveAccess = (accessId) => {
+  projectStore.deleteProjectAccess(accessId)
+}
 </script>

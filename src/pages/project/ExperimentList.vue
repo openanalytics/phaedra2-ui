@@ -31,7 +31,7 @@
       </template>
       <template v-slot:body-cell-name="props">
         <q-td :props="props">
-          <router-link :to="'/experiment/' + props.row.id" class="nav-link">
+          <router-link :to="'/project/' + props.row.projectId + '/experiment/' + props.row.id" class="nav-link">
             <div class="row items-center cursor-pointer">
               <q-icon name="science" class="icon q-pr-sm"/>
               {{ props.row.name }}
@@ -41,12 +41,17 @@
       </template>
       <template v-slot:body-cell-tags="props">
         <q-td :props="props">
-          <TagList :objectInfo="props.row" :objectClass="'EXPERIMENT'" :readOnly="true" />
+          <q-badge v-for="tag in props.row.tags" :key="tag" color="green">{{tag}}</q-badge>
         </q-td>
       </template>
       <template v-slot:body-cell-createdBy="props">
         <q-td :props="props">
           <UserChip :id="props.row.createdBy" />
+        </q-td>
+      </template>
+      <template v-slot:body-cell-nrPlates="props">
+        <q-td :props="props">
+          {{ props.row.summary ? props.row.summary.nrPlates : 0 }}
         </q-td>
       </template>
       <template v-slot:body-cell-nrPlatesCalculated="props">
@@ -107,24 +112,12 @@
   <table-config v-model:show="showConfigDialog" v-model:columns="columns" v-model:visibleColumns="visibleColumns"></table-config>
 </template>
 
-<style scoped>
-  .tag-icon {
-    margin-right: 5px;
-  }
-
-  .nav-link {
-    color: black;
-    text-decoration: none;
-  }
-</style>
-
 <script setup>
 import {ref, computed} from 'vue'
 import {useStore} from 'vuex'
 
 import TableConfig from "@/components/table/TableConfig";
 import ProgressBarField from "@/components/widgets/ProgressBarField";
-import TagList from "@/components/tag/TagList";
 import UserChip from "@/components/widgets/UserChip";
 import ExperimentMenu from "@/components/experiment/ExperimentMenu";
 import OaSection from "@/components/widgets/OaSection";
@@ -137,51 +130,36 @@ const columns = ref([
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
   {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
   {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
-  {
-    name: 'createdOn',
-    align: 'left',
-    label: 'Created On',
-    field: 'createdOn',
-    sortable: true,
-    format: FormatUtils.formatDate
-  },
+  {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
   {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
-
-  {
-    name: 'nrPlates',
-    align: 'left',
-    label: 'Plates',
-    field: row => (row.summary ? row.summary.nrPlates : 0),
-    sortable: true
-  },
+  {name: 'nrPlates', align: 'left', label: 'Plates', sortable: true},
   {name: 'nrPlatesCalculated', align: 'left', label: 'Calculated', sortable: true},
   {name: 'nrPlatesValidated', align: 'left', label: 'Validated', sortable: true},
   {name: 'nrPlatesApproved', align: 'left', label: 'Approved', sortable: true},
-
   {name: 'menu', align: 'left', field: 'menu', sortable: false}
 ])
 
 const store = useStore()
-
 const props = defineProps({
-  projectId: Number
+  experiments: [Object],
+  project: Object
 })
 
-const loading = ref(true)
-const experiments = computed(() => store.getters['experiments/getByProjectId'](props.projectId))
-store.dispatch('experiments/loadByProjectId', props.projectId).then(() => {
-  loading.value = false
-})
+const emits = defineEmits(['createNewExperiment'])
+
+const loading = ref()
+const experiments = computed( () => props.experiments ? props.experiments : [])
 
 const showNewExperimentDialog = ref(false)
 const newExperimentName = ref('')
+
 const doCreateNewExperiment = () => {
-  store.dispatch('experiments/createNewExperiment', {
-    projectId: props.projectId,
+  const newExperiment = {
     name: newExperimentName.value,
     status: 'OPEN',
     createdOn: new Date()
-  })
+  }
+  emits('createNewExperiment', newExperiment)
 }
 
 const filter = ref('')
@@ -189,3 +167,14 @@ const filterMethod = FilterUtils.defaultTableFilter()
 const visibleColumns = columns.value.map(a => a.name)
 const showConfigDialog = ref(false)
 </script>
+
+<style scoped>
+.tag-icon {
+  margin-right: 5px;
+}
+
+.nav-link {
+  color: black;
+  text-decoration: none;
+}
+</style>

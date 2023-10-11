@@ -1,4 +1,5 @@
 import projectAPI from '@/api/projects.js'
+import projectsGraphQlAPI from '@/api/graphql/projects.js'
 
 const state = () => ({
     currentProject: {},
@@ -19,9 +20,9 @@ const getters = {
     getAll: (state) => () => {
         return state.projects
     },
-    isLoaded: (state) => (id) => {
-        return state.projects.find(project => project.id === id)
-    },
+    // isLoaded: (state) => (id) => {
+    //     return state.projects.find(project => project.id === id)
+    // },
     getRecentProjects: (state) => (n) => {
         return [...state.projects].sort((p1, p2) => p2.createdOn.localeCompare(p1.createdOn)).slice(0, n);
     }
@@ -34,7 +35,7 @@ const actions = {
             ctx.commit('loadProject', project)
         } else {
             try {
-                project = await projectAPI.getProjectById(projectId);
+                project = projectsGraphQlAPI.projectById(projectId)
                 ctx.commit('loadProject', project)
             } catch (err) {
                 console.error(err);
@@ -63,32 +64,32 @@ const actions = {
         const projectIds = projects.map(p => p.id);
         ctx.dispatch('metadata/loadMetadata', { objectId: projectIds, objectClass: 'PROJECT' }, {root:true});
     },
-    async createNewProject(ctx, newProject) {
-        const createdProject = await projectAPI.createNewProject(newProject);
-        ctx.commit('cacheProject', createdProject);
-
-        ctx.dispatch('createProjectAccess', {
-            projectId: createdProject.id,
-            teamName: newProject.adminTeam,
-            accessLevel: "Admin"
-        });
-
-        return createdProject;
-    },
-    async deleteProject(ctx, projectId) {
-        await projectAPI.deleteProject(projectId)
-            .then(() => {
-                ctx.commit('uncacheProject', projectId)
-            })
-    },
-    async renameProject(ctx, args) {
-        await projectAPI.editProject(args)
-        ctx.commit('updateProjectName', args)
-    },
-    async editProjectDescription(ctx, args) {
-        await projectAPI.editProject(args)
-        ctx.commit('updateProjectDescription', args)
-    }
+    // async createNewProject(ctx, newProject) {
+    //     const createdProject = await projectAPI.createNewProject(newProject);
+    //     ctx.commit('cacheProject', createdProject);
+    //
+    //     ctx.dispatch('createProjectAccess', {
+    //         projectId: createdProject.id,
+    //         teamName: newProject.adminTeam,
+    //         accessLevel: "Admin"
+    //     });
+    //
+    //     return createdProject;
+    // },
+    // async deleteProject(ctx, projectId) {
+    //     await projectAPI.deleteProject(projectId)
+    //         .then(() => {
+    //             ctx.commit('uncacheProject', projectId)
+    //         })
+    // },
+    // async renameProject(ctx, args) {
+    //     await projectAPI.editProject(args)
+    //     ctx.commit('updateProjectName', args)
+    // },
+    // async editProjectDescription(ctx, args) {
+    //     await projectAPI.editProject(args)
+    //     ctx.commit('updateProjectDescription', args)
+    // }
 }
 
 const mutations = {

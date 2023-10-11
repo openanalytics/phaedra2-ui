@@ -148,13 +148,12 @@
       </q-item>
     </q-list>
 
-    <invalidate-dialog v-model:show="showInvalidateDialog" :plateId="props.plate.id"/>
-    <approve-dialog v-model:show="showApproveDialog" :plateId="props.plate.id"/>
-    <disapprove-dialog v-model:show="showDisapproveDialog" :plateId="props.plate.id"/>
-    <calculate-plate-dialog v-model:show="showCalculateDialog" :plateId="props.plate.id"/>
-    <link-plate-dialog v-model:show="showLinkDialog" :plateId="props.plate.id"/>
-    <delete-dialog v-model:show="showDeleteDialog" :id="props.plate.id" :name="props.plate.barcode"
-                   :objectClass="'plate'"/>
+    <invalidate-dialog v-model:show="showInvalidateDialog" :plate="props.plate" @onInvalidate="onInvalidatePlate"/>
+    <approve-dialog v-model:show="showApproveDialog" :plate="props.plate" @onApprove="onApprovePlate"/>
+    <disapprove-dialog v-model:show="showDisapproveDialog" :plate="props.plate" @onDisapprove="onDisapprovePlate"/>
+    <calculate-plate-dialog v-model:show="showCalculateDialog" :plate="props.plate" />
+    <link-plate-dialog v-model:show="showLinkDialog" :plate="props.plate"/>
+    <delete-dialog v-model:show="showDeleteDialog" :id="props.plate.id" :name="props.plate.barcode" :objectClass="'plate'" @onDeleted="onDeletePlate"/>
   </q-menu>
 </template>
 
@@ -168,9 +167,12 @@ import DeleteDialog from "@/components/widgets/DeleteDialog";
 
 import {ref} from "vue";
 import {useStore} from 'vuex'
+import {useExperimentStore} from "@/stores/experiment";
+
+const props = defineProps(['plate']);
 
 const store = useStore();
-const props = defineProps(['plate']);
+const experimentStore = useExperimentStore()
 
 const showInvalidateDialog = ref(false);
 const showApproveDialog = ref(false);
@@ -180,7 +182,7 @@ const showLinkDialog = ref(false);
 const showDeleteDialog = ref(null);
 
 const validate = () => {
-  store.dispatch('plates/editPlate', {id: props.plate.id, validationStatus: 'VALIDATED'})
+  experimentStore.validatePlate(props.plate.id)
 }
 
 const invalidate = () => {
@@ -188,11 +190,7 @@ const invalidate = () => {
 }
 
 const resetValidation = () => {
-  store.dispatch('plates/editPlate', {
-    id: props.plate.id,
-    validationStatus: 'VALIDATION_NOT_SET',
-    invalidatedReason: ""
-  })
+  experimentStore.resetPlateValidation(props.plate.id)
 }
 
 const approve = () => {
@@ -216,6 +214,26 @@ const linkPlate = () => {
 }
 
 const deletePlate = () => {
+  showDeleteDialog.value = true;
+}
+
+const onInvalidatePlate = (reason) => {
+  experimentStore.invalidatePlate(props.plate.id, reason.value)
+  showInvalidateDialog.value = true;
+}
+
+const onApprovePlate = () => {
+  experimentStore.approvePlate(props.plate.id)
+  showApproveDialog.value = true
+}
+
+const onDisapprovePlate = (reason) => {
+  experimentStore.disapprovePlate(props.plate.id, reason.value)
+  showDisapproveDialog.value = true;
+}
+
+const onDeletePlate = () => {
+  experimentStore.deletePlate(props.plate.id)
   showDeleteDialog.value = true;
 }
 

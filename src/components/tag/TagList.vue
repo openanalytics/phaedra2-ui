@@ -1,9 +1,9 @@
 <template>
   <div class="q-pt-xs">
     <div class="tag-icon flex inline" v-for="tag in tags" :key="tag">
-        <Tag :tagInfo="tag" :objectInfo="objectInfo" :objectClass="objectClass" :readOnly="readOnly" />
+        <Tag :tag="tag" @removeTag="handleRemoveTag"/>
     </div>
-    <q-btn class="q-my-xs" icon="add" size="xs" v-show="!readOnly" @click="showAddTagDialog = true" round dense>
+    <q-btn class="q-my-xs" icon="add" size="xs" @click="showAddTagDialog = true" round dense>
       <q-tooltip :delay="500" class="text-black bg-secondary">Add a new Tag</q-tooltip>
     </q-btn>
 
@@ -40,27 +40,25 @@
 </style>
 
 <script setup>
-import {ref, computed} from "vue";
-import {useStore} from 'vuex'
+import {computed, ref} from "vue";
 import Tag from "@/components/tag/Tag"
+import metadataAPI from '@/api/metadata.js'
 
-const props = defineProps(['objectInfo', 'objectClass', 'readOnly']);
-
-const store = useStore();
-
-const tags = computed(() => store.getters['metadata/getTags']({
-  objectId: props.objectInfo.id,
-  objectClass: props.objectClass
-}));
+const props = defineProps(['tags', 'objectId', 'objectClass']);
+const tags = computed(() => props.tags)
 
 const showAddTagDialog = ref(false);
 const newTag = ref('');
 
 const doAddTag = () => {
-  store.dispatch('metadata/addTag', {
-    objectId: props.objectInfo.id,
-    objectClass: props.objectClass,
-    tag: newTag.value,
+  metadataAPI.addTag({'objectId': props.objectId, 'objectClass': props.objectClass, 'tag': newTag.value }).then(() => {
+    tags.value.push(newTag.value)
+  })
+}
+
+const handleRemoveTag = (tag) => {
+  metadataAPI.removeTag({'objectId': props.objectId, 'objectClass': props.objectClass, 'tag': tag }).then(() => {
+    tags.value.splice(tags.value.indexOf(tag), 1)
   })
 }
 </script>

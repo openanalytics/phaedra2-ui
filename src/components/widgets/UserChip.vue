@@ -7,13 +7,15 @@
 
 <script setup>
     import {computed} from "vue";
-    import {useStore} from 'vuex'
+    import {useUserInfoStore} from "@/stores/userinfo";
 
     const props = defineProps({
         id: String
     });
 
-    const store = useStore();
-    const userName = computed(() => store.getters['userinfo/getUserName'](props.id));
-    if (!store.getters['userinfo/areUserNamesLoaded']()) store.dispatch('userinfo/loadUserNames');
+    const userInfoStore = useUserInfoStore()
+    if (!userInfoStore.userNamesLoaded)
+      userInfoStore.loadUserNames()
+
+    const userName = computed(() => userInfoStore.userNames[props.id] ?? 'Unknown')
 </script>

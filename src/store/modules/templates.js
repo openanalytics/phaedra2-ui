@@ -48,7 +48,7 @@ const actions = {
     },
     async createNewPlateTemplate(ctx, newPlateTemplate) {
         const createdTemplate = await templateAPI.createPlateTemplate(newPlateTemplate);
-        ctx.commit('cachePlateTemplate', createdTemplate);
+        // ctx.commit('cachePlateTemplate', createdTemplate);
         return createdTemplate;
     },
     async deletePlateTemplate(ctx, id) {

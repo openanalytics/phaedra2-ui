@@ -136,7 +136,10 @@
             <q-tab-panel name="imageData" class="q-px-none">
               <div class="row q-px-sm">
                 <div class="col-8">
-                  <WellGrid :plate="plate" :wellImageFunction="wellImageFunction"/>
+                  <WellGrid :plate="plate"
+                            :wells="plate.wells"
+                            :wellImageFunction="wellImageFunction"
+                            @wellSelection="handleWellSelection"/>
                 </div>
                 <div class="col-4 q-px-sm">
                   <WellImageViewer></WellImageViewer>
@@ -232,9 +235,10 @@ const plate = computed(() => {
 });
 
 const wellImageFunction = (well) => {
-  const img = store.getters['measurements/getMeasImage']({ measId: meas.value.id, wellNr: well.nr });
-  if (!img) store.dispatch('measurements/loadMeasImage', { measId: meas.value.id, wellNr: well.nr, scale: 0.01 });
-  return img;
+  console.log(JSON.stringify({ measId: meas.value.id, wellNr: well.nr }))
+  // const img = store.getters['measurements/getMeasImage']({ measId: meas.value.id, wellNr: well.nr });
+  // if (!img) store.dispatch('measurements/loadMeasImage', { measId: meas.value.id, wellNr: well.nr, scale: 0.01 });
+  // return img;
 }
 
 const loadSubWellData = () => {
@@ -244,6 +248,13 @@ const loadSubWellData = () => {
   for (const swColumn of selectedSubWellColumns.value) {
     subWellDataColumns.value.push({name: [swColumn], align: 'left', label: [swColumn], field: [swColumn], sortable: true})
   }
+}
+
+const handleWellSelection = (selectedWells) => {
+  console.log("handleWellSelection event: " + JSON.stringify(selectedWells))
+  // selectedWells.forEach(well => {
+  //   store.dispatch('measurements/loadMeasImage', { measId: meas.value.id, wellNr: well.nr, scale: 0.01 });
+  // })
 }
 
 </script>

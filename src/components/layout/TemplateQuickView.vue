@@ -6,17 +6,59 @@
         {{ plateTemplate.name }}
       </div>
 
-      <q-select class="float-right" label-color="white" color="primary" v-model="label" label="Label:" :options="labelOptions"></q-select>
+      <q-select class="float-right" label-color="white" color="primary" v-model="label" label="Label:"
+                :options="labelOptions"/>
 
     </div>
   </div>
   <div class="col-9 gridContainer oa-section">
     <QuickViewSlot v-for="well in wells" :key="well.nr"
                    :well="well"
-                   :wellLabelFunctions="wellLabelFunctions"
-    ></QuickViewSlot>
+                   :wellLabelFunctions="wellLabelFunctions"/>
   </div>
 </template>
+
+<script setup>
+import QuickViewSlot from "./QuickViewSlot";
+import WellUtils from "../../lib/WellUtils";
+import {computed, ref} from "vue";
+
+const props = defineProps({
+  plateTemplate: Object
+})
+
+const labelOptions = ['None', 'Well type', 'Substance name', 'Substance type', 'Concentration']
+
+const wells = computed(() => {
+  return props.plateTemplate.wells.map(obj => ({
+    ...obj,
+    nr: WellUtils.getWellNr(obj.row, obj.column, props.plateTemplate.columns)
+  }))
+})
+
+const gridColumnStyle = computed(() => {
+  return "repeat(" + props.plateTemplate.columns + ", 1fr)"
+})
+
+const label = ref('None')
+const wellLabelFunctions = [
+  (well) => {
+    //Label based on templateTab
+    switch (label.value) {
+      case 'Well type':
+        return well.wellType;
+      case 'Substance name':
+        return well.substanceName;
+      case 'Substance type':
+        return well.substanceType;
+      case 'Concentration':
+        return well.concentration;
+      default:
+        return "";
+    }
+  }
+]
+</script>
 
 <style scoped>
 
@@ -27,55 +69,3 @@
   overflow: scroll;
 }
 </style>
-
-<script>
-import QuickViewSlot from "./QuickViewSlot";
-import WellUtils from "../../lib/WellUtils";
-import {computed, ref} from "vue";
-
-export default {
-  name: 'TemplateQuickView',
-  components: {QuickViewSlot},
-  setup(props) {
-    const wells = computed(() => {
-      return props.plateTemplate.wells.map(obj => ({
-        ...obj,
-        nr: WellUtils.getWellNr(obj.row, obj.column, props.plateTemplate.columns)
-      }))
-    })
-
-    const gridColumnStyle = computed(() => {
-      return "repeat(" + props.plateTemplate.columns + ", 1fr)"
-    })
-    const label = ref('None')
-    const wellLabelFunctions = [
-      function (well) {
-        //Label based on templateTab
-        switch (label.value) {
-          case 'Well type':
-            return well.wellType;
-          case 'Substance name':
-            return well.substanceName;
-          case 'Substance type':
-            return well.substanceType;
-          case 'Concentration':
-            return well.concentration;
-          default:
-            return "";
-        }
-      }
-    ]
-
-    return {
-      gridColumnStyle,
-      wells,
-      wellLabelFunctions,
-      label,
-      labelOptions: ['None','Well type', 'Substance name', 'Substance type', 'Concentration']
-    }
-  },
-  props: {
-    plateTemplate: Object
-  }
-}
-</script>

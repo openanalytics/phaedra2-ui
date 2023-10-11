@@ -3,7 +3,7 @@ import gql from 'graphql-tag'
 import {computed} from "vue";
 import { apolloChartsClient } from "@/graphql/apollo.clients";
 
-const defaultOptions = { fetchPolicy: 'no-cache'}
+const defaultOptions = { fetchPolicy: 'no-cache', errorPolicy: 'ignore'}
 
 export default {
     basicPlot(type, plateId, protocolId, xFeatureId, yFeatureId, groupBy){

@@ -14,16 +14,17 @@
 </template>
 
 <script setup>
-    import {computed, ref} from "vue";
+    import {ref} from "vue";
     import {useStore} from "vuex";
+    import protocolsGraphQlAPI from "@/api/graphql/protocols"
 
-    const loading = ref(false);
+    const loading = ref(true);
     const store = useStore();
-    const protocols = computed(() => store.getters['protocols/getAll']().sort((p1, p2) => p1.name.localeCompare(p2.name)));
-    if (!store.getters['protocols/isLoaded']()) {
-        loading.value = true;
-        store.dispatch('protocols/loadAll').then(() => loading.value = false);
-    }
+    const protocols = ref([])
+    protocolsGraphQlAPI.protocols().then(result => {
+      protocols.value = result
+      loading.value = false
+    })
 
     const selected = ref([]);
     const columns = [

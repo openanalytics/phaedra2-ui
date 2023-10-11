@@ -27,7 +27,7 @@
     </template>
     <template v-slot:body-cell-barcode="props">
       <q-td :props="props">
-        <router-link :to="'/plate/' + props.row.id" class="nav-link">
+        <router-link :to="'/project/' + experiment.projectId + '/experiment/' + experiment.id + '/plate/' + props.row.id" class="nav-link">
           <div class="row items-center cursor-pointer">
             <q-icon name="view_module" class="icon q-pr-sm"/>
             {{ props.row.barcode }}
@@ -68,7 +68,7 @@
     </template>
     <template v-slot:body-cell-tags="props">
       <q-td :props="props">
-        <TagList :objectInfo="props.row" :objectClass="'PLATE'" :readOnly="true" />
+        <q-badge v-for="tag in props.row.tags" :key="tag" color="green">{{tag}}</q-badge>
       </q-td>
     </template>
     <template v-slot:body-cell-createdBy="props">
@@ -80,7 +80,7 @@
       <q-td :props="props">
         <div class="row items-center cursor-pointer">
           <q-btn flat round icon="more_horiz" size="sm" >
-            <plate-action-menu :plate="props.row" @showPlateInspector="openPlateInspector(props.row)"/>
+            <PlateActionMenu :plate="props.row" @showPlateInspector="openPlateInspector(props.row)" />
           </q-btn>
         </div>
       </q-td>
@@ -113,7 +113,6 @@ import {computed, ref} from "vue";
 import {useStore} from 'vuex'
 import {useRoute} from "vue-router";
 
-import TagList from "@/components/tag/TagList";
 import UserChip from "@/components/widgets/UserChip";
 import TableConfig from "@/components/table/TableConfig";
 import PlateActionMenu from "@/components/plate/PlateActionMenu";
@@ -121,41 +120,42 @@ import StatusFlag from "@/components/widgets/StatusFlag";
 import FilterUtils from "@/lib/FilterUtils";
 import FormatUtils from "@/lib/FormatUtils";
 
-const props = defineProps(['experiment', 'newPlateTab'])
+const props = defineProps(['plates', 'experiment', 'newPlateTab'])
 const emit = defineEmits(['update:newPlateTab', 'showPlateInspector'])
 
 const store = useStore()
 const route = useRoute()
 
-const loading = ref(true)
+const loading = ref()
+const plates = computed( () => props.plates ? props.plates : [])
 
-const experimentId = parseInt(route.params.id);
-const plates = computed(() => store.getters['plates/getByExperimentId'](experimentId))
-store.dispatch('plates/loadByExperimentId', experimentId).then(() => {
-  loading.value = false
-})
+// const experimentId = parseInt(route.params.id);
+// const plates = computed(() => store.getters['plates/getByExperimentId'](experimentId))
+// store.dispatch('plates/loadByExperimentId', experimentId).then(() => {
+//   loading.value = false
+// })
 
-    let columns = ref([
-      {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
-      {name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
-      {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-      {name: 'link-status', align: 'center', label: 'L', field: 'link-status'},
-      {name: 'status-calculation', align: 'center', label: 'C', field: 'status-calculation'},
-      {name: 'status-validated', align: 'center', label: 'V', field: 'status-validated'},
-      {name: 'status-approved', align: 'center', label: 'A', field: 'status-approved'},
-      {name: 'dimensions', align: 'left', label: 'Dimensions', field: 'dimensions', sortable: true},
-      {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate },
-      {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true },
-      {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
-      {name: 'menu', align: 'left', field: 'menu', sortable: false}
-    ])
+let columns = ref([
+  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
+  {name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
+  {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
+  {name: 'link-status', align: 'center', label: 'L', field: 'link-status'},
+  {name: 'status-calculation', align: 'center', label: 'C', field: 'status-calculation'},
+  {name: 'status-validated', align: 'center', label: 'V', field: 'status-validated'},
+  {name: 'status-approved', align: 'center', label: 'A', field: 'status-approved'},
+  {name: 'dimensions', align: 'left', label: 'Dimensions', field: 'dimensions', sortable: true},
+  {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
+  {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
+  {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
+  {name: 'menu', align: 'left', field: 'menu', sortable: false}
+])
 
-    const selectedPlate = ref({});
-    const showPlateContextMenu = ref(false);
-    const selectPlate = (event, row) => {
-      selectedPlate.value = row;
-      showPlateContextMenu.value = true;
-    }
+const selectedPlate = ref({});
+const showPlateContextMenu = ref(false);
+const selectPlate = (event, row) => {
+  selectedPlate.value = row;
+  showPlateContextMenu.value = true;
+}
 
 let visibleColumns = columns.value.map(a => a.name)
 const filter = ref('')

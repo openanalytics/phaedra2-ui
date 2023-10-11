@@ -2,6 +2,7 @@
   <div class="col-auto">
     <WellEditor :plateId="props.plate.id" :tab="tab" :update="update"/>
     <WellGrid :plate="props.plate"
+              :wells="props.plate.wells"
               :wellColorFunction="wellColorFunction"
               :wellLabelFunctions="wellLabelFunctions"
               @wellSelection="handleWellSelection"/>

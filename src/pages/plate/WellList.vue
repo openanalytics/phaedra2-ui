@@ -10,7 +10,7 @@
     column-key="name"
     :filter="filter"
     :filter-method="filterMethod"
-    :visible-columns="visibleColumns"
+    :visible-columns = visibleColumns
     :loading="loading"
     >
         <template v-slot:top-right>
@@ -20,7 +20,7 @@
                         <q-icon name="search"/>
                     </template>
                 </q-input>
-                <q-btn flat round color="primary" icon="settings" style="border-radius: 50%;" @click="configdialog=true"/>
+                <q-btn flat round color="primary" icon="settings" style="border-radius: 50%;" @click="showConfigDialog=true"/>
             </div>
         </template>
         <template v-slot:body-cell-status="props">
@@ -35,7 +35,7 @@
             </div>
         </template>
     </q-table>
-    <table-config v-if="!loading" v-model:show="configdialog" v-model:visibleColumns="visibleColumns" v-model:columns="columns"></table-config>
+    <table-config v-model:show="showConfigDialog" :columns="columns" @update:visibleColumns="updateVisibleColumns"/>
 </template>
 
 <style scoped>
@@ -45,89 +45,77 @@
 </style>
 
 <script setup>
-    import {ref, computed, watch, watchEffect} from 'vue'
-    import {useStore} from "vuex"
+    import {ref, computed, watch} from 'vue'
     import WellUtils from "@/lib/WellUtils.js"
-    import ArrayUtils from "@/lib/ArrayUtils.js"
-    import FilterUtils from "@/lib/FilterUtils";
-    import TableConfig from "@/components/table/TableConfig";
+    import FilterUtils from "@/lib/FilterUtils"
+    import TableConfig from "@/components/table/TableConfig"
+    import {usePlateStore} from "@/stores/plate"
+    import resultDataGraphQlAPI from "@/api/graphql/resultdata"
 
-    const store = useStore();
-    const props = defineProps({ plate: Object });
+    const props = defineProps(['plate', 'wells']);
+
+    const plateStore = usePlateStore()
+
     const loading = ref(true);
+    const features = ref([])
+    const resultData = ref([])
+
+    const resultSet = plateStore.activeResultSet
+    features.value = plateStore.featuresByProtocolId(resultSet?.protocolId)
+
+
+    const {onResult, onError} = resultDataGraphQlAPI.resultDataByResultSetId(resultSet?.id)
+    onResult(({data}) => resultData.value = data.resultData)
 
     const columns = ref([
     {
         name: 'coordinate', align: 'left', label: 'Coordinate', field: 'coordinate', sortable: true,
-        format: (val, well) => (well ? WellUtils.getWellCoordinate(well.row, well.column) : "")
+        format: (val, well) => (WellUtils.getWellCoordinate(well?.row, well?.column) ?? "")
     },
     {
         name: 'number', align: 'left', label: 'Number', field: 'number', sortable: true,
-        format: (val, well) => (well ? WellUtils.getWellNr(well.row, well.column, props.plate.columns) : "")
+        format: (val, well) => (WellUtils.getWellNr(well?.row, well?.column, props.plate.columns) ?? "")
     },
     {name: 'status', align: 'left', label: 'Status', field: 'status', sortable: true},
     {name: 'wellType', align: 'left', label: 'Well Type', field: 'wellType', sortable: true},
     {
         name: 'substance', align: 'left', label: 'Substance', field: 'substance', sortable: true,
-        format: (val, well) => (well.wellSubstance?.name ? well.wellSubstance?.name : "")
+        format: (val, well) => (well.wellSubstance?.name ?? "")
     },
     {
         name: 'concentration', align: 'left', label: 'Concentration', field: 'concentration', sortable: true,
-        format: (val, well) => (well.wellSubstance?.concentration ? well.wellSubstance?.concentration.toExponential(3) : "")
+        format: (val, well) => (well.wellSubstance?.concentration?.toExponential(3) ??  "")
     },
     ]);
+    const rows = computed(() => props.wells.map(w => { return {...w} }))
 
-    const configdialog = ref(false);
-    const visibleColumns = columns.value.map(a => a.name);
+    const showConfigDialog = ref(false);
+    const visibleColumns = ref([])
     const filter = ref('');
     const filterMethod = FilterUtils.defaultTableFilter();
 
-    const wells = computed(() => store.getters['wells/getWells'](props.plate.id) || []);
-    watchEffect(() => {
-        if (props?.plate?.id && !store.getters['wells/areWellsLoaded'](props.plate.id)) {
-            store.dispatch('wells/fetchByPlateId', props.plate.id);
-        }
-    });
 
-    // Rows are based on wells but will have additional 'data' columns when resultSet data comes in.
-    const rows = computed(() => wells.value.map(w => { return {...w, data: {}} }));
-
-    const activeMeasurement = computed(() => store.getters['measurements/getActivePlateMeasurement'](props.plate.id));
-    const resultSets = computed(() => store.getters['resultdata/getLatestResultSetsForPlateMeas'](props.plate.id, activeMeasurement.value?.measurementId));
-    const features = computed(() => store.getters['features/getByProtocolIds'](ArrayUtils.distinctBy(resultSets.value, 'protocolId')));
-    const resultData = computed(() => resultSets.value.map(rs => store.getters['resultdata/getResultData'](rs.id)).flat());
-
-    store.dispatch('measurements/loadByPlateId', props.plate.id);
-    store.dispatch('resultdata/loadResultSets', props.plate.id);
-
-    // When resultSets become available, load features and resultDatas
-    watch(resultSets, () => {
-        ArrayUtils.distinctBy(resultSets.value, 'protocolId').forEach(pId => store.dispatch('features/loadByProtocolId', pId));
-        ArrayUtils.distinctBy(resultSets.value, 'id').forEach(rsId => store.dispatch('resultdata/loadResultData', rsId));
-    });
-
-    // When all required data is available, add new columns to table.
     watch([features, resultData], () => {
-        if (!loading.value || features.value.length == 0 || resultData.value.length == 0) return;
-
-        resultData.value.forEach(rd => {
-            const featureName = features.value.find(feature => feature.id === rd.featureId)?.name;
-            
-            columns.value.push({
-                name: featureName,
-                align: 'left',
-                label: featureName,
-                field: row => row.data[featureName],
-                sortable: true
-            });
-            visibleColumns.push(featureName);
-            
-            rd.values.forEach((val, index) => {
-                rows.value[index].data[featureName] = val;
-            });
+      console.log("WellList: watch(features) = " + JSON.stringify(features))
+      console.log("WellList: watch(resultData) = " + JSON.stringify(resultData))
+      if (features.value !== undefined && resultData.value !== undefined) {
+        const featureCols = computed(() => (features.value ?? []).map(f => {
+          return {name: f.name, align: 'left', label: f.name, field: f.name, sortable: true, 'featureId': f.id}
+        }))
+        columns.value = [...columns.value, ...featureCols.value]
+        featureCols.value.forEach(fCol => {
+          const featValues = resultData.value.filter(rd => rd.featureId === fCol.featureId)[0]?.values ?? []
+          rows.value.forEach((row, index) => {
+            row[fCol.field] = featValues[index]
+          })
         })
-        
-        loading.value = false;
-    });
+      }
+      visibleColumns.value = [...columns.value.map(a => a.name)];
+      loading.value = false
+    })
+
+    const updateVisibleColumns = (columns) => {
+      visibleColumns.value = [...columns]
+    }
 </script>
 

@@ -33,19 +33,19 @@
     </div>
   </q-page>
 
-  <q-dialog v-model="importFromFile" persistent>
-    <div class="q-pa-md oa-section-body">
-<!--        <q-form class="col" @submit="onSubmit" @reset="onReset">-->
-<!--          <q-file v-model="importFile" label="Plate template" @update:modelValue="onFileSelection"></q-file>-->
-      <q-file v-model="importFile" label="Plate template"/>
+<!--  <q-dialog v-model="importFromFile" persistent>-->
+<!--    <div class="q-pa-md oa-section-body">-->
+<!--&lt;!&ndash;        <q-form class="col" @submit="onSubmit" @reset="onReset">&ndash;&gt;-->
+<!--&lt;!&ndash;          <q-file v-model="importFile" label="Plate template" @update:modelValue="onFileSelection"></q-file>&ndash;&gt;-->
+<!--      <q-file v-model="importFile" label="Plate template"/>-->
 
-          <div class="row justify-end q-pt-md">
-            <q-btn size="sm" label="Update" class="oa-action-button" @click="onImportFile" v-close-popup/>
-            <q-btn size="sm" label="Cancel" class="oa-action-button" @click="onReset" v-close-popup/>
-          </div>
-<!--        </q-form>-->
-    </div>
-  </q-dialog>
+<!--          <div class="row justify-end q-pt-md">-->
+<!--            <q-btn size="sm" label="Update" class="oa-action-button" @click="onImportFile" v-close-popup/>-->
+<!--            <q-btn size="sm" label="Cancel" class="oa-action-button" @click="onReset" v-close-popup/>-->
+<!--          </div>-->
+<!--&lt;!&ndash;        </q-form>&ndash;&gt;-->
+<!--    </div>-->
+<!--  </q-dialog>-->
 </template>
 
 <script setup>
@@ -76,7 +76,7 @@ const importFile = ref(null)
 const templatePreview = ref(null)
 
 const onSubmit = async () => {
-  newPlateTemplate.value.createdOn = new Date();
+  // newPlateTemplate.value.createdOn = new Date();
   const createdTemplate = await store.dispatch('templates/createNewPlateTemplate', newPlateTemplate.value);
   await router.push("/template/" + createdTemplate.id);
 };

@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="props.show" persistent>
+  <q-dialog v-model="showDialog" persistent>
     <q-card v-if="plate" style="min-width: 30vw">
       <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
         <q-avatar icon="check_circle" color="primary" text-color="white"/>
@@ -27,42 +27,22 @@
   </q-dialog>
 </template>
 
-<script>
+<script setup>
+import {computed, ref} from "vue";
 
-import {computed} from "vue";
-import {useStore} from "vuex";
+const props = defineProps(['show', 'plate'])
+const emits = defineEmits(['update:show', 'onApprove'])
 
-export default {
-  name: 'ApproveDialog',
-  methods: {
-    approve() {
-      this.editedPlate.id = this.props.plateId
-      this.editedPlate.approvalStatus = 'APPROVED'
-      this.editedPlate.experimentId = this.props.experimentId
-      this.$store.dispatch('plates/editPlate', this.editedPlate)
-      this.$emit('update:show', false)
-    }
-  },
-  setup(props) {
-    const store = useStore()
-    const plate= computed(()=> store.getters['plates/getById'](props.plateId))
-    return {
-      props,
-      plate
-    }
-  },
-  data() {
-    return {
-      editedPlate: {
-        id: null,
-        approvalStatus: null,
-        experimentId: null
-      },
-      plateName: ''
-    }
-  },
-  props: ['show', 'plateId', 'experimentId'],
-  emits: ['update:show']
+const plateName = ref('')
 
+const showDialog = computed({
+  get: () => props.show,
+  set: (v) => emits('update:show', v)
+})
+
+const plate = computed(() => props.plate)
+const approve = () => {
+  emits('update:show', false)
+  emits('onApprove')
 }
 </script>

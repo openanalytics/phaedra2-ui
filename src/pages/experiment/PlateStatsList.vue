@@ -80,10 +80,10 @@
     import {useStore} from 'vuex'
     import FilterUtils from "@/lib/FilterUtils";
     import ArrayUtils from "@/lib/ArrayUtils";
-    
+
     const statsToShow = ['zprime', 'cv', 'stdev', 'min', 'mean', 'median', 'max'];
 
-    const props = defineProps(['experiment']);
+    const props = defineProps(['plates', 'experiment']);
     const store = useStore();
 
     const loading = ref(true);
@@ -94,13 +94,15 @@
     const columns = [
         {name: 'barcode', align: 'center', label: 'Barcode', field: 'barcode', sortable: true}
     ];
-    
-    const plates = computed(() => store.getters['plates/getByExperimentId'](props.experiment.id));
-    const activeMeasurements = computed(() => store.getters['measurements/getActivePlateMeasurements'](plates.value.map(p => p.id)));
-    const resultSets = computed(() => activeMeasurements.value.map(m => store.getters['resultdata/getLatestResultSetsForPlateMeas'](m.plateId, m.measurementId)).flat());
+
+    const plates = computed( () => props.plates ? props.plates : [])
+
+    // const plates = computed(() => store.getters['plates/getByExperimentId'](props.experiment.id));
+    // const activeMeasurements = computed(() => store.getters['measurements/getActivePlateMeasurements'](plates.value.map(p => p.id)));
+    // const resultSets = computed(() => activeMeasurements.value.map(m => store.getters['resultdata/getLatestResultSetsForPlateMeas'](m.plateId, m.measurementId)).flat());
     //TODO filter on non-welltype stats
-    const resultStats = computed(() => resultSets.value.map(rs => store.getters['resultdata/getResultStats'](rs.id)).flat());
-    const features = computed(() => store.getters['features/getByIds'](ArrayUtils.distinctBy(resultStats.value, 'featureId')));
+    // const resultStats = computed(() => resultSets.value.map(rs => store.getters['resultdata/getResultStats'](rs.id)).flat());
+    // const features = computed(() => store.getters['features/getByIds'](ArrayUtils.distinctBy(resultStats.value, 'featureId')));
 
     watch(props.experiment, async () => {
         if (!props.experiment) return;
@@ -141,7 +143,7 @@
                 row[key] = stat ? Math.round(stat.value * 100) / 100 : NaN;
             });
         });
-        
+
         loading.value = false;
         tableKey.value++;
     }

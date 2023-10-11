@@ -37,36 +37,6 @@
   </div>
 </template>
 
-<style scoped>
-  .loadingAnimation {
-    position: absolute;
-    z-index: 10;
-    justify-self: center;
-    align-self: center;
-  }
-
-  .gridContainer {
-    display: grid;
-    grid-template-columns: v-bind(gridColumnStyle);
-    min-height: 400px;
-  }
-
-  .gridHeaderSlot {
-    background-color: grey;
-    border: 1px solid black;
-    margin: 1px;
-    font-size: 65%;
-    text-align: center;
-    cursor: pointer;
-  }
-
-  .wellSlot {
-    min-height: v-bind(wellSlotMinHeight);
-    font-size: v-bind(wellSlotFontSize);
-    overflow: hidden;
-  }
-</style>
-
 <script setup>
   import {ref, computed, watchEffect} from 'vue'
   import {useStore} from 'vuex'
@@ -75,22 +45,13 @@
   import SelectionBoxHelper from "@/lib/SelectionBoxHelper.js"
   import WellSlot from "@/components/well/WellSlot.vue"
 
-  const props = defineProps(['plate', 'loading', 'wellColorFunction', 'wellImageFunction', 'wellLabelFunctions'])
+  const props = defineProps(['plate', 'wells', 'loading', 'wellColorFunction', 'wellImageFunction', 'wellLabelFunctions'])
   const emit = defineEmits(['wellSelection']);
   const store = useStore();
 
   const selectedWells = ref([]);
-  let wells = computed(() => store.getters['wells/getWells'](props.plate.id) || []);
-  watchEffect(() => {
-    if (props?.plate?.wells) {
-      // If the plate object has wells, it's a plate template instead of a regular plate, whose wells are in the wells store.
-      wells = ref(props.plate.wells);
-      return;
-    }
-    if (props?.plate?.id && !store.getters['wells/areWellsLoaded'](props.plate.id)) {
-      store.dispatch('wells/fetchByPlateId', props.plate.id);
-    }
-  });
+  const plate = computed(() => props.plate)
+  const wells = computed(() => props.wells)
 
   const emitWellSelection = (wells, append) => {
     if (!append) selectedWells.value.splice(0);
@@ -129,7 +90,7 @@
   const wellSlots = ref([]);
   const addWellSlot = (slot, row, col) => {
     // Note: use wellNr, as wells may not be loaded yet at this point.
-    const wellNr = WellUtils.getWellNr(row, col, props.plate.columns);
+    const wellNr = WellUtils.getWellNr(row, col, plate.value.columns);
     wellSlots.value[wellNr - 1] = slot;
   };
   const selectionBoxSupport = SelectionBoxHelper.addSelectionBoxSupport(rootElement, wellSlots, (wellNrs, append) => {
@@ -143,7 +104,7 @@
     emitWellSelection(wells.value.filter(w => w.column === n), append);
   };
 
-  const gridColumnStyle = computed(() => { return "repeat(" + (props.plate.columns + 1) + ", 1fr)" });
+  const gridColumnStyle = computed(() => { return "repeat(" + (plate.value.columns + 1) + ", 1fr)" });
   const wellSlotMinHeight = ((props.wellLabelFunctions?.length || 1) * 15) + "px";
 
   const wellSlotFontSize = ref(null);
@@ -152,3 +113,33 @@
   });
 
 </script>
+
+<style scoped>
+.loadingAnimation {
+  position: absolute;
+  z-index: 10;
+  justify-self: center;
+  align-self: center;
+}
+
+.gridContainer {
+  display: grid;
+  grid-template-columns: v-bind(gridColumnStyle);
+  min-height: 400px;
+}
+
+.gridHeaderSlot {
+  background-color: grey;
+  border: 1px solid black;
+  margin: 1px;
+  font-size: 65%;
+  text-align: center;
+  cursor: pointer;
+}
+
+.wellSlot {
+  min-height: v-bind(wellSlotMinHeight);
+  font-size: v-bind(wellSlotFontSize);
+  overflow: hidden;
+}
+</style>

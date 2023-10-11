@@ -60,11 +60,11 @@
                 :rows="featureRows"
                 :columns="featureColumns"
             >
-                <template v-slot:body-cell-statusCode="props">
-                    <q-td :props="props">
-                        <StatusLabel :status="props.row.statusCode" />
-                    </q-td>
-                </template>
+<!--                <template v-slot:body-cell-statusCode="props">-->
+<!--                    <q-td :props="props">-->
+<!--                        <StatusLabel :status="props.row.statusCode" />-->
+<!--                    </q-td>-->
+<!--                </template>-->
             </q-table>
         </q-card-section>
         <q-card-section class="bg-primary text-white q-py-sm">
@@ -88,27 +88,27 @@
     import {useStore} from "vuex";
     import FormatUtils from "@/lib/FormatUtils.js";
     import StatusLabel from "@/components/widgets/StatusLabel"
+    import protocolsGraphQlAPI from "@/api/graphql/protocols";
+    import resultdataGraphQlAPI from "@/api/graphql/resultdata"
 
     const props = defineProps({ resultSet: Object });
     const store = useStore();
 
-    const protocol = computed(() => store.getters['protocols/getById'](props.resultSet.protocolId));
-    const resultData = computed(() => store.getters['resultdata/getResultData'](props.resultSet.id));
-    const resultStats = computed(() => store.getters['resultdata/getResultStats'](props.resultSet.id));
-
-    store.dispatch('resultdata/loadResultData', props.resultSet.id);
-    store.dispatch('resultdata/loadResultStats', props.resultSet.id);
+    const protocol = ref(null)
+    protocolsGraphQlAPI.protocolById(props.resultSet.protocolId).then(result => {
+      protocol.value = result
+    })
+    const resultSetFeatureStats = resultdataGraphQlAPI.resultSetFeatureStats(props.resultSet.id)
 
     const featureRows = computed(() => (protocol.value?.features || []).map(f => {
-        let data = resultData.value.find(rd => rd.featureId == f.id) || {};
-        let merged = {...f, ...data};
-        merged.stats = resultStats.value.filter(stat => stat.featureId == f.id) || [];
-        return merged;
+      const featureStats = resultSetFeatureStats.value.filter(rd => rd.featureId == f.id) || {};
+      const result = { 'name': f.name, 'stats': featureStats }
+      return result
     }));
 
     const featureColumns = ref([
         {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true },
-        {name: 'statusCode', align: 'left', label: 'Status', field: 'statusCode', sortable: true },
+        // {name: 'statusCode', align: 'left', label: 'Status', field: 'statusCode', sortable: true },
         {name: 'zprime', align: 'left', label: 'Z-Prime', sortable: true, field: row => (row.stats.find(s => s.statisticName == 'zprime' && s.welltype == null) || {}).value },
         {name: 'mean', align: 'left', label: 'Mean', sortable: true, field: row => (row.stats.find(s => s.statisticName == 'mean' && s.welltype == null) || {}).value },
         {name: 'stdev', align: 'left', label: 'St.Dev', sortable: true, field: row => (row.stats.find(s => s.statisticName == 'stdev' && s.welltype == null) || {}).value },

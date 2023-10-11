@@ -44,11 +44,11 @@
                 <q-avatar icon="sync" color="primary" text-color="white"/>
                 Change Active Measurement
             </q-card-section>
-            
+
             <q-card-section class="row items-center">
                 <span class="q-ml-sm">Are you sure you want to change the active measurement for this plate?</span>
             </q-card-section>
-            
+
             <q-card-actions align="right" class="text-primary">
                 <q-btn flat label="Cancel" v-close-popup/>
                 <q-btn label="Yes" color="primary" v-close-popup @click="updateActiveState"/>
@@ -64,14 +64,15 @@
     import FormatUtils from "@/lib/FormatUtils";
     import UserChip from "@/components/widgets/UserChip";
     import LinkMeasurementDialog from "@/components/measurement/LinkMeasurementDialog";
+    import {usePlateStore} from "@/stores/plate";
 
     const store = useStore();
     const router = useRouter();
+    const plateStore = usePlateStore()
 
     const props = defineProps({ plate: Object });
 
-    const plateMeasurements = computed(() => store.getters['measurements/getPlateMeasurements'](props.plate.id) || []);
-    store.dispatch('measurements/loadByPlateId', props.plate.id);
+    const plateMeasurements = computed(() => plateStore.measurements)
 
     const columns = [
         {name: 'active', align: 'left', label: 'Active?', field: row => (row.active === undefined) ? false : row.active, sortable: true},

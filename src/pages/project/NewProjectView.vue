@@ -34,38 +34,36 @@
   </q-page>
 </template>
 
-<script>
+<script setup>
 import {ref, computed} from "vue";
 import {useStore} from 'vuex';
 import {useRouter} from 'vue-router';
 import OaSection from "@/components/widgets/OaSection";
+import {useProjectStore} from "@/stores/project";
+import {useUserInfoStore} from "@/stores/userinfo";
 
-export default {
-  components: {OaSection},
-  setup() {
-    const exported = {};
-    const store = useStore();
-    const router = useRouter();
+const store = useStore();
+const projectStore = useProjectStore()
+const userInfoStore = useUserInfoStore()
+const router = useRouter();
 
-    exported.newProject = ref({
-      name: null,
-      description: null
-    });
+const newProject = ref({
+  name: null,
+  description: null
+})
 
-    exported.onSubmit = () => {
-      store.dispatch('projects/createNewProject', exported.newProject.value).then(createdProject => {
-        router.push({path: '/project/' + createdProject.id})
-      })
-    };
-    exported.onReset = () => {
-      exported.newProject.value.name = null;
-      exported.newProject.value.description = null;
-    };
-
-    const userInfo = computed(() => store.getters['userinfo/getUserInfo']());
-    exported.teamNames = computed(() => userInfo.value.teams);
-
-    return exported;
-  }
+const onSubmit = () => {
+  projectStore.createNewProject(newProject.value).then(() => {
+    router.push({ path: '/project/' + projectStore.project.id })
+  })
 }
+
+const onReset = () => {
+  newProject.value.name = null;
+  newProject.value.description = null;
+}
+
+const userInfo = computed(() => userInfoStore.userInfo);
+const teamNames = computed(() => userInfo.value.teams);
+
 </script>

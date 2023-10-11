@@ -1,34 +1,34 @@
 <template>
-  <q-breadcrumbs class="oa-breadcrumb" v-if="template">
+  <q-breadcrumbs class="oa-breadcrumb" v-if="templateStore.template">
     <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
     <q-breadcrumbs-el :label="'Templates'" icon="list" :to="'/templates'"/>
-    <q-breadcrumbs-el :label="template.name" icon="border_outer"/>
+    <q-breadcrumbs-el :label="templateStore.template.name" icon="border_outer"/>
   </q-breadcrumbs>
 
   <q-page class="oa-root-div">
     <div class="q-pa-md" v-if="!editdialog">
-      <oa-section v-if="!template" title="Loading template..." icon="border_outer"/>
-      <oa-section v-else :title="template.name" icon="border_outer" :collapsible="true">
+      <oa-section v-if="!templateStore.template" title="Loading template..." icon="border_outer"/>
+      <oa-section v-else :title="templateStore.template.name" icon="border_outer" :collapsible="true">
         <div class="row q-pa-md">
           <div class="col-3">
             <q-field label="ID" stack-label borderless dense>
               <template v-slot:control>
-                {{ template.id }}
+                {{ templateStore.template.id }}
               </template>
             </q-field>
             <q-field label="Dimensions" stack-label borderless dense>
               <template v-slot:control>
-                {{ template.rows }} x {{ template.columns }} ({{ template.rows * template.columns }} wells)
+                {{ templateStore.template.rows }} x {{ templateStore.template.columns }} ({{ templateStore.template.rows * templateStore.template.columns }} wells)
               </template>
             </q-field>
             <q-field label="Description" stack-label borderless dense>
               <template v-slot:control>
-                {{ template.description }}
+                {{ templateStore.template.description }}
               </template>
             </q-field>
             <q-field label="Tags" stack-label borderless dense>
               <template v-slot:control>
-                <TagList :objectInfo="templateStore.template" :objectClass="'PLATE_TEMPLATE'"/>
+                <TagList :tags="templateStore.template.tags" :objectId="templateStore.template.id" :objectClass="'PLATE_TEMPLATE'"/>
               </template>
             </q-field>
           </div>
@@ -36,22 +36,22 @@
           <div class="col-3">
             <q-field label="Created On" stack-label dense borderless>
               <template v-slot:control>
-                {{ FormatUtils.formatDate(template.createdOn) }}
+                {{ FormatUtils.formatDate(templateStore.template.createdOn) }}
               </template>
             </q-field>
             <q-field label="Created By" stack-label dense borderless>
               <template v-slot:control>
-                <UserChip :id="template.createdBy"/>
+                <UserChip :id="templateStore.template.createdBy"/>
               </template>
             </q-field>
             <q-field label="Updated On" stack-label dense borderless>
               <template v-slot:control>
-                {{ FormatUtils.formatDate(template.updatedOn) }}
+                {{ FormatUtils.formatDate(templateStore.template.updatedOn) }}
               </template>
             </q-field>
             <q-field label="Updated By" stack-label dense borderless>
               <template v-slot:control>
-                <UserChip :id="template.updatedBy"/>
+                <UserChip :id="templateStore.template.updatedBy"/>
               </template>
             </q-field>
           </div>
@@ -80,7 +80,7 @@
 
     <edit-plate-template v-model:show="editdialog"></edit-plate-template>
 
-    <div class="q-pa-md" v-if="template">
+    <div class="q-pa-md" v-if="templateStore.template">
       <q-tabs inline-label dense no-caps align="left" class="oa-section-title" v-model="activeTab">
         <q-tab name="overview" icon="view_module" label="Overview"/>
         <q-tab name="well-type" icon="text_snippet" label="Well Type"/>
@@ -91,29 +91,29 @@
       <div class="oa-section-body">
         <q-tab-panels v-model="activeTab" animated style="width: 100%">
           <q-tab-panel name="overview" icon="view_module" label="Overview">
-            <PlateTemplateLayout :plate="template" :tab="activeTab"/>
+            <PlateTemplateLayout :plate="templateStore.template" :tab="activeTab"/>
           </q-tab-panel>
           <q-tab-panel name="well-type" icon="view_module" label="Well Type">
-            <PlateTemplateLayout :plate="template" :tab="activeTab"/>
+            <PlateTemplateLayout :plate="templateStore.template" :tab="activeTab"/>
           </q-tab-panel>
           <q-tab-panel name="substance" icon="view_module" label="Substance">
-            <PlateTemplateLayout :plate="template" :tab="activeTab"/>
+            <PlateTemplateLayout :plate="templateStore.template" :tab="activeTab"/>
           </q-tab-panel>
           <q-tab-panel name="concentration" icon="view_module" label="Concentration">
-            <PlateTemplateLayout :plate="template" :tab="activeTab"/>
+            <PlateTemplateLayout :plate="templateStore.template" :tab="activeTab"/>
           </q-tab-panel>
         </q-tab-panels>
       </div>
     </div>
 
-    <delete-dialog v-if="template" ref="deleteDialog" v-model:id="template.id"
-                   v-model:name="template.name" v-model:show="showDeleteDialog" :objectClass="'template'"
+    <delete-dialog v-if="templateStore.template" ref="deleteDialog" v-model:id="templateStore.template.id"
+                   v-model:name="templateStore.template.name" v-model:show="showDeleteDialog" :objectClass="'template'"
                    @onDeleted="onDeleted"/>
   </q-page>
 </template>
 
 <script setup>
-import {computed, ref} from "vue"
+import {ref} from "vue"
 import {useTemplateStore} from "@/stores/template";
 import {useRoute, useRouter} from "vue-router";
 
@@ -137,10 +137,6 @@ const showDeleteDialog = ref(false)
 
 const templateId = parseInt(route.params.id);
 templateStore.loadTemplate(templateId)
-
-const template = computed(() => {
-  return templateStore.template
-})
 
 const savePlateTemplate = () => {
   templateStore.saveTemplate()
