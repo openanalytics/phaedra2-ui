@@ -2,6 +2,7 @@
   <q-table
       :rows="rows"
       :columns="columns"
+      row-key="id"
       :pagination="{ rowsPerPage: 10, sortBy: 'barcode' }"
       :filter="filter"
       :filter-method="filterMethod"
@@ -126,6 +127,7 @@
 
         for (let i in resultSets.value) {
           const newRow = {
+            'id': resultSets.value[i].plateId,
             'barcode': plates.value.find(plate => plate.id === resultSets.value[i].plateId).barcode
           }
           // TODO: implement onError
