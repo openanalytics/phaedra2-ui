@@ -1,67 +1,65 @@
 <template>
-    <q-table
-    :rows="rows"
-    :columns="columns"
-    row-key="id"
-    :pagination="{ rowsPerPage: 10, sortBy: 'barcode' }"
-    :filter="filter"
-    :filter-method="filterMethod"
-    :loading="loading"
-    :key="tableKey"
-    flat square dense
-    >
-        <template v-slot:top-right>
-            <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
-                <template v-slot:append>
-                    <q-icon name="search"/>
-                </template>
-            </q-input>
+  <q-table
+      :rows="rows"
+      :columns="columns"
+      :pagination="{ rowsPerPage: 10, sortBy: 'barcode' }"
+      :filter="filter"
+      :filter-method="filterMethod"
+      :loading="loading"
+      dense flat square>
+    <template v-slot:top-right>
+      <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
+        <template v-slot:append>
+          <q-icon name="search"/>
         </template>
-        <template v-slot:header="props">
-            <q-tr :props="props">
-                <q-th v-for="col in props.cols"
-                :key="col.name"
-                :props="props"
-                class="text-grey">
-                {{ col.label }}
-                    <span v-if="col.label2">
-                        <br/>{{ col.label2 }}
-                    </span>
-                </q-th>
-            </q-tr>
-        </template>
-        <template v-slot:body-cell-barcode="props">
-            <q-td :props="props">
-                <router-link :to="'/plate/' + props.row.id" class="nav-link">
-                    <div class="row items-center cursor-pointer">
-                        <q-icon name="view_module" class="icon q-pr-sm"/>
-                        {{ props.row.barcode }}
-                    </div>
-                </router-link>
-            </q-td>
-        </template>
-        <template v-slot:body-cell="props">
-            <q-td :props="props">
-                <div v-if="props.col.name.endsWith('-zprime')">
-                    <q-linear-progress rounded size="20px"
-                    :value="Number.isNaN(props.row[props.col.name])? 0 : props.row[props.col.name]"
-                    color="positive">
-                    <div class="absolute-full flex flex-center">
-                        <q-badge color="white" text-color="black" :label="props.row[props.col.name]"/>
-                    </div>
-                </q-linear-progress>
+      </q-input>
+    </template>
+    <template v-slot:header="props">
+      <q-tr :props="props">
+        <q-th style="text-align: left" class="text-grey">Barcode</q-th>
+        <q-th colspan="7" v-for="feature in features" :key="feature.id" class="text-grey" style="text-align: left">
+          {{ feature.name }}
+        </q-th>
+      </q-tr>
+      <q-tr :props="props">
+        <q-th/>
+        <q-th v-for="col in props.cols.filter(c => c.type === 'stat')" :key="col.name" class="text-grey" style="text-align: left">
+          {{ col.label }}
+        </q-th>
+      </q-tr>
+    </template>
+    <template v-slot:body-cell-barcode="props">
+      <q-td :props="props">
+        <router-link :to="'/plate/' + props.row.id" class="nav-link">
+          <div class="row items-center cursor-pointer">
+            <q-icon name="view_module" class="icon q-pr-sm"/>
+            {{ props.row.barcode }}
+          </div>
+        </router-link>
+      </q-td>
+    </template>
+    <template v-slot:body-cell="props">
+      <q-td :props="props">
+        <div v-if="props.col.name.endsWith('-zprime')">
+          <q-linear-progress rounded size="20px"
+                             :value="Number.isNaN(props.row[props.col.name])? 0 : props.row[props.col.name]"
+                             color="positive">
+            <div class="absolute-full flex flex-center">
+              <q-badge color="white" text-color="black" :label="props.row[props.col.name]"/>
             </div>
-            <div v-else>
-                {{props.row[props.col.name]}}
-            </div>
-        </q-td>
-        </template>
-        <template v-slot:no-data>
-            <div class="full-width row text-info">
-                <span>No plates to show.</span>
-            </div>
-        </template>
-    </q-table>
+          </q-linear-progress>
+        </div>
+        <div v-else>
+          {{ props.row[props.col.name] }}
+        </div>
+      </q-td>
+    </template>
+    <template v-slot:no-data>
+      <div class="full-width row text-info">
+        <span>No plates to show.</span>
+      </div>
+    </template>
+  </q-table>
 </template>
 
 <style scoped>
@@ -79,72 +77,81 @@
     import {computed, ref, watch} from 'vue'
     import {useStore} from 'vuex'
     import FilterUtils from "@/lib/FilterUtils";
-    import ArrayUtils from "@/lib/ArrayUtils";
+    import resultDataGraphQlAPI from "@/api/graphql/resultdata";
 
     const statsToShow = ['zprime', 'cv', 'stdev', 'min', 'mean', 'median', 'max'];
 
     const props = defineProps(['plates', 'experiment']);
     const store = useStore();
 
-    const loading = ref(true);
+    const loading = ref(false);
     const filter = ref('');
     const filterMethod = FilterUtils.defaultTableFilter();
-    const rows = ref([]);
-    const tableKey = ref(0);
-    const columns = [
+
+    const columns = ref([
         {name: 'barcode', align: 'center', label: 'Barcode', field: 'barcode', sortable: true}
-    ];
+    ]);
 
     const plates = computed( () => props.plates ? props.plates : [])
+    const rows = ref([])
+    const row = ref({})
 
-    // const plates = computed(() => store.getters['plates/getByExperimentId'](props.experiment.id));
-    // const activeMeasurements = computed(() => store.getters['measurements/getActivePlateMeasurements'](plates.value.map(p => p.id)));
-    // const resultSets = computed(() => activeMeasurements.value.map(m => store.getters['resultdata/getLatestResultSetsForPlateMeas'](m.plateId, m.measurementId)).flat());
-    //TODO filter on non-welltype stats
-    // const resultStats = computed(() => resultSets.value.map(rs => store.getters['resultdata/getResultStats'](rs.id)).flat());
-    // const features = computed(() => store.getters['features/getByIds'](ArrayUtils.distinctBy(resultStats.value, 'featureId')));
+    const protocols = ref([])
+    const features = ref([])
+    const resultSets = ref([])
 
-    watch(props.experiment, async () => {
-        if (!props.experiment) return;
-        await store.dispatch('plates/loadByExperimentId', props.experiment.id);
-        for (const plate of plates.value) {
-            rows.value.push(structuredClone(plate));
-        }
-        for (const plate of plates.value) {
-            await store.dispatch('resultdata/loadResultSets', plate.id);
-            await store.dispatch('measurements/loadByPlateId', plate.id);
-            for (const rs of resultSets.value.filter(rs => rs.plateId == plate.id)) {
-                await store.dispatch('resultdata/loadResultStats', rs.id);
-            }
-        }
-        await store.dispatch('features/loadByIds', ArrayUtils.distinctBy(resultStats.value, 'featureId'));
-        buildTableColumns();
-    }, { immediate: true });
-
-    const buildTableColumns = () => {
-        features.value.map(f => f.id).sort().forEach(fId => {
-            let isFirstStat = true;
-            statsToShow.forEach(statName => {
-                columns.push({
-                    name: `stat-${fId}-${statName}`,
-                    label: isFirstStat ? (features.value.find(f => f.id === fId) || {}).name : '',
-                    label2: statName,
-                    align: 'center'
-                });
-                isFirstStat = false;
-            });
-        });
-
-        plates.value.forEach(p => {
-            let row = rows.value.find(r => r.id == p.id);
-            let plateResultSetIds = resultSets.value.filter(rs => rs.plateId == p.id).map(rs => rs.id);
-            resultStats.value.filter(stat => !stat.welltype && plateResultSetIds.includes(stat.resultSetId)).forEach(stat => {
-                const key = `stat-${stat.featureId}-${stat.statisticName}`;
-                row[key] = stat ? Math.round(stat.value * 100) / 100 : NaN;
-            });
-        });
-
-        loading.value = false;
-        tableKey.value++;
+    const fetchProtocols = () => {
+      const {onResult, onError} = resultDataGraphQlAPI.protocolsByExperimentId(props.experiment.id)
+      onResult(({data}) => {
+        protocols.value = data.protocols
+        features.value = protocols.value.flatMap(protocol => protocol.features)
+        console.log("PlateStatsList features: " + JSON.stringify(features.value))
+        features.value.forEach(feature => {
+          for (let i in statsToShow) {
+            const stat = statsToShow[i]
+            columns.value.push({ name: `stat-${feature.id}-${stat}`, type: 'stat', label: stat, align: 'left', field: `stat-${feature.id}-${stat}`, sortable: true });
+          }
+        })
+        console.log("Columns: " + JSON.stringify(columns.value))
+        fetchResultSets()
+      })
     }
+
+    const fetchResultSets = () => {
+      const plateIds = plates.value.map(plate => plate.id)
+
+      const {onResult, onError} = resultDataGraphQlAPI.latestResultSetsByPlateIds(plateIds)
+      onResult(({data}) => {
+        resultSets.value = data.resultSets
+
+        for (let i in resultSets.value) {
+          const newRow = {
+            'barcode': plates.value.find(plate => plate.id === resultSets.value[i].plateId).barcode
+          }
+          // TODO: implement onError
+          const {onResult, onError} = resultDataGraphQlAPI.resultSetFeatureStats(resultSets.value[i].id)
+          onResult(({data}) => {
+            const rsFStatsFiltered = data.rsFeatureStats
+            console.log("rsFStatsFiltered: " + JSON.stringify(rsFStatsFiltered))
+            features.value.forEach(feature => {
+              statsToShow.forEach(stat => {
+                const rsStat = rsFStatsFiltered.find(rss => rss.statisticName === stat && rss.featureId === feature.id)
+                if (rsStat)
+                  newRow[`stat-${rsStat.featureId}-${rsStat.statisticName}`] = Math.round(rsStat.value * 100) / 100
+                else
+                  newRow[`stat-${feature.id}-${stat}`] = NaN
+              })
+            })
+            row.value = newRow
+          })
+        }
+      })
+    }
+
+    watch(row, (value) => {
+      rows.value.push(value)
+      console.log("Rows: " + JSON.stringify(rows.value))
+    })
+
+    fetchProtocols()
 </script>
