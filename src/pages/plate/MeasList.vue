@@ -5,7 +5,7 @@
         :rows="plateMeasurements"
         :columns="columns"
         row-key="id"
-        :pagination="{ rowsPerPage: 10, sortBy: 'active', descending: true }"
+        :pagination="{ rowsPerPage: 10 }"
     >
         <template v-slot:top-left>
             <q-btn size="sm" icon="add" class="oa-button q-mb-md" label="Link Measurement" @click="showLinkMeasDialog = true" />
@@ -24,9 +24,7 @@
         </template>
         <template v-slot:body-cell-active="props">
             <q-td :props="props">
-                <q-toggle dense
-                :model-value="props.value"
-                @update:model-value="val => openConfirmDialog(val, props.row)"/>
+                <q-toggle dense :model-value="props.value" @update:model-value="val => handleSetActiveMeasurement(val, props.row)"/>
             </q-td>
         </template>
         <template v-slot:body-cell-createdBy="props">
@@ -36,7 +34,7 @@
         </template>
     </q-table>
 
-    <LinkMeasurementDialog v-model:show="showLinkMeasDialog" :plate="plate"/>
+    <LinkMeasurementDialog v-model:show="showLinkMeasDialog" :plate="plate" @linkPlateMeasurement="handleLinkPlateMeasurement"/>
 
     <q-dialog v-model="confirm" persistent>
         <q-card>
@@ -58,53 +56,64 @@
 </template>
 
 <script setup>
-    import {ref, computed} from 'vue'
+    import {ref} from 'vue'
     import {useStore} from 'vuex'
     import {useRouter} from "vue-router";
     import FormatUtils from "@/lib/FormatUtils";
     import UserChip from "@/components/widgets/UserChip";
     import LinkMeasurementDialog from "@/components/measurement/LinkMeasurementDialog";
-    import {usePlateStore} from "@/stores/plate";
+    import projectsGraphQlAPI from "@/api/graphql/projects";
 
     const store = useStore();
     const router = useRouter();
-    const plateStore = usePlateStore()
-
     const props = defineProps({ plate: Object });
 
-    const plateMeasurements = computed(() => plateStore.measurements)
-
     const columns = [
-        {name: 'active', align: 'left', label: 'Active?', field: row => (row.active === undefined) ? false : row.active, sortable: true},
-        {name: 'measurementId', align: 'left', label: 'ID', field: 'measurementId', sortable: true},
-        {name: 'name', align: 'left', label: 'Measurement Name', field: 'name', sortable: true},
-        {name: 'wellColumns', align: 'left', label: 'Well Columns', field: 'wellColumns', sortable: true, format: val => `${val?.length || 0}` },
-        {name: 'subWellColumns', align: 'left', label: 'SubWell Columns', field: 'subWellColumns', sortable: true, format: val => `${val?.length || 0}` },
-        {name: 'imageChannels', align: 'left', label: 'Image Channels', field: 'imageChannels', sortable: true, format: val => `${val?.length || 0}` },
-        {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate },
-        {name: 'linkedOn', align: 'left', label: 'Linked On', field: 'linkedOn', sortable: true, format: FormatUtils.formatDate },
-        {name: 'menu', align: 'left', field: 'menu', sortable: false}
+      {name: 'active', align: 'left', label: 'Active?', field: row => (row.active === undefined) ? false : row.active, sortable: true},
+      {name: 'measurementId', align: 'left', label: 'ID', field: 'measurementId', sortable: true},
+      {name: 'name', align: 'left', label: 'Measurement Name', field: 'name', sortable: true},
+      {name: 'wellColumns', align: 'left', label: 'Well Columns', field: 'wellColumns', sortable: true, format: val => `${val?.length || 0}` },
+      {name: 'subWellColumns', align: 'left', label: 'SubWell Columns', field: 'subWellColumns', sortable: true, format: val => `${val?.length || 0}` },
+      {name: 'imageChannels', align: 'left', label: 'Image Channels', field: 'imageChannels', sortable: true, format: val => `${val?.length || 0}` },
+      {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate },
+      {name: 'linkedOn', align: 'left', label: 'Linked On', field: 'linkedOn', sortable: true, format: FormatUtils.formatDate },
+      {name: 'menu', align: 'left', field: 'menu', sortable: false}
     ];
+
+    const plateMeasurements = ref([])
+
+    const fetchPlateMeasurements = () => {
+      const {onResult, onError} = projectsGraphQlAPI.measurementsByPlateId(props.plate.id)
+      onResult(({data}) => {
+        plateMeasurements.value = data.plateMeasurements
+      })
+    }
 
     const showLinkMeasDialog = ref(false);
     const confirm = ref(false);
-    const newActiveMeas = ref();
 
-    const openConfirmDialog = (active, { plateId, measurementId}) => {
-        const current = store.getters['measurements/getActivePlateMeasurement'](plateId);
-        newActiveMeas.value = {active, plateId, measurementId};
-        if (current && active) {
-            confirm.value = true;
-        } else {
-            updateActiveState();
-        }
-    };
+    const handleSetActiveMeasurement = (active, { plateId, measurementId}) => {
+      if (active) {
+        updateActiveState(plateId, measurementId)
+      }
+    }
 
-    const updateActiveState = () => {
-        if (newActiveMeas.value) store.dispatch('measurements/setActiveMeasurement',  newActiveMeas.value);
+    const updateActiveState = (plateId, measurementId) => {
+      const { mutate:  linkPlateMeasurement, onDone} = projectsGraphQlAPI.linkPlateMeasurement(plateId, measurementId)
+      linkPlateMeasurement()
+
+      onDone(({data}) => {
+          fetchPlateMeasurements()
+      })
     };
 
     const onSelectMeasurement = (measurementId) => {
         router.push("/datacapture/meas/" + measurementId);
     }
+
+    const handleLinkPlateMeasurement = () => {
+      fetchPlateMeasurements()
+    }
+
+    fetchPlateMeasurements()
 </script>

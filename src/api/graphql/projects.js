@@ -1,4 +1,4 @@
-import {provideApolloClient, useQuery} from '@vue/apollo-composable'
+import {provideApolloClient, useMutation, useQuery} from '@vue/apollo-composable'
 import gql from 'graphql-tag'
 import {computed} from "vue";
 import {apolloPlatesClient} from "@/graphql/apollo.clients";
@@ -286,4 +286,19 @@ export default {
             variables,
             defaultOptions))
     },
+    linkPlateMeasurement(plateId, measurementId) {
+        const MUTATION = gql`
+            mutation linkPlateMeasurement {
+                linkMeasurement(plateId: ${plateId}, measurementId: ${measurementId}) {
+                    id
+                    plateId
+                    measurementId
+                    linkedOn
+                    linkedBy
+                    active
+                }
+            }
+        `
+        return provideApolloClient(apolloPlatesClient)(() => useMutation(MUTATION))
+    }
 }
