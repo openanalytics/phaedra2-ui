@@ -48,14 +48,14 @@ const handleFeatureOptionSelection = () => {
 const handleRawFeatureSelection = (rawFeature) => {
   const {onResult} = measurementsGraphQlAPI.measurementWellData(plateStore.activeMeasurement.measurementId, rawFeature)
   onResult(({data}) => {
-    data?.wellData ? wellData.value = data.wellData : wellData.value = []
+    wellData.value = data?.wellData ? data.wellData : []
   })
 }
 
 const handleCalculatedFeatureSelection = (calculatedFeature) => {
   const {onResult} = resultDataGraphQlAPI.featureValuesByPlateIdAndFeatureId(plateStore.plate.id, calculatedFeature.featureId)
   onResult(({data}) => {
-    data?.featureValues ? wellData.value = data.featureValues.map(fv => fv.value) : wellData.value = []
+    wellData.value = data?.featureValues ? data.featureValues.map(fv => fv.value) : []
   })
 }
 
