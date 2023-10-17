@@ -28,7 +28,6 @@ import resultDataGraphQlAPI from '@/api/graphql/resultdata'
 import {usePlateStore} from "@/stores/plate";
 import measurementsGraphQlAPI from "@/api/graphql/measurements";
 
-console.log("PlateHeatmap: enter script setup section")
 const props = defineProps(['plate', 'wells']);
 const plateStore = usePlateStore()
 
