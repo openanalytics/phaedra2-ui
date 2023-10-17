@@ -1,58 +1,92 @@
 <template>
   <div class="col justify-center">
     <div class="row">
-      <q-select class="col-5"
-                v-model="selectedProtocol"
-                :options="protocols"
-                option-value="id"
-                option-label="name"
-                label="Protocol"
-                @update:model-value="onProtocolSelected"
-                dense>
-      </q-select>
-      <div class="col-1"/>
-      <q-select class="col-6"
+      <q-option-group class="col-6"
+                      v-model="selectedFeatureOption"
+                      :options="featureOptions"
+                      @update:model-value="value => handleFeatureOptionSelection(value)"
+                      inline />
+      <q-select v-if="selectedFeatureOption === 'raw'" class="col-6"
                 v-model="selectedFeature"
-                :options="selectedProtocol?.features"
-                input-debounce="0"
+                :options="rawFeatureOptions"
+                label="Raw Feature"
+                @update:model-value="value => handleRawFeatureSelection(value)"
+                @filter="filterRawOptions"
+                dense use-input/>
+      <q-select v-if="selectedFeatureOption === 'calculated'" class="col-6"
+                v-model="selectedFeature"
+                :options="calculatedFeatureOptions"
                 option-value="id"
                 option-label="name"
-                label="Feature"
-                @update:model-value="onFeatureSelected"
-                dense>
-      </q-select>
+                label="Calculated Feature"
+                @update:model-value="value => handleCalculatedFeatureSelection(value)"
+                @filter="filterCalculatedOptions"
+                dense use-input/>
     </div>
   </div>
 </template>
 
 <script setup>
-import {ref, computed, watch} from 'vue'
+import {ref, computed} from 'vue'
 import {useRoute} from "vue-router";
+import measurementsGraphQlAPI from '@/api/graphql/measurements'
 
 const route = useRoute();
-const props = defineProps(['protocols'])
-const protocols = computed(() => props.protocols)
+const props = defineProps(['protocols', 'measurementId'])
+const emits = defineEmits(['featureOptionSelection', 'rawFeatureSelection', 'calculatedFeatureSelection'])
 
-const emits = defineEmits(['featureSelection'])
+const selectedFeatureOption = ref('raw')
+const featureOptions = [
+  { label: 'Active measurement features (raw data)', value: 'raw' },
+  { label: 'Protocol features (calculated data)', value: 'calculated' }
+]
 
-const selectedProtocol = ref(protocols.value[0])
+const allRawFeatures = ref([])
+const rawFeatureOptions = ref(allRawFeatures.value)
+
+const fetchMeasurementFeatures = () => {
+  const {onResult, onError} = measurementsGraphQlAPI.measurementById(props.measurementId)
+  onResult(({data}) => {
+    allRawFeatures.value = data.measurement.wellColumns
+  })
+}
+fetchMeasurementFeatures()
+
+const allCalculatedFeatures = computed(() => props.protocols.flatMap(protocol => protocol.features.map(feature => {return {id: feature.id, name: `[${protocol.name}] ${feature.name}`}})))
+const calculatedFeatureOptions = ref(allCalculatedFeatures.value)
+
 const selectedFeature = ref(null)
 
-watch(protocols, () => {
-  selectedProtocol.value = protocols.value[0]
-  onProtocolSelected()
-})
-
-// Protocol selection
-const onProtocolSelected = () => {
-  if (selectedProtocol.value) {
-    selectedFeature.value = selectedProtocol.value.features[0]
-    onFeatureSelected(selectedFeature.value)
-  }
+const handleFeatureOptionSelection = () => {
+  selectedFeature.value = null
+  emits('featureOptionSelection')
 }
 
-// Feature selection
-const onFeatureSelected = (selectedFeature) => {
-  emits('featureSelection', selectedProtocol.value, selectedFeature)
+const handleRawFeatureSelection = (feature) => {
+  emits('rawFeatureSelection', feature)
 }
+
+const handleCalculatedFeatureSelection = (feature) => {
+  emits('calculatedFeatureSelection', feature)
+}
+
+const filterRawOptions = (filter, update, abort) => {
+  console.log("Filter: " + filter)
+  update(() => {
+    rawFeatureOptions.value = allRawFeatures.value.filter(rfo => {
+      return rfo.includes(filter)
+    })
+  })
+}
+
+const filterCalculatedOptions = (filter, update, abort) => {
+  console.log("Filter: " + filter)
+  update(() => {
+    calculatedFeatureOptions.value = allCalculatedFeatures.value.filter(cfo => {
+      return cfo.name.includes(filter)
+    })
+    console.log("calculatedFeatureOptions: " + JSON.stringify(calculatedFeatureOptions.value))
+  })
+}
+
 </script>

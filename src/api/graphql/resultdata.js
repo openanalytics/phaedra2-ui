@@ -113,6 +113,18 @@ export default {
             variables,
             defaultOptions))
     },
+    resultDataByResultSetIdAndFeatureId(resultSetId, featureId) {
+        const QUERY = gql`
+            query resultData {
+                resultData:resultDataByResultSetIdAndFeatureId(resultSetId: ${resultSetId}, featureId: ${featureId}) {
+                    values
+                }
+            }
+        `
+        return provideApolloClient(apolloResultDataClient)(() => useQuery(QUERY,
+            null,
+            defaultOptions))
+    },
     resultDataByPlateIdAndProtocolIdAndFeatureId(plateId, protocolId, featureId) {
         const QUERY = gql`
             query resultDataByPlateIdAndProtocolIdAndFeatureId($plateId: ID, $protocolId: ID, $featureId: ID) {
