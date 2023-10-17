@@ -1,19 +1,20 @@
 <template>
-  <div class="col justify-center">
-    <div class="row">
-      <q-option-group class="col-6"
-                      v-model="selectedFeatureOption"
+  <div class="col">
+    <div class="row ">
+      <q-option-group v-model="selectedFeatureOption"
                       :options="featureOptions"
                       @update:model-value="value => handleFeatureOptionSelection(value)"
-                      inline />
-      <q-select v-if="selectedFeatureOption === 'raw'" class="col-6"
+                      inline dense/>
+    </div>
+    <div class="row">
+      <q-select v-if="selectedFeatureOption === 'raw'" class="col-12"
                 v-model="selectedFeature"
                 :options="rawFeatureOptions"
                 label="Raw Feature"
                 @update:model-value="value => handleRawFeatureSelection(value)"
                 @filter="filterRawOptions"
                 dense use-input/>
-      <q-select v-if="selectedFeatureOption === 'calculated'" class="col-6"
+      <q-select v-if="selectedFeatureOption === 'calculated'" class="col-12"
                 v-model="selectedFeature"
                 :options="calculatedFeatureOptions"
                 option-value="featureId"
@@ -29,7 +30,6 @@
 <script setup>
 import {ref, computed} from 'vue'
 import {useRoute} from "vue-router";
-import measurementsGraphQlAPI from '@/api/graphql/measurements'
 
 const route = useRoute();
 const props = defineProps(['protocols', 'measurements'])

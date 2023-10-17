@@ -32,14 +32,12 @@ console.log("PlateHeatmap: enter script setup section")
 const props = defineProps(['plate', 'wells']);
 const plateStore = usePlateStore()
 
+const wellData = ref([])
 const dataLoading = ref(false);
 const rangeValues = ref({min: 0, mean: 50, max: 100});
+
 const lut = ref(ColorUtils.createLUT([], ColorUtils.defaultHeatmapGradients));
-
-const measurements = computed(() => [plateStore.activeMeasurement])
-const resultSet = plateStore.activeResultSet
-
-const wellData = ref([])
+const measurements = computed(() => plateStore.activeMeasurement !== undefined ? [plateStore.activeMeasurement] : [])
 
 const handleFeatureOptionSelection = () => {
   wellData.value = []
