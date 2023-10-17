@@ -2,7 +2,7 @@
     <div class="col" style="min-width: 75%">
       <FeatureSelector class="q-pb-xs"
                        :protocols=plateStore.protocols
-                       :measurementId="activeMeasurement.measurementId"
+                       :measurements=measurements
                        @featureOptionSelection="handleFeatureOptionSelection"
       @rawFeatureSelection="handleRawFeatureSelection"
       @calculatedFeatureSelection="handleCalculatedFeatureSelection"/>
@@ -36,7 +36,7 @@ const dataLoading = ref(false);
 const rangeValues = ref({min: 0, mean: 50, max: 100});
 const lut = ref(ColorUtils.createLUT([], ColorUtils.defaultHeatmapGradients));
 
-const activeMeasurement = computed(() => plateStore.activeMeasurement)
+const measurements = computed(() => [plateStore.activeMeasurement])
 const resultSet = plateStore.activeResultSet
 
 const wellData = ref([])
@@ -46,16 +46,16 @@ const handleFeatureOptionSelection = () => {
 }
 
 const handleRawFeatureSelection = (rawFeature) => {
-  const {onResult} = measurementsGraphQlAPI.measurementWellData(activeMeasurement.value.measurementId, rawFeature)
+  const {onResult} = measurementsGraphQlAPI.measurementWellData(plateStore.activeMeasurement.measurementId, rawFeature)
   onResult(({data}) => {
     data?.wellData ? wellData.value = data.wellData : wellData.value = []
   })
 }
 
 const handleCalculatedFeatureSelection = (calculatedFeature) => {
-  const {onResult} = resultDataGraphQlAPI.resultDataByResultSetIdAndFeatureId(resultSet.id, calculatedFeature.id)
+  const {onResult} = resultDataGraphQlAPI.featureValuesByPlateIdAndFeatureId(plateStore.plate.id, calculatedFeature.featureId)
   onResult(({data}) => {
-    data?.resultData ? wellData.value = data.resultData.values : wellData.value = []
+    data?.featureValues ? wellData.value = data.featureValues.map(fv => fv.value) : wellData.value = []
   })
 }
 

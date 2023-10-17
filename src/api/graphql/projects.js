@@ -286,6 +286,23 @@ export default {
             variables,
             defaultOptions))
     },
+    activeMeasurementsByExperimentId(experimentId) {
+        const QUERY = gql`
+            query getActiveMeasurementsByExperimentId {
+                plateMeasurements:getActiveMeasurementsByExperimentId(experimentId: ${experimentId}) {
+                    plateId
+                    measurementId
+                    barcode
+                    rows
+                    columns
+                    wellColumns
+                }
+            }
+        `
+        return provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY,
+            null,
+            defaultOptions))
+    },
     linkPlateMeasurement(plateId, measurementId) {
         const MUTATION = gql`
             mutation linkPlateMeasurement {

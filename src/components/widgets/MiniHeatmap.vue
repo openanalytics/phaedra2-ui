@@ -18,7 +18,6 @@
 import {ref, computed, watch, onMounted} from 'vue'
 import WellUtils from "@/lib/WellUtils.js"
 import ColorUtils from "@/lib/ColorUtils.js"
-import {useRoute} from "vue-router";
 
 const props = defineProps(['plate', 'plateData']);
 
@@ -33,15 +32,15 @@ onMounted(() => {
 })
 
 watch([plateData], () => {
-  if (plateData.value && plateData.value.length > 0) {
-    lut.value = ColorUtils.createLUT(plateData.value[0].values, ColorUtils.defaultHeatmapGradients);
+  if (plateData.value.values) {
+    lut.value = ColorUtils.createLUT(plateData.value.values, ColorUtils.defaultHeatmapGradients);
   }
   setTimeout(draw());
 });
 
 const wellColorFunction = (index) => {
-  if (plateData.value && plateData.value.length > 0 && plateData.value[0].values)
-    return lut.value.getColor(plateData.value[0].values[index]);
+  if (plateData.value.values)
+    return lut.value.getColor(plateData.value.values[index]);
   return WellUtils.getWellTypeColor("EMPTY");
 }
 

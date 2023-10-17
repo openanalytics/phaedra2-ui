@@ -16,7 +16,7 @@
       <q-select v-if="selectedFeatureOption === 'calculated'" class="col-6"
                 v-model="selectedFeature"
                 :options="calculatedFeatureOptions"
-                option-value="id"
+                option-value="featureId"
                 option-label="name"
                 label="Calculated Feature"
                 @update:model-value="value => handleCalculatedFeatureSelection(value)"
@@ -32,7 +32,7 @@ import {useRoute} from "vue-router";
 import measurementsGraphQlAPI from '@/api/graphql/measurements'
 
 const route = useRoute();
-const props = defineProps(['protocols', 'measurementId'])
+const props = defineProps(['protocols', 'measurements'])
 const emits = defineEmits(['featureOptionSelection', 'rawFeatureSelection', 'calculatedFeatureSelection'])
 
 const selectedFeatureOption = ref('raw')
@@ -41,18 +41,12 @@ const featureOptions = [
   { label: 'Protocol features (calculated data)', value: 'calculated' }
 ]
 
-const allRawFeatures = ref([])
+const allRawFeatures = computed(() => [...new Set(props.measurements.flatMap(m => m.wellColumns))])
 const rawFeatureOptions = ref(allRawFeatures.value)
 
-const fetchMeasurementFeatures = () => {
-  const {onResult, onError} = measurementsGraphQlAPI.measurementById(props.measurementId)
-  onResult(({data}) => {
-    allRawFeatures.value = data.measurement.wellColumns
-  })
-}
-fetchMeasurementFeatures()
-
-const allCalculatedFeatures = computed(() => props.protocols.flatMap(protocol => protocol.features.map(feature => {return {id: feature.id, name: `[${protocol.name}] ${feature.name}`}})))
+const allCalculatedFeatures = computed(() => props.protocols.flatMap(protocol => protocol.features.map(feature => {
+  return {name: `[${protocol.name}] ${feature.name}`, protocolId: protocol.id, featureId: feature.id}
+})))
 const calculatedFeatureOptions = ref(allCalculatedFeatures.value)
 
 const selectedFeature = ref(null)
