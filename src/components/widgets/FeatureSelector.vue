@@ -41,7 +41,7 @@ const featureOptions = [
   { label: 'Protocol features (calculated data)', value: 'calculated' }
 ]
 
-const allRawFeatures = computed(() => [...new Set(props.measurements.flatMap(m => m.wellColumns))])
+const allRawFeatures = computed(() => [...new Set(props.measurements.flatMap(m => m.wellColumns ?? []))])
 const rawFeatureOptions = ref(allRawFeatures.value)
 
 const allCalculatedFeatures = computed(() => props.protocols.flatMap(protocol => protocol.features.map(feature => {
@@ -64,7 +64,7 @@ const handleCalculatedFeatureSelection = (feature) => {
   emits('calculatedFeatureSelection', feature)
 }
 
-const filterRawOptions = (filter, update, abort) => {
+const filterRawOptions = (filter, update) => {
   console.log("Filter: " + filter)
   update(() => {
     rawFeatureOptions.value = allRawFeatures.value.filter(rfo => {
@@ -73,7 +73,7 @@ const filterRawOptions = (filter, update, abort) => {
   })
 }
 
-const filterCalculatedOptions = (filter, update, abort) => {
+const filterCalculatedOptions = (filter, update) => {
   console.log("Filter: " + filter)
   update(() => {
     calculatedFeatureOptions.value = allCalculatedFeatures.value.filter(cfo => {

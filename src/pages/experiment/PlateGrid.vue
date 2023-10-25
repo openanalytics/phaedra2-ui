@@ -32,7 +32,7 @@ const measurements = ref([])
 
 const fetchMeasurementsByExperiment = () => {
   const {onResult} = projectsGraphQlAPI.activeMeasurementsByExperimentId(props.experiment.id)
-  onResult(({data}) => measurements.value = data.plateMeasurements)
+  onResult(({data}) => measurements.value = data.plateMeasurements.filter(m => m !== null))
 }
 fetchMeasurementsByExperiment()
 
