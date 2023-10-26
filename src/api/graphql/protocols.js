@@ -86,10 +86,9 @@ export default {
             }
         `
         const variables = {'featureId': featureId}
-        const query = provideApolloClient(apolloProtocolsClient)(() => useQuery(QUERY,
+        return provideApolloClient(apolloProtocolsClient)(() => useQuery(QUERY,
             variables,
             defaultOptions))
-        return computed(() => query.result.value?.feature ?? null)
     },
     featuresByProtocolId(protocolId) {
         const QUERY = gql`

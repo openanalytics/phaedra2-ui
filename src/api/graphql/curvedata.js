@@ -8,8 +8,8 @@ const defaultOptions = { fetchPolicy: 'no-cache', errorPolicy: 'ignore'}
 export default {
     curvesByPlateId(plateId) {
         const QUERY = gql`
-            query getCurvesByPlateId($plateId: ID) {
-                curves:getCurvesByPlateId(plateId: $plateId) {
+            query getCurvesByPlateId {
+                curves:getCurvesByPlateId(plateId: ${plateId}) {
                     id
                     plateId
                     protocolId
@@ -44,10 +44,8 @@ export default {
                 }
             }
         `
-        const variables = {'plateId': plateId}
-        const query = provideApolloClient(apolloCurvesClient)(() => useQuery(QUERY,
-            variables,
+        return provideApolloClient(apolloCurvesClient)(() => useQuery(QUERY,
+            null,
             defaultOptions))
-        return computed(() => query.result.value?.curves ?? null)
     }
 }

@@ -69,55 +69,43 @@
       </oa-section>
     </div>
 
-    <div class="q-pa-md" v-if="plateStore.plate">
-      <q-tabs inline-label dense no-caps align="left" class="oa-section-title" v-model="activeTab">
-        <q-tab name="layout" icon="view_module" label="Layout" class="oa-section-title"/>
-        <q-tab name="heatmap" icon="view_module" label="Heatmap" class="oa-section-title"/>
-        <q-tab name="wells" icon="table_rows" label="Well List" class="oa-section-title"/>
-        <q-tab name="measurements" icon="text_snippet" label="Measurements" class="oa-section-title"/>
-        <q-tab name="results" icon="functions" label="Calculations" class="oa-section-title"/>
-      </q-tabs>
-      <div class="row oa-section-body">
-        <q-tab-panels v-model="activeTab" animated style="width: 100%">
-          <q-tab-panel name="layout">
-            <PlateLayout :plate="plateStore.plate" :wells="plateStore.wells"/>
-          </q-tab-panel>
-          <q-tab-panel name="heatmap">
-            <PlateHeatmap :plate="plateStore.plate" :wells="plateStore.wells"/>
-          </q-tab-panel>
-          <q-tab-panel name="wells">
-            <WellList :plate="plateStore.plate" :wells="plateStore.wells"/>
-          </q-tab-panel>
-          <q-tab-panel name="measurements" icon="view_module" label="Layout">
-            <MeasList :plate="plateStore.plate"/>
-          </q-tab-panel>
-          <q-tab-panel name="results">
-            <ResultSetList :plate="plateStore.plate"/>
-          </q-tab-panel>
-        </q-tab-panels>
-      </div>
-    </div>
-
-<!--    <div class="q-pa-md" v-if="plateStore.plate && plateStore.curves">-->
-<!--      <oa-section title="Dose-Response Curves" icon="show_chart" :collapsible="true">-->
-<!--        <Splitpanes class="default-theme" @resize="updateWidth">-->
-<!--          <Pane :size="100 - sizeChartPane">-->
-<!--            <DoseResponseCurves :plate="plateStore.plate" :curves="plateStore.curves" @handle-selection="showSelectedCurves"/>-->
-<!--          </Pane>-->
-<!--          <Pane :size="sizeChartPane">-->
-<!--            <Splitpanes class="default-theme" horizontal="horizontal" @resize="updateHeight"-->
-<!--                        :style="{height: chartPaneHeight + 'px'}">-->
-<!--              <Pane :size="chartPaneHeight">-->
-<!--                <DoseResponseCurve :plate="plateStore.plate" :width="width" :height="height"/>-->
-<!--              </Pane>-->
-<!--              <Pane :size="chartPaneHeight" style="overflow: auto">-->
-<!--                <DoseResponseCurveProperties :plate="plateStore.plate"></DoseResponseCurveProperties>-->
-<!--              </Pane>-->
-<!--            </Splitpanes>-->
-<!--          </Pane>-->
-<!--        </Splitpanes>-->
-<!--      </oa-section>-->
-<!--    </div>-->
+    <Splitpanes class="default-theme" @resize="updateWidth">
+      <Pane :size="100 - paneSize" class="q-pa-md" v-if="plateStore.plate" style="background-color: #E6E6E6">
+        <q-tabs inline-label dense no-caps align="left" class="oa-section-title" v-model="activeTab">
+          <q-tab name="layout" icon="view_module" label="Layout" class="oa-section-title"/>
+          <q-tab name="heatmap" icon="view_module" label="Heatmap" class="oa-section-title"/>
+          <q-tab name="wells" icon="table_rows" label="Well List" class="oa-section-title"/>
+          <q-tab name="measurements" icon="text_snippet" label="Measurements" class="oa-section-title"/>
+          <q-tab name="results" icon="functions" label="Calculations" class="oa-section-title"/>
+          <q-tab name="curves" icon="show_chart" label="Dose-Response Curves" class="oa-section-title"/>
+        </q-tabs>
+        <div class="row oa-section-body">
+          <q-tab-panels v-model="activeTab" animated style="width: 100%; height: 650px">
+            <q-tab-panel name="layout">
+              <PlateLayout :plate="plateStore.plate" :wells="plateStore.wells"/>
+            </q-tab-panel>
+            <q-tab-panel name="heatmap">
+              <PlateHeatmap :plate="plateStore.plate" :wells="plateStore.wells"/>
+            </q-tab-panel>
+            <q-tab-panel name="wells">
+              <WellList :plate="plateStore.plate" :wells="plateStore.wells"/>
+            </q-tab-panel>
+            <q-tab-panel name="measurements" icon="view_module" label="Layout">
+              <MeasList :plate="plateStore.plate"/>
+            </q-tab-panel>
+            <q-tab-panel name="results">
+              <ResultSetList :plate="plateStore.plate"/>
+            </q-tab-panel>
+            <q-tab-panel name="curves" icon="show_chart">
+              <DRCList :plate="plateStore.plate" :curves="plateStore.curves" @showDRCView="handleShowDRCView"/>
+            </q-tab-panel>
+          </q-tab-panels>
+        </div>
+      </Pane>
+      <Pane v-if="showDRCViewPane" style="background-color: #E6E6E6" ref="drcViewPane">
+        <component :is="drcView" v-bind="drcViewProps" @closeDRCView="handleCloseDRCView"/>
+      </Pane>
+    </Splitpanes>
 
     <rename-dialog v-model:show="showRenameDialog" objectClass="plate" fieldName="barcode" :object="plateStore.plate" @valueChanged="onNameChanged"/>
     <delete-dialog v-model:show="showDeleteDialog" :id="plateStore.plate.id" :name="plateStore.plate.barcode" :objectClass="'plate'" @onDeleted="onDeleted"/>
@@ -126,7 +114,7 @@
 </template>
 
 <script setup>
-import {ref, watchEffect} from 'vue'
+import {defineComponent, reactive, ref, watchEffect} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import {Splitpanes, Pane} from 'splitpanes'
 
@@ -142,16 +130,14 @@ import MeasList from "@/pages/plate/MeasList"
 import WellList from "@/pages/plate/WellList"
 import ResultSetList from "./ResultSetList"
 import OaSection from "@/components/widgets/OaSection";
-import DoseResponseCurves from "@/components/curve/DoseResponseCurves"
 import DeleteDialog from "@/components/widgets/DeleteDialog"
 import RenameDialog from "@/components/widgets/RenameDialog"
-import DoseResponseCurve from "@/components/curve/DoseResponseCurve"
-import DoseResponseCurveProperties from "@/components/curve/DoseResponseCurveProperties"
 import CalculatePlateDialog from "@/components/plate/CalculatePlateDialog"
-import curvesGraphQlAPI from "@/api/graphql/curvedata"
 import {useProjectStore} from "@/stores/project";
 import {useExperimentStore} from "@/stores/experiment";
 import {usePlateStore} from "@/stores/plate";
+import DRCList from "@/components/curve/DRCList.vue";
+import DRCView from "@/components/curve/DRCView.vue";
 
 const route = useRoute();
 const projectStore = useProjectStore()
@@ -162,6 +148,16 @@ const router = useRouter();
 const plateId = parseInt(route.params.plateId);
 plateStore.loadPlate(plateId);
 
+const height = ref(400);
+const width = ref(500);
+
+const drcView = ref(defineComponent(DRCView))
+const drcViewPane = ref()
+const showDRCViewPane = ref(false)
+const drcViewProps = reactive({height: height.value, width: width.value, curve: null})
+
+// const paneSize = ref(40)
+
 watchEffect(() => {
   // Load parent experiment and project, if needed.
   if (plateStore.isLoaded(plateId)) {
@@ -170,8 +166,6 @@ watchEffect(() => {
     if (experimentStore.isLoaded(expId)) projectStore.loadProject(experimentStore.experiment.projectId);
   }
 });
-
-// const curves = curvesGraphQlAPI.curvesByPlateId(plateId)
 
 const activeTab = ref('layout')
 const sizeChartPane = ref(0)
@@ -188,23 +182,36 @@ const onDescriptionChanged = (newDescription) => {
   plateStore.editPlateDescription(newDescription)
 };
 
-const height = ref(400);
-const width = ref(500);
 const onDeleted = () => {
   router.push({name: 'experiment', params: {id: experimentStore.experiment.id}})
 }
+
 const updateHeight = (events) => {
   height.value = events[0].size;
+  drcViewProps.height = events[0].size
 }
 
 const updateWidth = (events) => {
   width.value = events[1].size;
+  drcViewProps.width = events[1].size
 }
 
 const chartPaneHeight = ref(0)
 const showSelectedCurves = (args) => {
-  sizeChartPane.value = 50
+  sizeChartPane.value = 40
   chartPaneHeight.value = args
+}
+
+const handleShowDRCView = (data) => {
+  showDRCViewPane.value = true
+  drcViewProps.curves = [...data]
+  // paneSize.value = 40
+  // drcViewProps.width = drcViewPane.value.offsetWidth
+}
+
+const handleCloseDRCView = () => {
+  showDRCViewPane.value = false
+  // drcViewProps.width = drcViewPane.value.offsetWidth
 }
 
 </script>

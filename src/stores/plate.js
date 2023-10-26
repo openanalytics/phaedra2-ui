@@ -1,13 +1,10 @@
  import { defineStore } from "pinia"
-import platesAPI from "@/api/plates"
 import calculationsAPI from "@/api/calculations"
 import projectsGraphQlAPI from "@/api/graphql/projects"
 import resultdataGraphQlAPI from "@/api/graphql/resultdata";
-import measurementsGraphQlAPI from "@/api/graphql/measurements";
 import plateAPI from "@/api/plates";
-import {computed} from "vue";
  import resultDataGraphQlAPI from "@/api/graphql/resultdata";
-
+ import curvesGraphQlAPI from "@/api/graphql/curvedata";
 
 export const usePlateStore = defineStore("plate", {
     state: () => ({
@@ -28,6 +25,9 @@ export const usePlateStore = defineStore("plate", {
         },
         featuresByProtocolId: (state) => {
             return (protocolId) => state.protocols.find(p => p.id === protocolId)?.features
+        },
+        featureById: (state) => {
+            return state.protocols.map(p => p.features)
         }
     },
     actions: {
@@ -42,6 +42,7 @@ export const usePlateStore = defineStore("plate", {
                     this.loadPlateMeasurements(plateId)
                     this.loadPlateCalculations(plateId)
                     this.loadPlateProtocols(plateId)
+                    this.loadPlateCurves(plateId)
                 })
             }
 
@@ -57,6 +58,10 @@ export const usePlateStore = defineStore("plate", {
         async loadPlateProtocols(plateId) {
             const {onResult, onError} = resultDataGraphQlAPI.protocolsByPlateId(plateId)
             onResult(({data}) => this.protocols = data.protocols)
+        },
+        async loadPlateCurves(plateId) {
+          const {onResult, onError} = curvesGraphQlAPI.curvesByPlateId(plateId)
+            onResult(({data}) => this.curves = data.curves)
         },
         async renamePlate(newBarcode) {
             const plate = await plateAPI.editPlate({ id: this.plate.id, barcode: newBarcode })

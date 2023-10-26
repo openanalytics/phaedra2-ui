@@ -11,7 +11,9 @@ import {useStore} from "vuex";
 const store = useStore()
 
 const props = defineProps(['curvedata'])
+const emits = defineEmits(['showDRCView'])
 const drCurve = ref()
+const data = ref([])
 
 const layout = {
   showlegend: false,
@@ -26,7 +28,8 @@ const config = {
   responsive: true,
   displaylogo: false
 }
-onMounted(() => {
+
+const drawChart = () => {
   const curve = {
     x: props.curvedata?.plotDoseData?.map(d => (d / 2.303)),
     y: props.curvedata?.plotPredictionData,
@@ -48,8 +51,12 @@ onMounted(() => {
     },
     showlegend: false,
   }
-  const data = [curve, datapoints]
-  Plotly.newPlot(drCurve.value, data, layout, config)
+  data.value = [curve, datapoints]
+  Plotly.newPlot(drCurve.value, data.value, layout, config)
+}
+
+onMounted(() => {
+  drawChart()
 })
 
 </script>
