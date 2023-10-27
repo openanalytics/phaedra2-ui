@@ -133,18 +133,18 @@ for (let fId in featureIds) {
 
 console.log("curveTableColumns: " + JSON.stringify(curveTableColumns.value))
 
-const selectedWells = computed( () => store.getters['ui/getSelectedWells']())
-const selectedWellSubstances = computed( () => store.getters['ui/getSelectedSubstances']())
+// const selectedWells = computed( () => store.getters['ui/getSelectedWells']())
+// const selectedWellSubstances = computed( () => store.getters['ui/getSelectedSubstances']())
 
-const selected = ref([...curveData.value.filter(cd => selectedWellSubstances.value.includes(cd.substance))])
-const updateSelected = () => {
-  selected.value = [...curveData.value.filter(cd => selectedWellSubstances.value.includes(cd.substance))]
-}
+// const selected = ref([...curveData.value.filter(cd => selectedWellSubstances.value.includes(cd.substance))])
+// const updateSelected = () => {
+//   selected.value = [...curveData.value.filter(cd => selectedWellSubstances.value.includes(cd.substance))]
+// }
 
 const selectedCurves = ref([])
 
-watch(selectedWells, updateSelected);
-watch(selectedWellSubstances, updateSelected);
+// watch(selectedWells, updateSelected);
+// watch(selectedWellSubstances, updateSelected);
 
 const handleSelection = ({rows, added, evt}) => {
   const {ctrlKey, shiftKey, metaKey} = evt ?? {ctrlKey: false, shiftKey: false, metaKey: false}
@@ -183,9 +183,10 @@ const handleSelection = ({rows, added, evt}) => {
 const setSelectedCurve = (selectedCurve, event) => {
   console.log("selectedCurve: " + JSON.stringify(selectedCurve))
   selectedCurve['featureName'] = fetchFeatureName(selectedCurve.featureId)
-  if (event.ctrlKey || event.metaKey)
-    selectedCurves.value.push(selectedCurve)
-  else
+  if (event.ctrlKey || event.metaKey) {
+    const index = selectedCurves.value.findIndex(c => c.id === selectedCurve.id)
+    index < 0 ? selectedCurves.value.push(selectedCurve) : selectedCurves.value.splice(index, 1)
+  } else
     selectedCurves.value = [selectedCurve]
 
   emits('showDRCView', selectedCurves.value)

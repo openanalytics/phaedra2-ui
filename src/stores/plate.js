@@ -5,6 +5,7 @@ import resultdataGraphQlAPI from "@/api/graphql/resultdata";
 import plateAPI from "@/api/plates";
  import resultDataGraphQlAPI from "@/api/graphql/resultdata";
  import curvesGraphQlAPI from "@/api/graphql/curvedata";
+ import ColorUtils from "@/lib/ColorUtils";
 
 export const usePlateStore = defineStore("plate", {
     state: () => ({
@@ -61,7 +62,13 @@ export const usePlateStore = defineStore("plate", {
         },
         async loadPlateCurves(plateId) {
           const {onResult, onError} = curvesGraphQlAPI.curvesByPlateId(plateId)
-            onResult(({data}) => this.curves = data.curves)
+            onResult(({data}) => {
+                const colorList = ColorUtils.getColorList(data.curves?.length)
+                this.curves = data.curves?.map((curve, index) => {
+                    curve['color'] = colorList[index]
+                    return curve
+                })
+            })
         },
         async renamePlate(newBarcode) {
             const plate = await plateAPI.editPlate({ id: this.plate.id, barcode: newBarcode })

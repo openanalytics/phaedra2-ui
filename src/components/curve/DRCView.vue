@@ -20,14 +20,13 @@
 import Plotly from "plotly.js-dist-min";
 import {onMounted, ref, watch} from "vue";
 import {useStore} from "vuex";
+import ColorUtils from "@/lib/ColorUtils";
 
 const store = useStore()
 
 const props = defineProps(['width', 'height', 'curves'])
 const emits = defineEmits(['closeDRCView'])
 const curve = ref(null)
-
-const d3 = Plotly.d3
 
 onMounted(() => {
   updateDRCPlotView()
@@ -43,32 +42,31 @@ const updateDRCPlotView = () => {
   }
 
   const config = {autosize: false, displaylogo: false}
-
   if (props.curves?.length > 0) {
-    const curveData = props.curves?.map(c => {
+    const curveData = props.curves?.map(value => {
       const curve = {
-        x: c.plotDoseData.map(d => (d / 2.303)),
-        y: c.plotPredictionData,
+        x: value.plotDoseData.map(d => (d / 2.303)),
+        y: value.plotPredictionData,
         mode: 'lines',
         line: {
           shape: 'spline',
-          color: c.color
+          color: value.color
         },
-        hovertemplate: `${c.substanceName} (${c.featureName}) <extra></extra>`,
+        hovertemplate: `${value.substanceName} (${value.featureName}) <extra></extra>`,
         showlegend: true,
-        legendgroup: `${c.substanceName} (${c.featureId})`,
-        name: `${c.substanceName}`
+        legendgroup: `${value.substanceName} (${value.featureId})`,
+        name: `${value.substanceName}`
       }
 
       // const selectedWellIds = selectedWells.value.map(well => well.id)
       // const colors = c.wells.map(well => selectedWellIds.includes(well) ? 'rgb(246,2,2)' : c.color)
       const datapoints = {
-        x: c.wellConcentrations,
-        y: c.featureValues,
+        x: value.wellConcentrations,
+        y: value.featureValues,
         mode: 'markers',
         marker: {
-          size: c.weights?.map(w => w * 10),
-          color: c.color,
+          size: value.weights?.map(w => w * 15),
+          color: value.color,
           line: {
             // color: colors,
             width: 3
@@ -76,14 +74,17 @@ const updateDRCPlotView = () => {
         },
         hovertemplate: "%{y}<extra></extra>",
         showlegend: false,
-        legendgroup: `${c.substanceName} (${c.featureId})`,
+        legendgroup: `${value.substanceName} (${value.featureId})`,
       }
-      return {"substanceName": c.substanceName, "curve": curve, "datapoints": datapoints}
+      return {"substanceName": value.substanceName, "curve": curve, "datapoints": datapoints}
     })
 
     const line = curveData.map(cData => cData.curve)
     const scatter = curveData.map(cData => cData.datapoints)
     const data = line.concat(scatter)
+    Plotly.newPlot(curve?.value, data, layout, config)
+  } else {
+    const data = []
     Plotly.newPlot(curve?.value, data, layout, config)
   }
 }
