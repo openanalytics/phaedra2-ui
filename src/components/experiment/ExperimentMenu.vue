@@ -1,6 +1,18 @@
 <template>
-  <q-menu>
+  <q-menu auto-close>
     <q-list>
+      <q-item v-if="isOpen" dense clickable @click="handleCloseExperiment">
+        <q-item-section avatar>
+          <q-icon name="folder"/>
+        </q-item-section>
+        <q-item-section>Close</q-item-section>
+      </q-item>
+      <q-item v-if="!isOpen" dense clickable @click="handleOpenExperiment">
+        <q-item-section avatar>
+          <q-icon name="folder_open"/>
+        </q-item-section>
+        <q-item-section>Open</q-item-section>
+      </q-item>
       <q-item dense clickable @click="openDeleteDialog">
         <q-item-section avatar>
           <q-icon name="delete"/>
@@ -16,14 +28,26 @@
 <script setup>
 import DeleteDialog from "@/components/widgets/DeleteDialog";
 import {useProjectStore} from "@/stores/project";
-import {ref} from "vue";
+import {computed, ref} from "vue";
 
 const props = defineProps(['experiment'])
 const projectStore = useProjectStore()
+
+const isOpen = computed(() => props.experiment.status === 'OPEN' ? true : false )
 const showDialog = ref(false);
 
 const openDeleteDialog = () => {
   showDialog.value = true;
+}
+
+const handleCloseExperiment = () => {
+  console.log("Close experiment " + props.experiment.name)
+  projectStore.closeExperiment(props.experiment.id)
+}
+
+const handleOpenExperiment = () => {
+  console.log("Open experiment " + props.experiment.name)
+  projectStore.openExperiment(props.experiment.id)
 }
 
 const onDeleted = () => {

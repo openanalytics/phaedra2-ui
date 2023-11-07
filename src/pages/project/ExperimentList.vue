@@ -135,6 +135,7 @@ const columns = ref([
   {name: 'nrPlatesCalculated', align: 'left', label: 'Calculated', sortable: true},
   {name: 'nrPlatesValidated', align: 'left', label: 'Validated', sortable: true},
   {name: 'nrPlatesApproved', align: 'left', label: 'Approved', sortable: true},
+  {name: 'status', align: 'left', label: 'Status', field: 'status', sortable: true},
   {name: 'menu', align: 'left', field: 'menu', sortable: false}
 ])
 

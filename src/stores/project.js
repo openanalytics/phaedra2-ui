@@ -47,6 +47,20 @@ export const useProjectStore = defineStore("project" , {
             const createdExperiment = await experimentAPI.createExperiment(experiment);
             this.experiments.push(createdExperiment)
         },
+        async openExperiment(experimentId) {
+            await experimentAPI.editExperiment({ id: experimentId, status: 'OPEN' })
+            const index = this.experiments.findIndex((e) => {
+                return e.id === experimentId
+            })
+            this.experiments[index].status = 'OPEN'
+        },
+        async closeExperiment(experimentId) {
+            await experimentAPI.editExperiment({ id: experimentId, status: 'CLOSED' })
+            const index = this.experiments.findIndex((e) => {
+                return e.id === experimentId
+            })
+            this.experiments[index].status = 'CLOSED'
+        },
         async deleteExperiment(experimentId) {
             await experimentAPI.deleteExperiment(experimentId);
             const index = this.experiments.findIndex((e) => {
