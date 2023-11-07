@@ -6,7 +6,7 @@
   </q-breadcrumbs>
 
   <q-page class="oa-root-div">
-    <div class="q-pa-md">
+    <div class="q-pa-sm">
       <oa-section title="New Template" icon="add">
         <div class="row q-pa-md">
             <div class="col-10">

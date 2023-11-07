@@ -6,7 +6,7 @@
   </q-breadcrumbs>
 
   <q-page class="oa-root-div">
-    <div class="q-pa-md">
+    <div class="q-pa-sm">
       <oa-section v-if="!meas" title="Loading..." icon="text_snippet"/>
       <oa-section v-else :title="meas.barcode" icon="text_snippet" :collapsible="true">
         <div class="row q-pa-md">

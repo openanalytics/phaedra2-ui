@@ -5,7 +5,7 @@
 <!--  </q-breadcrumbs>-->
 
   <q-dialog v-model="importFromFile" persistent>
-    <div class="q-pa-md">
+    <div class="q-pa-sm">
 
       <div class="row q-pa-lg oa-section-body">
         <q-form class="col" @submit="onSubmit" @reset="onReset">

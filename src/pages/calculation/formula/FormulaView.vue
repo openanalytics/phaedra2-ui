@@ -4,9 +4,9 @@
         <q-breadcrumbs-el :label="'Formulas'" icon="list" :to="'/calc/formulas'"/>
         <q-breadcrumbs-el :label="formula.name" icon="functions"/>
     </q-breadcrumbs>
-    
+
     <q-page class="oa-root-div">
-        <div class="q-pa-md">
+        <div class="q-pa-sm">
             <oa-section :title="formula.name" icon="functions" :collapsible="true">
                 <div class="q-pa-md">
                     <div class="row q-col-gutter-md">

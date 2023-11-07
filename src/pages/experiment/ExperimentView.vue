@@ -7,7 +7,7 @@
     </q-breadcrumbs>
 
     <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
-        <div class="q-pa-md">
+        <div class="q-pa-sm">
             <oa-section v-if="!experimentStore.experiment" title="Loading experiment..." icon="science" />
             <oa-section v-else :title="experimentStore.experiment.name" icon="science" :collapsible="true">
                 <div class="row q-pa-md">
@@ -103,7 +103,7 @@
             </oa-section>
         </div>
 
-      <div class="q-pa-md">
+      <div class="q-pa-sm">
         <ChartViewer/>
       </div>
       <rename-dialog v-model:show="showRenameDialog" objectClass="experiment" :object="experimentStore.experiment" @valueChanged="onNameChanged"/>

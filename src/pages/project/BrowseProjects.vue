@@ -5,7 +5,7 @@
   </q-breadcrumbs>
 
   <q-page class="oa-root-div">
-      <oa-section title="Projects" icon="folder" class="q-pa-md">
+      <oa-section title="Projects" icon="folder" class="q-pa-sm">
         <q-table
             table-header-class="text-grey"
             flat dense

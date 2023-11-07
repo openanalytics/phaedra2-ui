@@ -4,7 +4,7 @@
     <q-breadcrumbs-el :label="'Import Protocol'"/>
   </q-breadcrumbs>
 
-  <q-page class="oa-root-div q-pa-md">
+  <q-page class="oa-root-div q-pa-sm">
     <oa-section-header :title="'Import Protocol'" :icon="'ballot'"/>
     <div class="q-pa-md oa-section-body">
       <span class="">Create a new Protocol by importing it from a JSON file:</span>

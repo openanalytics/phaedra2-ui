@@ -3,9 +3,9 @@
         <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
         <q-breadcrumbs-el label="Image Render Configurations" icon="list"/>
     </q-breadcrumbs>
-    
+
     <q-page class="oa-root-div">
-        <oa-section title="Image Render Configurations" icon="palette" class="q-pa-md">
+        <oa-section title="Image Render Configurations" icon="palette" class="q-pa-sm">
             <q-table
                 class="full-width"
                 table-header-class="text-grey"
@@ -61,7 +61,7 @@
     <CreateRenderConfigDialog v-model="showNewConfigDialog"/>
     <DeleteRenderConfigDialog v-model="showDeleteConfigDialog" :id="configIdToDelete"/>
 </template>
-  
+
 <script setup>
     import {ref, computed} from 'vue'
     import {useStore} from 'vuex'

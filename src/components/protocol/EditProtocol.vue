@@ -1,5 +1,5 @@
 <template>
-  <div class="q-pa-md">
+  <div class="q-pa-sm">
     <oa-section title="Edit Protocol" icon="ballot">
       <div class="row q-pa-md oa-section-body">
           <div class="col-3">

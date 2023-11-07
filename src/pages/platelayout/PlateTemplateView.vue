@@ -6,7 +6,7 @@
   </q-breadcrumbs>
 
   <q-page class="oa-root-div">
-    <div class="q-pa-md" v-if="!editdialog">
+    <div class="q-pa-sm" v-if="!editdialog">
       <oa-section v-if="!templateStore.template" title="Loading template..." icon="border_outer"/>
       <oa-section v-else :title="templateStore.template.name" icon="border_outer" :collapsible="true">
         <div class="row q-pa-md">
@@ -80,7 +80,7 @@
 
     <edit-plate-template v-model:show="editdialog"></edit-plate-template>
 
-    <div class="q-pa-md" v-if="templateStore.template">
+    <div class="q-pa-sm" v-if="templateStore.template">
       <q-tabs inline-label dense no-caps align="left" class="oa-section-title" v-model="activeTab">
         <q-tab name="overview" icon="view_module" label="Overview"/>
         <q-tab name="well-type" icon="text_snippet" label="Well Type"/>

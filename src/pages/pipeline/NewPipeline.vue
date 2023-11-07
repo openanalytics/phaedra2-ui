@@ -5,7 +5,7 @@
     </q-breadcrumbs>
 
     <q-page class="oa-root-div">
-        <oa-section  title="New Pipeline" icon="route" class="q-pa-md">
+        <oa-section  title="New Pipeline" icon="route" class="q-pa-sm">
             <div class="row q-pa-md">
                 <q-form class="full-width" @submit="saveNewPipeline">
                     <q-input label="Name" v-model="newPipeline.name" lazy-rules :rules="[ val => val && val.length > 0 || 'Name is required']" dense/>

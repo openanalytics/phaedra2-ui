@@ -1,5 +1,5 @@
 <template>
-  <div class="q-pa-md">
+  <div class="q-pa-sm">
     <div class="row oa-section-title">
       <div class="col-1 text-h6"/>
       <div class="col-1 text-h6">
@@ -20,7 +20,6 @@
 import Plotly from "plotly.js-dist-min";
 import {onMounted, ref, watch} from "vue";
 import {useStore} from "vuex";
-import ColorUtils from "@/lib/ColorUtils";
 
 const store = useStore()
 

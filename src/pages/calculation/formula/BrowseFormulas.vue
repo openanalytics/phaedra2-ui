@@ -3,9 +3,9 @@
         <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}" />
         <q-breadcrumbs-el :label="'Formulas'" icon="list"/>
     </q-breadcrumbs>
-    
+
     <q-page class="oa-root-div">
-        <div class="q-pa-md">
+        <div class="q-pa-sm">
             <oa-section title="Calculation Formulas" icon="functions">
                 <q-table
                 table-header-class="text-grey"

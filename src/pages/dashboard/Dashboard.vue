@@ -1,12 +1,12 @@
 <template>
     <q-page class="oa-root-div">
-        <div class="q-pa-md">
+        <div class="q-pa-sm">
             <oa-section title="Recent Projects" icon="folder" :collapsible="true">
                 <RecentProjects v-if="recentProjects.length > 0" :projects="recentProjects"></RecentProjects>
             </oa-section>
         </div>
 
-        <div class="q-pa-md">
+        <div class="q-pa-sm">
             <oa-section title="Recent Experiments" icon="science" :collapsible="true">
                 <div class="q-pa-sm">
                     <q-table :columns="columns" :rows="recentExperiments" flat square dense table-header-class="text-grey">
@@ -64,7 +64,7 @@
             </oa-section>
         </div>
 
-        <div class="q-pa-md">
+        <div class="q-pa-sm">
             <oa-section title="Recent Calculations" icon="calculate" :collapsible="true">
                 <RecentCalculations/>
             </oa-section>

@@ -6,9 +6,9 @@
   </q-breadcrumbs>
 
   <q-page class="oa-root-div">
-    <div class="q-pa-md">
+    <div class="q-pa-sm">
       <oa-section  title="New Project" icon="folder">
-        <div class="q-pa-md">
+        <div class="q-pa-sm">
           <q-form class="full-width" @submit="onSubmit" @reset="onReset">
             <div>
               <q-input label="Name" v-model="newProject.name" lazy-rules

@@ -8,10 +8,10 @@
   </q-breadcrumbs>
 
   <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs" v-if="plateStore.plate">
-    <div class="q-pa-md">
+    <div class="q-pa-sm">
       <oa-section v-if="!plateStore.plate" title="Loading plate..." icon="view_module"/>
       <oa-section v-else :title="plateStore.plate.barcode" icon="view_module" :collapsible="true">
-        <div class="row q-pa-md">
+        <div class="row q-pa-sm">
           <div class="col-3">
             <q-field label="ID" stack-label borderless dense>
               <template v-slot:control>
@@ -70,7 +70,7 @@
     </div>
 
     <Splitpanes class="default-theme" @resize="updateWidth">
-      <Pane :size="100 - paneSize" class="q-pa-md" v-if="plateStore.plate" style="background-color: #E6E6E6">
+      <Pane :size="100 - paneSize" class="q-pa-sm" v-if="plateStore.plate" style="background-color: #E6E6E6">
         <q-tabs inline-label dense no-caps align="left" class="oa-section-title" v-model="activeTab">
           <q-tab name="layout" icon="view_module" label="Layout" class="oa-section-title"/>
           <q-tab name="heatmap" icon="view_module" label="Heatmap" class="oa-section-title"/>

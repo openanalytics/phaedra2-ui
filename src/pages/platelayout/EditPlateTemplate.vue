@@ -1,5 +1,5 @@
 <template>
-  <div class="q-pa-md" v-if="props.show">
+  <div class="q-pa-sm" v-if="props.show">
     <oa-section title="Edit Template" icon="edit">
       <div class="row q-pa-md">
           <div class="col col-4">

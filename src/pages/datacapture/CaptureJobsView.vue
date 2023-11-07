@@ -4,7 +4,7 @@
     <q-breadcrumbs-el label="Data Capture Jobs" icon="list"/>
   </q-breadcrumbs>
 
-  <q-page class="oa-root-div q-pa-md">
+  <q-page class="oa-root-div q-pa-sm">
     <oa-section title="Data Capture Jobs" icon="list_alt" :collapsible="true">
       <q-table
           table-header-class="text-grey"

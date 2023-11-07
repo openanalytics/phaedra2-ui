@@ -6,7 +6,7 @@
     </q-breadcrumbs>
 
     <q-page class="oa-root-div">
-        <div class="q-pa-md">
+        <div class="q-pa-sm">
             <oa-section v-if="!config" title="Loading..." icon="text_snippet"/>
             <oa-section v-else :title="config.name" icon="palette" :collapsible="true">
                 <div class="row q-pa-md">
@@ -119,7 +119,7 @@
     import ColorButton from "@/components/image/ColorButton";
     import DeleteChannelDialog from "@/components/image/DeleteChannelDialog";
     import UserChip from "@/components/widgets/UserChip";
-    
+
     import FormatUtils from "@/lib/FormatUtils.js"
 
     const store = useStore();

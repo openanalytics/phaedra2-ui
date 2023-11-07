@@ -6,7 +6,7 @@
     </q-breadcrumbs>
 
     <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
-        <div class="q-pa-md">
+        <div class="q-pa-sm">
             <oa-section v-if="!projectStore.project" title="Loading project..." icon="folder" />
             <oa-section v-else :title="projectStore.project.name" icon="folder" :collapsible="true">
                 <div class="row q-pa-md">

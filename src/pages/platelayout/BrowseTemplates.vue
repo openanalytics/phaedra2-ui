@@ -5,7 +5,7 @@
     </q-breadcrumbs>
 
     <q-page class="oa-root-div">
-        <div class="q-pa-md">
+        <div class="q-pa-sm">
             <oa-section title="Plate Layout Templates" icon="border_outer">
                 <q-table
                     table-header-class="text-grey"

@@ -4,9 +4,9 @@
         <q-breadcrumbs-el label="Protocols" icon="list" :to="'/protocols'"/>
         <q-breadcrumbs-el label="New Protocol" icon="ballot"/>
     </q-breadcrumbs>
-    
+
     <q-page class="oa-root-div">
-        <div class="q-pa-md">
+        <div class="q-pa-sm">
             <oa-section title="New Protocol" icon="ballot">
                 <div class="row q-pa-md">
                     <div class="col-10">
@@ -34,7 +34,7 @@
                 </div>
             </oa-section>
         </div>
-        <div class="q-px-md">
+        <div class="q-pa-sm">
             <FeatureList :protocol="newProtocol" @addFeature="addNewFeature"/>
         </div>
     </q-page>
