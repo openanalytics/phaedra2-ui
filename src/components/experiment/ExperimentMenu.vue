@@ -3,13 +3,13 @@
     <q-list>
       <q-item v-if="isOpen" dense clickable @click="handleCloseExperiment">
         <q-item-section avatar>
-          <q-icon name="folder"/>
+          <q-icon name="lock"/>
         </q-item-section>
         <q-item-section>Close</q-item-section>
       </q-item>
       <q-item v-if="!isOpen" dense clickable @click="handleOpenExperiment">
         <q-item-section avatar>
-          <q-icon name="folder_open"/>
+          <q-icon name="lock_open"/>
         </q-item-section>
         <q-item-section>Open</q-item-section>
       </q-item>

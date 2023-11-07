@@ -78,6 +78,22 @@
           </div>
         </q-td>
       </template>
+      <template v-slot:body-cell-status="props">
+        <q-td :props="props">
+          <div class="row" style="justify-content: center">
+            <q-icon name="lock" v-if="props.row.status === 'CLOSED'">
+              <template v-slot:default>
+                <q-tooltip>CLOSED</q-tooltip>
+              </template>
+            </q-icon>
+            <q-icon name="lock_open" v-if="props.row.status === 'OPEN'">
+              <template v-slot:default>
+                <q-tooltip>OPEN</q-tooltip>
+              </template>
+            </q-icon>
+          </div>
+        </q-td>
+      </template>
       <template v-slot:no-data>
         <div class="full-width row text-info">
           <span>No experiments to show.</span>
@@ -135,7 +151,7 @@ const columns = ref([
   {name: 'nrPlatesCalculated', align: 'left', label: 'Calculated', sortable: true},
   {name: 'nrPlatesValidated', align: 'left', label: 'Validated', sortable: true},
   {name: 'nrPlatesApproved', align: 'left', label: 'Approved', sortable: true},
-  {name: 'status', align: 'left', label: 'Status', field: 'status', sortable: true},
+  {name: 'status', align: 'center', label: 'Status', field: 'status', sortable: true},
   {name: 'menu', align: 'left', field: 'menu', sortable: false}
 ])
 
