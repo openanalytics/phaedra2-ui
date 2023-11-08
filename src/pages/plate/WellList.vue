@@ -3,7 +3,7 @@
     class="oa-data-table"
     flat square dense
     virtual-scroll
-    :rows-per-page-options="[0]"
+    :pagination="{ rowsPerPage: 10, sortBy: 'coordinate', descending: false }"
     :rows="rows"
     :columns="columns"
     row-key="id"
@@ -39,9 +39,6 @@
 </template>
 
 <style scoped>
-.oa-data-table {
-    max-height: 400px;
-}
 </style>
 
 <script setup>
