@@ -65,8 +65,13 @@
     "children": [
       {
         "label": "Capture Jobs",
-        "icon": "list_alt",
+        "icon": "cloud_upload",
         "route": "dataCaptureJobs"
+      },
+      {
+        "label": "Capture Scripts",
+        "icon": "data_object",
+        "route": "dataCaptureScripts"
       },
       {
         "label": "Measurements",

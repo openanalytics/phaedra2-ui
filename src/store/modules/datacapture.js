@@ -4,7 +4,8 @@ import ArrayUtils from "@/lib/ArrayUtils";
 const state = () => ({
     jobs: [],
     config: '',
-    captureConfigs: []
+    captureConfigs: [],
+    captureScripts: []
 })
 
 const getters = {
@@ -16,6 +17,12 @@ const getters = {
     },
     getAllCaptureConfigs: (state) => () => {
         return state.captureConfigs
+    },
+    getAllCaptureScripts: (state) => () => {
+        return state.captureScripts
+    },
+    getCaptureScriptById: (state) => (id) => {
+        return state.captureScripts.find(s => s.id == id)
     }
 }
 
@@ -49,7 +56,30 @@ const actions = {
     async loadCaptureConfigByName(ctx, configName) {
         const config = await datacaptureAPI.getCaptureConfiguration(configName)
         ctx.commit('cacheCaptureJobConfig', config)
-    }
+    },
+
+    async loadAllCaptureScripts(ctx) {
+        const scripts = await datacaptureAPI.getAllCaptureScripts();
+        ctx.commit('cacheCaptureScripts', scripts);
+    },
+    async loadCaptureScriptById(ctx, id) {
+        const scripts = await datacaptureAPI.getCaptureScript(id);
+        ctx.commit('cacheCaptureScripts', [scripts]);
+    },
+    async createCaptureScript(ctx, script) {
+        const newScript = await datacaptureAPI.createCaptureScript(script);
+        ctx.commit('cacheCaptureScripts', [newScript]);
+        return newScript;
+    },
+    async updateCaptureScript(ctx, script) {
+        const updatedScript = await datacaptureAPI.updateCaptureScript(script);
+        ctx.commit('cacheCaptureScripts', [updatedScript]);
+        return updatedScript;
+    },
+    async deleteCaptureScript(ctx, id) {
+        await datacaptureAPI.deleteCaptureScript(id);
+        ctx.commit('uncacheCaptureScript', id);
+    },
 }
 
 const mutations = {
@@ -70,7 +100,19 @@ const mutations = {
     },
     allCaptureConfigs(state, config) {
         state.captureConfigs = [...config]
-    }
+    },
+    cacheCaptureScripts(state, captureScripts) {
+        let newCaptureScripts = [...state.captureScripts];
+        captureScripts.forEach(captureScript => {
+            let index = newCaptureScripts.findIndex(s => s.id === captureScript.id);
+            if (index >= 0) newCaptureScripts.splice(index, 1);
+            newCaptureScripts.push(captureScript);
+        });
+        state.captureScripts = newCaptureScripts;
+    },
+    uncacheCaptureScript(state, id) {
+        state.captureScripts = state.captureScripts.filter(s => s.id != id);
+    },
 }
 
 export default {

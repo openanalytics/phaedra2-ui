@@ -1,11 +1,11 @@
 <template>
   <q-breadcrumbs class="oa-breadcrumb">
     <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
-    <q-breadcrumbs-el label="Data Capture Jobs" icon="list"/>
+    <q-breadcrumbs-el label="Data Capture Jobs" icon="cloud_upload"/>
   </q-breadcrumbs>
 
   <q-page class="oa-root-div q-pa-md">
-    <oa-section title="Data Capture Jobs" icon="list_alt" :collapsible="true">
+    <oa-section title="Data Capture Jobs" icon="cloud_upload" :collapsible="true">
       <q-table
           table-header-class="text-grey"
           class="full-width"
