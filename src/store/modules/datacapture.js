@@ -18,6 +18,9 @@ const getters = {
     getAllCaptureConfigs: (state) => () => {
         return state.captureConfigs
     },
+    getCaptureConfigById: (state) => (id) => {
+        return state.captureConfigs.find(s => s.id == id)
+    },
     getAllCaptureScripts: (state) => () => {
         return state.captureScripts
     },
@@ -49,14 +52,6 @@ const actions = {
     async uploadData(ctx, data) {
         await datacaptureAPI.uploadData(data);
     },
-    async loadCaptureConfigs(ctx) {
-        const capturedConfigs = await datacaptureAPI.getAllCaptureConfigurations();
-        ctx.commit('allCaptureConfigs', capturedConfigs)
-    },
-    async loadCaptureConfigByName(ctx, configName) {
-        const config = await datacaptureAPI.getCaptureConfiguration(configName)
-        ctx.commit('cacheCaptureJobConfig', config)
-    },
 
     async loadAllCaptureScripts(ctx) {
         const scripts = await datacaptureAPI.getAllCaptureScripts();
@@ -80,6 +75,29 @@ const actions = {
         await datacaptureAPI.deleteCaptureScript(id);
         ctx.commit('uncacheCaptureScript', id);
     },
+
+    async loadAllCaptureConfigs(ctx) {
+        const configs = await datacaptureAPI.getAllCaptureConfigs();
+        ctx.commit('cacheCaptureConfigs', configs)
+    },
+    async loadCaptureConfigById(ctx, id) {
+        const config = await datacaptureAPI.getCaptureConfig(id);
+        ctx.commit('cacheCaptureConfigs', [config]);
+    },
+    async createCaptureConfig(ctx, config) {
+        const newConfig = await datacaptureAPI.createCaptureConfig(config);
+        ctx.commit('cacheCaptureConfigs', [newConfig]);
+        return newConfig;
+    },
+    async updateCaptureConfig(ctx, config) {
+        const updatedConfig = await datacaptureAPI.updateCaptureConfig(config);
+        ctx.commit('cacheCaptureConfigs', [updatedConfig]);
+        return updatedConfig;
+    },
+    async deleteCaptureConfig(ctx, id) {
+        await datacaptureAPI.deleteCaptureConfig(id);
+        ctx.commit('uncacheCaptureConfig', id);
+    },
 }
 
 const mutations = {
@@ -98,9 +116,7 @@ const mutations = {
     cacheCaptureJobConfig(state, config) {
         state.config = config
     },
-    allCaptureConfigs(state, config) {
-        state.captureConfigs = [...config]
-    },
+
     cacheCaptureScripts(state, captureScripts) {
         let newCaptureScripts = [...state.captureScripts];
         captureScripts.forEach(captureScript => {
@@ -112,6 +128,19 @@ const mutations = {
     },
     uncacheCaptureScript(state, id) {
         state.captureScripts = state.captureScripts.filter(s => s.id != id);
+    },
+
+    cacheCaptureConfigs(state, configs) {
+        let newCaptureConfigs = [...state.captureConfigs];
+        configs.forEach(config => {
+            let index = newCaptureConfigs.findIndex(c => c.id == config.id);
+            if (index >= 0) newCaptureConfigs.splice(index, 1);
+            newCaptureConfigs.push(config);
+        });
+        state.captureConfigs = newCaptureConfigs;
+    },
+    uncacheCaptureConfig(state, id) {
+        state.captureConfigs = state.captureConfigs.filter(c => c.id != id);
     },
 }
 

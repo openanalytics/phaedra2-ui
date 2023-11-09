@@ -52,15 +52,6 @@ export default {
         return response.data;
     },
 
-    async getAllCaptureConfigurations() {
-        const response = await axios.get(apiURL + '/capture-configs')
-        return response.data
-    },
-    async getCaptureConfiguration(configName) {
-        const response = await axios.get(apiURL + '/capture-config', {params: {name: configName}})
-        return response.data
-    },
-
     async getAllCaptureScripts() {
         const response = await axios.get(apiURL + '/capture-scripts');
         return response.data;
@@ -79,6 +70,27 @@ export default {
     },
     async deleteCaptureScript(id) {
         const response = await axios.delete(`${apiURL}/capture-scripts/${id}`);
+        return response.data;
+    },
+
+    async getAllCaptureConfigs() {
+        const response = await axios.get(`${apiURL}/capture-configs`);
+        return response.data;
+    },
+    async getCaptureConfig(id) {
+        const response = await axios.get(`${apiURL}/capture-configs/${id}`);
+        return response.data;
+    },
+    async createCaptureConfig(config) {
+        const response = await axios.post(`${apiURL}/capture-configs`, config);
+        return response.data;
+    },
+    async updateCaptureConfig(config) {
+        const response = await axios.put(`${apiURL}/capture-configs/${config.id}`, config);
+        return response.data;
+    },
+    async deleteCaptureConfig(id) {
+        const response = await axios.delete(`${apiURL}/capture-configs/${id}`);
         return response.data;
     },
 }

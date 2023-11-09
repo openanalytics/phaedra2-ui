@@ -34,6 +34,8 @@ import FormulaView from "@/pages/calculation/formula/FormulaView";
 import CaptureJobsView from '@/pages/datacapture/CaptureJobsView'
 import CaptureScriptsView from '@/pages/datacapture/CaptureScriptsView'
 import CaptureScriptView from '@/pages/datacapture/CaptureScriptView'
+import CaptureConfigsView from '@/pages/datacapture/CaptureConfigsView'
+import CaptureConfigView from '@/pages/datacapture/CaptureConfigView'
 import MeasurementsView from "@/pages/datacapture/MeasurementsView"
 import MeasurementDetailsView from "@/pages/datacapture/MeasurementDetailsView"
 import BrowseImageRenderConfigs from "@/pages/datacapture/BrowseImageRenderConfigs"
@@ -104,6 +106,8 @@ const routes = [
     { name: "dataCaptureJobs", path: "/datacapture/jobs", component: CaptureJobsView },
     { name: "dataCaptureScripts", path: "/datacapture/scripts", component: CaptureScriptsView },
     { name: "dataCaptureScript", path: "/datacapture/script/:id", component: CaptureScriptView },
+    { name: "dataCaptureConfigs", path: "/datacapture/configs", component: CaptureConfigsView },
+    { name: "dataCaptureConfig", path: "/datacapture/config/:id", component: CaptureConfigView },
     { name: "measurements", path: "/datacapture/meas", component: MeasurementsView},
     { name: "measurementDetails", path: "/datacapture/meas/:id", component: MeasurementDetailsView},
     { name: "imageRenderConfigs", path: "/datacapture/render-configs", component: BrowseImageRenderConfigs},

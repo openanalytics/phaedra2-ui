@@ -74,6 +74,11 @@
         "route": "dataCaptureScripts"
       },
       {
+        "label": "Capture Configurations",
+        "icon": "settings",
+        "route": "dataCaptureConfigs"
+      },
+      {
         "label": "Measurements",
         "icon": "text_snippet",
         "route": "measurements"
