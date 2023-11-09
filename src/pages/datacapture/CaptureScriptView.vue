@@ -105,7 +105,8 @@
                 let newScript = await store.dispatch('datacapture/createCaptureScript', script.value);
                 router.push(`/datacapture/script/${newScript.id}`);
             } else {
-                store.dispatch('datacapture/updateCaptureScript', script.value);
+                await store.dispatch('datacapture/updateCaptureScript', script.value);
+                getWorkingCopy();
             }
         } else {
             if (isNewScript) router.push("/datacapture/scripts");

@@ -104,7 +104,7 @@ const mutations = {
     cacheCaptureScripts(state, captureScripts) {
         let newCaptureScripts = [...state.captureScripts];
         captureScripts.forEach(captureScript => {
-            let index = newCaptureScripts.findIndex(s => s.id === captureScript.id);
+            let index = newCaptureScripts.findIndex(s => s.id == captureScript.id);
             if (index >= 0) newCaptureScripts.splice(index, 1);
             newCaptureScripts.push(captureScript);
         });
