@@ -57,7 +57,7 @@
                     </div>
                 </div>
             </oa-section>
-            <oa-section title="Code" class="q-pt-md" :collapsible="true">
+            <oa-section title="Configuration" class="q-pt-md" :collapsible="true">
                 <div class="q-pa-md" style="max-height: 750px">
                     <q-input v-model="config.value" type="textarea" square :readonly=!editMode></q-input>
                 </div>

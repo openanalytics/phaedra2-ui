@@ -3,7 +3,6 @@ import ArrayUtils from "@/lib/ArrayUtils";
 
 const state = () => ({
     jobs: [],
-    config: '',
     captureConfigs: [],
     captureScripts: []
 })
@@ -11,9 +10,6 @@ const state = () => ({
 const getters = {
     getJobs: (state) => () => {
         return state.jobs
-    },
-    getConfig: (state) => () => {
-        return state.config
     },
     getAllCaptureConfigs: (state) => () => {
         return state.captureConfigs
@@ -45,10 +41,7 @@ const actions = {
         await datacaptureAPI.cancelJob(id)
         ctx.commit('cancelJob', id)
     },
-    async loadCaptureJobConfig(ctx, id) {
-        const config = await datacaptureAPI.getCaptureJobConfig(id)
-        ctx.commit('cacheCaptureJobConfig', config)
-    },
+
     async uploadData(ctx, data) {
         await datacaptureAPI.uploadData(data);
     },
@@ -102,19 +95,17 @@ const actions = {
 
 const mutations = {
     cacheJobs(state, jobs) {
-        /*jobs.forEach(job => {
-            let match = state.jobs.find(j => j.id === job.id)
-            if (match) state.jobs.splice(state.jobs.indexOf(match), 1)
-            state.jobs.push(job)
-        });*/
-        state.jobs = jobs
+        let newJobs = [...state.jobs];
+        jobs.forEach(job => {
+            let index = newJobs.findIndex(j => j.id == job.id);
+            if (index >= 0) newJobs.splice(index, 1);
+            newJobs.push(job);
+        });
+        state.jobs = newJobs;
     },
     cancelJob(state, id) {
         let i = state.jobs.findIndex(t => t.id === id);
-        if (i > -1) state.jobs[i].statusCode = "Cancelled"
-    },
-    cacheCaptureJobConfig(state, config) {
-        state.config = config
+        if (i > -1) state.jobs[i].statusCode = "Cancelled";
     },
 
     cacheCaptureScripts(state, captureScripts) {
