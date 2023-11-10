@@ -51,6 +51,10 @@
                             <q-btn size="sm" icon="edit" label="Rename" class="oa-action-button" @click="showRenameDialog = true"/>
                         </div>
                         <div class="row justify-end">
+                          <q-btn v-if="experimentStore.isOpen" size="sm" icon="lock" class="oa-action-button" label="Close" @click="handleCloseExperiment"/>
+                          <q-btn v-if="!experimentStore.isOpen" size="sm" icon="unlock" class="oa-action-button" label="Open" @click="handleOpenExperiment"/>
+                        </div>
+                        <div class="row justify-end">
                             <q-btn size="sm" icon="delete" class="oa-action-button" label="Delete" @click="showDeleteDialog = true"/>
                         </div>
                     </div>
@@ -186,5 +190,15 @@ const onDescriptionChanged = (newDescription) => {
 
 const resizeChartView = (event) => {
   console.log("resize:" + JSON.stringify(event))
+}
+
+const handleCloseExperiment = () => {
+  console.log("Close current experiment!")
+  experimentStore.closeExperiment()
+}
+
+const handleOpenExperiment = () => {
+  console.log("Open current experiment!")
+  experimentStore.openExperiment()
 }
 </script>

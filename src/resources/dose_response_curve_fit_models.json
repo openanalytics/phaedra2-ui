@@ -1,38 +1,46 @@
 [
   {
-    "name": "PL2",
-    "description": "Two-parameter logistic model (OSB) with fixed upper and lower bound",
-    "methods": ["OLS", "LIN", "CENS"],
-    "slopeTypes": ["A", "D", ""]
-  },
-  {
-    "name": "PL3L",
-    "description": "Three-parameter logistic model (OSB) with lower bound",
-    "methods": ["OLS", "LIN", "CENS"],
-    "slopeTypes": ["A", "D", ""]
-  },
-  {
-    "name": "PL3U",
-    "description": "Three-parameter logistic model (OSB) with fixed upper bound",
-    "methods": ["OLS", "LIN", "CENS"],
-    "slopeTypes": ["A", "D", ""]
-  },
-  {
-    "name": "PL4",
-    "description": "Four-parameter logistic model (OSB)",
-    "methods": ["OLS", "LIN", "CENS"],
-    "slopeTypes": ["A", "D", ""]
-  },
-  {
-    "name": "PLOTONLY",
-    "description": "Plots the data points but will not attempt any curve fitting",
-    "methods": ["OLS", "LIN", "CENS"],
-    "slopeTypes": ["A", "D"]
-  },
-  {
     "name": "RECEPTOR2",
     "description": "Fits a logistic model using the receptor2 package",
-    "methods": ["mean", "median", "tukey"],
-    "slopeTypes": ["ascending", "descending", "free"]
+    "input": [
+      {
+        "name": "methods",
+        "label": "Methods",
+        "type": "option",
+        "options": ["ascending", "descending", "free"]
+      },
+      {
+        "name": "slopeTypes",
+        "label": "Slope Types",
+        "type": "option",
+        "options": ["mean", "median", "tukey"]
+      }
+    ]
+  },
+  {
+    "name": "RECEPTOR2A",
+    "description": "Fitting logistic dose-response model",
+    "input": [
+      {
+        "name": "fixedMin",
+        "label": "Fixed Min",
+        "type": "numeric"
+      },
+      {
+        "name": "fixedMax",
+        "label": "Fixed Max",
+        "type": "numeric"
+      },
+      {
+        "name": "fixedSlope",
+        "label": "Fixed Slope",
+        "type": "numeric"
+      },
+      {
+        "name": "useWeights",
+        "label": "Use Weights",
+        "type": "boolean"
+      }
+    ]
   }
 ]

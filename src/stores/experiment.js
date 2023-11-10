@@ -8,16 +8,21 @@ export const useExperimentStore = defineStore("experiment", {
         experiment: {},
         plates: []
     }),
+    getters: {
+        isOpen: (state) => {
+            return state.experiment.status === 'OPEN'
+        }
+    },
     actions: {
         async loadExperiment(experimentId) {
-            if (!this.isLoaded(experimentId)) {
+            // if (!this.isLoaded(experimentId)) {
                 const {onResult, onError} = projectsGraphQlAPI.experimentById(experimentId)
 
                 onResult(({data}) => {
                     this.experiment = data.experiment
                     this.plates = data.plates
                 })
-            }
+            // }
         },
         isLoaded(experimentId) {
             return this.experiment.id === `${experimentId}`
@@ -29,6 +34,14 @@ export const useExperimentStore = defineStore("experiment", {
         async editExperimentDescription(newDescription) {
             await experimentAPI.editExperiment({id: this.experiment.id, description: newDescription})
             this.experiment.description = newDescription
+        },
+        async openExperiment() {
+            await experimentAPI.editExperiment({ id: this.experiment.id, status: 'OPEN' })
+            this.experiment.status = 'OPEN'
+        },
+        async closeExperiment() {
+            await experimentAPI.editExperiment({ id: this.experiment.id, status: 'CLOSED' })
+            this.experiment.status = 'CLOSED'
         },
         async deleteExperiment() {
             await experimentAPI.deleteExperiment(this.experiment.id);

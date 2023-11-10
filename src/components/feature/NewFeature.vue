@@ -50,18 +50,24 @@
                 <q-input v-model="newFeature.sequence" label="Sequence" stack-label dense/>
               </div>
             </q-tab-panel>
-            
+
             <q-tab-panel name="curve_fitting" class="q-pa-sm">
               <div class="col">
-                <q-select label="Model" v-model="newFeature.drcModel.name"
+                <q-select label="Model" v-model="selectedDCRModel"
                           :options="drcModelOptions" option-label="name"
                           @update:model-value="onDRCModelSelection" stack-label dense/>
-                <q-input label="Description" stack-label dense readonly
-                         v-model="newFeature.drcModel.description"/>
-                <q-select label="Method" stack-label dense
-                          v-model="newFeature.drcModel.method" :options="dcrModelMethodOptions"/>
-                <q-select label="Slope type" stack-label dense
-                          v-model="newFeature.drcModel.slope" :options="drcModelSlopeTypesOptions"/>
+                <q-input label="Description" stack-label dense readonly v-model="selectedDCRModel.description"/>
+                <div v-for="(input, index) in selectedDCRModel.input" :key="index">
+                  <q-select v-if="input.type === 'option'" :label="input.label"
+                            v-model="newFeature.drcModel[input.name]" :options="input.options" stack-label dense/>
+                  <q-input v-if="input.type === 'numeric' || input.type === 'string'" :label="input.label"
+                           v-model="newFeature.drcModel[input.name]" stack-label dense/>
+                  <q-checkbox v-if="input.type === 'boolean'" :label="input.label" v-model="newFeature.drcModel[input.name]" left-label dense/>
+                </div>
+<!--                <q-select label="Method" stack-label dense-->
+<!--                          v-model="newFeature.drcModel.method" :options="dcrModelMethodOptions"/>-->
+<!--                <q-select label="Slope type" stack-label dense-->
+<!--                          v-model="newFeature.drcModel.slope" :options="drcModelSlopeTypesOptions"/>-->
               </div>
             </q-tab-panel>
             <!-- <q-tab-panel name="outlier_detection">
@@ -104,13 +110,7 @@
     sequence: 0,
     protocolId: props.protocol.id ? props.protocol.id : null,
     formulaId: null,
-    // drcModel: null,
-    drcModel: {
-      name: null,
-      description: null,
-      method: null,
-      slope: null
-    },
+    drcModel: null,
     civs: null,
     formula: null,
     trigger: null
@@ -120,22 +120,25 @@
   //TODO fix hardcode
   const inputSource = ['MEASUREMENT_WELL_COLUMN', 'MEASUREMENT_SUBWELL_COLUMN', 'FEATURE']
 
+  const selectedDCRModel = ref({
+    "name": "",
+    "description": ""
+  })
   const dcrModelMethodOptions = ref(null)
   const drcModelSlopeTypesOptions = ref(null)
 
-  const onDRCModelSelection = (selectedDCRModel) => {
+  const onDRCModelSelection = (selected) => {
     newFeature.value.drcModel = {
-      name: null,
-      description: null,
-      method: null,
-      slope: null
+      "name": selected.name,
+      "description": selected.description
     }
 
-    newFeature.value.drcModel.name = selectedDCRModel.name
-    newFeature.value.drcModel.description = selectedDCRModel.description
-
-    dcrModelMethodOptions.value = selectedDCRModel.methods
-    drcModelSlopeTypesOptions.value = selectedDCRModel.slopeTypes
+    for (let i in selected.input) {
+      const input = selected.input[i]
+      if (input.type === 'boolean')
+        newFeature.value.drcModel[selected.input[i].name] = false
+    }
+    console.log("newFeature.drcModel: " + JSON.stringify(newFeature.value.drcModel))
   }
 
   const addFeature = () => {

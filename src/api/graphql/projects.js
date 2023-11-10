@@ -149,6 +149,7 @@ export default {
                     name
                     projectId
                     description
+                    status
                     tags
                     createdOn
                     createdBy
