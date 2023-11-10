@@ -28,10 +28,14 @@ import ImportProtocolView from "./pages/protocol/ImportProtocolView";
 import FeatureView from "@/pages/feature/FeatureView";
 import FormulaTab  from "@/pages/feature/FormulaTab.vue";
 
-import FormulasView from "@/pages/calculation/formula/BrowseFormulas";
+import BrowseFormulas from "@/pages/calculation/formula/BrowseFormulas";
 import FormulaView from "@/pages/calculation/formula/FormulaView";
 
 import CaptureJobsView from '@/pages/datacapture/CaptureJobsView'
+import CaptureScriptsView from '@/pages/datacapture/CaptureScriptsView'
+import CaptureScriptView from '@/pages/datacapture/CaptureScriptView'
+import CaptureConfigsView from '@/pages/datacapture/CaptureConfigsView'
+import CaptureConfigView from '@/pages/datacapture/CaptureConfigView'
 import MeasurementsView from "@/pages/datacapture/MeasurementsView"
 import MeasurementDetailsView from "@/pages/datacapture/MeasurementDetailsView"
 import BrowseImageRenderConfigs from "@/pages/datacapture/BrowseImageRenderConfigs"
@@ -61,6 +65,7 @@ import PipelineExecutionDetails from "@/pages/pipeline/PipelineExecutionDetails"
 
 const routes = [
     { name: "dashboard", path: "/", component: Dashboard },
+
     { name: 'browseProjects', path: "/projects", component: BrowseProjects},
     { name: "project", path: "/project/:id", component: ProjectView },
     { name: "newProject", path: "/project/new", component: NewProjectView },
@@ -79,6 +84,7 @@ const routes = [
             { path: 'wells', component: WellList }
         ]
     },
+    
     { name: "browseProtocols", path: "/protocols", component: BrowseProtocols },
     { name: "protocol", path: "/protocol/:id", component: ProtocolView },
     { name: "newProtocol", path: "/protocol/new", component: NewProtocolView },
@@ -94,11 +100,14 @@ const routes = [
     { name: "newPlateTemplate", path: "/template/new", component: NewPlateTemplateView, props: true },
     { name: "newPlateTemplateFromFile", path: "/template/new", component: ImportPlateTemplateFromFile },
 
-
     { name: "calcFormulas", path: "/calc/formulas", component: BrowseFormulas },
     { name: "calcFormula", path: "/calc/formula/:id", component: FormulaView },
 
     { name: "dataCaptureJobs", path: "/datacapture/jobs", component: CaptureJobsView },
+    { name: "dataCaptureScripts", path: "/datacapture/scripts", component: CaptureScriptsView },
+    { name: "dataCaptureScript", path: "/datacapture/script/:id", component: CaptureScriptView },
+    { name: "dataCaptureConfigs", path: "/datacapture/configs", component: CaptureConfigsView },
+    { name: "dataCaptureConfig", path: "/datacapture/config/:id", component: CaptureConfigView },
     { name: "measurements", path: "/datacapture/meas", component: MeasurementsView},
     { name: "measurementDetails", path: "/datacapture/meas/:id", component: MeasurementDetailsView},
     { name: "imageRenderConfigs", path: "/datacapture/render-configs", component: BrowseImageRenderConfigs},
@@ -135,7 +144,7 @@ import Plotly from "plotly.js-dist-min"
 
 import { createPinia, setActivePinia } from "pinia"
 import App from "./App.vue"
-import BrowseFormulas from "@/pages/calculation/formula/BrowseFormulas";
+
 import { apolloResultDataClient, apolloPlatesClient, apolloChartsClient } from '@/graphql/apollo.clients';
 import {ApolloClients} from "@vue/apollo-composable";
 

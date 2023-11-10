@@ -53,9 +53,9 @@
                 <div class="col-3">Capture Configuration:</div>
                 <div class="col-9">
                     <q-card square v-if="showConfig" class="bg-grey-3">
-                        <pre class="q-ma-none q-pa-sm">{{ FormatUtils.formatJSON(config) }}</pre>
+                        <pre class="q-ma-none q-pa-sm">{{ FormatUtils.formatJSON(job.captureConfig) }}</pre>
                     </q-card>
-                    <q-btn v-if="!showConfig" label="Show" @click="fetchConfig(job.id); showConfig=true" size="sm" color="primary" icon="remove_red_eye"/>
+                    <q-btn v-if="!showConfig" label="Show" @click="showConfig=true" size="sm" color="primary" icon="remove_red_eye"/>
                     <q-btn v-if="showConfig" label="Hide " @click="showConfig=false" class="q-mt-sm" size="sm" color="primary" icon="remove_red_eye"/>
                 </div>
             </div>
@@ -77,17 +77,11 @@
         job: Object
     });
 
-    const store = useStore();
-    
     const columns = ref([
         {name: 'eventType', align: 'left', label: '', field: 'eventType', sortable: true},
         {name: 'eventDate', align: 'left', label: 'Event Date', field: 'eventDate', sortable: true, format: FormatUtils.formatDate},
         {name: 'eventDetails', align: 'left', label: 'Event Details', field: 'eventDetails', sortable: true},
     ]);
 
-    const config = computed(() => store.getters['datacapture/getConfig']());
     const showConfig = ref(false);
-    const fetchConfig = (id) => {
-        store.dispatch('datacapture/loadCaptureJobConfig',id);
-    };
 </script>

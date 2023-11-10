@@ -1,11 +1,11 @@
 <template>
   <q-breadcrumbs class="oa-breadcrumb">
     <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
-    <q-breadcrumbs-el label="Data Capture Jobs" icon="list"/>
+    <q-breadcrumbs-el label="Data Capture Jobs" icon="cloud_upload"/>
   </q-breadcrumbs>
 
-  <q-page class="oa-root-div q-pa-sm">
-    <oa-section title="Data Capture Jobs" icon="list_alt" :collapsible="true">
+  <q-page class="oa-root-div q-pa-md">
+    <oa-section title="Data Capture Jobs" icon="cloud_upload" :collapsible="true">
       <q-table
           table-header-class="text-grey"
           class="full-width"
@@ -109,12 +109,12 @@
                 </template>
               </q-file>
               <q-select v-model="newJob.captureConfigName" label="Select capture configuration"
-                        :options="captureConfigList" @update:model-value="fetchConfig()" dense stack-label/>
+                        :options="captureConfigList" option-value="id" option-label="name" @update:model-value="value => selectedConfig = value" dense stack-label/>
             </div>
             <div class="row">
               <div class="col">
                 <q-card square v-if="showConfig" class="bg-grey-3">
-                  <pre class="q-ma-none q-pa-sm">{{ FormatUtils.formatJSON(config) }}</pre>
+                  <pre class="q-ma-none q-pa-sm">{{ FormatUtils.formatJSON(selectedConfig.value) }}</pre>
                 </q-card>
                 <q-btn v-if="!showConfig" label="Show" @click="showConfig=true" size="sm" color="primary" icon="remove_red_eye"/>
                 <q-btn v-if="showConfig" label="Hide " @click="showConfig=false" class="q-mt-sm" size="sm" color="primary" icon="remove_red_eye"/>
@@ -158,7 +158,8 @@ const jobs = computed(() => store.getters['datacapture/getJobs']());
 store.dispatch('datacapture/loadJobs', {fromDate: DateUtils.parseLocaleDateString(fromDate.value), toDate: DateUtils.parseLocaleDateString(toDate.value)});
 
 const captureConfigList = computed(() => store.getters['datacapture/getAllCaptureConfigs']());
-store.dispatch('datacapture/loadCaptureConfigs');
+store.dispatch('datacapture/loadAllCaptureConfigs');
+const selectedConfig = ref({});
 
 const columns = ref([
   {name: 'createDate', align: 'left', label: 'Created On', field: 'createDate', sortable: true, format: FormatUtils.formatDate },
@@ -174,8 +175,6 @@ const visibleColumns = columns.value.map(a => a.name);
 const configdialog = ref(false);
 const filter = ref('');
 const filterMethod = FilterUtils.defaultTableFilter();
-
-const inputTypes = ref(['FolderScanner', 'S3 Bucket', 'Colombus'])
 
 const refreshJobs = () => {
   fromDateProxy.value.hide()
@@ -223,6 +222,7 @@ const handleSelection = (value) => {
 }
 
 const submitJobAction = async () => {
+  newJob.captureConfig = selectedConfig.value?.value;
   // if (newJob.sourcePath === '') alert('No source path specified!')
   if (!newJob.files) alert('No files specified')
   await store.dispatch('datacapture/submitJob', newJob);
@@ -231,10 +231,5 @@ const submitJobAction = async () => {
 // const canSubmitJob = computed(() => (newJob.sourcePath !== '' || newJob.files !== null) && newJob.captureConfig !== null);
 const canSubmitJob = computed(() => (newJob.sourcePath !== '' || newJob.files !== null));
 
-const config = computed(() => store.getters['datacapture/getConfig']());
 const showConfig = ref(false);
-const fetchConfig = () => {
-  newJob.captureConfig = computed(() => store.getters['datacapture/getConfig']())
-  store.dispatch('datacapture/loadCaptureConfigByName', newJob.captureConfigName)
-};
 </script>
