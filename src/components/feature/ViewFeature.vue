@@ -3,13 +3,11 @@
     <oa-section :title="feature.name" icon="functions" :collapsible="true">
 
       <q-card-section class="q-pa-sm">
-        
+
         <q-tabs v-model="activeTab" align="left" class="oa-section-title" inline-label dense no-caps>
           <q-tab name="general" icon="info" label="General Info"/>
           <q-tab name="calculation" icon="functions" label="Calculation"/>
           <q-tab name="curve_fitting" icon="show_chart" label="Dose-Response Curve"/>
-          <!-- <q-tab name="outlier_detection" icon="sms_failed" label="Outlier Detection"/>
-          <q-tab name="hit_calling" icon="rules" label="Hit Calling"/> -->
         </q-tabs>
 
         <div class="row oa-section-body">
@@ -36,11 +34,6 @@
                   <div class="self-center full-width no-outline" tabindex="0">{{feature.format}}</div>
                 </template>
               </q-field>
-              <!-- <q-field label="Type" stack-label square>
-                <template v-slot:control>
-                  <div class="self-center full-width no-outline" tabindex="0">{{feature.type}}</div>
-                </template>
-              </q-field> -->
             </q-tab-panel>
 
             <q-tab-panel name="calculation" label="calculation" class="q-pa-sm">
@@ -102,25 +95,15 @@
                     <div class="self-center full-width no-outline" tabindex="0">{{feature.drcModel?.description}}</div>
                   </template>
                 </q-field>
-                <q-field label="Method" stack-label dense>
-                  <template v-slot:control>
-                    <div class="self-center full-width no-outline" tabindex="0">{{feature.drcModel?.method}}</div>
-                  </template>
-                </q-field>
-                <q-field label="Slope type" stack-label dense>
-                  <template v-slot:control>
-                    <div class="self-center full-width no-outline" tabindex="0">{{feature.drcModel?.slope}}</div>
-                  </template>
-                </q-field>
+                <div v-for="(input, index) in selectedDCRModel.inputParameters" :key="index">
+                  <q-field :label="input.label" stack-label dense>
+                    <template v-slot:control>
+                      <div class="self-center full-width no-outline" tabindex="0">{{feature.drcModel.inputParameters[input.name]}}</div>
+                    </template>
+                  </q-field>
+                </div>
               </div>
             </q-tab-panel>
-
-            <!-- <q-tab-panel name="outlier_detection">
-              <div>Not yet implemented!</div>
-            </q-tab-panel>
-            <q-tab-panel name="hit_calling">
-              <div>Not yet implemented!</div>
-            </q-tab-panel> -->
           </q-tab-panels>
         </div>
         <br>
@@ -136,10 +119,12 @@
   import { ref } from "vue";
   import { useProtocolStore} from "@/stores/protocol";
   import { useFeatureStore } from "@/stores/feature";
+  import drcModelOptions from "@/resources/dose_response_curve_fit_models.json"
   import OaSection from "@/components/widgets/OaSection";
 
   const protocolStore = useProtocolStore()
   const featureStore = useFeatureStore()
+  const selectedDCRModel = drcModelOptions.find(drcModel => drcModel.name === featureStore.feature.drcModel.name)
 
   const props = defineProps(['show', 'feature'])
   const emit = defineEmits('update:show')

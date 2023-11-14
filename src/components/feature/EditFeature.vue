@@ -50,7 +50,7 @@
                             <q-select v-model="variable.inputSource" :options="inputSource" label="Source" dense/>
                           </div>
                           <div class="col-4 on-right">
-                            <q-select v-if="variable.inputSource === 'FEATURE'" 
+                            <q-select v-if="variable.inputSource === 'FEATURE'"
                               v-model="variable.sourceFeatureId"
                               :options="availableFeatures()"
                               option-value="id" option-label="name"
@@ -67,15 +67,20 @@
 
             <q-tab-panel name="curve_fitting" class="q-pa-sm">
               <div class="col">
-                <q-select label="Model" stack-label dense
-                          v-model="drcModel.name" :options="drcModelOptions" option-label="name" option-value="name"
-                          @update:model-value="onDRCModelSelection"/>
-                <q-input label="Description" stack-label dense readonly
-                        v-model="drcModel.description"/>
-                <q-select label="Method" stack-label dense
-                          v-model="drcModel.method" :options="dcrModelMethodOptions"/>
-                <q-select label="Slope type" stack-label dense
-                          v-model="drcModel.slope" :options="drcModelSlopeTypesOptions"/>
+                <q-select label="Model" v-model="selectedDCRModel"
+                          :options="drcModelOptions" option-label="name"
+                          @update:model-value="onDRCModelSelection" stack-label dense/>
+                <q-input label="Description" stack-label dense readonly v-model="drcModel.description"/>
+                <div v-for="(input, index) in selectedDCRModel.inputParameters" :key="index">
+                  <q-select v-if="input.type === 'option'" :label="input.label"
+                            v-model="drcModel.inputParameters[input.name]" :options="input.options"
+                            stack-label dense/>
+                  <q-input v-if="input.type === 'numeric' || input.type === 'string'" :label="input.label"
+                           v-model="drcModel.inputParameters[input.name]" stack-label dense/>
+                  <q-checkbox v-if="input.type === 'boolean'" :label="input.label"
+                              v-model="drcModel.inputParameters[input.name]"
+                              true-value="true" false-value="false" left-label dense/>
+                </div>
               </div>
             </q-tab-panel>
           </q-tab-panels>
@@ -110,21 +115,24 @@
   //TODO fix hardcode
   const inputSource = ['MEASUREMENT_WELL_COLUMN', 'MEASUREMENT_SUBWELL_COLUMN', 'FEATURE']
 
-  const drcModel = ref({
-    name: featureStore.feature.drcModel?.name,
-    description: featureStore.feature.drcModel?.description,
-    method: featureStore.feature.drcModel?.method,
-    slope: featureStore.feature.drcModel?.slope
-  })
-  const dcrModelMethodOptions = ref(null)
-  const drcModelSlopeTypesOptions = ref(null)
   const formulaInputs = ref(featureStore.feature.civs)
+  const selectedDCRModel = drcModelOptions.find(drcModel => drcModel.name === featureStore.feature.drcModel.name)
+  const drcModel = ref(featureStore.feature.drcModel)
 
-  const onDRCModelSelection = (args) => {
-    drcModel.value.name = args.name
-    drcModel.value.description = args.description
-    dcrModelMethodOptions.value = args.methods
-    drcModelSlopeTypesOptions.value = args.slopeTypes
+  const onDRCModelSelection = (selected) => {
+    drcModel.value = {
+      "name": selected.name,
+      "description": selected.description,
+      "inputParameters": {}
+    }
+
+    for (let i in selected.inputParameters) {
+      const input = selected.inputParameters[i]
+      if (input.type === 'boolean')
+        drcModel.value.inputParameters[selected.inputParameters[i].name] = false
+      else
+        drcModel.value.inputParameters[selected.inputParameters[i].name] = null
+    }
   }
 
   const formulaFilter = ref('');
@@ -153,15 +161,9 @@
 
   //Function to fire an edit event of a feature using the working copy
   const editFeature = () => {
-    // if (featureStore.feature.formulaId !== featureStore.feature.formula.id) {
-      featureStore.feature.formulaId = featureStore.feature.formula.id
-      featureStore.feature.civs = formulaInputs.value
-    // }
-    if (drcModel.value.name !== null) {
-      featureStore.feature.drcModel = drcModel.value;
-      featureStore.feature.drcModel.featureId = featureStore.feature.id;
-    }
-
+    featureStore.feature.formulaId = featureStore.feature.formula.id
+    featureStore.feature.civs = formulaInputs.value
+    featureStore.feature.drcModel = drcModel.value
 
     emit('update:show', false)
   }

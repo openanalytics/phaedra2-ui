@@ -2,16 +2,36 @@
   {
     "name": "RECEPTOR2",
     "description": "Fits a logistic model using the receptor2 package",
-    "input": [
+    "inputParameters": [
       {
-        "name": "methods",
-        "label": "Methods",
-        "type": "option",
-        "options": ["ascending", "descending", "free"]
+        "name": "fixedBottom",
+        "label": "Fixed Bottom",
+        "type": "numeric"
+      },
+      {
+        "name": "fixedTop",
+        "label": "Fixed Top",
+        "type": "numeric"
+      },
+      {
+        "name": "fixedSlope",
+        "label": "Fixed Slope",
+        "type": "numeric"
+      },
+      {
+        "name": "confidenceLevel",
+        "label": "Confidence Level",
+        "type": "numeric"
       },
       {
         "name": "slopeTypes",
         "label": "Slope Types",
+        "type": "option",
+        "options": ["ascending", "descending", "free"]
+      },
+      {
+        "name": "methods",
+        "label": "Method",
         "type": "option",
         "options": ["mean", "median", "tukey"]
       }
@@ -20,7 +40,7 @@
   {
     "name": "RECEPTOR2A",
     "description": "Fitting logistic dose-response model",
-    "input": [
+    "inputParameters": [
       {
         "name": "fixedMin",
         "label": "Fixed Min",
@@ -34,6 +54,11 @@
       {
         "name": "fixedSlope",
         "label": "Fixed Slope",
+        "type": "numeric"
+      },
+      {
+        "name": "maxIterations",
+        "label": "Max Iterations",
         "type": "numeric"
       },
       {
