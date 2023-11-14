@@ -58,8 +58,12 @@
                 </div>
             </oa-section>
             <oa-section title="Code" class="q-pt-md" :collapsible="true">
-                <div class="q-pa-md" style="max-height: 750px">
-                    <q-input v-model="script.value" type="textarea" square :readonly=!editMode></q-input>
+                <div class="q-pa-md">
+                    <codemirror
+                        :disabled="!editMode"
+                        :extensions="editorConfig.extensions"
+                        v-model="script.value"
+                    />
                 </div>
             </oa-section>
         </div>
@@ -69,9 +73,11 @@
 </template>
 
 <script setup>
-    import {ref, computed} from 'vue'
+    import {ref} from 'vue'
     import {useStore} from "vuex";
     import {useRoute, useRouter} from 'vue-router';
+    import { Codemirror } from 'vue-codemirror';
+    import { javascript } from '@codemirror/lang-javascript';
     import FormatUtils from "@/lib/FormatUtils.js"
     import OaSection from "@/components/widgets/OaSection";
     import UserChip from "@/components/widgets/UserChip";
@@ -82,12 +88,13 @@
     const router = useRouter();
 
     const scriptId = parseInt(route.params.id);
-    const script = ref({
+    const blankScript = {
         name: 'New Script',
         value: '// Enter script code here'
-    });
+    };
+    const script = ref(blankScript);
     const getWorkingCopy = () => {
-        let originalScript = store.getters['datacapture/getCaptureScriptById'](scriptId) || {};
+        let originalScript = store.getters['datacapture/getCaptureScriptById'](scriptId) || blankScript;
         // Return a shallow copy of the script for editing
         script.value = {...originalScript};
     }
@@ -114,10 +121,9 @@
         }
     };
 
-    if (!isNewScript) {
-        script.value = computed(() => store.getters['datacapture/getCaptureScriptById'](scriptId));
-        store.dispatch('datacapture/loadCaptureScriptById', scriptId);
-    }
+    const editorConfig = {
+        extensions: [javascript()]
+    };
 
     const showDeleteDialog = ref(false);
     const confirmDelete = async () => {

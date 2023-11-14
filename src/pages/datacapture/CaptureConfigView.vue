@@ -58,8 +58,12 @@
                 </div>
             </oa-section>
             <oa-section title="Configuration" class="q-pt-md" :collapsible="true">
-                <div class="q-pa-md" style="max-height: 750px">
-                    <q-input v-model="config.value" type="textarea" square :readonly=!editMode></q-input>
+                <div class="q-pa-md">
+                    <codemirror
+                        :disabled="!editMode"
+                        :extensions="editorConfig.extensions"
+                        v-model="config.value"
+                    />
                 </div>
             </oa-section>
         </div>
@@ -69,9 +73,11 @@
 </template>
 
 <script setup>
-    import {ref, computed} from 'vue'
+    import {ref} from 'vue'
     import {useStore} from "vuex";
     import {useRoute, useRouter} from 'vue-router';
+    import { Codemirror } from 'vue-codemirror';
+    import { json } from '@codemirror/lang-json';
     import FormatUtils from "@/lib/FormatUtils.js"
     import OaSection from "@/components/widgets/OaSection";
     import UserChip from "@/components/widgets/UserChip";
@@ -82,12 +88,13 @@
     const router = useRouter();
 
     const configId = parseInt(route.params.id);
-    const config = ref({
+    const blankConfig = {
         name: 'New Configuration',
         value: '{}'
-    });
+    };
+    const config = ref(blankConfig);
     const getWorkingCopy = () => {
-        let originalConfig = store.getters['datacapture/getCaptureConfigById'](configId) || {};
+        let originalConfig = store.getters['datacapture/getCaptureConfigById'](configId) || blankConfig;
         // Return a shallow copy of the config for editing
         config.value = {...originalConfig};
     }
@@ -114,10 +121,9 @@
         }
     };
 
-    if (!isNewConfig) {
-        config.value = computed(() => store.getters['datacapture/getCaptureConfigById'](configId));
-        store.dispatch('datacapture/loadCaptureConfigById', configId);
-    }
+    const editorConfig = {
+        extensions: [json()]
+    };
 
     const showDeleteDialog = ref(false);
     const confirmDelete = async () => {
