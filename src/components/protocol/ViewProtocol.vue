@@ -13,19 +13,19 @@
               <div class="self-center full-width no-outline">{{ protocol.description }}</div>
             </template>
           </q-field>
-          <q-field label="Low well type" stack-label borderless dense>
+          <q-field label="Low Control Type" stack-label borderless dense>
             <template v-slot:control>
               <div class="self-center full-width no-outline">{{ protocol.lowWelltype }}</div>
             </template>
           </q-field>
-          <q-field label="High well type" stack-label borderless dense>
+          <q-field label="High Control Type" stack-label borderless dense>
             <template v-slot:control>
               <div class="self-center full-width no-outline">{{ protocol.highWelltype }}</div>
             </template>
           </q-field>
           <q-field label="Tags" stack-label borderless dense>
             <template v-slot:control>
-              <TagList :objectInfo="protocol" :objectClass="'PROTOCOL'" :read-only="!props.editMode" />
+              <TagList :objectInfo="protocol" objectClass="PROTOCOL" :read-only="!props.editMode" />
             </template>
           </q-field>
         </div>
@@ -61,7 +61,7 @@
           </q-field>
         </div>
         <div class="col-4">
-          <PropertyTable :objectInfo="protocol" :objectClass="'PROTOCOL'" :read-only="true"/>
+          <PropertyTable :objectInfo="protocol" objectClass="PROTOCOL" :read-only="true"/>
         </div>
 
         <div class="col-2">

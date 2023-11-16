@@ -11,6 +11,8 @@
           :filter-method="filterMethod"
           :loading="loading"
           :visible-columns="visibleColumns"
+          selection="single" hide-selected-banner
+          v-model:selected="selectedFeature"
           flat dense>
 
         <template v-if="props.editMode" v-slot:top-left>
@@ -27,6 +29,9 @@
             </q-input>
             <q-btn flat round color="primary" icon="settings" class="on-right" @click="configDialog=true"/>
           </div>
+        </template>
+        <template v-slot:body-selection>
+          <div/>
         </template>
         <template v-slot:body-cell-name="props">
           <q-td :props="props">
@@ -47,8 +52,7 @@
         <template v-if="props.editMode" v-slot:body-cell-menu="props">
           <q-td :props="props">
             <div class="row items-center cursor-pointer">
-              <q-btn flat round icon="edit" size="sm" @click="onEditFeature(props.row)"/>
-              <q-btn flat round icon="delete" size="sm" @click="onDeleteFeature(props.row)"/>
+              <q-btn flat round dense icon="delete" size="sm" @click="onDeleteFeature(props.row)"/>
             </div>
           </q-td>
         </template>
@@ -109,6 +113,7 @@ const router = useRouter()
 const loading = ref(false)
 
 const features = computed(() => { return protocolStore.getFeatures() })
+const selectedFeature = ref([]);
 
 const visibleColumns = columns.value.map(a => a.name)
 const configDialog = ref(false)
@@ -129,6 +134,7 @@ const addNewFeature = (feature) => {
 }
 
 const onViewFeature = (feature) => {
+  selectedFeature.value = [feature];
   featureStore.loadFeature(feature)
   showFeatureDetails.value = true
 }

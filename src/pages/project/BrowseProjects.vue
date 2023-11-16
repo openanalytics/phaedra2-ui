@@ -16,6 +16,7 @@
             :pagination="{ rowsPerPage: 20, sortBy: 'name' }"
             :filter="filter"
             :filter-method="filterMethod"
+            :loading="loading"
             @row-click="selectProject"
         >
           <template v-slot:top-left>
@@ -56,9 +57,7 @@ import projectsGraphQlAPI from "@/api/graphql/projects"
 import UserChip from "@/components/widgets/UserChip";
 import OaSection from "@/components/widgets/OaSection";
 
-const store = useStore();
 const router = useRouter();
-
 const loading = ref(true);
 const projects = ref([])
 

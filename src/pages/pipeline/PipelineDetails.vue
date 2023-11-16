@@ -70,20 +70,22 @@
             <oa-section title="Configuration" icon="settings" :collapsible="true" class="q-pt-md">
                 <div class="row oa-section-body">
                     <div class="col-12 q-pa-md">
-                        <q-card square class="bg-grey-3">
-                            <div class="row q-pa-sm">
-                                <div class="col-11">
-                                    <q-input v-model="configWorkingCopy" type="textarea" outlined :readonly="!editMode" input-style="padding-top: 0px;"></q-input>
-                                </div>
-                                <div class="col-1">
-                                    <div class="row justify-end">
-                                        <q-btn size="sm" color="primary" icon="edit" label="Edit" v-show="!editMode" @click="editMode = true" />
-                                        <q-btn size="sm" color="primary" icon="save" label="Save" v-show="editMode" @click="exitEditMode(true)" />
-                                        <q-btn size="sm" color="primary" icon="cancel" label="Cancel" v-show="editMode" @click="exitEditMode(false)" class="q-mt-sm" />
-                                    </div>
+                        <div class="row">
+                            <div class="col-11">
+                                <codemirror
+                                    :disabled="!editMode"
+                                    :extensions="editorConfig.extensions"
+                                    v-model="configWorkingCopy"
+                                />
+                            </div>
+                            <div class="col-1">
+                                <div class="row justify-end">
+                                    <q-btn size="sm" color="primary" icon="edit" label="Edit" v-show="!editMode" @click="editMode = true" />
+                                    <q-btn size="sm" color="primary" icon="save" label="Save" v-show="editMode" @click="exitEditMode(true)" />
+                                    <q-btn size="sm" color="primary" icon="cancel" label="Cancel" v-show="editMode" @click="exitEditMode(false)" class="q-mt-sm" />
                                 </div>
                             </div>
-                        </q-card>
+                        </div>
                     </div>
                 </div>
             </oa-section>
@@ -98,6 +100,8 @@
     import {computed, ref, watch} from "vue";
     import {useStore} from "vuex";
     import {useRoute, useRouter} from 'vue-router';
+    import { Codemirror } from 'vue-codemirror';
+    import { json } from '@codemirror/lang-json';
     import FormatUtils from "@/lib/FormatUtils.js";
     import UserChip from "@/components/widgets/UserChip";
     import StatusLabel from "@/components/widgets/StatusLabel";
@@ -147,6 +151,10 @@
         let pipelineWorkingCopy = {...pipeline.value};
         pipelineWorkingCopy[fieldName] = newValue;
         store.dispatch('pipelines/updatePipeline', pipelineWorkingCopy);
+    };
+
+    const editorConfig = {
+        extensions: [json()]
     };
 
     const showDeleteDialog = ref(false);

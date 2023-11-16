@@ -65,10 +65,13 @@
             </oa-section>
             <oa-section title="Formula" icon="description" class="q-pt-md">
                 <div class="q-pa-md" style="max-height: 750px">
-                    <q-input v-model="formula.formula" label="Formula" type="textarea" square :readonly=!editMode></q-input>
-                    <span class="text-grey text-caption">
-                        Input variables detected: {{ formulaInputs.length > 0 ? formulaInputs.map(n => `\"${n}\"`).join(",") : 'None' }}
-                    </span>
+                    <codemirror
+                        :disabled="!editMode"
+                        v-model="formula.formula"
+                    />
+                    <div class="text-grey text-caption q-pt-md">
+                        {{ formulaInputs.length }} input variable(s) detected: {{ formulaInputs.length > 0 ? formulaInputs.map(n => `\"${n}\"`).join(",") : 'None' }}
+                    </div>
                 </div>
             </oa-section>
         </div>
@@ -79,6 +82,7 @@
 import {computed, ref} from 'vue'
 import {useStore} from 'vuex'
 import {useRoute, useRouter} from 'vue-router'
+import { Codemirror } from 'vue-codemirror';
 
 import OaSection from "@/components/widgets/OaSection";
 import UserChip from "@/components/widgets/UserChip";

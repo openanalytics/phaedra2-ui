@@ -1,16 +1,16 @@
 <template>
   <div class="q-pa-md">
-    <oa-section title="Edit Protocol" icon="ballot">
+    <oa-section :title="protocolStore.protocol.name" icon="ballot" :collapsible="true">
       <div class="row q-pa-md oa-section-body">
           <div class="col-3">
-            <q-input v-model="protocolStore.protocol.name" label="Name:" dense/>
-            <q-input v-model="protocolStore.protocol.description" label="Description:" dense/>
-            <q-select v-model="protocolStore.protocol.lowWelltype" label="Low well type:" :options="wellTypeOptions" dense/>
-            <q-select v-model="protocolStore.protocol.highWelltype" label="High well type:" :options="wellTypeOptions" dense/>
+            <q-input v-model="protocolStore.protocol.name" label="Name" dense/>
+            <q-input v-model="protocolStore.protocol.description" label="Description" dense/>
+            <q-select v-model="protocolStore.protocol.lowWelltype" label="Low Control Type" :options="wellTypeOptions" dense/>
+            <q-select v-model="protocolStore.protocol.highWelltype" label="High Control Type" :options="wellTypeOptions" dense/>
             <q-field label="Tags" stack-label readonly dense borderless>
               <template v-slot:control>
                 <div class="q-pt-sm">
-                  <TagList label="Tags" :objectInfo="protocolStore.protocol" :objectClass="'PROTOCOL'"/>
+                  <TagList label="Tags" :objectInfo="protocolStore.protocol" objectClass="PROTOCOL"/>
                 </div>
               </template>
             </q-field>
@@ -22,7 +22,7 @@
           </div>
 
           <div class="col-4">
-            <PropertyTable :objectInfo="protocolStore.protocol" :objectClass="'PROTOCOL'"/>
+            <PropertyTable :objectInfo="protocolStore.protocol" objectClass="PROTOCOL"/>
           </div>
 
           <div class="col-2">
