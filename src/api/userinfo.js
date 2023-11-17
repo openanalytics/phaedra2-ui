@@ -3,11 +3,10 @@ import axios from "axios";
 const apiURL = process.env.VUE_APP_API_BASE_URL.replace('/api/v1', '');
 
 const mockData = {
-    //TODO
-    enabled: true,
+    enabled: (process.env.NODE_ENV == "development"),
     userInfo: { 
         data: {
-            fullName: "Tester McTest",
+            fullName: "Developer",
             claims: { realm_access: { "roles": ["default-roles-phaedra2","offline_access","uma_authorization",
                 "phaedra2-user",
                 "phaedra2-admin",
