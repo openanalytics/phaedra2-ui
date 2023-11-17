@@ -33,19 +33,15 @@
     </div>
   </q-page>
 
-<!--  <q-dialog v-model="importFromFile" persistent>-->
-<!--    <div class="q-pa-md oa-section-body">-->
-<!--&lt;!&ndash;        <q-form class="col" @submit="onSubmit" @reset="onReset">&ndash;&gt;-->
-<!--&lt;!&ndash;          <q-file v-model="importFile" label="Plate template" @update:modelValue="onFileSelection"></q-file>&ndash;&gt;-->
-<!--      <q-file v-model="importFile" label="Plate template"/>-->
-
-<!--          <div class="row justify-end q-pt-md">-->
-<!--            <q-btn size="sm" label="Update" class="oa-action-button" @click="onImportFile" v-close-popup/>-->
-<!--            <q-btn size="sm" label="Cancel" class="oa-action-button" @click="onReset" v-close-popup/>-->
-<!--          </div>-->
-<!--&lt;!&ndash;        </q-form>&ndash;&gt;-->
-<!--    </div>-->
-<!--  </q-dialog>-->
+  <q-dialog v-model="importFromFile" persistent>
+    <div class="q-pa-md oa-section-body">
+      <q-file v-model="importFile" label="Plate template"/>
+          <div class="row justify-end q-pt-md">
+            <q-btn size="sm" label="Update" class="oa-action-button" @click="onImportFile" v-close-popup/>
+            <q-btn size="sm" label="Cancel" class="oa-action-button" @click="onReset" v-close-popup/>
+          </div>
+    </div>
+  </q-dialog>
 </template>
 
 <script setup>
@@ -79,10 +75,11 @@ const onSubmit = async () => {
   // newPlateTemplate.value.createdOn = new Date();
   const createdTemplate = await store.dispatch('templates/createNewPlateTemplate', newPlateTemplate.value);
   await router.push("/template/" + createdTemplate.id);
-};
+}
+
 const onReset = () => {
   importFile.value = null
-};
+}
 
 const onImportFile = async () => {
   console.log(importFile)
@@ -91,7 +88,7 @@ const onImportFile = async () => {
     const data = res.target.result
 
     const plateTemplate = JSON.parse(data);
-    const plateDims = PlateUtils.getPlateDimensions(plateTemplate.positions.length)
+    const plateDims = PlateUtils.getPlateDimensions(plateTemplate.wells.length)
     newPlateTemplate.value.name = plateTemplate.name ? plateTemplate.name : plateTemplate.barcode
     newPlateTemplate.value.rows = plateDims.rows
     newPlateTemplate.value.columns = plateDims.cols

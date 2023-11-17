@@ -14,14 +14,14 @@
 
         <div v-if="!quickView">
           <q-table
-              table-header-class="text-grey"
-              square flat dense hide-bottom
               :rows="experimentStore.plates"
               :columns="plateColumns"
-              :pagination="{ rowsPerPage: 5 }"
+              row-key="id"
+              :pagination="{ rowsPerPage: 5, sortBy: 'barcode' }"
               selection="multiple"
               v-model:selected="selectedPlates"
-          >
+              table-header-class="text-grey"
+              square flat dense>
               <template v-slot:body-cell-dimensions="props">
                 <q-td :props="props">
                   {{ props.row.rows }} x {{ props.row.columns }}
@@ -42,8 +42,6 @@
             <q-btn v-if="quickView" size="sm" color="accent" icon="remove_red_eye" label="Hide Quick view" @click="handleHideQuickView"/>
           </div>
           <q-table
-              table-header-class="text-grey"
-              square flat dense hide-bottom
               :rows="allTemplates"
               :columns="templateColumns"
               :pagination="{ rowsPerPage: 5 }"
@@ -52,7 +50,8 @@
               :filter-method="filterMethod"
               v-model:selected="selectedTemplates"
               @selection="handleTemplateSelection"
-          >
+              table-header-class="text-grey"
+              square flat dense>
             <template v-slot:body-cell-layout="props">
               <q-td :props="props">
                 {{ props.row.rows }} x {{ props.row.columns }}
@@ -128,6 +127,7 @@ const handleHideQuickView = () => {
 }
 
 const plateColumns = ref([
+  {name: 'id', align: 'left', label: 'Barcode', field: 'id', sortable: true},
   {name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
   {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
   {name: 'dimensions', align: 'left', label: 'Dimensions', field: 'dimensions', sortable: true},

@@ -19,18 +19,18 @@
         "type": "numeric"
       },
       {
-        "name": "confidenceLevel",
+        "name": "confLevel",
         "label": "Confidence Level",
         "type": "numeric"
       },
       {
-        "name": "slopeTypes",
+        "name": "slopeType",
         "label": "Slope Types",
         "type": "option",
         "options": ["ascending", "descending", "free"]
       },
       {
-        "name": "methods",
+        "name": "robustMethod",
         "label": "Method",
         "type": "option",
         "options": ["mean", "median", "tukey"]

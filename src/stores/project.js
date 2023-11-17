@@ -11,7 +11,7 @@ export const useProjectStore = defineStore("project" , {
     }),
     actions: {
         async loadProject(projectId) {
-            // if (!this.isLoaded(projectId)) {
+            if (!this.isLoaded(projectId)) {
                 console.log("ProjectStore: current project has different projectId!")
                 const {onResult, onError} = projectsGraphQlAPI.projectById(projectId)
 
@@ -20,7 +20,7 @@ export const useProjectStore = defineStore("project" , {
                     this.experiments = data.experiments
                     this.projectAccess = data.projectAccess
                 })
-            // }
+            }
         },
         isLoaded(projectId) {
             return this.project.id === `${projectId}`

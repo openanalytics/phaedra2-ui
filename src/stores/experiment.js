@@ -15,14 +15,14 @@ export const useExperimentStore = defineStore("experiment", {
     },
     actions: {
         async loadExperiment(experimentId) {
-            // if (!this.isLoaded(experimentId)) {
+            if (!this.isLoaded(experimentId)) {
                 const {onResult, onError} = projectsGraphQlAPI.experimentById(experimentId)
 
                 onResult(({data}) => {
                     this.experiment = data.experiment
                     this.plates = data.plates
                 })
-            // }
+            }
         },
         isLoaded(experimentId) {
             return this.experiment.id === `${experimentId}`
