@@ -31,7 +31,7 @@ const config = {
 
 const drawChart = () => {
   const curve = {
-    x: props.curvedata?.plotDoseData?.map(d => (d / 2.303)),
+    x: props.curvedata?.plotDoseData,
     y: props.curvedata?.plotPredictionData,
     mode: 'lines',
     line: {
@@ -42,7 +42,7 @@ const drawChart = () => {
   }
 
   const datapoints = {
-    x: props.curvedata?.wellConcentrations,
+    x: props.curvedata?.wellConcentrations.map(wc => -wc),
     y: props.curvedata?.featureValues,
     mode: 'markers',
     marker: {

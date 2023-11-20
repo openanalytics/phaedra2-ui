@@ -32,19 +32,22 @@ onMounted(() => {
 })
 
 const updateDRCPlotView = () => {
+  const config = {autosize: false, displaylogo: false}
   const layout = {
+    xaxis: {
+      title: "Log[M]"
+    },
     margin: {t: 50, b: 50},
     showlegend: true,
-    legend: {"orientation": "h"},
+    legend: { x: 1, y: 0.5},
     width: curve.value.parentElement.offsetWidth > 0 ? curve.value.parentElement.offsetWidth : props.width,
     height: props.height
   }
 
-  const config = {autosize: false, displaylogo: false}
   if (props.curves?.length > 0) {
     const curveData = props.curves?.map(value => {
       const curve = {
-        x: value.plotDoseData.map(d => (d / 2.303)),
+        x: value.plotDoseData,
         y: value.plotPredictionData,
         mode: 'lines',
         line: {
@@ -60,18 +63,17 @@ const updateDRCPlotView = () => {
       // const selectedWellIds = selectedWells.value.map(well => well.id)
       // const colors = c.wells.map(well => selectedWellIds.includes(well) ? 'rgb(246,2,2)' : c.color)
       const datapoints = {
-        x: value.wellConcentrations,
+        x: value.wellConcentrations.map(wc => -wc),
         y: value.featureValues,
         mode: 'markers',
         marker: {
-          size: value.weights?.map(w => w * 15),
+          size: value.weights?.map(w => (w + 1.0) * 10),
           color: value.color,
           line: {
-            // color: colors,
             width: 3
           }
         },
-        hovertemplate: "%{y}<extra></extra>",
+        hovertemplate: "x = %{x}, y = %{y}<extra></extra>",
         showlegend: false,
         legendgroup: `${value.substanceName} (${value.featureId})`,
       }
