@@ -15,7 +15,6 @@
         </q-th>
       </q-tr>
       <q-tr :props="props">
-<!--        <q-th></q-th>-->
         <q-th v-for="col in props.cols" :key="col.name" :props="props">
           {{ col.label }}
         </q-th>
@@ -58,11 +57,11 @@
 </template>
 
 <script setup>
-import {computed, ref, watch} from "vue";
+import {ref} from "vue";
 import {useStore} from "vuex";
 import MiniDRCView from "@/components/curve/MiniDRCView.vue"
 import FormatUtils from "@/lib/FormatUtils";
-import {usePlateStore} from "../../stores/plate";
+import {usePlateStore} from "@/stores/plate";
 
 const store = useStore()
 const plateStore = usePlateStore()
