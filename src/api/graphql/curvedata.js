@@ -26,21 +26,11 @@ export default {
                     plotDoseData
                     plotPredictionData
                     weights
-                    pIC50
-                    pIC50Censor
-                    pIC50StdErr
-                    eMax
-                    eMin
-                    eMaxConc
-                    eMinConc
-                    pIC80
-                    slope
-                    bottom
-                    top
-                    slopeLowerCI
-                    slopeUpperCI
-                    residualVariance
-                    warning
+                    curveProperties {
+                        name
+                        numericValue
+                        stringValue
+                    }
                 }
             }
         `

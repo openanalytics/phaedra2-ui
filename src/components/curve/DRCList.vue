@@ -96,12 +96,12 @@ distinctSubstances.forEach(substance => {
     for (let f in featureIds) {
         curve = curves.value.find(c => c.substanceName === substance && c.featureId === featureIds[f])
           result['curve_info'][curve.featureId] = {
-            'ic50': curve.pic50,
-            'slope': curve.slope,
-            'emin': curve.emin,
-            'emin_conc': curve.eminConc,
-            'emax': curve.emax,
-            'emax_conc': curve.emaxConc,
+            'ic50': curve.curveProperties.find(cp => cp.name === "pIC50")?.numericValue,
+            'slope': curve.curveProperties.find(cp => cp.name === "Slope")?.numericValue,
+            'emin': curve.curveProperties.find(cp => cp.name === "eMin")?.numericValue,
+            'emin_conc': curve.curveProperties.find(cp => cp.name === "eMin Conc")?.numericValue,
+            'emax': curve.curveProperties.find(cp => cp.name === "eMax")?.numericValue,
+            'emax_conc': curve.curveProperties.find(cp => cp.name === "eMax Conc")?.numericValue,
             'curve': curve,
             'featureId': featureIds[f]
           }
