@@ -13,22 +13,30 @@
     <div class="oa-section-body">
       <div id="chart" ref="curve" style="padding-top: 50px"/>
     </div>
+    <q-separator class="q-pt-md oa-section-body"/>
+    <div class="oa-section-body">
+      <q-table
+          table-header-class="text-grey"
+          :rows="curvePropertyRows"
+          row-key="PropertyName"
+          square flat dense
+      />
+    </div>
   </div>
 </template>
 
 <script setup>
 import Plotly from "plotly.js-dist-min";
 import {onMounted, ref, watch} from "vue";
-import {useStore} from "vuex";
-
-const store = useStore()
 
 const props = defineProps(['width', 'height', 'curves'])
 const emits = defineEmits(['closeDRCView'])
 const curve = ref(null)
+const curvePropertyRows = ref([])
 
 onMounted(() => {
   updateDRCPlotView()
+  updateDRCPropertyTable()
 })
 
 const updateDRCPlotView = () => {
@@ -60,8 +68,6 @@ const updateDRCPlotView = () => {
         name: `${value.substanceName}`
       }
 
-      // const selectedWellIds = selectedWells.value.map(well => well.id)
-      // const colors = c.wells.map(well => selectedWellIds.includes(well) ? 'rgb(246,2,2)' : c.color)
       const datapoints = {
         x: value.wellConcentrations.map(wc => -wc),
         y: value.featureValues,
@@ -105,11 +111,24 @@ const closeDRCView = () => {
   emits("closeDRCView")
 }
 
-// watch(selectedWells, updateDRCPlotView)
-// watch(selectedWellSubstances, updateDRCPlotView)
+const updateDRCPropertyTable = () => {
+  const curvePropertyNames = props.curves[0].curveProperties.map(cProp => cProp.name)
+  curvePropertyRows.value = curvePropertyNames.map(cPropName => {
+    const result = { Property: cPropName }
+
+    props.curves.forEach(curve => {
+      const matchingProp = curve.curveProperties.find(cProp => cProp.name === cPropName);
+      result[curve.substanceName] = matchingProp?.numericValue ?? matchingProp?.stringValue;
+    })
+
+    return result
+  })
+}
+
 watch(() => props.width, resizeDRCPlotView)
 watch(() => props.height, resizeDRCPlotView)
 watch(() => props.curves, updateDRCPlotView)
+watch(() => props.curves, updateDRCPropertyTable)
 
 </script>
 

@@ -130,20 +130,7 @@ for (let fId in featureIds) {
   curveTableColumns.value = curveTableColumns.value.concat(curveFeatureCols(featureIds[fId]).value)
 }
 
-console.log("curveTableColumns: " + JSON.stringify(curveTableColumns.value))
-
-// const selectedWells = computed( () => store.getters['ui/getSelectedWells']())
-// const selectedWellSubstances = computed( () => store.getters['ui/getSelectedSubstances']())
-
-// const selected = ref([...curveData.value.filter(cd => selectedWellSubstances.value.includes(cd.substance))])
-// const updateSelected = () => {
-//   selected.value = [...curveData.value.filter(cd => selectedWellSubstances.value.includes(cd.substance))]
-// }
-
 const selectedCurves = ref([])
-
-// watch(selectedWells, updateSelected);
-// watch(selectedWellSubstances, updateSelected);
 
 const handleSelection = ({rows, added, evt}) => {
   const {ctrlKey, shiftKey, metaKey} = evt ?? {ctrlKey: false, shiftKey: false, metaKey: false}
@@ -191,24 +178,8 @@ const setSelectedCurve = (selectedCurve, event) => {
   emits('showDRCView', selectedCurves.value)
 }
 
-// const handleFeatureSelection = function (feature) {
-//   selectedFeature.value = feature
-// }
-
-// const handleShowDRCView = () => {
-//   // console.log("handleShowDRCView: " + JSON.stringify(data))
-//   console.log("handleShowDRCView: " + JSON.stringify(selected))
-//   emits('showDRCView', selected)
-// }
-
 const fetchFeatureName = (featureId) => {
   return plateStore.featureById.flat().find(f => f.id === featureId)?.name
 }
 
 </script>
-
-<style scoped>
-.oa-data-table {
-  max-height: 800px;
-}
-</style>
