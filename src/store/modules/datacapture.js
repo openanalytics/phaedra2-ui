@@ -27,9 +27,11 @@ const getters = {
 
 const actions = {
     async submitJob(ctx, job) {
-        const fileGroups = ArrayUtils.groupItems(job.files, 5)
-        for (let i = 0; i < fileGroups.length; i++) {
-            await datacaptureAPI.uploadData(job.sourcePath, fileGroups[i])
+        if (job.files) {
+            const fileGroups = ArrayUtils.groupItems(job.files, 5)
+            for (let i = 0; i < fileGroups.length; i++) {
+                await datacaptureAPI.uploadData(job.sourcePath, fileGroups[i])
+            }
         }
         await datacaptureAPI.postJob(job);
     },

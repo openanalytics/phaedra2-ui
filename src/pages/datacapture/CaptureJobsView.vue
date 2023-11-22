@@ -99,26 +99,48 @@
             </div>
           </q-card-section>
           <q-card-section class="q-pa-sm q-gutter-sm">
-<!--            <q-select v-model="newJob.inputType" label="Measurement source type"-->
-<!--                      :options="inputTypes" dense stack-label/>-->
-            <div v-if="newJob.inputType === 'FolderScanner'">
-              <q-file label="Select source location" :display-value="newJob.sourcePath" @update:model-value="handleSelection"
-                      multiple dense stack-label webkitdirectory>
-                <template v-slot:append>
-                  <q-icon name="folder"/>
-                </template>
-              </q-file>
-              <q-select v-model="newJob.captureConfigName" label="Select capture configuration"
-                        :options="captureConfigList" option-value="id" option-label="name" @update:model-value="value => selectedConfig = value" dense stack-label/>
-            </div>
-            <div class="row">
-              <div class="col">
-                <q-card square v-if="showConfig" class="bg-grey-3">
-                  <pre class="q-ma-none q-pa-sm">{{ FormatUtils.formatJSON(selectedConfig.value) }}</pre>
-                </q-card>
-                <q-btn v-if="!showConfig" label="Show" @click="showConfig=true" size="sm" color="primary" icon="remove_red_eye"/>
-                <q-btn v-if="showConfig" label="Hide " @click="showConfig=false" class="q-mt-sm" size="sm" color="primary" icon="remove_red_eye"/>
-              </div>
+            <div class="col">
+              <q-card square>
+                <q-card-section class="q-pa-sm">
+                  <div class="text-h6">Source</div>
+                  <div class="row">
+                    <q-radio v-model="sourceType" val="folder" label="Folder" dense size="sm" class="col-2" />
+              
+                    <q-file
+                        :display-value="selectedSource.folderName" @update:model-value="handleFolderSelection"
+                        :disable="sourceType != 'folder'"
+                        multiple dense stack-label webkitdirectory class="col-10">
+                      <template v-slot:append>
+                        <q-icon name="folder"/>
+                      </template>
+                    </q-file>
+
+                    <q-radio v-model="sourceType" val="url" label="URL" dense size="sm" class="col-2" />
+
+                    <q-input v-model="selectedSource.url" :disable="sourceType != 'url'" dense class="col-10" />
+                  </div>
+                </q-card-section>
+              </q-card>
+              <q-card square class="q-mt-md">
+                <q-card-section class="q-pa-sm">
+                  <div class="text-h6">Capture Configuration</div>
+                  <div class="row">
+                    <div class="col-2" />
+                    <q-select
+                        v-model="newJob.captureConfigName"
+                        :options="captureConfigList" option-value="id" option-label="name"
+                        @update:model-value="value => selectedConfig = value"
+                        dense stack-label class="col-10"/>
+                    <div class="col-2" />
+                    <div class="col-10">
+                      <q-btn :label="showConfig ? 'Hide':'Show'" @click="showConfig=!showConfig" class="q-mt-sm" size="sm" color="primary" icon="remove_red_eye"/>
+                      <q-card square v-if="showConfig" class="bg-grey-3 q-mt-sm">
+                        <pre class="q-ma-none q-pa-sm">{{ FormatUtils.formatJSON(selectedConfig.value) }}</pre>
+                      </q-card>
+                    </div>
+                  </div>
+                </q-card-section>
+              </q-card>
             </div>
           </q-card-section>
           <q-card-section class="row q-pa-sm q-gutter-sm justify-end">
@@ -146,7 +168,6 @@ import FilterUtils from "@/lib/FilterUtils";
 import DateUtils from "@/lib/DateUtils";
 
 const store = useStore();
-const directoryItems = ref([]);
 const fromDateProxy = ref(null)
 const toDateProxy = ref(null)
 
@@ -208,28 +229,35 @@ const doShowJobDetails = (job) => {
 // Submit new job
 const showSubmitJobDialog = ref(false);
 const newJob = reactive({
-  inputType: 'FolderScanner',
   captureConfigName: null,
   captureConfig: null,
-  sourcePath: '',
-  files: null,
+  sourcePath: ''
+});
+const sourceType = ref("folder");
+const selectedSource = ref({
+  url: null,
+  folderName: '',
+  files: null
 });
 
-const handleSelection = (value) => {
-  console.log(value)
-  newJob.files = value
-  newJob.sourcePath = value[0].webkitRelativePath.split('/')[0]
+const handleFolderSelection = (files) => {
+  selectedSource.value.files = files;
+  selectedSource.value.folderName = files[0].webkitRelativePath.split('/')[0];
 }
 
+const canSubmitJob = computed(() => (newJob.captureConfigName && (selectedSource.value.url || selectedSource.value.files)));
 const submitJobAction = async () => {
+  if (selectedSource.value.url) {
+    newJob.sourcePath = selectedSource.value.url;
+  } else {
+    newJob.sourcePath = selectedSource.value.folderName;
+    newJob.files = selectedSource.value.files;
+  }
+  
   newJob.captureConfig = selectedConfig.value?.value;
-  // if (newJob.sourcePath === '') alert('No source path specified!')
-  if (!newJob.files) alert('No files specified')
   await store.dispatch('datacapture/submitJob', newJob);
   refreshJobs();
 };
-// const canSubmitJob = computed(() => (newJob.sourcePath !== '' || newJob.files !== null) && newJob.captureConfig !== null);
-const canSubmitJob = computed(() => (newJob.sourcePath !== '' || newJob.files !== null));
 
 const showConfig = ref(false);
 </script>
