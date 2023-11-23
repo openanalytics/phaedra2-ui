@@ -11,7 +11,7 @@
       </div>
     </div>
     <div class="oa-section-body">
-      <div id="chart" ref="curve" style="padding-top: 50px"/>
+      <div id="chart" ref="curve" style="padding-top: 30px"/>
     </div>
     <q-separator class="q-pt-md oa-section-body"/>
     <div class="oa-section-body">

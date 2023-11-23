@@ -1,20 +1,19 @@
 <template>
   <q-table
-      flat square dense bordered
       separator="cell"
       :rows="curveData"
       :columns="curveTableColumns"
       row-key="substance"
       ref="curveTable"
-      class="oa-data-table">
+      flat square dense>
     <template v-slot:header="props">
-      <q-tr>
+      <q-tr class="text-grey">
         <q-th colspan="3"/>
         <q-th v-for="fid in featureIds" :key="fid" colspan="7">
           {{ fetchFeatureName(fid) }}
         </q-th>
       </q-tr>
-      <q-tr :props="props">
+      <q-tr :props="props" class="text-grey">
         <q-th v-for="col in props.cols" :key="col.name" :props="props">
           {{ col.label }}
         </q-th>
