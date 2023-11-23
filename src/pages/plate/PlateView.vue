@@ -57,12 +57,10 @@
               <q-btn size="sm" icon="edit" label="Rename" class="oa-action-button" @click="showRenameDialog = true"/>
             </div>
             <div class="row justify-end">
-              <q-btn size="sm" color="primary" icon="delete" class="oa-action-button" label="Delete"
-                     @click="showDeleteDialog = true"/>
+              <q-btn size="sm" icon="delete" class="oa-action-button" label="Delete" @click="showDeleteDialog = true"/>
             </div>
             <div class="row justify-end">
-              <q-btn size="sm" color="primary" icon="calculate" class="oa-action-button" label="Recalculate"
-                     @click="showCalculateDialog = true"/>
+              <q-btn size="sm" icon="calculate" class="oa-action-button" label="Recalculate" @click="showCalculateDialog = true"/>
             </div>
           </div>
         </div>
@@ -156,8 +154,6 @@ const drcViewPane = ref()
 const showDRCViewPane = ref(false)
 const drcViewProps = reactive({height: height.value, width: width.value, curve: null})
 
-// const paneSize = ref(40)
-
 watchEffect(() => {
   // Load parent experiment and project, if needed.
   if (plateStore.isLoaded(plateId)) {
@@ -205,13 +201,10 @@ const showSelectedCurves = (args) => {
 const handleShowDRCView = (data) => {
   showDRCViewPane.value = true
   drcViewProps.curves = [...data]
-  // paneSize.value = 40
-  // drcViewProps.width = drcViewPane.value.offsetWidth
 }
 
 const handleCloseDRCView = () => {
   showDRCViewPane.value = false
-  // drcViewProps.width = drcViewPane.value.offsetWidth
 }
 
 </script>

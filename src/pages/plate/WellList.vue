@@ -1,41 +1,48 @@
 <template>
-    <q-table
-    class="oa-data-table"
-    flat square dense
-    virtual-scroll
-    :pagination="{ rowsPerPage: 10, sortBy: 'coordinate', descending: false }"
-    :rows="rows"
-    :columns="columns"
-    row-key="id"
-    column-key="name"
-    :filter="filter"
-    :filter-method="filterMethod"
-    :visible-columns = visibleColumns
-    :loading="loading"
-    >
-        <template v-slot:top-right>
-            <div class="row">
-                <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
-                    <template v-slot:append>
-                        <q-icon name="search"/>
-                    </template>
-                </q-input>
-                <q-btn flat round color="primary" icon="settings" style="border-radius: 50%;" @click="showConfigDialog=true"/>
-            </div>
-        </template>
-        <template v-slot:body-cell-status="props">
-            <q-td :props="props">
-                <q-icon v-if="props.row.status === 'ACCEPTED_DEFAULT'" name="check_circle" color="positive"/>
-                <q-icon v-else name="cancel" color="negative"/>
-            </q-td>
-        </template>
-        <template v-slot:no-data>
-            <div class="full-width row text-info">
-                <span>No wells to show.</span>
-            </div>
-        </template>
-    </q-table>
-    <table-config v-model:show="showConfigDialog" :columns="columns" @update:visibleColumns="updateVisibleColumns"/>
+  <q-table
+      table-header-class="text-grey"
+      virtual-scroll
+      :pagination="{ rowsPerPage: 10, sortBy: 'number', descending: false }"
+      :rows="filteredRows"
+      :columns="columns"
+      row-key="id"
+      column-key="name"
+      :visible-columns=visibleColumns
+      :loading="loading"
+      flat square dense
+  >
+    <template v-slot:top-right>
+      <div class="row">
+        <q-btn size="sm" label="Settings" icon="settings" @click="showConfigDialog=true" class="oa-action-button"/>
+      </div>
+    </template>
+    <template v-slot:header-cell="props">
+      <q-td :props="props" class="row-cols-1">
+        <div>{{ props.col.label }}</div>
+        <div>
+          <q-input v-model="columnFilters[props.col.name]"
+                   @update:model-value="handleColumnFilter(props.col.name)"
+                   dense>
+            <template v-slot:append>
+              <q-icon size="xs" name="search"/>
+            </template>
+          </q-input>
+        </div>
+      </q-td>
+    </template>
+    <template v-slot:body-cell-status="props">
+      <q-td :props="props">
+        <q-icon v-if="props.row.status === 'ACCEPTED_DEFAULT'" name="check_circle" color="positive"/>
+        <q-icon v-else name="cancel" color="negative"/>
+      </q-td>
+    </template>
+    <template v-slot:no-data>
+      <div class="full-width row text-info">
+        <span>No wells to show.</span>
+      </div>
+    </template>
+  </q-table>
+  <table-config v-model:show="showConfigDialog" :columns="columns" @update:visibleColumns="updateVisibleColumns"/>
 </template>
 
 <style scoped>
@@ -60,31 +67,29 @@
     const resultSet = plateStore.activeResultSet
     features.value = plateStore.featuresByProtocolId(resultSet?.protocolId)
 
-
     const {onResult, onError} = resultDataGraphQlAPI.resultDataByResultSetId(resultSet?.id)
     onResult(({data}) => resultData.value = data.resultData)
 
     const columns = ref([
-    {
-        name: 'coordinate', align: 'left', label: 'Coordinate', field: 'coordinate', sortable: true,
-        format: (val, well) => (WellUtils.getWellCoordinate(well?.row, well?.column) ?? "")
-    },
-    {
-        name: 'number', align: 'left', label: 'Number', field: 'number', sortable: true,
-        format: (val, well) => (WellUtils.getWellNr(well?.row, well?.column, props.plate.columns) ?? "")
-    },
-    {name: 'status', align: 'left', label: 'Status', field: 'status', sortable: true},
-    {name: 'wellType', align: 'left', label: 'Well Type', field: 'wellType', sortable: true},
-    {
-        name: 'substance', align: 'left', label: 'Substance', field: 'substance', sortable: true,
-        format: (val, well) => (well.wellSubstance?.name ?? "")
-    },
-    {
-        name: 'concentration', align: 'left', label: 'Concentration', field: 'concentration', sortable: true,
-        format: (val, well) => (well.wellSubstance?.concentration?.toExponential(3) ??  "")
-    },
+      { name: 'coordinate', align: 'left', label: 'Coordinate', field: 'coordinate', sortable: true },
+      { name: 'number', align: 'left', label: 'Number', field: 'number', sortable: true },
+      { name: 'status', align: 'left', label: 'Status', field: 'status', sortable: true },
+      { name: 'wellType', align: 'left', label: 'Well Type', field: 'wellType', sortable: true},
+      { name: 'substance', align: 'left', label: 'Substance', field: 'substance', sortable: true },
+      { name: 'concentration', align: 'left', label: 'Concentration', field: 'concentration', sortable: true },
     ]);
-    const rows = computed(() => props.wells.map(w => { return {...w} }))
+    const rows = ref(props.wells.map(well => {
+      return {
+        coordinate: WellUtils.getWellCoordinate(well?.row, well?.column) ?? "",
+        number: WellUtils.getWellNr(well?.row, well?.column, props.plate.columns) ?? "",
+        status: well.status,
+        wellType: well.wellType,
+        substance: well.wellSubstance?.name ?? "",
+        concentration: well.wellSubstance?.concentration?.toExponential(3) ?? ""
+      }
+    }))
+    const filteredRows = ref([])
+    const columnFilters = ref({})
 
     const showConfigDialog = ref(false);
     const visibleColumns = ref([])
@@ -93,8 +98,6 @@
 
 
     watch([features, resultData], () => {
-      console.log("WellList: watch(features) = " + JSON.stringify(features))
-      console.log("WellList: watch(resultData) = " + JSON.stringify(resultData))
       if (features.value !== undefined && resultData.value !== undefined) {
         const featureCols = computed(() => (features.value ?? []).map(f => {
           return {name: f.name, align: 'left', label: f.name, field: f.name, sortable: true, 'featureId': f.id}
@@ -108,11 +111,21 @@
         })
       }
       visibleColumns.value = [...columns.value.map(a => a.name)];
+      filteredRows.value = [...rows.value.map(r => r)]
       loading.value = false
+
+      columns.value.forEach(col => {
+        columnFilters.value[col.name] = ref(null)
+      })
     })
 
     const updateVisibleColumns = (columns) => {
       visibleColumns.value = [...columns]
+    }
+
+    const handleColumnFilter = (columnName) => {
+      console.log("Value of column filter " + columnName + " changed: " + columnFilters.value[columnName])
+      filteredRows.value = rows.value.filter(row => String(row[columnName]).startsWith(columnFilters.value[columnName]))
     }
 </script>
 
