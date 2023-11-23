@@ -2,7 +2,7 @@
   <q-table
       table-header-class="text-grey"
       virtual-scroll
-      :pagination="{ rowsPerPage: 10, sortBy: 'number', descending: false }"
+      :pagination="{ rowsPerPage: plate.columns, sortBy: 'number', descending: false }"
       :rows="filteredRows"
       :columns="columns"
       row-key="id"
@@ -30,6 +30,14 @@
         </div>
       </q-td>
     </template>
+    <template v-slot:body-cell="props">
+      <q-td v-if="props.col.isFeature" :props="props" :style="'background-color:' + props.col.lut.getColor(props.value)">
+        <div v-if="props.col.isFeature">{{props.value}}</div>
+      </q-td>
+      <q-td v-else :props="props">
+        {{props.value}}
+      </q-td>
+    </template>
     <template v-slot:body-cell-status="props">
       <q-td :props="props">
         <q-icon v-if="props.row.status === 'ACCEPTED_DEFAULT'" name="check_circle" color="positive"/>
@@ -55,6 +63,7 @@
     import TableConfig from "@/components/table/TableConfig"
     import {usePlateStore} from "@/stores/plate"
     import resultDataGraphQlAPI from "@/api/graphql/resultdata"
+    import ColorUtils from "@/lib/ColorUtils";
 
     const props = defineProps(['plate', 'wells']);
 
@@ -100,11 +109,12 @@
     watch([features, resultData], () => {
       if (features.value !== undefined && resultData.value !== undefined) {
         const featureCols = computed(() => (features.value ?? []).map(f => {
-          return {name: f.name, align: 'left', label: f.name, field: f.name, sortable: true, 'featureId': f.id}
+          return {name: f.name, align: 'left', label: f.name, field: f.name, sortable: true, 'featureId': f.id, isFeature: true, lut: null}
         }))
         columns.value = [...columns.value, ...featureCols.value]
         featureCols.value.forEach(fCol => {
           const featValues = resultData.value.filter(rd => rd.featureId === fCol.featureId)[0]?.values ?? []
+          fCol.lut = ColorUtils.createLUT(featValues, ColorUtils.defaultHeatmapGradients)
           rows.value.forEach((row, index) => {
             row[fCol.field] = featValues[index]
           })
@@ -124,7 +134,6 @@
     }
 
     const handleColumnFilter = (columnName) => {
-      console.log("Value of column filter " + columnName + " changed: " + columnFilters.value[columnName])
       filteredRows.value = rows.value.filter(row => String(row[columnName]).startsWith(columnFilters.value[columnName]))
     }
 </script>
