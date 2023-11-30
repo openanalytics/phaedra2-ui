@@ -111,5 +111,17 @@
         "route": "browsePipelineExecutions"
       }
     ]
+  },
+  {
+    "label": "Admin",
+    "header": "category",
+    "icon": "settings",
+    "children": [
+      {
+        "label": "Add New DRC fitting model",
+        "icon": "add",
+        "route": ""
+      }
+    ]
   }
 ]
