@@ -78,7 +78,7 @@
           <q-tab name="curves" icon="show_chart" label="Dose-Response Curves" class="oa-section-title"/>
         </q-tabs>
         <div class="row oa-section-body">
-          <q-tab-panels v-model="activeTab" animated style="width: 100%; height: 650px">
+          <q-tab-panels v-model="activeTab" animated style="width: 100%; height: 100%">
             <q-tab-panel name="layout">
               <PlateLayout :plate="plateStore.plate" :wells="plateStore.wells"/>
             </q-tab-panel>
