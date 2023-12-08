@@ -42,7 +42,6 @@
 <script setup>
 import {computed, ref} from "vue";
 import Tag from "@/components/tag/Tag"
-import metadataAPI from '@/api/metadata.js'
 
 const props = defineProps(['tags', 'objectId', 'objectClass']);
 const emits = defineEmits(['addTag', 'removeTag'])

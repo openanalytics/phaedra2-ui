@@ -98,10 +98,6 @@
 </template>
 
 <style scoped>
-.tag-icon {
-  margin-right: 5px;
-}
-
 .nav-link {
   color: black;
   text-decoration: none;
