@@ -24,7 +24,7 @@
                         </q-field>
                         <q-field label="Tags" stack-label dense borderless>
                             <template v-slot:control>
-                              <TagList :tags="experimentStore.experiment.tags" :objectId="experimentStore.experiment.id" :objectClass="'EXPERIMENT'"/>
+                              <TagList :tags="experimentStore.experiment.tags" @addTag="onAddTag" @removeTag="onRemoveTag"/>
                             </template>
                         </q-field>
                     </div>
@@ -43,7 +43,7 @@
                     </div>
 
                     <div class="col-4">
-                        <PropertyTable :objectInfo="experimentStore.experiment" :objectClass="'EXPERIMENT'"/>
+                        <PropertyTable :objectInfo="experimentStore.experiment" :objectClass="'EXPERIMENT'" :properties="experimentStore.experiment.properties" @addProperty="onAddProperty" @removeProperty="onRemoveProperty"/>
                     </div>
 
                     <div class="col-2">
@@ -116,7 +116,7 @@
 </template>
 
 <script setup>
-import {ref, watchEffect, computed} from 'vue'
+import {ref, watchEffect, computed, onMounted} from 'vue'
 import {useStore} from 'vuex'
 import {useRoute, useRouter} from 'vue-router'
 
@@ -143,11 +143,16 @@ const route = useRoute();
 const router = useRouter();
 
 const experimentId = parseInt(route.params.experimentId)
-experimentStore.loadExperiment(experimentId)
+onMounted(() => {
+  experimentStore.loadExperiment(experimentId)
+})
 
 watchEffect(() => {
-  // Load parent project, if needed.
-  if (experimentStore.isLoaded(experimentId)) projectStore.loadProject(experimentStore.experiment.projectId);
+  if (experimentStore.isLoaded(experimentId)) {
+    const projectId = experimentStore.experiment.projectId
+    if (!projectStore.isLoaded(projectId))
+      projectStore.loadProject(projectId)
+  }
 });
 
 const activeTab = ref('overview')
@@ -193,12 +198,26 @@ const resizeChartView = (event) => {
 }
 
 const handleCloseExperiment = () => {
-  console.log("Close current experiment!")
   experimentStore.closeExperiment()
 }
 
 const handleOpenExperiment = () => {
-  console.log("Open current experiment!")
   experimentStore.openExperiment()
+}
+
+const onAddTag = async (newTag) => {
+  await experimentStore.addTag(newTag)
+}
+
+const onRemoveTag = async (tag) => {
+  await experimentStore.deleteTag(tag)
+}
+
+const onAddProperty = async (newProperty) => {
+  await experimentStore.addPropertty(newProperty)
+}
+
+const onRemoveProperty = async (property) => {
+  await experimentStore.deleteProperty(property)
 }
 </script>

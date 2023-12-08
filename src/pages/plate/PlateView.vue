@@ -25,7 +25,7 @@
             </q-field>
             <q-field label="Tags" stack-label dense borderless>
               <template v-slot:control>
-                <TagList :tags="plateStore.plate.tags" :objectId="plateStore.plate.id" :objectClass="'PLATE'"/>
+                <TagList :tags="plateStore.plate.tags" @addTag="onAddTag" @removeTag="onRemoveTag"/>
               </template>
             </q-field>
           </div>
@@ -49,7 +49,7 @@
           </div>
 
           <div class="col-4">
-            <PropertyTable :objectInfo="plateStore.plate" :objectClass="'PLATE'"/>
+            <PropertyTable :properties="plateStore.plate.properties" @addProperty="onAddProperty" @removeProperty="onRemoveProperty"/>
           </div>
 
           <div class="col-2">
@@ -112,7 +112,7 @@
 </template>
 
 <script setup>
-import {defineComponent, reactive, ref, watchEffect} from 'vue'
+import {defineComponent, onMounted, reactive, ref, watchEffect} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import {Splitpanes, Pane} from 'splitpanes'
 
@@ -143,9 +143,6 @@ const experimentStore = useExperimentStore()
 const plateStore = usePlateStore()
 const router = useRouter();
 
-const plateId = parseInt(route.params.plateId);
-plateStore.loadPlate(plateId);
-
 const height = ref(400);
 const width = ref(500);
 
@@ -154,14 +151,23 @@ const drcViewPane = ref()
 const showDRCViewPane = ref(false)
 const drcViewProps = reactive({height: height.value, width: width.value, curve: null})
 
+const plateId = parseInt(route.params.plateId)
+onMounted(() => {
+  plateStore.loadPlate(plateId)
+})
+
 watchEffect(() => {
-  // Load parent experiment and project, if needed.
   if (plateStore.isLoaded(plateId)) {
-    const expId = plateStore.plate.experimentId;
-    experimentStore.loadExperiment(expId);
-    if (experimentStore.isLoaded(expId)) projectStore.loadProject(experimentStore.experiment.projectId);
+    const experimentId = plateStore.plate.experimentId;
+    if (experimentStore.isLoaded(experimentId)) {
+      const projectId = experimentStore.experiment.projectId
+      if (!projectStore.isLoaded(projectId))
+        projectStore.loadProject(projectId);
+    } else {
+      experimentStore.loadExperiment(experimentId);
+    }
   }
-});
+})
 
 const activeTab = ref('layout')
 const sizeChartPane = ref(0)
@@ -170,16 +176,17 @@ const showDeleteDialog = ref(false);
 const showCalculateDialog = ref(false);
 
 const showRenameDialog = ref(false);
-const onNameChanged = function (newBarcode) {
-  plateStore.renamePlate(newBarcode)
+const onNameChanged = async (newBarcode) => {
+  await plateStore.renamePlate(newBarcode)
 };
 
-const onDescriptionChanged = (newDescription) => {
-  plateStore.editPlateDescription(newDescription)
+const onDescriptionChanged = async (newDescription) => {
+  await plateStore.editPlateDescription(newDescription)
 };
 
-const onDeleted = () => {
-  router.push({name: 'experiment', params: {id: experimentStore.experiment.id}})
+const onDeleted = async () => {
+  await plateStore.deletePlate()
+  await router.push({name: 'experiment', params: {id: experimentStore.experiment.id}})
 }
 
 const updateHeight = (events) => {
@@ -207,10 +214,20 @@ const handleCloseDRCView = () => {
   showDRCViewPane.value = false
 }
 
-</script>
-
-<style scoped>
-.action-button {
-  margin: 3px;
+const onAddTag = async (newTag) => {
+  await plateStore.addTag(newTag)
 }
-</style>
+
+const onRemoveTag = async (tag) => {
+  await plateStore.deleteTag(tag)
+}
+
+const onAddProperty = async (newProperty) => {
+  await plateStore.addPropertty(newProperty)
+}
+
+const onRemoveProperty = async (property) => {
+  await plateStore.deleteProperty(property)
+}
+
+</script>

@@ -170,6 +170,7 @@ const newExperimentName = ref('')
 
 const doCreateNewExperiment = () => {
   const newExperiment = {
+    projectId: props.project.id,
     name: newExperimentName.value,
     status: 'OPEN',
     createdOn: new Date()

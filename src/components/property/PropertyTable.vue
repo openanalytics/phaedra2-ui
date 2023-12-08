@@ -60,10 +60,9 @@
 
 <script setup>
 import {ref, computed} from "vue";
-import {useStore} from 'vuex'
 
-const props = defineProps(['objectInfo', 'objectClass', 'readOnly']);
-const store = useStore();
+const props = defineProps(['properties', 'objectInfo', 'objectClass', 'readOnly']);
+const emits = defineEmits(['addProperty', 'removeProperty'])
 
 const propertyColumns = [
   {name: 'propertyName', align: 'left', label: 'Property Name', field: 'propertyName', sortable: true},
@@ -71,35 +70,22 @@ const propertyColumns = [
   {name: 'actions'}
 ]
 
-const propertyRows = computed(() => store.getters['metadata/getProperties']({
-  objectId: props.objectInfo.id,
-  objectClass: props.objectClass
-}));
-// if (props.objectInfo.id) store.dispatch('metadata/loadProperties', { objectId: props.objectInfo.id, objectClass: props.objectClass });
-// else watch(() => props.objectInfo, () => store.dispatch('metadata/loadProperties', { objectId: props.objectInfo.id, objectClass: props.objectClass }));
+const propertyRows = computed(() => props.properties)
 
 const showNewPropertyDialog = ref(false);
 const newProperty = ref({name: '', value: ''});
 
 const doAddProperty = () => {
-  store.dispatch('metadata/addProperty', {
-    objectId: props.objectInfo.id,
-    objectClass: props.objectClass,
-    propertyName: newProperty.value.name,
-    propertyValue: newProperty.value.value
-  });
+  emits('addProperty', newProperty.value)
 }
 
-const doRemoveProperty = (row) => {
-  store.dispatch('metadata/removeProperty', {
-    objectId: props.objectInfo.id,
-    objectClass: props.objectClass,
-    propertyName: row.propertyName
-  });
+const doRemoveProperty = (property) => {
+  emits('removeProperty', property)
 }
 
 const deleteBtnShown = ref([]);
-for (const i in props.objectInfo.properties) deleteBtnShown[i] = false;
+for (const i in props.properties)
+  deleteBtnShown[i] = false;
 
 const toggleDeleteBtn = (show, rowIndex) => {
   deleteBtnShown.value[rowIndex] = show;

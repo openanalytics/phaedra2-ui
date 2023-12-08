@@ -45,20 +45,17 @@ import Tag from "@/components/tag/Tag"
 import metadataAPI from '@/api/metadata.js'
 
 const props = defineProps(['tags', 'objectId', 'objectClass']);
+const emits = defineEmits(['addTag', 'removeTag'])
 const tags = computed(() => props.tags)
 
 const showAddTagDialog = ref(false);
 const newTag = ref('');
 
 const doAddTag = () => {
-  metadataAPI.addTag({'objectId': props.objectId, 'objectClass': props.objectClass, 'tag': newTag.value }).then(() => {
-    tags.value.push(newTag.value)
-  })
+  emits('addTag', newTag.value)
 }
 
 const handleRemoveTag = (tag) => {
-  metadataAPI.removeTag({'objectId': props.objectId, 'objectClass': props.objectClass, 'tag': tag }).then(() => {
-    tags.value.splice(tags.value.indexOf(tag), 1)
-  })
+  emits('removeTag', tag)
 }
 </script>

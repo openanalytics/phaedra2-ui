@@ -46,6 +46,15 @@ export default {
                     name
                     description
                     tags
+                    properties {
+                        propertyName
+                        propertyValue
+                    }
+                    access {
+                        id
+                        teamName
+                        accessLevel
+                    }
                     createdOn
                     createdBy
                     updatedOn
@@ -69,13 +78,6 @@ export default {
                     createdBy
                     updatedOn
                     updatedBy
-                }
-
-                projectAccess:getProjectAccess(projectId: $projectId) {
-                    id
-                    projectId
-                    teamName
-                    accessLevel
                 }
             }
         `
@@ -151,6 +153,10 @@ export default {
                     description
                     status
                     tags
+                    properties {
+                        propertyName
+                        propertyValue
+                    }
                     createdOn
                     createdBy
                     updatedOn
@@ -216,6 +222,11 @@ export default {
                     createdBy
                     updatedOn
                     updatedBy
+                    tags
+                    properties {
+                        propertyName
+                        propertyValue
+                    }
                 }
 
                 wells:getPlateWells(plateId: $plateId) {

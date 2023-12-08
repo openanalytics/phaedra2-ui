@@ -6,6 +6,7 @@ import plateAPI from "@/api/plates";
  import resultDataGraphQlAPI from "@/api/graphql/resultdata";
  import curvesGraphQlAPI from "@/api/graphql/curvedata";
  import ColorUtils from "@/lib/ColorUtils";
+ import metadataAPI from "@/api/metadata";
 
 export const usePlateStore = defineStore("plate", {
     state: () => ({
@@ -33,20 +34,23 @@ export const usePlateStore = defineStore("plate", {
     },
     actions: {
         async loadPlate(plateId) {
-            if (!this.isLoaded(plateId)) {
-                const {onResult, onError} = projectsGraphQlAPI.plateById(plateId)
+            const {onResult, onError} = projectsGraphQlAPI.plateById(plateId)
+            onResult(({data}) => {
+                this.plate = data.plate;
+                this.wells = data.wells;
 
-                onResult(({data}) => {
-                    this.plate = data.plate;
-                    this.wells = data.wells;
-
-                    this.loadPlateMeasurements(plateId)
-                    this.loadPlateCalculations(plateId)
-                    this.loadPlateProtocols(plateId)
-                    this.loadPlateCurves(plateId)
-                })
-            }
-
+                this.loadPlateMeasurements(plateId)
+                this.loadPlateCalculations(plateId)
+                this.loadPlateProtocols(plateId)
+                this.loadPlateCurves(plateId)
+            })
+        },
+        async reloadPlate() {
+            const {onResult, onError} = projectsGraphQlAPI.plateById(this.plate.id)
+            onResult(({data}) => {
+                this.plate = data.plate
+                this.wells = data.wells
+            })
         },
         async loadPlateMeasurements(plateId) {
             const {onResult, onError} = projectsGraphQlAPI.measurementsByPlateId(plateId)
@@ -71,12 +75,12 @@ export const usePlateStore = defineStore("plate", {
             })
         },
         async renamePlate(newBarcode) {
-            const plate = await plateAPI.editPlate({ id: this.plate.id, barcode: newBarcode })
-            this.plate = plate
+            await plateAPI.editPlate({ id: this.plate.id, barcode: newBarcode })
+            await this.reloadPlate()
         },
         async editPlateDescription(newDescription) {
-            const plate = await plateAPI.editPlate({id: this.plate.id, description: newDescription})
-            this.plate = plate
+            await plateAPI.editPlate({id: this.plate.id, description: newDescription})
+            await this.reloadPlate()
         },
         async deletePlate() {
             await plateAPI.deletePlateById(this.plate.id)
@@ -95,6 +99,31 @@ export const usePlateStore = defineStore("plate", {
         },
         async fitDoseResponseCurves(plate) {
             await calculationsAPI.fitDoseResponseCurves()
+        },
+        async addTag(newTag) {
+            await metadataAPI.addTag({'objectId': this.plate.id, 'objectClass': 'PLATE', 'tag': newTag})
+            await this.reloadPlate()
+        },
+        async deleteTag(tag) {
+            await metadataAPI.removeTag({'objectId': this.plate.id, 'objectClass': 'PLATE', 'tag': tag })
+            await this.reloadPlate()
+        },
+        async addPropertty(newProperty) {
+            await metadataAPI.addProperty({
+                objectId: this.plate.id,
+                objectClass: 'PLATE',
+                propertyName: newProperty.name,
+                propertyValue: newProperty.value
+            })
+            await this.reloadPlate()
+        },
+        async deleteProperty(property) {
+            await metadataAPI.removeProperty({
+                objectId: this.plate.id,
+                objectClass: 'PLATE',
+                propertyName: property.propertyName
+            })
+            await this.reloadPlate()
         }
     }
 })

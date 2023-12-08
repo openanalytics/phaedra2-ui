@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import projectsGraphQlAPI from "@/api/graphql/projects"
 import experimentAPI from '@/api/experiments.js'
 import plateAPI from "@/api/plates";
+import metadataAPI from "@/api/metadata";
 
 export const useExperimentStore = defineStore("experiment", {
     state: () => ({
@@ -14,110 +15,116 @@ export const useExperimentStore = defineStore("experiment", {
         }
     },
     actions: {
-        async loadExperiment(experimentId) {
-            if (!this.isLoaded(experimentId)) {
-                const {onResult, onError} = projectsGraphQlAPI.experimentById(experimentId)
-
-                onResult(({data}) => {
-                    this.experiment = data.experiment
-                    this.plates = data.plates
-                })
-            }
+        loadExperiment(experimentId) {
+            const {onResult, onError} = projectsGraphQlAPI.experimentById(experimentId)
+            onResult(({data}) => {
+                this.experiment = data.experiment
+                this.plates = data.plates
+            })
         },
         isLoaded(experimentId) {
             return this.experiment.id === `${experimentId}`
         },
         async renameExperiment(newName) {
             await experimentAPI.editExperiment({ id: this.experiment.id, name: newName })
-            this.experiment.name = newName
+            this.loadExperiment(this.experiment.id)
         },
         async editExperimentDescription(newDescription) {
             await experimentAPI.editExperiment({id: this.experiment.id, description: newDescription})
-            this.experiment.description = newDescription
+            this.loadExperiment(this.experiment.id)
         },
         async openExperiment() {
             await experimentAPI.editExperiment({ id: this.experiment.id, status: 'OPEN' })
-            this.experiment.status = 'OPEN'
+            this.loadExperiment(this.experiment.id)
         },
         async closeExperiment() {
             await experimentAPI.editExperiment({ id: this.experiment.id, status: 'CLOSED' })
-            this.experiment.status = 'CLOSED'
+            this.loadExperiment(this.experiment.id)
         },
         async deleteExperiment() {
             await experimentAPI.deleteExperiment(this.experiment.id);
+            this.reset()
         },
         async addPlate(plate) {
             plate['experimentId'] = this.experiment.id
-            const createdPlate = await plateAPI.addPlate(plate)
-            this.plates.push(createdPlate)
+            await plateAPI.addPlate(plate)
+            this.loadExperiment(this.experiment.id)
         },
         async linkPlate(plate) {
             await plateAPI.linkPlate(plate.id, plate.linkTemplateId)
-            const index = this.plates.findIndex((p) => {
-                return p.id === plate.id
-            })
-            this.plates[index] = {...this.plates[index],...plate}
+            this.loadExperiment(this.experiment.id)
         },
         async validatePlate(plateId) {
-            const validated = await plateAPI.editPlate({
+            await plateAPI.editPlate({
                 id: plateId,
                 validationStatus: 'VALIDATED',
             })
-            const index = this.plates.findIndex((p) => {
-                return p.id === plateId
-            })
-            this.plates[index] = { ...this.plates[index], ...validated }
+            this.loadExperiment(this.experiment.id)
         },
         async invalidatePlate(plateId, reason) {
-            const invalidated = await plateAPI.editPlate({
+            await plateAPI.editPlate({
                 id: plateId,
                 invalidatedReason: reason,
                 validationStatus: 'INVALIDATED',
             })
-            const index = this.plates.findIndex((p) => {
-                return p.id === plateId
-            })
-            this.plates[index] = { ...this.plates[index], ...invalidated }
+            this.loadExperiment(this.experiment.id)
         },
         async approvePlate(plateId) {
-            const approved = await plateAPI.editPlate({
+            await plateAPI.editPlate({
                 id: plateId,
                 approvalStatus: 'APPROVED',
             })
-            const index = this.plates.findIndex((p) => {
-                return p.id === plateId
-            })
-            this.plates[index] = { ...this.plates[index], ...approved }
+            this.loadExperiment(this.experiment.id)
         },
         async disapprovePlate(plateId, reason) {
-            const disapproved = await plateAPI.editPlate({
+            await plateAPI.editPlate({
                 id: plateId,
                 disapprovedReason: reason,
                 approvalStatus: 'DISAPPROVED',
             })
-            const index = this.plates.findIndex((p) => {
-                return p.id === plateId
-            })
-            this.plates[index] = { ...this.plates[index], ...disapproved }
+            this.loadExperiment(this.experiment.id)
         },
         async resetPlateValidation(plateId) {
-            const invalidated = await plateAPI.editPlate({
+            await plateAPI.editPlate({
                 id: plateId,
                 invalidatedReason: "",
                 validationStatus: 'VALIDATION_NOT_SET',
             })
-            const index = this.plates.findIndex((p) => {
-                return p.id === plateId
-            })
-            this.plates[index] = { ...this.plates[index], ...invalidated }
+            this.loadExperiment(this.experiment.id)
         },
         async deletePlate(plateId) {
             await plateAPI.deletePlateById(plateId)
-            const index = this.plates.findIndex((p) => {
-                return p.id === plateId
+            this.loadExperiment(this.experiment.id)
+        },
+        async addTag(newTag) {
+            await metadataAPI.addTag({'objectId': this.experiment.id, 'objectClass': 'EXPERIMENT', 'tag': newTag })
+            this.loadExperiment(this.experiment.id)
+        },
+        async deleteTag(tag) {
+            await metadataAPI.removeTag({'objectId': this.experiment.id, 'objectClass': 'EXPERIMENT', 'tag': tag})
+            this.loadExperiment(this.experiment.id)
+        },
+        async addPropertty(newProperty) {
+            await metadataAPI.addProperty({
+                objectId: this.experiment.id,
+                objectClass: 'EXPERIMENT',
+                propertyName: newProperty.name,
+                propertyValue: newProperty.value
+            });
+            this.loadExperiment(this.experiment.id)
+        },
+        async deleteProperty(property) {
+            await metadataAPI.removeProperty({
+                objectId: this.experiment.id,
+                objectClass: 'EXPERIMENT',
+                propertyName: property.propertyName
             })
-            this.plates.splice(index, 1)
-        }
+            this.loadExperiment(this.experiment.id)
+        },
+        reset() {
+            this.experiment = {}
+            this.plates = []
+        },
     }
 })
 
