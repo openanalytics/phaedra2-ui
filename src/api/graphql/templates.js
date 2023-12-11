@@ -37,6 +37,10 @@ export default {
                     updatedOn
                     updatedBy
                     tags
+                    properties {
+                        propertyName
+                        propertyValue
+                    }
                     wells {
                         id
                         plateTemplateId

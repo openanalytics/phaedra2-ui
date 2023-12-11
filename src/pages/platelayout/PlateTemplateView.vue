@@ -23,12 +23,12 @@
             </q-field>
             <q-field label="Description" stack-label borderless dense>
               <template v-slot:control>
-                {{ templateStore.template.description }}
+                <EditableField :object="templateStore.template" fieldName="description" @valueChanged="onDescriptionChanged"/>
               </template>
             </q-field>
             <q-field label="Tags" stack-label borderless dense>
               <template v-slot:control>
-                <TagList :tags="templateStore.template.tags" :objectId="templateStore.template.id" :objectClass="'PLATE_TEMPLATE'"/>
+                <TagList :tags="templateStore.template.tags" @addTag="onAddTag" @removeTag="onRemoveTag"/>
               </template>
             </q-field>
           </div>
@@ -57,7 +57,7 @@
           </div>
 
           <div class="col-4">
-            <PropertyTable :objectInfo="templateStore.template" :objectClass="'PLATE_TEMPLATE'" :read-only="true"/>
+            <PropertyTable :properties="templateStore.template.properties" @addProperty="onAddProperty" @removeProperty="onRemoveProperty"/>
           </div>
 
           <div class="col-2">
@@ -66,8 +66,7 @@
                      @click="savePlateTemplate"/>
             </div>
             <div class="row justify-end action-button">
-              <q-btn size="sm" icon="edit" class="oa-action-button" label="Edit"
-                     @click="editdialog = true"/>
+              <q-btn size="sm" icon="edit" class="oa-action-button" label="Rename" @click="showRenameDialog = true"/>
             </div>
             <div class="row justify-end action-button">
               <q-btn size="sm" icon="delete" class="oa-action-button" label="Delete"
@@ -106,6 +105,7 @@
       </div>
     </div>
 
+    <rename-dialog v-model:show="showRenameDialog" objectClass="plate_template" fieldName="name" :object="templateStore.template" @valueChanged="onNameChanged"/>
     <delete-dialog v-if="templateStore.template" ref="deleteDialog" v-model:id="templateStore.template.id"
                    v-model:name="templateStore.template.name" v-model:show="showDeleteDialog" :objectClass="'template'"
                    @onDeleted="onDeleted"/>
@@ -126,6 +126,8 @@ import EditPlateTemplate from "./EditPlateTemplate";
 import OaSection from "@/components/widgets/OaSection";
 import DeleteDialog from "@/components/widgets/DeleteDialog";
 import UserChip from "@/components/widgets/UserChip";
+import EditableField from "@/components/widgets/EditableField.vue";
+import RenameDialog from "@/components/widgets/RenameDialog.vue";
 
 const route = useRoute()
 const router = useRouter()
@@ -141,6 +143,14 @@ templateStore.loadTemplate(templateId)
 const savePlateTemplate = () => {
   templateStore.saveTemplate()
 }
+const showRenameDialog = ref(false)
+const onNameChanged = async (newTemplateName) => {
+  await templateStore.renameTemplate(newTemplateName)
+};
+
+const onDescriptionChanged = async (newDescription) => {
+  await templateStore.editTemplateDescription(newDescription)
+};
 
 const onDeleted = () => {
   router.push({name: 'dashboard'})
@@ -148,5 +158,21 @@ const onDeleted = () => {
 
 const openDeleteDialog = () => {
   showDeleteDialog.value = true
+}
+
+const onAddTag = async (newTag) => {
+  await templateStore.addTag(newTag)
+}
+
+const onRemoveTag = async (tag) => {
+  await templateStore.deleteTag(tag)
+}
+
+const onAddProperty = async (newProperty) => {
+  await templateStore.addPropertty(newProperty)
+}
+
+const onRemoveProperty = async (property) => {
+  await templateStore.deleteProperty(property)
 }
 </script>
