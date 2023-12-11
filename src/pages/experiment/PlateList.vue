@@ -125,12 +125,6 @@ const route = useRoute()
 const loading = ref()
 const plates = computed( () => props.plates ? props.plates : [])
 
-// const experimentId = parseInt(route.params.id);
-// const plates = computed(() => store.getters['plates/getByExperimentId'](experimentId))
-// store.dispatch('plates/loadByExperimentId', experimentId).then(() => {
-//   loading.value = false
-// })
-
 let columns = ref([
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
   {name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
