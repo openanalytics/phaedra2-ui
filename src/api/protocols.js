@@ -1,4 +1,5 @@
 import axios from "axios";
+import FormatUtils from "@/lib/FormatUtils";
 
 const apiURL = process.env.VUE_APP_API_BASE_URL + '/protocol-service';
 
@@ -34,6 +35,8 @@ export default {
     },
     async editProtocol(protocol) {
         try {
+            // protocol.createdOn = FormatUtils.formatDate(protocol.createdOn)
+            // protocol.updatedOn = FormatUtils.formatDate(protocol.updatedOn)
             const response = await axios.put(apiURL + '/protocols/' + protocol.id, protocol);
             if (response.status === 200) {
                 return response.data;

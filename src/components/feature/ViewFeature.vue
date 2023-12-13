@@ -85,20 +85,24 @@
           <div class="col">
             <q-field label="Model" stack-label dense>
               <template v-slot:control>
-                <div class="self-center full-width no-outline" tabindex="0">{{feature.drcModel?.name}}</div>
+                <div class="self-center full-width no-outline" tabindex="0">{{featureStore.feature.drcModel?.name}}</div>
               </template>
             </q-field>
             <q-field label="Description" stack-label dense>
               <template v-slot:control>
-                <div class="self-center full-width no-outline" tabindex="0">{{feature.drcModel?.description}}</div>
+                <div class="self-center full-width no-outline" tabindex="0">{{featureStore.feature.drcModel?.description}}</div>
               </template>
             </q-field>
-            <div v-for="(input, index) in selectedDCRModel.inputParameters" :key="index">
-              <q-field :label="input.label" stack-label dense>
-                <template v-slot:control>
-                  <div class="self-center full-width no-outline" tabindex="0">{{feature.drcModel.inputParameters[input.name]}}</div>
-                </template>
-              </q-field>
+            <div v-if="featureStore.feature.drcModel !== null">
+              <div v-for="(input, index) in selectedDCRModel.inputParameters" :key="index">
+                <q-field :label="input.label" stack-label dense>
+                  <template v-slot:control>
+                    <div class="self-center full-width no-outline" tabindex="0">
+                      {{ featureStore.feature.drcModel.inputParameters.find(inParam => inParam.name === input.name).value }}
+                    </div>
+                  </template>
+                </q-field>
+              </div>
             </div>
           </div>
         </q-tab-panel>
@@ -115,7 +119,8 @@
 
   const protocolStore = useProtocolStore()
   const featureStore = useFeatureStore()
-  const selectedDCRModel = drcModelOptions.find(drcModel => drcModel.name === featureStore.feature.drcModel.name)
+
+  const selectedDCRModel = drcModelOptions.find(drcModel => drcModel.name === featureStore.feature.drcModel?.name) ?? ''
 
   const props = defineProps(['show', 'feature'])
   const emit = defineEmits('update:show')

@@ -121,7 +121,7 @@ const filter = ref('')
 const filterMethod = FilterUtils.defaultTableFilter()
 
 const getFormulaName = (id) => {
-  const formula = formulasStore.getFormulaById(id)
+  const formula = formulasStore.getFormulaById(parseInt(id))
   return (formula || {}).name;
 }
 

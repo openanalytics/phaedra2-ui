@@ -1,22 +1,20 @@
 <template>
-  <WellTypeLegend :wells=wells />
-  <WellGrid :plate="plate"
-            :wells="wells"
+  <WellTypeLegend :wells=plateStore.wells />
+  <WellGrid :plate="plateStore.plate"
+            :wells="plateStore.wells"
             :wellColorFunction="wellColorFunction"
             :wellLabelFunctions="wellLabelFunctions"/>
 </template>
 
 <script setup>
-import {computed} from 'vue'
-
 import WellGrid from "@/components/well/WellGrid.vue"
 import WellTypeLegend from "@/components/well/WellTypeLegend.vue"
 import WellUtils from "@/lib/WellUtils.js"
+import {usePlateStore} from "@/stores/plate";
+
+const plateStore = usePlateStore()
 
 const props = defineProps(['plate', 'wells']);
-
-const plate = computed(() => props.plate)
-const wells = computed(() => props.wells)
 
 const wellColorFunction = (well) => WellUtils.getWellTypeColor(well.wellType)
 

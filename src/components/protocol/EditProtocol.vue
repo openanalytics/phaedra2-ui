@@ -10,7 +10,7 @@
             <q-field label="Tags" stack-label readonly dense borderless>
               <template v-slot:control>
                 <div class="q-pt-sm">
-                  <TagList label="Tags" :objectInfo="protocolStore.protocol" objectClass="PROTOCOL"/>
+                  <TagList :tags="protocolStore.protocol.tags" objectClass="PROTOCOL"  @addTag="onAddTag" @removeTag="onRemoveTag"/>
                 </div>
               </template>
             </q-field>
@@ -22,20 +22,20 @@
           </div>
 
           <div class="col-4">
-            <PropertyTable :objectInfo="protocolStore.protocol" objectClass="PROTOCOL"/>
+            <PropertyTable :properties="protocolStore.protocol.properties" @addProperty="onAddProperty" @removeProperty="onRemoveProperty"/>
           </div>
 
           <div class="col-2">
+            <div class="row justify-end action-button">
+              <q-btn size="sm" label="Save" icon="save" class="oa-button" @click="saveProtocol()"/>
+            </div>
             <div class="row justify-end action-button">
               <router-link :to="{ name: 'importProtocol' }" class="nav-link">
                 <q-btn size="sm" icon="import_export" class="oa-button" label="Import"/>
               </router-link>
             </div>
             <div class="row justify-end action-button">
-              <q-btn size="sm" label="Save" icon="save" class="oa-button" @click="saveProtocol()"/>
-            </div>
-            <div class="row justify-end action-button">
-              <q-btn size="sm" label="Cancel" icon="cancel" class="oa-button" @click="$emit('editMode',false)"/>
+              <q-btn size="sm" label="Cancel" icon="cancel" class="oa-button" @click="cancelEdit"/>
             </div>
           </div>
         </div>
@@ -81,5 +81,27 @@ const saveProtocol = () => {
 
 const addNewFeature = (feature) => {
   store.dispatch('features/addNewFeatureToProtocol', feature)
+}
+
+const onAddTag = async (newTag) => {
+  await protocolStore.addTag(newTag)
+}
+
+const onRemoveTag = async (tag) => {
+  await protocolStore.deleteTag(tag)
+}
+
+const onAddProperty = async (newProperty) => {
+  await protocolStore.addProperty({"propertyName": newProperty.name, "propertyValue": newProperty.value})
+}
+
+const onRemoveProperty = async (property) => {
+  await protocolStore.deleteProperty(property)
+}
+
+const cancelEdit = () => {
+  protocolStore.reloadProtocol().then(() => {
+    emit('editMode', false)
+  })
 }
 </script>

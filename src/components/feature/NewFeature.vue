@@ -58,11 +58,11 @@
             <q-input label="Description" stack-label dense readonly v-model="selectedDCRModel.description"/>
             <div v-for="(input, index) in selectedDCRModel.inputParameters" :key="index">
               <q-select v-if="input.type === 'option'" :label="input.label"
-                        v-model="newFeature.drcModel.inputParameters[input.name]" :options="input.options" stack-label dense/>
+                        v-model="newFeature.drcModel.inputParameters[index].value" :options="input.options" stack-label dense/>
               <q-input v-if="input.type === 'numeric' || input.type === 'string'" :label="input.label"
-                       v-model="newFeature.drcModel.inputParameters[input.name]" stack-label dense/>
+                       v-model="newFeature.drcModel.inputParameters[index].value" stack-label dense/>
               <q-checkbox v-if="input.type === 'boolean'" :label="input.label"
-                          v-model="newFeature.drcModel.inputParameters[input.name]"
+                          v-model="newFeature.drcModel.inputParameters[index].value"
                           left-label dense/>
             </div>
           </div>
@@ -119,14 +119,17 @@
     newFeature.value.drcModel = {
       "name": selected.name,
       "description": selected.description,
-      "inputParameters": {}
+      "inputParameters": []
     }
 
-    for (let i in selected.inputParameters) {
-      const input = selected.inputParameters[i]
-      if (input.type === 'boolean')
-        newFeature.value.drcModel.inputParameters[selected.inputParameters[i].name] = false
-    }
+    newFeature.value.drcModel.inputParameters = selected.inputParameters.map(inParam => inParam.type === 'boolean' ? {"name": inParam.name, "value": false} : {"name": inParam.name, "value": null})
+    // for (let i in selected.inputParameters) {
+    //   const input = selected.inputParameters[i]
+    //   if (input.type === 'boolean')
+    //     newFeature.value.drcModel.inputParameters[i] = {"name": selected.inputParameters[i].name, "value": false}
+    //   else
+    //     newFeature.value.drcModel.inputParameters[i] = {"name": selected.inputParameters[i].name, "value": ""}
+    // }
     console.log("newFeature.drcModel: " + JSON.stringify(newFeature.value.drcModel))
   }
 

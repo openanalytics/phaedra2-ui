@@ -38,10 +38,44 @@ export default {
                     id
                     name
                     description
+                    lowWelltype
+                    highWelltype
+                    versionNumber
+                    createdOn
+                    createdBy
+                    updatedOn
+                    updatedBy
+                    tags
+                    properties {
+                        propertyName
+                        propertyValue
+                    }
                     features {
                         id
                         name
+                        description
+                        formulaId
+                        format
+                        sequence
                         alias
+                        drcModel {
+                            featureId
+                            name
+                            description
+                            inputParameters {
+                                name
+                                value
+                            }
+                        }
+                        civs {
+                            id
+                            featureId
+                            formulaId
+                            variableName
+                            sourceMeasColName
+                            sourceFeatureId
+                            inputSource
+                        }
                     }
                 }
             }

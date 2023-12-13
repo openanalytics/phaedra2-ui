@@ -71,16 +71,17 @@
             <q-select label="Model" v-model="selectedDCRModel"
                       :options="drcModelOptions" option-label="name"
                       @update:model-value="onDRCModelSelection" stack-label dense/>
-            <q-input label="Description" stack-label dense readonly v-model="drcModel.description"/>
+            <q-input label="Description" stack-label dense readonly v-model="selectedDCRModel.description"/>
             <div v-for="(input, index) in selectedDCRModel.inputParameters" :key="index">
-              <q-select v-if="input.type === 'option'" :label="input.label"
-                        v-model="drcModel.inputParameters[input.name]" :options="input.options"
+              <q-select v-if="input.type === 'option'" :label="input.label" :options="input.options"
+                        v-model="inputParameters[index].value"
                         stack-label dense/>
               <q-input v-if="input.type === 'numeric' || input.type === 'string'" :label="input.label"
-                       v-model="drcModel.inputParameters[input.name]" stack-label dense/>
+                       v-model="inputParameters[index].value"
+                       stack-label dense/>
               <q-checkbox v-if="input.type === 'boolean'" :label="input.label"
-                          v-model="drcModel.inputParameters[input.name]"
-                          true-value="true" false-value="false" left-label dense/>
+                          v-model="inputParameters[index].value"
+                          left-label dense/>
             </div>
           </div>
         </q-tab-panel>
@@ -117,23 +118,21 @@
   const inputSource = ['MEASUREMENT_WELL_COLUMN', 'MEASUREMENT_SUBWELL_COLUMN', 'FEATURE']
 
   const formulaInputs = ref(featureStore.feature.civs)
-  const selectedDCRModel = drcModelOptions.find(drcModel => drcModel.name === featureStore.feature.drcModel.name)
-  const drcModel = ref(featureStore.feature.drcModel)
+  const selectedDCRModel = ref(drcModelOptions.find(drcModel => drcModel.name === featureStore.feature.drcModel?.name) ?? "")
+  const inputParameters = ref([])
+  for (const index in selectedDCRModel.value.inputParameters) {
+    const inParam = selectedDCRModel.value.inputParameters[index]
+    inputParameters.value[index] = featureStore.feature.drcModel?.inputParameters?.find(inP => inP.name === inParam.name) ?? null
+  }
 
   const onDRCModelSelection = (selected) => {
-    drcModel.value = {
+    selectedDCRModel.value = {
       "name": selected.name,
       "description": selected.description,
-      "inputParameters": {}
+      "inputParameters": selected.inputParameters
     }
 
-    for (let i in selected.inputParameters) {
-      const input = selected.inputParameters[i]
-      if (input.type === 'boolean')
-        drcModel.value.inputParameters[selected.inputParameters[i].name] = false
-      else
-        drcModel.value.inputParameters[selected.inputParameters[i].name] = null
-    }
+    inputParameters.value = selected.inputParameters.map(inParam => inParam.type === 'boolean' ? {"name": inParam.name, "value": false} : {"name": inParam.name, "value": null})
   }
 
   const formulaFilter = ref('');
@@ -164,8 +163,7 @@
   const editFeature = () => {
     featureStore.feature.formulaId = featureStore.feature.formula.id
     featureStore.feature.civs = formulaInputs.value
-    featureStore.feature.drcModel = drcModel.value
-
+    featureStore.feature.drcModel.inputParameters = inputParameters.value
     emit('update:show', false)
   }
 

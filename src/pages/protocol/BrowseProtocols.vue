@@ -39,7 +39,7 @@
           </template>
           <template v-slot:body-cell-tags="props">
             <q-td :props="props">
-              <TagList :objectInfo="props.row" :objectClass="'PROTOCOL'" :readOnly="true"/>
+              <q-badge v-for="tag in props.row.tags" :key="tag" color="green">{{tag}}</q-badge>
             </q-td>
           </template>
         </q-table>
@@ -48,56 +48,44 @@
   </q-page>
 </template>
 
-<script>
+<script setup>
 import {ref, computed} from 'vue'
 import {useStore} from 'vuex'
 import {useRouter} from 'vue-router'
-import FilterUtils from "@/lib/FilterUtils.js"
 import FormatUtils from "@/lib/FormatUtils.js"
 
-import TagList from "@/components/tag/TagList";
 import UserChip from "@/components/widgets/UserChip";
 import OaSection from "@/components/widgets/OaSection";
 
-export default {
-  components: {
-    TagList,
-    UserChip,
-    OaSection
+
+const store = useStore();
+const router = useRouter();
+
+const loading = ref(true);
+
+const protocols = computed(() => store.getters['protocols/getAll']());
+store.dispatch('protocols/loadAll').then(() => {
+  loading.value = false
+})
+
+const columns = ref([
+  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
+  {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
+  {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
+  {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
+  {
+    name: 'createdOn',
+    align: 'left',
+    label: 'Created On',
+    field: 'createdOn',
+    sortable: true,
+    format: FormatUtils.formatDate
   },
-  setup() {
-    const store = useStore();
-    const router = useRouter();
+  {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
+  {name: 'menu', align: 'left', field: 'menu', sortable: false}
+])
 
-    const loading = ref(true);
-
-    const protocols = computed(() => store.getters['protocols/getAll']());
-    store.dispatch('protocols/loadAll').then(() => {
-      loading.value = false
-    });
-
-    const columns = ref([
-      {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
-      {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
-      {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-      {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
-      {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
-      {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
-      {name: 'menu', align: 'left', field: 'menu', sortable: false}
-    ]);
-
-    const selectProtocol = (event, row) => {
-      router.push("/protocol/" + row.id);
-    };
-
-    return {
-      protocols,
-      columns,
-      loading,
-      filter: ref(''),
-      filterMethod: FilterUtils.defaultTableFilter(),
-      selectProtocol
-    }
-  }
+const selectProtocol = (event, row) => {
+  router.push("/protocol/" + row.id);
 }
 </script>
