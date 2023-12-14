@@ -25,8 +25,6 @@
           </q-field>
           <q-field label="Tags" stack-label borderless dense>
             <template v-slot:control>
-<!--              <q-badge v-for="tag in protocolStore.protocol.tags" :key="tag" color="green">{{tag}}</q-badge>-->
-
               <TagList :tags="protocolStore.protocol.tags" @addTag="onAddTag" @removeTag="onRemoveTag"/>
             </template>
           </q-field>
