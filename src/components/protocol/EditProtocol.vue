@@ -92,7 +92,7 @@ const onRemoveTag = async (tag) => {
 }
 
 const onAddProperty = async (newProperty) => {
-  await protocolStore.addProperty({"propertyName": newProperty.name, "propertyValue": newProperty.value})
+  await protocolStore.addProperty(newProperty)
 }
 
 const onRemoveProperty = async (property) => {

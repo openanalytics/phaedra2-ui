@@ -17,6 +17,13 @@ export const useProtocolStore = defineStore("protocol",  {
         async reloadProtocol() {
             await this.loadProtocol(this.protocol.id)
         },
+        async reloadMetaData() {
+            const {onResult, onError} = protocolGraphQLAPI.protocolById(this.protocol.id)
+            onResult(({data}) => {
+                this.protocol.tags = data.protocol.tags
+                this.protocol.properties = data.protocol.properties
+            })
+        },
         async saveProtocol() {
             protocolAPI.editProtocol(this.protocol).then(() => this.reloadProtocol())
         },
@@ -38,24 +45,29 @@ export const useProtocolStore = defineStore("protocol",  {
             return this.protocol.features ? this.protocol.features.filter((f) => { return f.deleted !== true }) : []
         },
         async addTag(newTag) {
-            if (this.protocol.tags.indexOf(newTag) < 0) this.protocol.tags.push(newTag)
+            await metadataAPI.addTag({'objectId': this.protocol.id, 'objectClass': 'PROTOCOL', 'tag': newTag })
+            await this.reloadMetaData()
         },
         async deleteTag(tag) {
-            const index = this.protocol.tags.indexOf(tag)
-            if (index > -1)
-                this.protocol.tags.splice(index, 1)
+            await metadataAPI.removeTag({'objectId': this.protocol.id, 'objectClass': 'PROTOCOL', 'tag': tag})
+            await this.reloadMetaData()
         },
         async addProperty(newProperty) {
-            const index = this.protocol.properties.findIndex(prop => prop.propertyName === newProperty.propertyName)
-            if (index < 0)
-                this.protocol.properties.push(newProperty)
-            else
-                this.protocol.properties[index].propertyValue = newProperty.propertyValue
+            await metadataAPI.addProperty({
+                objectId: this.protocol.id,
+                objectClass: 'PROTOCOL',
+                propertyName: newProperty.name,
+                propertyValue: newProperty.value
+            });
+            await this.reloadMetaData()
         },
         async deleteProperty(property) {
-            const index = this.protocol.properties.findIndex(prop => prop.propertyName === property.propertyName)
-            if (index > -1)
-                this.protocol.properties.splice(index, 1)
+            await metadataAPI.removeProperty({
+                objectId: this.protocol.id,
+                objectClass: 'PROTOCOL',
+                propertyName: property.propertyName
+            })
+            await this.reloadMetaData()
         }
     }
 

@@ -25,7 +25,9 @@
           </q-field>
           <q-field label="Tags" stack-label borderless dense>
             <template v-slot:control>
-              <q-badge v-for="tag in protocolStore.protocol.tags" :key="tag" color="green">{{tag}}</q-badge>
+<!--              <q-badge v-for="tag in protocolStore.protocol.tags" :key="tag" color="green">{{tag}}</q-badge>-->
+
+              <TagList :tags="protocolStore.protocol.tags" @addTag="onAddTag" @removeTag="onRemoveTag"/>
             </template>
           </q-field>
         </div>
@@ -61,7 +63,7 @@
           </q-field>
         </div>
         <div class="col-4">
-          <PropertyTable :properties="protocolStore.protocol.properties" :read-only="true"/>
+          <PropertyTable :properties="protocolStore.protocol.properties" @addProperty="onAddProperty" @removeProperty="onRemoveProperty"/>
         </div>
 
         <div class="col-2">
@@ -106,6 +108,7 @@
   import FeatureList from "@/components/feature/FeatureList";
   import UserChip from "@/components/widgets/UserChip";
   import {useProtocolStore} from "@/stores/protocol";
+  import TagList from "@/components/tag/TagList.vue";
 
   const props = defineProps(['editMode']);
   const emit = defineEmits(['editMode']);
@@ -121,5 +124,21 @@
 
   const openDeleteDialog = () => {
     showDialog.value = true;
+  }
+
+  const onAddTag = async (newTag) => {
+    await protocolStore.addTag(newTag)
+  }
+
+  const onRemoveTag = async (tag) => {
+    await protocolStore.deleteTag(tag)
+  }
+
+  const onAddProperty = async (newProperty) => {
+    await protocolStore.addProperty(newProperty)
+  }
+
+  const onRemoveProperty = async (property) => {
+    await protocolStore.deleteProperty(property)
   }
 </script>
