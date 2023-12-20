@@ -161,8 +161,13 @@
 
   //Function to fire an edit event of a feature using the working copy
   const editFeature = () => {
+
     featureStore.feature.formulaId = featureStore.feature.formula.id
     featureStore.feature.civs = formulaInputs.value
+
+    if (!featureStore.feature.drcModel)
+      featureStore.feature.drcModel = selectedDCRModel
+
     featureStore.feature.drcModel.inputParameters = inputParameters.value
     emit('update:show', false)
   }

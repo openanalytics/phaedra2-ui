@@ -98,7 +98,7 @@
                 <q-field :label="input.label" stack-label dense>
                   <template v-slot:control>
                     <div class="self-center full-width no-outline" tabindex="0">
-                      {{ featureStore.feature.drcModel.inputParameters.find(inParam => inParam.name === input.name).value }}
+                      {{ featureStore.feature.drcModel.inputParameters.find(inParam => inParam.name === input.name)?.value }}
                     </div>
                   </template>
                 </q-field>
