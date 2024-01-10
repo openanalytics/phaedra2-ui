@@ -9,28 +9,35 @@
       <oa-section title="Protocols" icon="ballot">
         <q-table
             table-header-class="text-grey"
-            flat dense
-            :rows="protocols"
+            :rows="filteredProtocols"
             :columns="columns"
+            :visible-columns="visibleColumns"
             row-key="id"
+            column-key="name"
             class="full-width"
             :pagination="{ rowsPerPage: 20, sortBy: 'name' }"
-            :filter="filter"
-            :filter-method="filterMethod"
             :loading="loading"
             @row-click="selectProtocol"
+            flat square dense
         >
           <template v-slot:top-left>
             <router-link :to="{ name: 'newProtocol' }" class="nav-link">
               <q-btn size="sm" icon="add" color="primary" label="New Protocol..."/>
             </router-link>
           </template>
-          <template v-slot:top-right>
-            <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
-              <template v-slot:append>
-                <q-icon name="search"/>
-              </template>
-            </q-input>
+          <template v-slot:header-cell="props">
+            <q-td :props="props" class="row-cols-1">
+              <div>
+                <q-input v-model="columnFilters[props.col.name]"
+                         :label="props.col.label"
+                         @update:model-value="handleColumnFilter(props.col.name)"
+                         dense>
+                  <template v-slot:append>
+                    <q-icon size="xs" name="search"/>
+                  </template>
+                </q-input>
+              </div>
+            </q-td>
           </template>
           <template v-slot:body-cell-createdBy="props">
             <q-td :props="props">
@@ -49,14 +56,13 @@
 </template>
 
 <script setup>
-import {ref, computed} from 'vue'
+import {ref, computed, watch} from 'vue'
 import {useStore} from 'vuex'
 import {useRouter} from 'vue-router'
 import FormatUtils from "@/lib/FormatUtils.js"
 
 import UserChip from "@/components/widgets/UserChip";
 import OaSection from "@/components/widgets/OaSection";
-
 
 const store = useStore();
 const router = useRouter();
@@ -82,10 +88,32 @@ const columns = ref([
     format: FormatUtils.formatDate
   },
   {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
-  {name: 'menu', align: 'left', field: 'menu', sortable: false}
+  // {name: 'menu', align: 'left', field: 'menu', sortable: false}
 ])
+
+const filteredProtocols = ref([])
+const columnFilters = ref({})
+const visibleColumns = ref([])
 
 const selectProtocol = (event, row) => {
   router.push("/protocol/" + row.id);
 }
+
+const updateVisibleColumns = (columns) => {
+  visibleColumns.value = [...columns]
+}
+
+const handleColumnFilter = (columnName) => {
+  filteredProtocols.value = protocols.value.filter(row => String(row[columnName]).includes(columnFilters.value[columnName]))
+}
+
+watch(protocols, () => {
+  visibleColumns.value = [...columns.value.map(a => a.name)];
+  filteredProtocols.value = [...protocols.value.map(r => r)]
+  loading.value = false
+
+  columns.value.forEach(col => {
+    columnFilters.value[col.name] = ref(null)
+  })
+})
 </script>
