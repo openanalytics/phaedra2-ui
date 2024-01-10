@@ -5,9 +5,9 @@
       :pagination="{ rowsPerPage: plate.columns, sortBy: 'number', descending: false }"
       :rows="filteredRows"
       :columns="columns"
+      :visible-columns="visibleColumns"
       row-key="id"
       column-key="name"
-      :visible-columns=visibleColumns
       :loading="loading"
       flat square dense
   >
@@ -18,9 +18,9 @@
     </template>
     <template v-slot:header-cell="props">
       <q-td :props="props" class="row-cols-1">
-        <div>{{ props.col.label }}</div>
         <div>
           <q-input v-model="columnFilters[props.col.name]"
+                   :label="props.col.label"
                    @update:model-value="handleColumnFilter(props.col.name)"
                    dense>
             <template v-slot:append>
@@ -134,7 +134,7 @@
     }
 
     const handleColumnFilter = (columnName) => {
-      filteredRows.value = rows.value.filter(row => String(row[columnName]).startsWith(columnFilters.value[columnName]))
+      filteredRows.value = rows.value.filter(row => String(row[columnName]).includes(columnFilters.value[columnName]))
     }
 </script>
 
