@@ -8,28 +8,35 @@
       <oa-section title="Projects" icon="folder" class="q-pa-sm">
         <q-table
             table-header-class="text-grey"
-            flat dense
-            :rows="projects"
+            :pagination="{ rowsPerPage: 20, sortBy: 'name' }"
+            :rows="filteredProjects"
             :columns="columns"
             row-key="id"
-            class="full-width"
-            :pagination="{ rowsPerPage: 20, sortBy: 'name' }"
-            :filter="filter"
-            :filter-method="filterMethod"
+            column-key="name"
+            :visible-columns=visibleColumns
             :loading="loading"
             @row-click="selectProject"
+            flat square dense
         >
           <template v-slot:top-left>
             <router-link :to="{ name: 'newProject' }" class="nav-link">
               <q-btn size="sm" icon="add" class="oa-button" label="New Project" />
             </router-link>
           </template>
-          <template v-slot:top-right>
-            <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
-              <template v-slot:append>
-                <q-icon name="search"/>
-              </template>
-            </q-input>
+          <template v-slot:header-cell="props">
+            <q-td :props="props" class="row-cols-1">
+<!--              <div>{{ props.col.label }}</div>-->
+              <div>
+                <q-input v-model="columnFilters[props.col.name]"
+                         :label="props.col.label"
+                         @update:model-value="handleColumnFilter(props.col.name)"
+                         dense>
+                  <template v-slot:append>
+                    <q-icon size="xs" name="search"/>
+                  </template>
+                </q-input>
+              </div>
+            </q-td>
           </template>
           <template v-slot:body-cell-tags="props">
             <q-td :props="props">
@@ -47,8 +54,7 @@
 </template>
 
 <script setup>
-import {onMounted, ref} from 'vue'
-import {useStore} from 'vuex'
+import {onMounted, ref, watch} from 'vue'
 import {useRouter} from 'vue-router'
 import FilterUtils from "@/lib/FilterUtils.js"
 import FormatUtils from "@/lib/FormatUtils.js"
@@ -60,6 +66,10 @@ import OaSection from "@/components/widgets/OaSection";
 const router = useRouter();
 const loading = ref(true);
 const projects = ref([])
+const filteredProjects = ref([])
+
+const visibleColumns = ref([])
+const columnFilters = ref({})
 
 onMounted(() => {
   fetchAllProjects()
@@ -75,7 +85,7 @@ const columns = ref([
   {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
   {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
   {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
-  {name: 'menu', align: 'left', field: 'menu', sortable: false}
+  // {name: 'menu', align: 'left', field: 'menu', sortable: false}
 ]);
 
 const selectProject = (event, row) => {
@@ -89,6 +99,20 @@ const fetchAllProjects = () => {
     loading.value = false
   })
   //TODO: implement onError event!
+}
+
+watch(projects, () => {
+  visibleColumns.value = [...columns.value.map(a => a.name)];
+  filteredProjects.value = [...projects.value.map(r => r)]
+  loading.value = false
+
+  columns.value.forEach(col => {
+    columnFilters.value[col.name] = ref(null)
+  })
+})
+
+const handleColumnFilter = (columnName) => {
+  filteredProjects.value = projects.value.filter(row => String(row[columnName]).includes(columnFilters.value[columnName]))
 }
 
 </script>
