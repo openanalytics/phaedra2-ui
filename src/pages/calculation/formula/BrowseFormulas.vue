@@ -115,22 +115,12 @@ const filteredFormulas = ref([])
 const columnFilters = ref({})
 const visibleColumns = ref([])
 
-// const filter = ref('');
-// const filterMethod = function (rows, term) {
-//     return rows.filter(row => {
-//         for (const field in row) {
-//             const stringValue = String(row[field]);
-//             if (stringValue && stringValue.toLowerCase().includes(term.toLowerCase())) return true;
-//         }
-//         return false;
-//     })
-// };
-
 const router = useRouter();
 
 const selectFormula = (row) => {
     router.push("/calc/formula/" + row.id);
-};
+}
+
 const createNewFormula = () => {
     router.push("/calc/formula/0");
 }
