@@ -18,6 +18,7 @@
             :loading="loading"
             :pagination="{ rowsPerPage: 20, sortBy: 'name' }"
             @row-click="selectTemplate"
+            separator="cell"
             flat square dense
         >
           <template v-slot:top-left>
@@ -25,19 +26,23 @@
               <q-btn size="sm" icon="add" class="oa-button" label="New Plate Template"/>
             </router-link>
           </template>
-          <template v-slot:header-cell="props">
-            <q-td :props="props" class="row-cols-1">
-              <div>
-                <q-input v-if="props.col.name !== 'menu'" v-model="columnFilters[props.col.name]"
-                         :label="props.col.label"
-                         @update:model-value="handleColumnFilter(props.col.name)"
+          <template v-slot:header="props">
+            <q-tr :props="props">
+              <q-th v-for="col in props.cols" :key="col.name" :props="props">
+                {{col.label}}
+              </q-th>
+            </q-tr>
+            <q-tr :props="props">
+              <q-th v-for="col in props.cols" :key="col.name">
+                <q-input v-if="col.name != 'menu'" v-model="columnFilters[col.name]"
+                         @update:model-value="handleColumnFilter(col.name)"
                          dense>
                   <template v-slot:append>
                     <q-icon size="xs" name="search"/>
                   </template>
                 </q-input>
-              </div>
-            </q-td>
+              </q-th>
+            </q-tr>
           </template>
           <template v-slot:body-cell-tags="props">
             <q-td :props="props">

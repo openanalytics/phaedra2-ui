@@ -17,24 +17,29 @@
             column-key="name"
             :pagination="{ rowsPerPage: 20, sortBy: 'name' }"
             :loading="loading"
+            separator="cell"
             flat square dense
         >
           <template v-slot:top-left>
             <q-btn size="sm" color="primary" icon="add" label="New Formula..." @click="createNewFormula"/>
           </template>
-          <template v-slot:header-cell="props">
-            <q-td :props="props" class="row-cols-1">
-              <div>
-                <q-input v-if="props.col.name !== 'menu'" v-model="columnFilters[props.col.name]"
-                         :label="props.col.label"
-                         @update:model-value="handleColumnFilter(props.col.name)"
+          <template v-slot:header="props">
+            <q-tr :props="props">
+              <q-th v-for="col in props.cols" :key="col.name" :props="props">
+                {{col.label}}
+              </q-th>
+            </q-tr>
+            <q-tr :props="props">
+              <q-th v-for="col in props.cols" :key="col.name">
+                <q-input v-model="columnFilters[col.name]"
+                         @update:model-value="handleColumnFilter(col.name)"
                          dense>
                   <template v-slot:append>
                     <q-icon size="xs" name="search"/>
                   </template>
                 </q-input>
-              </div>
-            </q-td>
+              </q-th>
+            </q-tr>
           </template>
           <template v-slot:body-cell-name="props">
             <q-td :props="props" class="cursor-pointer" @click="selectFormula(props.row)">

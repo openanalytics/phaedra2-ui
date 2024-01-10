@@ -9,14 +9,14 @@
       <q-table
           table-header-class="text-grey"
           class="full-width"
-          square dense flat
-          :rows="jobs"
+          :rows="filteredJobs"
           :columns="columns"
-          row-key="id"
-          :pagination="{ rowsPerPage: 20, sortBy: 'createDate', descending: true }"
-          :filter="filter"
-          :filter-method="filterMethod"
           :visible-columns="visibleColumns"
+          row-key="id"
+          column-key="name"
+          :pagination="{ rowsPerPage: 20, sortBy: 'createDate', descending: true }"
+          separator="cell"
+          square dense flat
       >
         <template v-slot:top-left>
           <div class="justify-end">
@@ -45,15 +45,33 @@
                 </q-icon>
               </template>
             </q-input>
-            <div>
-              <q-input dense v-model="filter" placeholder="Search">
-                <template v-slot:append>
-                  <q-icon name="search"/>
-                </template>
-              </q-input>
-            </div>
+<!--            <div>-->
+<!--              <q-input dense v-model="filter" placeholder="Search">-->
+<!--                <template v-slot:append>-->
+<!--                  <q-icon name="search"/>-->
+<!--                </template>-->
+<!--              </q-input>-->
+<!--            </div>-->
             <q-btn flat round color="primary" icon="settings" style="border-radius: 50%;" @click="configdialog=true"/>
           </div>
+        </template>
+        <template v-slot:header="props">
+          <q-tr :props="props">
+            <q-th v-for="col in props.cols" :key="col.name" :props="props">
+              {{col.label}}
+            </q-th>
+          </q-tr>
+          <q-tr :props="props">
+            <q-th v-for="col in props.cols" :key="col.name">
+              <q-input v-if="col.name != 'menu'" v-model="columnFilters[col.name]"
+                       @update:model-value="handleColumnFilter(col.name)"
+                       dense>
+                <template v-slot:append>
+                  <q-icon size="xs" name="search"/>
+                </template>
+              </q-input>
+            </q-th>
+          </q-tr>
         </template>
         <template v-slot:body-cell-statusCode="props">
           <q-td :props="props">
@@ -105,7 +123,7 @@
                   <div class="text-h6">Source</div>
                   <div class="row">
                     <q-radio v-model="sourceType" val="folder" label="Folder" dense size="sm" class="col-2" />
-              
+
                     <q-file
                         :display-value="selectedSource.folderName" @update:model-value="handleFolderSelection"
                         :disable="sourceType != 'folder'"
@@ -154,7 +172,7 @@
 </template>
 
 <script setup>
-import {ref, computed, onMounted, onBeforeUnmount, reactive} from 'vue'
+import {ref, computed, onMounted, onBeforeUnmount, reactive, watch} from 'vue'
 import {useStore} from 'vuex'
 
 import OaSection from "@/components/widgets/OaSection";
@@ -178,6 +196,10 @@ const toDate = ref(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1
 const jobs = computed(() => store.getters['datacapture/getJobs']());
 store.dispatch('datacapture/loadJobs', {fromDate: DateUtils.parseLocaleDateString(fromDate.value), toDate: DateUtils.parseLocaleDateString(toDate.value)});
 
+const filteredJobs = ref([])
+const columnFilters = ref({})
+const visibleColumns = ref([])
+
 const captureConfigList = computed(() => store.getters['datacapture/getAllCaptureConfigs']());
 store.dispatch('datacapture/loadAllCaptureConfigs');
 const selectedConfig = ref({});
@@ -192,10 +214,10 @@ const columns = ref([
   {name: 'details'},
   {name: 'cancel'}
 ]);
-const visibleColumns = columns.value.map(a => a.name);
+// const visibleColumns = columns.value.map(a => a.name);
 const configdialog = ref(false);
-const filter = ref('');
-const filterMethod = FilterUtils.defaultTableFilter();
+// const filter = ref('');
+// const filterMethod = FilterUtils.defaultTableFilter();
 
 const refreshJobs = () => {
   fromDateProxy.value.hide()
@@ -253,11 +275,28 @@ const submitJobAction = async () => {
     newJob.sourcePath = selectedSource.value.folderName;
     newJob.files = selectedSource.value.files;
   }
-  
+
   newJob.captureConfig = selectedConfig.value?.value;
   await store.dispatch('datacapture/submitJob', newJob);
   refreshJobs();
 };
 
 const showConfig = ref(false);
+
+const updateVisibleColumns = (columns) => {
+  visibleColumns.value = [...columns]
+}
+
+const handleColumnFilter = (columnName) => {
+  filteredJobs.value = jobs.value.filter(row => String(row[columnName]).includes(columnFilters.value[columnName]))
+}
+
+watch(jobs, () => {
+  visibleColumns.value = [...columns.value.map(a => a.name)];
+  filteredJobs.value = [...jobs.value.map(r => r)]
+
+  columns.value.forEach(col => {
+    columnFilters.value[col.name] = ref(null)
+  })
+})
 </script>
