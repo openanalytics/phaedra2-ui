@@ -9,26 +9,40 @@
       <oa-section title="Captured Measurements" icon="text_snippet">
         <q-table
             table-header-class="text-grey"
-            flat dense
-            :rows="measurements"
-            :columns="columns"
-            row-key="id"
             class="full-width"
+            :rows="filteredMeasurements"
+            :columns="columns"
+            :visible-columns="visibleColumns"
+            row-key="id"
+            column-key="name"
             :pagination="{ rowsPerPage: 20, sortBy: 'createdOn', descending: true}"
-            :filter="filterValue"
-            :filter-method="filterMethod"
             @row-click="(e, row) => router.push('/datacapture/meas/' + row.id)"
             :loading="loading"
+            separator="cell"
+            flat dense square
         >
           <template v-slot:top-right>
             <div class="row">
-              <q-input outlined dense debounce="300" v-model="filterValue" placeholder="Search">
-                <template v-slot:append>
-                  <q-icon name="search"/>
-                </template>
-              </q-input>
               <q-btn flat round color="primary" icon="settings" style="border-radius: 50%;" @click="configdialog=true"/>
             </div>
+          </template>
+          <template v-slot:header="props">
+            <q-tr :props="props">
+              <q-th v-for="col in props.cols" :key="col.name" :props="props">
+                {{ col.label }}
+              </q-th>
+            </q-tr>
+            <q-tr :props="props">
+              <q-th v-for="col in props.cols" :key="col.name">
+                <q-input v-if="col.name != 'menu'" v-model="columnFilters[col.name]"
+                         @update:model-value="handleColumnFilter(col.name)"
+                         dense>
+                  <template v-slot:append>
+                    <q-icon size="xs" name="search"/>
+                  </template>
+                </q-input>
+              </q-th>
+            </q-tr>
           </template>
           <template v-slot:body-cell-createdBy="props">
             <q-td :props="props">
@@ -44,11 +58,10 @@
 </template>
 
 <script setup>
-import {computed, ref} from 'vue'
+import {computed, ref, watch} from 'vue'
 import {useStore} from "vuex";
 import {useRouter} from "vue-router";
 import FormatUtils from "@/lib/FormatUtils";
-import FilterUtils from "@/lib/FilterUtils";
 import TableConfig from "@/components/table/TableConfig";
 import OaSection from "@/components/widgets/OaSection";
 import UserChip from "@/components/widgets/UserChip";
@@ -59,6 +72,10 @@ const store = useStore()
 
 const measurements = computed(() => store.getters['measurements/getAll']() || [])
 store.dispatch('measurements/loadAll').then(() => loading.value = false);
+
+const filteredMeasurements = ref([])
+const columnFilters = ref({})
+const visibleColumns = ref([])
 
 const columns = ref([
   {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
@@ -72,12 +89,22 @@ const columns = ref([
   {name: 'imageChannels', align: 'left', label: 'Image Channels', field: row => (row?.imageChannels?.length || 0), sortable: true},
 ])
 
-const visibleColumns = columns.value.map(a => a.name)
 const configdialog = ref(false)
-const filterMethod = FilterUtils.defaultTableFilter()
-const filterValue = ref('')
 
+const updateVisibleColumns = (columns) => {
+  visibleColumns.value = [...columns]
+}
+
+const handleColumnFilter = (columnName) => {
+  filteredMeasurements.value = measurements.value.filter(row => String(row[columnName]).includes(columnFilters.value[columnName]))
+}
+
+watch(measurements, () => {
+  visibleColumns.value = [...columns.value.map(a => a.name)];
+  filteredMeasurements.value = [...measurements.value.map(r => r)]
+
+  columns.value.forEach(col => {
+    columnFilters.value[col.name] = ref(null)
+  })
+})
 </script>
-
-<style scoped>
-</style>
