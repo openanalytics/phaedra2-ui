@@ -45,13 +45,6 @@
                 </q-icon>
               </template>
             </q-input>
-<!--            <div>-->
-<!--              <q-input dense v-model="filter" placeholder="Search">-->
-<!--                <template v-slot:append>-->
-<!--                  <q-icon name="search"/>-->
-<!--                </template>-->
-<!--              </q-input>-->
-<!--            </div>-->
             <q-btn flat round color="primary" icon="settings" style="border-radius: 50%;" @click="configdialog=true"/>
           </div>
         </template>
@@ -214,10 +207,8 @@ const columns = ref([
   {name: 'details'},
   {name: 'cancel'}
 ]);
-// const visibleColumns = columns.value.map(a => a.name);
+
 const configdialog = ref(false);
-// const filter = ref('');
-// const filterMethod = FilterUtils.defaultTableFilter();
 
 const refreshJobs = () => {
   fromDateProxy.value.hide()
@@ -236,6 +227,7 @@ onMounted(() => {
     refreshJobs();
   }, 60000);
 });
+
 onBeforeUnmount(() => {
   clearInterval(timer);
 });
