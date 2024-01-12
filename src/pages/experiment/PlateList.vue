@@ -1,29 +1,43 @@
 <template>
   <q-table
+      class="full-width"
       table-header-class="text-grey"
-      :rows="plates"
+      :rows="filteredPlates"
       :columns="columns"
-      row-key="id"
-      :pagination="{ rowsPerPage: 10, sortBy: 'barcode' }"
-      :filter="filter"
-      :filter-method="filterMethod"
-      :loading="loading"
       :visible-columns="visibleColumns"
-      flat square dense
+      row-key="id"
+      column-key="name"
+      :pagination="{ rowsPerPage: 10, sortBy: 'barcode' }"
+      :loading="loading"
       @row-contextmenu="selectPlate"
+      separator="cell"
+      flat square dense
   >
     <template v-slot:top-left>
         <q-btn size="sm" icon="add" label="New Plate" @click="openNewPlateTab" class="oa-button"/>
     </template>
     <template v-slot:top-right>
       <div class="row">
-        <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
-          <template v-slot:append>
-            <q-icon name="search"/>
-          </template>
-        </q-input>
         <q-btn flat round color="primary" icon="settings" style="border-radius: 50%;" @click="configdialog=true"/>
       </div>
+    </template>
+    <template v-slot:header="props">
+      <q-tr :props="props">
+        <q-th v-for="col in props.cols" :key="col.name" :props="props">
+          {{col.label}}
+        </q-th>
+      </q-tr>
+      <q-tr :props="props">
+        <q-th v-for="col in props.cols" :key="col.name">
+          <q-input v-if="col.name != 'menu'" v-model="columnFilters[col.name]"
+                   @update:model-value="handleColumnFilter(col.name)"
+                   dense>
+            <template v-slot:append>
+              <q-icon size="xs" name="search"/>
+            </template>
+          </q-input>
+        </q-th>
+      </q-tr>
     </template>
     <template v-slot:body-cell-barcode="props">
       <q-td :props="props">
@@ -105,7 +119,7 @@
 </style>
 
 <script setup>
-import {computed, ref} from "vue";
+import {computed, ref, watch} from "vue";
 import {useStore} from 'vuex'
 import {useRoute} from "vue-router";
 
@@ -113,7 +127,6 @@ import UserChip from "@/components/widgets/UserChip";
 import TableConfig from "@/components/table/TableConfig";
 import PlateActionMenu from "@/components/plate/PlateActionMenu";
 import StatusFlag from "@/components/widgets/StatusFlag";
-import FilterUtils from "@/lib/FilterUtils";
 import FormatUtils from "@/lib/FormatUtils";
 
 const props = defineProps(['plates', 'experiment', 'newPlateTab'])
@@ -147,10 +160,8 @@ const selectPlate = (event, row) => {
   showPlateContextMenu.value = true;
 }
 
-let visibleColumns = columns.value.map(a => a.name)
-const filter = ref('')
-const filterMethod = FilterUtils.defaultTableFilter()
 const configdialog = ref(false)
+const showConfigDialog = ref(false)
 
 const openNewPlateTab = () => {
   emit('update:newPlateTab', true)
@@ -158,5 +169,23 @@ const openNewPlateTab = () => {
 
 const openPlateInspector = (plate) => {
   emit('showPlateInspector', plate)
+}
+
+const filteredPlates = ref([])
+const visibleColumns = ref([])
+const columnFilters = ref({})
+
+watch(plates, () => {
+  visibleColumns.value = [...columns.value.map(a => a.name)];
+  filteredPlates.value = [...plates.value.map(r => r)]
+  loading.value = false
+
+  columns.value.forEach(col => {
+    columnFilters.value[col.name] = ref(null)
+  })
+})
+
+const handleColumnFilter = (columnName) => {
+  filteredPlates.value = plates.value.filter(row => String(row[columnName]).includes(columnFilters.value[columnName]))
 }
 </script>

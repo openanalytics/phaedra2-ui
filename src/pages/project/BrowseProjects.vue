@@ -79,9 +79,6 @@ onMounted(() => {
   fetchAllProjects()
 })
 
-const filter = ref('');
-const filterMethod = FilterUtils.defaultTableFilter();
-
 const columns = ref([
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
   {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
