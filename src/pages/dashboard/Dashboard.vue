@@ -19,7 +19,7 @@
                         </template>
                         <template v-slot:body-cell-name="props">
                             <q-td :props="props">
-                                <router-link :to="'project/'+ props.row.projectId +'/experiment/' + props.row.id" class="nav-link">
+                                <router-link :to="{name: 'experiment', params: {experimentId: props.row.id}}" class="nav-link">
                                     <div class="row items-center cursor-pointer">
                                         <q-icon name="science" class="icon q-pr-sm"/>
                                         {{ props.row.name }}
