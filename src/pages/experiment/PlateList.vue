@@ -120,7 +120,6 @@
 
 <script setup>
 import {computed, ref, watch} from "vue";
-import {useStore} from 'vuex'
 import {useRoute} from "vue-router";
 
 import UserChip from "@/components/widgets/UserChip";
@@ -128,17 +127,18 @@ import TableConfig from "@/components/table/TableConfig";
 import PlateActionMenu from "@/components/plate/PlateActionMenu";
 import StatusFlag from "@/components/widgets/StatusFlag";
 import FormatUtils from "@/lib/FormatUtils";
+import {useExperimentStore} from "@/stores/experiment";
 
 const props = defineProps(['plates', 'experiment', 'newPlateTab'])
 const emit = defineEmits(['update:newPlateTab', 'showPlateInspector'])
 
-const store = useStore()
 const route = useRoute()
+const experimentStore = useExperimentStore()
 
 const loading = ref()
-const plates = computed( () => props.plates ? props.plates : [])
+const plates = computed( () => experimentStore.plates)
 
-let columns = ref([
+const columns = ref([
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
   {name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
   {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},

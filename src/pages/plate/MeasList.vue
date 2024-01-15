@@ -23,7 +23,7 @@
       </q-tr>
       <q-tr :props="props">
         <q-th v-for="col in props.cols" :key="col.name">
-          <q-input v-if="col.name != 'menu'" v-model="columnFilters[col.name]"
+          <q-input v-model="columnFilters[col.name]"
                    @update:model-value="handleColumnFilter(col.name)"
                    dense>
             <template v-slot:append>
@@ -103,7 +103,7 @@ const columns = [
   {name: 'imageChannels', align: 'left', label: 'Image Channels', field: 'imageChannels', sortable: true, format: val => `${val?.length || 0}` },
   {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate },
   {name: 'linkedOn', align: 'left', label: 'Linked On', field: 'linkedOn', sortable: true, format: FormatUtils.formatDate },
-  {name: 'menu', align: 'left', field: 'menu', sortable: false}
+  // {name: 'menu', align: 'left', field: 'menu', sortable: false}
 ];
 
 const plateMeasurements = ref([])

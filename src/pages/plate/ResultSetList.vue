@@ -1,57 +1,72 @@
 <template>
-    <q-table
-        table-header-class="text-grey"
-        flat square dense
-        :title="'Result Sets'"
-        :rows="plateStore.resultSets"
-        :columns="resultSetsColumns"
-        row-key="id"
-        :pagination="{ rowsPerPage: 10, sortBy: 'calculatedOn', descending: true }"
-        :filter="filter"
-        :filter-method="filterMethod"
-        :loading="loading">
+  <q-table
+      class="full-width"
+      table-header-class="text-grey"
+      :title="'Result Sets'"
+      :rows="filteredResultSets"
+      :columns="columns"
+      :visible-columns="visibleColumns"
+      row-key="id"
+      column-key="name"
+      :pagination="{ rowsPerPage: 10, sortBy: 'calculatedOn', descending: true }"
+      :loading="loading"
+      separator="cell"
+      flat square dense
+  >
 
-        <template v-slot:top-right>
-            <div class="row">
-                <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
-                    <template v-slot:append>
-                        <q-icon name="search"/>
-                    </template>
-                </q-input>
-                <q-btn flat round color="primary" icon="settings" style="border-radius: 50%;" @click="configdialog=true"/>
-            </div>
-        </template>
-        <template v-slot:body-cell-protocol="props">
-            <q-td :props="props" >
-                <router-link :to="'/protocol/' + props.row.protocolId" class="nav-link">
-                    <div class="row items-center cursor-pointer">
-                        {{ props.value }}
-                    </div>
-                </router-link>
-            </q-td>
-        </template>
-        <template v-slot:body-cell-outcome="props">
-            <q-td :props="props">
-                <StatusLabel :status="props.value" />
-            </q-td>
-        </template>
-        <template v-slot:body-cell-details="props">
-            <q-td :props="props">
-                <q-btn label="Details" icon-right="chevron_right" size="sm" @click="doShowDetails(props.row)"/>
-            </q-td>
-        </template>
-    </q-table>
+    <template v-slot:top-right>
+      <div class="row">
+        <q-btn flat round color="primary" icon="settings" style="border-radius: 50%;" @click="configdialog=true"/>
+      </div>
+    </template>
+    <template v-slot:header="props">
+      <q-tr :props="props">
+        <q-th v-for="col in props.cols" :key="col.name" :props="props">
+          {{ col.label }}
+        </q-th>
+      </q-tr>
+      <q-tr :props="props">
+        <q-th v-for="col in props.cols" :key="col.name">
+          <q-input v-model="columnFilters[col.name]"
+                   @update:model-value="handleColumnFilter(col.name)"
+                   dense>
+            <template v-slot:append>
+              <q-icon size="xs" name="search"/>
+            </template>
+          </q-input>
+        </q-th>
+      </q-tr>
+    </template>
+    <template v-slot:body-cell-protocol="props">
+      <q-td :props="props">
+        <router-link :to="'/protocol/' + props.row.protocolId" class="nav-link">
+          <div class="row items-center cursor-pointer">
+            {{ props.value }}
+          </div>
+        </router-link>
+      </q-td>
+    </template>
+    <template v-slot:body-cell-outcome="props">
+      <q-td :props="props">
+        <StatusLabel :status="props.value"/>
+      </q-td>
+    </template>
+    <template v-slot:body-cell-details="props">
+      <q-td :props="props">
+        <q-btn label="Details" icon-right="chevron_right" size="sm" @click="doShowDetails(props.row)"/>
+      </q-td>
+    </template>
+  </q-table>
 
-    <q-dialog v-model="showResultSetDetails">
-        <ResultSetDetailsPanel :resultSet="resultSetDetails"></ResultSetDetailsPanel>
-    </q-dialog>
+  <q-dialog v-model="showResultSetDetails">
+    <ResultSetDetailsPanel :resultSet="resultSetDetails"></ResultSetDetailsPanel>
+  </q-dialog>
 
 </template>
 
 <script setup>
-import {ref} from 'vue'
+import {computed, onMounted, ref, watch} from 'vue'
 import FormatUtils from "../../lib/FormatUtils";
-import FilterUtils from "../../lib/FilterUtils";
 import StatusLabel from "@/components/widgets/StatusLabel"
 import ResultSetDetailsPanel from "@/components/resultdata/ResultSetDetailsPanel";
 import {usePlateStore} from "@/stores/plate";
@@ -69,10 +84,13 @@ const doShowDetails = (rs) => {
     showResultSetDetails.value = true;
 };
 
-const filter = ref('');
-const filterMethod = FilterUtils.defaultTableFilter();
+const resultSets = ref([])
 
-const resultSetsColumns = ref([
+onMounted(() => {
+  resultSets.value = plateStore.resultSets
+})
+
+const columns = ref([
     { name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true },
     { name: 'calculatedOn', align: 'left', label: 'Calculated On', field: 'executionStartTimeStamp', sortable: true, format: FormatUtils.formatDate },
     { name: 'measurement', align: 'left', label: 'Measurement', field: 'measId', sortable: true },
@@ -81,4 +99,21 @@ const resultSetsColumns = ref([
     { name: 'details' }
 ])
 
+const filteredResultSets = ref([])
+const visibleColumns = ref([])
+
+const columnFilters = ref({})
+
+watch(resultSets, () => {
+  visibleColumns.value = [...columns.value.map(a => a.name)];
+  filteredResultSets.value = [...resultSets.value.map(r => r)]
+
+  columns.value.forEach(col => {
+    columnFilters.value[col.name] = ref(null)
+  })
+})
+
+const handleColumnFilter = (columnName) => {
+  filteredResultSets.value = resultSets.value.filter(row => String(row[columnName]).includes(columnFilters.value[columnName]))
+}
 </script>
