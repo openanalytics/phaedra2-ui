@@ -41,7 +41,7 @@
               <q-card square>
                 <q-card-section class="q-pa-sm">
                   <div class="text-grey-7 text-subtitle-2">Formula Variables</div>
-                  <q-separator/>
+                  <q-separator class="q-mb-sm"/>
                   <template :key="variable.variableName" v-for="variable in formulaInputs">
                     <div class="row">
                       <div class="col-1 self-center">
@@ -72,17 +72,26 @@
                       :options="drcModelOptions" option-label="name"
                       @update:model-value="onDRCModelSelection" stack-label dense/>
             <q-input label="Description" stack-label dense readonly v-model="selectedDCRModel.description"/>
-            <div v-for="(input, index) in selectedDCRModel.inputParameters" :key="index">
-              <q-select v-if="input.type === 'option'" :label="input.label" :options="input.options"
-                        v-model="inputParameters[index].value"
-                        stack-label dense/>
-              <q-input v-if="input.type === 'numeric' || input.type === 'string'" :label="input.label"
-                       v-model="inputParameters[index].value"
-                       stack-label dense/>
-              <q-checkbox v-if="input.type === 'boolean'" :label="input.label"
-                          v-model="inputParameters[index].value"
-                          left-label dense/>
+            <div class="q-pt-sm">
+              <q-card square>
+                <q-card-section class="q-pa-sm">
+                  <div class="text-grey-7 text-subtitle-2">Input Parameters</div>
+                  <q-separator class="q-mb-sm"/>
+                  <div v-for="(input, index) in selectedDCRModel.inputParameters" :key="index">
+                    <q-select v-if="input.type === 'option'" :label="input.label" :options="input.options"
+                              v-model="inputParameters[index].value"
+                              stack-label dense/>
+                    <q-input v-if="input.type === 'numeric' || input.type === 'string'" :label="input.label"
+                             v-model="inputParameters[index].value"
+                             stack-label dense/>
+                    <q-select v-if="input.type === 'boolean'" :label="input.label" :options="['TRUE', 'FALSE']"
+                              v-model="inputParameters[index].value"
+                              stack-label dense/>
+                  </div>
+                </q-card-section>
+              </q-card>
             </div>
+<!--            <q-select label="Multiplo Method" v-model="selectedDCRModel.multiploMethod"/>-->
           </div>
         </q-tab-panel>
       </q-tab-panels>
@@ -98,82 +107,93 @@
 </template>
 
 <script setup>
-  import { computed, ref} from "vue";
-  import { useProtocolStore } from "@/stores/protocol";
-  import { useFormulasStore } from "@/stores/formulas";
-  import { useFeatureStore } from "@/stores/feature";
-  import drcModelOptions from "@/resources/dose_response_curve_fit_models.json"
-  import ArrayUtils from "@/lib/ArrayUtils";
+import {computed, onMounted, ref} from "vue";
+import {useProtocolStore} from "@/stores/protocol";
+import {useFormulasStore} from "@/stores/formulas";
+import {useFeatureStore} from "@/stores/feature";
+import drcModelOptions from "@/resources/dose_response_curve_fit_models.json"
+import ArrayUtils from "@/lib/ArrayUtils";
 
-  const protocolStore = useProtocolStore();
-  const formulasStore = useFormulasStore()
-  const featureStore = useFeatureStore()
+const protocolStore = useProtocolStore();
+const formulasStore = useFormulasStore()
+const featureStore = useFeatureStore()
 
-  const props = defineProps(['show'])
-  const emit = defineEmits(['update:show'])
+const props = defineProps(['show'])
+const emit = defineEmits(['update:show'])
 
-  const activeTab = ref('general');
+const activeTab = ref('general');
 
-  //TODO fix hardcode
-  const inputSource = ['MEASUREMENT_WELL_COLUMN', 'MEASUREMENT_SUBWELL_COLUMN', 'FEATURE']
+//TODO fix hardcode
+const inputSource = ['MEASUREMENT_WELL_COLUMN', 'MEASUREMENT_SUBWELL_COLUMN', 'FEATURE']
+const multiploMethod = [{
+  "name": "All Plates",
+  "value": "ALL_PLATES",
+  "description": ""
+}]
 
-  const formulaInputs = ref(featureStore.feature.civs)
-  const selectedDCRModel = ref(drcModelOptions.find(drcModel => drcModel.name === featureStore.feature.drcModel?.name) ?? "")
-  const inputParameters = ref([])
+const formulaInputs = ref(featureStore.feature.civs)
+const selectedDCRModel = ref(drcModelOptions.find(drcModel => drcModel.name === featureStore.feature.drcModel?.name) ?? "")
+const inputParameters = ref([])
+
+onMounted(() => {
   for (const index in selectedDCRModel.value.inputParameters) {
     const inParam = selectedDCRModel.value.inputParameters[index]
     inputParameters.value[index] = featureStore.feature.drcModel?.inputParameters?.find(inP => inP.name === inParam.name) ?? null
   }
+})
 
-  const onDRCModelSelection = (selected) => {
-    selectedDCRModel.value = {
-      "name": selected.name,
-      "description": selected.description,
-      "inputParameters": selected.inputParameters
-    }
 
-    inputParameters.value = selected.inputParameters.map(inParam => inParam.type === 'boolean' ? {"name": inParam.name, "value": false} : {"name": inParam.name, "value": null})
+const onDRCModelSelection = (selected) => {
+  selectedDCRModel.value = {
+    "name": selected.name,
+    "description": selected.description,
+    "inputParameters": selected.inputParameters,
+    "multiploMethod": ""
   }
 
-  const formulaFilter = ref('');
-  const formulas = computed(() => ArrayUtils.sortBy([...formulasStore.formulas].filter(f => f.name.toLowerCase().includes(formulaFilter.value)), 'name'));
-  const filterFormulas = (val, update) => update(() => formulaFilter.value = val);
+  inputParameters.value = selected.inputParameters
+}
 
-  const availableFeatures = () => {
-    return protocolStore.getFeatures().filter((f) => { return f.id !== featureStore.feature.id && f.name !== featureStore.feature.name })
-  }
+const formulaFilter = ref('');
+const formulas = computed(() => ArrayUtils.sortBy([...formulasStore.formulas].filter(f => f.name.toLowerCase().includes(formulaFilter.value)), 'name'));
+const filterFormulas = (val, update) => update(() => formulaFilter.value = val);
 
-  const onFormulaSelection = (args) => {
-    if (!args) return;
-    formulasStore.loadFormulaInputs(args.id).then(() => {
-      formulaInputs.value = formulasStore.formulaInputs[args.id].map(i => {
-        return {
-          variableName: i,
-          inputSource: inputSource[0],
-          sourceMeasColName: undefined,
-          sourceFeatureId: undefined,
-          featureId: featureStore.feature.id,
-          formulaId: args.id
-        }
-      })
+const availableFeatures = () => {
+  return protocolStore.getFeatures().filter((f) => {
+    return f.id !== featureStore.feature.id && f.name !== featureStore.feature.name
+  })
+}
+
+const onFormulaSelection = (args) => {
+  if (!args) return;
+  formulasStore.loadFormulaInputs(args.id).then(() => {
+    formulaInputs.value = formulasStore.formulaInputs[args.id].map(i => {
+      return {
+        variableName: i,
+        inputSource: inputSource[0],
+        sourceMeasColName: undefined,
+        sourceFeatureId: undefined,
+        featureId: featureStore.feature.id,
+        formulaId: args.id
+      }
     })
-  }
+  })
+}
 
-  //Function to fire an edit event of a feature using the working copy
-  const editFeature = () => {
+//Function to fire an edit event of a feature using the working copy
+const editFeature = () => {
 
-    featureStore.feature.formulaId = featureStore.feature.formula.id
-    featureStore.feature.civs = formulaInputs.value
+  featureStore.feature.formulaId = featureStore.feature.formula.id
+  featureStore.feature.civs = formulaInputs.value
 
-    if (!featureStore.feature.drcModel)
-      featureStore.feature.drcModel = selectedDCRModel
+  featureStore.feature.drcModel = selectedDCRModel.value
 
-    featureStore.feature.drcModel.inputParameters = inputParameters.value
-    emit('update:show', false)
-  }
+  featureStore.feature.drcModel.inputParameters = inputParameters.value
+  emit('update:show', false)
+}
 
-  const onCancel = () => {
-    featureStore.$reset()
-    emit('update:show', false)
-  }
+const onCancel = () => {
+  featureStore.$reset()
+  emit('update:show', false)
+}
 </script>
