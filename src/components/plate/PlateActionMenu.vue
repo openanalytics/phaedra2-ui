@@ -1,6 +1,102 @@
 <template>
   <q-menu>
     <q-list dense>
+      <q-item dense clickable @click="browseDoseResponseCurves">
+        <q-item-section avatar>
+          <q-icon name="show_chart"/>
+        </q-item-section>
+        <q-item-section>Browse Dose-Response Curves</q-item-section>
+      </q-item>
+
+      <q-separator/>
+
+      <!-- Validation Menu -->
+      <q-item clickable v-if="props.plate.approvalStatus === 'APPROVAL_NOT_SET'">
+        <q-item-section avatar>
+          <q-icon name="outlined_flag"/>
+        </q-item-section>
+        <q-item-section>Validation</q-item-section>
+        <q-item-section side>
+          <q-icon name="keyboard_arrow_right"/>
+        </q-item-section>
+
+        <q-menu anchor="top end" self="top start">
+          <q-list dense>
+            <q-item clickable v-if="props.plate.validationStatus === 'VALIDATION_NOT_SET'" @click="validate()">
+              <q-item-section avatar>
+                <q-icon color="positive" name="check_circle"/>
+              </q-item-section>
+              <q-item-section>Validate Plate</q-item-section>
+            </q-item>
+            <q-item clickable v-if="props.plate.validationStatus !== 'VALIDATION_NOT_SET'" @click="resetValidation()">
+              <q-item-section avatar>
+                <q-icon name="remove_circle_outline"/>
+              </q-item-section>
+              <q-item-section>Reset Validation</q-item-section>
+            </q-item>
+            <q-item clickable v-if="props.plate.validationStatus === 'VALIDATION_NOT_SET'" @click="invalidate()">
+              <q-item-section avatar>
+                <q-icon color="negative" name="cancel"/>
+              </q-item-section>
+              <q-item-section>Invalidate Plate</q-item-section>
+            </q-item>
+          </q-list>
+        </q-menu>
+      </q-item>
+
+      <!-- Approval Menu -->
+      <q-item clickable
+              v-if="props.plate.approvalStatus === 'APPROVAL_NOT_SET' && props.plate.validationStatus === 'VALIDATED'">
+        <q-item-section avatar>
+          <q-icon name="outlined_flag"/>
+        </q-item-section>
+        <q-item-section>Approval</q-item-section>
+        <q-item-section side>
+          <q-icon name="keyboard_arrow_right"/>
+        </q-item-section>
+
+        <q-menu anchor="top end" self="top start">
+          <q-list dense>
+            <q-item clickable @click="approve()">
+              <q-item-section avatar>
+                <q-icon color="positive" name="check_circle"/>
+              </q-item-section>
+              <q-item-section>Approve Plate</q-item-section>
+            </q-item>
+            <q-item clickable v-if="props.plate.validationStatus !== 'VALIDATION_NOT_SET'" @click="resetValidation()">
+              <q-item-section avatar>
+                <q-icon name="remove_circle_outline"/>
+              </q-item-section>
+              <q-item-section>Reset Approval</q-item-section>
+            </q-item>
+            <q-item clickable @click="disapprove()">
+              <q-item-section avatar>
+                <q-icon color="negative" name="cancel"/>
+              </q-item-section>
+              <q-item-section>Disapprove Plate</q-item-section>
+            </q-item>
+          </q-list>
+        </q-menu>
+      </q-item>
+
+      <q-separator/>
+
+      <q-item clickable @click="linkPlate()">
+        <q-item-section avatar>
+          <q-icon name="playlist_add"/>
+        </q-item-section>
+        <q-item-section>Link Plate Template</q-item-section>
+      </q-item>
+
+      <q-item clickable @click="calculatePlate()">
+        <q-item-section avatar>
+          <q-icon name="calculate"/>
+        </q-item-section>
+        <q-item-section>(Re)Calculate Plate</q-item-section>
+      </q-item>
+
+      <q-separator/>
+
       <!-- Charts -->
       <q-item dense clickable>
         <q-item-section avatar>
@@ -24,18 +120,18 @@
               </q-item-section>
               <q-item-section>Boxplot</q-item-section>
             </q-item>
-<!--            <q-item dense clickable @click="chart('bar', props.plate.id)" v-close-popup>-->
-<!--              <q-item-section avatar>-->
-<!--                <q-icon name="insert_chart"/>-->
-<!--              </q-item-section>-->
-<!--              <q-item-section>Barplot</q-item-section>-->
-<!--            </q-item>-->
-<!--            <q-item dense clickable @click="chart('line', props.plate.id)" v-close-popup>-->
-<!--              <q-item-section avatar>-->
-<!--                <q-icon name="insert_chart"/>-->
-<!--              </q-item-section>-->
-<!--              <q-item-section>Lineplot</q-item-section>-->
-<!--            </q-item>-->
+            <!--            <q-item dense clickable @click="chart('bar', props.plate.id)" v-close-popup>-->
+            <!--              <q-item-section avatar>-->
+            <!--                <q-icon name="insert_chart"/>-->
+            <!--              </q-item-section>-->
+            <!--              <q-item-section>Barplot</q-item-section>-->
+            <!--            </q-item>-->
+            <!--            <q-item dense clickable @click="chart('line', props.plate.id)" v-close-popup>-->
+            <!--              <q-item-section avatar>-->
+            <!--                <q-icon name="insert_chart"/>-->
+            <!--              </q-item-section>-->
+            <!--              <q-item-section>Lineplot</q-item-section>-->
+            <!--            </q-item>-->
             <q-item dense clickable @click="chart('histogram', props.plate.id)" v-close-popup>
               <q-item-section avatar>
                 <q-icon name="insert_chart"/>
@@ -44,98 +140,6 @@
             </q-item>
           </q-list>
         </q-menu>
-      </q-item>
-      <!-- Validation Menu -->
-      <q-item clickable v-if="props.plate.approvalStatus === 'APPROVAL_NOT_SET'">
-        <q-item-section avatar>
-          <q-icon color="primary" name="outlined_flag"/>
-        </q-item-section>
-        <q-item-section>Validation</q-item-section>
-        <q-item-section side>
-          <q-icon name="keyboard_arrow_right"/>
-        </q-item-section>
-
-        <q-menu anchor="top end" self="top start">
-          <q-list dense>
-            <q-item clickable v-if="props.plate.validationStatus === 'VALIDATION_NOT_SET'" @click="validate()">
-              <q-item-section avatar>
-                <q-icon color="positive" name="check_circle"/>
-              </q-item-section>
-              <q-item-section>Validate</q-item-section>
-            </q-item>
-            <q-item clickable v-if="props.plate.validationStatus === 'VALIDATION_NOT_SET'" @click="invalidate()">
-              <q-item-section avatar>
-                <q-icon color="negative" name="cancel"/>
-              </q-item-section>
-              <q-item-section>Invalidate</q-item-section>
-            </q-item>
-            <q-item clickable v-if="props.plate.validationStatus !== 'VALIDATION_NOT_SET'" @click="resetValidation()">
-              <q-item-section avatar>
-                <q-icon color="primary" name="horizontal_rule"/>
-              </q-item-section>
-              <q-item-section>Reset Validation</q-item-section>
-            </q-item>
-          </q-list>
-        </q-menu>
-      </q-item>
-
-      <!-- Approval Menu -->
-      <q-item clickable
-              v-if="props.plate.approvalStatus === 'APPROVAL_NOT_SET' && props.plate.validationStatus === 'VALIDATED'">
-        <q-item-section avatar>
-          <q-icon color="primary" name="outlined_flag"/>
-        </q-item-section>
-        <q-item-section>Approval</q-item-section>
-        <q-item-section side>
-          <q-icon name="keyboard_arrow_right"/>
-        </q-item-section>
-
-        <q-menu anchor="top end" self="top start">
-          <q-list dense>
-            <q-item clickable @click="approve()">
-              <q-item-section avatar>
-                <q-icon color="positive" name="check_circle"/>
-              </q-item-section>
-              <q-item-section>Approve</q-item-section>
-            </q-item>
-            <q-item clickable @click="disapprove()">
-              <q-item-section avatar>
-                <q-icon color="negative" name="cancel"/>
-              </q-item-section>
-              <q-item-section>Disapprove</q-item-section>
-            </q-item>
-          </q-list>
-        </q-menu>
-      </q-item>
-
-      <q-separator/>
-
-      <q-item clickable @click="calculatePlate()">
-        <q-item-section avatar>
-          <q-icon name="calculate"/>
-        </q-item-section>
-        <q-item-section>Calculate plate</q-item-section>
-      </q-item>
-
-      <q-item dense clickable @click="fitCurves()">
-        <q-item-section avatar>
-          <q-icon name="show_chart"/>
-        </q-item-section>
-        <q-item-section>Fit Dose-Response Curves</q-item-section>
-      </q-item>
-
-      <q-item clickable @click="linkPlate()">
-        <q-item-section avatar>
-          <q-icon name="playlist_add"/>
-        </q-item-section>
-        <q-item-section>Link Plate Template</q-item-section>
-      </q-item>
-
-      <q-item clickable @click="openPlateInspector()">
-        <q-item-section avatar>
-          <q-icon color="primary" name="info"/>
-        </q-item-section>
-        <q-item-section>Plate Inspector</q-item-section>
       </q-item>
 
       <q-separator/>
