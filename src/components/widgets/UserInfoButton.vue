@@ -1,7 +1,16 @@
 <template>
     <div>
-        <q-btn flat round dense icon="person" @click="showDialog = true" />
-        <span>{{userInfoStore.userInfo.fullName}}</span>
+      <q-btn flat round dense icon="person" @click="showDialog = true">
+        <q-tooltip>
+          {{userInfoStore.userInfo.fullName}}
+        </q-tooltip>
+      </q-btn>
+      <q-btn flat round dense icon="logout" @click="logout">
+        <q-tooltip>
+          Logout
+        </q-tooltip>
+      </q-btn>
+<!--        <span>{{userInfoStore.userInfo.fullName}}</span>-->
     </div>
 
     <q-dialog v-model="showDialog">
@@ -47,4 +56,8 @@ import {useUserInfoStore} from "@/stores/userinfo";
 const userInfoStore = useUserInfoStore()
 userInfoStore.loadUserInfo()
 const showDialog = ref(false);
+
+const logout = () => {
+  userInfoStore.logout()
+}
 </script>

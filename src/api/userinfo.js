@@ -1,10 +1,11 @@
 import axios from "axios";
 
 const apiURL = process.env.VUE_APP_API_BASE_URL.replace('/api/v1', '');
+const logoutUri = "https://keycloak.phaedra.poc.openanalytics.io/auth/realms/phaedra2/protocol/openid-connect/logout?redirect_uri=https://phaedra.poc.openanalytics.io/phaedra/ui/"
 
 const mockData = {
     enabled: (process.env.NODE_ENV == "development"),
-    userInfo: { 
+    userInfo: {
         data: {
             fullName: "Developer",
             claims: { realm_access: { "roles": ["default-roles-phaedra2","offline_access","uma_authorization",
@@ -41,5 +42,9 @@ export default {
     async getUserList() {
         const response = mockData.enabled ? mockData.users : await axios.get(apiURL + '/users');
         return response.data;
+    },
+
+    async logout() {
+        await axios.get(logoutUri)
     }
 }

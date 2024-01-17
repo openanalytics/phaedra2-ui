@@ -15,6 +15,10 @@ export const useUserInfoStore = defineStore("userinfo" , {
         async loadUserNames() {
             const userNames = await userinfoAPI.getUserList()
             this.userNames = userNames
+        },
+        async logout() {
+            await userinfoAPI.logout()
         }
+
     }
 })
