@@ -122,10 +122,11 @@
         <q-item-section>Delete Experiment</q-item-section>
       </q-item>
     </q-list>
+
+    <DeleteDialog v-if="props.experiment" :id="props.experiment.id" :name="props.experiment.name" :objectClass="'experiment'"
+                  v-model:show="showDeleteDialog" @onDeleted="onDeleted"/>
+    <LinkPlateDialog v-model:show="showLinkPlateDialog" :experiment="props.experiment"/>
   </q-menu>
-  <DeleteDialog v-if="props.experiment" :id="props.experiment.id" :name="props.experiment.name" :objectClass="'experiment'"
-                v-model:show="showDeleteDialog" @onDeleted="onDeleted"/>
-  <LinkPlateDialog v-model:show="showLinkPlateDialog" :experiment="props.experiment"/>
 </template>
 
 <script setup>
