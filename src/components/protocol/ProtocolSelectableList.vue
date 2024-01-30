@@ -21,8 +21,11 @@
     const loading = ref(true);
     const store = useStore();
     const protocols = ref([])
-    protocolsGraphQlAPI.protocols().then(result => {
-      protocols.value = result
+
+    //TODO: Implement onError
+    const {onResult, onError} = protocolsGraphQlAPI.protocols()
+    onResult(({data}) => {
+      protocols.value = data.protocols
       loading.value = false
     })
 

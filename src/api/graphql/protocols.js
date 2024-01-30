@@ -1,35 +1,24 @@
 import {provideApolloClient, useQuery} from '@vue/apollo-composable'
 import gql from 'graphql-tag'
-import {computed} from "vue";
 import {apolloProtocolsClient} from "@/graphql/apollo.clients";
-import axios from "axios";
 
-const token = process.env.VUE_APP_API_BEARER_TOKEN;
 const defaultOptions = { fetchPolicy: 'no-cache', errorPolicy: 'ignore'}
 
 export default {
-    async protocols() {
-        const result = await axios({
-            url: 'https://phaedra.poc.openanalytics.io/phaedra/api/v1/protocol-service/graphql',
-            method: 'post',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            },
-            data: {
-                query: `
-                    query getProtocols {
-                        protocols:getProtocols {
-                            id
-                            name
-                            description
-                            createdOn
-                            createdBy
-                        }
-                    }
-                `
+    protocols() {
+        const QUERY = gql`
+            query getProtocols {
+                protocols:getProtocols {
+                    id
+                    name
+                    description
+                    createdOn
+                    createdBy
+                }
             }
-        })
-        return result.data.data.protocols
+        `
+        return provideApolloClient(apolloProtocolsClient)(() => useQuery(QUERY,
+            null, defaultOptions))
     },
     protocolById(protocolId) {
         const QUERY = gql`

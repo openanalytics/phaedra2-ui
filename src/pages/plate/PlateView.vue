@@ -67,8 +67,8 @@
       </oa-section>
     </div>
 
-    <Splitpanes class="default-theme" @resize="updateWidth">
-      <Pane :size="100 - paneSize" class="q-pa-sm" v-if="plateStore.plate" style="background-color: #E6E6E6">
+    <Splitpanes class="default-theme" :horizontal="horizontal">
+      <Pane class="q-pa-sm" v-if="plateStore.plate" style="background-color: #E6E6E6">
         <q-tabs inline-label dense no-caps align="left" class="oa-section-title" v-model="activeTab">
           <q-tab name="layout" icon="view_module" label="Layout" class="oa-section-title"/>
           <q-tab name="heatmap" icon="view_module" label="Heatmap" class="oa-section-title"/>
@@ -78,7 +78,7 @@
           <q-tab name="curves" icon="show_chart" label="Dose-Response Curves" class="oa-section-title"/>
         </q-tabs>
         <div class="row oa-section-body">
-          <q-tab-panels v-model="activeTab" animated style="width: 100%; height: 100%">
+          <q-tab-panels v-model="activeTab" animated>
             <q-tab-panel name="layout">
               <PlateLayout :plate="plateStore.plate" :wells="plateStore.wells"/>
             </q-tab-panel>
@@ -101,7 +101,17 @@
         </div>
       </Pane>
       <Pane v-if="showDRCViewPane" style="background-color: #E6E6E6" ref="drcViewPane">
-        <component :is="drcView" v-bind="drcViewProps" @closeDRCView="handleCloseDRCView"/>
+        <DRCView :height="height" :width="width" :curves="curves">
+          <template v-slot:actions>
+            <q-btn v-if="horizontal" icon="view_stream" @click="changeDirection" class="q-pa-xs" size="md" flat>
+              <q-tooltip>Show vertical view</q-tooltip>
+            </q-btn>
+            <q-btn v-if="!horizontal" icon="view_column" @click="changeDirection" class="q-pa-xs" size="md" flat>
+              <q-tooltip>Show horizontal view</q-tooltip>
+            </q-btn>
+            <q-btn icon="close" @click="handleCloseDRCView" class="q-pa-xs" size="md" flat/>
+          </template>
+        </DRCView>
       </Pane>
     </Splitpanes>
 
@@ -112,7 +122,7 @@
 </template>
 
 <script setup>
-import {defineComponent, onMounted, reactive, ref, watchEffect} from 'vue'
+import {onMounted, ref, watchEffect} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import {Splitpanes, Pane} from 'splitpanes'
 
@@ -143,13 +153,13 @@ const experimentStore = useExperimentStore()
 const plateStore = usePlateStore()
 const router = useRouter();
 
-const height = ref(400);
-const width = ref(500);
+const horizontal = ref(false)
+const height = ref(400)
+const width = ref(500)
+const curves = ref([])
 
-const drcView = ref(defineComponent(DRCView))
 const drcViewPane = ref()
 const showDRCViewPane = ref(false)
-const drcViewProps = reactive({height: height.value, width: width.value, curve: null})
 
 const plateId = parseInt(route.params.plateId)
 onMounted(() => {
@@ -189,14 +199,8 @@ const onDeleted = async () => {
   await router.push({name: 'experiment', params: {id: experimentStore.experiment.id}})
 }
 
-const updateHeight = (events) => {
-  height.value = events[0].size;
-  drcViewProps.height = events[0].size
-}
-
-const updateWidth = (events) => {
-  width.value = events[1].size;
-  drcViewProps.width = events[1].size
+const changeDirection = () => {
+  horizontal.value = !horizontal.value
 }
 
 const chartPaneHeight = ref(0)
@@ -207,7 +211,7 @@ const showSelectedCurves = (args) => {
 
 const handleShowDRCView = (data) => {
   showDRCViewPane.value = true
-  drcViewProps.curves = [...data]
+  curves.value = [...data]
 }
 
 const handleCloseDRCView = () => {

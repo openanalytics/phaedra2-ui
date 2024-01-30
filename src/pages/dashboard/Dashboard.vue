@@ -9,7 +9,12 @@
         <div class="q-pa-sm">
             <oa-section title="Recent Experiments" icon="science" :collapsible="true">
                 <div class="q-pa-sm">
-                    <q-table :columns="columns" :rows="recentExperiments" flat square dense table-header-class="text-grey">
+                    <q-table
+                        :columns="columns"
+                        :rows="recentExperiments"
+                        class="full-width"
+                        table-header-class="text-grey"
+                        flat square dense>
                         <template v-slot:body-cell-tags="props">
                             <q-td key="tags" :props="props">
                                 <q-badge class="row" color="green" v-for="tag in props.row.tags" :key="tag.value">
@@ -72,16 +77,6 @@
     </q-page>
 </template>
 
-<style>
-.layout {
-    display: flex;
-}
-
-.pane {
-    flex: 1;
-}
-</style>
-
 <script setup>
 import {onMounted, ref} from "vue";
 import RecentCalculations from "@/components/dashboard/RecentCalculations"
@@ -103,6 +98,7 @@ onMounted(() => {
 })
 
 const columns = [
+    {name: 'project', label: 'Project', align: 'left', field: 'projectId'},
     {name: 'name', label: 'Name', align: 'left', field: 'name'},
     {name: 'tags', label: 'Tags', align: 'left', field: 'tags'},
     {name: 'description', label: 'Description', align: 'left', field: 'description'},
@@ -111,8 +107,7 @@ const columns = [
     {name: 'nrOfPlatesValidated', label: '#PV', align: 'left', field: 'nrOfPlatesValidated'},
     {name: 'nrOfPlatesApproved', label: '#PA', align: 'left', field: 'nrOfPlatesApproved'},
     {name: 'createdOn', label: 'Created On', align: 'left', field: 'createdOn', format: FormatUtils.formatDate},
-    {name: 'createdBy', label: 'Created By', align: 'left', field: 'createdBy'},
-    {name: 'project', label: 'Project', align: 'left', field: 'projectId'}
+    {name: 'createdBy', label: 'Created By', align: 'left', field: 'createdBy'}
 ]
 
 const fetchNRecentProject = (n) => {

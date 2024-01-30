@@ -2,7 +2,6 @@ import {apolloResultDataClient} from "@/graphql/apollo.clients";
 import {provideApolloClient, useQuery} from '@vue/apollo-composable'
 import gql from 'graphql-tag'
 
-const token = process.env.VUE_APP_API_BEARER_TOKEN;
 const defaultOptions = { fetchPolicy: 'no-cache', errorPolicy: 'ignore'}
 
 export default {

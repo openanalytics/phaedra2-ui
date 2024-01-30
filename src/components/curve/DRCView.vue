@@ -1,13 +1,16 @@
 <template>
   <div class="q-pa-sm">
-    <div class="row oa-section-title">
-      <div class="col-1 text-h6"/>
-      <div class="col-1 text-h6">
+    <div class="row oa-section-title justify-evenly">
+      <div class="col-1 text-h6 q-ml-md">
         <q-icon name="show_chart" />
       </div>
-      <div class="col-9 text-h6">Dose-Response View</div>
-      <div class="col-1 text-h6">
-        <q-btn icon="close" @click="closeDRCView" class="q-pa-xs" size="md" flat/>
+      <div class="col text-h6">Dose-Response View</div>
+      <div class="text-h6">
+        <actions>
+          <slot name="actions" class="row">
+            <q-btn icon="close" @click="closeDRCView" class="q-pa-xs" size="md" flat/>
+          </slot>
+        </actions>
       </div>
     </div>
     <div class="oa-section-body">
@@ -27,9 +30,9 @@
 
 <script setup>
 import Plotly from "plotly.js-dist-min";
-import {onMounted, ref, watch} from "vue";
+import {onMounted, onUpdated, ref, watch} from "vue";
 
-const props = defineProps(['width', 'height', 'curves'])
+const props = defineProps(['width', 'height', 'curves', 'update'])
 const emits = defineEmits(['closeDRCView'])
 const curve = ref(null)
 const curvePropertyRows = ref([])
@@ -38,6 +41,11 @@ onMounted(() => {
   updateDRCPlotView()
   updateDRCPropertyTable()
 })
+
+onUpdated(() => {
+  resizeDRCPlotView()
+})
+
 
 const updateDRCPlotView = () => {
   const config = {autosize: false, displaylogo: false}
@@ -125,8 +133,6 @@ const updateDRCPropertyTable = () => {
   })
 }
 
-watch(() => props.width, resizeDRCPlotView)
-watch(() => props.height, resizeDRCPlotView)
 watch(() => props.curves, updateDRCPlotView)
 watch(() => props.curves, updateDRCPropertyTable)
 
