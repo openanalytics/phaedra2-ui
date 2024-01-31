@@ -1,4 +1,4 @@
-FROM registry.openanalytics.eu/proxy/library/node:16
+FROM registry.openanalytics.eu/proxy/library/node:21
 WORKDIR /opt/phaedra
 
 # Install modules first, this takes a long time and will get cached in a layer
