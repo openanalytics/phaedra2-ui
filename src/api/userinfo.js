@@ -1,7 +1,6 @@
 import axios from "axios";
 
 const apiURL = (config.VUE_APP_API_BASE_URL || process.env.VUE_APP_API_BASE_URL).replace('/api/v1', '');
-const logoutUri = "https://keycloak.phaedra.poc.openanalytics.io/auth/realms/phaedra2/protocol/openid-connect/logout?redirect_uri=https://phaedra.poc.openanalytics.io/phaedra/ui/"
 
 const mockData = {
     enabled: (process.env.NODE_ENV == "development"),
@@ -45,6 +44,5 @@ export default {
     },
 
     async logout() {
-        await axios.get(logoutUri)
     }
 }
