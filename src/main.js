@@ -174,10 +174,6 @@ const routes = createRouter({
 })
 app.use(routes)
 
-// Use Plotly.js for charts
-// --------------------------------------------------------------------
-// app.use(Plotly)
-
 app.mixin({
     methods: {
         /**
