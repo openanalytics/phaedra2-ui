@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const apiURL = process.env.VUE_APP_API_BASE_URL + '/metadata-service';
+const apiURL = (config.VUE_APP_API_BASE_URL || process.env.VUE_APP_API_BASE_URL) + '/metadata-service';
 
 export default {
     async addTag(taggedObject) {

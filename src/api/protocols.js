@@ -1,7 +1,7 @@
 import axios from "axios";
 import FormatUtils from "@/lib/FormatUtils";
 
-const apiURL = process.env.VUE_APP_API_BASE_URL + '/protocol-service';
+const apiURL = (config.VUE_APP_API_BASE_URL || process.env.VUE_APP_API_BASE_URL) + '/protocol-service';
 
 export default {
     async getProtocolById(protocolId) {

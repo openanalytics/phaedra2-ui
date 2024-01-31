@@ -12,45 +12,46 @@ const authLink = setContext((_, { headers }) => {
     }
 });
 
+const apiURL = (config.VUE_APP_API_BASE_URL || process.env.VUE_APP_API_BASE_URL);
 
 const apolloResultDataClient = new ApolloClient({
     link: authLink.concat(createHttpLink({
-        uri: 'https://phaedra.poc.openanalytics.io/phaedra/api/v1/resultdata-service/graphql',
+        uri: `${apiURL}/resultdata-service/graphql`,
     })),
     cache: new InMemoryCache(),
 })
 
 const apolloPlatesClient = new ApolloClient({
     link: authLink.concat(createHttpLink({
-        uri: 'https://phaedra.poc.openanalytics.io/phaedra/api/v1/plate-service/graphql',
+        uri: `${apiURL}/plate-service/graphql`,
     })),
     cache: new InMemoryCache()
 })
 
 const apolloChartsClient = new ApolloClient({
     link: authLink.concat(createHttpLink({
-        uri: 'https://phaedra.poc.openanalytics.io/phaedra/api/v1/charting-service/graphql',
+        uri: `${apiURL}/charting-service/graphql`,
     })),
     cache: new InMemoryCache()
 })
 
 const apolloCurvesClient = new ApolloClient({
     link: authLink.concat(createHttpLink({
-        uri: 'https://phaedra.poc.openanalytics.io/phaedra/api/v1/curvedata-service/graphql',
+        uri: `${apiURL}/curvedata-service/graphql`,
     })),
     cache: new InMemoryCache()
 })
 
 const apolloProtocolsClient = new ApolloClient({
     link: authLink.concat(createHttpLink({
-        uri: 'https://phaedra.poc.openanalytics.io/phaedra/api/v1/protocol-service/graphql',
+        uri: `${apiURL}/protocol-service/graphql`,
     })),
     cache: new InMemoryCache()
 })
 
 const apolloMeasurementsClient = new ApolloClient({
     link: authLink.concat(createHttpLink({
-        uri: 'https://phaedra.poc.openanalytics.io/phaedra/api/v1/measurement-service/graphql',
+        uri: `${apiURL}/measurement-service/graphql`,
     })),
     cache: new InMemoryCache()
 })

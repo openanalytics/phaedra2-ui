@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const apiURL = process.env.VUE_APP_API_BASE_URL + '/plate-service';
+const apiURL = (config.VUE_APP_API_BASE_URL || process.env.VUE_APP_API_BASE_URL) + '/plate-service';
 
 export default {
     async getProjectById(id) {
