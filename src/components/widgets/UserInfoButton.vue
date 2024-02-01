@@ -5,7 +5,7 @@
           {{userInfoStore.userInfo.fullName}}
         </q-tooltip>
       </q-btn>
-      <q-btn flat round dense icon="logout" @click="logout">
+      <q-btn flat round dense icon="logout" @click="showLogoutDialog = true">
         <q-tooltip>
           Logout
         </q-tooltip>
@@ -47,17 +47,22 @@
             </q-card-actions>
         </q-card>
     </q-dialog>
+
+    <LogoutDialog v-model:show="showLogoutDialog" @onConfirm="handleLogout"/>
 </template>
 
 <script setup>
 import {ref} from "vue";
 import {useUserInfoStore} from "@/stores/userinfo";
+import LogoutDialog from "@/components/widgets/LogoutDialog.vue";
 
 const userInfoStore = useUserInfoStore()
 userInfoStore.loadUserInfo()
 const showDialog = ref(false);
+const showLogoutDialog = ref(false)
 
-const logout = () => {
-  userInfoStore.logout()
+const handleLogout = () => {
+  console.log("Logout from Phaedra!")
+  userInfoStore.logoutUser()
 }
 </script>

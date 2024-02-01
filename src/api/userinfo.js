@@ -42,7 +42,8 @@ export default {
         const response = mockData.enabled ? mockData.users : await axios.get(apiURL + '/users');
         return response.data;
     },
-
     async logout() {
+        const response = await axios.post(apiURL + '/logout');
+        return response.data
     }
 }
