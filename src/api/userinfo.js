@@ -43,7 +43,7 @@ export default {
         return response.data;
     },
     async logout() {
-        const response = await axios.post(apiURL + '/logout');
+        const response = await axios.get(apiURL + '/userlogout');
         return response.data
     }
 }
