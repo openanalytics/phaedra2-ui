@@ -11,7 +11,7 @@
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn flat label="Yes" color="primary" v-close-popup @click="doConfirm"/>
+          <q-btn flat label="Yes" color="primary" v-close-popup @click="handleConfirm"/>
           <q-btn flat label="No" color="primary" v-close-popup @click="$emit('update:show',false)"/>
         </q-card-actions>
       </q-card>
@@ -23,17 +23,35 @@
 <script setup>
 
 import {computed} from 'vue';
+import userinfo from "@/api/userinfo";
+// import axios from "axios";
 
-const props = defineProps([ 'show', ])
-const emit = defineEmits([ 'onConfirm', 'update:show' ])
+const logoutUrl = userinfo.apiURL + "/logout"
+console.log("Logout URL: " + logoutUrl)
+
+const props = defineProps(['show',])
+const emit = defineEmits(['onConfirm', 'update:show'])
+
 
 const showDialog = computed({
   get: () => props.show,
   set: (v) => emit('update:show', v)
 })
 
-const doConfirm = () => {
-  emit('update:show',false)
+// const handleLogout = () => {
+//   axios.get('https://keycloak.phaedra.poc.openanalytics.io/auth/realms/phaedra2/protocol/openid-connect/logout', {
+//     params: {
+//       redirect_uri: 'http://localhost:8080/phaedra/ui' // The URL to where you want the user to be redirected after logout
+//     }
+//   })
+//       .then(() => {
+//         this.$router.push('/'); // Redirect the user to the login page or wherever you want
+//       })
+//       .catch(error => console.error(error));
+// }
+
+const handleConfirm = () => {
+  emit('update:show', false)
   emit('onConfirm');
 }
 </script>
