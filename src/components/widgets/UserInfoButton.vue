@@ -64,11 +64,8 @@ userInfoStore.loadUserInfo()
 const showDialog = ref(false);
 const showLogoutDialog = ref(false)
 
-const logoutUrl = userInfoAPI.apiURL + "/userlogout"
-console.log("Logout URL: " + logoutUrl)
-
 const handleLogout = () => {
   console.log("Logout from Phaedra!")
-  window.location.href = 'https://phaedra.poc.openanalytics.io/phaedra/userlogout'
+  window.location.href = userInfoAPI.apiURL + "/userlogout"
 }
 </script>
