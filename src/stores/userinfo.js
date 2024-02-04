@@ -16,9 +16,9 @@ export const useUserInfoStore = defineStore("userinfo" , {
             const userNames = await userinfoAPI.getUserList()
             this.userNames = userNames
         },
-        async logoutUser() {
-            await userinfoAPI.logout()
+        getLogoutUserURL() {
             this.reset()
+            return userinfoAPI.getLogoutURL()
         },
         reset() {
             this.userInfo = {}

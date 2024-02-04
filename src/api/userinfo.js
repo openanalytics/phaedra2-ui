@@ -19,7 +19,6 @@ const mockData = {
 };
 
 export default {
-    apiURL,
     async getUserInfo() {
         try {
             const response = mockData.enabled ? mockData.userInfo : await axios.get(apiURL + '/userinfo');
@@ -43,8 +42,7 @@ export default {
         const response = mockData.enabled ? mockData.users : await axios.get(apiURL + '/users');
         return response.data;
     },
-    async logout() {
-        const response = await axios.get(apiURL + '/userlogout');
-        return response.data
+    getLogoutURL() {
+        return apiURL + '/userlogout'
     }
 }

@@ -10,7 +10,6 @@
           Logout
         </q-tooltip>
       </q-btn>
-<!--        <span>{{userInfoStore.userInfo.fullName}}</span>-->
     </div>
 
     <q-dialog v-model="showDialog">
@@ -55,17 +54,15 @@
 import {ref} from "vue";
 import {useUserInfoStore} from "@/stores/userinfo";
 import LogoutDialog from "@/components/widgets/LogoutDialog.vue";
-import {useRoute} from "vue-router";
 
 const userInfoStore = useUserInfoStore()
-import userInfoAPI from "@/api/userinfo";
-
 userInfoStore.loadUserInfo()
+
 const showDialog = ref(false);
 const showLogoutDialog = ref(false)
 
 const handleLogout = () => {
   console.log("Logout from Phaedra!")
-  window.location.href = userInfoAPI.apiURL + "/userlogout"
+  window.location.href = userInfoStore.getLogoutUserURL()
 }
 </script>
