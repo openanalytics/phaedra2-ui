@@ -19,6 +19,7 @@ const mockData = {
 };
 
 export default {
+    apiURL,
     async getUserInfo() {
         try {
             const response = mockData.enabled ? mockData.userInfo : await axios.get(apiURL + '/userinfo');

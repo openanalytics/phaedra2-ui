@@ -55,14 +55,20 @@
 import {ref} from "vue";
 import {useUserInfoStore} from "@/stores/userinfo";
 import LogoutDialog from "@/components/widgets/LogoutDialog.vue";
+import {useRoute} from "vue-router";
 
 const userInfoStore = useUserInfoStore()
+import userInfoAPI from "@/api/userinfo";
+
 userInfoStore.loadUserInfo()
 const showDialog = ref(false);
 const showLogoutDialog = ref(false)
 
+const logoutUrl = userInfoAPI.apiURL + "/userlogout"
+console.log("Logout URL: " + logoutUrl)
+
 const handleLogout = () => {
   console.log("Logout from Phaedra!")
-  userInfoStore.logoutUser()
+  window.location.href = 'https://phaedra.poc.openanalytics.io/phaedra/userlogout'
 }
 </script>
