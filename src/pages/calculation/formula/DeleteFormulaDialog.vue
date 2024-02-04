@@ -21,31 +21,24 @@
     </q-dialog>
 </template>
 
-<script>
-    import {ref} from 'vue'
-    import {useStore} from 'vuex'
-    import {useRouter} from 'vue-router'
+<script setup>
+import {ref} from 'vue'
+import {useStore} from 'vuex'
+import {useRouter} from 'vue-router'
 
-    export default {
-        setup() {
-            const exported = {};
+const store = useStore();
+const router = useRouter();
 
-            const store = useStore();
-            const router = useRouter();
+const showDialog = ref(false);
+const formulaToDelete = ref(null);
 
-            exported.showDialog = ref(false);
-            exported.formulaToDelete = ref(null);
+const openDialog = (formula) => {
+  formulaToDelete.value = formula;
+  showDialog.value = true;
+}
 
-            exported.openDialog = (formula) => {
-                exported.formulaToDelete.value = formula;
-                exported.showDialog.value = true;
-            }
-            exported.confirmDelete = async () => {
-                await store.dispatch('calculations/deleteFormula', exported.formulaToDelete.value.id);
-                await router.push("/calc/formulae");
-            }
-
-            return exported;
-        }
-    }
+const confirmDelete = async () => {
+  await store.dispatch('calculations/deleteFormula', formulaToDelete.value.id);
+  await router.push("/calc/formulae");
+}
 </script>
