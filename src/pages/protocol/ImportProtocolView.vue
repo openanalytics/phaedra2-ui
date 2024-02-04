@@ -30,36 +30,30 @@
   </q-page>
 </template>
 
-<script>
+<script setup>
 
 import {ref} from "vue";
 import OaSectionHeader from "../../components/widgets/OaSectionHeader";
-export default {
-  name: "ImportProtocolView",
-  components: {OaSectionHeader},
-  methods: {
-    importAsJson() {
-      console.log('importing')
-      if (this.jsonFiles.length === 0){
-        this.jsonStatusMessage = "No json files selected."
-        return
-      }
-      //Loop over all json files, parse, and commit them.
-      this.jsonFiles.forEach(f => {
-        const fr = new FileReader();
-        fr.onload = e => {
-          const result = JSON.parse(e.target.result)
-          this.$store.dispatch('protocols/importAsJson', result)
-        }
-        fr.readAsText(f)
-      })
-    }
-  },
-  setup() {
-    const exported = {}
-    exported.jsonFiles = ref([])
-    exported.jsonStatusMessage = ref("")
-    return exported
+import {useStore} from "vuex";
+
+const jsonFiles = ref([])
+const jsonStatusMessage = ref("")
+const store = useStore()
+
+const importAsJson = () => {
+  console.log('importing')
+  if (jsonFiles.value.length === 0) {
+    jsonStatusMessage.value = "No json files selected."
+    return
   }
+  //Loop over all json files, parse, and commit them.
+  jsonFiles.value.forEach(f => {
+    const fr = new FileReader();
+    fr.onload = e => {
+      const result = JSON.parse(e.target.result)
+      store.dispatch('protocols/importAsJson', result)
+    }
+    fr.readAsText(f)
+  })
 }
 </script>
