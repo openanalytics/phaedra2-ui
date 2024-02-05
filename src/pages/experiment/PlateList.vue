@@ -11,6 +11,8 @@
       :loading="loading"
       @row-contextmenu="selectPlate"
       separator="cell"
+      virtual-scroll
+      style="max-height: 600px"
       flat square dense
   >
     <template v-slot:top-left>
@@ -105,10 +107,9 @@
       </div>
     </template>
   </q-table>
-  <table-config v-model:show="configdialog" v-model:visibleColumns="visibleColumns" v-model:columns="columns"></table-config>
 
+<!--  <TableConfig v-model:show="configdialog" v-model:visibleColumns="visibleColumns" v-model:columns="columns"/>-->
   <PlateActionMenu v-show="showPlateContextMenu" :plate="selectedPlate" touch-position context-menu />
-
 </template>
 
 <style scoped>
@@ -119,11 +120,11 @@
 </style>
 
 <script setup>
-import {computed, ref, watch} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import {useRoute} from "vue-router";
 
 import UserChip from "@/components/widgets/UserChip";
-import TableConfig from "@/components/table/TableConfig";
+// import TableConfig from "@/components/table/TableConfig";
 import PlateActionMenu from "@/components/plate/PlateActionMenu";
 import StatusFlag from "@/components/widgets/StatusFlag";
 import FormatUtils from "@/lib/FormatUtils";
@@ -171,9 +172,19 @@ const openPlateInspector = (plate) => {
   emit('showPlateInspector', plate)
 }
 
-const filteredPlates = ref([])
+const filteredPlates = ref(plates.value)
 const visibleColumns = ref([])
 const columnFilters = ref({})
+
+onMounted(() => {
+  visibleColumns.value = [...columns.value.map(a => a.name)];
+  filteredPlates.value = [...plates.value.map(r => r)]
+  loading.value = false
+
+  columns.value.forEach(col => {
+    columnFilters.value[col.name] = ref(null)
+  })
+})
 
 watch(plates, () => {
   visibleColumns.value = [...columns.value.map(a => a.name)];
