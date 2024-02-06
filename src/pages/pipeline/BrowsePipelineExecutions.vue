@@ -24,7 +24,7 @@
           <q-btn color="primary" icon="refresh" size="sm" @click="refreshList" class="on-left"/>
         </template>
         <template v-slot:top-right>
-          <date-range-selector v-model:from="dateFrom" v-model:to="dateTo" @rangeChanged="refreshList"/>
+          <date-range-selector v-model:from="fromDate" v-model:to="toDate" @rangeChanged="refreshList"/>
         </template>
         <template v-slot:header="props">
           <q-tr :props="props">
@@ -68,7 +68,7 @@
 import {ref, computed, watch} from 'vue';
 import {useStore} from 'vuex';
 import {useRouter} from "vue-router";
-import FilterUtils from "@/lib/FilterUtils.js"
+import {date} from 'quasar'
 import FormatUtils from "@/lib/FormatUtils.js"
 import UserChip from "@/components/widgets/UserChip";
 import StatusLabel from "@/components/widgets/StatusLabel";
@@ -78,15 +78,13 @@ import DateRangeSelector from "@/components/widgets/DateRangeSelector";
 const store = useStore();
 const router = useRouter();
 const loading = ref(true);
-const filter = ref('');
-const filterMethod = FilterUtils.defaultTableFilter();
 
-const dateFrom = ref(new Date());
-const dateTo = ref(new Date());
-dateFrom.value.setDate(dateTo.value.getDate() - 14);
+const now = new Date();
+const fromDate = ref(date.subtractFromDate(now, { days: 7 }));
+const toDate = ref(date.addToDate(now, { days: 1 }));
 
 const getDateRange = () => {
-  return {from: Date.parse(dateFrom.value), to: Date.parse(dateTo.value)};
+  return { from: fromDate.value.getTime(), to: toDate.value.getTime() };
 };
 
 const refreshList = () => {

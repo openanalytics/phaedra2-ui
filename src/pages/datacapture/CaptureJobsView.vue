@@ -20,33 +20,12 @@
       >
         <template v-slot:top-left>
           <div class="justify-end">
-            <q-btn color="primary" icon="refresh" size="sm" @click="refreshJobs" class="on-left"/>
+            <q-btn color="primary" icon="refresh" size="sm" @click="refreshList" class="on-left"/>
             <q-btn color="primary" icon="add" size="sm" label="Submit New Job..." @click="showSubmitJobDialog = true"/>
           </div>
         </template>
         <template v-slot:top-right>
-          <div class="row q-gutter-sm">
-            <q-input dense label="From" stack-label v-model="fromDate">
-              <template v-slot:append>
-                <q-icon name="event" class="cursor-pointer">
-                  <q-popup-proxy cover transition-show="scale" transition-hide="scale" ref="fromDateProxy">
-                    <q-date v-model="fromDate" mask="DD-MM-YYYY" @update:model-value="refreshJobs"/>
-                  </q-popup-proxy>
-                </q-icon>
-              </template>
-            </q-input>
-
-            <q-input dense label="Until" stack-label v-model="toDate">
-              <template v-slot:append>
-                <q-icon name="event" class="cursor-pointer">
-                  <q-popup-proxy cover transition-show="scale" transition-hide="scale" ref="toDateProxy">
-                    <q-date v-model="toDate" mask="DD-MM-YYYY" @update:model-value="refreshJobs"/>
-                  </q-popup-proxy>
-                </q-icon>
-              </template>
-            </q-input>
-            <q-btn flat round color="primary" icon="settings" style="border-radius: 50%;" @click="configdialog=true"/>
-          </div>
+          <date-range-selector v-model:from="fromDate" v-model:to="toDate" @rangeChanged="refreshList"/>
         </template>
         <template v-slot:header="props">
           <q-tr :props="props">
@@ -167,26 +146,28 @@
 <script setup>
 import {ref, computed, onMounted, onBeforeUnmount, reactive, watch} from 'vue'
 import {useStore} from 'vuex'
-
+import {date} from 'quasar'
+import FormatUtils from "@/lib/FormatUtils.js"
 import OaSection from "@/components/widgets/OaSection";
 import CaptureJobDetailsPanel from "./CaptureJobDetailsPanel";
 import TableConfig from "@/components/table/TableConfig";
 import UserChip from "@/components/widgets/UserChip";
 import StatusLabel from "@/components/widgets/StatusLabel";
-
-import FormatUtils from "@/lib/FormatUtils.js"
-import DateUtils from "@/lib/DateUtils";
+import DateRangeSelector from "@/components/widgets/DateRangeSelector";
 
 const store = useStore();
-const fromDateProxy = ref(null)
-const toDateProxy = ref(null)
 
-const now = new Date()
-const fromDate = ref(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7).toLocaleDateString())
-const toDate = ref(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).toLocaleDateString())
+const now = new Date();
+const fromDate = ref(date.subtractFromDate(now, { days: 7 }));
+const toDate = ref(date.addToDate(now, { days: 1 }));
 
 const jobs = computed(() => store.getters['datacapture/getJobs']());
-store.dispatch('datacapture/loadJobs', {fromDate: DateUtils.parseLocaleDateString(fromDate.value), toDate: DateUtils.parseLocaleDateString(toDate.value)});
+
+const refreshList = () => store.dispatch('datacapture/loadJobs', {
+  fromDate: fromDate.value.getTime(),
+  toDate: toDate.value.getTime()
+});
+refreshList();
 
 const filteredJobs = ref([])
 const columnFilters = ref({})
@@ -209,12 +190,6 @@ const columns = ref([
 
 const configdialog = ref(false);
 
-const refreshJobs = () => {
-  fromDateProxy.value.hide()
-  toDateProxy.value.hide()
-  store.dispatch('datacapture/loadJobs', {fromDate: DateUtils.parseLocaleDateString(fromDate.value), toDate: DateUtils.parseLocaleDateString(toDate.value)});
-};
-
 const cancelJob = (id) => {
   store.dispatch('datacapture/cancelJob', id);
 };
@@ -223,7 +198,7 @@ const cancelJob = (id) => {
 let timer = null;
 onMounted(() => {
   timer = setInterval(() => {
-    refreshJobs();
+    refreshList();
   }, 60000);
 });
 
@@ -269,7 +244,7 @@ const submitJobAction = async () => {
 
   newJob.captureConfig = selectedConfig.value?.value;
   await store.dispatch('datacapture/submitJob', newJob);
-  refreshJobs();
+  refreshList();
 };
 
 const showConfig = ref(false);
