@@ -1,3 +1,62 @@
+<script setup>
+import {ref, computed, watch} from 'vue'
+import {useStore} from 'vuex'
+import FormatUtils from "@/lib/FormatUtils.js"
+import OaSection from "@/components/widgets/OaSection";
+import UserChip from "@/components/widgets/UserChip";
+import ColorButton from "@/components/image/ColorButton";
+import CreateRenderConfigDialog from "@/components/image/CreateRenderConfigDialog";
+import DeleteRenderConfigDialog from "@/components/image/DeleteRenderConfigDialog";
+
+const store = useStore();
+const loading = ref(true);
+
+const configs = computed(() => store.getters['measurements/getRenderConfigs']());
+store.dispatch('measurements/loadAllRenderConfigs').then(() => {
+  loading.value = false
+});
+
+const filteredConfigs = ref([])
+const columnFilters = ref({})
+const visibleColumns = ref([])
+
+const columns = ref([
+  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
+  {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
+  {name: 'channels', align: 'left', label: 'Channels', field: row => row.config?.channelConfigs, sortable: true},
+  {name: 'gamma', align: 'left', label: 'Gamma', field: row => row.config.gamma, sortable: true},
+  {name: 'scale', align: 'left', label: 'Scale', field: row => row.config.scale, sortable: true},
+  {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
+  {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
+  {name: 'menu', align: 'left', field: 'menu', sortable: false}
+]);
+
+const showNewConfigDialog = ref(false);
+const showDeleteConfigDialog = ref(false);
+const configIdToDelete = ref(0);
+const deleteConfig = (id) => {
+  configIdToDelete.value = id;
+  showDeleteConfigDialog.value = true;
+}
+
+const updateVisibleColumns = (columns) => {
+  visibleColumns.value = [...columns]
+}
+
+const handleColumnFilter = (columnName) => {
+  filteredConfigs.value = configs.value.filter(row => String(row[columnName]).includes(columnFilters.value[columnName]))
+}
+
+watch(configs, () => {
+  visibleColumns.value = [...columns.value.map(a => a.name)];
+  filteredConfigs.value = [...configs.value.map(r => r)]
+
+  columns.value.forEach(col => {
+    columnFilters.value[col.name] = ref(null)
+  })
+})
+</script>
+
 <template>
   <q-breadcrumbs class="oa-breadcrumb">
     <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
@@ -75,61 +134,10 @@
   <DeleteRenderConfigDialog v-model="showDeleteConfigDialog" :id="configIdToDelete"/>
 </template>
 
-<script setup>
-import {ref, computed, watch} from 'vue'
-import {useStore} from 'vuex'
-import FormatUtils from "@/lib/FormatUtils.js"
-import OaSection from "@/components/widgets/OaSection";
-import UserChip from "@/components/widgets/UserChip";
-import ColorButton from "@/components/image/ColorButton";
-import CreateRenderConfigDialog from "@/components/image/CreateRenderConfigDialog";
-import DeleteRenderConfigDialog from "@/components/image/DeleteRenderConfigDialog";
-
-const store = useStore();
-const loading = ref(true);
-
-const configs = computed(() => store.getters['measurements/getRenderConfigs']());
-store.dispatch('measurements/loadAllRenderConfigs').then(() => {
-  loading.value = false
-});
-
-const filteredConfigs = ref([])
-const columnFilters = ref({})
-const visibleColumns = ref([])
-
-const columns = ref([
-  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
-  {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
-  {name: 'channels', align: 'left', label: 'Channels', field: row => row.config?.channelConfigs, sortable: true},
-  {name: 'gamma', align: 'left', label: 'Gamma', field: row => row.config.gamma, sortable: true},
-  {name: 'scale', align: 'left', label: 'Scale', field: row => row.config.scale, sortable: true},
-  {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
-  {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
-  {name: 'menu', align: 'left', field: 'menu', sortable: false}
-]);
-
-const showNewConfigDialog = ref(false);
-const showDeleteConfigDialog = ref(false);
-const configIdToDelete = ref(0);
-const deleteConfig = (id) => {
-  configIdToDelete.value = id;
-  showDeleteConfigDialog.value = true;
+<style scoped>
+:deep(.q-field__control),
+:deep(.q-field__append){
+  font-size: 12px;
+  height: 25px;
 }
-
-const updateVisibleColumns = (columns) => {
-  visibleColumns.value = [...columns]
-}
-
-const handleColumnFilter = (columnName) => {
-  filteredConfigs.value = configs.value.filter(row => String(row[columnName]).includes(columnFilters.value[columnName]))
-}
-
-watch(configs, () => {
-  visibleColumns.value = [...columns.value.map(a => a.name)];
-  filteredConfigs.value = [...configs.value.map(r => r)]
-
-  columns.value.forEach(col => {
-    columnFilters.value[col.name] = ref(null)
-  })
-})
-</script>
+</style>

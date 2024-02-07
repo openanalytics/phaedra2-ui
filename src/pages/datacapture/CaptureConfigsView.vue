@@ -1,3 +1,53 @@
+<script setup>
+import {ref, computed, watch} from 'vue'
+import {useStore} from 'vuex'
+import {useRouter} from 'vue-router';
+import FormatUtils from "@/lib/FormatUtils.js"
+import OaSection from "@/components/widgets/OaSection";
+import UserChip from "@/components/widgets/UserChip";
+
+const store = useStore();
+const router = useRouter();
+const loading = ref(true);
+
+const configs = computed(() => store.getters['datacapture/getAllCaptureConfigs']());
+store.dispatch('datacapture/loadAllCaptureConfigs').then(() => {
+  loading.value = false
+});
+
+const filteredConfigs = ref([])
+const columnFilters = ref({})
+const visibleColumns = ref([])
+
+const columns = ref([
+  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
+  {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
+  {name: 'version', align: 'left', label: 'Version', field: 'version', sortable: true},
+  {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
+  {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate },
+  {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
+  {name: 'updatedOn', align: 'left', label: 'Updated On', field: 'updatedOn', sortable: true, format: FormatUtils.formatDate},
+  {name: 'updatedBy', align: 'left', label: 'Updated By', field: 'updatedBy', sortable: true},
+]);
+
+const updateVisibleColumns = (columns) => {
+  visibleColumns.value = [...columns]
+}
+
+const handleColumnFilter = (columnName) => {
+  filteredConfigs.value = configs.value.filter(row => String(row[columnName]).includes(columnFilters.value[columnName]))
+}
+
+watch(configs, () => {
+  visibleColumns.value = [...columns.value.map(a => a.name)];
+  filteredConfigs.value = [...configs.value.map(r => r)]
+
+  columns.value.forEach(col => {
+    columnFilters.value[col.name] = ref(null)
+  })
+})
+</script>
+
 <template>
   <q-breadcrumbs class="oa-breadcrumb">
     <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
@@ -70,52 +120,10 @@
   </q-page>
 </template>
 
-<script setup>
-import {ref, computed, watch} from 'vue'
-import {useStore} from 'vuex'
-import {useRouter} from 'vue-router';
-import FormatUtils from "@/lib/FormatUtils.js"
-import OaSection from "@/components/widgets/OaSection";
-import UserChip from "@/components/widgets/UserChip";
-
-const store = useStore();
-const router = useRouter();
-const loading = ref(true);
-
-const configs = computed(() => store.getters['datacapture/getAllCaptureConfigs']());
-store.dispatch('datacapture/loadAllCaptureConfigs').then(() => {
-  loading.value = false
-});
-
-const filteredConfigs = ref([])
-const columnFilters = ref({})
-const visibleColumns = ref([])
-
-const columns = ref([
-    {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
-    {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
-    {name: 'version', align: 'left', label: 'Version', field: 'version', sortable: true},
-    {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-    {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate },
-    {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
-    {name: 'updatedOn', align: 'left', label: 'Updated On', field: 'updatedOn', sortable: true, format: FormatUtils.formatDate},
-    {name: 'updatedBy', align: 'left', label: 'Updated By', field: 'updatedBy', sortable: true},
-]);
-
-const updateVisibleColumns = (columns) => {
-  visibleColumns.value = [...columns]
+<style scoped>
+:deep(.q-field__control),
+:deep(.q-field__append){
+  font-size: 12px;
+  height: 25px;
 }
-
-const handleColumnFilter = (columnName) => {
-  filteredConfigs.value = configs.value.filter(row => String(row[columnName]).includes(columnFilters.value[columnName]))
-}
-
-watch(configs, () => {
-  visibleColumns.value = [...columns.value.map(a => a.name)];
-  filteredConfigs.value = [...configs.value.map(r => r)]
-
-  columns.value.forEach(col => {
-    columnFilters.value[col.name] = ref(null)
-  })
-})
-</script>
+</style>

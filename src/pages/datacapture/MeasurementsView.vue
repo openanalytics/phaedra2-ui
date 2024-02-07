@@ -1,68 +1,9 @@
-<template>
-  <q-breadcrumbs class="oa-breadcrumb">
-    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
-    <q-breadcrumbs-el :label="'Measurements'" icon="list"/>
-  </q-breadcrumbs>
-
-  <q-page class="oa-root-div">
-    <div class="q-pa-sm">
-      <oa-section title="Captured Measurements" icon="text_snippet">
-        <q-table
-            table-header-class="text-grey"
-            class="full-width"
-            :rows="filteredMeasurements"
-            :columns="columns"
-            :visible-columns="visibleColumns"
-            row-key="id"
-            column-key="name"
-            :pagination="{ rowsPerPage: 20, sortBy: 'createdOn', descending: true}"
-            @row-click="(e, row) => router.push('/datacapture/meas/' + row.id)"
-            :loading="loading"
-            separator="cell"
-            flat dense square
-        >
-          <template v-slot:top-right>
-            <div class="row">
-              <q-btn flat round color="primary" icon="settings" style="border-radius: 50%;" @click="configdialog=true"/>
-            </div>
-          </template>
-          <template v-slot:header="props">
-            <q-tr :props="props">
-              <q-th v-for="col in props.cols" :key="col.name" :props="props">
-                {{ col.label }}
-              </q-th>
-            </q-tr>
-            <q-tr :props="props">
-              <q-th v-for="col in props.cols" :key="col.name">
-                <q-input v-if="col.name != 'menu'" v-model="columnFilters[col.name]"
-                         @update:model-value="handleColumnFilter(col.name)"
-                         dense>
-                  <template v-slot:append>
-                    <q-icon size="xs" name="search"/>
-                  </template>
-                </q-input>
-              </q-th>
-            </q-tr>
-          </template>
-          <template v-slot:body-cell-createdBy="props">
-            <q-td :props="props">
-              <UserChip :id="props.row.createdBy"/>
-            </q-td>
-          </template>
-        </q-table>
-      </oa-section>
-    </div>
-    <table-config v-model:show="configdialog" v-model:visibleColumns="visibleColumns"
-                  v-model:columns="columns"></table-config>
-  </q-page>
-</template>
-
 <script setup>
 import {computed, ref, watch} from 'vue'
 import {useStore} from "vuex";
 import {useRouter} from "vue-router";
 import FormatUtils from "@/lib/FormatUtils";
-import TableConfig from "@/components/table/TableConfig";
+// import TableConfig from "@/components/table/TableConfig";
 import OaSection from "@/components/widgets/OaSection";
 import UserChip from "@/components/widgets/UserChip";
 
@@ -78,6 +19,7 @@ const columnFilters = ref({})
 const visibleColumns = ref([])
 
 const columns = ref([
+  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
   {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
   {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
   {name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
@@ -108,3 +50,69 @@ watch(measurements, () => {
   })
 })
 </script>
+
+<template>
+  <q-breadcrumbs class="oa-breadcrumb">
+    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
+    <q-breadcrumbs-el :label="'Measurements'" icon="list"/>
+  </q-breadcrumbs>
+
+  <q-page class="oa-root-div">
+    <div class="q-pa-sm">
+      <oa-section title="Captured Measurements" icon="text_snippet">
+        <q-table
+            table-header-class="text-grey"
+            class="full-width"
+            :rows="filteredMeasurements"
+            :columns="columns"
+            :visible-columns="visibleColumns"
+            row-key="id"
+            column-key="name"
+            :pagination="{ rowsPerPage: 20, sortBy: 'createdOn', descending: true}"
+            @row-click="(e, row) => router.push('/datacapture/meas/' + row.id)"
+            :loading="loading"
+            separator="cell"
+            flat dense square
+        >
+<!--          <template v-slot:top-right>-->
+<!--            <div class="row">-->
+<!--              <q-btn flat round color="primary" icon="settings" style="border-radius: 50%;" @click="configdialog=true"/>-->
+<!--            </div>-->
+<!--          </template>-->
+          <template v-slot:header="props">
+            <q-tr :props="props">
+              <q-th v-for="col in props.cols" :key="col.name" :props="props">
+                {{ col.label }}
+              </q-th>
+            </q-tr>
+            <q-tr :props="props">
+              <q-th v-for="col in props.cols" :key="col.name">
+                <q-input v-if="col.name != 'menu'" v-model="columnFilters[col.name]"
+                         @update:model-value="handleColumnFilter(col.name)"
+                         dense>
+                  <template v-slot:append>
+                    <q-icon size="xs" name="search"/>
+                  </template>
+                </q-input>
+              </q-th>
+            </q-tr>
+          </template>
+          <template v-slot:body-cell-createdBy="props">
+            <q-td :props="props">
+              <UserChip :id="props.row.createdBy"/>
+            </q-td>
+          </template>
+        </q-table>
+      </oa-section>
+    </div>
+<!--    <TableConfig v-model:show="configdialog" v-model:visibleColumns="visibleColumns" v-model:columns="columns"/>-->
+  </q-page>
+</template>
+
+<style scoped>
+:deep(.q-field__control),
+:deep(.q-field__append){
+  font-size: 12px;
+  height: 25px;
+}
+</style>
