@@ -1,75 +1,3 @@
-<template>
-  <q-breadcrumbs class="oa-breadcrumb">
-    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
-    <q-breadcrumbs-el label="Pipelines" icon="list"/>
-  </q-breadcrumbs>
-
-  <q-page class="oa-root-div">
-    <oa-section title="Pipelines" icon="route" class="q-pa-sm">
-      <q-table
-          table-header-class="text-grey"
-          class="full-width"
-          :rows="filteredPipelines"
-          :columns="columns"
-          :visible-columns="visibleColumns"
-          row-key="id"
-          column-key="name"
-          :pagination="{ rowsPerPage: 20, sortBy: 'name' }"
-          :loading="loading"
-          @row-click="(e, row) => router.push('/pipeline/' + row.id)"
-          separator="cell"
-          flat dense square
-      >
-        <template v-slot:top-left>
-          <q-btn color="primary" icon="add" size="sm" label="New Pipeline..." @click="router.push('/pipeline/new')"/>
-        </template>
-        <template v-slot:header="props">
-          <q-tr :props="props">
-            <q-th v-for="col in props.cols" :key="col.name" :props="props">
-              {{ col.label }}
-            </q-th>
-          </q-tr>
-          <q-tr :props="props">
-            <q-th v-for="col in props.cols" :key="col.name">
-              <q-input v-if="col.name != 'menu'" v-model="columnFilters[col.name]"
-                       @update:model-value="handleColumnFilter(col.name)"
-                       dense>
-                <template v-slot:append>
-                  <q-icon size="xs" name="search"/>
-                </template>
-              </q-input>
-            </q-th>
-          </q-tr>
-        </template>
-        <template v-slot:body-cell-name="props">
-          <q-td :props="props">
-            <router-link :to="'/pipeline/' + props.row.id" class="nav-link">
-              <div class="row items-center cursor-pointer">
-                {{ props.row.name }}
-              </div>
-            </router-link>
-          </q-td>
-        </template>
-        <template v-slot:body-cell-createdBy="props">
-          <q-td :props="props">
-            <UserChip :id="props.row.createdBy"/>
-          </q-td>
-        </template>
-        <template v-slot:body-cell-updatedBy="props">
-          <q-td :props="props">
-            <UserChip :id="props.row.updatedBy"/>
-          </q-td>
-        </template>
-        <template v-slot:body-cell-status="props">
-          <q-td :props="props">
-            <StatusLabel :status="props.row.status"/>
-          </q-td>
-        </template>
-      </q-table>
-    </oa-section>
-  </q-page>
-</template>
-
 <script setup>
 import {ref, computed, watch} from 'vue';
 import {useStore} from 'vuex';
@@ -120,3 +48,83 @@ watch(pipelines, () => {
   })
 })
 </script>
+
+<template>
+  <q-breadcrumbs class="oa-breadcrumb">
+    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
+    <q-breadcrumbs-el label="Pipelines" icon="list"/>
+  </q-breadcrumbs>
+
+  <q-page class="oa-root-div">
+    <oa-section title="Pipelines" icon="route" class="q-pa-sm">
+      <q-table
+          table-header-class="text-grey"
+          class="full-width"
+          :rows="filteredPipelines"
+          :columns="columns"
+          :visible-columns="visibleColumns"
+          row-key="id"
+          column-key="name"
+          :pagination="{ rowsPerPage: 20, sortBy: 'name' }"
+          :loading="loading"
+          @row-click="(e, row) => router.push('/pipeline/' + row.id)"
+          separator="cell"
+          flat dense square
+      >
+        <template v-slot:top-left>
+          <q-btn color="primary" icon="add" size="sm" label="New Pipeline..." @click="router.push('/pipeline/new')"/>
+        </template>
+        <template v-slot:header="props">
+          <q-tr :props="props">
+            <q-th v-for="col in props.cols" :key="col.name" :props="props">
+              {{ col.label }}
+            </q-th>
+          </q-tr>
+          <q-tr :props="props">
+            <q-th v-for="col in props.cols" :key="col.name">
+              <q-input v-if="col.name != 'menu'" v-model="columnFilters[col.name]"
+                       @update:model-value="handleColumnFilter(col.name)"
+                       dense class="filterColumn">
+                <template v-slot:append>
+                  <q-icon size="xs" name="search"/>
+                </template>
+              </q-input>
+            </q-th>
+          </q-tr>
+        </template>
+        <template v-slot:body-cell-name="props">
+          <q-td :props="props">
+            <router-link :to="'/pipeline/' + props.row.id" class="nav-link">
+              <div class="row items-center cursor-pointer">
+                {{ props.row.name }}
+              </div>
+            </router-link>
+          </q-td>
+        </template>
+        <template v-slot:body-cell-createdBy="props">
+          <q-td :props="props">
+            <UserChip :id="props.row.createdBy"/>
+          </q-td>
+        </template>
+        <template v-slot:body-cell-updatedBy="props">
+          <q-td :props="props">
+            <UserChip :id="props.row.updatedBy"/>
+          </q-td>
+        </template>
+        <template v-slot:body-cell-status="props">
+          <q-td :props="props">
+            <StatusLabel :status="props.row.status"/>
+          </q-td>
+        </template>
+      </q-table>
+    </oa-section>
+  </q-page>
+</template>
+
+<style scoped>
+:deep(.filterColumn .q-field__control),
+:deep(.filterColumn .q-field__append){
+  font-size: 12px;
+  height: 25px;
+}
+</style>
