@@ -1,6 +1,6 @@
 <template>
   <q-table
-      :rows="rows"
+      :rows="plateStatRows"
       :columns="columns"
       row-key="id"
       :pagination="{ rowsPerPage: 10, sortBy: 'barcode' }"
@@ -76,14 +76,12 @@
 
 <script setup>
     import {computed, ref, watch} from 'vue'
-    import {useStore} from 'vuex'
     import FilterUtils from "@/lib/FilterUtils";
     import resultDataGraphQlAPI from "@/api/graphql/resultdata";
 
     const statsToShow = ['zprime', 'cv', 'stdev', 'min', 'mean', 'median', 'max'];
 
     const props = defineProps(['plates', 'experiment']);
-    const store = useStore();
 
     const loading = ref(false);
     const filter = ref('');
@@ -93,67 +91,60 @@
         {name: 'barcode', align: 'center', label: 'Barcode', field: 'barcode', sortable: true}
     ]);
 
-    const plates = computed( () => props.plates ? props.plates : [])
-    const rows = ref([])
-    const row = ref({})
+    const plates = computed( () => (props.plates || []))
+    const plateStatRows = ref([])
+    
+    // Phase 1: fetch protocol and feature info
 
     const protocols = ref([])
     const features = ref([])
-    const resultSets = ref([])
 
     const fetchProtocols = () => {
       const {onResult, onError} = resultDataGraphQlAPI.protocolsByExperimentId(props.experiment.id)
       onResult(({data}) => {
         protocols.value = data.protocols
         features.value = protocols.value.flatMap(protocol => protocol.features)
-        console.log("PlateStatsList features: " + JSON.stringify(features.value))
         features.value.forEach(feature => {
           for (let i in statsToShow) {
             const stat = statsToShow[i]
             columns.value.push({ name: `stat-${feature.id}-${stat}`, type: 'stat', label: stat, align: 'left', field: `stat-${feature.id}-${stat}`, sortable: true });
           }
         })
-        console.log("Columns: " + JSON.stringify(columns.value))
         fetchResultSets()
       })
     }
+
+    // Phase 2: fetch plate stats
 
     const fetchResultSets = () => {
       const plateIds = plates.value.map(plate => plate.id)
 
       const {onResult, onError} = resultDataGraphQlAPI.latestResultSetsByPlateIds(plateIds)
       onResult(({data}) => {
-        resultSets.value = data.resultSets
-
-        for (let i in resultSets.value) {
-          const newRow = {
-            'id': resultSets.value[i].plateId,
-            'barcode': plates.value.find(plate => plate.id === resultSets.value[i].plateId).barcode
+        for (let i in data.resultSets) {
+          const plateStatRow = {
+            'id': data.resultSets[i].plateId,
+            'barcode': plates.value.find(plate => plate.id === data.resultSets[i].plateId).barcode
           }
+
           // TODO: implement onError
-          const {onResult, onError} = resultDataGraphQlAPI.resultSetFeatureStats(resultSets.value[i].id)
+          const {onResult, onError} = resultDataGraphQlAPI.resultSetFeatureStats(data.resultSets[i].id)
           onResult(({data}) => {
-            const rsFStatsFiltered = data.rsFeatureStats
-            console.log("rsFStatsFiltered: " + JSON.stringify(rsFStatsFiltered))
             features.value.forEach(feature => {
               statsToShow.forEach(stat => {
-                const rsStat = rsFStatsFiltered.find(rss => rss.statisticName === stat && rss.featureId === feature.id)
+                const rsStat = data.rsFeatureStats.find(rss => rss.statisticName === stat && rss.featureId === feature.id)
                 if (rsStat)
-                  newRow[`stat-${rsStat.featureId}-${rsStat.statisticName}`] = Math.round(rsStat.value * 100) / 100
+                plateStatRow[`stat-${rsStat.featureId}-${rsStat.statisticName}`] = Math.round(rsStat.value * 100) / 100
                 else
-                  newRow[`stat-${feature.id}-${stat}`] = NaN
+                plateStatRow[`stat-${feature.id}-${stat}`] = NaN
               })
             })
-            row.value = newRow
+
+            plateStatRows.value.push(plateStatRow)
           })
         }
       })
     }
-
-    watch(row, (value) => {
-      rows.value.push(value)
-      console.log("Rows: " + JSON.stringify(rows.value))
-    })
 
     fetchProtocols()
 </script>
