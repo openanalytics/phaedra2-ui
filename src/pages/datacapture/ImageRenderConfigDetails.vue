@@ -56,7 +56,7 @@
                     </div>
                 </div>
             </oa-section>
-            <oa-section title="Channels" icon="collections" :collapsible="true" class="q-pt-md">
+            <oa-section title="Channels" icon="collections" :collapsible="true" class="q-pt-sm">
                 <q-table
                     table-header-class="text-grey"
                     flat dense hide-bottom

@@ -6,7 +6,7 @@
     </q-breadcrumbs>
 
     <q-page class="oa-root-div">
-        <div class="q-pa-md">
+        <div class="q-pa-sm">
             <oa-section v-if="!execution" title="Loading..." icon="play_circle_outline"/>
             <oa-section v-else :title="FormatUtils.formatDate(execution.createdOn)" icon="play_circle_outline" :collapsible="true">
                 <div class="row q-pa-md">
@@ -74,7 +74,7 @@
                 </div>
             </oa-section>
 
-            <oa-section title="Event Log" icon="event" class="q-mt-md" :collapsible="true">
+            <oa-section title="Event Log" icon="event" class="q-mt-sm" :collapsible="true">
                 <div class="row q-pa-md oa-section-body">
                     <q-table
                         table-header-class="text-grey"
@@ -92,7 +92,7 @@
                 </div>
             </oa-section>
 
-            <oa-section title="Execution Variables" icon="dataset" class="q-mt-md" :collapsible="true">
+            <oa-section title="Execution Variables" icon="dataset" class="q-mt-sm" :collapsible="true">
                 <div class="row q-pa-md oa-section-body">
                     <q-table
                         table-header-class="text-grey"

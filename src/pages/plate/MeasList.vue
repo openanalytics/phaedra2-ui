@@ -1,96 +1,16 @@
-<script setup>
-import {ref, watch} from 'vue'
-import {useStore} from 'vuex'
-import {useRouter} from "vue-router";
-import FormatUtils from "@/lib/FormatUtils";
-import UserChip from "@/components/widgets/UserChip";
-import LinkMeasurementDialog from "@/components/measurement/LinkMeasurementDialog";
-import projectsGraphQlAPI from "@/api/graphql/projects";
-
-const store = useStore();
-const router = useRouter();
-const props = defineProps({ plate: Object });
-
-const columns = [
-  {name: 'active', align: 'left', label: 'Active?', field: row => (row.active === undefined) ? false : row.active, sortable: true},
-  {name: 'measurementId', align: 'left', label: 'ID', field: 'measurementId', sortable: true},
-  {name: 'name', align: 'left', label: 'Measurement Name', field: 'name', sortable: true},
-  {name: 'wellColumns', align: 'left', label: 'Well Columns', field: 'wellColumns', sortable: true, format: val => `${val?.length || 0}` },
-  {name: 'subWellColumns', align: 'left', label: 'SubWell Columns', field: 'subWellColumns', sortable: true, format: val => `${val?.length || 0}` },
-  {name: 'imageChannels', align: 'left', label: 'Image Channels', field: 'imageChannels', sortable: true, format: val => `${val?.length || 0}` },
-  {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate },
-  {name: 'linkedOn', align: 'left', label: 'Linked On', field: 'linkedOn', sortable: true, format: FormatUtils.formatDate },
-  // {name: 'menu', align: 'left', field: 'menu', sortable: false}
-];
-
-const plateMeasurements = ref([])
-
-const fetchPlateMeasurements = () => {
-  const {onResult, onError} = projectsGraphQlAPI.measurementsByPlateId(props.plate.id)
-  onResult(({data}) => {
-    plateMeasurements.value = data.plateMeasurements
-  })
-}
-
-const showLinkMeasDialog = ref(false);
-const confirm = ref(false);
-
-const handleSetActiveMeasurement = (active, { plateId, measurementId}) => {
-  if (active) {
-    updateActiveState(plateId, measurementId)
-  }
-}
-
-const updateActiveState = (plateId, measurementId) => {
-  const { mutate:  linkPlateMeasurement, onDone} = projectsGraphQlAPI.linkPlateMeasurement(plateId, measurementId)
-  linkPlateMeasurement()
-
-  onDone(({data}) => {
-    fetchPlateMeasurements()
-  })
-};
-
-const onSelectMeasurement = (measurementId) => {
-  router.push("/datacapture/meas/" + measurementId);
-}
-
-const handleLinkPlateMeasurement = () => {
-  fetchPlateMeasurements()
-}
-
-fetchPlateMeasurements()
-
-const filteredPlateMeasurements = ref([])
-const visibleColumns = ref([])
-const columnFilters = ref({})
-
-watch(plateMeasurements, () => {
-  visibleColumns.value = [...columns.map(a => a.name)];
-  filteredPlateMeasurements.value = [...plateMeasurements.value.map(r => r)]
-
-  columns.forEach(col => {
-    columnFilters.value[col.name] = ref(null)
-  })
-})
-
-const handleColumnFilter = (columnName) => {
-  filteredPlateMeasurements.value = plateMeasurements.value.filter(row => String(row[columnName]).includes(columnFilters.value[columnName]))
-}
-</script>
-
 <template>
   <q-table
       class="full-width"
       table-header-class="text-grey"
-      :rows="filteredPlateMeasurements"
+      :rows="plateMeasurements"
       :columns="columns"
       :visible-columns="visibleColumns"
+      :filter="filter"
+      :filter-method="filterMethod"
       row-key="id"
       column-key="name"
       :pagination="{ rowsPerPage: 10 }"
       separator="cell"
-      virtual-scroll
-      style="max-height: 600px"
       flat square dense
   >
     <template v-slot:top-left>
@@ -104,15 +24,7 @@ const handleColumnFilter = (columnName) => {
         </q-th>
       </q-tr>
       <q-tr :props="props">
-        <q-th v-for="col in props.cols" :key="col.name">
-          <q-input v-model="columnFilters[col.name]"
-                   @update:model-value="handleColumnFilter(col.name)"
-                   dense class="filterColumn">
-            <template v-slot:append>
-              <q-icon size="xs" name="search"/>
-            </template>
-          </q-input>
-        </q-th>
+        <column-filter v-for="col in props.cols" :key="col.name" v-model="filter[col.name]"/>
       </q-tr>
     </template>
     <template v-slot:body-cell="props">
@@ -163,10 +75,75 @@ const handleColumnFilter = (columnName) => {
   </q-dialog>
 </template>
 
-<style scoped>
-:deep(.filterColumn .q-field__control),
-:deep(.filterColumn .q-field__append) {
-  font-size: 12px;
-  height: 25px;
+<script setup>
+import {ref, watch} from 'vue'
+import {useStore} from 'vuex'
+import {useRouter} from "vue-router";
+import FormatUtils from "@/lib/FormatUtils";
+import FilterUtils from "@/lib/FilterUtils";
+import UserChip from "@/components/widgets/UserChip";
+import ColumnFilter from "@/components/table/ColumnFilter";
+import LinkMeasurementDialog from "@/components/measurement/LinkMeasurementDialog";
+import projectsGraphQlAPI from "@/api/graphql/projects";
+
+const store = useStore();
+const router = useRouter();
+const props = defineProps({ plate: Object });
+
+const columns = [
+  {name: 'active', align: 'left', label: 'Active?', field: row => (row.active === undefined) ? false : row.active, sortable: true},
+  {name: 'measurementId', align: 'left', label: 'ID', field: 'measurementId', sortable: true},
+  {name: 'name', align: 'left', label: 'Measurement Name', field: 'name', sortable: true},
+  {name: 'wellColumns', align: 'left', label: 'Well Columns', field: 'wellColumns', sortable: true, format: val => `${val?.length || 0}` },
+  {name: 'subWellColumns', align: 'left', label: 'SubWell Columns', field: 'subWellColumns', sortable: true, format: val => `${val?.length || 0}` },
+  {name: 'imageChannels', align: 'left', label: 'Image Channels', field: 'imageChannels', sortable: true, format: val => `${val?.length || 0}` },
+  {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate },
+  {name: 'linkedOn', align: 'left', label: 'Linked On', field: 'linkedOn', sortable: true, format: FormatUtils.formatDate },
+  // {name: 'menu', align: 'left', field: 'menu', sortable: false}
+];
+
+const filter = FilterUtils.makeFilter(columns);
+const filterMethod = FilterUtils.defaultFilterMethod();
+
+const plateMeasurements = ref([])
+
+const fetchPlateMeasurements = () => {
+  const {onResult, onError} = projectsGraphQlAPI.measurementsByPlateId(props.plate.id)
+  onResult(({data}) => {
+    plateMeasurements.value = data.plateMeasurements
+  })
 }
-</style>
+
+const showLinkMeasDialog = ref(false);
+const confirm = ref(false);
+
+const handleSetActiveMeasurement = (active, { plateId, measurementId}) => {
+  if (active) {
+    updateActiveState(plateId, measurementId)
+  }
+}
+
+const updateActiveState = (plateId, measurementId) => {
+  const { mutate:  linkPlateMeasurement, onDone} = projectsGraphQlAPI.linkPlateMeasurement(plateId, measurementId)
+  linkPlateMeasurement()
+
+  onDone(({data}) => {
+      fetchPlateMeasurements()
+  })
+};
+
+const onSelectMeasurement = (measurementId) => {
+    router.push("/datacapture/meas/" + measurementId);
+}
+
+const handleLinkPlateMeasurement = () => {
+  fetchPlateMeasurements()
+}
+
+fetchPlateMeasurements()
+
+const visibleColumns = ref([])
+watch(plateMeasurements, () => {
+  visibleColumns.value = [...columns.map(a => a.name)];
+})
+</script>

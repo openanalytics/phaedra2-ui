@@ -6,7 +6,7 @@
     </q-breadcrumbs>
 
     <q-page class="oa-root-div">
-        <div class="q-pa-md">
+        <div class="q-pa-sm">
             <oa-section v-if="!pipeline" title="Loading..." icon="route"/>
             <oa-section v-else :title="pipeline.name" icon="route" :collapsible="true">
                 <div class="row q-pa-md">
@@ -67,7 +67,7 @@
                 </div>
             </oa-section>
 
-            <oa-section title="Configuration" icon="settings" :collapsible="true" class="q-pt-md">
+            <oa-section title="Configuration" icon="settings" :collapsible="true" class="q-pt-sm">
                 <div class="row oa-section-body">
                     <div class="col-12 q-pa-md">
                         <div class="row">

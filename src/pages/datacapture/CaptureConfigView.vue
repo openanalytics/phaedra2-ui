@@ -6,7 +6,7 @@
     </q-breadcrumbs>
     
     <q-page class="oa-root-div">
-        <div class="q-pa-md">
+        <div class="q-pa-sm">
             <oa-section :title="config.name" icon="settings" :collapsible="true">
                 <div class="q-pa-md">
                     <div class="row q-col-gutter-md">
@@ -57,7 +57,7 @@
                     </div>
                 </div>
             </oa-section>
-            <oa-section title="Configuration" class="q-pt-md" :collapsible="true">
+            <oa-section title="Configuration" class="q-pt-sm" :collapsible="true">
                 <div class="q-pa-md">
                     <codemirror
                         :disabled="!editMode"

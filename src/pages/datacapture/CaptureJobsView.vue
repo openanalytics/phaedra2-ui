@@ -1,180 +1,33 @@
-<script setup>
-import {ref, computed, onMounted, onBeforeUnmount, reactive, watch} from 'vue'
-import {useStore} from 'vuex'
-
-import OaSection from "@/components/widgets/OaSection";
-import CaptureJobDetailsPanel from "./CaptureJobDetailsPanel";
-// import TableConfig from "@/components/table/TableConfig";
-import UserChip from "@/components/widgets/UserChip";
-import StatusLabel from "@/components/widgets/StatusLabel";
-
-import FormatUtils from "@/lib/FormatUtils.js"
-import DateUtils from "@/lib/DateUtils";
-
-const store = useStore();
-const fromDateProxy = ref(null)
-const toDateProxy = ref(null)
-
-const now = new Date()
-const fromDate = ref(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7).toLocaleDateString())
-const toDate = ref(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).toLocaleDateString())
-
-const jobs = computed(() => store.getters['datacapture/getJobs']());
-store.dispatch('datacapture/loadJobs', {fromDate: DateUtils.parseLocaleDateString(fromDate.value), toDate: DateUtils.parseLocaleDateString(toDate.value)});
-
-const filteredJobs = ref([])
-const columnFilters = ref({})
-const visibleColumns = ref([])
-
-const captureConfigList = computed(() => store.getters['datacapture/getAllCaptureConfigs']());
-store.dispatch('datacapture/loadAllCaptureConfigs');
-const selectedConfig = ref({});
-
-const columns = ref([
-  {name: 'createDate', align: 'left', label: 'Created On', field: 'createDate', sortable: true, format: FormatUtils.formatDate },
-  {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
-  {name: 'sourcePath', align: 'left', label: 'Source Path', field: 'sourcePath', sortable: true},
-  {name: 'statusCode', label: 'Status', field: 'statusCode', sortable: true},
-  {name: 'statusMessage', align: 'left', label: 'Message', field: 'statusMessage', sortable: true},
-  {name: 'id', align: 'left', label: 'Job ID', field: 'id', sortable: true},
-  {name: 'details'},
-  {name: 'cancel'}
-]);
-
-const configdialog = ref(false);
-
-const refreshJobs = () => {
-  fromDateProxy.value.hide()
-  toDateProxy.value.hide()
-  store.dispatch('datacapture/loadJobs', {fromDate: DateUtils.parseLocaleDateString(fromDate.value), toDate: DateUtils.parseLocaleDateString(toDate.value)});
-};
-
-const cancelJob = (id) => {
-  store.dispatch('datacapture/cancelJob', id);
-};
-
-// Auto-refresh
-let timer = null;
-onMounted(() => {
-  timer = setInterval(() => {
-    refreshJobs();
-  }, 60000);
-});
-
-onBeforeUnmount(() => {
-  clearInterval(timer);
-});
-
-// Job details dialog
-const showJobDetails = ref(false);
-const jobDetails = ref(null);
-const doShowJobDetails = (job) => {
-  jobDetails.value = job;
-  showJobDetails.value = true;
-};
-
-// Submit new job
-const showSubmitJobDialog = ref(false);
-const newJob = reactive({
-  captureConfigName: null,
-  captureConfig: null,
-  sourcePath: ''
-});
-const sourceType = ref("folder");
-const selectedSource = ref({
-  url: null,
-  folderName: '',
-  files: null
-});
-
-const handleFolderSelection = (files) => {
-  selectedSource.value.files = files;
-  selectedSource.value.folderName = files[0].webkitRelativePath.split('/')[0];
-}
-
-const canSubmitJob = computed(() => (newJob.captureConfigName && (selectedSource.value.url || selectedSource.value.files)));
-const submitJobAction = async () => {
-  if (selectedSource.value.url) {
-    newJob.sourcePath = selectedSource.value.url;
-  } else {
-    newJob.sourcePath = selectedSource.value.folderName;
-    newJob.files = selectedSource.value.files;
-  }
-
-  newJob.captureConfig = selectedConfig.value?.value;
-  await store.dispatch('datacapture/submitJob', newJob);
-  refreshJobs();
-};
-
-const showConfig = ref(false);
-
-const updateVisibleColumns = (columns) => {
-  visibleColumns.value = [...columns]
-}
-
-const handleColumnFilter = (columnName) => {
-  filteredJobs.value = jobs.value.filter(row => String(row[columnName]).includes(columnFilters.value[columnName]))
-}
-
-watch(jobs, () => {
-  visibleColumns.value = [...columns.value.map(a => a.name)];
-  filteredJobs.value = [...jobs.value.map(r => r)]
-
-  columns.value.forEach(col => {
-    columnFilters.value[col.name] = ref(null)
-  })
-})
-</script>
-
 <template>
   <q-breadcrumbs class="oa-breadcrumb">
     <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
     <q-breadcrumbs-el label="Data Capture Jobs" icon="cloud_upload"/>
   </q-breadcrumbs>
 
-  <q-page class="oa-root-div q-pa-md">
+  <q-page class="oa-root-div q-pa-sm">
     <oa-section title="Data Capture Jobs" icon="cloud_upload" :collapsible="true">
       <q-table
           table-header-class="text-grey"
           class="full-width"
-          :rows="filteredJobs"
+          :rows="jobs"
           :columns="columns"
           :visible-columns="visibleColumns"
           row-key="id"
           column-key="name"
+          :filter="filter"
+          :filter-method="filterMethod"
           :pagination="{ rowsPerPage: 20, sortBy: 'createDate', descending: true }"
           separator="cell"
           square dense flat
       >
         <template v-slot:top-left>
           <div class="justify-end">
-            <q-btn color="primary" icon="refresh" size="sm" @click="refreshJobs" class="on-left"/>
+            <q-btn color="primary" icon="refresh" size="sm" @click="refreshList" class="on-left"/>
             <q-btn color="primary" icon="add" size="sm" label="Submit New Job..." @click="showSubmitJobDialog = true"/>
           </div>
         </template>
         <template v-slot:top-right>
-          <div class="row q-gutter-sm">
-            <q-input dense label="From" stack-label v-model="fromDate">
-              <template v-slot:append>
-                <q-icon name="event" class="cursor-pointer">
-                  <q-popup-proxy cover transition-show="scale" transition-hide="scale" ref="fromDateProxy">
-                    <q-date v-model="fromDate" mask="DD-MM-YYYY" @update:model-value="refreshJobs"/>
-                  </q-popup-proxy>
-                </q-icon>
-              </template>
-            </q-input>
-
-            <q-input dense label="Until" stack-label v-model="toDate">
-              <template v-slot:append>
-                <q-icon name="event" class="cursor-pointer">
-                  <q-popup-proxy cover transition-show="scale" transition-hide="scale" ref="toDateProxy">
-                    <q-date v-model="toDate" mask="DD-MM-YYYY" @update:model-value="refreshJobs"/>
-                  </q-popup-proxy>
-                </q-icon>
-              </template>
-            </q-input>
-<!--            <q-btn flat round color="primary" icon="settings" style="border-radius: 50%;" @click="configdialog=true"/>-->
-          </div>
+          <date-range-selector v-model:from="fromDate" v-model:to="toDate" @rangeChanged="refreshList"/>
         </template>
         <template v-slot:header="props">
           <q-tr :props="props">
@@ -183,15 +36,7 @@ watch(jobs, () => {
             </q-th>
           </q-tr>
           <q-tr :props="props">
-            <q-th v-for="col in props.cols" :key="col.name">
-              <q-input v-if="col.name != 'menu'" v-model="columnFilters[col.name]"
-                       @update:model-value="handleColumnFilter(col.name)"
-                       dense class="filterColumn">
-                <template v-slot:append>
-                  <q-icon size="xs" name="search"/>
-                </template>
-              </q-input>
-            </q-th>
+            <column-filter v-for="col in props.cols" :key="col.name" v-model="filter[col.name]"/>
           </q-tr>
         </template>
         <template v-slot:body-cell-statusCode="props">
@@ -222,7 +67,8 @@ watch(jobs, () => {
         </template>
       </q-table>
 
-<!--      <TableConfig v-model:show="configdialog" v-model:columns="columns" v-model:visibleColumns="visibleColumns"/>-->
+      <table-config v-model:show="configdialog" v-model:columns="columns"
+                    v-model:visibleColumns="visibleColumns"></table-config>
 
       <q-dialog v-model="showJobDetails">
         <CaptureJobDetailsPanel :job="jobDetails"></CaptureJobDetailsPanel>
@@ -291,10 +137,120 @@ watch(jobs, () => {
   </q-page>
 </template>
 
-<style scoped>
-:deep(.filterColumn .q-field__control),
-:deep(.filterColumn .q-field__append){
-  font-size: 12px;
-  height: 25px;
+<script setup>
+import {ref, computed, onMounted, onBeforeUnmount, reactive, watch} from 'vue'
+import {useStore} from 'vuex'
+import {date} from 'quasar'
+import FormatUtils from "@/lib/FormatUtils.js"
+import FilterUtils from "@/lib/FilterUtils.js"
+import OaSection from "@/components/widgets/OaSection";
+import CaptureJobDetailsPanel from "./CaptureJobDetailsPanel";
+import TableConfig from "@/components/table/TableConfig";
+import ColumnFilter from "@/components/table/ColumnFilter";
+import UserChip from "@/components/widgets/UserChip";
+import StatusLabel from "@/components/widgets/StatusLabel";
+import DateRangeSelector from "@/components/widgets/DateRangeSelector";
+
+const store = useStore();
+
+const now = new Date();
+const fromDate = ref(date.subtractFromDate(now, { days: 7 }));
+const toDate = ref(date.addToDate(now, { days: 1 }));
+
+const jobs = computed(() => store.getters['datacapture/getJobs']());
+
+const refreshList = () => store.dispatch('datacapture/loadJobs', {
+  fromDate: fromDate.value.getTime(),
+  toDate: toDate.value.getTime()
+});
+refreshList();
+
+const visibleColumns = ref([])
+
+const captureConfigList = computed(() => store.getters['datacapture/getAllCaptureConfigs']());
+store.dispatch('datacapture/loadAllCaptureConfigs');
+const selectedConfig = ref({});
+
+const columns = ref([
+  {name: 'createDate', align: 'left', label: 'Created On', field: 'createDate', sortable: true, format: FormatUtils.formatDate },
+  {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
+  {name: 'sourcePath', align: 'left', label: 'Source Path', field: 'sourcePath', sortable: true},
+  {name: 'statusCode', label: 'Status', field: 'statusCode', sortable: true},
+  {name: 'statusMessage', align: 'left', label: 'Message', field: 'statusMessage', sortable: true},
+  {name: 'id', align: 'left', label: 'Job ID', field: 'id', sortable: true},
+  {name: 'details'},
+  {name: 'cancel'}
+]);
+
+const filter = FilterUtils.makeFilter(columns.value);
+const filterMethod = FilterUtils.defaultFilterMethod();
+
+const configdialog = ref(false);
+
+const cancelJob = (id) => {
+  store.dispatch('datacapture/cancelJob', id);
+};
+
+// Auto-refresh
+let timer = null;
+onMounted(() => {
+  timer = setInterval(() => {
+    refreshList();
+  }, 60000);
+});
+
+onBeforeUnmount(() => {
+  clearInterval(timer);
+});
+
+// Job details dialog
+const showJobDetails = ref(false);
+const jobDetails = ref(null);
+const doShowJobDetails = (job) => {
+  jobDetails.value = job;
+  showJobDetails.value = true;
+};
+
+// Submit new job
+const showSubmitJobDialog = ref(false);
+const newJob = reactive({
+  captureConfigName: null,
+  captureConfig: null,
+  sourcePath: ''
+});
+const sourceType = ref("folder");
+const selectedSource = ref({
+  url: null,
+  folderName: '',
+  files: null
+});
+
+const handleFolderSelection = (files) => {
+  selectedSource.value.files = files;
+  selectedSource.value.folderName = files[0].webkitRelativePath.split('/')[0];
 }
-</style>
+
+const canSubmitJob = computed(() => (newJob.captureConfigName && (selectedSource.value.url || selectedSource.value.files)));
+const submitJobAction = async () => {
+  if (selectedSource.value.url) {
+    newJob.sourcePath = selectedSource.value.url;
+  } else {
+    newJob.sourcePath = selectedSource.value.folderName;
+    newJob.files = selectedSource.value.files;
+  }
+
+  newJob.captureConfig = selectedConfig.value?.value;
+  await store.dispatch('datacapture/submitJob', newJob);
+  refreshList();
+};
+
+const showConfig = ref(false);
+
+const updateVisibleColumns = (columns) => {
+  visibleColumns.value = [...columns]
+}
+
+watch(jobs, () => {
+  visibleColumns.value = [...columns.value.map(a => a.name)];
+})
+</script>

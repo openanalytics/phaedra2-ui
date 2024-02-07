@@ -64,7 +64,7 @@
   let visibleColumns = columns.value.map(a => a.name);
   const showConfigDialog = ref(false);
   const filter = ref('');
-  const filterMethod = FilterUtils.defaultTableFilter();
+  const filterMethod = FilterUtils.defaultFilterMethod();
 
   const features = computed(() => store.getters['features/getByProtocolId'](props.resultSet[0].protocolId));
   if (!store.getters['features/isProtocolLoaded'](props.resultSet[0].protocolId)) {

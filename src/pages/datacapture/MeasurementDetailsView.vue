@@ -63,7 +63,7 @@
         </div>
       </oa-section>
 
-      <div class="q-pt-md">
+      <div class="q-pt-sm">
         <q-tabs inline-label dense no-caps class="oa-section-title" v-model="activeTab" align="left">
           <q-tab name="wellData" icon="table_rows" label="Well Data"/>
           <q-tab name="subWellData" icon="table_rows" label="SubWell Data"/>
@@ -178,7 +178,7 @@ const meas = computed(() => store.getters['measurements/getById'](measId));
 store.dispatch('measurements/loadById', measId);
 
 const filter = ref('');
-const filterMethod = FilterUtils.defaultTableFilter();
+const filterMethod = FilterUtils.defaultFilterMethod();
 
 const wellPositions = computed(() => WellUtils.getWellPositions(meas.value.rows, meas.value.columns))
 const subWellColumns = computed(() => meas.value.subWellColumns)

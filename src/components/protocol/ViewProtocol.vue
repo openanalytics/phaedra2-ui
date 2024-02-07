@@ -1,5 +1,5 @@
 <template>
-  <div v-if="protocolStore.protocol" class="q-pa-md">
+  <div v-if="protocolStore.protocol" class="q-pa-sm">
     <oa-section :title="protocolStore.protocol.name" icon="ballot" :collapsible="true">
       <div class="row q-pa-md oa-section-body">
         <div class="col-3">
@@ -25,7 +25,7 @@
           </q-field>
           <q-field label="Tags" stack-label borderless dense>
             <template v-slot:control>
-              <TagList :tags="protocolStore.protocol.tags" @addTag="onAddTag" @removeTag="onRemoveTag"/>
+              <TagList :tags="protocolStore.protocol.tags" @addTag="onAddTag" @removeTag="onRemoveTag" class="q-pt-xs"/>
             </template>
           </q-field>
         </div>
@@ -78,7 +78,7 @@
       </div>
     </oa-section>
 
-    <div class="q-pt-md">
+    <div class="q-pt-sm">
       <FeatureList :protocol="protocolStore.protocol" :editMode="false"/>
     </div>
   </div>

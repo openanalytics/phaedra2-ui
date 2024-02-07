@@ -1,11 +1,70 @@
+<template>
+  <q-breadcrumbs class="oa-breadcrumb">
+    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}" />
+    <q-breadcrumbs-el :label="'Protocols'" icon="list"/>
+  </q-breadcrumbs>
+
+  <q-page class="oa-root-div">
+    <div class="q-pa-sm">
+      <oa-section title="Protocols" icon="ballot">
+        <q-table
+            class="full-width"
+            table-header-class="text-grey"
+            :rows="protocols"
+            :columns="columns"
+            :visible-columns="visibleColumns"
+            :filter="filter"
+            :filter-method="filterMethod"
+            row-key="id"
+            column-key="name"
+            :pagination="{ rowsPerPage: 20, sortBy: 'name' }"
+            :loading="loading"
+            @row-click="selectProtocol"
+            separator="cell"
+            flat square dense
+        >
+          <template v-slot:top-left>
+            <router-link :to="{ name: 'newProtocol' }" class="nav-link">
+              <q-btn size="sm" icon="add" color="primary" label="New Protocol..."/>
+            </router-link>
+          </template>
+          <template v-slot:header="props">
+            <q-tr :props="props">
+              <q-th v-for="col in props.cols" :key="col.name" :props="props">
+                {{col.label}}
+              </q-th>
+            </q-tr>
+            <q-tr :props="props">
+              <column-filter v-for="col in props.cols" :key="col.name" v-model="filter[col.name]"/>
+            </q-tr>
+          </template>
+          <template v-slot:body-cell-createdBy="props">
+            <q-td :props="props">
+              <UserChip :id="props.row.createdBy" />
+            </q-td>
+          </template>
+          <template v-slot:body-cell-tags="props">
+            <q-td :props="props">
+              <tag-list :tags="props.row.tags" :readOnly="true" />
+            </q-td>
+          </template>
+        </q-table>
+      </oa-section>
+    </div>
+  </q-page>
+</template>
+
 <script setup>
 import {ref, computed, watch} from 'vue'
 import {useStore} from 'vuex'
 import {useRouter} from 'vue-router'
 import FormatUtils from "@/lib/FormatUtils.js"
+import FilterUtils from "@/lib/FilterUtils.js"
 
 import UserChip from "@/components/widgets/UserChip";
 import OaSection from "@/components/widgets/OaSection";
+import ColumnFilter from "@/components/table/ColumnFilter";
+import TagList from "@/components/tag/TagList";
 
 const store = useStore();
 const router = useRouter();
@@ -34,8 +93,8 @@ const columns = ref([
   // {name: 'menu', align: 'left', field: 'menu', sortable: false}
 ])
 
-const filteredProtocols = ref([])
-const columnFilters = ref({})
+const filter = FilterUtils.makeFilter(columns.value);
+const filterMethod = FilterUtils.defaultFilterMethod();
 const visibleColumns = ref([])
 
 const selectProtocol = (event, row) => {
@@ -46,87 +105,8 @@ const updateVisibleColumns = (columns) => {
   visibleColumns.value = [...columns]
 }
 
-const handleColumnFilter = (columnName) => {
-  filteredProtocols.value = protocols.value.filter(row => String(row[columnName]).includes(columnFilters.value[columnName]))
-}
-
 watch(protocols, () => {
   visibleColumns.value = [...columns.value.map(a => a.name)];
-  filteredProtocols.value = [...protocols.value.map(r => r)]
   loading.value = false
-
-  columns.value.forEach(col => {
-    columnFilters.value[col.name] = ref(null)
-  })
 })
 </script>
-
-<template>
-  <q-breadcrumbs class="oa-breadcrumb">
-    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}" />
-    <q-breadcrumbs-el :label="'Protocols'" icon="list"/>
-  </q-breadcrumbs>
-
-  <q-page class="oa-root-div">
-    <div class="q-pa-sm">
-      <oa-section title="Protocols" icon="ballot">
-        <q-table
-            table-header-class="text-grey"
-            :rows="filteredProtocols"
-            :columns="columns"
-            :visible-columns="visibleColumns"
-            row-key="id"
-            column-key="name"
-            class="full-width"
-            :pagination="{ rowsPerPage: 20, sortBy: 'name' }"
-            :loading="loading"
-            @row-click="selectProtocol"
-            separator="cell"
-            flat square dense
-        >
-          <template v-slot:top-left>
-            <router-link :to="{ name: 'newProtocol' }" class="nav-link">
-              <q-btn size="sm" icon="add" color="primary" label="New Protocol..."/>
-            </router-link>
-          </template>
-          <template v-slot:header="props">
-            <q-tr :props="props">
-              <q-th v-for="col in props.cols" :key="col.name" :props="props">
-                {{col.label}}
-              </q-th>
-            </q-tr>
-            <q-tr :props="props">
-              <q-th v-for="col in props.cols" :key="col.name">
-                <q-input v-model="columnFilters[col.name]"
-                         @update:model-value="handleColumnFilter(col.name)"
-                         dense class="filterColumn">
-                  <template v-slot:append>
-                    <q-icon size="xs" name="search"/>
-                  </template>
-                </q-input>
-              </q-th>
-            </q-tr>
-          </template>
-          <template v-slot:body-cell-createdBy="props">
-            <q-td :props="props">
-              <UserChip :id="props.row.createdBy" />
-            </q-td>
-          </template>
-          <template v-slot:body-cell-tags="props">
-            <q-td :props="props">
-              <q-badge v-for="tag in props.row.tags" :key="tag" color="green">{{tag}}</q-badge>
-            </q-td>
-          </template>
-        </q-table>
-      </oa-section>
-    </div>
-  </q-page>
-</template>
-
-<style scoped>
-:deep(.filterColumn .q-field__control),
-:deep(.filterColumn .q-field__append){
-  font-size: 12px;
-  height: 25px;
-}
-</style>

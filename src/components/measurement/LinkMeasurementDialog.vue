@@ -86,6 +86,6 @@ const columns = [
 ];
 
 const filter = ref(props.plate.barcode);
-const filterMethod = FilterUtils.defaultTableFilter();
+const filterMethod = FilterUtils.defaultFilterMethod();
 
 </script>

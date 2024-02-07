@@ -25,7 +25,7 @@
             </q-field>
             <q-field label="Tags" stack-label dense borderless>
               <template v-slot:control>
-                <TagList :tags="plateStore.plate.tags" @addTag="onAddTag" @removeTag="onRemoveTag"/>
+                <tag-list :tags="plateStore.plate.tags" @addTag="onAddTag" @removeTag="onRemoveTag" class="q-pt-xs"/>
               </template>
             </q-field>
           </div>
@@ -85,13 +85,13 @@
             <q-tab-panel name="heatmap">
               <PlateHeatmap :plate="plateStore.plate" :wells="plateStore.wells"/>
             </q-tab-panel>
-            <q-tab-panel name="wells">
+            <q-tab-panel name="wells" class="q-px-none">
               <WellList :plate="plateStore.plate" :wells="plateStore.wells"/>
             </q-tab-panel>
-            <q-tab-panel name="measurements" icon="view_module" label="Layout">
+            <q-tab-panel name="measurements" icon="view_module" label="Layout" class="q-px-none">
               <MeasList :plate="plateStore.plate"/>
             </q-tab-panel>
-            <q-tab-panel name="results">
+            <q-tab-panel name="results" class="q-px-none">
               <ResultSetList :plate="plateStore.plate"/>
             </q-tab-panel>
             <q-tab-panel name="curves" icon="show_chart">

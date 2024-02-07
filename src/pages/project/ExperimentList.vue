@@ -3,11 +3,13 @@
     <q-table
         class="full-width"
         table-header-class="text-grey"
-        :rows="filteredExperiments"
+        :rows="experiments"
         :columns="columns"
         :visible-columns="visibleColumns"
         row-key="id"
         column-key="name"
+        :filter="filter"
+        :filter-method="filterMethod"
         :pagination="{ rowsPerPage: 10, sortBy: 'name' }"
         :loading="loading"
         separator="cell"
@@ -20,7 +22,7 @@
       </template>
       <template v-slot:top-right>
         <div class="row">
-          <q-btn flat round color="primary" icon="settings" class="on-right" @click="showConfigDialog=true">
+          <q-btn size="sm" flat round color="primary" icon="settings" class="on-right" @click="showConfigDialog=true">
             <q-tooltip>Configure Table Columns</q-tooltip>
           </q-btn>
         </div>
@@ -32,15 +34,7 @@
           </q-th>
         </q-tr>
         <q-tr :props="props">
-          <q-th v-for="col in props.cols" :key="col.name">
-            <q-input v-if="col.name != 'menu'" v-model="columnFilters[col.name]"
-                     @update:model-value="handleColumnFilter(col.name)"
-                     dense class="filterColumn">
-              <template v-slot:append>
-                <q-icon size="xs" name="search"/>
-              </template>
-            </q-input>
-          </q-th>
+          <column-filter v-for="col in props.cols" :key="col.name" v-model="filter[col.name]"/>
         </q-tr>
       </template>
       <template v-slot:body-cell-name="props">
@@ -55,7 +49,7 @@
       </template>
       <template v-slot:body-cell-tags="props">
         <q-td :props="props">
-          <q-badge v-for="tag in props.row.tags" :key="tag" color="green">{{tag}}</q-badge>
+          <tag-list :tags="props.row.tags" :readOnly="true" />
         </q-td>
       </template>
       <template v-slot:body-cell-createdBy="props">
@@ -150,21 +144,23 @@ import ProgressBarField from "@/components/widgets/ProgressBarField";
 import UserChip from "@/components/widgets/UserChip";
 import ExperimentMenu from "@/components/experiment/ExperimentMenu";
 import OaSection from "@/components/widgets/OaSection";
+import ColumnFilter from "@/components/table/ColumnFilter";
+import TagList from "@/components/tag/TagList";
 
 import FormatUtils from "@/lib/FormatUtils.js"
 import FilterUtils from "@/lib/FilterUtils.js"
 
 const columns = ref([
-  {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
+  {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
   {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-  {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
-  {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
-  {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
   {name: 'nrPlates', align: 'left', label: 'Plates', sortable: true},
   {name: 'nrPlatesCalculated', align: 'left', label: 'Calculated', sortable: true},
   {name: 'nrPlatesValidated', align: 'left', label: 'Validated', sortable: true},
   {name: 'nrPlatesApproved', align: 'left', label: 'Approved', sortable: true},
+  {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
+  {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
+  {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
   {name: 'status', align: 'center', label: 'Status', field: 'status', sortable: true},
   {name: 'menu', align: 'left', field: 'menu', sortable: false}
 ])
@@ -179,6 +175,9 @@ const emits = defineEmits(['createNewExperiment'])
 const loading = ref()
 const experiments = computed( () => props.experiments ? props.experiments : [])
 
+const filter = FilterUtils.makeFilter(columns.value);
+const filterMethod = FilterUtils.defaultFilterMethod();
+
 const showNewExperimentDialog = ref(false)
 const newExperimentName = ref('')
 
@@ -192,23 +191,11 @@ const doCreateNewExperiment = () => {
   emits('createNewExperiment', newExperiment)
 }
 
-const filteredExperiments = ref([])
 const visibleColumns = ref([])
-const columnFilters = ref({})
-
 watch(experiments, () => {
   visibleColumns.value = [...columns.value.map(a => a.name)];
-  filteredExperiments.value = [...experiments.value.map(r => r)]
   loading.value = false
-
-  columns.value.forEach(col => {
-    columnFilters.value[col.name] = ref(null)
-  })
 })
-
-const handleColumnFilter = (columnName) => {
-  filteredExperiments.value = experiments.value.filter(row => String(row[columnName]).includes(columnFilters.value[columnName]))
-}
 
 const showConfigDialog = ref(false)
 </script>
@@ -217,11 +204,5 @@ const showConfigDialog = ref(false)
 .nav-link {
   color: black;
   text-decoration: none;
-}
-
-:deep(.filterColumn .q-field__control),
-:deep(.filterColumn .q-field__append) {
-  font-size: 12px;
-  height: 25px;
 }
 </style>

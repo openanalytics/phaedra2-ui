@@ -5,7 +5,7 @@
       <q-toolbar-title v-show="drawerOpen">
         Navigator
       </q-toolbar-title>
-      <q-btn dense flat round icon="settings" v-show="drawerOpen"/>
+      <!-- <q-btn dense flat round icon="settings" v-show="drawerOpen"/> -->
       <!-- <q-btn dense flat round :icon="drawerIcon" @click="toggleDrawer"/> -->
     </q-toolbar>
 
@@ -74,8 +74,6 @@ const drawerIcons = {
   true: "chevron_left",
   false: "chevron_right"
 }
-const selected = ref(null)
-const drawerVisible = ref(true)
 const drawerOpen = ref(true)
 const drawerIcon = ref("chevron_left")
 

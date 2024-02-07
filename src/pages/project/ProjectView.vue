@@ -23,7 +23,7 @@
                         </q-field>
                         <q-field label="Tags" stack-label dense borderless>
                             <template v-slot:control>
-                              <TagList :tags="projectStore.project.tags" @addTag="onAddTag" @removeTag="onRemoveTag"/>
+                              <tag-list :tags="projectStore.project.tags" @addTag="onAddTag" @removeTag="onRemoveTag" class="q-pt-xs"/>
                             </template>
                         </q-field>
                     </div>
@@ -64,7 +64,7 @@
             </oa-section>
         </div>
 
-        <div class="q-pl-md q-pr-md">
+        <div class="q-px-sm">
             <ExperimentList :experiments="projectStore.experiments" :project="projectStore.project" @createNewExperiment="onCreateNewExperiment"/>
         </div>
 
