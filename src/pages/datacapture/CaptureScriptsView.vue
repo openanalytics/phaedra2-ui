@@ -9,9 +9,11 @@
       <q-table
           class="full-width"
           table-header-class="text-grey"
-          :rows="filteredScripts"
+          :rows="scripts"
           :columns="columns"
           :visible-columns="visibleColumns"
+          :filter="filter"
+          :filter-method="filterMethod"
           row-key="id"
           column-key="name"
           :loading="loading"
@@ -30,15 +32,7 @@
             </q-th>
           </q-tr>
           <q-tr :props="props">
-            <q-th v-for="col in props.cols" :key="col.name">
-              <q-input v-if="col.name != 'menu'" v-model="columnFilters[col.name]"
-                       @update:model-value="handleColumnFilter(col.name)"
-                       dense>
-                <template v-slot:append>
-                  <q-icon size="xs" name="search"/>
-                </template>
-              </q-input>
-            </q-th>
+            <column-filter v-for="col in props.cols" :key="col.name" v-model="filter[col.name]"/>
           </q-tr>
         </template>
         <template v-slot:body-cell-name="props">
@@ -75,8 +69,10 @@ import {ref, computed, watch} from 'vue'
 import {useStore} from 'vuex'
 import {useRouter} from 'vue-router';
 import FormatUtils from "@/lib/FormatUtils.js"
+import FilterUtils from "@/lib/FilterUtils.js"
 import OaSection from "@/components/widgets/OaSection";
 import UserChip from "@/components/widgets/UserChip";
+import ColumnFilter from "@/components/table/ColumnFilter";
 
 const store = useStore();
 const router = useRouter();
@@ -85,8 +81,6 @@ const loading = ref(true);
 const scripts = computed(() => store.getters['datacapture/getAllCaptureScripts']());
 store.dispatch('datacapture/loadAllCaptureScripts').then(() => { loading.value = false });
 
-const filteredScripts = ref([])
-const columnFilters = ref({})
 const visibleColumns = ref([])
 
 const columns = ref([
@@ -100,20 +94,14 @@ const columns = ref([
     {name: 'updatedBy', align: 'left', label: 'Updated By', field: 'updatedBy', sortable: true},
 ]);
 
+const filter = FilterUtils.makeFilter(columns.value);
+const filterMethod = FilterUtils.defaultFilterMethod();
+
 const updateVisibleColumns = (columns) => {
   visibleColumns.value = [...columns]
 }
 
-const handleColumnFilter = (columnName) => {
-  filteredScripts.value = scripts.value.filter(row => String(row[columnName]).includes(columnFilters.value[columnName]))
-}
-
 watch(scripts, () => {
   visibleColumns.value = [...columns.value.map(a => a.name)];
-  filteredScripts.value = [...scripts.value.map(r => r)]
-
-  columns.value.forEach(col => {
-    columnFilters.value[col.name] = ref(null)
-  })
 })
 </script>

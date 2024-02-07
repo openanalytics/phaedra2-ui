@@ -1,34 +1,34 @@
 <template>
   <q-table
+      class="full-width"
       table-header-class="text-grey"
       virtual-scroll
-      :pagination="{ rowsPerPage: plate.columns, sortBy: 'number', descending: false }"
+      :pagination="{ rowsPerPage: plate.columns, sortBy: 'number' }"
       :rows="filteredRows"
       :columns="columns"
       :visible-columns="visibleColumns"
+      :filter="filter"
+      :filter-method="filterMethod"
       row-key="id"
       column-key="name"
+      separator="cell"
       :loading="loading"
       flat square dense
   >
     <template v-slot:top-right>
       <div class="row">
-        <q-btn size="sm" label="Settings" icon="settings" @click="showConfigDialog=true" class="oa-action-button"/>
+        <q-btn size="sm" flat round color="primary" icon="settings" style="border-radius: 50%;" @click="showConfigDialog=true"/>
       </div>
     </template>
-    <template v-slot:header-cell="props">
-      <q-td :props="props" class="row-cols-1">
-        <div>
-          <q-input v-model="columnFilters[props.col.name]"
-                   :label="props.col.label"
-                   @update:model-value="handleColumnFilter(props.col.name)"
-                   dense>
-            <template v-slot:append>
-              <q-icon size="xs" name="search"/>
-            </template>
-          </q-input>
-        </div>
-      </q-td>
+    <template v-slot:header="props">
+      <q-tr :props="props">
+        <q-th v-for="col in props.cols" :key="col.name" :props="props">
+          {{col.label}}
+        </q-th>
+      </q-tr>
+      <q-tr :props="props">
+        <column-filter v-for="col in props.cols" :key="col.name" v-model="filter[col.name]"/>
+      </q-tr>
     </template>
     <template v-slot:body-cell="props">
       <q-td v-if="props.col.isFeature" :props="props" :style="'background-color:' + props.col.lut.getColor(props.value)">
@@ -60,6 +60,7 @@
     import {ref, computed, watch} from 'vue'
     import WellUtils from "@/lib/WellUtils.js"
     import FilterUtils from "@/lib/FilterUtils"
+    import ColumnFilter from "@/components/table/ColumnFilter";
     import TableConfig from "@/components/table/TableConfig"
     import {usePlateStore} from "@/stores/plate"
     import resultDataGraphQlAPI from "@/api/graphql/resultdata"
@@ -102,9 +103,9 @@
 
     const showConfigDialog = ref(false);
     const visibleColumns = ref([])
-    const filter = ref('');
-    const filterMethod = FilterUtils.defaultTableFilter();
 
+    const filter = FilterUtils.makeFilter(columns.value);
+    const filterMethod = FilterUtils.defaultFilterMethod();
 
     watch([features, resultData], () => {
       if (features.value !== undefined && resultData.value !== undefined) {

@@ -8,13 +8,15 @@
     <div class="q-pa-sm">
       <oa-section title="Protocols" icon="ballot">
         <q-table
+            class="full-width"
             table-header-class="text-grey"
-            :rows="filteredProtocols"
+            :rows="protocols"
             :columns="columns"
             :visible-columns="visibleColumns"
+            :filter="filter"
+            :filter-method="filterMethod"
             row-key="id"
             column-key="name"
-            class="full-width"
             :pagination="{ rowsPerPage: 20, sortBy: 'name' }"
             :loading="loading"
             @row-click="selectProtocol"
@@ -33,15 +35,7 @@
               </q-th>
             </q-tr>
             <q-tr :props="props">
-              <q-th v-for="col in props.cols" :key="col.name">
-                <q-input v-model="columnFilters[col.name]"
-                         @update:model-value="handleColumnFilter(col.name)"
-                         dense>
-                  <template v-slot:append>
-                    <q-icon size="xs" name="search"/>
-                  </template>
-                </q-input>
-              </q-th>
+              <column-filter v-for="col in props.cols" :key="col.name" v-model="filter[col.name]"/>
             </q-tr>
           </template>
           <template v-slot:body-cell-createdBy="props">
@@ -65,9 +59,11 @@ import {ref, computed, watch} from 'vue'
 import {useStore} from 'vuex'
 import {useRouter} from 'vue-router'
 import FormatUtils from "@/lib/FormatUtils.js"
+import FilterUtils from "@/lib/FilterUtils.js"
 
 import UserChip from "@/components/widgets/UserChip";
 import OaSection from "@/components/widgets/OaSection";
+import ColumnFilter from "@/components/table/ColumnFilter";
 
 const store = useStore();
 const router = useRouter();
@@ -96,8 +92,8 @@ const columns = ref([
   // {name: 'menu', align: 'left', field: 'menu', sortable: false}
 ])
 
-const filteredProtocols = ref([])
-const columnFilters = ref({})
+const filter = FilterUtils.makeFilter(columns.value);
+const filterMethod = FilterUtils.defaultFilterMethod();
 const visibleColumns = ref([])
 
 const selectProtocol = (event, row) => {
@@ -108,17 +104,8 @@ const updateVisibleColumns = (columns) => {
   visibleColumns.value = [...columns]
 }
 
-const handleColumnFilter = (columnName) => {
-  filteredProtocols.value = protocols.value.filter(row => String(row[columnName]).includes(columnFilters.value[columnName]))
-}
-
 watch(protocols, () => {
   visibleColumns.value = [...columns.value.map(a => a.name)];
-  filteredProtocols.value = [...protocols.value.map(r => r)]
   loading.value = false
-
-  columns.value.forEach(col => {
-    columnFilters.value[col.name] = ref(null)
-  })
 })
 </script>

@@ -2,11 +2,13 @@
   <q-table
       class="full-width"
       table-header-class="text-grey"
-      :rows="filteredPlates"
+      :rows="plates"
       :columns="columns"
       :visible-columns="visibleColumns"
       row-key="id"
       column-key="name"
+      :filter="filter"
+      :filter-method="filterMethod"
       :pagination="{ rowsPerPage: 10, sortBy: 'barcode' }"
       :loading="loading"
       @row-contextmenu="selectPlate"
@@ -30,15 +32,7 @@
         </q-th>
       </q-tr>
       <q-tr :props="props">
-        <q-th v-for="col in props.cols" :key="col.name">
-          <q-input v-if="col.name != 'menu'" v-model="columnFilters[col.name]"
-                   @update:model-value="handleColumnFilter(col.name)"
-                   dense>
-            <template v-slot:append>
-              <q-icon size="xs" name="search"/>
-            </template>
-          </q-input>
-        </q-th>
+        <column-filter v-for="col in props.cols" :key="col.name" v-model="filter[col.name]"/>
       </q-tr>
     </template>
     <template v-slot:body-cell-barcode="props">
@@ -125,9 +119,11 @@ import {useRoute} from "vue-router";
 
 import UserChip from "@/components/widgets/UserChip";
 // import TableConfig from "@/components/table/TableConfig";
+import ColumnFilter from "@/components/table/ColumnFilter";
 import PlateActionMenu from "@/components/plate/PlateActionMenu";
 import StatusFlag from "@/components/widgets/StatusFlag";
 import FormatUtils from "@/lib/FormatUtils";
+import FilterUtils from "@/lib/FilterUtils.js"
 import {useExperimentStore} from "@/stores/experiment";
 
 const props = defineProps(['plates', 'experiment', 'newPlateTab'])
@@ -154,6 +150,9 @@ const columns = ref([
   {name: 'menu', align: 'left', field: 'menu', sortable: false}
 ])
 
+const filter = FilterUtils.makeFilter(columns.value);
+const filterMethod = FilterUtils.defaultFilterMethod();
+
 const selectedPlate = ref({});
 const showPlateContextMenu = ref(false);
 const selectPlate = (event, row) => {
@@ -172,31 +171,14 @@ const openPlateInspector = (plate) => {
   emit('showPlateInspector', plate)
 }
 
-const filteredPlates = ref(plates.value)
 const visibleColumns = ref([])
-const columnFilters = ref({})
-
 onMounted(() => {
   visibleColumns.value = [...columns.value.map(a => a.name)];
-  filteredPlates.value = [...plates.value.map(r => r)]
   loading.value = false
-
-  columns.value.forEach(col => {
-    columnFilters.value[col.name] = ref(null)
-  })
 })
 
 watch(plates, () => {
   visibleColumns.value = [...columns.value.map(a => a.name)];
-  filteredPlates.value = [...plates.value.map(r => r)]
   loading.value = false
-
-  columns.value.forEach(col => {
-    columnFilters.value[col.name] = ref(null)
-  })
 })
-
-const handleColumnFilter = (columnName) => {
-  filteredPlates.value = plates.value.filter(row => String(row[columnName]).includes(columnFilters.value[columnName]))
-}
 </script>

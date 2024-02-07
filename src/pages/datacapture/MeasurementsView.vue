@@ -10,9 +10,11 @@
         <q-table
             table-header-class="text-grey"
             class="full-width"
-            :rows="filteredMeasurements"
+            :rows="measurements"
             :columns="columns"
             :visible-columns="visibleColumns"
+            :filter="filter"
+            :filter-method="filterMethod"
             row-key="id"
             column-key="name"
             :pagination="{ rowsPerPage: 20, sortBy: 'createdOn', descending: true}"
@@ -33,15 +35,7 @@
               </q-th>
             </q-tr>
             <q-tr :props="props">
-              <q-th v-for="col in props.cols" :key="col.name">
-                <q-input v-if="col.name != 'menu'" v-model="columnFilters[col.name]"
-                         @update:model-value="handleColumnFilter(col.name)"
-                         dense>
-                  <template v-slot:append>
-                    <q-icon size="xs" name="search"/>
-                  </template>
-                </q-input>
-              </q-th>
+              <column-filter v-for="col in props.cols" :key="col.name" v-model="filter[col.name]"/>
             </q-tr>
           </template>
           <template v-slot:body-cell-createdBy="props">
@@ -62,9 +56,11 @@ import {computed, ref, watch} from 'vue'
 import {useStore} from "vuex";
 import {useRouter} from "vue-router";
 import FormatUtils from "@/lib/FormatUtils";
+import FilterUtils from "@/lib/FilterUtils.js";
 import TableConfig from "@/components/table/TableConfig";
 import OaSection from "@/components/widgets/OaSection";
 import UserChip from "@/components/widgets/UserChip";
+import ColumnFilter from "@/components/table/ColumnFilter";
 
 const router = useRouter()
 const loading = ref(true);
@@ -73,8 +69,6 @@ const store = useStore()
 const measurements = computed(() => store.getters['measurements/getAll']() || [])
 store.dispatch('measurements/loadAll').then(() => loading.value = false);
 
-const filteredMeasurements = ref([])
-const columnFilters = ref({})
 const visibleColumns = ref([])
 
 const columns = ref([
@@ -89,22 +83,16 @@ const columns = ref([
   {name: 'imageChannels', align: 'left', label: 'Image Channels', field: row => (row?.imageChannels?.length || 0), sortable: true},
 ])
 
+const filter = FilterUtils.makeFilter(columns.value);
+const filterMethod = FilterUtils.defaultFilterMethod();
+
 const configdialog = ref(false)
 
 const updateVisibleColumns = (columns) => {
   visibleColumns.value = [...columns]
 }
 
-const handleColumnFilter = (columnName) => {
-  filteredMeasurements.value = measurements.value.filter(row => String(row[columnName]).includes(columnFilters.value[columnName]))
-}
-
 watch(measurements, () => {
   visibleColumns.value = [...columns.value.map(a => a.name)];
-  filteredMeasurements.value = [...measurements.value.map(r => r)]
-
-  columns.value.forEach(col => {
-    columnFilters.value[col.name] = ref(null)
-  })
 })
 </script>

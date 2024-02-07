@@ -3,9 +3,11 @@
       class="full-width"
       table-header-class="text-grey"
       :title="'Result Sets'"
-      :rows="filteredResultSets"
+      :rows="resultSets"
       :columns="columns"
       :visible-columns="visibleColumns"
+      :filter="filter"
+      :filter-method="filterMethod"
       row-key="id"
       column-key="name"
       :pagination="{ rowsPerPage: 10, sortBy: 'calculatedOn', descending: true }"
@@ -26,15 +28,7 @@
         </q-th>
       </q-tr>
       <q-tr :props="props">
-        <q-th v-for="col in props.cols" :key="col.name">
-          <q-input v-model="columnFilters[col.name]"
-                   @update:model-value="handleColumnFilter(col.name)"
-                   dense>
-            <template v-slot:append>
-              <q-icon size="xs" name="search"/>
-            </template>
-          </q-input>
-        </q-th>
+        <column-filter v-for="col in props.cols" :key="col.name" v-model="filter[col.name]"/>
       </q-tr>
     </template>
     <template v-slot:body-cell-protocol="props">
@@ -67,7 +61,9 @@
 <script setup>
 import {computed, onMounted, ref, watch} from 'vue'
 import FormatUtils from "../../lib/FormatUtils";
+import FilterUtils from "@/lib/FilterUtils";
 import StatusLabel from "@/components/widgets/StatusLabel"
+import ColumnFilter from "@/components/table/ColumnFilter";
 import ResultSetDetailsPanel from "@/components/resultdata/ResultSetDetailsPanel";
 import {usePlateStore} from "@/stores/plate";
 
@@ -99,21 +95,11 @@ const columns = ref([
     { name: 'details' }
 ])
 
-const filteredResultSets = ref([])
+const filter = FilterUtils.makeFilter(columns.value);
+const filterMethod = FilterUtils.defaultFilterMethod();
 const visibleColumns = ref([])
-
-const columnFilters = ref({})
 
 watch(resultSets, () => {
   visibleColumns.value = [...columns.value.map(a => a.name)];
-  filteredResultSets.value = [...resultSets.value.map(r => r)]
-
-  columns.value.forEach(col => {
-    columnFilters.value[col.name] = ref(null)
-  })
 })
-
-const handleColumnFilter = (columnName) => {
-  filteredResultSets.value = resultSets.value.filter(row => String(row[columnName]).includes(columnFilters.value[columnName]))
-}
 </script>

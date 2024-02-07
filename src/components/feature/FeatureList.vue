@@ -118,7 +118,7 @@ const selectedFeature = ref([]);
 const visibleColumns = columns.value.map(a => a.name)
 const configDialog = ref(false)
 const filter = ref('')
-const filterMethod = FilterUtils.defaultTableFilter()
+const filterMethod = FilterUtils.defaultFilterMethod()
 
 const getFormulaName = (id) => {
   const formula = formulasStore.getFormulaById(parseInt(id))

@@ -9,11 +9,13 @@
       <q-table
           table-header-class="text-grey"
           class="full-width"
-          :rows="filteredJobs"
+          :rows="jobs"
           :columns="columns"
           :visible-columns="visibleColumns"
           row-key="id"
           column-key="name"
+          :filter="filter"
+          :filter-method="filterMethod"
           :pagination="{ rowsPerPage: 20, sortBy: 'createDate', descending: true }"
           separator="cell"
           square dense flat
@@ -34,15 +36,7 @@
             </q-th>
           </q-tr>
           <q-tr :props="props">
-            <q-th v-for="col in props.cols" :key="col.name">
-              <q-input v-if="col.name != 'menu'" v-model="columnFilters[col.name]"
-                       @update:model-value="handleColumnFilter(col.name)"
-                       dense>
-                <template v-slot:append>
-                  <q-icon size="xs" name="search"/>
-                </template>
-              </q-input>
-            </q-th>
+            <column-filter v-for="col in props.cols" :key="col.name" v-model="filter[col.name]"/>
           </q-tr>
         </template>
         <template v-slot:body-cell-statusCode="props">
@@ -148,9 +142,11 @@ import {ref, computed, onMounted, onBeforeUnmount, reactive, watch} from 'vue'
 import {useStore} from 'vuex'
 import {date} from 'quasar'
 import FormatUtils from "@/lib/FormatUtils.js"
+import FilterUtils from "@/lib/FilterUtils.js"
 import OaSection from "@/components/widgets/OaSection";
 import CaptureJobDetailsPanel from "./CaptureJobDetailsPanel";
 import TableConfig from "@/components/table/TableConfig";
+import ColumnFilter from "@/components/table/ColumnFilter";
 import UserChip from "@/components/widgets/UserChip";
 import StatusLabel from "@/components/widgets/StatusLabel";
 import DateRangeSelector from "@/components/widgets/DateRangeSelector";
@@ -169,8 +165,6 @@ const refreshList = () => store.dispatch('datacapture/loadJobs', {
 });
 refreshList();
 
-const filteredJobs = ref([])
-const columnFilters = ref({})
 const visibleColumns = ref([])
 
 const captureConfigList = computed(() => store.getters['datacapture/getAllCaptureConfigs']());
@@ -187,6 +181,9 @@ const columns = ref([
   {name: 'details'},
   {name: 'cancel'}
 ]);
+
+const filter = FilterUtils.makeFilter(columns.value);
+const filterMethod = FilterUtils.defaultFilterMethod();
 
 const configdialog = ref(false);
 
@@ -253,16 +250,7 @@ const updateVisibleColumns = (columns) => {
   visibleColumns.value = [...columns]
 }
 
-const handleColumnFilter = (columnName) => {
-  filteredJobs.value = jobs.value.filter(row => String(row[columnName]).includes(columnFilters.value[columnName]))
-}
-
 watch(jobs, () => {
   visibleColumns.value = [...columns.value.map(a => a.name)];
-  filteredJobs.value = [...jobs.value.map(r => r)]
-
-  columns.value.forEach(col => {
-    columnFilters.value[col.name] = ref(null)
-  })
 })
 </script>

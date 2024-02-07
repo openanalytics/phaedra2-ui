@@ -10,11 +10,13 @@
         <q-table
             table-header-class="text-grey"
             class="full-width"
-            :rows="filteredTemplates"
+            :rows="templates"
             :columns="columns"
             :visible-columns="visibleColumns"
             row-key="id"
             column-key="name"
+            :filter="filter"
+            :filter-method="filterMethod"
             :loading="loading"
             :pagination="{ rowsPerPage: 20, sortBy: 'name' }"
             @row-click="selectTemplate"
@@ -33,15 +35,7 @@
               </q-th>
             </q-tr>
             <q-tr :props="props">
-              <q-th v-for="col in props.cols" :key="col.name">
-                <q-input v-if="col.name != 'menu'" v-model="columnFilters[col.name]"
-                         @update:model-value="handleColumnFilter(col.name)"
-                         dense>
-                  <template v-slot:append>
-                    <q-icon size="xs" name="search"/>
-                  </template>
-                </q-input>
-              </q-th>
+              <column-filter v-for="col in props.cols" :key="col.name" v-model="filter[col.name]"/>
             </q-tr>
           </template>
           <template v-slot:body-cell-tags="props">
@@ -65,18 +59,18 @@ import {onMounted, ref, watch} from 'vue'
 import {useStore} from 'vuex'
 import {useRouter} from 'vue-router'
 import FormatUtils from "@/lib/FormatUtils.js"
+import FilterUtils from "@/lib/FilterUtils.js"
 import templatesGraphQlAPI from '@/api/graphql/templates'
 
 import UserChip from "@/components/widgets/UserChip";
 import OaSection from "@/components/widgets/OaSection";
+import ColumnFilter from "@/components/table/ColumnFilter";
 
 const store = useStore();
 const router = useRouter();
 const loading = ref();
 
 const templates = ref([])
-const filteredTemplates = ref([])
-const columnFilters = ref({})
 const visibleColumns = ref([])
 
 onMounted(() => {
@@ -94,6 +88,9 @@ const columns = ref([
   {name: 'menu', align: 'left', field: 'menu', sortable: false}
 ]);
 
+const filter = FilterUtils.makeFilter(columns.value);
+const filterMethod = FilterUtils.defaultFilterMethod();
+
 const selectTemplate = (event, row) => {
   router.push("/template/" + row.id);
 }
@@ -109,17 +106,8 @@ const updateVisibleColumns = (columns) => {
   visibleColumns.value = [...columns]
 }
 
-const handleColumnFilter = (columnName) => {
-  filteredTemplates.value = templates.value.filter(row => String(row[columnName]).includes(columnFilters.value[columnName]))
-}
-
 watch(templates, () => {
   visibleColumns.value = [...columns.value.map(a => a.name)];
-  filteredTemplates.value = [...templates.value.map(r => r)]
   loading.value = false
-
-  columns.value.forEach(col => {
-    columnFilters.value[col.name] = ref(null)
-  })
 })
 </script>

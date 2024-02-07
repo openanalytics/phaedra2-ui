@@ -9,10 +9,12 @@
         <q-table
             table-header-class="text-grey"
             :pagination="{ rowsPerPage: 20, sortBy: 'name' }"
-            :rows="filteredProjects"
+            :rows="projects"
             :columns="columns"
             row-key="id"
             column-key="name"
+            :filter="filter"
+            :filter-method="filterMethod"
             :visible-columns=visibleColumns
             :loading="loading"
             separator="cell"
@@ -25,20 +27,12 @@
           </template>
           <template v-slot:header="props">
             <q-tr :props="props">
-                <q-th v-for="col in props.cols" :key="col.name" :props="props">
+                <q-th v-for="col in props.cols" :key="col.name" :name="col.name" :props="props">
                   {{col.label}}
                 </q-th>
             </q-tr>
             <q-tr :props="props">
-              <q-th v-for="col in props.cols" :key="col.name">
-                <q-input v-model="columnFilters[col.name]"
-                         @update:model-value="handleColumnFilter(col.name)"
-                         dense>
-                  <template v-slot:append>
-                    <q-icon size="xs" name="search"/>
-                  </template>
-                </q-input>
-              </q-th>
+              <column-filter v-for="col in props.cols" :key="col.name" v-model="filter[col.name]"/>
             </q-tr>
           </template>
           <template v-slot:body-cell-name="props">
@@ -76,22 +70,20 @@
 
 <script setup>
 import {onMounted, ref, watch} from 'vue'
-import {useRouter} from 'vue-router'
 import FormatUtils from "@/lib/FormatUtils.js"
+import FilterUtils from "@/lib/FilterUtils.js"
 import projectsGraphQlAPI from "@/api/graphql/projects"
 
 import UserChip from "@/components/widgets/UserChip";
 import OaSection from "@/components/widgets/OaSection";
+import ColumnFilter from "@/components/table/ColumnFilter";
 import ProjectActionMenu from "@/components/project/ProjectActionMenu";
 import projectAPI from "@/api/projects";
 
-const router = useRouter();
 const loading = ref(true);
 const projects = ref([])
-const filteredProjects = ref([])
 
 const visibleColumns = ref([])
-const columnFilters = ref({})
 
 onMounted(() => {
   fetchAllProjects()
@@ -107,9 +99,8 @@ const columns = ref([
   {name: 'menu', align: 'left', field: 'menu', sortable: false}
 ]);
 
-const selectProject = (event, row) => {
-  router.push("/project/" + row.id);
-}
+const filter = FilterUtils.makeFilter(columns.value);
+const filterMethod = FilterUtils.defaultFilterMethod();
 
 const fetchAllProjects = () => {
   const {onResult, onError} = projectsGraphQlAPI.projects()
@@ -127,16 +118,7 @@ const handleDeleteProject = async (project) => {
 
 watch(projects, () => {
   visibleColumns.value = [...columns.value.map(a => a.name)];
-  filteredProjects.value = [...projects.value.map(r => r)]
-  loading.value = false
-
-  columns.value.forEach(col => {
-    columnFilters.value[col.name] = ref(null)
-  })
-})
-
-const handleColumnFilter = (columnName) => {
-  filteredProjects.value = projects.value.filter(row => String(row[columnName]).includes(columnFilters.value[columnName]))
-}
+  loading.value = false;
+});
 
 </script>

@@ -178,7 +178,7 @@ const meas = computed(() => store.getters['measurements/getById'](measId));
 store.dispatch('measurements/loadById', measId);
 
 const filter = ref('');
-const filterMethod = FilterUtils.defaultTableFilter();
+const filterMethod = FilterUtils.defaultFilterMethod();
 
 const wellPositions = computed(() => WellUtils.getWellPositions(meas.value.rows, meas.value.columns))
 const subWellColumns = computed(() => meas.value.subWellColumns)

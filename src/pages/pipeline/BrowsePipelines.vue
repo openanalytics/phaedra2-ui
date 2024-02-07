@@ -9,11 +9,13 @@
       <q-table
           table-header-class="text-grey"
           class="full-width"
-          :rows="filteredPipelines"
+          :rows="pipelines"
           :columns="columns"
           :visible-columns="visibleColumns"
           row-key="id"
           column-key="name"
+          :filter="filter"
+          :filter-method="filterMethod"
           :pagination="{ rowsPerPage: 20, sortBy: 'name' }"
           :loading="loading"
           @row-click="(e, row) => router.push('/pipeline/' + row.id)"
@@ -30,15 +32,7 @@
             </q-th>
           </q-tr>
           <q-tr :props="props">
-            <q-th v-for="col in props.cols" :key="col.name">
-              <q-input v-if="col.name != 'menu'" v-model="columnFilters[col.name]"
-                       @update:model-value="handleColumnFilter(col.name)"
-                       dense>
-                <template v-slot:append>
-                  <q-icon size="xs" name="search"/>
-                </template>
-              </q-input>
-            </q-th>
+            <column-filter v-for="col in props.cols" :key="col.name" v-model="filter[col.name]"/>
           </q-tr>
         </template>
         <template v-slot:body-cell-name="props">
@@ -79,6 +73,7 @@ import FormatUtils from "@/lib/FormatUtils.js"
 import UserChip from "@/components/widgets/UserChip";
 import StatusLabel from "@/components/widgets/StatusLabel";
 import OaSection from "@/components/widgets/OaSection";
+import ColumnFilter from "@/components/table/ColumnFilter";
 
 const store = useStore();
 const router = useRouter();
@@ -87,8 +82,6 @@ const loading = ref(true);
 const pipelines = computed(() => store.getters['pipelines/getAllPipelines']());
 store.dispatch('pipelines/loadAllPipelines').then(() => { loading.value = false });
 
-const filteredPipelines = ref([])
-const columnFilters = ref({})
 const visibleColumns = ref([])
 
 const columns = ref([
@@ -103,20 +96,14 @@ const columns = ref([
     {name: 'status', align: 'center', label: 'Status', field: 'status'},
 ]);
 
+const filter = FilterUtils.makeFilter(columns.value);
+const filterMethod = FilterUtils.defaultFilterMethod();
+
 const updateVisibleColumns = (columns) => {
   visibleColumns.value = [...columns]
 }
 
-const handleColumnFilter = (columnName) => {
-  filteredPipelines.value = pipelines.value.filter(row => String(row[columnName]).includes(columnFilters.value[columnName]))
-}
-
 watch(pipelines, () => {
   visibleColumns.value = [...columns.value.map(a => a.name)];
-  filteredPipelines.value = [...pipelines.value.map(r => r)]
-
-  columns.value.forEach(col => {
-    columnFilters.value[col.name] = ref(null)
-  })
 })
 </script>

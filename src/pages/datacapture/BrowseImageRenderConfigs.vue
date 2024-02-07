@@ -9,11 +9,13 @@
       <q-table
           class="full-width"
           table-header-class="text-grey"
-          :rows="filteredConfigs"
+          :rows="configs"
           :columns="columns"
           :visible-columns="visibleColumns"
           row-key="id"
           column-key="name"
+          :filter="filter"
+          :filter-method="filterMethod"
           :loading="loading"
           :pagination="{ rowsPerPage: 20, sortBy: 'name' }"
           separator="cell"
@@ -31,15 +33,7 @@
             </q-th>
           </q-tr>
           <q-tr :props="props">
-            <q-th v-for="col in props.cols" :key="col.name">
-              <q-input v-if="col.name != 'menu'" v-model="columnFilters[col.name]"
-                       @update:model-value="handleColumnFilter(col.name)"
-                       dense>
-                <template v-slot:append>
-                  <q-icon size="xs" name="search"/>
-                </template>
-              </q-input>
-            </q-th>
+            <column-filter v-for="col in props.cols" :key="col.name" v-model="filter[col.name]"/>
           </q-tr>
         </template>
         <template v-slot:body-cell-name="props">
@@ -78,9 +72,11 @@
 <script setup>
 import {ref, computed, watch} from 'vue'
 import {useStore} from 'vuex'
-import FormatUtils from "@/lib/FormatUtils.js"
+import FormatUtils from "@/lib/FormatUtils.js";
+import FilterUtils from "@/lib/FilterUtils.js";
 import OaSection from "@/components/widgets/OaSection";
 import UserChip from "@/components/widgets/UserChip";
+import ColumnFilter from "@/components/table/ColumnFilter";
 import ColorButton from "@/components/image/ColorButton";
 import CreateRenderConfigDialog from "@/components/image/CreateRenderConfigDialog";
 import DeleteRenderConfigDialog from "@/components/image/DeleteRenderConfigDialog";
@@ -93,8 +89,6 @@ store.dispatch('measurements/loadAllRenderConfigs').then(() => {
   loading.value = false
 });
 
-const filteredConfigs = ref([])
-const columnFilters = ref({})
 const visibleColumns = ref([])
 
 const columns = ref([
@@ -108,6 +102,9 @@ const columns = ref([
   {name: 'menu', align: 'left', field: 'menu', sortable: false}
 ]);
 
+const filter = FilterUtils.makeFilter(columns.value);
+const filterMethod = FilterUtils.defaultFilterMethod();
+
 const showNewConfigDialog = ref(false);
 const showDeleteConfigDialog = ref(false);
 const configIdToDelete = ref(0);
@@ -120,16 +117,7 @@ const updateVisibleColumns = (columns) => {
   visibleColumns.value = [...columns]
 }
 
-const handleColumnFilter = (columnName) => {
-  filteredConfigs.value = configs.value.filter(row => String(row[columnName]).includes(columnFilters.value[columnName]))
-}
-
 watch(configs, () => {
   visibleColumns.value = [...columns.value.map(a => a.name)];
-  filteredConfigs.value = [...configs.value.map(r => r)]
-
-  columns.value.forEach(col => {
-    columnFilters.value[col.name] = ref(null)
-  })
 })
 </script>

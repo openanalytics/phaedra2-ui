@@ -87,7 +87,7 @@
 
     const loading = ref(false);
     const filter = ref('');
-    const filterMethod = FilterUtils.defaultTableFilter();
+    const filterMethod = FilterUtils.defaultFilterMethod();
 
     const columns = ref([
         {name: 'barcode', align: 'center', label: 'Barcode', field: 'barcode', sortable: true}
