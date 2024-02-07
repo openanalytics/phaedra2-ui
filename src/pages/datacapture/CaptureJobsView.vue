@@ -186,7 +186,7 @@ watch(jobs, () => {
             <q-th v-for="col in props.cols" :key="col.name">
               <q-input v-if="col.name != 'menu'" v-model="columnFilters[col.name]"
                        @update:model-value="handleColumnFilter(col.name)"
-                       dense>
+                       dense class="filterColumn">
                 <template v-slot:append>
                   <q-icon size="xs" name="search"/>
                 </template>
@@ -292,8 +292,8 @@ watch(jobs, () => {
 </template>
 
 <style scoped>
-:deep(.q-field__control),
-:deep(.q-field__append){
+:deep(.filterColumn .q-field__control),
+:deep(.filterColumn .q-field__append){
   font-size: 12px;
   height: 25px;
 }
