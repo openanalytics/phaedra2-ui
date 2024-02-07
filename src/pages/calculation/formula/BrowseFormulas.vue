@@ -1,3 +1,73 @@
+<script setup>
+import {computed, ref, watch, watchEffect} from 'vue'
+import {useStore} from 'vuex'
+import {useRouter} from 'vue-router'
+import FormatUtils from "@/lib/FormatUtils.js"
+import DeleteFormulaDialog from "@/pages/calculation/formula/DeleteFormulaDialog.vue";
+import UserChip from "@/components/widgets/UserChip";
+import OaSection from "@/components/widgets/OaSection";
+
+const loading = ref(true);
+
+const showDeprecated = ref(true);
+
+const store = useStore()
+store.dispatch('calculations/getAllFormulas').then(() => loading.value = false);
+const formulas = computed(() => store.getters['calculations/getLatestFormulas']().filter(f => showDeprecated.value || !f.deprecated));
+
+const columns = [
+  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
+  {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
+  {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
+  {name: 'versionNumber', align: 'left', label: 'Version', field: 'versionNumber', sortable: true},
+  {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
+  {name: 'scope', align: 'left', label: 'Scope', field: 'scope', sortable: true},
+  {name: 'language', align: 'left', label: 'Language', field: 'language', sortable: true},
+  {
+    name: 'formula', align: 'left', label: 'Formula', field: 'formula', sortable: true,
+    format: val => val ? FormatUtils.formatTextMaxLength(val, 50) : ''
+  },
+  {name: 'menu', align: 'left', field: 'menu', sortable: false}
+];
+
+const filteredFormulas = ref([])
+const columnFilters = ref({})
+const visibleColumns = ref([])
+
+const router = useRouter();
+
+const selectFormula = (row) => {
+  router.push("/calc/formula/" + row.id);
+}
+
+const createNewFormula = () => {
+  router.push("/calc/formula/0");
+}
+
+const deleteDialog = ref(null);
+const deleteFormula = (row) => {
+  deleteDialog.value.openDialog(row);
+}
+
+const updateVisibleColumns = (columns) => {
+  visibleColumns.value = [...columns]
+}
+
+const handleColumnFilter = (columnName) => {
+  filteredFormulas.value = formulas.value.filter(row => String(row[columnName]).includes(columnFilters.value[columnName]))
+}
+
+watch(formulas, () => {
+  visibleColumns.value = [...columns.map(a => a.name)];
+  filteredFormulas.value = [...formulas.value.map(r => r)]
+  loading.value = false
+
+  columns.forEach(col => {
+    columnFilters.value[col.name] = ref(null)
+  })
+})
+</script>
+
 <template>
   <q-breadcrumbs class="oa-breadcrumb">
     <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
@@ -84,72 +154,10 @@
   <DeleteFormulaDialog :ref="el => deleteDialog = el"/>
 </template>
 
-<script setup>
-import {computed, ref, watch, watchEffect} from 'vue'
-import {useStore} from 'vuex'
-import {useRouter} from 'vue-router'
-import FormatUtils from "@/lib/FormatUtils.js"
-import DeleteFormulaDialog from "@/pages/calculation/formula/DeleteFormulaDialog.vue";
-import UserChip from "@/components/widgets/UserChip";
-import OaSection from "@/components/widgets/OaSection";
-
-const loading = ref(true);
-
-const showDeprecated = ref(true);
-
-const store = useStore()
-store.dispatch('calculations/getAllFormulas').then(() => loading.value = false);
-const formulas = computed(() => store.getters['calculations/getLatestFormulas']().filter(f => showDeprecated.value || !f.deprecated));
-
-const columns = [
-    {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
-    {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
-    {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-    {name: 'versionNumber', align: 'left', label: 'Version', field: 'versionNumber', sortable: true},
-    {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
-    {name: 'scope', align: 'left', label: 'Scope', field: 'scope', sortable: true},
-    {name: 'language', align: 'left', label: 'Language', field: 'language', sortable: true},
-    {
-        name: 'formula', align: 'left', label: 'Formula', field: 'formula', sortable: true,
-        format: val => val ? FormatUtils.formatTextMaxLength(val, 50) : ''
-    },
-    {name: 'menu', align: 'left', field: 'menu', sortable: false}
-];
-
-const filteredFormulas = ref([])
-const columnFilters = ref({})
-const visibleColumns = ref([])
-
-const router = useRouter();
-
-const selectFormula = (row) => {
-    router.push("/calc/formula/" + row.id);
+<style scoped>
+:deep(.q-field__control),
+:deep(.q-field__append){
+  font-size: 12px;
+  height: 25px;
 }
-
-const createNewFormula = () => {
-    router.push("/calc/formula/0");
-}
-
-const deleteDialog = ref(null);
-const deleteFormula = (row) => {
-    deleteDialog.value.openDialog(row);
-}
-
-const updateVisibleColumns = (columns) => {
-  visibleColumns.value = [...columns]
-}
-
-const handleColumnFilter = (columnName) => {
-  filteredFormulas.value = formulas.value.filter(row => String(row[columnName]).includes(columnFilters.value[columnName]))
-}
-
-watch(formulas, () => {
-  visibleColumns.value = [...columns.map(a => a.name)];
-  filteredFormulas.value = [...formulas.value.map(r => r)]
-  loading.value = false
-
-  columns.forEach(col => {
-    columnFilters.value[col.name] = ref(null)
-  })
-})
-</script>
+</style>
