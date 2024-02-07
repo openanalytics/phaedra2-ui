@@ -1,65 +1,3 @@
-<template>
-  <q-breadcrumbs class="oa-breadcrumb">
-    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}" />
-    <q-breadcrumbs-el :label="'Protocols'" icon="list"/>
-  </q-breadcrumbs>
-
-  <q-page class="oa-root-div">
-    <div class="q-pa-sm">
-      <oa-section title="Protocols" icon="ballot">
-        <q-table
-            table-header-class="text-grey"
-            :rows="filteredProtocols"
-            :columns="columns"
-            :visible-columns="visibleColumns"
-            row-key="id"
-            column-key="name"
-            class="full-width"
-            :pagination="{ rowsPerPage: 20, sortBy: 'name' }"
-            :loading="loading"
-            @row-click="selectProtocol"
-            separator="cell"
-            flat square dense
-        >
-          <template v-slot:top-left>
-            <router-link :to="{ name: 'newProtocol' }" class="nav-link">
-              <q-btn size="sm" icon="add" color="primary" label="New Protocol..."/>
-            </router-link>
-          </template>
-          <template v-slot:header="props">
-            <q-tr :props="props">
-              <q-th v-for="col in props.cols" :key="col.name" :props="props">
-                {{col.label}}
-              </q-th>
-            </q-tr>
-            <q-tr :props="props">
-              <q-th v-for="col in props.cols" :key="col.name">
-                <q-input v-model="columnFilters[col.name]"
-                         @update:model-value="handleColumnFilter(col.name)"
-                         dense>
-                  <template v-slot:append>
-                    <q-icon size="xs" name="search"/>
-                  </template>
-                </q-input>
-              </q-th>
-            </q-tr>
-          </template>
-          <template v-slot:body-cell-createdBy="props">
-            <q-td :props="props">
-              <UserChip :id="props.row.createdBy" />
-            </q-td>
-          </template>
-          <template v-slot:body-cell-tags="props">
-            <q-td :props="props">
-              <q-badge v-for="tag in props.row.tags" :key="tag" color="green">{{tag}}</q-badge>
-            </q-td>
-          </template>
-        </q-table>
-      </oa-section>
-    </div>
-  </q-page>
-</template>
-
 <script setup>
 import {ref, computed, watch} from 'vue'
 import {useStore} from 'vuex'
@@ -122,3 +60,73 @@ watch(protocols, () => {
   })
 })
 </script>
+
+<template>
+  <q-breadcrumbs class="oa-breadcrumb">
+    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}" />
+    <q-breadcrumbs-el :label="'Protocols'" icon="list"/>
+  </q-breadcrumbs>
+
+  <q-page class="oa-root-div">
+    <div class="q-pa-sm">
+      <oa-section title="Protocols" icon="ballot">
+        <q-table
+            table-header-class="text-grey"
+            :rows="filteredProtocols"
+            :columns="columns"
+            :visible-columns="visibleColumns"
+            row-key="id"
+            column-key="name"
+            class="full-width"
+            :pagination="{ rowsPerPage: 20, sortBy: 'name' }"
+            :loading="loading"
+            @row-click="selectProtocol"
+            separator="cell"
+            flat square dense
+        >
+          <template v-slot:top-left>
+            <router-link :to="{ name: 'newProtocol' }" class="nav-link">
+              <q-btn size="sm" icon="add" color="primary" label="New Protocol..."/>
+            </router-link>
+          </template>
+          <template v-slot:header="props">
+            <q-tr :props="props">
+              <q-th v-for="col in props.cols" :key="col.name" :props="props">
+                {{col.label}}
+              </q-th>
+            </q-tr>
+            <q-tr :props="props">
+              <q-th v-for="col in props.cols" :key="col.name">
+                <q-input v-model="columnFilters[col.name]"
+                         @update:model-value="handleColumnFilter(col.name)"
+                         dense>
+                  <template v-slot:append>
+                    <q-icon size="xs" name="search"/>
+                  </template>
+                </q-input>
+              </q-th>
+            </q-tr>
+          </template>
+          <template v-slot:body-cell-createdBy="props">
+            <q-td :props="props">
+              <UserChip :id="props.row.createdBy" />
+            </q-td>
+          </template>
+          <template v-slot:body-cell-tags="props">
+            <q-td :props="props">
+              <q-badge v-for="tag in props.row.tags" :key="tag" color="green">{{tag}}</q-badge>
+            </q-td>
+          </template>
+        </q-table>
+      </oa-section>
+    </div>
+  </q-page>
+</template>
+
+<style scoped>
+:deep(.q-field__control),
+:deep(.q-field__append){
+  font-size: 12px;
+  height: 25px;
+}
+</style>
