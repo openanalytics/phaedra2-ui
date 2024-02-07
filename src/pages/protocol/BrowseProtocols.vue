@@ -45,7 +45,7 @@
           </template>
           <template v-slot:body-cell-tags="props">
             <q-td :props="props">
-              <q-badge v-for="tag in props.row.tags" :key="tag" color="green">{{tag}}</q-badge>
+              <tag-list :tags="props.row.tags" :readOnly="true" />
             </q-td>
           </template>
         </q-table>
@@ -64,6 +64,7 @@ import FilterUtils from "@/lib/FilterUtils.js"
 import UserChip from "@/components/widgets/UserChip";
 import OaSection from "@/components/widgets/OaSection";
 import ColumnFilter from "@/components/table/ColumnFilter";
+import TagList from "@/components/tag/TagList";
 
 const store = useStore();
 const router = useRouter();

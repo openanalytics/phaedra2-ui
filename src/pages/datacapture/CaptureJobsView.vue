@@ -4,7 +4,7 @@
     <q-breadcrumbs-el label="Data Capture Jobs" icon="cloud_upload"/>
   </q-breadcrumbs>
 
-  <q-page class="oa-root-div q-pa-md">
+  <q-page class="oa-root-div q-pa-sm">
     <oa-section title="Data Capture Jobs" icon="cloud_upload" :collapsible="true">
       <q-table
           table-header-class="text-grey"

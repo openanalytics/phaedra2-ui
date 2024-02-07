@@ -46,7 +46,7 @@
           </template>
           <template v-slot:body-cell-tags="props">
             <q-td :props="props">
-              <q-badge v-for="tag in props.row.tags" :key="tag" color="green">{{tag}}</q-badge>
+              <tag-list :tags="props.row.tags" :readOnly="true" />
           </q-td>
         </template>
         <template v-slot:body-cell-createdBy="props">
@@ -75,6 +75,7 @@ import FilterUtils from "@/lib/FilterUtils.js"
 import projectsGraphQlAPI from "@/api/graphql/projects"
 
 import UserChip from "@/components/widgets/UserChip";
+import TagList from "@/components/tag/TagList";
 import OaSection from "@/components/widgets/OaSection";
 import ColumnFilter from "@/components/table/ColumnFilter";
 import ProjectActionMenu from "@/components/project/ProjectActionMenu";

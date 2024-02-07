@@ -63,7 +63,7 @@
         </div>
       </oa-section>
 
-      <div class="q-pt-md">
+      <div class="q-pt-sm">
         <q-tabs inline-label dense no-caps class="oa-section-title" v-model="activeTab" align="left">
           <q-tab name="wellData" icon="table_rows" label="Well Data"/>
           <q-tab name="subWellData" icon="table_rows" label="SubWell Data"/>

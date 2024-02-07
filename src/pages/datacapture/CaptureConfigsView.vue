@@ -5,7 +5,7 @@
   </q-breadcrumbs>
 
   <q-page class="oa-root-div">
-    <oa-section title="Capture Configurations" icon="settings" class="q-pa-md">
+    <oa-section title="Capture Configurations" icon="settings" class="q-pa-sm">
       <q-table
           class="full-width"
           table-header-class="text-grey"

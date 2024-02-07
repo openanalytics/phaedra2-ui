@@ -24,7 +24,7 @@
                         </q-field>
                         <q-field label="Tags" stack-label dense borderless>
                             <template v-slot:control>
-                              <TagList :tags="experimentStore.experiment.tags" @addTag="onAddTag" @removeTag="onRemoveTag"/>
+                              <tag-list :tags="experimentStore.experiment.tags" @addTag="onAddTag" @removeTag="onRemoveTag" class="q-pt-xs"/>
                             </template>
                         </q-field>
                     </div>
@@ -62,7 +62,7 @@
             </oa-section>
         </div>
 
-        <div class="q-pa-md" v-if="experimentStore.experiment">
+        <div class="q-px-sm" v-if="experimentStore.experiment">
             <q-tabs v-model="activeTab" inline-label dense no-caps align="left" class="oa-section-title">
                 <q-tab name="overview" icon="table_rows" label="Overview"/>
                 <q-tab name="statistics" icon="functions" label="Statistics"/>
@@ -70,20 +70,20 @@
             </q-tabs>
             <div class="row oa-section-body">
                 <q-tab-panels v-model="activeTab" animated class="full-width">
-                    <q-tab-panel name="overview" class="q-px-none">
+                    <q-tab-panel name="overview" class="q-pa-none">
                         <PlateList :experiment="experimentStore.experiment" :plates="experimentStore.plates" v-model:newPlateTab="newPlateTab" />
                     </q-tab-panel>
-                    <q-tab-panel name="statistics" class="q-px-none">
+                    <q-tab-panel name="statistics" class="q-pa-none">
                         <PlateStatsList :experiment="experimentStore.experiment" :plates="experimentStore.plates"/>
                     </q-tab-panel>
-                    <q-tab-panel name="heatmaps" class="q-px-none">
+                    <q-tab-panel name="heatmaps" class="q-pa-none">
                         <PlateGrid :experiment="experimentStore.experiment" :plates="experimentStore.plates"/>
                     </q-tab-panel>
                 </q-tab-panels>
             </div>
         </div>
 
-        <div class="q-pa-md" v-if="newPlateTab">
+        <div class="q-pa-sm" v-if="newPlateTab">
             <oa-section title="New Plate" icon="add">
                 <div class="col-12 q-pa-md">
                     <div class="row" style="min-width: 90vw">

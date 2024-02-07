@@ -40,7 +40,7 @@
           </template>
           <template v-slot:body-cell-tags="props">
             <q-td :props="props">
-              <q-badge v-for="tag in props.row.tags" :key="tag" color="green">{{ tag }}</q-badge>
+              <tag-list :tags="props.row.tags" :readOnly="true" />
             </q-td>
           </template>
           <template v-slot:body-cell-createdBy="props">
@@ -65,8 +65,8 @@ import templatesGraphQlAPI from '@/api/graphql/templates'
 import UserChip from "@/components/widgets/UserChip";
 import OaSection from "@/components/widgets/OaSection";
 import ColumnFilter from "@/components/table/ColumnFilter";
+import TagList from "@/components/tag/TagList";
 
-const store = useStore();
 const router = useRouter();
 const loading = ref();
 
@@ -84,8 +84,7 @@ const columns = ref([
   {name: 'dimensions', align: 'left', label: 'Dimensions', sortable: true, field: t => `${t.rows} x ${t.columns}`},
   {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
   {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
-  {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
-  {name: 'menu', align: 'left', field: 'menu', sortable: false}
+  {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true}
 ]);
 
 const filter = FilterUtils.makeFilter(columns.value);

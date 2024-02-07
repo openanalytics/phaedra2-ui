@@ -1,9 +1,9 @@
 <template>
-  <div class="q-pt-xs">
+  <div>
     <div class="tag-icon flex inline" v-for="tag in tags" :key="tag">
-        <Tag :tag="tag" @removeTag="handleRemoveTag"/>
+        <Tag :tag="tag" @removeTag="handleRemoveTag" :readOnly="props.readOnly" />
     </div>
-    <q-btn class="q-my-xs" icon="add" size="xs" @click="showAddTagDialog = true" round dense>
+    <q-btn class="q-my-xs" icon="add" size="xs" @click="showAddTagDialog = true" round dense v-show="!props.readOnly" >
       <q-tooltip :delay="500" class="text-black bg-secondary">Add a new Tag</q-tooltip>
     </q-btn>
 
@@ -43,7 +43,7 @@
 import {computed, ref} from "vue";
 import Tag from "@/components/tag/Tag"
 
-const props = defineProps(['tags', 'objectId', 'objectClass']);
+const props = defineProps(['tags', 'objectId', 'objectClass', 'readOnly']);
 const emits = defineEmits(['addTag', 'removeTag'])
 const tags = computed(() => props.tags)
 

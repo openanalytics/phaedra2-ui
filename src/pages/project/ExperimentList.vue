@@ -49,7 +49,7 @@
       </template>
       <template v-slot:body-cell-tags="props">
         <q-td :props="props">
-          <q-badge v-for="tag in props.row.tags" :key="tag" color="green">{{tag}}</q-badge>
+          <tag-list :tags="props.row.tags" :readOnly="true" />
         </q-td>
       </template>
       <template v-slot:body-cell-createdBy="props">
@@ -145,6 +145,7 @@ import UserChip from "@/components/widgets/UserChip";
 import ExperimentMenu from "@/components/experiment/ExperimentMenu";
 import OaSection from "@/components/widgets/OaSection";
 import ColumnFilter from "@/components/table/ColumnFilter";
+import TagList from "@/components/tag/TagList";
 
 import FormatUtils from "@/lib/FormatUtils.js"
 import FilterUtils from "@/lib/FilterUtils.js"
@@ -153,13 +154,13 @@ const columns = ref([
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
   {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
   {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-  {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
-  {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
-  {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
   {name: 'nrPlates', align: 'left', label: 'Plates', sortable: true},
   {name: 'nrPlatesCalculated', align: 'left', label: 'Calculated', sortable: true},
   {name: 'nrPlatesValidated', align: 'left', label: 'Validated', sortable: true},
   {name: 'nrPlatesApproved', align: 'left', label: 'Approved', sortable: true},
+  {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
+  {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
+  {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
   {name: 'status', align: 'center', label: 'Status', field: 'status', sortable: true},
   {name: 'menu', align: 'left', field: 'menu', sortable: false}
 ])

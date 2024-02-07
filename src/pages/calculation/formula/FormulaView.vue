@@ -63,7 +63,7 @@
                     </div>
                 </div>
             </oa-section>
-            <oa-section title="Formula" icon="description" class="q-pt-md">
+            <oa-section title="Formula" icon="description" class="q-pt-sm">
                 <div class="q-pa-md" style="max-height: 750px">
                     <codemirror
                         :disabled="!editMode"

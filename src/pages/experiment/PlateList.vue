@@ -78,7 +78,7 @@
     </template>
     <template v-slot:body-cell-tags="props">
       <q-td :props="props">
-        <q-badge v-for="tag in props.row.tags" :key="tag" color="green">{{tag}}</q-badge>
+        <tag-list :tags="props.row.tags" :readOnly="true" />
       </q-td>
     </template>
     <template v-slot:body-cell-createdBy="props">
@@ -122,6 +122,7 @@ import UserChip from "@/components/widgets/UserChip";
 import ColumnFilter from "@/components/table/ColumnFilter";
 import PlateActionMenu from "@/components/plate/PlateActionMenu";
 import StatusFlag from "@/components/widgets/StatusFlag";
+import TagList from "@/components/tag/TagList";
 import FormatUtils from "@/lib/FormatUtils";
 import FilterUtils from "@/lib/FilterUtils.js"
 import {useExperimentStore} from "@/stores/experiment";
@@ -144,9 +145,9 @@ const columns = ref([
   {name: 'status-validated', align: 'center', label: 'V', field: 'status-validated'},
   {name: 'status-approved', align: 'center', label: 'A', field: 'status-approved'},
   {name: 'dimensions', align: 'left', label: 'Dimensions', field: 'dimensions', sortable: true},
+  {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
   {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
   {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
-  {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
   {name: 'menu', align: 'left', field: 'menu', sortable: false}
 ])
 

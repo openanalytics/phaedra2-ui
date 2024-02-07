@@ -25,7 +25,7 @@
             </q-field>
             <q-field label="Tags" stack-label dense borderless>
               <template v-slot:control>
-                <TagList :tags="plateStore.plate.tags" @addTag="onAddTag" @removeTag="onRemoveTag"/>
+                <tag-list :tags="plateStore.plate.tags" @addTag="onAddTag" @removeTag="onRemoveTag" class="q-pt-xs"/>
               </template>
             </q-field>
           </div>
