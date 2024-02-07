@@ -1,3 +1,66 @@
+<script setup>
+import {onMounted, ref, watch} from 'vue'
+import {useRouter} from 'vue-router'
+import FormatUtils from "@/lib/FormatUtils.js"
+import projectsGraphQlAPI from "@/api/graphql/projects"
+
+import UserChip from "@/components/widgets/UserChip";
+import OaSection from "@/components/widgets/OaSection";
+import ProjectActionMenu from "@/components/project/ProjectActionMenu";
+import projectAPI from "@/api/projects";
+
+const router = useRouter();
+const loading = ref(true);
+const projects = ref([])
+const filteredProjects = ref([])
+
+const visibleColumns = ref([])
+const columnFilters = ref({})
+
+onMounted(() => {
+  fetchAllProjects()
+})
+
+const columns = ref([
+  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
+  {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
+  {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
+  {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
+  {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
+  {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
+  {name: 'menu', align: 'left', field: 'menu', sortable: false}
+]);
+
+const fetchAllProjects = () => {
+  const {onResult, onError} = projectsGraphQlAPI.projects()
+  onResult(({data}) => {
+    projects.value = data.projects
+    loading.value = false
+  })
+  //TODO: implement onError event!
+}
+
+const handleDeleteProject = async (project) => {
+  await projectAPI.deleteProject(project.id)
+  fetchAllProjects()
+}
+
+watch(projects, () => {
+  visibleColumns.value = [...columns.value.map(a => a.name)];
+  filteredProjects.value = [...projects.value.map(r => r)]
+  loading.value = false
+
+  columns.value.forEach(col => {
+    columnFilters.value[col.name] = ref(null)
+  })
+})
+
+const handleColumnFilter = (columnName) => {
+  filteredProjects.value = projects.value.filter(row => String(row[columnName]).includes(columnFilters.value[columnName]))
+}
+
+</script>
+
 <template>
   <q-breadcrumbs class="oa-breadcrumb">
     <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}" />
@@ -74,69 +137,10 @@
   </q-page>
 </template>
 
-<script setup>
-import {onMounted, ref, watch} from 'vue'
-import {useRouter} from 'vue-router'
-import FormatUtils from "@/lib/FormatUtils.js"
-import projectsGraphQlAPI from "@/api/graphql/projects"
-
-import UserChip from "@/components/widgets/UserChip";
-import OaSection from "@/components/widgets/OaSection";
-import ProjectActionMenu from "@/components/project/ProjectActionMenu";
-import projectAPI from "@/api/projects";
-
-const router = useRouter();
-const loading = ref(true);
-const projects = ref([])
-const filteredProjects = ref([])
-
-const visibleColumns = ref([])
-const columnFilters = ref({})
-
-onMounted(() => {
-  fetchAllProjects()
-})
-
-const columns = ref([
-  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
-  {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
-  {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-  {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
-  {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
-  {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
-  {name: 'menu', align: 'left', field: 'menu', sortable: false}
-]);
-
-const selectProject = (event, row) => {
-  router.push("/project/" + row.id);
+<style scoped>
+:deep(.q-field__control),
+:deep(.q-field__append){
+  font-size: 12px;
+  height: 25px;
 }
-
-const fetchAllProjects = () => {
-  const {onResult, onError} = projectsGraphQlAPI.projects()
-  onResult(({data}) => {
-    projects.value = data.projects
-    loading.value = false
-  })
-  //TODO: implement onError event!
-}
-
-const handleDeleteProject = async (project) => {
-    await projectAPI.deleteProject(project.id)
-    fetchAllProjects()
-}
-
-watch(projects, () => {
-  visibleColumns.value = [...columns.value.map(a => a.name)];
-  filteredProjects.value = [...projects.value.map(r => r)]
-  loading.value = false
-
-  columns.value.forEach(col => {
-    columnFilters.value[col.name] = ref(null)
-  })
-})
-
-const handleColumnFilter = (columnName) => {
-  filteredProjects.value = projects.value.filter(row => String(row[columnName]).includes(columnFilters.value[columnName]))
-}
-
-</script>
+</style>

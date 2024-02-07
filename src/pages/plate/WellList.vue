@@ -1,81 +1,21 @@
-<template>
-  <q-table
-      table-header-class="text-grey"
-      virtual-scroll
-      :pagination="{ rowsPerPage: plate.columns, sortBy: 'number', descending: false }"
-      :rows="filteredRows"
-      :columns="columns"
-      :visible-columns="visibleColumns"
-      row-key="id"
-      column-key="name"
-      :loading="loading"
-      flat square dense
-  >
-    <template v-slot:top-right>
-      <div class="row">
-        <q-btn size="sm" label="Settings" icon="settings" @click="showConfigDialog=true" class="oa-action-button"/>
-      </div>
-    </template>
-    <template v-slot:header-cell="props">
-      <q-td :props="props" class="row-cols-1">
-        <div>
-          <q-input v-model="columnFilters[props.col.name]"
-                   :label="props.col.label"
-                   @update:model-value="handleColumnFilter(props.col.name)"
-                   dense>
-            <template v-slot:append>
-              <q-icon size="xs" name="search"/>
-            </template>
-          </q-input>
-        </div>
-      </q-td>
-    </template>
-    <template v-slot:body-cell="props">
-      <q-td v-if="props.col.isFeature" :props="props" :style="'background-color:' + props.col.lut.getColor(props.value)">
-        <div v-if="props.col.isFeature">{{props.value}}</div>
-      </q-td>
-      <q-td v-else :props="props">
-        {{props.value}}
-      </q-td>
-    </template>
-    <template v-slot:body-cell-status="props">
-      <q-td :props="props">
-        <q-icon v-if="props.row.status === 'ACCEPTED_DEFAULT'" name="check_circle" color="positive"/>
-        <q-icon v-else name="cancel" color="negative"/>
-      </q-td>
-    </template>
-    <template v-slot:no-data>
-      <div class="full-width row text-info">
-        <span>No wells to show.</span>
-      </div>
-    </template>
-  </q-table>
-  <table-config v-model:show="showConfigDialog" :columns="columns" @update:visibleColumns="updateVisibleColumns"/>
-</template>
-
-<style scoped>
-</style>
-
 <script setup>
     import {ref, computed, watch} from 'vue'
     import WellUtils from "@/lib/WellUtils.js"
-    import FilterUtils from "@/lib/FilterUtils"
-    import TableConfig from "@/components/table/TableConfig"
     import {usePlateStore} from "@/stores/plate"
     import resultDataGraphQlAPI from "@/api/graphql/resultdata"
-    import ColorUtils from "@/lib/ColorUtils";
+    import ColorUtils from "@/lib/ColorUtils"
+    // import TableConfig from "@/components/table/TableConfig"
 
-    const props = defineProps(['plate', 'wells']);
+    const props = defineProps(['plate', 'wells'])
+
+    const loading = ref(true)
 
     const plateStore = usePlateStore()
-
-    const loading = ref(true);
     const features = ref([])
-    const resultData = ref([])
-
     const resultSet = plateStore.activeResultSet
     features.value = plateStore.featuresByProtocolId(resultSet?.protocolId)
 
+    const resultData = ref([])
     const {onResult, onError} = resultDataGraphQlAPI.resultDataByResultSetId(resultSet?.id)
     onResult(({data}) => resultData.value = data.resultData)
 
@@ -86,7 +26,8 @@
       { name: 'wellType', align: 'left', label: 'Well Type', field: 'wellType', sortable: true},
       { name: 'substance', align: 'left', label: 'Substance', field: 'substance', sortable: true },
       { name: 'concentration', align: 'left', label: 'Concentration', field: 'concentration', sortable: true },
-    ]);
+    ])
+
     const rows = ref(props.wells.map(well => {
       return {
         coordinate: WellUtils.getWellCoordinate(well?.row, well?.column) ?? "",
@@ -97,14 +38,21 @@
         concentration: well.wellSubstance?.concentration?.toExponential(3) ?? ""
       }
     }))
+
     const filteredRows = ref([])
     const columnFilters = ref({})
 
     const showConfigDialog = ref(false);
     const visibleColumns = ref([])
     const filter = ref('');
-    const filterMethod = FilterUtils.defaultTableFilter();
 
+    const updateVisibleColumns = (columns) => {
+      visibleColumns.value = [...columns]
+    }
+
+    const handleColumnFilter = (columnName) => {
+      filteredRows.value = rows.value.filter(row => String(row[columnName]).includes(columnFilters.value[columnName]))
+    }
 
     watch([features, resultData], () => {
       if (features.value !== undefined && resultData.value !== undefined) {
@@ -128,13 +76,73 @@
         columnFilters.value[col.name] = ref(null)
       })
     })
-
-    const updateVisibleColumns = (columns) => {
-      visibleColumns.value = [...columns]
-    }
-
-    const handleColumnFilter = (columnName) => {
-      filteredRows.value = rows.value.filter(row => String(row[columnName]).includes(columnFilters.value[columnName]))
-    }
 </script>
 
+<template>
+  <q-table
+      table-header-class="text-grey"
+      :rows="filteredRows"
+      :columns="columns"
+      :visible-columns="visibleColumns"
+      row-key="id"
+      column-key="name"
+      :loading="loading"
+      virtual-scoll
+      style="max-height: 600px"
+      separator="cell"
+      flat square dense
+  >
+    <!--    <template v-slot:top-right>-->
+    <!--      <div class="row">-->
+    <!--        <q-btn size="sm" label="Settings" icon="settings" @click="showConfigDialog=true" class="oa-action-button"/>-->
+    <!--      </div>-->
+    <!--    </template>-->
+    <template v-slot:header="props">
+      <q-tr :props="props">
+        <q-th v-for="col in props.cols" :key="col.name" :props="props">
+          {{col.label}}
+        </q-th>
+      </q-tr>
+      <q-tr :props="props">
+        <q-th v-for="col in props.cols" :key="col.name">
+          <q-input v-if="col.name != 'menu'" v-model="columnFilters[col.name]"
+                   @update:model-value="handleColumnFilter(col.name)"
+                   dense>
+            <template v-slot:append>
+              <q-icon size="xs" name="search"/>
+            </template>
+          </q-input>
+        </q-th>
+      </q-tr>
+    </template>
+    <template v-slot:body-cell="props">
+      <q-td v-if="props.col.isFeature" :props="props" :style="'background-color:' + props.col.lut.getColor(props.value)">
+        <div v-if="props.col.isFeature">{{props.value}}</div>
+      </q-td>
+      <q-td v-else :props="props">
+        {{props.value}}
+      </q-td>
+    </template>
+    <template v-slot:body-cell-status="props">
+      <q-td :props="props">
+        <q-icon v-if="props.row.status === 'ACCEPTED_DEFAULT'" name="check_circle" color="positive"/>
+        <q-icon v-else name="cancel" color="negative"/>
+      </q-td>
+    </template>
+    <template v-slot:no-data>
+      <div class="full-width row text-info">
+        <span>No wells to show.</span>
+      </div>
+    </template>
+  </q-table>
+
+  <!--  <TableConfig v-model:show="showConfigDialog" :columns="columns" @update:visibleColumns="updateVisibleColumns"/>-->
+</template>
+
+<style scoped>
+:deep(.q-field__control),
+:deep(.q-field__append) {
+  font-size: 12px;
+  height: 25px;
+}
+</style>

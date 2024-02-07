@@ -1,3 +1,85 @@
+<script setup>
+import {computed, onMounted, ref, watch} from "vue";
+import {useRoute} from "vue-router";
+
+import UserChip from "@/components/widgets/UserChip";
+// import TableConfig from "@/components/table/TableConfig";
+import PlateActionMenu from "@/components/plate/PlateActionMenu";
+import StatusFlag from "@/components/widgets/StatusFlag";
+import FormatUtils from "@/lib/FormatUtils";
+import {useExperimentStore} from "@/stores/experiment";
+
+const props = defineProps(['plates', 'experiment', 'newPlateTab'])
+const emit = defineEmits(['update:newPlateTab', 'showPlateInspector'])
+
+const route = useRoute()
+const experimentStore = useExperimentStore()
+
+const loading = ref()
+const plates = computed( () => experimentStore.plates)
+
+const columns = ref([
+  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
+  {name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
+  {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
+  {name: 'link-status', align: 'center', label: 'L', field: 'link-status'},
+  {name: 'status-calculation', align: 'center', label: 'C', field: 'status-calculation'},
+  {name: 'status-validated', align: 'center', label: 'V', field: 'status-validated'},
+  {name: 'status-approved', align: 'center', label: 'A', field: 'status-approved'},
+  {name: 'dimensions', align: 'left', label: 'Dimensions', field: 'dimensions', sortable: true},
+  {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
+  {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
+  {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
+  {name: 'menu', align: 'left', field: 'menu', sortable: false}
+])
+
+const selectedPlate = ref({});
+const showPlateContextMenu = ref(false);
+const selectPlate = (event, row) => {
+  selectedPlate.value = row;
+  showPlateContextMenu.value = true;
+}
+
+const configdialog = ref(false)
+const showConfigDialog = ref(false)
+
+const openNewPlateTab = () => {
+  emit('update:newPlateTab', true)
+}
+
+const openPlateInspector = (plate) => {
+  emit('showPlateInspector', plate)
+}
+
+const filteredPlates = ref(plates.value)
+const visibleColumns = ref([])
+const columnFilters = ref({})
+
+onMounted(() => {
+  visibleColumns.value = [...columns.value.map(a => a.name)];
+  filteredPlates.value = [...plates.value.map(r => r)]
+  loading.value = false
+
+  columns.value.forEach(col => {
+    columnFilters.value[col.name] = ref(null)
+  })
+})
+
+watch(plates, () => {
+  visibleColumns.value = [...columns.value.map(a => a.name)];
+  filteredPlates.value = [...plates.value.map(r => r)]
+  loading.value = false
+
+  columns.value.forEach(col => {
+    columnFilters.value[col.name] = ref(null)
+  })
+})
+
+const handleColumnFilter = (columnName) => {
+  filteredPlates.value = plates.value.filter(row => String(row[columnName]).includes(columnFilters.value[columnName]))
+}
+</script>
+
 <template>
   <q-table
       class="full-width"
@@ -117,86 +199,10 @@
   color: black;
   text-decoration: none;
 }
+
+:deep(.q-field__control),
+:deep(.q-field__append) {
+  font-size: 12px;
+  height: 25px;
+}
 </style>
-
-<script setup>
-import {computed, onMounted, ref, watch} from "vue";
-import {useRoute} from "vue-router";
-
-import UserChip from "@/components/widgets/UserChip";
-// import TableConfig from "@/components/table/TableConfig";
-import PlateActionMenu from "@/components/plate/PlateActionMenu";
-import StatusFlag from "@/components/widgets/StatusFlag";
-import FormatUtils from "@/lib/FormatUtils";
-import {useExperimentStore} from "@/stores/experiment";
-
-const props = defineProps(['plates', 'experiment', 'newPlateTab'])
-const emit = defineEmits(['update:newPlateTab', 'showPlateInspector'])
-
-const route = useRoute()
-const experimentStore = useExperimentStore()
-
-const loading = ref()
-const plates = computed( () => experimentStore.plates)
-
-const columns = ref([
-  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
-  {name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
-  {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-  {name: 'link-status', align: 'center', label: 'L', field: 'link-status'},
-  {name: 'status-calculation', align: 'center', label: 'C', field: 'status-calculation'},
-  {name: 'status-validated', align: 'center', label: 'V', field: 'status-validated'},
-  {name: 'status-approved', align: 'center', label: 'A', field: 'status-approved'},
-  {name: 'dimensions', align: 'left', label: 'Dimensions', field: 'dimensions', sortable: true},
-  {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
-  {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
-  {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
-  {name: 'menu', align: 'left', field: 'menu', sortable: false}
-])
-
-const selectedPlate = ref({});
-const showPlateContextMenu = ref(false);
-const selectPlate = (event, row) => {
-  selectedPlate.value = row;
-  showPlateContextMenu.value = true;
-}
-
-const configdialog = ref(false)
-const showConfigDialog = ref(false)
-
-const openNewPlateTab = () => {
-  emit('update:newPlateTab', true)
-}
-
-const openPlateInspector = (plate) => {
-  emit('showPlateInspector', plate)
-}
-
-const filteredPlates = ref(plates.value)
-const visibleColumns = ref([])
-const columnFilters = ref({})
-
-onMounted(() => {
-  visibleColumns.value = [...columns.value.map(a => a.name)];
-  filteredPlates.value = [...plates.value.map(r => r)]
-  loading.value = false
-
-  columns.value.forEach(col => {
-    columnFilters.value[col.name] = ref(null)
-  })
-})
-
-watch(plates, () => {
-  visibleColumns.value = [...columns.value.map(a => a.name)];
-  filteredPlates.value = [...plates.value.map(r => r)]
-  loading.value = false
-
-  columns.value.forEach(col => {
-    columnFilters.value[col.name] = ref(null)
-  })
-})
-
-const handleColumnFilter = (columnName) => {
-  filteredPlates.value = plates.value.filter(row => String(row[columnName]).includes(columnFilters.value[columnName]))
-}
-</script>

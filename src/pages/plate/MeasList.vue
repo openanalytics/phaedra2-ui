@@ -1,3 +1,83 @@
+<script setup>
+import {ref, watch} from 'vue'
+import {useStore} from 'vuex'
+import {useRouter} from "vue-router";
+import FormatUtils from "@/lib/FormatUtils";
+import UserChip from "@/components/widgets/UserChip";
+import LinkMeasurementDialog from "@/components/measurement/LinkMeasurementDialog";
+import projectsGraphQlAPI from "@/api/graphql/projects";
+
+const store = useStore();
+const router = useRouter();
+const props = defineProps({ plate: Object });
+
+const columns = [
+  {name: 'active', align: 'left', label: 'Active?', field: row => (row.active === undefined) ? false : row.active, sortable: true},
+  {name: 'measurementId', align: 'left', label: 'ID', field: 'measurementId', sortable: true},
+  {name: 'name', align: 'left', label: 'Measurement Name', field: 'name', sortable: true},
+  {name: 'wellColumns', align: 'left', label: 'Well Columns', field: 'wellColumns', sortable: true, format: val => `${val?.length || 0}` },
+  {name: 'subWellColumns', align: 'left', label: 'SubWell Columns', field: 'subWellColumns', sortable: true, format: val => `${val?.length || 0}` },
+  {name: 'imageChannels', align: 'left', label: 'Image Channels', field: 'imageChannels', sortable: true, format: val => `${val?.length || 0}` },
+  {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate },
+  {name: 'linkedOn', align: 'left', label: 'Linked On', field: 'linkedOn', sortable: true, format: FormatUtils.formatDate },
+  // {name: 'menu', align: 'left', field: 'menu', sortable: false}
+];
+
+const plateMeasurements = ref([])
+
+const fetchPlateMeasurements = () => {
+  const {onResult, onError} = projectsGraphQlAPI.measurementsByPlateId(props.plate.id)
+  onResult(({data}) => {
+    plateMeasurements.value = data.plateMeasurements
+  })
+}
+
+const showLinkMeasDialog = ref(false);
+const confirm = ref(false);
+
+const handleSetActiveMeasurement = (active, { plateId, measurementId}) => {
+  if (active) {
+    updateActiveState(plateId, measurementId)
+  }
+}
+
+const updateActiveState = (plateId, measurementId) => {
+  const { mutate:  linkPlateMeasurement, onDone} = projectsGraphQlAPI.linkPlateMeasurement(plateId, measurementId)
+  linkPlateMeasurement()
+
+  onDone(({data}) => {
+    fetchPlateMeasurements()
+  })
+};
+
+const onSelectMeasurement = (measurementId) => {
+  router.push("/datacapture/meas/" + measurementId);
+}
+
+const handleLinkPlateMeasurement = () => {
+  fetchPlateMeasurements()
+}
+
+fetchPlateMeasurements()
+
+const filteredPlateMeasurements = ref([])
+const visibleColumns = ref([])
+const columnFilters = ref({})
+
+watch(plateMeasurements, () => {
+  visibleColumns.value = [...columns.map(a => a.name)];
+  filteredPlateMeasurements.value = [...plateMeasurements.value.map(r => r)]
+
+  columns.forEach(col => {
+    columnFilters.value[col.name] = ref(null)
+  })
+})
+
+const handleColumnFilter = (columnName) => {
+  filteredPlateMeasurements.value = plateMeasurements.value.filter(row => String(row[columnName]).includes(columnFilters.value[columnName]))
+}
+</script>
+
 <template>
   <q-table
       class="full-width"
@@ -9,6 +89,8 @@
       column-key="name"
       :pagination="{ rowsPerPage: 10 }"
       separator="cell"
+      virtual-scroll
+      style="max-height: 600px"
       flat square dense
   >
     <template v-slot:top-left>
@@ -81,82 +163,10 @@
   </q-dialog>
 </template>
 
-<script setup>
-import {ref, watch} from 'vue'
-    import {useStore} from 'vuex'
-    import {useRouter} from "vue-router";
-    import FormatUtils from "@/lib/FormatUtils";
-    import UserChip from "@/components/widgets/UserChip";
-    import LinkMeasurementDialog from "@/components/measurement/LinkMeasurementDialog";
-    import projectsGraphQlAPI from "@/api/graphql/projects";
-
-const store = useStore();
-const router = useRouter();
-const props = defineProps({ plate: Object });
-
-const columns = [
-  {name: 'active', align: 'left', label: 'Active?', field: row => (row.active === undefined) ? false : row.active, sortable: true},
-  {name: 'measurementId', align: 'left', label: 'ID', field: 'measurementId', sortable: true},
-  {name: 'name', align: 'left', label: 'Measurement Name', field: 'name', sortable: true},
-  {name: 'wellColumns', align: 'left', label: 'Well Columns', field: 'wellColumns', sortable: true, format: val => `${val?.length || 0}` },
-  {name: 'subWellColumns', align: 'left', label: 'SubWell Columns', field: 'subWellColumns', sortable: true, format: val => `${val?.length || 0}` },
-  {name: 'imageChannels', align: 'left', label: 'Image Channels', field: 'imageChannels', sortable: true, format: val => `${val?.length || 0}` },
-  {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate },
-  {name: 'linkedOn', align: 'left', label: 'Linked On', field: 'linkedOn', sortable: true, format: FormatUtils.formatDate },
-  // {name: 'menu', align: 'left', field: 'menu', sortable: false}
-];
-
-const plateMeasurements = ref([])
-
-const fetchPlateMeasurements = () => {
-  const {onResult, onError} = projectsGraphQlAPI.measurementsByPlateId(props.plate.id)
-  onResult(({data}) => {
-    plateMeasurements.value = data.plateMeasurements
-  })
+<style scoped>
+:deep(.q-field__control),
+:deep(.q-field__append) {
+  font-size: 12px;
+  height: 25px;
 }
-
-const showLinkMeasDialog = ref(false);
-const confirm = ref(false);
-
-const handleSetActiveMeasurement = (active, { plateId, measurementId}) => {
-  if (active) {
-    updateActiveState(plateId, measurementId)
-  }
-}
-
-const updateActiveState = (plateId, measurementId) => {
-  const { mutate:  linkPlateMeasurement, onDone} = projectsGraphQlAPI.linkPlateMeasurement(plateId, measurementId)
-  linkPlateMeasurement()
-
-  onDone(({data}) => {
-      fetchPlateMeasurements()
-  })
-};
-
-const onSelectMeasurement = (measurementId) => {
-    router.push("/datacapture/meas/" + measurementId);
-}
-
-const handleLinkPlateMeasurement = () => {
-  fetchPlateMeasurements()
-}
-
-fetchPlateMeasurements()
-
-const filteredPlateMeasurements = ref([])
-const visibleColumns = ref([])
-const columnFilters = ref({})
-
-watch(plateMeasurements, () => {
-  visibleColumns.value = [...columns.map(a => a.name)];
-  filteredPlateMeasurements.value = [...plateMeasurements.value.map(r => r)]
-
-  columns.forEach(col => {
-    columnFilters.value[col.name] = ref(null)
-  })
-})
-
-const handleColumnFilter = (columnName) => {
-  filteredPlateMeasurements.value = plateMeasurements.value.filter(row => String(row[columnName]).includes(columnFilters.value[columnName]))
-}
-</script>
+</style>

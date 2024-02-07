@@ -218,4 +218,10 @@ const showConfigDialog = ref(false)
   color: black;
   text-decoration: none;
 }
+
+:deep(.q-field__control),
+:deep(.q-field__append) {
+  font-size: 12px;
+  height: 25px;
+}
 </style>
