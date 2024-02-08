@@ -5,6 +5,13 @@
       :columns="curveTableColumns"
       row-key="substance"
       ref="curveTable"
+      column-key="name"
+      :filter="filter"
+      :filter-method="filterMethod"
+      virtual-scroll
+      style="max-height: 600px"
+      :pagination="pagination"
+      :rows-per-page-options="[0]"
       flat square dense>
     <template v-slot:header="props">
       <q-tr class="text-grey">
@@ -17,6 +24,9 @@
         <q-th v-for="col in props.cols" :key="col.name" :props="props">
           {{ col.label }}
         </q-th>
+      </q-tr>
+      <q-tr :props="props">
+        <column-filter v-for="col in props.cols" :key="col.name" v-model="filter[col.name]"/>
       </q-tr>
     </template>
     <template v-slot:body-cell-substance="props">
@@ -61,6 +71,8 @@ import {useStore} from "vuex";
 import MiniDRCView from "@/components/curve/MiniDRCView.vue"
 import FormatUtils from "@/lib/FormatUtils";
 import {usePlateStore} from "@/stores/plate";
+import ColumnFilter from "@/components/table/ColumnFilter.vue";
+import FilterUtils from "@/lib/FilterUtils";
 
 const store = useStore()
 const plateStore = usePlateStore()
@@ -77,9 +89,9 @@ const featureIds = [...new Set(curves.value?.map(c => c.featureId))]
 const curveData = ref([])
 const curveTable = ref(null)
 
-const plateResults = ref([]);
 const protocols = ref([]);
-const selectedFeature = ref(null);
+
+const pagination = ref({ rowsPerPage: 0 })
 
 distinctSubstances.forEach(substance => {
     let curve = curves.value.find(c => c.substanceName === substance)
@@ -128,6 +140,9 @@ const curveFeatureCols = (featureId) => {
 for (let fId in featureIds) {
   curveTableColumns.value = curveTableColumns.value.concat(curveFeatureCols(featureIds[fId]).value)
 }
+
+const filter = FilterUtils.makeFilter(curveTableColumns.value);
+const filterMethod = FilterUtils.defaultFilterMethod();
 
 const selectedCurves = ref([])
 
