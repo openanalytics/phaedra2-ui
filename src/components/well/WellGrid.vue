@@ -22,28 +22,40 @@
           {{ WellUtils.getWellRowLabel(r) }}
         </div>
         <!-- Plate row -->
-        <template v-for="c in plate.columns" :key="c">
-          <WellSlot :ref="slot => addWellSlot(slot, r, c)"
-                    :well="wells[WellUtils.getWellNr(r, c, plate.columns) - 1] || {}"
-                    :wellColorFunction="wellColorFunction"
-                    :wellImageFunction="wellImageFunction"
-                    :wellLabelFunctions="wellLabelFunctions"
-                    :selectedWells="selectedWells"
-                    class="wellSlot"
-          ></WellSlot>
+        <template v-for="c in plate.columns" :key="c" >
+          <template v-for="well in [wells[WellUtils.getWellNr(r, c, plate.columns)]]" :key="well">
+            <div class="column well wellSlot" v-ripple
+                  :class="{ highlight: wellHighlights[WellUtils.getWellNr(r, c, plate.columns) - 1] }"
+                  :style="{ backgroundColor: wellColorFunction ? wellColorFunction(well || {}) : '#969696' }"
+                  :ref="slot => addWellSlot(slot, r, c)">
+
+              <div v-if="well?.status === 'REJECTED'" class="absolute-center">
+                  <img src="/rejected_cross.svg" class="vertical-middle" style="width: 100%; height: 100%;"/>
+              </div>
+              <div v-if="wellImageFunction" class="full-height row items-center justify-center">
+                <img :src="wellImageFunction(well || {})" />
+              </div>
+              <div v-if="wellLabelFunctions">
+                <span v-for="wellLabelFunction in wellLabelFunctions" :key="wellLabelFunction" class="wellLabel" style="white-space: pre;">
+                    {{ wellLabelFunction(well || {}) }}
+                </span>
+              </div>
+            </div>
+          </template>
         </template>
       </template>
     </div>
   </div>
+
+  <WellActionMenu touch-position context-menu />
 </template>
 
 <script setup>
   import {ref, computed, watchEffect} from 'vue'
   import {useStore} from 'vuex'
-
+  import WellActionMenu from "@/components/well/WellActionMenu.vue"
   import WellUtils from "@/lib/WellUtils.js"
   import SelectionBoxHelper from "@/lib/SelectionBoxHelper.js"
-  import WellSlot from "@/components/well/WellSlot.vue"
 
   const props = defineProps(['plate', 'wells', 'loading', 'wellColorFunction', 'wellImageFunction', 'wellLabelFunctions'])
   const emit = defineEmits(['wellSelection']);
@@ -52,6 +64,9 @@
   const selectedWells = ref([]);
   const plate = computed(() => props.plate)
   const wells = computed(() => props.wells)
+  const wellHighlights = computed(() => [...Array(wells.value?.length).keys()]
+    .map(nr => nr + 1)
+    .map(nr => selectedWells.value?.find(w => nr == WellUtils.getWellNr(w.row, w.column, plate.value?.columns))));
 
   const emitWellSelection = (wells, append) => {
     if (!append) selectedWells.value.splice(0);
@@ -141,5 +156,29 @@
   min-height: v-bind(wellSlotMinHeight);
   font-size: v-bind(wellSlotFontSize);
   overflow: hidden;
+}
+
+.highlight {
+    border-color: #9ecaed;
+    box-shadow: 0 0 5px #9ecaed;
+    animation: blink-animation 1s linear infinite;
+}
+
+@keyframes blink-animation {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.well {
+  border: 1px solid black;
+  margin: 1px;
+  text-align: center;
+  position: relative;
+  cursor: pointer;
+}
+
+.wellLabel {
+  z-index: 1;
 }
 </style>
