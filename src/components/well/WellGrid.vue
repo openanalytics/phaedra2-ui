@@ -23,9 +23,9 @@
         </div>
         <!-- Plate row -->
         <template v-for="c in plate.columns" :key="c" >
-          <template v-for="well in [wells[WellUtils.getWellNr(r, c, plate.columns)]]" :key="well">
+          <template v-for="well in [wells[WellUtils.getWellNr(r, c, plate.columns) - 1]]" :key="well">
             <div class="column well wellSlot" v-ripple
-                  :class="{ highlight: wellHighlights[WellUtils.getWellNr(r, c, plate.columns) - 1] }"
+                  :class="{ skipped: well?.skipped, highlight: wellHighlights[WellUtils.getWellNr(r, c, plate.columns) - 1] }"
                   :style="{ backgroundColor: wellColorFunction ? wellColorFunction(well || {}) : '#969696' }"
                   :ref="slot => addWellSlot(slot, r, c)">
 
@@ -180,5 +180,15 @@
 
 .wellLabel {
   z-index: 1;
+}
+
+.skipped {
+    background: repeating-linear-gradient(
+        -45deg,
+        #E5E5E5,
+        #E5E5E5 10px,
+        #0F0F0F 11px,
+        #0F0F0F 12px
+  );
 }
 </style>
