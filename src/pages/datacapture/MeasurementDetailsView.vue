@@ -235,10 +235,11 @@ const plate = computed(() => {
 });
 
 const wellImageFunction = (well) => {
-  console.log(JSON.stringify({ measId: meas.value.id, wellNr: well.nr }))
+  // console.log(JSON.stringify({ measId: meas.value?.id, wellNr: well.nr }));
   // const img = store.getters['measurements/getMeasImage']({ measId: meas.value.id, wellNr: well.nr });
   // if (!img) store.dispatch('measurements/loadMeasImage', { measId: meas.value.id, wellNr: well.nr, scale: 0.01 });
   // return img;
+  return "";
 }
 
 const loadSubWellData = () => {
@@ -251,7 +252,7 @@ const loadSubWellData = () => {
 }
 
 const handleWellSelection = (selectedWells) => {
-  console.log("handleWellSelection event: " + JSON.stringify(selectedWells))
+  // console.log("handleWellSelection event: " + JSON.stringify(selectedWells))
   // selectedWells.forEach(well => {
   //   store.dispatch('measurements/loadMeasImage', { measId: meas.value.id, wellNr: well.nr, scale: 0.01 });
   // })

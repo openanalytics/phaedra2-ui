@@ -131,7 +131,7 @@
         if (well?.plateId) {
             //TODO Assuming here that meas is already stored.
             let measLink = store.getters['measurements/getActivePlateMeasurement'](well.plateId);
-            if (measLink === undefined) measLink = plateStore.getActiveMeasurement()
+            if (measLink === undefined) measLink = plateStore.activeMeasurement
             if (measLink === null) return null;
             measId = measLink.measurementId;
             wellNr = WellUtils.getWellNr(well.row, well.column, measLink.columns);

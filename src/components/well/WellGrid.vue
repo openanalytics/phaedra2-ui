@@ -26,15 +26,19 @@
           <template v-for="well in [wells[WellUtils.getWellNr(r, c, plate.columns)]]" :key="well">
             <div class="column well wellSlot" v-ripple
                   :class="{ highlight: wellHighlights[WellUtils.getWellNr(r, c, plate.columns) - 1] }"
-                  :style="{ backgroundColor: wellColorFunction(well || {}) }"
+                  :style="{ backgroundColor: wellColorFunction ? wellColorFunction(well || {}) : '#969696' }"
                   :ref="slot => addWellSlot(slot, r, c)">
+
+              <div v-if="well?.status === 'REJECTED'" class="absolute-center">
+                  <img src="/rejected_cross.svg" class="vertical-middle" style="width: 100%; height: 100%;"/>
+              </div>
               <div v-if="wellImageFunction" class="full-height row items-center justify-center">
-                <img :src="wellImageFunction(well)" />
+                <img :src="wellImageFunction(well || {})" />
               </div>
               <div v-if="wellLabelFunctions">
-                  <span v-for="wellLabelFunction in wellLabelFunctions" :key="wellLabelFunction" class="wellLabel" style="white-space: pre;">
-                      {{ wellLabelFunction(well || {}) }}
-                  </span>
+                <span v-for="wellLabelFunction in wellLabelFunctions" :key="wellLabelFunction" class="wellLabel" style="white-space: pre;">
+                    {{ wellLabelFunction(well || {}) }}
+                </span>
               </div>
             </div>
           </template>
@@ -42,12 +46,14 @@
       </template>
     </div>
   </div>
+
+  <WellActionMenu touch-position context-menu />
 </template>
 
 <script setup>
   import {ref, computed, watchEffect} from 'vue'
   import {useStore} from 'vuex'
-
+  import WellActionMenu from "@/components/well/WellActionMenu.vue"
   import WellUtils from "@/lib/WellUtils.js"
   import SelectionBoxHelper from "@/lib/SelectionBoxHelper.js"
 
