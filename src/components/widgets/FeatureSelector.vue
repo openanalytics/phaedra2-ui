@@ -1,27 +1,29 @@
 <template>
-  <div class="row items-center">
-    <q-btn-toggle v-model="selectedFeatureOption" :options="featureOptions" dense size="sm" padding="xs sm" class="on-left" />
-    <q-select v-if="selectedFeatureOption === 'raw'"
-              v-model="selectedFeature"
-              :options="rawFeatureOptions"
-              label="Measurement Column"
-              @update:model-value="value => handleRawFeatureSelection(value)"
-              @filter="filterRawOptions"
-              dense use-input/>
-    <q-select v-if="selectedFeatureOption === 'calculated'"
-              v-model="selectedFeature"
-              :options="calculatedFeatureOptions"
-              option-value="featureId"
-              option-label="name"
-              label="Calculated Feature"
-              @update:model-value="value => handleCalculatedFeatureSelection(value)"
-              @filter="filterCalculatedOptions"
-              dense use-input/>
+  <div class="row no-wrap items-center">
+    <div>
+      <q-btn-toggle v-model="selectedFeatureOption" :options="featureOptions" class="on-left"/>
+    </div>
+    <div>
+      <q-select v-if="selectedFeatureOption === 'raw'"
+                v-model="selectedFeature"
+                :options="rawFeatureOptions"
+                @update:model-value="value => handleRawFeatureSelection(value)"
+                @filter="filterRawOptions"
+                dense use-input/>
+      <q-select v-if="selectedFeatureOption === 'calculated'"
+                v-model="selectedFeature"
+                :options="calculatedFeatureOptions"
+                option-value="featureId"
+                option-label="name"
+                @update:model-value="value => handleCalculatedFeatureSelection(value)"
+                @filter="filterCalculatedOptions"
+                dense use-input/>
+    </div>
   </div>
 </template>
 
 <script setup>
-import {ref, computed} from 'vue'
+import {ref, computed, onMounted, watch} from 'vue'
 import {useRoute} from "vue-router";
 
 const route = useRoute();
@@ -43,22 +45,32 @@ const allCalculatedFeatures = computed(() => props.protocols.flatMap(protocol =>
 const calculatedFeatureOptions = ref(allCalculatedFeatures.value)
 
 const selectedFeature = ref(null)
+onMounted(() => {
+  initSelectedFeature()
+})
 
-const handleFeatureOptionSelection = () => {
-  selectedFeature.value = null
-  emits('featureOptionSelection')
+const initSelectedFeature = () => {
+  if (selectedFeatureOption.value === 'raw')
+    handleRawFeatureSelection(rawFeatureOptions.value[0])
+  else
+    handleCalculatedFeatureSelection(calculatedFeatureOptions.value[0])
 }
 
+watch(selectedFeatureOption, () => {
+  initSelectedFeature()
+})
+
 const handleRawFeatureSelection = (feature) => {
+  selectedFeature.value = feature
   emits('rawFeatureSelection', feature)
 }
 
 const handleCalculatedFeatureSelection = (feature) => {
+  selectedFeature.value = feature
   emits('calculatedFeatureSelection', feature)
 }
 
 const filterRawOptions = (filter, update) => {
-  console.log("Filter: " + filter)
   update(() => {
     rawFeatureOptions.value = allRawFeatures.value.filter(rfo => {
       return rfo.includes(filter)
@@ -67,13 +79,23 @@ const filterRawOptions = (filter, update) => {
 }
 
 const filterCalculatedOptions = (filter, update) => {
-  console.log("Filter: " + filter)
   update(() => {
     calculatedFeatureOptions.value = allCalculatedFeatures.value.filter(cfo => {
       return cfo.name.includes(filter)
     })
-    console.log("calculatedFeatureOptions: " + JSON.stringify(calculatedFeatureOptions.value))
   })
 }
 
 </script>
+
+<style scoped>
+:deep(.q-field__control),
+:deep(.q-field__append) {
+  font-size: 12px;
+  height: 30px;
+}
+:deep(.q-btn) {
+  font-size: 11px;
+  height: 30px;
+}
+</style>

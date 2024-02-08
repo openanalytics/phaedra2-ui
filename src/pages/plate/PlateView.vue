@@ -101,7 +101,7 @@
         </div>
       </Pane>
       <Pane v-if="showDRCViewPane" style="background-color: #E6E6E6" ref="drcViewPane">
-        <DRCView :height="height" :width="width" :curves="curves">
+        <DRCView :height="height" :width="width" :curves="curves" :update="update">
           <template v-slot:actions>
             <q-btn v-if="horizontal" icon="view_stream" @click="changeDirection" class="q-pa-xs" size="md" flat>
               <q-tooltip>Show vertical view</q-tooltip>
@@ -157,6 +157,7 @@ const horizontal = ref(false)
 const height = ref(400)
 const width = ref(500)
 const curves = ref([])
+const update = ref(Date.now())
 
 const drcViewPane = ref()
 const showDRCViewPane = ref(false)
@@ -201,6 +202,7 @@ const onDeleted = async () => {
 
 const changeDirection = () => {
   horizontal.value = !horizontal.value
+  update.value = Date.now()
 }
 
 const chartPaneHeight = ref(0)
