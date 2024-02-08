@@ -37,7 +37,7 @@ if (props.tab === 'well-type') {
 }
 
 const handleWellSelection = (wells) => {
-  uiStore.selectedWells = wells
+  // uiStore.selectedWells = wells
   update.value = Date.now()
 }
 

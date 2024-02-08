@@ -52,14 +52,14 @@
 
 <script setup>
   import {ref, computed, watchEffect} from 'vue'
-  import {useStore} from 'vuex'
+  import {useUIStore} from "@/stores/ui";
   import WellActionMenu from "@/components/well/WellActionMenu.vue"
   import WellUtils from "@/lib/WellUtils.js"
   import SelectionBoxHelper from "@/lib/SelectionBoxHelper.js"
 
   const props = defineProps(['plate', 'wells', 'loading', 'wellColorFunction', 'wellImageFunction', 'wellLabelFunctions'])
   const emit = defineEmits(['wellSelection']);
-  const store = useStore();
+  const uiStore = useUIStore();
 
   const selectedWells = ref([]);
   const plate = computed(() => props.plate)
@@ -74,7 +74,7 @@
       if (append && selectedWells.value.some(w => w.id === well.id)) continue;
       selectedWells.value.push(well);
     }
-    store.dispatch('ui/selectWells', selectedWells.value);
+    uiStore.selectedWells = selectedWells.value;
     emit('wellSelection', selectedWells.value);
   };
 
