@@ -8,6 +8,10 @@
   </q-th>
 </template>
 
+<script setup>
+const model = defineModel();
+</script>
+
 <style scoped>
 :deep(.q-field__control),
 :deep(.q-field__append) {
@@ -15,7 +19,3 @@
   height: 25px;
 }
 </style>
-
-<script setup>
-const model = defineModel();
-</script>
