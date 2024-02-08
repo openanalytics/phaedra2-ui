@@ -11,8 +11,8 @@
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn flat label="Yes" color="primary" v-close-popup @click="handleConfirm"/>
-          <q-btn flat label="No" color="primary" v-close-popup @click="$emit('update:show',false)"/>
+          <q-btn flat square label="Yes" color="primary" @click="handleConfirm"/>
+          <q-btn flat square label="No" color="primary" @click="$emit('update:show',false)"/>
         </q-card-actions>
       </q-card>
     </q-dialog>
