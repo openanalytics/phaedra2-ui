@@ -1,12 +1,12 @@
 <template>
     <div class="col" style="min-width: 75%">
       <FeatureSelector class="q-pb-xs"
-                       :protocols=plateStore.protocols
-                       :measurements=measurements
-                       @featureOptionSelection="handleFeatureOptionSelection"
-      @rawFeatureSelection="handleRawFeatureSelection"
-      @calculatedFeatureSelection="handleCalculatedFeatureSelection"/>
-      <q-space class="q-pa-md"/>
+                      :protocols=plateStore.protocols
+                      :measurements=measurements
+                      @featureOptionSelection="handleFeatureOptionSelection"
+                      @rawFeatureSelection="handleRawFeatureSelection"
+                      @calculatedFeatureSelection="handleCalculatedFeatureSelection"/>
+      <q-space class="q-pa-xs"/>
       <WellGrid :plate="plateStore.plate"
                 :wells="plateStore.wells"
                 :loading="dataLoading"

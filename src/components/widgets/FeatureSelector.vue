@@ -1,29 +1,22 @@
 <template>
-  <div class="col">
-    <div class="row ">
-      <q-option-group v-model="selectedFeatureOption"
-                      :options="featureOptions"
-                      @update:model-value="value => handleFeatureOptionSelection(value)"
-                      inline dense/>
-    </div>
-    <div class="row">
-      <q-select v-if="selectedFeatureOption === 'raw'" class="col-12"
-                v-model="selectedFeature"
-                :options="rawFeatureOptions"
-                label="Raw Feature"
-                @update:model-value="value => handleRawFeatureSelection(value)"
-                @filter="filterRawOptions"
-                dense use-input/>
-      <q-select v-if="selectedFeatureOption === 'calculated'" class="col-12"
-                v-model="selectedFeature"
-                :options="calculatedFeatureOptions"
-                option-value="featureId"
-                option-label="name"
-                label="Calculated Feature"
-                @update:model-value="value => handleCalculatedFeatureSelection(value)"
-                @filter="filterCalculatedOptions"
-                dense use-input/>
-    </div>
+  <div class="row items-center">
+    <q-btn-toggle v-model="selectedFeatureOption" :options="featureOptions" dense size="sm" padding="xs sm" class="on-left" />
+    <q-select v-if="selectedFeatureOption === 'raw'"
+              v-model="selectedFeature"
+              :options="rawFeatureOptions"
+              label="Measurement Column"
+              @update:model-value="value => handleRawFeatureSelection(value)"
+              @filter="filterRawOptions"
+              dense use-input/>
+    <q-select v-if="selectedFeatureOption === 'calculated'"
+              v-model="selectedFeature"
+              :options="calculatedFeatureOptions"
+              option-value="featureId"
+              option-label="name"
+              label="Calculated Feature"
+              @update:model-value="value => handleCalculatedFeatureSelection(value)"
+              @filter="filterCalculatedOptions"
+              dense use-input/>
   </div>
 </template>
 
@@ -37,8 +30,8 @@ const emits = defineEmits(['featureOptionSelection', 'rawFeatureSelection', 'cal
 
 const selectedFeatureOption = ref('raw')
 const featureOptions = [
-  { label: 'Active measurement features (raw data)', value: 'raw' },
-  { label: 'Protocol features (calculated data)', value: 'calculated' }
+  { label: 'Measurement Column', value: 'raw' },
+  { label: 'Calculated Feature', value: 'calculated' }
 ]
 
 const allRawFeatures = computed(() => [...new Set(props.measurements.flatMap(m => m.wellColumns ?? []))])
