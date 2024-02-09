@@ -21,12 +21,14 @@
                         :pagination="{ rowsPerPage: 10, sortBy: 'createdOn', descending: true }"
                         :filter="filter"
                         :filter-method="filterMethod"
+                        style="max-height: 400px"
+                        virtual-scroll
                         selection="single"
                         v-model:selected="selectedMeasurements"
                     >
                     <template v-slot:top-left>
                         <div class="row">
-                            <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
+                            <q-input outlined dense debounce="300" v-model="filter.name" placeholder="Search">
                                 <template v-slot:append><q-icon name="search"/></template>
                             </q-input>
                         </div>
@@ -45,24 +47,27 @@
 
 <script setup>
 
-import {computed, ref, watch} from "vue";
-import {useStore} from "vuex";
-import FormatUtils from "@/lib/FormatUtils";
-import FilterUtils from "@/lib/FilterUtils";
-import projectsGraphQlAPI from "@/api/graphql/projects";
+import {computed, onMounted, ref, watch} from "vue"
+import {useStore} from "vuex"
+import FormatUtils from "@/lib/FormatUtils"
+import FilterUtils from "@/lib/FilterUtils"
+import projectsGraphQlAPI from "@/api/graphql/projects"
+import measurementsGraphQlAPI from "@/api/graphql/measurements"
 
 const store = useStore();
-const props = defineProps({ show: Boolean, plate: Object });
-const emit = defineEmits([ 'update:show', 'linkPlateMeasurement' ]);
+const props = defineProps({ show: Boolean, plate: Object })
+const emit = defineEmits([ 'update:show', 'linkPlateMeasurement' ])
 
 const showDialog = computed({
     get: () => props.show,
     set: (v) => emit('update:show', v)
 });
 
-watch(() => props.show, (isShown) => {
-    if (isShown === true) store.dispatch("measurements/loadAll", props.plate);
-});
+const measurements = ref([])
+onMounted(() => {
+  const {onResult, onError} = measurementsGraphQlAPI.measurementsAll()
+  onResult(({data}) => measurements.value = data.measurements)
+})
 
 const doLink = () => {
     const selectedMeas = selectedMeasurements.value[0];
@@ -72,7 +77,7 @@ const doLink = () => {
     })
 };
 
-const availableMeasurements = computed(() => (store.getters['measurements/getAll']() || []).filter(m => m.rows == props.plate.rows));
+const availableMeasurements = computed(() => (measurements.value || []).filter(m => m.rows == props.plate.rows));
 const selectedMeasurements = ref([]);
 
 const columns = [
@@ -85,7 +90,10 @@ const columns = [
     {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate },
 ];
 
-const filter = ref(props.plate.barcode);
+const filter = ref({
+  "colDef.name": columns.filter(col => col.name === 'name')[0],
+  "name": props.plate.barcode
+})
 const filterMethod = FilterUtils.defaultFilterMethod();
 
 </script>

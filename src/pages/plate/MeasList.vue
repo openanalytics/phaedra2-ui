@@ -85,6 +85,7 @@ import UserChip from "@/components/widgets/UserChip";
 import ColumnFilter from "@/components/table/ColumnFilter";
 import LinkMeasurementDialog from "@/components/measurement/LinkMeasurementDialog";
 import projectsGraphQlAPI from "@/api/graphql/projects";
+import {usePlateStore} from "@/stores/plate";
 
 const store = useStore();
 const router = useRouter();
@@ -106,11 +107,13 @@ const filter = FilterUtils.makeFilter(columns);
 const filterMethod = FilterUtils.defaultFilterMethod();
 
 const plateMeasurements = ref([])
+const plateStore = usePlateStore()
 
 const fetchPlateMeasurements = () => {
   const {onResult, onError} = projectsGraphQlAPI.measurementsByPlateId(props.plate.id)
   onResult(({data}) => {
     plateMeasurements.value = data.plateMeasurements
+    plateStore.reloadPlate()
   })
 }
 

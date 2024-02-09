@@ -5,6 +5,23 @@ import gql from 'graphql-tag'
 const defaultOptions = { fetchPolicy: 'no-cache', errorPolicy: 'ignore'}
 
 export default {
+    measurementsAll() {
+        const QUERY = gql`
+            query measurements {
+                measurements {
+                    id
+                    name
+                    barcode
+                    description
+                    rows
+                    columns
+                    createdOn
+                    createdBy
+                }
+            }
+        `
+        return provideApolloClient(apolloMeasurementsClient)(() => useQuery(QUERY, null, defaultOptions))
+    },
     measurementById(measurementId) {
         const QUERY = gql`
             query measurementById {
