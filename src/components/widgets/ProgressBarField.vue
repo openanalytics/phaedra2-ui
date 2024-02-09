@@ -1,35 +1,20 @@
 <template>
     <q-linear-progress rounded size="20px" color="positive" :value="getProgressValue()">
           <div class="absolute-full flex flex-center">
-            <span class="text-black text-body2">{{getValue() + ' / ' + getMaxValue()}}</span>
+            <span class="text-black text-body2">{{actualValue + ' / ' + maxValue}}</span>
           </div>
-    </q-linear-progress>    
+    </q-linear-progress>
 </template>
 
-<script>
-    export default {
-        props: {
-            object: Object,
-            valueFieldName: String,
-            maxValueFieldName: String
-        },
-        setup(props) {
-            const exported = {};
+<script setup>
+import {computed} from "vue";
 
-            exported.getValue = () => {
-                return props.object ? props.object[props.valueFieldName] : 0;
-            };
-            exported.getMaxValue = () => {
-                return props.object ? props.object[props.maxValueFieldName] : 0;
-            };
-            exported.getProgressValue = () => {
-                const value = exported.getValue();
-                const maxValue = exported.getMaxValue();
-                if (maxValue === 0) return 0;
-                else return value / maxValue;
-            };
+const props = defineProps(['actualValue', 'maxValue'])
+const actualValue = computed(() => props.actualValue ? props.actualValue : 0)
+const maxValue = computed(() => props.maxValue ? props.maxValue : 0)
 
-            return exported;
-        }
-    }
+const getProgressValue = () => {
+  if (maxValue.value === 0) return 0;
+  else return actualValue.value / maxValue.value;
+}
 </script>

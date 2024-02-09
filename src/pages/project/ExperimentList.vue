@@ -12,6 +12,7 @@
         :filter-method="filterMethod"
         :pagination="{ rowsPerPage: 10, sortBy: 'name' }"
         :loading="loading"
+        @row-contextmenu="selectExperiment"
         separator="cell"
         flat dense square
     >
@@ -21,10 +22,25 @@
         </div>
       </template>
       <template v-slot:top-right>
-        <div class="row">
-          <q-btn size="sm" flat round color="primary" icon="settings" class="on-right" @click="showConfigDialog=true">
-            <q-tooltip>Configure Table Columns</q-tooltip>
-          </q-btn>
+        <div class="row action-button">
+          <q-btn-dropdown size="sm" class="oa-button q-mr-md" label="Export">
+            <q-list dense >
+              <q-item clickable v-close-popup @click="exportToCSV">
+                <q-item-section>
+                  <q-item-label>Export to CSV</q-item-label>
+                </q-item-section>
+              </q-item>
+
+              <q-item clickable v-close-popup @click="exportToXLSX">
+                <q-item-section>
+                  <q-item-label>Export to Excel</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
+<!--          <q-btn size="sm" icon="settings" color="primary" @click="showConfigDialog=true">-->
+<!--            <q-tooltip>Configure Table Columns</q-tooltip>-->
+<!--          </q-btn>-->
         </div>
       </template>
       <template v-slot:header="props">
@@ -57,24 +73,19 @@
           <UserChip :id="props.row.createdBy" />
         </q-td>
       </template>
-      <template v-slot:body-cell-nrPlates="props">
-        <q-td :props="props">
-          {{ props.row.summary ? props.row.summary.nrPlates : 0 }}
-        </q-td>
-      </template>
       <template v-slot:body-cell-nrPlatesCalculated="props">
         <q-td :props="props">
-          <ProgressBarField :object="props.row.summary" :valueFieldName="props.col.name" :maxValueFieldName="'nrPlates'" />
+          <ProgressBarField :actualValue="props.row.summary?.nrPlatesCalculated" :maxValue="props.row.summary?.nrPlates" />
         </q-td>
       </template>
       <template v-slot:body-cell-nrPlatesValidated="props">
         <q-td :props="props">
-          <ProgressBarField :object="props.row.summary" :valueFieldName="props.col.name" :maxValueFieldName="'nrPlates'" />
+          <ProgressBarField :actualValue="props.row.summary?.nrPlatesValidated" :maxValue="props.row.summary?.nrPlates" />
         </q-td>
       </template>
       <template v-slot:body-cell-nrPlatesApproved="props">
         <q-td :props="props">
-          <ProgressBarField :object="props.row.summary" :valueFieldName="props.col.name" :maxValueFieldName="'nrPlates'" />
+          <ProgressBarField :actualValue="props.row.summary?.nrPlatesApproved" :maxValue="props.row.summary?.nrPlates" />
         </q-td>
       </template>
       <template v-slot:body-cell-menu="props">
@@ -133,13 +144,14 @@
     </q-card>
   </q-dialog>
 
-  <table-config v-model:show="showConfigDialog" v-model:columns="columns" v-model:visibleColumns="visibleColumns"></table-config>
+<!--  <TableConfig v-model:show="showConfigDialog" v-model:columns="columns" v-model:visibleColumns="visibleColumns"></TableConfig>-->
 </template>
 
 <script setup>
 import {ref, computed, watch} from 'vue'
+import {utils, writeFile, writeFileXLSX} from 'xlsx';
 
-import TableConfig from "@/components/table/TableConfig";
+// import TableConfig from "@/components/table/TableConfig";
 import ProgressBarField from "@/components/widgets/ProgressBarField";
 import UserChip from "@/components/widgets/UserChip";
 import ExperimentMenu from "@/components/experiment/ExperimentMenu";
@@ -154,15 +166,15 @@ const columns = ref([
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
   {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
   {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-  {name: 'nrPlates', align: 'left', label: 'Plates', sortable: true},
-  {name: 'nrPlatesCalculated', align: 'left', label: 'Calculated', sortable: true},
-  {name: 'nrPlatesValidated', align: 'left', label: 'Validated', sortable: true},
-  {name: 'nrPlatesApproved', align: 'left', label: 'Approved', sortable: true},
+  {name: 'nrPlates', align: 'left', label: 'Plates', field: row => row.summary?.nrPlates ?? 0, sortable: true},
+  {name: 'nrPlatesCalculated', align: 'left', label: 'Calculated', field: row => row.summary?.nrPlatesCalculated ?? 0, sortable: true},
+  {name: 'nrPlatesValidated', align: 'left', label: 'Validated', field: row => row.summary?.nrPlatesValidated ?? 0, sortable: true},
+  {name: 'nrPlatesApproved', align: 'left', label: 'Approved', field: row => row.summary?.nrPlatesApproved ?? 0, sortable: true},
   {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
   {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
   {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
   {name: 'status', align: 'center', label: 'Status', field: 'status', sortable: true},
-  {name: 'menu', align: 'left', field: 'menu', sortable: false}
+  {name: 'menu', align: 'left', sortable: false}
 ])
 
 const props = defineProps({
@@ -198,6 +210,35 @@ watch(experiments, () => {
 })
 
 const showConfigDialog = ref(false)
+
+const gatherExportData = () => {
+  const contentHeaders = [columns.value.filter(col => col.field !== undefined).map(col => String(col.name).split('"').join('""'))]
+  const contentData = experiments.value.map(row => columns.value.filter(col => col.field !== undefined).map(col => {
+    const result = typeof col.field === 'function' ? col.field(row) : row[col.field]
+    return result
+  }))
+  return [...contentHeaders, ...contentData]
+}
+
+const exportToCSV = () => {
+  const data = gatherExportData();
+
+  const workbook = utils.book_new();
+  const worksheet = utils.aoa_to_sheet(data);
+  utils.book_append_sheet(workbook, worksheet, props.project.name);
+
+  writeFile(workbook, props.project.name.concat(".csv"))
+}
+
+const exportToXLSX = () => {
+  const data = gatherExportData();
+
+  const workbook = utils.book_new();
+  const worksheet = utils.aoa_to_sheet(data);
+  utils.book_append_sheet(workbook, worksheet, props.project.name);
+
+  writeFileXLSX(workbook, props.project.name.concat(".xlsx"))
+}
 </script>
 
 <style scoped>
