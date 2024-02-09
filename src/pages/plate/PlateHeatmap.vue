@@ -43,17 +43,21 @@ const handleFeatureOptionSelection = () => {
 }
 
 const handleRawFeatureSelection = (rawFeature) => {
-  const {onResult} = measurementsGraphQlAPI.measurementWellData(plateStore.activeMeasurement.measurementId, rawFeature)
-  onResult(({data}) => {
-    wellData.value = data?.wellData ? data.wellData : []
-  })
+  if (plateStore.activeMeasurement) {
+    const {onResult} = measurementsGraphQlAPI.measurementWellData(plateStore.activeMeasurement.measurementId, rawFeature)
+    onResult(({data}) => {
+      wellData.value = data?.wellData ? data.wellData : []
+    })
+  }
 }
 
 const handleCalculatedFeatureSelection = (calculatedFeature) => {
-  const {onResult} = resultDataGraphQlAPI.featureValuesByPlateIdAndFeatureId(plateStore.plate.id, calculatedFeature.featureId)
-  onResult(({data}) => {
-    wellData.value = data?.featureValues ? data.featureValues.map(fv => fv.value) : []
-  })
+  if (calculatedFeature) {
+    const {onResult} = resultDataGraphQlAPI.featureValuesByPlateIdAndFeatureId(plateStore.plate.id, calculatedFeature.featureId)
+    onResult(({data}) => {
+      wellData.value = data?.featureValues ? data.featureValues.map(fv => fv.value) : []
+    })
+  }
 }
 
 watch(wellData, () => {
