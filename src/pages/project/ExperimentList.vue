@@ -149,7 +149,6 @@
 
 <script setup>
 import {ref, computed, watch} from 'vue'
-import {utils, writeFile, writeFileXLSX} from 'xlsx';
 
 // import TableConfig from "@/components/table/TableConfig";
 import ProgressBarField from "@/components/widgets/ProgressBarField";
@@ -160,7 +159,10 @@ import ColumnFilter from "@/components/table/ColumnFilter";
 import TagList from "@/components/tag/TagList";
 
 import FormatUtils from "@/lib/FormatUtils.js"
-import FilterUtils from "@/lib/FilterUtils.js"
+import {useQuasar} from "quasar";
+import FilterUtils from "@/lib/FilterUtils";
+import {useExportTableData} from "@/composable/exportTableData";
+
 
 const columns = ref([
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
@@ -211,33 +213,14 @@ watch(experiments, () => {
 
 const showConfigDialog = ref(false)
 
-const gatherExportData = () => {
-  const contentHeaders = [columns.value.filter(col => col.field !== undefined).map(col => String(col.name).split('"').join('""'))]
-  const contentData = experiments.value.map(row => columns.value.filter(col => col.field !== undefined).map(col => {
-    const result = typeof col.field === 'function' ? col.field(row) : row[col.field]
-    return result
-  }))
-  return [...contentHeaders, ...contentData]
-}
+const exportTableData = useExportTableData(columns.value)
 
 const exportToCSV = () => {
-  const data = gatherExportData();
-
-  const workbook = utils.book_new();
-  const worksheet = utils.aoa_to_sheet(data);
-  utils.book_append_sheet(workbook, worksheet, props.project.name);
-
-  writeFile(workbook, props.project.name.concat(".csv"))
+  exportTableData.exportToCSV(filterMethod(experiments.value, filter.value), props.project.name)
 }
 
 const exportToXLSX = () => {
-  const data = gatherExportData();
-
-  const workbook = utils.book_new();
-  const worksheet = utils.aoa_to_sheet(data);
-  utils.book_append_sheet(workbook, worksheet, props.project.name);
-
-  writeFileXLSX(workbook, props.project.name.concat(".xlsx"))
+  exportTableData.exportToXLSX(filterMethod(experiments.value, filter.value), props.project.name)
 }
 </script>
 

@@ -21,9 +21,24 @@
         <q-btn size="sm" icon="add" label="New Plate" @click="openNewPlateTab" class="oa-button"/>
     </template>
     <template v-slot:top-right>
-      <div class="row">
-        <q-btn flat round color="primary" icon="settings" style="border-radius: 50%;" @click="configdialog=true"/>
-      </div>
+      <q-btn-dropdown size="sm" class="oa-button q-mr-md" label="Export">
+        <q-list dense >
+          <q-item clickable v-close-popup @click="exportToCSV">
+            <q-item-section>
+              <q-item-label>Export to CSV</q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-item clickable v-close-popup @click="exportToXLSX">
+            <q-item-section>
+              <q-item-label>Export to Excel</q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-list>
+      </q-btn-dropdown>
+<!--      <div class="row">-->
+<!--        <q-btn flat round color="primary" icon="settings" style="border-radius: 50%;" @click="configdialog=true"/>-->
+<!--      </div>-->
     </template>
     <template v-slot:header="props">
       <q-tr :props="props">
@@ -69,11 +84,6 @@
     <template v-slot:body-cell-status-approved="props">
       <q-td :props="props">
         <StatusFlag :object="props.row" :statusField="'approvalStatus'" />
-      </q-td>
-    </template>
-    <template v-slot:body-cell-dimensions="props">
-      <q-td :props="props">
-        {{ props.row.rows }} x {{ props.row.columns }}
       </q-td>
     </template>
     <template v-slot:body-cell-tags="props">
@@ -126,6 +136,7 @@ import TagList from "@/components/tag/TagList";
 import FormatUtils from "@/lib/FormatUtils";
 import FilterUtils from "@/lib/FilterUtils.js"
 import {useExperimentStore} from "@/stores/experiment";
+import {useExportTableData} from "@/composable/exportTableData";
 
 const props = defineProps(['plates', 'experiment', 'newPlateTab'])
 const emit = defineEmits(['update:newPlateTab', 'showPlateInspector'])
@@ -140,15 +151,15 @@ const columns = ref([
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
   {name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
   {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-  {name: 'link-status', align: 'center', label: 'L', field: 'link-status'},
-  {name: 'status-calculation', align: 'center', label: 'C', field: 'status-calculation'},
-  {name: 'status-validated', align: 'center', label: 'V', field: 'status-validated'},
-  {name: 'status-approved', align: 'center', label: 'A', field: 'status-approved'},
-  {name: 'dimensions', align: 'left', label: 'Dimensions', field: 'dimensions', sortable: true},
+  {name: 'link-status', align: 'center', label: 'L', field: 'linkStatus'},
+  {name: 'status-calculation', align: 'center', label: 'C', field: 'calculationStatus'},
+  {name: 'status-validated', align: 'center', label: 'V', field: 'validationStatus'},
+  {name: 'status-approved', align: 'center', label: 'A', field: 'approvalStatus'},
+  {name: 'dimensions', align: 'left', label: 'Dimensions', field: row => row.rows + " x " + row.columns, sortable: true},
   {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
   {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
   {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
-  {name: 'menu', align: 'left', field: 'menu', sortable: false}
+  {name: 'menu', align: 'left', sortable: false}
 ])
 
 const filter = FilterUtils.makeFilter(columns.value);
@@ -182,4 +193,13 @@ watch(plates, () => {
   visibleColumns.value = [...columns.value.map(a => a.name)];
   loading.value = false
 })
+
+const exportTableData = useExportTableData(columns.value)
+
+const exportToCSV = () => {
+  exportTableData.exportToCSV(filterMethod(plates.value, filter.value), props.experiment.name)
+}
+const exportToXLSX = () => {
+  exportTableData.exportToXLSX(filterMethod(plates.value, filter.value), props.experiment.name)
+}
 </script>
