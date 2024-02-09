@@ -41,10 +41,8 @@
 import {ref, watch} from "vue";
 import {useTemplateStore } from "@/stores/template";
 import {useUIStore} from "@/stores/ui";
-import {useStore} from 'vuex'
 
 const props = defineProps(['plateId', 'tab', 'update'])
-const store = useStore()
 const templateStore = useTemplateStore()
 const uiStore = useUIStore()
 

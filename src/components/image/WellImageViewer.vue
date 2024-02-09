@@ -62,6 +62,7 @@
 <script setup>
     import {computed, ref, watch, onMounted, onUnmounted } from 'vue'
     import {useStore} from 'vuex'
+    import {useUIStore} from "@/stores/ui";
     import ColorUtils from '@/lib/ColorUtils';
     import WellUtils from "@/lib/WellUtils.js";
     import {usePlateStore} from "@/stores/plate";
@@ -75,6 +76,7 @@
     };
 
     const store = useStore();
+    const uiStore = useUIStore();
     const plateStore = usePlateStore()
     const loading = ref(false);
 
@@ -102,7 +104,7 @@
 
     const selectedChannels = ref([]);
     const selectedWell = computed(() => {
-        let wells = store.getters['ui/getSelectedWells']();
+        let wells = uiStore.selectedWells;
         if (wells && wells.length > 0) return wells[0];
         return null;
     });
@@ -145,13 +147,14 @@
         let baseURL = process.env.VUE_APP_API_BASE_URL;
         return baseURL + `/measurement-service/measurements/${measId}/images/${wellNr}/${channelNames}?renderConfigId=${renderConfigId}&scale=${scale.value}`;
     }
+    const BLANK_IMG = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
     const reloadImage = () => {
         let url = getImageURL();
         if (url) {
             loading.value = true;
             image.src = url;
         } else {
-            image.src = null;
+            image.src = BLANK_IMG;
             setTimeout(draw());
         }
     }
@@ -174,11 +177,10 @@
     const canvasContainer = ref(null);
 
     function draw() {
-        console.log("WellImageViewer Draw " + image.src)
         if (canvas.value === null) return;
-
         let ctx = canvas.value.getContext('2d');
-        if (image.src && !image.src.endsWith('/null')) {
+        if (image.src && image.src != BLANK_IMG) {
+            console.log("WellImageViewer Draw " + image.src)
             canvas.value.width = image.width;
             canvas.value.height = image.height;
             ctx.drawImage(image, 0, 0);
