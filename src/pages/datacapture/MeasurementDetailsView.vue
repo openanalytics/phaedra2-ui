@@ -91,7 +91,7 @@
                 </template>
                 <template v-slot:top-right>
                   <div class="row">
-                    <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
+                    <q-input outlined dense debounce="300" v-model="filter.name" placeholder="Search">
                       <template v-slot:append>
                         <q-icon name="search"/>
                       </template>
@@ -177,9 +177,6 @@ const measId = parseInt(route.params.id);
 const meas = computed(() => store.getters['measurements/getById'](measId));
 store.dispatch('measurements/loadById', measId);
 
-const filter = ref('');
-const filterMethod = FilterUtils.defaultFilterMethod();
-
 const wellPositions = computed(() => WellUtils.getWellPositions(meas.value.rows, meas.value.columns))
 const subWellColumns = computed(() => meas.value.subWellColumns)
 const selectedWellPosition = ref(null)
@@ -257,5 +254,11 @@ const handleWellSelection = (selectedWells) => {
   //   store.dispatch('measurements/loadMeasImage', { measId: meas.value.id, wellNr: well.nr, scale: 0.01 });
   // })
 }
+
+const filter = ref({
+  "colDef.name": wellDataColumns.value.filter(col => col.name === 'name')[0],
+  "name": ''
+})
+const filterMethod = FilterUtils.defaultFilterMethod();
 
 </script>
