@@ -56,8 +56,7 @@
         </template>
         <template v-slot:body-cell-cancel="props">
           <q-td :props="props">
-            <q-btn label="Cancel" icon-right="cancel" size="sm" @click="cancelJob(props.row.id)"
-                   v-if="props.row.statusCode==='Running'"/>
+            <q-btn label="Cancel" icon-right="cancel" size="sm" @click="cancelJob(props.row.id)" v-if="canCancelJob(props.row)"/>
           </q-td>
         </template>
         <template v-slot:no-data>
@@ -187,10 +186,6 @@ const filterMethod = FilterUtils.defaultFilterMethod();
 
 const configdialog = ref(false);
 
-const cancelJob = (id) => {
-  store.dispatch('datacapture/cancelJob', id);
-};
-
 // Auto-refresh
 let timer = null;
 onMounted(() => {
@@ -229,6 +224,11 @@ const handleFolderSelection = (files) => {
   selectedSource.value.files = files;
   selectedSource.value.folderName = files[0].webkitRelativePath.split('/')[0];
 }
+
+const canCancelJob = job => job.statusCode == 'Submitted' || job.statusCode == 'Running'
+const cancelJob = (id) => {
+  store.dispatch('datacapture/cancelJob', id);
+};
 
 const canSubmitJob = computed(() => (newJob.captureConfigName && (selectedSource.value.url || selectedSource.value.files)));
 const submitJobAction = async () => {
