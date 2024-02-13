@@ -68,6 +68,9 @@ export const useProtocolStore = defineStore("protocol",  {
                 propertyName: property.propertyName
             })
             await this.reloadMetaData()
+        },
+        reset() {
+            this.protocol = {}
         }
     }
 

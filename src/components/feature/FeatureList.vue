@@ -27,7 +27,7 @@
                 <q-icon name="search"/>
               </template>
             </q-input>
-            <q-btn flat round color="primary" icon="settings" class="on-right" @click="configDialog=true"/>
+<!--            <q-btn flat round color="primary" icon="settings" class="on-right" @click="configDialog=true"/>-->
           </div>
         </template>
         <template v-slot:body-selection>
@@ -72,7 +72,7 @@
     <view-feature v-if="showFeatureDetails" v-model:show="showFeatureDetails" :feature="featureStore.feature"/>
   </div>
 
-  <table-config v-model:show="configDialog" v-model:visibleColumns="visibleColumns" v-model:columns="columns"/>
+<!--  <TableConfig v-model:show="configDialog" v-model:visibleColumns="visibleColumns" v-model:columns="columns"/>-->
 </template>
 
 <script setup>
@@ -89,7 +89,7 @@ import OaSection from "@/components/widgets/OaSection";
 import EditFeature from "@/components/feature/EditFeature";
 import ViewFeature from "@/components/feature/ViewFeature";
 import NewFeature from "@/components/feature/NewFeature";
-import TableConfig from "@/components/table/TableConfig";
+// import TableConfig from "@/components/table/TableConfig";
 
 const columns = ref([
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},

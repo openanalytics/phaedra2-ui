@@ -42,7 +42,7 @@
 
 <script setup>
 import {useStore} from "vuex";
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
 import {useRouter} from "vue-router";
 
 import {useProtocolStore} from "@/stores/protocol";
@@ -57,7 +57,11 @@ const protocolStore = useProtocolStore();
 const featureStore = useFeatureStore();
 
 const props = defineProps(['protocol'])
-const newProtocol = ref({
+const newProtocol = ref({})
+
+onMounted(() => {
+  resetStores()
+  newProtocol.value = {
     name: null,
     description: null,
     lowWelltype: null,
@@ -66,7 +70,9 @@ const newProtocol = ref({
     features: [],
     tags: [],
     properties: []
-});
+  }
+})
+
 
 const wellTypeOptions = ['LC', 'HC', 'NC', 'PC'];
 
@@ -83,7 +89,7 @@ const addNewFeature = (newFeature) => {
 }
 
 const resetStores = () => {
-    protocolStore.$reset()
-    featureStore.$reset()
+    protocolStore.reset()
+    featureStore.reset()
 }
 </script>

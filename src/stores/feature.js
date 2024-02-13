@@ -1,14 +1,17 @@
-import { defineStore } from "pinia"
+import {defineStore} from "pinia"
 import calculationsAPI from "@/api/calculations";
 
-export const useFeatureStore = defineStore("feature",  {
+export const useFeatureStore = defineStore("feature", {
     state: () => ({
         feature: {},
     }),
     actions: {
-      async loadFeature(feature) {
-          this.feature = feature;
-          this.feature["formula"] = await calculationsAPI.getFormula(feature.formulaId)
-      }
+        async loadFeature(feature) {
+            this.feature = feature;
+            this.feature["formula"] = await calculationsAPI.getFormula(feature.formulaId)
+        },
+        reset() {
+            this.feature = {}
+        }
     }
 })
