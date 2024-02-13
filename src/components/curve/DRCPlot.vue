@@ -1,6 +1,6 @@
 <script setup>
-import {onMounted, onUpdated, ref, watch} from "vue";
-import Plotly from "plotly.js-dist-min";
+import {onMounted, onUpdated, ref, watch} from "vue"
+import Plotly from "plotly.js-cartesian-dist-min"
 
 const props = defineProps(['width', 'height', 'curves', 'update'])
 const curve = ref(null)

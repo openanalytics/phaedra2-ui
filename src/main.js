@@ -11,10 +11,50 @@ import { publicPath } from '../vue.config'
 
 import store from '@/store/index.js'
 
-import {createApp, provide, h} from "vue"
+import {createApp} from "vue"
 import {createPinia} from "pinia"
 
 import App from "@/App.vue"
+
+// Create Vue app
+// --------------------------------------------------------------------
+const app = createApp(App)
+
+// Pinia State Management
+const pinia = createPinia()
+app.use(pinia)
+
+// Vuex State management (to be replaced fully by Pinia)
+// --------------------------------------------------------------------
+app.use(store)
+
+const token = process.env.VUE_APP_API_BEARER_TOKEN;
+if (token) {
+    console.log("DEV: Bearer token found, using it for all API calls");
+    axios.defaults.headers.common['Authorization'] = 'Bearer ' + token;
+}
+
+// Quasar UI with Material Icons and SplitPanes
+// --------------------------------------------------------------------
+app.use(Quasar, {
+    config: {
+        brand: {
+            primary: '#32a6d3',
+            secondary: '#e6e6e6',
+            accent: '#e52323',
+
+            dark: '#222222',
+
+            positive: '#21ba45',
+            negative: '#C10015',
+            info: '#31CCEC',
+            warning: '#F2C037',
+        }
+    }
+})
+
+// Routing
+// --------------------------------------------------------------------
 import Dashboard from '@/pages/dashboard/Dashboard.vue'
 
 import BrowseProjects from '@/pages/project/BrowseProjects.vue'
@@ -63,45 +103,6 @@ import NewPipeline from "@/pages/pipeline/NewPipeline.vue"
 import BrowsePipelineExecutions from "@/pages/pipeline/BrowsePipelineExecutions.vue"
 import PipelineExecutionDetails from "@/pages/pipeline/PipelineExecutionDetails.vue"
 
-// Create Vue app
-// --------------------------------------------------------------------
-const app = createApp(App)
-
-// Pinia State Management
-const pinia = createPinia()
-app.use(pinia)
-
-// Vuex State management (to be replaced fully by Pinia)
-// --------------------------------------------------------------------
-app.use(store)
-
-const token = process.env.VUE_APP_API_BEARER_TOKEN;
-if (token) {
-    console.log("DEV: Bearer token found, using it for all API calls");
-    axios.defaults.headers.common['Authorization'] = 'Bearer ' + token;
-}
-
-// Quasar UI with Material Icons and SplitPanes
-// --------------------------------------------------------------------
-app.use(Quasar, {
-    config: {
-        brand: {
-            primary: '#32a6d3',
-            secondary: '#e6e6e6',
-            accent: '#e52323',
-
-            dark: '#222222',
-
-            positive: '#21ba45',
-            negative: '#C10015',
-            info: '#31CCEC',
-            warning: '#F2C037',
-        }
-    }
-})
-
-// Routing
-// --------------------------------------------------------------------
 const routes = createRouter({
     history: createWebHistory(publicPath),
     routes: [
@@ -190,5 +191,3 @@ app.mixin({
 })
 
 app.mount("#app")
-// }
-// })

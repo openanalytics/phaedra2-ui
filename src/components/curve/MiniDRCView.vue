@@ -4,9 +4,9 @@
 
 <script setup>
 
-import Plotly from "plotly.js-dist-min";
-import {onMounted, ref} from "vue";
-import {useStore} from "vuex";
+import Plotly from "plotly.js-cartesian-dist-min"
+import {onMounted, ref} from "vue"
+import {useStore} from "vuex"
 
 const store = useStore()
 

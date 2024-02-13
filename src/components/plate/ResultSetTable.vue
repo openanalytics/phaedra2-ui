@@ -22,7 +22,7 @@
             <q-icon name="search"/>
           </template>
         </q-input>
-        <q-btn flat round color="primary" icon="settings" style="border-radius: 50%;" @click="showConfigDialog=true"/>
+<!--        <q-btn flat round color="primary" icon="settings" style="border-radius: 50%;" @click="showConfigDialog=true"/>-->
       </div>
     </template>
     <template v-slot:body-cell-status="props">
@@ -31,7 +31,7 @@
       </q-td>
     </template>
   </q-table>
-  <table-config v-model:show="showConfigDialog" v-model:visibleColumns="visibleColumns" v-model:columns="columns" />
+<!--  <TableConfig v-model:show="showConfigDialog" v-model:visibleColumns="visibleColumns" v-model:columns="columns" />-->
 </template>
 
 <script setup>
@@ -39,7 +39,7 @@
   import {useStore} from "vuex";
 
   import FilterUtils from "@/lib/FilterUtils";
-  import TableConfig from "@/components/table/TableConfig";
+  // import TableConfig from "@/components/table/TableConfig";
   import StatusLabel from "@/components/widgets/StatusLabel";
 
   const store = useStore();

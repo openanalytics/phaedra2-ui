@@ -42,7 +42,7 @@
 </template>
 
 <script setup>
-import Plotly from 'plotly.js-dist'
+import Plotly from "plotly.js-cartesian-dist-min"
 import {computed, onMounted, reactive, ref, watch} from "vue"
 import {useStore} from 'vuex'
 import {Pane} from "splitpanes";
