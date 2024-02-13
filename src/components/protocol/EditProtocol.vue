@@ -5,8 +5,6 @@
           <div class="col-3">
             <q-input v-model="protocolStore.protocol.name" label="Name" dense/>
             <q-input v-model="protocolStore.protocol.description" label="Description" dense/>
-            <q-select v-model="protocolStore.protocol.lowWelltype" label="Low Control Type" :options="wellTypeOptions" dense/>
-            <q-select v-model="protocolStore.protocol.highWelltype" label="High Control Type" :options="wellTypeOptions" dense/>
             <q-field label="Tags" stack-label readonly dense borderless>
               <template v-slot:control>
                 <div class="q-pt-sm">

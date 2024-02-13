@@ -136,6 +136,7 @@ const selectedDCRModel = ref(drcModelOptions.find(drcModel => drcModel.name === 
 const inputParameters = ref([])
 
 onMounted(() => {
+  if (!selectedDCRModel.value) return;
   for (const index in selectedDCRModel.value.inputParameters) {
     const inParam = selectedDCRModel.value.inputParameters[index]
     inputParameters.value[index] = featureStore.feature.drcModel?.inputParameters?.find(inP => inP.name === inParam.name) ?? null
@@ -186,9 +187,13 @@ const editFeature = () => {
   featureStore.feature.formulaId = featureStore.feature.formula.id
   featureStore.feature.civs = formulaInputs.value
 
-  featureStore.feature.drcModel = selectedDCRModel.value
+  if (selectedDCRModel.value) {
+    featureStore.feature.drcModel = selectedDCRModel.value
+    featureStore.feature.drcModel.inputParameters = inputParameters.value
+  } else {
+    featureStore.feature.drcModel = null;
+  }
 
-  featureStore.feature.drcModel.inputParameters = inputParameters.value
   emit('update:show', false)
 }
 

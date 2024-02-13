@@ -13,14 +13,9 @@
               <div class="self-center full-width no-outline">{{ protocolStore.protocol.description }}</div>
             </template>
           </q-field>
-          <q-field label="Low Control Type" stack-label borderless dense>
+          <q-field label="Version" stack-label borderless dense>
             <template v-slot:control>
-              <div class="self-center full-width no-outline">{{ protocolStore.protocol.lowWelltype }}</div>
-            </template>
-          </q-field>
-          <q-field label="High Control Type" stack-label borderless dense>
-            <template v-slot:control>
-              <div class="self-center full-width no-outline">{{ protocolStore.protocol.highWelltype }}</div>
+              <div class="self-center full-width no-outline">{{ protocolStore.protocol.versionNumber }}</div>
             </template>
           </q-field>
           <q-field label="Tags" stack-label borderless dense>
@@ -53,11 +48,6 @@
                       <UserChip :id="protocolStore.protocol.updatedBy"/>
                   </div>
               </template>
-          </q-field>
-          <q-field label="Version" stack-label borderless dense>
-            <template v-slot:control>
-              <div class="self-center full-width no-outline">{{ protocolStore.protocol.versionNumber }}</div>
-            </template>
           </q-field>
         </div>
         <div class="col-4">
