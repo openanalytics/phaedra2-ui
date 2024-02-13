@@ -1,6 +1,6 @@
 <template>
   <q-th>
-    <q-input v-model="model" dense borderless input-class="q-py-none">
+    <q-input v-show="model.enabled" v-model="model.term" dense borderless input-class="q-py-none">
       <template v-slot:append>
         <q-icon size="xs" name="search"/>
       </template>

@@ -172,12 +172,12 @@ store.dispatch('datacapture/loadAllCaptureConfigs');
 const selectedConfig = ref({});
 
 const columns = ref([
+  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
   {name: 'createDate', align: 'left', label: 'Created On', field: 'createDate', sortable: true, format: FormatUtils.formatDate },
   {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
-  {name: 'sourcePath', align: 'left', label: 'Source Path', field: 'sourcePath', sortable: true},
+  {name: 'sourcePath', align: 'left', label: 'Source Path', field: 'sourcePath', sortable: true, format: t => FormatUtils.formatTextMaxLength(t, 50) },
   {name: 'statusCode', label: 'Status', field: 'statusCode', sortable: true},
-  {name: 'statusMessage', align: 'left', label: 'Message', field: 'statusMessage', sortable: true},
-  {name: 'id', align: 'left', label: 'Job ID', field: 'id', sortable: true},
+  {name: 'statusMessage', align: 'left', label: 'Message', field: 'statusMessage', sortable: true, format: t => FormatUtils.formatTextMaxLength(t, 50) },
   {name: 'details'},
   {name: 'cancel'}
 ]);

@@ -4,11 +4,10 @@ const defaultFilterMethod = function () {
     return (rows, filter) => {
         return rows.filter(row => {
             for (const colName of Object.keys(filter)) {
-                if (colName.startsWith("colDef.")) continue;
-                const term = String(filter[colName] || "").toLowerCase();
+                const term = String(filter[colName]?.term || "").toLowerCase();
                 if (term == "") continue;
                 
-                const colDef = filter["colDef." + colName];
+                const colDef = filter[colName].definition || {};
 
                 let valueToCompare = row[colName];
                 if (colDef.field) valueToCompare = row[colDef.field];
@@ -31,8 +30,11 @@ const defaultFilterMethod = function () {
 const makeFilter = function (tableColumns) {
     const filter = {};
     tableColumns.forEach(col => {
-        filter['colDef.' + col.name] = col;
-        filter[col.name] = '';
+        filter[col.name] = {
+            term: "",
+            definition: col,
+            enabled: col.label // Columns without label (i.e. action/menu columns) won't get a filter
+        };
     });
     return ref(filter);
 }

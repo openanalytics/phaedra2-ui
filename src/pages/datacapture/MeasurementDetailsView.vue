@@ -91,7 +91,7 @@
                 </template>
                 <template v-slot:top-right>
                   <div class="row">
-                    <q-input outlined dense debounce="300" v-model="filter.name" placeholder="Search">
+                    <q-input outlined dense debounce="300" v-model="filter.name.term" placeholder="Search">
                       <template v-slot:append>
                         <q-icon name="search"/>
                       </template>
@@ -256,8 +256,11 @@ const handleWellSelection = (selectedWells) => {
 }
 
 const filter = ref({
-  "colDef.name": wellDataColumns.value.filter(col => col.name === 'name')[0],
-  "name": ''
+  name: {
+    term: "",
+    definition: wellDataColumns.value.find(col => col.name === 'name'),
+    enabled: true
+  }
 })
 const filterMethod = FilterUtils.defaultFilterMethod();
 
