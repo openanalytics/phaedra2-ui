@@ -1,5 +1,5 @@
 <template>
-    <q-chip dense size="12px">
+    <q-chip dense size="12px" v-if="id">
         <q-avatar icon="account_circle" />
         {{ userName }}
     </q-chip>
