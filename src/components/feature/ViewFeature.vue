@@ -55,7 +55,7 @@
             <q-field label="Formula" stack-label dense>
               <template v-slot:control>
                 <div class="self-center full-width no-outline" tabindex="0">
-                  {{ feature.formula?.name }}
+                  {{ feature.formula?.name }} (v{{ feature.formula?.versionNumber }})
                 </div>
               </template>
             </q-field>

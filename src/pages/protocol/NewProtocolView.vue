@@ -12,8 +12,6 @@
                     <div class="col-10">
                         <q-input v-model="newProtocol.name" label="Name:" dense/>
                         <q-input v-model="newProtocol.description" label="Description:" dense/>
-                        <q-select v-model="newProtocol.lowWelltype" label="Low well type:" :options="wellTypeOptions" dense/>
-                        <q-select v-model="newProtocol.highWelltype" label="High well type:" :options="wellTypeOptions" dense/>
                         <q-input v-model="newProtocol.versionNumber" label="Version:" mask="#.#.#" hint="Mask: #.#.#, Example: 1.0.0" dense/>
                     </div>
                     <div class="col-2">
