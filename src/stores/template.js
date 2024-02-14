@@ -5,7 +5,7 @@ import metadataAPI from "@/api/metadata";
 
 export const useTemplateStore = defineStore("template", {
     state: () => ({
-        template: {}
+        template: null
     }),
     actions: {
         loadTemplate(templateId) {
@@ -14,20 +14,15 @@ export const useTemplateStore = defineStore("template", {
                 this.template = data.plateTemplate
             })
         },
-        async creatNewTemplate(newTemplate)  {
-          this.template = await templateAPI.createPlateTemplate(newTemplate);
-        },
         async saveTemplate()  {
             await templateAPI.editPlateTemplate(this.template)
             this.loadTemplate(this.template.id)
         },
         async renameTemplate(newTemplateName) {
-            await templateAPI.editPlateTemplate({ id: this.template.id, name: newTemplateName })
-            this.loadTemplate(this.template.id)
+            this.template.name = newTemplateName
         },
         async editTemplateDescription(newDescription) {
-            await templateAPI.editPlateTemplate({id: this.template.id, description: newDescription})
-            this.loadTemplate(this.template.id)
+            this.template.description = newDescription
         },
         async updateTemplateWell(well, property, value) {
             const index = this.template.wells.findIndex((w ) => (w.row === well.row && w.column === well.column))

@@ -1,9 +1,4 @@
 <template>
-<!--  <q-breadcrumbs class="oa-breadcrumb">-->
-<!--    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>-->
-<!--    <q-breadcrumbs-el :label="'New Plate Layout Template'"/>-->
-<!--  </q-breadcrumbs>-->
-
   <q-dialog v-model="importFromFile" persistent>
     <div class="q-pa-sm">
 
@@ -23,13 +18,9 @@
 
 <script setup>
 import {ref} from 'vue'
-import {useStore} from 'vuex'
 import {useRouter} from 'vue-router'
-import OaSectionHeader from "@/components/widgets/OaSectionHeader";
 import {useTemplateStore} from "@/stores/template";
-import NewPlateTemplateView from "@/pages/platelayout/NewPlateTemplateView.vue";
-
-const wellTypeOptions = ['LC', 'HC', 'NC', 'PC']
+import plateUtils from "@/lib/PlateUtils";
 
 const router = useRouter()
 const templateStore = useTemplateStore()
@@ -53,22 +44,18 @@ const onSubmit = async () => {
 
     const plateTemplate = JSON.parse(data);
     newPlateTemplate.name = plateTemplate.name
-    newPlateTemplate.rows = plateTemplate.rows
-    newPlateTemplate.columns = plateTemplate.columns
     newPlateTemplate.wells = plateTemplate.wells
+    if (plateTemplate.wells) {
+      newPlateTemplate.rows = plateUtils.getPlateDimensions(plateTemplate.wells.length()).rows
+      newPlateTemplate.columns = plateUtils.getPlateDimensions(plateTemplate.wells.length()).cols
+    }
 
     router.push({ name: "newPlateTemplate", params: { plateTemplate: newPlateTemplate }})
-    // saveTemplate()
     console.log(plateTemplate)
   }
   reader.readAsText(importFile.value);
 }
 
-const saveTemplate = () => {
-  templateStore.creatNewTemplate(newPlateTemplate).then(() => {
-    router.push("/template/" + templateStore.template.id);
-  })
-}
 const onReset = () => {
 }
 </script>
