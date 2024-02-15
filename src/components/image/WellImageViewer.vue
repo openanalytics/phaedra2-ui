@@ -22,15 +22,17 @@
         </div>
         <div ref="configPanel" class="q-pt-sm">
             <q-list bordered class="rounded-borders">
-                <q-expansion-item dense expand-separator icon="settings" label="Render Settings">
+                <q-expansion-item dense expand-separator icon="settings" label="Render Settings" default-opened>
                     <div class="q-pb-sm">
-                        <q-select dense outlined v-model="renderConfig.name" label="Channel Configuration" class="q-pa-sm" />
+                        <q-select dense outlined v-model="selectedRenderConfig" label="Channel Configuration" class="q-pa-sm"
+                            :options="renderConfigs" option-label="name"
+                         />
                     </div>
                     <q-table
                         dense flat hide-bottom
                         selection="multiple" v-model:selected="selectedChannels"
                         table-header-class="text-grey"
-                        :rows="renderConfig?.config?.channelConfigs"
+                        :rows="selectedRenderConfig?.config?.channelConfigs"
                         :columns="channelColumns"
                         :pagination="{ rowsPerPage: 20 }"
                         row-key="name"
@@ -80,14 +82,24 @@
     const plateStore = usePlateStore()
     const loading = ref(false);
 
-    let renderConfigId = 4;
-    const renderConfig = computed(() => store.getters['measurements/getRenderConfig'](renderConfigId) || {});
-    store.dispatch('measurements/loadRenderConfig', renderConfigId).then(() => {
-        if (selectedChannels.value.length === 0) {
-            let channels = renderConfig.value.config.channelConfigs;
-            if (channels.length > 0) selectedChannels.value = [ channels[0] ];
-        }
-    });
+    const selectedRenderConfig = ref(null);
+    const renderConfigs = computed(() => store.getters['measurements/getRenderConfigs']());
+    store.dispatch('measurements/loadAllRenderConfigs');
+
+    // const renderConfig = computed(() => {
+    //     let cfg = store.getters['measurements/getRenderConfig'](selectedRenderConfigId.value) || {};
+    //     console.log(selectedRenderConfigId.value)
+    //     console.log(cfg);
+    //     return cfg;
+    // });
+    // const loadRenderConfig = () => {
+    //     store.dispatch('measurements/loadRenderConfig', selectedRenderConfigId.value).then(() => {
+    //         if (selectedChannels.value.length === 0) {
+    //             let channels = renderConfig.value.config.channelConfigs;
+    //             if (channels.length > 0) selectedChannels.value = [ channels[0] ];
+    //         }
+    //     });
+    // };
 
     const channelColumns = [
         { name: 'name', label: 'Channel', align: 'left', field: 'name' },
@@ -144,8 +156,10 @@
             return null;
         }
 
-        let baseURL = process.env.VUE_APP_API_BASE_URL;
-        return baseURL + `/measurement-service/measurements/${measId}/images/${wellNr}/${channelNames}?renderConfigId=${renderConfigId}&scale=${scale.value}`;
+        if (!selectedRenderConfig.value) return null;
+
+        let baseURL = (config.VUE_APP_API_BASE_URL || process.env.VUE_APP_API_BASE_URL);
+        return `${baseURL}/measurement-service/measurements/${measId}/images/${wellNr}/${channelNames}?renderConfigId=${selectedRenderConfig.value.id}&scale=${scale.value}`;
     }
     const BLANK_IMG = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
     const reloadImage = () => {

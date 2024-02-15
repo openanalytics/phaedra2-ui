@@ -135,13 +135,13 @@
             </q-tab-panel>
             <q-tab-panel name="imageData" class="q-px-none">
               <div class="row q-px-sm">
-                <div class="col-8">
+                <div class="col-6">
                   <WellGrid :plate="plate"
                             :wells="plate.wells"
                             :wellImageFunction="wellImageFunction"
                             @wellSelection="handleWellSelection"/>
                 </div>
-                <div class="col-4 q-px-sm">
+                <div class="col-6 q-px-sm">
                   <WellImageViewer></WellImageViewer>
                 </div>
               </div>
