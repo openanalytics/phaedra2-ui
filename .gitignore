@@ -24,3 +24,4 @@ pnpm-debug.log*
 /phaedra2-ui.iml
 /package-lock.json
 /src/components/poc/
+/src/lib/TransformPlateTemplate.js

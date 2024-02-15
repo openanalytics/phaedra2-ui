@@ -27,12 +27,29 @@ export default {
             query measurementById {
                 measurement:measurementById(measurementId: ${measurementId}) {
                     name
+                    barcode
                     columns
                     rows
                     wellColumns
+                    subWellColumns
+                }
+                wellData:measurementDataById(measurementId: ${measurementId}) {
+                    measurementId
+                    column
+                    data
                 }
             }
         `
+        return provideApolloClient(apolloMeasurementsClient)(() => useQuery(QUERY, null, defaultOptions))
+    },
+    measurementsColumnsById(measurementId) {
+      const QUERY = gql`
+          query measurementById {
+              wellColumns:measurementById(measurementId: ${measurementId}) {
+                  wellColumns
+              }
+          }
+      `
         return provideApolloClient(apolloMeasurementsClient)(() => useQuery(QUERY, null, defaultOptions))
     },
     measurementWellData(measurementId, wellColumn) {
