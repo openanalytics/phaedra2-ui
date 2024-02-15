@@ -115,10 +115,10 @@ const wells = ref(props.wells.map(well => {
   }
 }))
 
-const showConfigDialog = ref(false);
+// const showConfigDialog = ref(false);
 const visibleColumns = ref([])
 
-const filter = FilterUtils.makeFilter(columns.value);
+let filter = FilterUtils.makeFilter(columns.value)
 const filterMethod = FilterUtils.defaultFilterMethod();
 
 let exportTableData = null
@@ -137,6 +137,7 @@ watch([features, resultData], () => {
       }
     }))
     columns.value = [...columns.value, ...featureCols.value]
+    filter = FilterUtils.makeFilter(columns.value)
     featureCols.value.forEach(fCol => {
       const featValues = resultData.value.filter(rd => rd.featureId === fCol.featureId)[0]?.values ?? []
       fCol.lut = ColorUtils.createLUT(featValues, ColorUtils.defaultHeatmapGradients)
