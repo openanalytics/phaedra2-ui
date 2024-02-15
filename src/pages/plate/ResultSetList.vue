@@ -16,11 +16,11 @@
       flat square dense
   >
 
-    <template v-slot:top-right>
-      <div class="row">
-        <q-btn flat round color="primary" icon="settings" style="border-radius: 50%;" @click="configdialog=true"/>
-      </div>
-    </template>
+<!--    <template v-slot:top-right>-->
+<!--      <div class="row">-->
+<!--        <q-btn flat round color="primary" icon="settings" style="border-radius: 50%;" @click="configdialog=true"/>-->
+<!--      </div>-->
+<!--    </template>-->
     <template v-slot:header="props">
       <q-tr :props="props">
         <q-th v-for="col in props.cols" :key="col.name" :props="props">
@@ -59,7 +59,7 @@
 </template>
 
 <script setup>
-import {computed, onMounted, ref, watch} from 'vue'
+import {onMounted, ref, watch} from 'vue'
 import FormatUtils from "../../lib/FormatUtils";
 import FilterUtils from "@/lib/FilterUtils";
 import StatusLabel from "@/components/widgets/StatusLabel"
@@ -70,7 +70,6 @@ import {usePlateStore} from "@/stores/plate";
 const props = defineProps({ plate: Object });
 const loading = ref(true);
 const plateStore = usePlateStore()
-loading.value = false
 
 // Details panel
 const showResultSetDetails = ref(false);
@@ -84,6 +83,7 @@ const resultSets = ref([])
 
 onMounted(() => {
   resultSets.value = plateStore.resultSets
+  loading.value = false
 })
 
 const columns = ref([

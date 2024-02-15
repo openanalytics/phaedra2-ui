@@ -20,12 +20,15 @@
             </q-field>
             <q-field label="Description" stack-label borderless dense>
               <template v-slot:control>
-                <EditableField :object="plateStore.plate" fieldName="description" @valueChanged="onDescriptionChanged"/>
+                <EditableField :object="plateStore.plate" fieldName="description" :read-only="plateStore.isApproved"
+                               @valueChanged="onDescriptionChanged"/>
               </template>
             </q-field>
             <q-field label="Tags" stack-label dense borderless>
               <template v-slot:control>
-                <tag-list :tags="plateStore.plate.tags" @addTag="onAddTag" @removeTag="onRemoveTag" class="q-pt-xs"/>
+                <tag-list :tags="plateStore.plate.tags" :read-only="plateStore.isApproved"
+                          @addTag="onAddTag" @removeTag="onRemoveTag"
+                          class="q-pt-xs"/>
               </template>
             </q-field>
           </div>
@@ -49,10 +52,11 @@
           </div>
 
           <div class="col-4">
-            <PropertyTable :properties="plateStore.plate.properties" @addProperty="onAddProperty" @removeProperty="onRemoveProperty"/>
+            <PropertyTable :properties="plateStore.plate.properties" :read-only="plateStore.isApproved"
+                           @addProperty="onAddProperty" @removeProperty="onRemoveProperty"/>
           </div>
 
-          <div class="col-2">
+          <div class="col-2" v-if="!plateStore.isApproved">
             <div class="row justify-end">
               <q-btn size="sm" icon="edit" label="Rename" class="oa-action-button" @click="showRenameDialog = true"/>
             </div>
@@ -89,7 +93,7 @@
               <WellList :plate="plateStore.plate" :wells="plateStore.wells"/>
             </q-tab-panel>
             <q-tab-panel name="measurements" icon="view_module" label="Layout" class="q-px-none">
-              <MeasList :plate="plateStore.plate"/>
+              <MeasList :plate="plateStore.plate" :read-only="plateStore.isApproved"/>
             </q-tab-panel>
             <q-tab-panel name="results" class="q-px-none">
               <ResultSetList :plate="plateStore.plate"/>
@@ -180,7 +184,7 @@ watchEffect(() => {
   }
 })
 
-const activeTab = ref(route.query.activeTab)
+const activeTab = ref(route.query.activeTab ?? 'layout')
 const sizeChartPane = ref(0)
 
 const showDeleteDialog = ref(false);

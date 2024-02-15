@@ -30,6 +30,9 @@ export const usePlateStore = defineStore("plate", {
         },
         featureById: (state) => {
             return state.protocols.map(p => p.features)
+        },
+        isApproved: (state) => {
+            return state.plate.approvalStatus === 'APPROVED'
         }
     },
     actions: {
