@@ -180,7 +180,7 @@ watchEffect(() => {
   }
 })
 
-const activeTab = ref('layout')
+const activeTab = ref(route.query.activeTab)
 const sizeChartPane = ref(0)
 
 const showDeleteDialog = ref(false);

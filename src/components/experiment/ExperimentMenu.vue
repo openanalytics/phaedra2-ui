@@ -14,7 +14,7 @@
         <q-item-section avatar>
           <q-icon name="playlist_add"/>
         </q-item-section>
-        <q-item-section>Link Plate Template</q-item-section>
+        <q-item-section>Set Plate Layout</q-item-section>
       </q-item>
       <q-item dense clickable @click="calculatePlates">
         <q-item-section avatar>
@@ -79,12 +79,12 @@
         </q-item-section>
         <q-menu>
           <q-list>
-            <q-item dense clickable >
-              <q-item-section avatar>
-                <q-icon name="save_alt"/>
-              </q-item-section>
-              <q-item-section>Export Plate List</q-item-section>
-            </q-item>
+<!--            <q-item dense clickable @click="showExportPlateListDialog = true">-->
+<!--              <q-item-section avatar>-->
+<!--                <q-icon name="save_alt"/>-->
+<!--              </q-item-section>-->
+<!--              <q-item-section>Export Plate List</q-item-section>-->
+<!--            </q-item>-->
             <q-item dense clickable >
               <q-item-section avatar>
                 <q-icon name="save_alt"/>
@@ -126,6 +126,7 @@
     <DeleteDialog v-if="props.experiment" :id="props.experiment.id" :name="props.experiment.name" :objectClass="'experiment'"
                   v-model:show="showDeleteDialog" @onDeleted="onDeleted"/>
     <LinkPlateDialog v-model:show="showLinkPlateDialog" :experiment="props.experiment"/>
+    <ExportPlateListDialog v-model:show="showExportPlateListDialog" :experiments="[props.experiment]"/>
   </q-menu>
 </template>
 
@@ -134,6 +135,7 @@ import DeleteDialog from "@/components/widgets/DeleteDialog";
 import {useProjectStore} from "@/stores/project";
 import {computed, ref} from "vue";
 import LinkPlateDialog from "@/components/plate/LinkPlateDialog.vue";
+import ExportPlateListDialog from "@/components/experiment/ExportPlateListDialog.vue";
 
 const props = defineProps(['experiment'])
 const projectStore = useProjectStore()
@@ -141,6 +143,7 @@ const projectStore = useProjectStore()
 const isOpen = computed(() => props.experiment.status === 'OPEN' ? true : false )
 const showDeleteDialog = ref(false);
 const showLinkPlateDialog = ref(false)
+const showExportPlateListDialog = ref(false)
 
 const openDeleteDialog = () => {
   showDeleteDialog.value = true;
@@ -149,6 +152,7 @@ const openDeleteDialog = () => {
 const openLinkPlateDialog = () => {
   showLinkPlateDialog.value = true
 }
+
 
 const handleCloseExperiment = () => {
   console.log("Close experiment " + props.experiment.name)

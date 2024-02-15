@@ -8,92 +8,93 @@
         <q-item-section>Browse Dose-Response Curves</q-item-section>
       </q-item>
 
-      <q-separator/>
+      <div v-if="props.plate.approvalStatus !== 'APPROVED'">
+        <q-separator/>
+        <!-- Validation Menu -->
+        <q-item clickable v-if="props.plate.approvalStatus === 'APPROVAL_NOT_SET'">
+          <q-item-section avatar>
+            <q-icon name="outlined_flag"/>
+          </q-item-section>
+          <q-item-section>Validation</q-item-section>
+          <q-item-section side>
+            <q-icon name="keyboard_arrow_right"/>
+          </q-item-section>
 
-      <!-- Validation Menu -->
-      <q-item clickable v-if="props.plate.approvalStatus === 'APPROVAL_NOT_SET'">
-        <q-item-section avatar>
-          <q-icon name="outlined_flag"/>
-        </q-item-section>
-        <q-item-section>Validation</q-item-section>
-        <q-item-section side>
-          <q-icon name="keyboard_arrow_right"/>
-        </q-item-section>
+          <q-menu anchor="top end" self="top start">
+            <q-list dense>
+              <q-item clickable v-if="props.plate.validationStatus === 'VALIDATION_NOT_SET'" @click="validate()">
+                <q-item-section avatar>
+                  <q-icon color="positive" name="check_circle"/>
+                </q-item-section>
+                <q-item-section>Validate Plate</q-item-section>
+              </q-item>
+              <q-item clickable v-if="props.plate.validationStatus !== 'VALIDATION_NOT_SET'" @click="resetValidation()">
+                <q-item-section avatar>
+                  <q-icon name="remove_circle_outline"/>
+                </q-item-section>
+                <q-item-section>Reset Validation</q-item-section>
+              </q-item>
+              <q-item clickable v-if="props.plate.validationStatus === 'VALIDATION_NOT_SET'" @click="invalidate()">
+                <q-item-section avatar>
+                  <q-icon color="negative" name="cancel"/>
+                </q-item-section>
+                <q-item-section>Invalidate Plate</q-item-section>
+              </q-item>
+            </q-list>
+          </q-menu>
+        </q-item>
 
-        <q-menu anchor="top end" self="top start">
-          <q-list dense>
-            <q-item clickable v-if="props.plate.validationStatus === 'VALIDATION_NOT_SET'" @click="validate()">
-              <q-item-section avatar>
-                <q-icon color="positive" name="check_circle"/>
-              </q-item-section>
-              <q-item-section>Validate Plate</q-item-section>
-            </q-item>
-            <q-item clickable v-if="props.plate.validationStatus !== 'VALIDATION_NOT_SET'" @click="resetValidation()">
-              <q-item-section avatar>
-                <q-icon name="remove_circle_outline"/>
-              </q-item-section>
-              <q-item-section>Reset Validation</q-item-section>
-            </q-item>
-            <q-item clickable v-if="props.plate.validationStatus === 'VALIDATION_NOT_SET'" @click="invalidate()">
-              <q-item-section avatar>
-                <q-icon color="negative" name="cancel"/>
-              </q-item-section>
-              <q-item-section>Invalidate Plate</q-item-section>
-            </q-item>
-          </q-list>
-        </q-menu>
-      </q-item>
+        <!-- Approval Menu -->
+        <q-item clickable
+                v-if="props.plate.approvalStatus === 'APPROVAL_NOT_SET' && props.plate.validationStatus === 'VALIDATED'">
+          <q-item-section avatar>
+            <q-icon name="outlined_flag"/>
+          </q-item-section>
+          <q-item-section>Approval</q-item-section>
+          <q-item-section side>
+            <q-icon name="keyboard_arrow_right"/>
+          </q-item-section>
 
-      <!-- Approval Menu -->
-      <q-item clickable
-              v-if="props.plate.approvalStatus === 'APPROVAL_NOT_SET' && props.plate.validationStatus === 'VALIDATED'">
-        <q-item-section avatar>
-          <q-icon name="outlined_flag"/>
-        </q-item-section>
-        <q-item-section>Approval</q-item-section>
-        <q-item-section side>
-          <q-icon name="keyboard_arrow_right"/>
-        </q-item-section>
+          <q-menu anchor="top end" self="top start">
+            <q-list dense>
+              <q-item clickable @click="approve()">
+                <q-item-section avatar>
+                  <q-icon color="positive" name="check_circle"/>
+                </q-item-section>
+                <q-item-section>Approve Plate</q-item-section>
+              </q-item>
+              <q-item clickable v-if="props.plate.validationStatus !== 'VALIDATION_NOT_SET'" @click="resetValidation()">
+                <q-item-section avatar>
+                  <q-icon name="remove_circle_outline"/>
+                </q-item-section>
+                <q-item-section>Reset Approval</q-item-section>
+              </q-item>
+              <q-item clickable @click="disapprove()">
+                <q-item-section avatar>
+                  <q-icon color="negative" name="cancel"/>
+                </q-item-section>
+                <q-item-section>Disapprove Plate</q-item-section>
+              </q-item>
+            </q-list>
+          </q-menu>
+        </q-item>
 
-        <q-menu anchor="top end" self="top start">
-          <q-list dense>
-            <q-item clickable @click="approve()">
-              <q-item-section avatar>
-                <q-icon color="positive" name="check_circle"/>
-              </q-item-section>
-              <q-item-section>Approve Plate</q-item-section>
-            </q-item>
-            <q-item clickable v-if="props.plate.validationStatus !== 'VALIDATION_NOT_SET'" @click="resetValidation()">
-              <q-item-section avatar>
-                <q-icon name="remove_circle_outline"/>
-              </q-item-section>
-              <q-item-section>Reset Approval</q-item-section>
-            </q-item>
-            <q-item clickable @click="disapprove()">
-              <q-item-section avatar>
-                <q-icon color="negative" name="cancel"/>
-              </q-item-section>
-              <q-item-section>Disapprove Plate</q-item-section>
-            </q-item>
-          </q-list>
-        </q-menu>
-      </q-item>
+        <q-separator/>
 
-      <q-separator/>
+        <q-item clickable @click="setPlateLayout()" >
+          <q-item-section avatar>
+            <q-icon name="playlist_add"/>
+          </q-item-section>
+          <q-item-section>Set Plate Layout</q-item-section>
+        </q-item>
 
-      <q-item clickable @click="linkPlate()">
-        <q-item-section avatar>
-          <q-icon name="playlist_add"/>
-        </q-item-section>
-        <q-item-section>Link Plate Template</q-item-section>
-      </q-item>
-
-      <q-item clickable @click="calculatePlate()">
-        <q-item-section avatar>
-          <q-icon name="calculate"/>
-        </q-item-section>
-        <q-item-section>(Re)Calculate Plate</q-item-section>
-      </q-item>
+        <q-item clickable @click="calculatePlate()">
+          <q-item-section avatar>
+            <q-icon name="calculate"/>
+          </q-item-section>
+          <q-item-section>(Re)Calculate Plate</q-item-section>
+        </q-item>
+      </div>
 
       <q-separator/>
 
@@ -110,31 +111,19 @@
           <q-list>
             <q-item dense clickable @click="chart('scatter', props.plate.id)" v-close-popup>
               <q-item-section avatar>
-                <q-icon name="insert_chart"/>
+                <q-icon name="scatter_plot"/>
               </q-item-section>
               <q-item-section>Scatterplot 2D</q-item-section>
             </q-item>
             <q-item dense clickable @click="chart('box', props.plate.id)" v-close-popup>
               <q-item-section avatar>
-                <q-icon name="insert_chart"/>
+                <q-icon name="candlestick_chart"/>
               </q-item-section>
               <q-item-section>Boxplot</q-item-section>
             </q-item>
-            <!--            <q-item dense clickable @click="chart('bar', props.plate.id)" v-close-popup>-->
-            <!--              <q-item-section avatar>-->
-            <!--                <q-icon name="insert_chart"/>-->
-            <!--              </q-item-section>-->
-            <!--              <q-item-section>Barplot</q-item-section>-->
-            <!--            </q-item>-->
-            <!--            <q-item dense clickable @click="chart('line', props.plate.id)" v-close-popup>-->
-            <!--              <q-item-section avatar>-->
-            <!--                <q-icon name="insert_chart"/>-->
-            <!--              </q-item-section>-->
-            <!--              <q-item-section>Lineplot</q-item-section>-->
-            <!--            </q-item>-->
             <q-item dense clickable @click="chart('histogram', props.plate.id)" v-close-popup>
               <q-item-section avatar>
-                <q-icon name="insert_chart"/>
+                <q-icon name="bar_chart"/>
               </q-item-section>
               <q-item-section>1D Histogram</q-item-section>
             </q-item>
@@ -142,14 +131,15 @@
         </q-menu>
       </q-item>
 
-      <q-separator/>
-
-      <q-item clickable @click="deletePlate()">
-        <q-item-section avatar>
-          <q-icon color="negative" name="delete"/>
-        </q-item-section>
-        <q-item-section>Delete Plate</q-item-section>
-      </q-item>
+      <div v-if="props.plate.approvalStatus !== 'APPROVED'">
+        <q-separator/>
+        <q-item clickable @click="deletePlate()">
+          <q-item-section avatar>
+            <q-icon name="delete"/>
+          </q-item-section>
+          <q-item-section>Delete Plate</q-item-section>
+        </q-item>
+      </div>
     </q-list>
 
     <invalidate-dialog v-model:show="showInvalidateDialog" :plate="props.plate" @onInvalidate="onInvalidatePlate"/>
@@ -172,10 +162,12 @@ import DeleteDialog from "@/components/widgets/DeleteDialog";
 import {ref} from "vue";
 import {useStore} from 'vuex'
 import {useExperimentStore} from "@/stores/experiment";
+import {useRouter} from "vue-router";
 
 const props = defineProps(['plate']);
 
-const store = useStore();
+const store = useStore()
+const router = useRouter()
 const experimentStore = useExperimentStore()
 
 const showInvalidateDialog = ref(false);
@@ -209,11 +201,15 @@ const calculatePlate = () => {
   showCalculateDialog.value = true;
 }
 
+const browseDoseResponseCurves = () => {
+  router.push({name: "plate", params: { plateId: props.plate.id }, query: { activeTab: "curves" }});
+}
+
 const fitCurves = () => {
   store.dispatch()
 }
 
-const linkPlate = () => {
+const setPlateLayout = () => {
   showLinkDialog.value = true;
 }
 
