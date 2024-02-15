@@ -126,7 +126,7 @@
     <DeleteDialog v-if="props.experiment" :id="props.experiment.id" :name="props.experiment.name" :objectClass="'experiment'"
                   v-model:show="showDeleteDialog" @onDeleted="onDeleted"/>
     <LinkPlateDialog v-model:show="showLinkPlateDialog" :experiment="props.experiment"/>
-    <ExportPlateListDialog v-model:show="showExportPlateListDialog" :experiments="[props.experiment]"/>
+<!--    <ExportPlateListDialog v-model:show="showExportPlateListDialog" :experiments="[props.experiment]"/>-->
   </q-menu>
 </template>
 
@@ -135,7 +135,7 @@ import DeleteDialog from "@/components/widgets/DeleteDialog";
 import {useProjectStore} from "@/stores/project";
 import {computed, ref} from "vue";
 import LinkPlateDialog from "@/components/plate/LinkPlateDialog.vue";
-import ExportPlateListDialog from "@/components/experiment/ExportPlateListDialog.vue";
+// import ExportPlateListDialog from "@/components/experiment/ExportPlateListDialog.vue";
 
 const props = defineProps(['experiment'])
 const projectStore = useProjectStore()
@@ -143,7 +143,7 @@ const projectStore = useProjectStore()
 const isOpen = computed(() => props.experiment.status === 'OPEN' ? true : false )
 const showDeleteDialog = ref(false);
 const showLinkPlateDialog = ref(false)
-const showExportPlateListDialog = ref(false)
+// const showExportPlateListDialog = ref(false)
 
 const openDeleteDialog = () => {
   showDeleteDialog.value = true;
@@ -170,19 +170,19 @@ const onDeleted = () => {
 
 const linkPlateLayouts = () => {
   console.log("Link plate template to all plate within experiment " + props.experiment.id)
+  //TODO
 }
 
-//TODO
 const calculatePlates = () => {
+  //TODO
 }
 
-//TODO
 const browseDoseResponseCurves = () => {
-
+  //TODO
 }
 
-//TODO
 const chart = (type, experimentId) => {
   // store.dispatch('ui/addChartView', {'type': type, "experimentId": experimentId})
+  //TODO
 }
 </script>
