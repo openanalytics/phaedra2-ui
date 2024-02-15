@@ -4,7 +4,7 @@
 
       <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
         <q-avatar icon="playlist_add" color="primary" text-color="white"/>
-        Link Plates
+        Select Plate Layout
       </q-card-section>
 
       <q-card-section>
