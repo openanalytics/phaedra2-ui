@@ -158,7 +158,7 @@
 
         if (!selectedRenderConfig.value) return null;
 
-        let baseURL = process.env.VUE_APP_API_BASE_URL;
+        let baseURL = (config.VUE_APP_API_BASE_URL || process.env.VUE_APP_API_BASE_URL);
         return `${baseURL}/measurement-service/measurements/${measId}/images/${wellNr}/${channelNames}?renderConfigId=${selectedRenderConfig.value.id}&scale=${scale.value}`;
     }
     const BLANK_IMG = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
