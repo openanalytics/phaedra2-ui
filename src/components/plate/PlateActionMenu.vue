@@ -8,7 +8,7 @@
         <q-item-section>Browse Dose-Response Curves</q-item-section>
       </q-item>
 
-      <div v-if="props.plate.approvalStatus !== 'APPROVED'">
+      <div v-if="props.plate.approvalStatus === 'APPROVAL_NOT_SET' && experimentStore.isOpen">
         <q-separator/>
         <!-- Validation Menu -->
         <q-item clickable v-if="props.plate.approvalStatus === 'APPROVAL_NOT_SET'">
@@ -131,7 +131,7 @@
         </q-menu>
       </q-item>
 
-      <div v-if="props.plate.approvalStatus !== 'APPROVED'">
+      <div v-if="props.plate.approvalStatus === 'APPROVAL_NOT_SET' && experimentStore.isOpen">
         <q-separator/>
         <q-item clickable @click="deletePlate()">
           <q-item-section avatar>
@@ -164,7 +164,7 @@ import {useStore} from 'vuex'
 import {useExperimentStore} from "@/stores/experiment";
 import {useRouter} from "vue-router";
 
-const props = defineProps(['plate']);
+const props = defineProps(['plate', 'plates']);
 
 const store = useStore()
 const router = useRouter()

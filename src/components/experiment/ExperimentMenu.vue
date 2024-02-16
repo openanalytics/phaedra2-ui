@@ -1,27 +1,28 @@
 <template>
   <q-menu>
     <q-list dense>
-      <q-item dense clickable @click="browseDoseResponseCurves">
-        <q-item-section avatar>
-          <q-icon name="show_chart"/>
-        </q-item-section>
-        <q-item-section>Browse Dose-Response Curves</q-item-section>
-      </q-item>
+<!--      <q-item dense clickable @click="browseDoseResponseCurves">-->
+<!--        <q-item-section avatar>-->
+<!--          <q-icon name="show_chart"/>-->
+<!--        </q-item-section>-->
+<!--        <q-item-section>Browse Dose-Response Curves</q-item-section>-->
+<!--      </q-item>-->
+<!--      <q-separator/>-->
 
-      <q-separator/>
-
-      <q-item dense clickable @click="openLinkPlateDialog">
-        <q-item-section avatar>
-          <q-icon name="playlist_add"/>
-        </q-item-section>
-        <q-item-section>Set Plate Layout</q-item-section>
-      </q-item>
-      <q-item dense clickable @click="calculatePlates">
-        <q-item-section avatar>
-          <q-icon name="calculate"/>
-        </q-item-section>
-        <q-item-section>(Re)Calculate Plate(s)</q-item-section>
-      </q-item>
+      <div v-if="isOpen">
+        <q-item dense clickable @click="openLinkPlateDialog">
+          <q-item-section avatar>
+            <q-icon name="playlist_add"/>
+          </q-item-section>
+          <q-item-section>Set Plate Layout</q-item-section>
+        </q-item>
+        <q-item dense clickable @click="calculatePlates">
+          <q-item-section avatar>
+            <q-icon name="calculate"/>
+          </q-item-section>
+          <q-item-section>(Re)Calculate Plate(s)</q-item-section>
+        </q-item>
+      </div>
 
       <q-separator/>
 
@@ -115,17 +116,19 @@
         </q-item-section>
         <q-item-section>Open Experiment</q-item-section>
       </q-item>
-      <q-item dense clickable @click="openDeleteDialog">
-        <q-item-section avatar>
-          <q-icon name="delete"/>
-        </q-item-section>
-        <q-item-section>Delete Experiment</q-item-section>
-      </q-item>
+      <div v-if="isOpen">
+        <q-item dense clickable @click="openDeleteDialog">
+          <q-item-section avatar>
+            <q-icon name="delete"/>
+          </q-item-section>
+          <q-item-section>Delete Experiment</q-item-section>
+        </q-item>
+      </div>
     </q-list>
 
-    <DeleteDialog v-if="props.experiment" :id="props.experiment.id" :name="props.experiment.name" :objectClass="'experiment'"
+    <DeleteDialog v-if="isOpen" :id="props.experiment.id" :name="props.experiment.name" :objectClass="'experiment'"
                   v-model:show="showDeleteDialog" @onDeleted="onDeleted"/>
-    <LinkPlateDialog v-model:show="showLinkPlateDialog" :experiment="props.experiment"/>
+    <LinkPlateDialog v-if="isOpen" v-model:show="showLinkPlateDialog" :experiment="props.experiment"/>
 <!--    <ExportPlateListDialog v-model:show="showExportPlateListDialog" :experiments="[props.experiment]"/>-->
   </q-menu>
 </template>
@@ -152,7 +155,6 @@ const openDeleteDialog = () => {
 const openLinkPlateDialog = () => {
   showLinkPlateDialog.value = true
 }
-
 
 const handleCloseExperiment = () => {
   console.log("Close experiment " + props.experiment.name)

@@ -13,6 +13,9 @@ export const useExperimentStore = defineStore("experiment", {
         isOpen: (state) => {
             return state.experiment.status === 'OPEN'
         },
+        isClosed: (state) => {
+            return state.experiment.status === 'CLOSED'
+        },
         getPlateByPlateId: (state, plateId) => {
             return state.plates.find(p => p.id === plateId)
         }

@@ -119,6 +119,8 @@
         </div>
       </template>
     </q-table>
+
+    <ExperimentMenu v-show="showExperimentContextMenu" :experiment="selectedExperiment" touch-position context-menu />
   </oa-section>
 
   <q-dialog v-model="showNewExperimentDialog">
@@ -159,7 +161,6 @@ import ColumnFilter from "@/components/table/ColumnFilter";
 import TagList from "@/components/tag/TagList";
 
 import FormatUtils from "@/lib/FormatUtils.js"
-import {useQuasar} from "quasar";
 import FilterUtils from "@/lib/FilterUtils";
 import {useExportTableData} from "@/composable/exportTableData";
 
@@ -183,6 +184,13 @@ const props = defineProps({
   experiments: [Object],
   project: Object
 })
+
+const selectedExperiment = ref({});
+const showExperimentContextMenu = ref(false);
+const selectExperiment = (event, row) => {
+  selectedExperiment.value = row;
+  showExperimentContextMenu.value = true;
+}
 
 const emits = defineEmits(['createNewExperiment'])
 

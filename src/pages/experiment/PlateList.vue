@@ -17,7 +17,7 @@
       style="max-height: 600px"
       flat square dense
   >
-    <template v-slot:top-left>
+    <template v-slot:top-left v-if="experimentStore.isOpen">
         <q-btn size="sm" icon="add" label="New Plate" @click="openNewPlateTab" class="oa-button"/>
     </template>
     <template v-slot:top-right>
