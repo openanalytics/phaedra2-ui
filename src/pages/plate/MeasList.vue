@@ -42,8 +42,9 @@
     </template>
     <template v-slot:body-cell-active="props">
       <q-td :props="props">
-        <q-toggle dense :model-value="props.value"
-                  @update:model-value="val => handleSetActiveMeasurement(val, props.row)" disabled="props.readOnly"/>
+        <q-toggle v-if="props.readonly" dense :model-value="props.value" disabled/>
+        <q-toggle v-else dense :model-value="props.value"
+                  @update:model-value="val => handleSetActiveMeasurement(val, props.row)"/>
       </q-td>
     </template>
     <template v-slot:body-cell-createdBy="props">
