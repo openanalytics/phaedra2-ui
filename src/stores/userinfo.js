@@ -7,6 +7,11 @@ export const useUserInfoStore = defineStore("userinfo" , {
         userNames: {},
         userNamesLoaded: false
     }),
+    getters: {
+        isAdmin: state => {
+            return state.userInfo.admin
+        }
+    },
     actions: {
         async loadUserInfo() {
             const userInfo = await userinfoAPI.getUserInfo()

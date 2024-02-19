@@ -3,11 +3,13 @@
     "label": "Dashboard",
     "header": "link",
     "route": "dashboard",
-    "icon": "home"
+    "icon": "home",
+    "role": "user"
   },
   {
     "label": "Projects",
     "header": "category",
+    "role": "user",
     "children": [
       {
         "label": "New Project...",
@@ -24,6 +26,7 @@
     "label": "Calculation",
     "header": "category",
     "icon": "calculate",
+    "role": "user",
     "children": [
       {
         "label": "New Protocol...",
@@ -45,6 +48,7 @@
     "label": "Plate Layouts",
     "header": "category",
     "icon": "border_all",
+    "role": "user",
     "children": [
       {
         "label": "New Template...",
@@ -62,6 +66,7 @@
     "label": "Data Capture",
     "header": "category",
     "icon": "input",
+    "role": "user",
     "children": [
       {
         "label": "Capture Jobs",
@@ -94,6 +99,7 @@
     "label": "Pipelines",
     "header": "category",
     "icon": "route",
+    "role": "user",
     "children": [
       {
         "label": "New Pipeline...",
@@ -116,6 +122,7 @@
     "label": "Admin",
     "header": "category",
     "icon": "settings",
+    "role": "admin",
     "children": [
       {
         "label": "Add New DRC fitting model",

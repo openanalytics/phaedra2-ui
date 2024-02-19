@@ -67,8 +67,12 @@
 </style>
 
 <script setup>
-import {ref, computed} from 'vue'
+import {ref, computed, onMounted, onUpdated} from 'vue'
 import navigatorDef from '@/assets/navigator.json'
+import {useUserInfoStore} from "@/stores/userinfo";
+
+const userStore = useUserInfoStore()
+userStore.loadUserInfo()
 
 const drawerIcons = {
   true: "chevron_left",
@@ -83,7 +87,12 @@ const toggleDrawer = () => {
   emit("onDrawerToggled");
 }
 
-const navTree = computed(() => {
-  return navigatorDef
-})
+const filterNavigatorByRole = () => {
+  if (userStore.isAdmin)
+    return navigatorDef
+  else
+    return navigatorDef.filter(node => node.role === 'user')
+}
+
+const navTree = computed(() => filterNavigatorByRole())
 </script>
