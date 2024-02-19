@@ -15,7 +15,7 @@
   >
     <template v-slot:top-left>
       <q-btn size="sm" icon="add" class="oa-button q-mb-md" label="Link Measurement"
-             @click="showLinkMeasDialog = true" v-if="!props.readOnly"/>
+             @click="showLinkMeasDialog = true" v-if="!readOnly"/>
     </template>
     <template v-slot:header="props">
       <q-tr :props="props">
@@ -42,7 +42,7 @@
     </template>
     <template v-slot:body-cell-active="props">
       <q-td :props="props">
-        <q-toggle v-if="props.readonly" dense :model-value="props.value" disabled/>
+        <q-toggle v-if="readOnly" dense :model-value="props.value" disable/>
         <q-toggle v-else dense :model-value="props.value"
                   @update:model-value="val => handleSetActiveMeasurement(val, props.row)"/>
       </q-td>
@@ -91,6 +91,7 @@ import {usePlateStore} from "@/stores/plate";
 const store = useStore();
 const router = useRouter();
 const props = defineProps({ plate: Object, readOnly: Boolean });
+const readOnly = ref(props.readOnly)
 
 const columns = [
   {name: 'active', align: 'left', label: 'Active?', field: row => (row.active === undefined) ? false : row.active, sortable: true},

@@ -20,13 +20,13 @@
             </q-field>
             <q-field label="Description" stack-label borderless dense>
               <template v-slot:control>
-                <EditableField :object="plateStore.plate" fieldName="description" :read-only="plateStore.isApproved"
+                <EditableField :object="plateStore.plate" fieldName="description" :read-only="readOnly"
                                @valueChanged="onDescriptionChanged"/>
               </template>
             </q-field>
             <q-field label="Tags" stack-label dense borderless>
               <template v-slot:control>
-                <tag-list :tags="plateStore.plate.tags" :read-only="plateStore.isApproved"
+                <tag-list :tags="plateStore.plate.tags" :read-only="readOnly"
                           @addTag="onAddTag" @removeTag="onRemoveTag"
                           class="q-pt-xs"/>
               </template>
@@ -52,11 +52,11 @@
           </div>
 
           <div class="col-4">
-            <PropertyTable :properties="plateStore.plate.properties" :read-only="plateStore.isApproved"
+            <PropertyTable :properties="plateStore.plate.properties" :read-only="readOnly"
                            @addProperty="onAddProperty" @removeProperty="onRemoveProperty"/>
           </div>
 
-          <div class="col-2" v-if="!plateStore.isApproved">
+          <div class="col-2" v-if="!readOnly">
             <div class="row justify-end">
               <q-btn size="sm" icon="edit" label="Rename" class="oa-action-button" @click="showRenameDialog = true"/>
             </div>
@@ -93,7 +93,7 @@
               <WellList :plate="plateStore.plate" :wells="plateStore.wells"/>
             </q-tab-panel>
             <q-tab-panel name="measurements" icon="view_module" label="Layout" class="q-px-none">
-              <MeasList :plate="plateStore.plate" :read-only="plateStore.isApproved"/>
+              <MeasList :plate="plateStore.plate" :read-only="readOnly"/>
             </q-tab-panel>
             <q-tab-panel name="results" class="q-px-none">
               <ResultSetList :plate="plateStore.plate"/>
@@ -162,6 +162,8 @@ const height = ref(400)
 const width = ref(500)
 const curves = ref([])
 const update = ref(Date.now())
+
+const readOnly = ref(plateStore.isApproved || experimentStore.isClosed)
 
 const drcViewPane = ref()
 const showDRCViewPane = ref(false)
