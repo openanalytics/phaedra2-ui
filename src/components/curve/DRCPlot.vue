@@ -1,6 +1,7 @@
 <script setup>
 import {onMounted, onUpdated, ref, watch} from "vue"
 import Plotly from "plotly.js-cartesian-dist-min"
+import ArrayUtils from "@/lib/ArrayUtils";
 
 const props = defineProps(['width', 'height', 'curves', 'update'])
 const curve = ref(null)
@@ -15,7 +16,41 @@ const updateDRCPlotView = () => {
     showlegend: true,
     legend: { x: 1, y: 0.5},
     width: curve.value.parentElement.offsetWidth > 0 ? curve.value.parentElement.offsetWidth : props.width,
-    height: props.height
+    height: props.height,
+  }
+
+  if (props.curves.length === 1) {
+    const top = props.curves[0].curveProperties.find(cProp => cProp.name == "Top").numericValue
+    const bottom = props.curves[0].curveProperties.find(cProp => cProp.name == "Bottom").numericValue
+    const minX = ArrayUtils.firstElement(props.curves[0].plotDoseData)
+    const maxX = ArrayUtils.lastElement(props.curves[0].plotDoseData)
+
+    layout['shapes'] = [
+      {
+        type: 'line',
+        x0: minX,
+        x1: maxX,
+        y0: top,
+        y1: top,
+        line: {
+          color: 'rgb(255, 0, 0)',
+          width: 4,
+          dash: 'dot'
+        }
+      },
+      {
+        type: 'line',
+        x0: minX,
+        x1: maxX,
+        y0: bottom,
+        y1: bottom,
+        line: {
+          color: 'rgb(0, 255, 0)',
+          width: 4,
+          dash: 'dot'
+        }
+      },
+    ]
   }
 
   if (props.curves?.length > 0) {
@@ -49,16 +84,17 @@ const updateDRCPlotView = () => {
         showlegend: false,
         legendgroup: `${value.substanceName} (${value.featureId})`,
       }
+
       return {"substanceName": value.substanceName, "curve": curve, "datapoints": datapoints}
     })
 
     const line = curveData.map(cData => cData.curve)
     const scatter = curveData.map(cData => cData.datapoints)
-    const data = line.concat(scatter)
-    Plotly.newPlot(curve?.value, data, layout, config)
+    const data = ref(line.concat(scatter))
+    Plotly.newPlot(curve?.value, data.value, layout, config)
   } else {
     const data = []
-    Plotly.newPlot(curve?.value, data, layout, config)
+    Plotly.newPlot(curve?.value, data.value, layout, config)
   }
 }
 

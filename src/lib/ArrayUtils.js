@@ -51,10 +51,22 @@ const groupItems = (array, groupSize)  => {
     return result;
 }
 
+const firstElement = (array) => {
+    if (array && array.length > 0) return array[0]
+    else return undefined
+}
+
+const lastElement = (array) => {
+    if (array && array.length > 0) return array[array.length - 1]
+    else return undefined
+}
+
 export default {
     groupBy,
     sortBy,
     mergeBy,
     distinctBy,
-    groupItems
+    groupItems,
+    firstElement,
+    lastElement
 }
