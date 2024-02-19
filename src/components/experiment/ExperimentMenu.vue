@@ -16,91 +16,91 @@
           </q-item-section>
           <q-item-section>Set Plate Layout</q-item-section>
         </q-item>
-        <q-item dense clickable @click="calculatePlates">
-          <q-item-section avatar>
-            <q-icon name="calculate"/>
-          </q-item-section>
-          <q-item-section>(Re)Calculate Plate(s)</q-item-section>
-        </q-item>
+<!--        <q-item dense clickable @click="calculatePlates">-->
+<!--          <q-item-section avatar>-->
+<!--            <q-icon name="calculate"/>-->
+<!--          </q-item-section>-->
+<!--          <q-item-section>(Re)Calculate Plate(s)</q-item-section>-->
+<!--        </q-item>-->
       </div>
 
-      <q-separator/>
+<!--      <q-separator/>-->
 
-      <!-- Charts -->
-      <q-item dense clickable>
-        <q-item-section avatar>
-          <q-icon name="insert_chart"/>
-        </q-item-section>
-        <q-item-section>Charts</q-item-section>
-        <q-item-section side>
-          <q-icon name="keyboard_arrow_right"/>
-        </q-item-section>
-        <q-menu>
-          <q-list>
-            <q-item dense clickable @click="chart('plate_trend', props.experiment.id)" v-close-popup>
-              <q-item-section avatar>
-                <q-icon name="timeline"/>
-              </q-item-section>
-              <q-item-section>Plate Trend</q-item-section>
-            </q-item>
-            <q-item dense clickable @click="chart('box', props.experiment.id)" v-close-popup>
-              <q-item-section avatar>
-                <q-icon name="candlestick_chart"/>
-              </q-item-section>
-              <q-item-section>Plate Boxplot</q-item-section>
-            </q-item>
+<!--      &lt;!&ndash; Charts &ndash;&gt;-->
+<!--      <q-item dense clickable>-->
+<!--        <q-item-section avatar>-->
+<!--          <q-icon name="insert_chart"/>-->
+<!--        </q-item-section>-->
+<!--        <q-item-section>Charts</q-item-section>-->
+<!--        <q-item-section side>-->
+<!--          <q-icon name="keyboard_arrow_right"/>-->
+<!--        </q-item-section>-->
+<!--        <q-menu>-->
+<!--          <q-list>-->
+<!--            <q-item dense clickable @click="chart('plate_trend', props.experiment.id)" v-close-popup>-->
+<!--              <q-item-section avatar>-->
+<!--                <q-icon name="timeline"/>-->
+<!--              </q-item-section>-->
+<!--              <q-item-section>Plate Trend</q-item-section>-->
+<!--            </q-item>-->
+<!--            <q-item dense clickable @click="chart('box', props.experiment.id)" v-close-popup>-->
+<!--              <q-item-section avatar>-->
+<!--                <q-icon name="candlestick_chart"/>-->
+<!--              </q-item-section>-->
+<!--              <q-item-section>Plate Boxplot</q-item-section>-->
+<!--            </q-item>-->
 
-            <q-separator/>
+<!--            <q-separator/>-->
 
-            <q-item dense clickable @click="chart('scatter', props.experiment.id)" v-close-popup>
-              <q-item-section avatar>
-                <q-icon name="scatter_plot"/>
-              </q-item-section>
-              <q-item-section>Well 2D Scatter Plot</q-item-section>
-            </q-item>
-            <q-item dense clickable @click="chart('histogram', props.experiment.id)">
-              <q-item-section avatar>
-                <q-icon name="bar_chart"/>
-              </q-item-section>
-              <q-item-section>Well 1D Histogram</q-item-section>
-            </q-item>
-          </q-list>
-        </q-menu>
-      </q-item>
+<!--            <q-item dense clickable @click="chart('scatter', props.experiment.id)" v-close-popup>-->
+<!--              <q-item-section avatar>-->
+<!--                <q-icon name="scatter_plot"/>-->
+<!--              </q-item-section>-->
+<!--              <q-item-section>Well 2D Scatter Plot</q-item-section>-->
+<!--            </q-item>-->
+<!--            <q-item dense clickable @click="chart('histogram', props.experiment.id)">-->
+<!--              <q-item-section avatar>-->
+<!--                <q-icon name="bar_chart"/>-->
+<!--              </q-item-section>-->
+<!--              <q-item-section>Well 1D Histogram</q-item-section>-->
+<!--            </q-item>-->
+<!--          </q-list>-->
+<!--        </q-menu>-->
+<!--      </q-item>-->
 
-      <q-separator/>
+<!--      <q-separator/>-->
 
-      <q-item dense clickable>
-        <q-item-section avatar>
-          <q-icon name="save_alt"/>
-        </q-item-section>
-        <q-item-section>Export</q-item-section>
-        <q-item-section side>
-          <q-icon name="keyboard_arrow_right"/>
-        </q-item-section>
-        <q-menu>
-          <q-list>
-<!--            <q-item dense clickable @click="showExportPlateListDialog = true">-->
+<!--      <q-item dense clickable>-->
+<!--        <q-item-section avatar>-->
+<!--          <q-icon name="save_alt"/>-->
+<!--        </q-item-section>-->
+<!--        <q-item-section>Export</q-item-section>-->
+<!--        <q-item-section side>-->
+<!--          <q-icon name="keyboard_arrow_right"/>-->
+<!--        </q-item-section>-->
+<!--        <q-menu>-->
+<!--          <q-list>-->
+<!--&lt;!&ndash;            <q-item dense clickable @click="showExportPlateListDialog = true">&ndash;&gt;-->
+<!--&lt;!&ndash;              <q-item-section avatar>&ndash;&gt;-->
+<!--&lt;!&ndash;                <q-icon name="save_alt"/>&ndash;&gt;-->
+<!--&lt;!&ndash;              </q-item-section>&ndash;&gt;-->
+<!--&lt;!&ndash;              <q-item-section>Export Plate List</q-item-section>&ndash;&gt;-->
+<!--&lt;!&ndash;            </q-item>&ndash;&gt;-->
+<!--            <q-item dense clickable >-->
 <!--              <q-item-section avatar>-->
 <!--                <q-icon name="save_alt"/>-->
 <!--              </q-item-section>-->
-<!--              <q-item-section>Export Plate List</q-item-section>-->
+<!--              <q-item-section>Export Well Data</q-item-section>-->
 <!--            </q-item>-->
-            <q-item dense clickable >
-              <q-item-section avatar>
-                <q-icon name="save_alt"/>
-              </q-item-section>
-              <q-item-section>Export Well Data</q-item-section>
-            </q-item>
-            <q-item dense clickable >
-              <q-item-section avatar>
-                <q-icon name="save_alt"/>
-              </q-item-section>
-              <q-item-section>Export Subwell Data</q-item-section>
-            </q-item>
-          </q-list>
-        </q-menu>
-      </q-item>
+<!--            <q-item dense clickable >-->
+<!--              <q-item-section avatar>-->
+<!--                <q-icon name="save_alt"/>-->
+<!--              </q-item-section>-->
+<!--              <q-item-section>Export Subwell Data</q-item-section>-->
+<!--            </q-item>-->
+<!--          </q-list>-->
+<!--        </q-menu>-->
+<!--      </q-item>-->
 
       <q-separator/>
 
@@ -152,7 +152,7 @@ const openDeleteDialog = () => {
   showDeleteDialog.value = true;
 }
 
-const openLinkPlateDialog = () => {
+const openLinkPlateDialog = () =>  {
   showLinkPlateDialog.value = true
 }
 
