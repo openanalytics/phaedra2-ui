@@ -41,7 +41,8 @@ export default {
     },
     async postMessage(message) {
         const response = await axios.post(apiURL + '/pipeline-admin/message', message.body, {
-            params: { topic: message.topic, key: message.key }
+            params: { topic: message.topic, key: message.key },
+            headers: { 'Content-Type': 'application/json' }
         });
         if (response.status === 200) return response.data;
     },
