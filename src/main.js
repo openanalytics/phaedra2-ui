@@ -102,6 +102,7 @@ import PipelineDetails from "@/pages/pipeline/PipelineDetails.vue"
 import NewPipeline from "@/pages/pipeline/NewPipeline.vue"
 import BrowsePipelineExecutions from "@/pages/pipeline/BrowsePipelineExecutions.vue"
 import PipelineExecutionDetails from "@/pages/pipeline/PipelineExecutionDetails.vue"
+import PipelineAdmin from "@/pages/pipeline/PipelineAdmin.vue"
 
 const routes = createRouter({
     history: createWebHistory(publicPath),
@@ -170,7 +171,8 @@ const routes = createRouter({
             name: "pipelineExecutionDetails",
             path: "/pipeline-execution/:id",
             component: PipelineExecutionDetails
-        }
+        },
+        {name: "pipelineAdmin", path: "/pipeline-admin", component: PipelineAdmin},
     ]
 })
 app.use(routes)

@@ -39,4 +39,10 @@ export default {
         const response = await axios.put(apiURL + '/pipeline-executions/' + id + '/cancel');
         if (response.status === 200) return response.data;
     },
+    async postMessage(message) {
+        const response = await axios.post(apiURL + '/pipeline-admin/message', message.body, {
+            params: { topic: message.topic, key: message.key }
+        });
+        if (response.status === 200) return response.data;
+    },
 }
