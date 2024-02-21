@@ -2,30 +2,38 @@
   <div class="q-pa-xs">
     <div class="q-pa-xs oa-section-body">
       <div class="col-12 q-mb-sm">
-        <div v-if="tab==='overview'">
-          <q-checkbox dense v-model="skipped" label="Skip Wells" @update:model-value="updateSkipped"/>
-          <q-icon name="info" color="primary" class="q-pl-md">
-            <q-tooltip>These wells will be skipped when applying the template to a plate</q-tooltip>
-          </q-icon>
-        </div>
-        <div v-if="tab==='well-type'" class="row items-center">
-          <q-select v-model="selectedType" :options="wellTypes" class="col-4" dense/>
-          <q-btn label="Apply" @click="updateWellType" class="oa-action-button col-1" size="sm" dense/>
-        </div>
-        <div v-if="tab==='substance'" class="row items-center">
-            <q-input v-model="substanceType" label="Substance Type" class="col-4" dense />
+          <div v-if="tab==='overview'" class="row items-center">
+            <q-checkbox dense v-model="skipped" label="Skip Wells" @update:model-value="updateSkipped"/>
+            <q-icon name="info" color="primary" class="q-pl-md">
+              <q-tooltip>These wells will be skipped when applying the template to a plate</q-tooltip>
+            </q-icon>
+            <q-space/>
+            <q-btn v-if="templateStore.isUpdated" icon="save" class="oa-action-button" label="Save" @click="savePlateTemplate" size="sm" dense/>
+          </div>
+          <div v-if="tab==='well-type'" class="row items-center">
+            <q-select v-model="selectedType" :options="wellTypes" class="col-4" dense/>
+            <q-btn label="Apply" @click="updateWellType" class="oa-action-button col-1" size="sm" dense/>
+            <q-space/>
+            <q-btn v-if="templateStore.isUpdated" icon="save" class="oa-action-button" label="Save" @click="savePlateTemplate" size="sm" dense/>
+          </div>
+          <div v-if="tab==='substance'" class="row items-center">
+            <q-input v-model="substanceType" label="Substance Type" class="col-4" dense/>
             <q-btn label="Apply" @click="updateSubstanceType" class="oa-action-button col-1" size="sm" dense/>
             <q-space/>
-            <q-input v-model="substanceName" label="Substance Name" class="col-4" dense />
+            <q-input v-model="substanceName" label="Substance Name" class="col-4" dense/>
             <q-btn label="Apply" @click="updateSubstanceName" class="oa-action-button col-1" size="sm" dense/>
-        </div>
-        <div v-if="tab==='concentration'" class="row items-center">
-            <q-input v-model="concentration" label="Concentration" class="col-4" dense />
+            <q-space/>
+            <q-btn v-if="templateStore.isUpdated" icon="save" class="oa-action-button" label="Save" @click="savePlateTemplate" size="sm" dense/>
+          </div>
+          <div v-if="tab==='concentration'" class="row items-center">
+            <q-input v-model="concentration" label="Concentration" class="col-4" dense/>
             <q-btn label="Apply" icon="check" @click="updateConcentration" class="oa-action-button col-1" size="sm" dense/>
-            <q-icon name="info" color="primary" class="q-pl-md">
+            <q-icon name="info" color="primary">
               <q-tooltip>In Molar (M), for example: 1E-6.</q-tooltip>
             </q-icon>
-        </div>
+            <q-space/>
+            <q-btn v-if="templateStore.isUpdated" icon="save" class="oa-action-button" label="Save" @click="savePlateTemplate" size="sm" dense/>
+          </div>
       </div>
     </div>
   </div>
@@ -92,6 +100,10 @@ const getSelectedWellValue = (property) => {
     return null
 
   return firstVal
+}
+
+const savePlateTemplate = () => {
+  templateStore.saveTemplate()
 }
 
 watch(() => props.update, () => {

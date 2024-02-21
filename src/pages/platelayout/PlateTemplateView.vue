@@ -62,10 +62,6 @@
 
           <div class="col-2">
             <div class="row justify-end action-button">
-              <q-btn size="sm" icon="save" class="oa-action-button" label="Save"
-                     @click="savePlateTemplate"/>
-            </div>
-            <div class="row justify-end action-button">
               <q-btn size="sm" icon="edit" class="oa-action-button" label="Rename" @click="showRenameDialog = true"/>
             </div>
             <div class="row justify-end action-button">
@@ -140,9 +136,6 @@ const showDeleteDialog = ref(false)
 const templateId = parseInt(route.params.id);
 templateStore.loadTemplate(templateId)
 
-const savePlateTemplate = () => {
-  templateStore.saveTemplate()
-}
 const showRenameDialog = ref(false)
 const onNameChanged = async (newTemplateName) => {
   await templateStore.renameTemplate(newTemplateName)

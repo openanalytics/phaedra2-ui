@@ -6,8 +6,14 @@ import projectsGraphQlAPI from "@/api/graphql/projects";
 
 export const useTemplateStore = defineStore("template", {
     state: () => ({
-        template: null
+        template: null,
+        updated: false
     }),
+    getters: {
+        isUpdated: (state) => {
+            return state.updated
+        }
+    },
     actions: {
         loadTemplate(templateId) {
             const {onResult, onError} = templatesGraphQlAPI.templateById(templateId)
@@ -24,6 +30,7 @@ export const useTemplateStore = defineStore("template", {
         async saveTemplate()  {
             await templateAPI.editPlateTemplate(this.template)
             await this.reloadTemplate()
+            this.updated = false
         },
         async renameTemplate(newTemplateName) {
             await templateAPI.editPlateTemplate({id: this.template.id, name: newTemplateName})
@@ -36,17 +43,18 @@ export const useTemplateStore = defineStore("template", {
         async updateTemplateWell(well, property, value) {
             const index = this.template.wells.findIndex((w ) => (w.row === well.row && w.column === well.column))
             this.template.wells[index][property] = value
+            this.updated = true
         },
         async updateTemplateWells(wells, property, value) {
             wells.forEach(w => this.updateTemplateWell(w, property, value))
         },
         async addTag(newTag) {
             await metadataAPI.addTag({'objectId': this.template.id, 'objectClass': 'PLATE_TEMPLATE', 'tag': newTag})
-            await this.loadTemplate(this.template.id)
+            await this.reloadTemplate()
         },
         async deleteTag(tag) {
             await metadataAPI.removeTag({'objectId': this.template.id, 'objectClass': 'PLATE_TEMPLATE', 'tag': tag })
-            await this.loadTemplate(this.template.id)
+            await this.reloadTemplate()
         },
         async addPropertty(newProperty) {
             await metadataAPI.addProperty({
@@ -55,7 +63,7 @@ export const useTemplateStore = defineStore("template", {
                 propertyName: newProperty.name,
                 propertyValue: newProperty.value
             })
-            await this.loadTemplate(this.template.id)
+            await this.reloadTemplate()
         },
         async deleteProperty(property) {
             await metadataAPI.removeProperty({
@@ -63,7 +71,7 @@ export const useTemplateStore = defineStore("template", {
                 objectClass: 'PLATE_TEMPLATE',
                 propertyName: property.propertyName
             })
-            await this.loadTemplate(this.template.id)
+            await this.reloadTemplate()
         }
     }
 })
