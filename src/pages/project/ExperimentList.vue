@@ -45,7 +45,7 @@
       </template>
       <template v-slot:header="props">
         <q-tr :props="props">
-          <q-th v-for="col in props.cols" :key="col.name" :props="props">
+          <q-th v-for="col in props.cols" :key="col.name" :props="props" auto-width>
             {{col.label}}
           </q-th>
         </q-tr>

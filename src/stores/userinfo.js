@@ -10,6 +10,12 @@ export const useUserInfoStore = defineStore("userinfo" , {
     getters: {
         isAdmin: state => {
             return state.userInfo.admin
+        },
+        getUserName: state => (id) => {
+            const userName = state.userNames[id];
+            if (userName) return userName;
+            if (id.includes(":")) return id.substring(id.lastIndexOf(":") + 1).toLowerCase();
+            return "Unknown";
         }
     },
     actions: {
