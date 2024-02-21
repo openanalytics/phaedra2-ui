@@ -32,30 +32,17 @@
 
 <script setup>
 
-import {computed, ref} from "vue";
+import {computed, onUpdated, ref} from "vue";
 import {useStore} from "vuex";
 import ProtocolSelectableList from "@/components/protocol/ProtocolSelectableList";
 import {useCalcStore} from "@/stores/calculations";
 import projectsGraphQlAPI from "@/api/graphql/projects";
-import {usePlateStore} from "@/stores/plate";
 
 const props = defineProps(['show', 'plate']);
 const emits = defineEmits(['update:show']);
 
 const store = useStore();
 const calculationStore = useCalcStore()
-const plate = ref(props.plate)
-
-const activeMeasurement = ref({})
-
-//TODO: Improve this solution!
-if (props.plate.id) {
-  const {onResult, onError} = projectsGraphQlAPI.activeMeasurementByPlateId(props.plate.id)
-  onResult(({data}) => activeMeasurement.value = data.plateMeasurement)
-} else {
-  const plateStore = usePlateStore()
-  plate.value = plateStore.plate
-}
 
 const showDialog = computed({
     get: () => props.show,
@@ -63,19 +50,29 @@ const showDialog = computed({
 });
 
 const selected = ref([]);
+const activeMeasurement = ref({})
+
+onUpdated(() => {
+  const {onResult, onError} = projectsGraphQlAPI.activeMeasurementByPlateId(props.plate.id)
+  onResult(({data}) => {
+    activeMeasurement.value = data.plateMeasurement
+  })
+  console.log("On update Calculate plate dialog!! ")
+})
 
 const calculatePlate = () => {
   calculationStore.startCalculation({
-    protocolId: selected.value[0].id,
-    plateId: Number.parseInt(plate.value.id),
-    measId: activeMeasurement.value.measurementId
+    protocolId: Number.parseInt(selected.value[0].id),
+    plateId: Number.parseInt(props.plate.id),
+    measId: Number.parseInt(activeMeasurement.value.measurementId)
   })
+
   emits('update:show', false);
 };
 
 const checkDimensions = () => {
     if (activeMeasurement.value) {
-        return activeMeasurement.value.rows === plate.value.rows && activeMeasurement.value.columns === plate.value.columns;
+        return activeMeasurement.value.rows === props.plate.rows && activeMeasurement.value.columns === props.plate.columns;
     }
     return true;
 };
