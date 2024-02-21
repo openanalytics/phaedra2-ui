@@ -2,6 +2,7 @@ import { defineStore } from "pinia"
 import templateAPI from  "@/api/templates.js"
 import templatesGraphQlAPI from '@/api/graphql/templates'
 import metadataAPI from "@/api/metadata";
+import projectsGraphQlAPI from "@/api/graphql/projects";
 
 export const useTemplateStore = defineStore("template", {
     state: () => ({
@@ -14,15 +15,23 @@ export const useTemplateStore = defineStore("template", {
                 this.template = data.plateTemplate
             })
         },
+        async reloadTemplate() {
+            const {onResult, onError} = templatesGraphQlAPI.templateById(this.template.id)
+            onResult(({data}) => {
+                this.template = data.plateTemplate
+            })
+        },
         async saveTemplate()  {
             await templateAPI.editPlateTemplate(this.template)
-            this.loadTemplate(this.template.id)
+            await this.reloadTemplate()
         },
         async renameTemplate(newTemplateName) {
-            this.template.name = newTemplateName
+            await templateAPI.editPlateTemplate({id: this.template.id, name: newTemplateName})
+            await this.reloadTemplate()
         },
         async editTemplateDescription(newDescription) {
-            this.template.description = newDescription
+            await templateAPI.editPlateTemplate({id: this.template.id, description: newDescription})
+            await this.reloadTemplate()
         },
         async updateTemplateWell(well, property, value) {
             const index = this.template.wells.findIndex((w ) => (w.row === well.row && w.column === well.column))
