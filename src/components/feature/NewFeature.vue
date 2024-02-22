@@ -23,7 +23,16 @@
         <q-tab-panel name="calculation" label="calculation" class="q-pa-md">
           <div class="q-pa-xs col">
             <q-select v-model="selectedFormula" label="Formula" stack-label dense
-                      :options="formulas" option-value="id" option-label="name" @update:model-value="onFormulaSelection"/>
+                      :options="formulas" option-value="id" option-label="name" @update:model-value="onFormulaSelection">
+              <template v-slot:option="scope">
+                <q-item v-bind="scope.itemProps">
+                  <q-item-section>
+                    <q-item-label>{{ scope.opt.name }}</q-item-label>
+                    <q-item-label caption>{{ scope.opt.versionNumber }}</q-item-label>
+                  </q-item-section>
+                </q-item>
+              </template>
+            </q-select>
             <div v-if="(variables.list.length > 0)">
               <div>
                 <q-field label="Formula variables:" stack-label borderless dense class="q-pt-sm">
