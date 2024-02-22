@@ -1,5 +1,5 @@
 import {defineStore} from "pinia"
-import calculationsAPI from "@/api/calculations";
+import {useFormulasStore} from "@/stores/formulas";
 
 export const useFeatureStore = defineStore("feature", {
     state: () => ({
@@ -7,8 +7,10 @@ export const useFeatureStore = defineStore("feature", {
     }),
     actions: {
         async loadFeature(feature) {
+            const formulaStore = useFormulasStore()
+
             this.feature = feature;
-            this.feature["formula"] = await calculationsAPI.getFormula(feature.formulaId)
+            this.feature["formula"] = formulaStore.getFormulaById(Number.parseInt(feature.formulaId))
         },
         reset() {
             this.feature = {}

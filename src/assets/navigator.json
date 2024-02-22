@@ -23,6 +23,24 @@
     ]
   },
   {
+    "label": "Plate Layouts",
+    "header": "category",
+    "icon": "border_all",
+    "role": "user",
+    "children": [
+      {
+        "label": "New Template...",
+        "icon": "add",
+        "route": "newPlateTemplate"
+      },
+      {
+        "label": "Browse Templates",
+        "icon": "border_outer",
+        "route": "browseTemplates"
+      }
+    ]
+  },
+  {
     "label": "Calculation",
     "header": "category",
     "icon": "calculate",
@@ -41,24 +59,6 @@
         "label": "Browse Formulas",
         "icon": "functions",
         "route": "calcFormulas"
-      }
-    ]
-  },
-  {
-    "label": "Plate Layouts",
-    "header": "category",
-    "icon": "border_all",
-    "role": "user",
-    "children": [
-      {
-        "label": "New Template...",
-        "icon": "add",
-        "route": "newPlateTemplate"
-      },
-      {
-        "label": "Browse Templates",
-        "icon": "border_outer",
-        "route": "browseTemplates"
       }
     ]
   },

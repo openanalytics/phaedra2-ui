@@ -10,7 +10,7 @@
           </q-field>
           <q-field label="Description" stack-label borderless dense>
             <template v-slot:control>
-              <div class="self-center full-width no-outline">{{ protocolStore.protocol.description }}</div>
+              <EditableField :object="protocolStore.protocol" fieldName="description" @valueChanged="onDescriptionChanged"/>
             </template>
           </q-field>
           <q-field label="Version" stack-label borderless dense>
@@ -56,13 +56,10 @@
 
         <div class="col-2">
           <div class="row justify-end action-button">
-            <q-btn size="sm" icon="edit" class="oa-button" label="Edit" @click="$emit('editMode', true)"/>
+            <q-btn size="sm" icon="edit" class="oa-action-button" label="Rename" @click="showRenameDialog = true"/>
           </div>
           <div class="row justify-end action-button">
-            <q-btn size="sm" icon="import_export" class="oa-button" label="Export" @click="exportToJson(protocolId)"/>
-          </div>
-          <div class="row justify-end action-button">
-            <q-btn size="sm" icon="delete" class="oa-button" label="Delete" @click="openDeleteDialog"/>
+            <q-btn size="sm" icon="delete" class="oa-action-button" label="Delete" @click="openDeleteDialog"/>
           </div>
         </div>
       </div>
@@ -73,11 +70,8 @@
     </div>
   </div>
 
-  <DeleteDialog v-if="protocolStore.protocol"
-                :id="protocolStore.protocol.id"
-                :name="protocolStore.protocol.name"
-                :objectClass="'protocol'"
-                v-model:show="showDialog"/>
+  <rename-dialog v-model:show="showRenameDialog" objectClass="protocol" fieldName="name" :object="protocolStore.protocol" @valueChanged="onNameChanged"/>
+  <delete-dialog v-if="protocolStore.protocol" :id="protocolStore.protocol.id" :name="protocolStore.protocol.name" :objectClass="'protocol'" v-model:show="showDialog"/>
 </template>
 
 <style scoped lang="scss">
@@ -97,6 +91,8 @@
   import UserChip from "@/components/widgets/UserChip";
   import {useProtocolStore} from "@/stores/protocol";
   import TagList from "@/components/tag/TagList.vue";
+  import EditableField from "@/components/widgets/EditableField.vue";
+  import RenameDialog from "@/components/widgets/RenameDialog.vue";
 
   const props = defineProps(['editMode']);
   const emit = defineEmits(['editMode']);
@@ -108,6 +104,15 @@
 
   const exportToJson = (id) => {
     store.dispatch('protocols/downloadAsJson', id);
+  }
+
+  const showRenameDialog = ref(false)
+  const onNameChanged = async (newProtocolName) => {
+    await protocolStore.renameProtocol(newProtocolName)
+  }
+
+  const onDescriptionChanged = async (newDescription) => {
+    await protocolStore.editProtocolDescription(newDescription)
   }
 
   const openDeleteDialog = () => {

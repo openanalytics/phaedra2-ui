@@ -6,8 +6,7 @@
   </q-breadcrumbs>
 
   <q-page class="oa-root-div" v-if="protocolStore.protocol">
-    <ViewProtocol v-if="!editMode" :editMode ="editMode" @editMode="setEditMode"/>
-    <EditProtocol v-if="editMode" :editMode="editMode" @editMode="setEditMode" @saveChanges="saveChanges"/>
+    <ViewProtocol/>
   </q-page>
 </template>
 
@@ -32,15 +31,6 @@ onMounted(() => {
 })
 
 const editMode = ref(false)
-const setEditMode = (input) => {
-  editMode.value = input
-}
-
-const saveChanges = () => {
-  protocolStore.saveProtocol().then(() => {
-    console.info("Protocol saved successfully!!")
-  })
-}
 
 const resetStores = () => {
   protocolStore.$reset()

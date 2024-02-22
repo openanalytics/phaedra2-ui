@@ -71,7 +71,7 @@
 
       <div class="row col-12 justify-end">
         <div class="q-pa-md">
-          <q-btn flat label="Cancel" class="on-left" color="primary" @click="$emit('update:show',false)"/>
+          <q-btn flat label="Cancel" class="on-left" color="primary" @click="cancel"/>
           <q-btn label="Apply" v-close-popup color="primary" @click="addFeature"/>
         </div>
       </div>
@@ -89,7 +89,7 @@
   const formulasStore = useFormulasStore()
 
   const props = defineProps(['show', 'protocol'])
-  const emit = defineEmits(['update:show', 'addFeature'])
+  const emit = defineEmits(['update:show', 'createFeature'])
 
   const newFeature = ref({
     name: null,
@@ -98,7 +98,7 @@
     format: null,
     type: 'CALCULATION',
     sequence: 0,
-    protocolId: props.protocol.id ? props.protocol.id : null,
+    protocolId: null,
     formulaId: null,
     drcModel: null,
     civs: null,
@@ -123,13 +123,6 @@
     }
 
     newFeature.value.drcModel.inputParameters = selected.inputParameters.map(inParam => inParam.type === 'boolean' ? {"name": inParam.name, "value": false} : {"name": inParam.name, "value": null})
-    // for (let i in selected.inputParameters) {
-    //   const input = selected.inputParameters[i]
-    //   if (input.type === 'boolean')
-    //     newFeature.value.drcModel.inputParameters[i] = {"name": selected.inputParameters[i].name, "value": false}
-    //   else
-    //     newFeature.value.drcModel.inputParameters[i] = {"name": selected.inputParameters[i].name, "value": ""}
-    // }
     console.log("newFeature.drcModel: " + JSON.stringify(newFeature.value.drcModel))
   }
 
@@ -139,8 +132,11 @@
       ...selectedFormula.value
     }
     newFeature.value.civs = variables.list
-    protocolStore.addFeature(newFeature.value)
-    emit('update:show', false)
+    emit('createFeature', newFeature.value)
+  }
+
+  const cancel = () => {
+    emit('cancel')
   }
 
   const availableFeatures = (feature) => {

@@ -5,8 +5,14 @@ import metadataAPI from "@/api/metadata";
 
 export const useProtocolStore = defineStore("protocol",  {
     state: () => ({
-        protocol: {}
+        protocol: {},
+        updated: false
     }),
+    getters: {
+      isUpdated: (state) => {
+          return state.updated
+      }
+    },
     actions: {
         async loadProtocol(protocolId) {
             const {onResult, onError} = protocolGraphQLAPI.protocolById(protocolId)
@@ -16,20 +22,38 @@ export const useProtocolStore = defineStore("protocol",  {
         },
         async reloadProtocol() {
             await this.loadProtocol(this.protocol.id)
-        },
-        async reloadMetaData() {
-            const {onResult, onError} = protocolGraphQLAPI.protocolById(this.protocol.id)
-            onResult(({data}) => {
-                this.protocol.tags = data.protocol.tags
-                this.protocol.properties = data.protocol.properties
-            })
+            this.updated = false
         },
         async saveProtocol() {
-            protocolAPI.editProtocol(this.protocol).then(() => this.reloadProtocol())
+            await protocolAPI.editProtocol(this.protocol)
+            await this.reloadProtocol()
+            this.updated = false
+        },
+        async renameProtocol(newProtocolName) {
+            await protocolAPI.editProtocol({ id: this.protocol.id, name: newProtocolName })
+            await this.reloadProtocol()
+        },
+        async editProtocolDescription(newDescription) {
+            await protocolAPI.editProtocol({ id: this.protocol.id, description: newDescription})
+            await this.reloadProtocol()
+        },
+        async deleteProtocol() {
+            await protocolAPI.deleteProtocol(this.protocol.id)
+            this.reset()
         },
         addFeature(feature) {
-            if (this.protocol.features)
+            if (this.protocol.features) {
+                feature.protocolId = this.protocolId
                 this.protocol.features.push(feature)
+            }
+            this.updated = true
+        },
+        editFeature(feature) {
+            const index = this.protocol.features.findIndex(f => f.id === feature.id)
+            if (index > -1) {
+                this.protocol.features[index] = feature
+                this.updated = true
+            }
         },
         deleteFeature(feature) {
             if (this.protocol.features) {
@@ -37,6 +61,7 @@ export const useProtocolStore = defineStore("protocol",  {
                     return f.id === feature.id && f.name === feature.name && !f.deleted ? f["deleted"] = true : f["deleted"] = false
                 })
             }
+            this.updated = true
         },
         getFeatureById(featureId) {
             return this.protocol.features ? this.protocol.features.find((f) => {return f.id === featureId}) : {}
@@ -46,11 +71,11 @@ export const useProtocolStore = defineStore("protocol",  {
         },
         async addTag(newTag) {
             await metadataAPI.addTag({'objectId': this.protocol.id, 'objectClass': 'PROTOCOL', 'tag': newTag })
-            await this.reloadMetaData()
+            await this.reloadProtocol()
         },
         async deleteTag(tag) {
             await metadataAPI.removeTag({'objectId': this.protocol.id, 'objectClass': 'PROTOCOL', 'tag': tag})
-            await this.reloadMetaData()
+            await this.reloadProtocol()
         },
         async addProperty(newProperty) {
             await metadataAPI.addProperty({
@@ -59,7 +84,7 @@ export const useProtocolStore = defineStore("protocol",  {
                 propertyName: newProperty.name,
                 propertyValue: newProperty.value
             });
-            await this.reloadMetaData()
+            await this.reloadProtocol()
         },
         async deleteProperty(property) {
             await metadataAPI.removeProperty({
@@ -67,10 +92,11 @@ export const useProtocolStore = defineStore("protocol",  {
                 objectClass: 'PROTOCOL',
                 propertyName: property.propertyName
             })
-            await this.reloadMetaData()
+            await this.reloadProtocol()
         },
         reset() {
             this.protocol = {}
+            this.updated = false
         }
     }
 

@@ -91,7 +91,6 @@
                 </q-card-section>
               </q-card>
             </div>
-<!--            <q-select label="Multiplo Method" v-model="selectedDCRModel.multiploMethod"/>-->
           </div>
         </q-tab-panel>
       </q-tab-panels>
@@ -99,7 +98,7 @@
       <div class="row col-12 justify-end">
         <div class="q-pa-md">
           <q-btn flat class="on-left" label="Cancel" color="primary" @click="onCancel"/>
-          <q-btn label="Apply" v-close-popup color="primary" @click="editFeature"/>
+          <q-btn label="Apply" v-close-popup color="primary" @click="updateFeature"/>
         </div>
       </div>
     </div>
@@ -118,19 +117,12 @@ const protocolStore = useProtocolStore();
 const formulasStore = useFormulasStore()
 const featureStore = useFeatureStore()
 
-const props = defineProps(['show'])
-const emit = defineEmits(['update:show'])
+const emit = defineEmits(['updateFeature', 'cancel'])
 
 const activeTab = ref('general');
 
 //TODO fix hardcode
 const inputSource = ['MEASUREMENT_WELL_COLUMN', 'MEASUREMENT_SUBWELL_COLUMN', 'FEATURE']
-const multiploMethod = [{
-  "name": "All Plates",
-  "value": "ALL_PLATES",
-  "description": ""
-}]
-
 const formulaInputs = ref(featureStore.feature.civs)
 const selectedDCRModel = ref(drcModelOptions.find(drcModel => drcModel.name === featureStore.feature.drcModel?.name) ?? "")
 const inputParameters = ref([])
@@ -151,7 +143,6 @@ const onDRCModelSelection = (selected) => {
     "inputParameters": selected.inputParameters,
     "multiploMethod": ""
   }
-
   inputParameters.value = selected.inputParameters
 }
 
@@ -182,8 +173,7 @@ const onFormulaSelection = (args) => {
 }
 
 //Function to fire an edit event of a feature using the working copy
-const editFeature = () => {
-
+const updateFeature = () => {
   featureStore.feature.formulaId = featureStore.feature.formula.id
   featureStore.feature.civs = formulaInputs.value
 
@@ -194,11 +184,11 @@ const editFeature = () => {
     featureStore.feature.drcModel = null;
   }
 
-  emit('update:show', false)
+  emit('updateFeature', featureStore.feature)
 }
 
 const onCancel = () => {
   featureStore.$reset()
-  emit('update:show', false)
+  emit('cancel')
 }
 </script>
