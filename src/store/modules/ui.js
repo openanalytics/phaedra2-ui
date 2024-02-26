@@ -91,27 +91,27 @@ const actions = {
     updateChartViewWidth: (ctx, updates) => {
         ctx.commit('updateChartViewWidth', updates)
     },
-    async updateChartViewXAxisData(ctx, {chartId, plateId, xFeature})  {
-        // TODO:  implement onError handler
-        const {onResult, onError} = resultDataGraphQLAPI.featureValuesByPlateIdAndFeatureId(plateId, xFeature.featureId)
-        onResult(({data}) => {
-            const xValues = data.featureValues
-            ctx.commit('updateChartViewXAxisData', {'chartId': chartId, 'xFeature': xFeature, 'xValues': xValues})
-        })
-    },
-    async updateChartViewYAxisData(ctx, {chartId, plateId, yFeature}) {
-        // TODO:  implement onError handler
-        const {onResult, onError} = resultDataGraphQLAPI.featureValuesByPlateIdAndFeatureId(plateId, yFeature.featureId)
-        onResult(({data}) => {
-            const yValues = data.featureValues
-            ctx.commit('updateChartViewYAxisData', {'chartId': chartId, 'yFeature': yFeature, 'yValues': yValues.value})
-        })
-
-    },
-    //TODO: Add selectSubstance functionupdateChartViewXAxisData
-    selectSubstance: (ctx,  substance) => {
-
-    }
+    // async updateChartViewXAxisData(ctx, {chartId, plateId, xFeature})  {
+    //     // TODO:  implement onError handler
+    //     const {onResult, onError} = resultDataGraphQLAPI.featureValuesByPlateIdAndFeatureId(plateId, xFeature.featureId)
+    //     onResult(({data}) => {
+    //         const xValues = data.featureValues
+    //         ctx.commit('updateChartViewXAxisData', {'chartId': chartId, 'xFeature': xFeature, 'xValues': xValues})
+    //     })
+    // },
+    // async updateChartViewYAxisData(ctx, {chartId, plateId, yFeature}) {
+    //     // TODO:  implement onError handler
+    //     const {onResult, onError} = resultDataGraphQLAPI.featureValuesByPlateIdAndFeatureId(plateId, yFeature.featureId)
+    //     onResult(({data}) => {
+    //         const yValues = data.featureValues
+    //         ctx.commit('updateChartViewYAxisData', {'chartId': chartId, 'yFeature': yFeature, 'yValues': yValues.value})
+    //     })
+    //
+    // },
+    // //TODO: Add selectSubstance functionupdateChartViewXAxisData
+    // selectSubstance: (ctx,  substance) => {
+    //
+    // }
 }
 
 const mutations = {

@@ -53,7 +53,8 @@ const handleRawFeatureSelection = (rawFeature) => {
 
 const handleCalculatedFeatureSelection = (calculatedFeature) => {
   if (calculatedFeature) {
-    const {onResult} = resultDataGraphQlAPI.featureValuesByPlateIdAndFeatureId(plateStore.plate.id, calculatedFeature.featureId)
+    const {onResult} = resultDataGraphQlAPI.featureValuesByPlateIdAndFeatureIdAndMeasurementIdAndProtocolId(plateStore.plate.id,
+        calculatedFeature.featureId, plateStore.activeMeasurement.measurementId, calculatedFeature.protocolId)
     onResult(({data}) => {
       wellData.value = data?.featureValues ? data.featureValues.map(fv => fv.value) : []
     })
