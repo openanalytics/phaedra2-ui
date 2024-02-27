@@ -45,10 +45,10 @@ export default {
             defaultOptions
         ))
     },
-    featureValuesByPlateIdAndFeatureIdAndMeasurementIdAndProtocolId(plateId, featureId, measurementId, protocolId) {
+    featureValuesByPlateIdAndFeatureIdAndProtocolId(plateId, featureId, protocolId) {
         const QUERY = gql`
-            query featureValuesByPlateIdAndFeatureIdAndMeasurementIdAndProtocolId {
-                featureValues:featureValuesByPlateIdAndFeatureIdAndMeasurementIdAndProtocolId (plateId: ${plateId}, featureId: ${featureId}, measurementId: ${measurementId}, protocolId: ${protocolId}) {
+            query featureValuesByPlateIdAndFeatureIdAndProtocolId {
+                featureValues:featureValuesByPlateIdAndFeatureIdAndProtocolId (plateId: ${plateId}, featureId: ${featureId}, protocolId: ${protocolId}) {
                     value
                 }
             }

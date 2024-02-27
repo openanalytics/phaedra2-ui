@@ -72,7 +72,7 @@ const handleCalculatedFeatureSelection = (calculatedFeature) => {
     const plateId = plateDataPerPlate.value[i].plate.id
 
     // TODO: Implement onError handler
-    const {onResult, onError} = resultDataGraphQlAPI.featureValuesByPlateIdAndFeatureIdAndMeasurementIdAndProtocolId(plateId, calculatedFeature.featureId, null, calculatedFeature.protocolId)
+    const {onResult, onError} = resultDataGraphQlAPI.featureValuesByPlateIdAndFeatureIdAndProtocolId(plateId, calculatedFeature.featureId, calculatedFeature.protocolId)
     onResult(({data}) => {
       plateDataPerPlate.value[i].resultData = { values: data?.featureValues ? data.featureValues.map(fv => fv.value) : [] }
     })
