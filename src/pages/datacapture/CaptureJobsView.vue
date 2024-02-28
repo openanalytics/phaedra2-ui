@@ -110,7 +110,7 @@
                   <div class="row">
                     <div class="col-2" />
                     <q-select
-                        v-model="newJob.captureConfigName"
+                        v-model="captureJobConfig.captureConfigName"
                         :options="captureConfigList" option-value="id" option-label="name"
                         @update:model-value="value => selectedConfig = value"
                         dense stack-label class="col-10"/>
@@ -208,7 +208,7 @@ const doShowJobDetails = (job) => {
 
 // Submit new job
 const showSubmitJobDialog = ref(false);
-const newJob = reactive({
+const captureJobConfig = reactive({
   captureConfigName: null,
   captureConfig: null,
   sourcePath: ''
@@ -230,19 +230,31 @@ const cancelJob = (id) => {
   store.dispatch('datacapture/cancelJob', id);
 };
 
-const canSubmitJob = computed(() => (newJob.captureConfigName && (selectedSource.value.url || selectedSource.value.files)));
+const captureJobs = []
+const canSubmitJob = computed(() => (captureJobConfig.captureConfigName && (selectedSource.value.url || selectedSource.value.files)));
 const submitJobAction = async () => {
+  captureJobConfig.captureConfig = selectedConfig.value?.value;
+
   if (selectedSource.value.url) {
-    newJob.sourcePath = selectedSource.value.url;
+    const urlCaptureJob = {...captureJobConfig}
+    urlCaptureJob.sourcePath = selectedSource.value.url
+    captureJobs.push(urlCaptureJob)
   } else {
-    newJob.sourcePath = selectedSource.value.folderName;
-    newJob.files = selectedSource.value.files;
+    if (selectedSource.value.files) {
+      for (let i = 0; i < selectedSource.value.files.length; i++) {
+        const fileCaptureJob = {...captureJobConfig}
+        fileCaptureJob.sourcePath = selectedSource.value.folderName + "/" + selectedSource.value.files[i].name;
+        fileCaptureJob.files = selectedSource.value.files[i];
+        captureJobs.push(fileCaptureJob)
+      }
+    }
   }
 
-  newJob.captureConfig = selectedConfig.value?.value;
-  await store.dispatch('datacapture/submitJob', newJob);
+  captureJobs.forEach(job => {
+    store.dispatch('datacapture/submitJob', job);
+  })
   refreshList();
-};
+}
 
 const showConfig = ref(false);
 
