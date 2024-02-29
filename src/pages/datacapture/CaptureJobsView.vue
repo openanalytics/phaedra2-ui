@@ -244,7 +244,7 @@ const submitJobAction = async () => {
       for (let i = 0; i < selectedSource.value.files.length; i++) {
         const fileCaptureJob = {...captureJobConfig}
         fileCaptureJob.sourcePath = selectedSource.value.folderName + "/" + selectedSource.value.files[i].name;
-        fileCaptureJob.files = selectedSource.value.files[i];
+        fileCaptureJob.files = [selectedSource.value.files[i]];
         captureJobs.push(fileCaptureJob)
       }
     }
