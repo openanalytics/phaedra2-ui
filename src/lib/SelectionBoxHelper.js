@@ -12,6 +12,7 @@ function addSelectionBoxSupport(rootElement, wellSlots, selectionHandler) {
         scrollError: {left: 0, right: 0},
 
         dragStart: function (event) {
+            if (event.button > 0) return //Ignore right mouse click
             if (this.dragInProgress) return
             event.preventDefault()
 
@@ -49,6 +50,7 @@ function addSelectionBoxSupport(rootElement, wellSlots, selectionHandler) {
         },
 
         dragEnd: function (event) {
+            if (event.button > 0) return //Ignore right mouse click
             event.preventDefault()
             this.dragInProgress = false
             if (this.rootElement.value && this.rootElement.value.contains(this.selectionRectangle)) {
