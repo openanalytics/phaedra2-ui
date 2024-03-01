@@ -108,7 +108,7 @@ export const usePlateStore = defineStore("plate", {
             await this.reloadPlate()
         },
         async deleteTag(tag) {
-            await metadataAPI.removeTag({'objectId': this.plate.id, 'objectClass': 'PLATE', 'tag': tag })
+            await metadataAPI.removeTag({'objectId': Number.parseInt(this.plate.id), 'objectClass': 'PLATE', 'tag': tag })
             await this.reloadPlate()
         },
         async addPropertty(newProperty) {
