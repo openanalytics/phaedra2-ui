@@ -17,6 +17,8 @@ export default {
                     tags
                     createdOn
                     createdBy
+                    updatedOn
+                    updatedBy
                 }
             }
         `
