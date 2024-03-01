@@ -1,6 +1,13 @@
 <template>
   <q-menu>
     <q-list dense>
+      <q-item dense clickable @click="browseWells">
+        <q-item-section avatar>
+          <q-icon name="table_rows"/>
+        </q-item-section>
+        <q-item-section>Browse Wells</q-item-section>
+      </q-item>
+
       <q-item dense clickable @click="browseDoseResponseCurves">
         <q-item-section avatar>
           <q-icon name="show_chart"/>
