@@ -7,10 +7,10 @@
       <div class="col text-h6">Dose-Response View</div>
       <div class="text-h6">
         <slot name="actions" class="row">
-          <q-btn v-if="horizontal" icon="view_stream" @click="changeDirection" class="q-pa-xs" size="md" flat>
+          <q-btn v-if="horizontal" icon="view_stream" @click="changeOrientation" class="q-pa-xs" size="md" flat>
             <q-tooltip>Show vertical view</q-tooltip>
           </q-btn>
-          <q-btn v-if="!horizontal" icon="view_column" @click="changeDirection" class="q-pa-xs" size="md" flat>
+          <q-btn v-if="!horizontal" icon="view_column" @click="changeOrientation" class="q-pa-xs" size="md" flat>
             <q-tooltip>Show horizontal view</q-tooltip>
           </q-btn>
           <q-btn icon="close" @click="closeDRCView" class="q-pa-xs" size="md" flat/>
@@ -42,7 +42,9 @@ const closeDRCView = () => {
   uiStore.selectedDRCurves = []
 }
 
-const changeDirection = () => {
+const horizontal = ref(true)
+const changeOrientation = () => {
+  horizontal.value = !horizontal.value
   emits('changeOrientation')
 }
 </script>
