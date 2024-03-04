@@ -7,7 +7,7 @@
     "role": "user"
   },
   {
-    "label": "Projects",
+    "label": "Project",
     "header": "category",
     "role": "user",
     "children": [
@@ -16,14 +16,14 @@
         "icon": "add",
         "route": "newProject"
       }, {
-        "label": "Browse Projects",
+        "label": "Projects",
         "icon": "folder_open",
         "route": "browseProjects"
       }
     ]
   },
   {
-    "label": "Plate Layouts",
+    "label": "Plate Template",
     "header": "category",
     "icon": "border_all",
     "role": "user",
@@ -34,7 +34,7 @@
         "route": "newPlateTemplate"
       },
       {
-        "label": "Browse Templates",
+        "label": "Templates",
         "icon": "border_outer",
         "route": "browseTemplates"
       }
@@ -51,12 +51,12 @@
         "icon": "add",
         "route": "newProtocol"
       }, {
-        "label": "Browse Protocols",
+        "label": "Protocols",
         "icon": "ballot",
         "route": "browseProtocols"
       },
       {
-        "label": "Browse Formulas",
+        "label": "Formulas",
         "icon": "functions",
         "route": "calcFormulas"
       }
@@ -96,7 +96,7 @@
     ]
   },
   {
-    "label": "Pipelines",
+    "label": "Pipeline",
     "header": "category",
     "icon": "route",
     "role": "user",
@@ -107,12 +107,12 @@
         "route": "newPipeline"
       },
       {
-        "label": "Browse Pipelines",
+        "label": "Pipelines",
         "icon": "route",
         "route": "browsePipelines"
       },
       {
-        "label": "Browse Pipeline Executions",
+        "label": "Pipeline Executions",
         "icon": "play_circle_outline",
         "route": "browsePipelineExecutions"
       }
@@ -125,7 +125,7 @@
     "role": "admin",
     "children": [
       {
-        "label": "Add New DRC fitting model",
+        "label": "New DRC Fitting Model",
         "icon": "add",
         "route": ""
       },

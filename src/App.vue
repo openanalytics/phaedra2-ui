@@ -3,27 +3,34 @@
 
     <q-header elevated class="bg-primary text-white">
       <q-toolbar class="oa-header">
-        <q-img :src="publicPath + 'OALogo.png'" width="40px"/>
+        <q-btn flat round dense icon="menu" @click="drawer = !drawer"/>
         <q-toolbar-title>
+          <q-img :src="publicPath + 'OALogo.png'" width="30px"/>
           Phaedra 2.0
         </q-toolbar-title>
-        <q-btn dense flat round icon="menu"/>
+<!--        <q-btn dense flat round icon="menu"/>-->
         <UserInfoButton />
       </q-toolbar>
     </q-header>
 
+    <q-drawer
+        v-model="drawer"
+        show-if-above
+
+        :width="250"
+        :breakpoint="500"
+        bordered>
+      <Navigator></Navigator>
+    </q-drawer>
     <q-page-container>
       <Splitpanes class="default-theme" @resize="updatePanelSizes">
-        <Pane :size="navigatorSize" style="background-color: #ffffff;" min-size="10">
-          <Navigator></Navigator>
-        </Pane>
         <Pane :size="100 - (navigatorSize + sidePanelSize)" style="background-color: #ffffff;">
           <div style="max-height: calc(100vh - 50px); overflow: auto;">
             <router-view :key="$route.fullPath"></router-view>
           </div>
         </Pane>
         <Pane :size="sidePanelSize" style="background-color: #ffffff;">
-          <SidePanel></SidePanel>
+          <SidePanel/>
         </Pane>
       </Splitpanes>
     </q-page-container>
@@ -45,7 +52,9 @@
   import UserInfoButton from "@/components/widgets/UserInfoButton.vue"
 
   const store = useStore();
-  const navigatorSize = ref(15);
+  const drawer = ref(false)
+  const miniState = ref( true)
+  const navigatorSize = ref(0);
   const sidePanelSize = ref(0);
   const showSidePanel = computed(() => store.getters['ui/isShowSidePanel']());
   watch(showSidePanel, (show) => {
