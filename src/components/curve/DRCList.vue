@@ -4,7 +4,6 @@
       :rows="curveData"
       :columns="curveTableColumns"
       row-key="substance"
-      ref="curveTable"
       column-key="name"
       :filter="filter"
       :filter-method="filterMethod"
@@ -50,16 +49,9 @@
       </q-td>
     </template>
     <template v-slot:body-cell-curve="props">
-      <q-td :props="props" @click="setSelectedCurve(props.row.curve_info[props.col.featureId].curve, $event)">
+      <q-td :props="props" @click="uiStore.addDRCure(props.row.curve_info[props.col.featureId].curve, $event)">
         <MiniDRCView :curvedata="props.row.curve_info[props.col.featureId].curve"/>
-
-        <q-menu touch-position context-menu>
-          <q-list dense>
-            <q-item clickable v-close-popup>
-              <q-item-section @click="setSelectedCurve(props.row.curve_info[props.col.featureId].curve)">Show dose-response view</q-item-section>
-            </q-item>
-          </q-list>
-        </q-menu>
+        <DRCActionMenu @showDRCView="handleShowDRCView(props.row.curve_info[props.col.featureId].curve)"/>
       </q-td>
     </template>
   </q-table>
@@ -70,53 +62,55 @@ import {ref} from "vue";
 import {useStore} from "vuex";
 import MiniDRCView from "@/components/curve/MiniDRCView.vue"
 import FormatUtils from "@/lib/FormatUtils";
-import {usePlateStore} from "@/stores/plate";
 import ColumnFilter from "@/components/table/ColumnFilter.vue";
 import FilterUtils from "@/lib/FilterUtils";
+import {useUIStore} from "@/stores/ui";
+import DRCActionMenu from "@/components/curve/DRCActionMenu.vue";
 
 const store = useStore()
-const plateStore = usePlateStore()
+const uiStore = useUIStore()
 
-const props = defineProps(['plate', 'curves'])
+const props = defineProps(['plate', 'curves', 'protocols'])
 const emits = defineEmits(['handleSelection', 'showDRCView'])
 
 const curves = ref(props.curves)
-const distinctSubstances = [...new Set(curves.value.map(c => c.substanceName))]
-console.log("distinctSubstances: " + JSON.stringify(distinctSubstances))
-
-const featureIds = [...new Set(curves.value?.map(c => c.featureId))]
-
-const curveData = ref([])
-const curveTable = ref(null)
-
-const protocols = ref([]);
-
 const pagination = ref({ rowsPerPage: 0 })
 
-distinctSubstances.forEach(substance => {
-    let curve = curves.value.find(c => c.substanceName === substance)
-    const result = {
-      'plateId': curve?.plateId,
-      'plateBarcode': props.plate.barcode,
-      'substance': substance,
-      'samples': curve?.wells.length,
-      'curve_info': {}
-    }
 
-    for (let f in featureIds) {
-        curve = curves.value.find(c => c.substanceName === substance && c.featureId === featureIds[f])
-          result['curve_info'][curve.featureId] = {
-            'ic50': curve.curveProperties.find(cp => cp.name === "pIC50")?.numericValue,
-            'slope': curve.curveProperties.find(cp => cp.name === "Slope")?.numericValue,
-            'emin': curve.curveProperties.find(cp => cp.name === "eMin")?.numericValue,
-            'emin_conc': curve.curveProperties.find(cp => cp.name === "eMin Conc")?.numericValue,
-            'emax': curve.curveProperties.find(cp => cp.name === "eMax")?.numericValue,
-            'emax_conc': curve.curveProperties.find(cp => cp.name === "eMax Conc")?.numericValue,
-            'curve': curve,
-            'featureId': featureIds[f]
-          }
-        }
-    curveData.value.push(result)
+const features = props.protocols.flatMap(protocol => protocol.features)
+const fetchFeatureName = (featureId) => {
+  return features.find(f => f.id = featureId)?.name
+}
+
+const distinctSubstances = [...new Set(curves.value.map(c => c.substanceName))]
+const curveData = ref([])
+distinctSubstances.forEach(substance => {
+  let curve = curves.value.find(c => c.substanceName === substance)
+  const result = {
+    'plateId': curve?.plateId,
+    'plateBarcode': props.plate.barcode,
+    'substance': substance,
+    'samples': curve?.wells.length,
+    'curve_info': {}
+  }
+
+  for (const index in features) {
+    const feature = features[index]
+    curve = curves.value.find(c => c.substanceName === substance && c.featureId === feature.id)
+    if (curve) {
+      result['curve_info'][curve.featureId] = {
+        'ic50': curve.curveProperties.find(cp => cp.name === "pIC50")?.numericValue,
+        'slope': curve.curveProperties.find(cp => cp.name === "Slope")?.numericValue,
+        'emin': curve.curveProperties.find(cp => cp.name === "eMin")?.numericValue,
+        'emin_conc': curve.curveProperties.find(cp => cp.name === "eMin Conc")?.numericValue,
+        'emax': curve.curveProperties.find(cp => cp.name === "eMax")?.numericValue,
+        'emax_conc': curve.curveProperties.find(cp => cp.name === "eMax Conc")?.numericValue,
+        'curve': curve,
+        'feature': {id: feature.id, name: feature.name}
+      }
+    }
+  }
+  curveData.value.push(result)
 })
 
 const curveTableColumns = ref([
@@ -137,6 +131,7 @@ const curveFeatureCols = (featureId) => {
   ]);
 }
 
+const featureIds = [...new Set(curves.value?.map(c => c.featureId))]
 for (let fId in featureIds) {
   curveTableColumns.value = curveTableColumns.value.concat(curveFeatureCols(featureIds[fId]).value)
 }
@@ -144,56 +139,8 @@ for (let fId in featureIds) {
 const filter = FilterUtils.makeFilter(curveTableColumns.value);
 const filterMethod = FilterUtils.defaultFilterMethod();
 
-const selectedCurves = ref([])
-
-const handleSelection = ({rows, added, evt}) => {
-  const {ctrlKey, shiftKey, metaKey} = evt ?? {ctrlKey: false, shiftKey: false, metaKey: false}
-
-  if (rows.length === 0) return
-
-  const row = rows[ 0 ]
-  if (evt !== Object(evt) || (evt.ctrlKey !== true && evt.metaKey !== true)) {
-    if ((selected.value.length === 1 || selected.value.length === rows.length) && added !== true)
-      selected.value = []
-    else
-      selected.value = [...rows]
-    return
-  }
-
-  const operateSelection = added === true
-      ? selRow => {
-        const selectedIndex = selected.value.findIndex(obj => obj['substance'] === selRow.substance)
-        if (selectedIndex === -1) {
-          selected.value = selected.value.concat(selRow)
-        }
-      }
-      : selRow => {
-        const selectedIndex = selected.value.findIndex(obj => obj['substance'] === selRow.substance)
-        if (selectedIndex > -1) {
-          selected.value.splice(selectedIndex, 1)
-        }
-      }
-
-  if (ctrlKey || metaKey) {
-    operateSelection(row)
-    return
-  }
+const handleShowDRCView = (curve) => {
+  uiStore.addDRCure(curve)
+  uiStore.showDRCView = true
 }
-
-const setSelectedCurve = (selectedCurve, event) => {
-  console.log("selectedCurve: " + JSON.stringify(selectedCurve))
-  selectedCurve['featureName'] = fetchFeatureName(selectedCurve.featureId)
-  if (event.ctrlKey || event.metaKey) {
-    const index = selectedCurves.value.findIndex(c => c.id === selectedCurve.id)
-    index < 0 ? selectedCurves.value.push(selectedCurve) : selectedCurves.value.splice(index, 1)
-  } else
-    selectedCurves.value = [selectedCurve]
-
-  emits('showDRCView', selectedCurves.value)
-}
-
-const fetchFeatureName = (featureId) => {
-  return plateStore.featureById.flat().find(f => f.id === featureId)?.name
-}
-
 </script>

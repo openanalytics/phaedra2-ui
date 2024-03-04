@@ -9,12 +9,14 @@ const curve = ref(null)
 const updateDRCPlotView = () => {
   const config = {autosize: true, displaylogo: false}
   const layout = {
+    yaxis: {
+      title: "Feature"
+    },
     xaxis: {
-      title: "Log[M]"
+      title: "Concentration"
     },
     margin: {t: 50, b: 50},
-    showlegend: true,
-    legend: { x: 1, y: 0.5},
+    showlegend: false,
     width: curve.value.parentElement.offsetWidth > 0 ? curve.value.parentElement.offsetWidth : props.width,
     height: props.height,
   }
@@ -117,7 +119,3 @@ onUpdated(() => resizeDRCPlotView())
 <template>
   <div id="chart" ref="curve" style="padding-top: 30px"/>
 </template>
-
-<style scoped>
-
-</style>

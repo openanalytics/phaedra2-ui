@@ -99,23 +99,13 @@
               <ResultSetList :plate="plateStore.plate"/>
             </q-tab-panel>
             <q-tab-panel name="curves" icon="show_chart">
-              <DRCList :plate="plateStore.plate" :curves="plateStore.curves" @showDRCView="handleShowDRCView"/>
+              <DRCList :plate="plateStore.plate" :curves="plateStore.curves" :protocols="plateStore.protocols" />
             </q-tab-panel>
           </q-tab-panels>
         </div>
       </Pane>
-      <Pane v-if="showDRCViewPane" style="background-color: #E6E6E6" ref="drcViewPane">
-        <DRCView :height="height" :width="width" :curves="curves" :update="update">
-          <template v-slot:actions>
-            <q-btn v-if="horizontal" icon="view_stream" @click="changeDirection" class="q-pa-xs" size="md" flat>
-              <q-tooltip>Show vertical view</q-tooltip>
-            </q-btn>
-            <q-btn v-if="!horizontal" icon="view_column" @click="changeDirection" class="q-pa-xs" size="md" flat>
-              <q-tooltip>Show horizontal view</q-tooltip>
-            </q-btn>
-            <q-btn icon="close" @click="handleCloseDRCView" class="q-pa-xs" size="md" flat/>
-          </template>
-        </DRCView>
+      <Pane v-if="uiStore.showDRCView" style="background-color: #E6E6E6" ref="drcViewPane">
+        <DRCView :height="height" :width="width" :curves="uiStore.selectedDRCurves" :update="Date.now()" @changeOrientation="horizontal = !horizontal"/>
       </Pane>
     </Splitpanes>
 
@@ -150,12 +140,14 @@ import {useExperimentStore} from "@/stores/experiment";
 import {usePlateStore} from "@/stores/plate";
 import DRCList from "@/components/curve/DRCList.vue";
 import DRCView from "@/components/curve/DRCView.vue";
+import {useUIStore} from "@/stores/ui";
 
 const route = useRoute();
 const projectStore = useProjectStore()
 const experimentStore = useExperimentStore()
 const plateStore = usePlateStore()
-const router = useRouter();
+const uiStore = useUIStore()
+const router = useRouter()
 
 const horizontal = ref(false)
 const height = ref(400)
@@ -166,7 +158,6 @@ const update = ref(Date.now())
 const readOnly = ref(plateStore.isApproved || experimentStore.isClosed)
 
 const drcViewPane = ref()
-const showDRCViewPane = ref(false)
 
 const plateId = parseInt(route.params.plateId)
 onMounted(() => {
@@ -187,7 +178,6 @@ watchEffect(() => {
 })
 
 const activeTab = ref(route.query.activeTab ?? 'layout')
-const sizeChartPane = ref(0)
 
 const showDeleteDialog = ref(false);
 const showCalculateDialog = ref(false);
@@ -204,26 +194,6 @@ const onDescriptionChanged = async (newDescription) => {
 const onDeleted = async () => {
   await plateStore.deletePlate()
   await router.push({name: 'experiment', params: {id: experimentStore.experiment.id}})
-}
-
-const changeDirection = () => {
-  horizontal.value = !horizontal.value
-  update.value = Date.now()
-}
-
-const chartPaneHeight = ref(0)
-const showSelectedCurves = (args) => {
-  sizeChartPane.value = 40
-  chartPaneHeight.value = args
-}
-
-const handleShowDRCView = (data) => {
-  showDRCViewPane.value = true
-  curves.value = [...data]
-}
-
-const handleCloseDRCView = () => {
-  showDRCViewPane.value = false
 }
 
 const onAddTag = async (newTag) => {
