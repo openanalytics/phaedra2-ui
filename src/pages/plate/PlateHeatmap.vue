@@ -1,14 +1,14 @@
 <template>
     <div class="col" style="min-width: 75%">
       <FeatureSelector class="q-pb-xs"
-                      :protocols=plateStore.protocols
-                      :measurements=measurements
-                      @featureOptionSelection="handleFeatureOptionSelection"
-                      @rawFeatureSelection="handleRawFeatureSelection"
-                      @calculatedFeatureSelection="handleCalculatedFeatureSelection"/>
+                       :protocols=props.protocols
+                       :measurements=props.measurements
+                       @featureOptionSelection="handleFeatureOptionSelection"
+                       @rawFeatureSelection="handleRawFeatureSelection"
+                       @calculatedFeatureSelection="handleCalculatedFeatureSelection"/>
       <q-space class="q-pa-xs"/>
-      <WellGrid :plate="plateStore.plate"
-                :wells="plateStore.wells"
+      <WellGrid :plate="props.plate"
+                :wells="props.wells"
                 :loading="dataLoading"
                 :wellColorFunction="wellColorFunction"
                 :wellLabelFunctions="wellLabelFunctions"/>
@@ -25,38 +25,39 @@ import ColorUtils from "@/lib/ColorUtils.js"
 import WellUtils from "@/lib/WellUtils.js"
 
 import resultDataGraphQlAPI from '@/api/graphql/resultdata'
-import {usePlateStore} from "@/stores/plate";
 import measurementsGraphQlAPI from "@/api/graphql/measurements";
 
-const props = defineProps(['plate', 'wells']);
-const plateStore = usePlateStore()
+const props = defineProps(['plate', 'wells', 'measurements', 'protocols']);
 
 const wellData = ref([])
 const dataLoading = ref(false);
 const rangeValues = ref({min: 0, mean: 50, max: 100});
 
 const lut = ref(ColorUtils.createLUT([], ColorUtils.defaultHeatmapGradients));
-const measurements = computed(() => plateStore.activeMeasurement !== undefined ? [plateStore.activeMeasurement] : [])
 
 const handleFeatureOptionSelection = () => {
   wellData.value = []
 }
 
-const handleRawFeatureSelection = (rawFeature) => {
-  if (plateStore.activeMeasurement) {
-    const {onResult} = measurementsGraphQlAPI.measurementWellData(plateStore.activeMeasurement.measurementId, rawFeature)
+const handleRawFeatureSelection = (measurementColumn) => {
+  if (measurementColumn) {
+    const {onResult} = measurementsGraphQlAPI.measurementWellData(measurementColumn.measurementId, measurementColumn.column)
     onResult(({data}) => {
       wellData.value = data?.wellData ? data.wellData : []
     })
+  } else {
+    wellData.value = []
   }
 }
 
 const handleCalculatedFeatureSelection = (calculatedFeature) => {
   if (calculatedFeature) {
-    const {onResult} = resultDataGraphQlAPI.featureValuesByPlateIdAndFeatureIdAndProtocolId(plateStore.plate.id, calculatedFeature.featureId, calculatedFeature.protocolId)
+    const {onResult} = resultDataGraphQlAPI.featureValuesByPlateIdAndFeatureIdAndProtocolId(props.plate.id, calculatedFeature.featureId, calculatedFeature.protocolId)
     onResult(({data}) => {
       wellData.value = data?.featureValues ? data.featureValues.map(fv => fv.value) : []
     })
+  } else {
+    wellData.value = []
   }
 }
 

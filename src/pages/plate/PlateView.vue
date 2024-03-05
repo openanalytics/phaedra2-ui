@@ -87,7 +87,9 @@
               <PlateLayout :plate="plateStore.plate" :wells="plateStore.wells"/>
             </q-tab-panel>
             <q-tab-panel name="heatmap">
-              <PlateHeatmap :plate="plateStore.plate" :wells="plateStore.wells"/>
+              <PlateHeatmap :plate="plateStore.plate" :wells="plateStore.wells"
+                            :measurements="plateStore.activeMeasurement !== undefined ? [plateStore.activeMeasurement] : []"
+                            :protocols="plateStore.protocols" />
             </q-tab-panel>
             <q-tab-panel name="wells" class="q-px-none">
               <WellList :plate="plateStore.plate" :wells="plateStore.wells"/>
@@ -105,7 +107,8 @@
         </div>
       </Pane>
       <Pane v-if="uiStore.showDRCView" style="background-color: #E6E6E6" ref="drcViewPane">
-        <DRCView :height="height" :width="width" :curves="uiStore.selectedDRCurves" :update="Date.now()" @changeOrientation="horizontal = !horizontal"/>
+        <DRCView :height="height" :width="width" :curves="uiStore.selectedDRCurves" :update="Date.now()"
+                 @changeOrientation="horizontal = !horizontal"/>
       </Pane>
     </Splitpanes>
 

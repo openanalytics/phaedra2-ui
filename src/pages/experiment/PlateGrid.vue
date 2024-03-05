@@ -51,18 +51,10 @@ const handleFeatureOptionSelection = () => {
 const handleRawFeatureSelection = (rawFeature) => {
   console.log("handleRawFeatureSelection: " + JSON.stringify(rawFeature))
   for (let i = 0; i < plateDataPerPlate.value.length; i++) {
-    const plateId = plateDataPerPlate.value[i].plate.id
-
-    const activePlateMeasurement = measurements.value.find(m => m.plateId === plateId)
-
-    if (activePlateMeasurement) {
-      const {onResult} = measurementsGraphQlAPI.measurementWellData(activePlateMeasurement.measurementId, rawFeature)
+      const {onResult} = measurementsGraphQlAPI.measurementWellData(rawFeature.measurementId, rawFeature.column)
       onResult(({data}) => {
         plateDataPerPlate.value[i].resultData = { values: data?.wellData ? data.wellData : [] }
       })
-    } else {
-      plateDataPerPlate.value[i].resultData = { values: [] }
-    }
   }
 }
 
