@@ -102,6 +102,14 @@ export const useExperimentStore = defineStore("experiment", {
             await plateAPI.deletePlateById(plateId)
             this.loadExperiment(this.experiment.id)
         },
+        async clonePlates(plates) {
+            await plateAPI.clonePlates(plates)
+            this.loadExperiment(this.experiment.id)
+        },
+        async movePlates(plates, experimentId) {
+            await plateAPI.movePlates(plates, experimentId)
+            this.loadExperiment(this.experiment.id)
+        },
         async addTag(newTag) {
             await metadataAPI.addTag({'objectId': this.experiment.id, 'objectClass': 'EXPERIMENT', 'tag': newTag })
             this.loadExperiment(this.experiment.id)
