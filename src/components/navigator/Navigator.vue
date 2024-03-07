@@ -1,12 +1,9 @@
 <template>
-  <!-- <q-drawer show-if-above side="left" bordered v-model="drawerVisible" :mini="!drawerOpen" :mini-width="60"> -->
   <div>
     <q-toolbar class="bg-grey-3">
       <q-toolbar-title v-show="drawerOpen">
         Navigator
       </q-toolbar-title>
-      <!-- <q-btn dense flat round icon="settings" v-show="drawerOpen"/> -->
-      <!-- <q-btn dense flat round :icon="drawerIcon" @click="toggleDrawer"/> -->
     </q-toolbar>
 
     <q-tree
@@ -55,7 +52,6 @@
         </router-link>
       </template>
     </q-tree>
-    <!-- </q-drawer> -->
   </div>
 </template>
 
@@ -67,7 +63,7 @@
 </style>
 
 <script setup>
-import {ref, computed, onMounted, onUpdated} from 'vue'
+import {ref, computed} from 'vue'
 import navigatorDef from '@/assets/navigator.json'
 import {useUserInfoStore} from "@/stores/userinfo";
 
@@ -80,12 +76,6 @@ const drawerIcons = {
 }
 const drawerOpen = ref(true)
 const drawerIcon = ref("chevron_left")
-
-const toggleDrawer = () => {
-  drawerOpen.value = !drawerOpen.value;
-  drawerIcon.value = drawerIcons[drawerOpen];
-  emit("onDrawerToggled");
-}
 
 const filterNavigatorByRole = () => {
   if (userStore.isAdmin)
