@@ -15,6 +15,22 @@
         <q-item-section>Browse Dose-Response Curves</q-item-section>
       </q-item>
 
+      <q-separator/>
+
+      <q-item dense clickable @click="clonePlates" v-close-popup>
+        <q-item-section avatar>
+          <q-icon name="content_copy"/>
+        </q-item-section>
+        <q-item-section>Clone Plate(s)</q-item-section>
+      </q-item>
+
+      <q-item dense clickable @click="movePlates">
+        <q-item-section avatar >
+          <q-icon name="drive_file_move"/>
+        </q-item-section>
+        <q-item-section>Move Plate(s)</q-item-section>
+      </q-item>
+
       <div v-if="props.plate.approvalStatus === 'APPROVAL_NOT_SET' && experimentStore.isOpen">
         <q-separator/>
         <!-- Validation Menu -->
@@ -155,6 +171,7 @@
     <calculate-plate-dialog v-model:show="showCalculateDialog" :plate="props.plate" />
     <link-plate-dialog v-model:show="showLinkDialog" :plate="props.plate"/>
     <delete-dialog v-model:show="showDeleteDialog" :id="props.plate.id" :name="props.plate.barcode" :objectClass="'plate'" @onDeleted="onDeletePlate"/>
+    <move-plate-dialog v-model:show="showMovePlatesDialog" :plates="[props.plate]" :experiment="experimentStore.experiment" :experiments="projectStore.experiments" @movePlates="onMovePlates"/>
   </q-menu>
 </template>
 
@@ -170,12 +187,21 @@ import {ref} from "vue";
 import {useStore} from 'vuex'
 import {useExperimentStore} from "@/stores/experiment";
 import {useRouter} from "vue-router";
+import {useUIStore} from "@/stores/ui";
+import projectsGraphQlAPI from "@/api/graphql/projects";
+import resultDataGraphQlAPI from "@/api/graphql/resultdata";
+import {usePlateStore} from "@/stores/plate";
+import MovePlateDialog from "@/components/plate/MovePlateDialog.vue";
+import {useProjectStore} from "@/stores/project";
 
 const props = defineProps(['plate', 'plates']);
 
 const store = useStore()
+const uiStore = useUIStore()
+const plateStore = usePlateStore()
 const router = useRouter()
 const experimentStore = useExperimentStore()
+const projectStore = useProjectStore()
 
 const showInvalidateDialog = ref(false);
 const showApproveDialog = ref(false);
@@ -183,6 +209,7 @@ const showDisapproveDialog = ref(false);
 const showCalculateDialog = ref(false);
 const showLinkDialog = ref(false);
 const showDeleteDialog = ref(null);
+const showMovePlatesDialog = ref(false)
 
 const validate = () => {
   experimentStore.validatePlate(props.plate.id)
@@ -206,6 +233,10 @@ const disapprove = () => {
 
 const calculatePlate = () => {
   showCalculateDialog.value = true;
+}
+
+const browseWells = () => {
+  router.push({name: "plate", params: { plateId: props.plate.id }, query: { activeTab: "wells" }});
 }
 
 const browseDoseResponseCurves = () => {
@@ -246,5 +277,18 @@ const onDeletePlate = () => {
 
 const chart = (type, plateId) => {
   store.dispatch('ui/addChartView', {'type': type, "plateId": plateId})
+}
+
+const clonePlates = () => {
+  experimentStore.clonePlates([props.plate])
+}
+
+const movePlates = () => {
+  showMovePlatesDialog.value = true;
+}
+
+const onMovePlates = (toExperiment) => {
+  console.log("Move plate(s) " + [props.plate.barcode] + " to experiment " + toExperiment.name)
+  experimentStore.movePlates([props.plate], toExperiment.id)
 }
 </script>

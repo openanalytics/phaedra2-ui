@@ -47,6 +47,35 @@ export default {
             console.log(error);
         }
     },
+    async clonePlates(plates){
+        try {
+            const plateIds = plates?.map(p => p.id) ?? []
+            let params = "?"
+            for (let i = 0; i < plateIds.length; i++) {
+                params = params + 'plateIds=' + plateIds + '&'
+            }
+
+            const response = await axios.put(apiURL + '/plates/clone' + params)
+            if (response.status === 200) return response.data;
+        } catch (error) {
+            console.log(error);
+        }
+    },
+    async movePlates(plates, experimentId){
+        try {
+            const plateIds = plates?.map(p => p.id) ?? []
+            let params = "?"
+            for (let i = 0; i < plateIds.length; i++) {
+                params = params + 'plateIds=' + plateIds + '&'
+            }
+            params = params + 'experimentId=' + experimentId
+
+            const response = await axios.put(apiURL + '/plates/move' + params)
+            if (response.status === 200) return response.data;
+        } catch (error) {
+            console.log(error);
+        }
+    },
     async linkMeasurement(plateId, measurement) {
         try {
             const response = await axios.post(apiURL + '/plates/' + plateId + '/measurements', measurement);
