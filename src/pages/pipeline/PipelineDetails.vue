@@ -1,34 +1,34 @@
 <template>
-    <q-breadcrumbs class="oa-breadcrumb" v-if="pipeline">
+    <q-breadcrumbs class="oa-breadcrumb" v-if="pipelineStore.pipeline">
         <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
         <q-breadcrumbs-el label="Pipelines" icon="list" :to="'/pipelines'"/>
-        <q-breadcrumbs-el :label="pipeline.name" icon="route"/>
+        <q-breadcrumbs-el :label="pipelineStore.pipeline.name" icon="route"/>
     </q-breadcrumbs>
 
     <q-page class="oa-root-div">
         <div class="q-pa-sm">
-            <oa-section v-if="!pipeline" title="Loading..." icon="route"/>
-            <oa-section v-else :title="pipeline.name" icon="route" :collapsible="true">
+            <oa-section v-if="!pipelineStore.pipeline" title="Loading..." icon="route"/>
+            <oa-section v-else :title="pipelineStore.pipeline.name" icon="route" :collapsible="true">
                 <div class="row q-pa-md">
                     <div class="col-4">
                         <q-field label="ID" stack-label dense borderless>
                             <template v-slot:control>
-                                {{ pipeline.id }}
+                                {{ pipelineStore.pipeline.id }}
                             </template>
                         </q-field>
                         <q-field label="Description" stack-label dense borderless>
                             <template v-slot:control>
-                                <EditableField :object="pipeline" fieldName="description" @valueChanged="(val) => onPipelineEdited('description', val)" />
+                                <EditableField :object="pipelineStore.pipeline" fieldName="description" @valueChanged="(val) => onPipelineEdited('description', val)" />
                             </template>
                         </q-field>
                         <q-field label="Version" stack-label dense borderless>
                             <template v-slot:control>
-                                {{ pipeline.versionNumber }}
+                                {{ pipelineStore.pipeline.versionNumber }}
                             </template>
                         </q-field>
                         <q-field label="Status" stack-label dense borderless>
                             <template v-slot:control>
-                                <StatusLabel :status="pipeline.status" />
+                                <StatusLabel :status="pipelineStore.pipeline.status" />
                                 <q-toggle class="on-right" dense v-model="pipelineStatusToggle" @update:model-value="onStatusToggle" />
                             </template>
                         </q-field>
@@ -36,25 +36,25 @@
                     <div class="col-4">
                         <q-field label="Created On" stack-label dense borderless>
                             <template v-slot:control>
-                                {{ FormatUtils.formatDate(pipeline.createdOn) }}
+                                {{ FormatUtils.formatDate(pipelineStore.pipeline.createdOn) }}
                             </template>
                         </q-field>
                         <q-field label="Created By" stack-label dense borderless>
                             <template v-slot:control>
                                 <div class="q-pt-xs">
-                                    <UserChip :id="pipeline.createdBy"/>
+                                    <UserChip :id="pipelineStore.pipeline.createdBy"/>
                                 </div>
                             </template>
                         </q-field>
                         <q-field label="Updated On" stack-label dense borderless>
                             <template v-slot:control>
-                                {{ FormatUtils.formatDate(pipeline.updatedOn) }}
+                                {{ FormatUtils.formatDate(pipelineStore.pipeline.updatedOn) }}
                             </template>
                         </q-field>
                         <q-field label="Updated By" stack-label dense borderless>
                             <template v-slot:control>
                                 <div class="q-pt-xs">
-                                    <UserChip :id="pipeline.updatedBy"/>
+                                    <UserChip :id="pipelineStore.pipeline.updatedBy"/>
                                 </div>
                             </template>
                         </q-field>
@@ -92,74 +92,83 @@
         </div>
     </q-page>
 
-    <delete-dialog v-model:id="pipeline.id" v-model:name="pipeline.name" v-model:show="showDeleteDialog" objectClass="pipeline" @onDeleted="confirmDelete" />
-    <confirm-dialog title="Change pipeline status" message="Are you sure you want to change the status of this pipeline?" v-model:show="showStatusDialog" @onConfirm="confirmStatusChange" />
+    <delete-dialog :id="pipelineStore.pipeline?.id" :name="pipelineStore.pipeline?.name" v-model:show="showDeleteDialog" objectClass="pipeline" @onDeleted="confirmDelete" />
+    <confirm-dialog title="Change pipeline status" message="Are you sure you want to change the status of this pipeline?"
+                    v-model:show="showStatusDialog" @onConfirm="confirmStatusChange" @onCancel="cancelStatusChange"/>
 </template>
 
 <script setup>
-    import {computed, ref, watch} from "vue";
-    import {useStore} from "vuex";
-    import {useRoute, useRouter} from 'vue-router';
-    import { Codemirror } from 'vue-codemirror';
-    import { json } from '@codemirror/lang-json';
-    import FormatUtils from "@/lib/FormatUtils.js";
-    import UserChip from "@/components/widgets/UserChip";
-    import StatusLabel from "@/components/widgets/StatusLabel";
-    import OaSection from "@/components/widgets/OaSection";
-    import DeleteDialog from "@/components/widgets/DeleteDialog";
-    import ConfirmDialog from "@/components/widgets/ConfirmDialog";
-    import EditableField from "@/components/widgets/EditableField";
+import {onMounted, ref, watch} from "vue";
+import {useStore} from "vuex";
+import {useRoute, useRouter} from 'vue-router';
+import {Codemirror} from 'vue-codemirror';
+import {json} from '@codemirror/lang-json';
+import FormatUtils from "@/lib/FormatUtils.js";
+import UserChip from "@/components/widgets/UserChip";
+import StatusLabel from "@/components/widgets/StatusLabel";
+import OaSection from "@/components/widgets/OaSection";
+import DeleteDialog from "@/components/widgets/DeleteDialog";
+import ConfirmDialog from "@/components/widgets/ConfirmDialog";
+import EditableField from "@/components/widgets/EditableField";
+import {usePipelineStore} from "@/stores/pipeline";
 
-    const store = useStore();
-    const router = useRouter();
-    const route = useRoute();
-    const pipelineId = parseInt(route.params.id);
+const store = useStore();
 
-    const pipeline = computed(() => store.getters['pipelines/getPipelineById'](pipelineId));
-    store.dispatch('pipelines/loadPipelineById', pipelineId);
+const pipelineStatusToggle = ref(false);
+const pipelineStore = usePipelineStore()
+const router = useRouter();
+const route = useRoute();
+const pipelineId = parseInt(route.params.id);
 
-    const pipelineStatusToggle = ref(false);
-    const showStatusDialog = ref(false);
-    watch(pipeline, () => {
-        pipelineStatusToggle.value = pipeline.value.status == 'ENABLED';
-    });
-    const onStatusToggle = (v) => {
-        pipelineStatusToggle.value = !v;
-        showStatusDialog.value = true;
-    }
-    const confirmStatusChange = () => {
-        let newStatus = !pipelineStatusToggle.value;
-        onPipelineEdited('status', newStatus ? 'ENABLED' : 'DISABLED');
-    };
 
-    const editMode = ref(false);
-    const configWorkingCopy = ref("");
-    watch(pipeline, () => {
-        configWorkingCopy.value = FormatUtils.formatJSON(pipeline.value.config);
-    });
-    const exitEditMode = (saveChanges) => {
-        editMode.value = false;
-        if (saveChanges) {
-            let newConfig = JSON.parse(configWorkingCopy.value);
-            onPipelineEdited('config', newConfig);
-        } else {
-            configWorkingCopy.value = FormatUtils.formatJSON(pipeline.value.config);
-        }
-    };
+onMounted(() => {
+  init(pipelineId);
+})
 
-    const onPipelineEdited = (fieldName, newValue) => {
-        let pipelineWorkingCopy = {...pipeline.value};
-        pipelineWorkingCopy[fieldName] = newValue;
-        store.dispatch('pipelines/updatePipeline', pipelineWorkingCopy);
-    };
+const init = (pipelineId) => {
+  pipelineStore.loadPipeline(pipelineId).then(() => {
+    pipelineStatusToggle.value = pipelineStore.pipeline?.status === 'ENABLED' ?? false
+  })
+}
 
-    const editorConfig = {
-        extensions: [json()]
-    };
+const showStatusDialog = ref(false);
+const onStatusToggle = (v) => {
+  showStatusDialog.value = true;
+}
+const confirmStatusChange = () => {
+  pipelineStatusToggle.value ? pipelineStore.enablePipeline() : pipelineStore.disablePipeline()
+}
+const cancelStatusChange = () => {
+  init(pipelineId);
+}
 
-    const showDeleteDialog = ref(false);
-    const confirmDelete = () => {
-        store.dispatch('pipelines/deletePipeline', pipelineId);
-        router.push({name: 'browsePipelines'})
-    }
+const editMode = ref(false);
+const configWorkingCopy = ref("");
+watch(pipelineStore.pipeline, () => {
+  configWorkingCopy.value = FormatUtils.formatJSON(pipelineStore.pipeline.config);
+});
+const exitEditMode = (saveChanges) => {
+  editMode.value = false;
+  if (saveChanges) {
+    let newConfig = JSON.parse(configWorkingCopy.value);
+    onPipelineEdited('config', newConfig);
+  } else {
+    configWorkingCopy.value = FormatUtils.formatJSON(pipelineStore.pipeline.config);
+  }
+};
+
+const onPipelineEdited = (fieldName, newValue) => {
+  let pipelineWorkingCopy = {...pipelineStore.pipeline};
+  pipelineWorkingCopy[fieldName] = newValue;
+  pipelineStore.updatePipeline(pipelineWorkingCopy)
+};
+
+const editorConfig = {
+  extensions: [json()]
+};
+
+const showDeleteDialog = ref(false);
+const confirmDelete = () => {
+  pipelineStore.deletePipeline(pipelineId).then(() => router.push({name: 'browsePipelines'}))
+}
 </script>

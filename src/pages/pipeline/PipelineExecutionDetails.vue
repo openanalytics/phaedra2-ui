@@ -1,26 +1,26 @@
 <template>
-    <q-breadcrumbs class="oa-breadcrumb" v-if="execution">
+    <q-breadcrumbs class="oa-breadcrumb" v-if="pipelineStore.execution">
         <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
         <q-breadcrumbs-el label="Pipeline Executions" icon="list" to="/pipeline-executions"/>
-        <q-breadcrumbs-el :label="FormatUtils.formatDate(execution.createdOn)" icon="play_circle_outline"/>
+        <q-breadcrumbs-el :label="FormatUtils.formatDate(pipelineStore.execution.createdOn)" icon="play_circle_outline"/>
     </q-breadcrumbs>
 
     <q-page class="oa-root-div">
         <div class="q-pa-sm">
-            <oa-section v-if="!execution" title="Loading..." icon="play_circle_outline"/>
-            <oa-section v-else :title="FormatUtils.formatDate(execution.createdOn)" icon="play_circle_outline" :collapsible="true">
+            <oa-section v-if="!pipelineStore.execution" title="Loading..." icon="play_circle_outline"/>
+            <oa-section v-else :title="FormatUtils.formatDate(pipelineStore.execution.createdOn)" icon="play_circle_outline" :collapsible="true">
                 <div class="row q-pa-md">
                     <div class="col-2">
                         <q-field label="ID" stack-label dense borderless>
                             <template v-slot:control>
-                                {{ execution.id }}
+                                {{ pipelineStore.execution.id }}
                             </template>
                         </q-field>
                         <q-field label="Pipeline" stack-label dense borderless>
                             <template v-slot:control>
-                                <router-link :to="'/pipeline/' + execution.pipelineId" >
+                                <router-link :to="'/pipeline/' + pipelineStore.execution.pipelineId" >
                                     <div class="row items-center cursor-pointer">
-                                        {{ pipeline?.name }}
+                                        {{ pipelineStore.pipeline?.name }}
                                     </div>
                                 </router-link>
                             </template>
@@ -29,25 +29,25 @@
                     <div class="col-2">
                         <q-field label="Current Step" stack-label dense borderless>
                             <template v-slot:control>
-                                {{ execution.currentStep }} / {{ pipeline?.config?.steps?.length }}
+                                {{ pipelineStore.execution.currentStep }} / {{ pipelineStore.pipeline?.config?.steps?.length }}
                             </template>
                         </q-field>
                         <q-field label="Status" stack-label dense borderless>
                             <template v-slot:control>
-                                <StatusLabel :status="execution.status" />
+                                <StatusLabel :status="pipelineStore.execution.status" />
                             </template>
                         </q-field>
                     </div>
                     <div class="col-3">
                         <q-field label="Created On" stack-label dense borderless>
                             <template v-slot:control>
-                                {{ FormatUtils.formatDate(execution.createdOn) }}
+                                {{ FormatUtils.formatDate(pipelineStore.execution.createdOn) }}
                             </template>
                         </q-field>
                         <q-field label="Created By" stack-label dense borderless>
                             <template v-slot:control>
                                 <div class="q-pt-xs">
-                                    <UserChip :id="execution.createdBy"/>
+                                    <UserChip :id="pipelineStore.execution.createdBy"/>
                                 </div>
                             </template>
                         </q-field>
@@ -55,13 +55,13 @@
                     <div class="col-3">
                         <q-field label="Updated On" stack-label dense borderless>
                             <template v-slot:control>
-                                {{ FormatUtils.formatDate(execution.updatedOn) }}
+                                {{ FormatUtils.formatDate(pipelineStore.execution.updatedOn) }}
                             </template>
                         </q-field>
                         <q-field label="Updated By" stack-label dense borderless>
                             <template v-slot:control>
                                 <div class="q-pt-xs">
-                                    <UserChip :id="execution.updatedBy"/>
+                                    <UserChip :id="pipelineStore.execution.updatedBy"/>
                                 </div>
                             </template>
                         </q-field>
@@ -80,7 +80,7 @@
                         table-header-class="text-grey"
                         flat dense
                         :pagination="{ rowsPerPage: 20 }"
-                        :rows="executionLog"
+                        :rows="pipelineStore.getPipelineExecutionLogById(executionId)"
                         :columns="logColumns"
                     >
                         <template v-slot:body-cell-messageType="props">
@@ -123,48 +123,44 @@
 </template>
 
 <script setup>
-    import {computed, ref} from "vue";
-    import {useStore} from "vuex";
-    import {useRoute, useRouter} from 'vue-router';
-    import FormatUtils from "@/lib/FormatUtils.js";
-    import UserChip from "@/components/widgets/UserChip";
-    import ConfirmDialog from "@/components/widgets/ConfirmDialog";
-    import StatusLabel from "@/components/widgets/StatusLabel";
-    import OaSection from "@/components/widgets/OaSection";
+import {computed, onMounted, ref} from "vue";
+import {useRoute, useRouter} from 'vue-router';
+import FormatUtils from "@/lib/FormatUtils.js";
+import UserChip from "@/components/widgets/UserChip";
+import ConfirmDialog from "@/components/widgets/ConfirmDialog";
+import StatusLabel from "@/components/widgets/StatusLabel";
+import OaSection from "@/components/widgets/OaSection";
+import {usePipelineStore} from "@/stores/pipeline";
 
-    const store = useStore();
-    const router = useRouter();
-    const route = useRoute();
-    const executionId = parseInt(route.params.id);
+const pipelineStore = usePipelineStore()
+const router = useRouter()
+const route = useRoute()
+const executionId = parseInt(route.params.id)
 
-    const execution = computed(() => store.getters['pipelines/getPipelineExecutionById'](executionId));
-    const executionLog = computed(() => store.getters['pipelines/getPipelineExecutionLogById'](executionId));
-    const pipeline = computed(() => execution.value ? store.getters['pipelines/getPipelineById'](execution.value.pipelineId) : {});
+onMounted(() => {
+  pipelineStore.loadPipelineExecutionById(executionId)
+})
 
-    store.dispatch('pipelines/loadPipelineExecutionById', executionId).then(() => {
-        store.dispatch('pipelines/loadPipelineById', execution.value.pipelineId);
-    });
-    store.dispatch('pipelines/loadPipelineExecutionLogById', executionId);
+const canCancel = computed(() => pipelineStore.execution?.status == 'RUNNING');
+const showCancelDialog = ref(false);
+const confirmCancel = () => {
+  pipelineStore.cancelPipelineExecution(executionId)
+};
 
-    const canCancel = computed(() => execution.value?.status == 'RUNNING');
-    const showCancelDialog = ref(false);
-    const confirmCancel = () => {
-        store.dispatch('pipelines/cancelPipelineExecution', executionId);
-    };
+const logColumns = ref([
+  {name: 'messageType', align: 'left', label: '', field: 'messageType', sortable: true},
+  {name: 'logDate', align: 'left', label: 'Date', field: 'logDate', sortable: true, format: FormatUtils.formatDate},
+  {name: 'stepNr', align: 'left', label: 'Step', field: 'stepNr', sortable: true},
+  {name: 'message', align: 'left', label: 'Message', field: 'message', sortable: true},
+]);
 
-    const logColumns = ref([
-        {name: 'messageType', align: 'left', label: '', field: 'messageType', sortable: true},
-        {name: 'logDate', align: 'left', label: 'Date', field: 'logDate', sortable: true, format: FormatUtils.formatDate},
-        {name: 'stepNr', align: 'left', label: 'Step', field: 'stepNr', sortable: true},
-        {name: 'message', align: 'left', label: 'Message', field: 'message', sortable: true},
-    ]);
+const executionVars = computed(() => {
+  let vars = JSON.parse(pipelineStore.execution?.variables || "{}");
+  return Object.entries(vars);
+});
 
-    const executionVars =  computed(() => {
-        let vars = JSON.parse(execution.value?.variables || "{}");
-        return Object.entries(vars);
-    });
-    const varColumns = ref([
-        { name: 'name', align: 'left', label: 'Name', field: row => row[0], sortable: true},
-        { name: 'value', align: 'left', label: 'Value', field: row => row[1] },
-    ]);
+const varColumns = ref([
+  {name: 'name', align: 'left', label: 'Name', field: row => row[0], sortable: true},
+  {name: 'value', align: 'left', label: 'Value', field: row => row[1]},
+]);
 </script>

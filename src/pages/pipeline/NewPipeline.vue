@@ -22,20 +22,21 @@
 </template>
 
 <script setup>
-    import {ref} from "vue";
-    import {useStore} from 'vuex';
-    import {useRouter} from 'vue-router';
-    import OaSection from "@/components/widgets/OaSection";
+import {ref} from "vue";
+import {useRouter} from 'vue-router';
+import OaSection from "@/components/widgets/OaSection";
+import {usePipelineStore} from "@/stores/pipeline";
 
-    const store = useStore();
-    const router = useRouter();
-    const newPipeline = ref({
-        status: "DISABLED",
-        config: {}
-    });
+const router = useRouter();
+const pipelineStore = usePipelineStore()
+const newPipeline = ref({
+  status: "DISABLED",
+  config: {}
+});
 
-    const saveNewPipeline = () => {
-        store.dispatch('pipelines/createNewPipeline', newPipeline.value)
-            .then(cfg => router.push('/pipelines'));
-    };
+const saveNewPipeline = () => {
+  pipelineStore.createNewPipeline(newPipeline.value).then(() => {
+    router.push('/pipelines')
+  })
+};
 </script>

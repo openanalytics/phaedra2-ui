@@ -9,9 +9,8 @@
       <q-table
           table-header-class="text-grey"
           class="full-width"
-          :rows="pipelines"
+          :rows="pipelineStore.pipelines"
           :columns="columns"
-          :visible-columns="visibleColumns"
           row-key="id"
           column-key="name"
           :filter="filter"
@@ -65,7 +64,7 @@
 </template>
 
 <script setup>
-import {ref, computed, watch} from 'vue';
+import {ref, onMounted} from 'vue';
 import {useStore} from 'vuex';
 import {useRouter} from "vue-router";
 import FilterUtils from "@/lib/FilterUtils.js"
@@ -74,15 +73,15 @@ import UserChip from "@/components/widgets/UserChip";
 import StatusLabel from "@/components/widgets/StatusLabel";
 import OaSection from "@/components/widgets/OaSection";
 import ColumnFilter from "@/components/table/ColumnFilter";
+import {usePipelineStore} from "@/stores/pipeline";
 
-const store = useStore();
 const router = useRouter();
 const loading = ref(true);
 
-const pipelines = computed(() => store.getters['pipelines/getAllPipelines']());
-store.dispatch('pipelines/loadAllPipelines').then(() => { loading.value = false });
-
-const visibleColumns = ref([])
+const pipelineStore = usePipelineStore()
+onMounted(() => {
+  pipelineStore.loadAllPipelines().then(() => loading.value = false)
+})
 
 const columns = ref([
     {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
@@ -98,12 +97,4 @@ const columns = ref([
 
 const filter = FilterUtils.makeFilter(columns.value);
 const filterMethod = FilterUtils.defaultFilterMethod();
-
-const updateVisibleColumns = (columns) => {
-  visibleColumns.value = [...columns]
-}
-
-watch(pipelines, () => {
-  visibleColumns.value = [...columns.value.map(a => a.name)];
-})
 </script>

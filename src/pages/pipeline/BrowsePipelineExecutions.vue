@@ -9,9 +9,8 @@
       <q-table
           table-header-class="text-grey"
           class="full-width"
-          :rows="executions"
+          :rows="pipelineStore.executions"
           :columns="columns"
-          :visible-columns="visibleColumns"
           row-key="id"
           column-key="name"
           :filter="filter"
@@ -59,8 +58,7 @@
 </template>
 
 <script setup>
-import {ref, computed, watch} from 'vue';
-import {useStore} from 'vuex';
+import {ref, onMounted} from 'vue';
 import {useRouter} from "vue-router";
 import {date} from 'quasar'
 import FormatUtils from "@/lib/FormatUtils.js"
@@ -70,14 +68,19 @@ import StatusLabel from "@/components/widgets/StatusLabel";
 import OaSection from "@/components/widgets/OaSection";
 import DateRangeSelector from "@/components/widgets/DateRangeSelector";
 import ColumnFilter from "@/components/table/ColumnFilter";
+import {usePipelineStore} from "@/stores/pipeline";
 
-const store = useStore();
 const router = useRouter();
 const loading = ref(true);
 
+const pipelineStore = usePipelineStore()
 const now = new Date();
 const fromDate = ref(date.subtractFromDate(now, { days: 7 }));
 const toDate = ref(date.addToDate(now, { days: 1 }));
+
+onMounted(() => {
+  refreshList();
+})
 
 const getDateRange = () => {
   return { from: fromDate.value.getTime(), to: toDate.value.getTime() };
@@ -85,27 +88,19 @@ const getDateRange = () => {
 
 const refreshList = () => {
   loading.value = true;
-  store.dispatch('pipelines/loadAllPipelineExecutions', getDateRange()).then(() => {
+  pipelineStore.loadAllPipelineExecutions(getDateRange()).then(() => {
     loading.value = false
-  });
+  })
 };
-
-const executions = computed(() => store.getters['pipelines/getAllPipelineExecutions'](getDateRange()));
-refreshList();
-
-store.dispatch('pipelines/loadAllPipelines');
-const getPipelineDefinition = id => store.getters['pipelines/getPipelineById'](id);
-
-const visibleColumns = ref([])
 
 const columns = ref([
     {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
     {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
     {name: 'updatedOn', align: 'left', label: 'Updated On', field: 'updatedOn', sortable: true, format: FormatUtils.formatDate},
     {name: 'updatedBy', align: 'left', label: 'Updated By', field: 'updatedBy', sortable: true},
-    {name: 'pipeline', align: 'center', label: 'Pipeline', field: 'pipelineId', format: v => getPipelineDefinition(v)?.name || v},
+    {name: 'pipeline', align: 'center', label: 'Pipeline', field: 'pipelineId', format: v => pipelineStore.getPipelineById(v)?.name || v},
     {name: 'currentStep', align: 'center', label: 'Current Step', field: 'currentStep', format: (v, e) => {
-        let def = getPipelineDefinition(e.pipelineId);
+        let def = pipelineStore.getPipelineById(e.pipelineId);
         let stepName = def?.config?.steps[v-1]?.action?.type || "";
         let stepCount = def?.config?.steps?.length || "?";
         return `${stepName} (${v} / ${stepCount})`;
@@ -115,12 +110,4 @@ const columns = ref([
 
 const filter = FilterUtils.makeFilter(columns.value);
 const filterMethod = FilterUtils.defaultFilterMethod();
-
-const updateVisibleColumns = (columns) => {
-  visibleColumns.value = [...columns]
-}
-
-watch(executions, () => {
-  visibleColumns.value = [...columns.value.map(a => a.name)];
-})
 </script>
