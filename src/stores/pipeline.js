@@ -31,6 +31,10 @@ export const usePipelineStore = defineStore("pipeline", {
         async updatePipeline(pipeline) {
             this.pipeline = await pipelineAPI.updatePipeline(pipeline);
         },
+        async updatePipelineProperty(property, value) {
+            this.pipeline[property] = value
+            await this.updatePipeline(this.pipeline)
+        },
         async deletePipeline(pipelineId) {
             await pipelineAPI.deletePipeline(pipelineId)
             this.reset()

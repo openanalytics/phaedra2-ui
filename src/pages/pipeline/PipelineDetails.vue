@@ -128,6 +128,7 @@ onMounted(() => {
 const init = (pipelineId) => {
   pipelineStore.loadPipeline(pipelineId).then(() => {
     pipelineStatusToggle.value = pipelineStore.pipeline?.status === 'ENABLED' ?? false
+    configWorkingCopy.value = FormatUtils.formatJSON(pipelineStore.pipeline?.config ?? {});
   })
 }
 
@@ -144,9 +145,6 @@ const cancelStatusChange = () => {
 
 const editMode = ref(false);
 const configWorkingCopy = ref("");
-watch(pipelineStore.pipeline, () => {
-  configWorkingCopy.value = FormatUtils.formatJSON(pipelineStore.pipeline.config);
-});
 const exitEditMode = (saveChanges) => {
   editMode.value = false;
   if (saveChanges) {
@@ -155,13 +153,11 @@ const exitEditMode = (saveChanges) => {
   } else {
     configWorkingCopy.value = FormatUtils.formatJSON(pipelineStore.pipeline.config);
   }
-};
+}
 
 const onPipelineEdited = (fieldName, newValue) => {
-  let pipelineWorkingCopy = {...pipelineStore.pipeline};
-  pipelineWorkingCopy[fieldName] = newValue;
-  pipelineStore.updatePipeline(pipelineWorkingCopy)
-};
+  pipelineStore.updatePipelineProperty(fieldName, newValue)
+}
 
 const editorConfig = {
   extensions: [json()]
