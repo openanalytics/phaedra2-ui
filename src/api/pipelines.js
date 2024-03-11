@@ -16,8 +16,30 @@ export default {
         if (response.status === 201) return response.data;
     },
     async updatePipeline(pipeline) {
-        const response = await axios.put(apiURL + '/pipeline-definitions/' + pipeline.id, pipeline);
-        if (response.status === 200) return response.data;
+        try {
+            const response = await axios.put(apiURL + '/pipeline-definitions/' + pipeline.id, pipeline);
+            if (response.status === 200) return response.data;
+        } catch (error) {
+            if (error.response) {
+                /**
+                 * Request made and server responded
+                 * TODO: make the handling more detailed.
+                 * TODO: Multiple different reasons for response status 400 exists at the server side
+                 */
+                if(error.response.status === 400) {
+                    const response = await axios.get(apiURL + '/pipeline-definitions/' + pipeline.id);
+                    return response.data
+                }
+            } else if (error.request) {
+                // The request was made but no response was received
+                console.log(error.request);
+            } else {
+                // Something happened in setting up the request that triggered an Error
+                console.log('Error', error.message);
+            }
+        }
+
+
     },
     async deletePipeline(id) {
         const response = await axios.delete(apiURL + '/pipeline-definitions/' + id);
