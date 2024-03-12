@@ -1,61 +1,68 @@
 <template>
-  <q-breadcrumbs class="oa-breadcrumb" v-if="meas">
+  <q-breadcrumbs class="oa-breadcrumb" v-if="measurementStore.measurement">
     <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
     <q-breadcrumbs-el :label="'Measurements'" icon="list" :to="'/datacapture/meas'"/>
-    <q-breadcrumbs-el :label="meas.barcode" icon="text_snippet"/>
+    <q-breadcrumbs-el :label="measurementStore.measurement.barcode" icon="text_snippet"/>
   </q-breadcrumbs>
 
   <q-page class="oa-root-div">
     <div class="q-pa-sm">
-      <oa-section v-if="!meas" title="Loading..." icon="text_snippet"/>
-      <oa-section v-else :title="meas.barcode" icon="text_snippet" :collapsible="true">
+      <oa-section v-if="!measurementStore.measurement" title="Loading..." icon="text_snippet"/>
+      <oa-section v-else :title="measurementStore.measurement.barcode" icon="text_snippet" :collapsible="true">
         <div class="row q-pa-md">
           <div class="col-4">
             <q-field label="ID" stack-label borderless dense>
               <template v-slot:control>
-                {{ meas.id }}
+                {{ measurementStore.measurement.id }}
               </template>
             </q-field>
             <q-field label="Barcode" stack-label borderless dense>
               <template v-slot:control>
-                {{ meas.barcode }}
+                {{ measurementStore.measurement.barcode }}
               </template>
             </q-field>
             <q-field label="Dimensions" stack-label borderless dense>
               <template v-slot:control>
                 <div class="self-center full-width no-outline">
-                  {{ meas.rows }} x {{ meas.columns }} ({{ meas.rows * meas.columns }} wells)
+                  {{ measurementStore.measurement.rows }} x {{ measurementStore.measurement.columns }} ({{ measurementStore.measurement.rows * measurementStore.measurement.columns }} wells)
                 </div>
               </template>
             </q-field>
+<!--            <q-field label="Tags" stack-label dense borderless>-->
+<!--              <template v-slot:control>-->
+<!--                <tag-list :tags="[]" :read-only="true"-->
+<!--                          @addTag="onAddTag" @removeTag="onRemoveTag"-->
+<!--                          class="q-pt-xs"/>-->
+<!--              </template>-->
+<!--            </q-field>-->
           </div>
           <div class="col-4">
             <q-field label="WellData Columns" stack-label borderless dense>
               <template v-slot:control>
-                {{ meas?.wellColumns?.length || 0 }}
+                {{ measurementStore.measurement?.wellColumns?.length || 0 }}
               </template>
             </q-field>
             <q-field label="SubWellData Columns" stack-label borderless dense>
               <template v-slot:control>
-                {{ meas?.subWellColumns?.length || 0 }}
+                {{ measurementStore.measurement?.subWellColumns?.length || 0 }}
               </template>
             </q-field>
             <q-field label="Image Channels" stack-label borderless dense>
               <template v-slot:control>
-                {{ (meas?.imageChannels || []).join(', ') || "No image data" }}
+                {{ (measurementStore.measurement?.imageChannels || []).join(', ') || "No image data" }}
               </template>
             </q-field>
           </div>
           <div class="col-4">
             <q-field label="Created On" stack-label dense borderless>
                 <template v-slot:control>
-                    {{ FormatUtils.formatDate(meas?.createdOn) }}
+                    {{ FormatUtils.formatDate(measurementStore.measurement?.createdOn) }}
                 </template>
             </q-field>
             <q-field label="Created By" stack-label dense borderless>
                 <template v-slot:control>
                     <div class="q-pt-xs">
-                        <UserChip :id="meas?.createdBy"/>
+                        <UserChip :id="measurementStore.measurement?.createdBy"/>
                     </div>
                 </template>
             </q-field>
@@ -103,9 +110,9 @@
             <q-tab-panel name="subWellData" class="q-px-none">
               <div class="row q-pa-md">
                 <div class="col-8">
-                  <q-select :options="wellPositions" v-model="selectedWellPosition"
+                  <q-select :options="WellUtils.getWellPositions(measurementStore.measurement.rows, measurementStore.measurement.columns)" v-model="selectedWellPosition"
                             @update:model-value="loadSubWellData" label="Select well" dense/>
-                  <q-select :options="subWellColumns" v-model="selectedSubWellColumns"
+                  <q-select :options="measurementStore.measurement.subWellColumns" v-model="selectedSubWellColumns"
                             @update:model-value="loadSubWellData" label="Select sub-well column"
                             dense multiple>
                     <template v-slot:option="{ itemProps, opt, selected, toggleOption }">
@@ -125,7 +132,7 @@
                 <q-table
                     table-header-class="text-grey"
                     flat dense
-                    :rows="subWellDataRows"
+                    :rows="measurementStore.subWellData"
                     :columns="subWellDataColumns"
                     row-key="id"
                     :pagination="{ rowsPerPage: 100 }"
@@ -154,7 +161,7 @@
 </template>
 
 <script setup>
-import {computed, ref} from 'vue'
+import {computed, onMounted, ref} from 'vue'
 import {useStore} from "vuex";
 import {useRoute} from 'vue-router'
 
@@ -166,6 +173,9 @@ import WellGrid from "@/components/well/WellGrid";
 import WellUtils from "@/lib/WellUtils";
 import FilterUtils from "@/lib/FilterUtils";
 import FormatUtils from "@/lib/FormatUtils";
+import TagList from "@/components/tag/TagList.vue";
+import metadataAPI from "@/api/metadata";
+import {useMeasurementStore} from "@/stores/measurement";
 
 const activeTab = ref('wellData');
 const loading = ref(true);
@@ -174,31 +184,29 @@ const store = useStore();
 const route = useRoute();
 const measId = parseInt(route.params.id);
 
-const meas = computed(() => store.getters['measurements/getById'](measId));
-store.dispatch('measurements/loadById', measId);
-
-const wellPositions = computed(() => WellUtils.getWellPositions(meas.value.rows, meas.value.columns))
-const subWellColumns = computed(() => meas.value.subWellColumns)
-const selectedWellPosition = ref(null)
-const selectedSubWellColumns = ref([])
+const measurementStore = useMeasurementStore()
+onMounted(async () => {
+  await measurementStore.loadMeasurementById(measId)
+  await measurementStore.loadWellData(measId)
+  await measurementStore.loadAllRenderConfigs()
+  loading.value = false
+})
 
 const wellNrLimit = ref(20);
 const wells = computed(() => {
-  if (!meas.value) return [];
-  let nrs = [...Array(meas.value.rows * meas.value.columns).keys()].map(i => i + 1);
+  if (!measurementStore.measurement) return [];
+  let nrs = [...Array(measurementStore.measurement.rows * measurementStore.measurement.columns).keys()].map(i => i + 1);
   return nrs.map(nr => {
-    let pos = WellUtils.getWellPosition(nr, meas.value.columns);
-    let coord = WellUtils.getWellCoordinate(pos[0], pos[1]);
-    return {nr: nr, row: pos[0], columns: pos[1], coord: coord};
-  });
-});
-
+    let pos = WellUtils.getWellPosition(nr, measurementStore.measurement.columns);
+    let coord = WellUtils.getWellCoordinate(pos[0], pos[1])
+    return {nr: nr, row: pos[0], columns: pos[1], coord: coord}
+  })
+})
 const wellDataColumns = ref([
   {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true}
-]);
-
+])
 const wellData = computed(() => {
-  let dataMap = store.getters['measurements/getWellData'](measId) || {};
+  let dataMap = measurementStore.wellData
   let columns = Object.keys(dataMap).sort();
   ((wellNrLimit.value > 0) ? wells.value.slice(0, wellNrLimit.value) : wells.value).forEach(well => {
     wellDataColumns.value.push({
@@ -211,41 +219,38 @@ const wellData = computed(() => {
   });
   return columns.map(col => {
     return {name: col, values: dataMap[col]}
-  });
-});
-store.dispatch('measurements/loadWellData', measId).then(() => loading.value = false);
+  })
+})
 
-const subWellDataColumns = ref([
-  {name: 'wellNr', align: 'left', label: 'WellNr', field: 'wellNr', sortable: true},
-])
-const subWellDataRows = computed(() => store.getters['measurements/getSubWellData'](measId, WellUtils.getWellNrByWellPos(selectedWellPosition.value, meas.value.columns), selectedSubWellColumns.value))
-
-const plate = computed(() => {
-  return {
-    rows: meas.value.rows,
-    columns: meas.value.columns,
-    wells: [...Array(meas.value.rows * meas.value.columns).keys()].map(i => {
-      let pos = WellUtils.getWellPosition(i + 1, meas.value.columns);
-      return { row: pos[0], column: pos[1], nr: i + 1, measId: measId };
-    })
-  }
-});
-
-const wellImageFunction = (well) => {
-  // console.log(JSON.stringify({ measId: meas.value?.id, wellNr: well.nr }));
-  // const img = store.getters['measurements/getMeasImage']({ measId: meas.value.id, wellNr: well.nr });
-  // if (!img) store.dispatch('measurements/loadMeasImage', { measId: meas.value.id, wellNr: well.nr, scale: 0.01 });
-  // return img;
-  return "";
-}
-
-const loadSubWellData = () => {
-  const wellNr = WellUtils.getWellNrByWellPos(selectedWellPosition.value, meas.value.columns)
-  store.dispatch('measurements/loadSubWellData', {measId: meas.value.id, wellNr: wellNr, subWellColumns: selectedSubWellColumns.value})
-  subWellDataColumns.value = [{name: 'wellNr', align: 'left', label: 'WellNr', field: 'wellNr', sortable: true}]
+const selectedWellPosition = ref(null)
+const selectedSubWellColumns = ref([])
+const subWellDataColumns = ref([])
+const loadSubWellData = async () => {
+  const wellNr = WellUtils.getWellNrByWellPos(selectedWellPosition.value, measurementStore.measurement.columns)
+  await measurementStore.loadSubWellData({wellNr: wellNr, subWellColumns: selectedSubWellColumns.value})
+  subWellDataColumns.value = []
   for (const swColumn of selectedSubWellColumns.value) {
     subWellDataColumns.value.push({name: [swColumn], align: 'left', label: [swColumn], field: [swColumn], sortable: true})
   }
+}
+
+
+const plate = computed(() => {
+  return {
+    rows: measurementStore.measurement.rows,
+    columns: measurementStore.measurement.columns,
+    wells: [...Array(measurementStore.measurement.rows * measurementStore.measurement.columns).keys()].map(i => {
+      let pos = WellUtils.getWellPosition(i + 1, measurementStore.measurement.columns);
+      return { row: pos[0], column: pos[1], nr: i + 1, measId: measurementStore.measurement.id };
+    })
+  }
+})
+const wellImageFunction = async (well) => {
+  // await measurementStore.loadMeasImage({ wellNr: well.nr, scale: 0.01 })
+  // // const img = store.getters['measurements/getMeasImage']({ measId: meas.value.id, wellNr: well.nr });
+  // // if (!img) store.dispatch('measurements/loadMeasImage', { measId: meas.value.id, wellNr: well.nr, scale: 0.01 });
+  // return measurementStore.measImages[measId + '#' + well.nr];
+  return "";
 }
 
 const handleWellSelection = (selectedWells) => {
@@ -253,6 +258,15 @@ const handleWellSelection = (selectedWells) => {
   // selectedWells.forEach(well => {
   //   store.dispatch('measurements/loadMeasImage', { measId: meas.value.id, wellNr: well.nr, scale: 0.01 });
   // })
+}
+
+const addTag = async (newTag) => {
+  // await metadataAPI.addTag({'objectId': measurement.id, 'objectClass': 'EXPERIMENT', 'tag': newTag })
+  // this.loadExperiment(this.experiment.id)
+}
+const deleteTag = (tag) => {
+  // await metadataAPI.removeTag({'objectId': this.experiment.id, 'objectClass': 'EXPERIMENT', 'tag': tag})
+  // this.loadExperiment(this.experiment.id)
 }
 
 const filter = ref({

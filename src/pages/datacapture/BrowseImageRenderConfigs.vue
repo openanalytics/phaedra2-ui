@@ -9,9 +9,8 @@
       <q-table
           class="full-width"
           table-header-class="text-grey"
-          :rows="configs"
+          :rows="measurementStore.renderConfigs"
           :columns="columns"
-          :visible-columns="visibleColumns"
           row-key="id"
           column-key="name"
           :filter="filter"
@@ -70,8 +69,7 @@
 </template>
 
 <script setup>
-import {ref, computed, watch} from 'vue'
-import {useStore} from 'vuex'
+import {ref, onMounted} from 'vue'
 import FormatUtils from "@/lib/FormatUtils.js";
 import FilterUtils from "@/lib/FilterUtils.js";
 import OaSection from "@/components/widgets/OaSection";
@@ -80,14 +78,15 @@ import ColumnFilter from "@/components/table/ColumnFilter";
 import ColorButton from "@/components/image/ColorButton";
 import CreateRenderConfigDialog from "@/components/image/CreateRenderConfigDialog";
 import DeleteRenderConfigDialog from "@/components/image/DeleteRenderConfigDialog";
+import {useMeasurementStore} from "@/stores/measurement";
 
-const store = useStore();
 const loading = ref(true);
-
-const configs = computed(() => store.getters['measurements/getRenderConfigs']());
-store.dispatch('measurements/loadAllRenderConfigs').then(() => {
-  loading.value = false
-});
+const measurementStore = useMeasurementStore()
+onMounted(() => {
+  measurementStore.loadAllRenderConfigs().then(() => {
+    loading.value = false
+  })
+})
 
 const visibleColumns = ref([])
 
@@ -112,12 +111,4 @@ const deleteConfig = (id) => {
   configIdToDelete.value = id;
   showDeleteConfigDialog.value = true;
 }
-
-const updateVisibleColumns = (columns) => {
-  visibleColumns.value = [...columns]
-}
-
-watch(configs, () => {
-  visibleColumns.value = [...columns.value.map(a => a.name)];
-})
 </script>

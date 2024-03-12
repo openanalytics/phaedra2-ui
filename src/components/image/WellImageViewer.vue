@@ -25,7 +25,7 @@
                 <q-expansion-item dense expand-separator icon="settings" label="Render Settings" default-opened>
                     <div class="q-pb-sm">
                         <q-select dense outlined v-model="selectedRenderConfig" label="Channel Configuration" class="q-pa-sm"
-                            :options="renderConfigs" option-label="name"
+                            :options="measurementStore.renderConfigs" option-label="name"
                          />
                     </div>
                     <q-table
@@ -62,12 +62,12 @@
 </style>
 
 <script setup>
-    import {computed, ref, watch, onMounted, onUnmounted } from 'vue'
-    import {useStore} from 'vuex'
+    import {computed, ref, watch, onMounted} from 'vue'
     import {useUIStore} from "@/stores/ui";
     import ColorUtils from '@/lib/ColorUtils';
     import WellUtils from "@/lib/WellUtils.js";
     import {usePlateStore} from "@/stores/plate";
+    import {useMeasurementStore} from "@/stores/measurement";
 
     const configPanel = ref(null);
     const maxCanvasHeight = ref(100);
@@ -77,29 +77,15 @@
         maxCanvasHeight.value = (maxPanelHeight - 17 - (configPanel.value ? configPanel.value.clientHeight : 0)) + 'px';
     };
 
-    const store = useStore();
+    const measurementStore = useMeasurementStore()
     const uiStore = useUIStore();
     const plateStore = usePlateStore()
     const loading = ref(false);
 
     const selectedRenderConfig = ref(null);
-    const renderConfigs = computed(() => store.getters['measurements/getRenderConfigs']());
-    store.dispatch('measurements/loadAllRenderConfigs');
-
-    // const renderConfig = computed(() => {
-    //     let cfg = store.getters['measurements/getRenderConfig'](selectedRenderConfigId.value) || {};
-    //     console.log(selectedRenderConfigId.value)
-    //     console.log(cfg);
-    //     return cfg;
-    // });
-    // const loadRenderConfig = () => {
-    //     store.dispatch('measurements/loadRenderConfig', selectedRenderConfigId.value).then(() => {
-    //         if (selectedChannels.value.length === 0) {
-    //             let channels = renderConfig.value.config.channelConfigs;
-    //             if (channels.length > 0) selectedChannels.value = [ channels[0] ];
-    //         }
-    //     });
-    // };
+    onMounted(() => {
+      measurementStore.loadAllRenderConfigs()
+    })
 
     const channelColumns = [
         { name: 'name', label: 'Channel', align: 'left', field: 'name' },
@@ -125,8 +111,8 @@
         if (selectedWell.value?.row && selectedWell.value?.column) {
             info += WellUtils.getWellCoordinate(selectedWell.value.row, selectedWell.value.column);
         } else if (selectedWell.value?.nr && selectedWell.value?.measId) {
-            let meas = store.getters['measurements/getById'](selectedWell.value.measId);
-            let pos = WellUtils.getWellPosition(selectedWell.value.nr, meas.columns);
+            // let meas = store.getters['measurements/getById'](selectedWell.value.measId);
+            let pos = WellUtils.getWellPosition(selectedWell.value.nr, measurementStore.measurement.columns);
             info += WellUtils.getWellCoordinate(pos[0], pos[1]);
         } else {
             return "No Well Selected";
@@ -135,7 +121,7 @@
     });
     const errorInfo = ref(null);
 
-    const getImageURL = () => {
+    const getImageURL = async () => {
         if (selectedChannels.value.length === 0) return;
         let channelNames = selectedChannels.value.map(c => c.name).join(',');
         let measId = null;
@@ -144,7 +130,8 @@
         let well = selectedWell.value;
         if (well?.plateId) {
             //TODO Assuming here that meas is already stored.
-            let measLink = store.getters['measurements/getActivePlateMeasurement'](well.plateId);
+            await plateStore.loadPlateMeasurements(well.plateId)
+            let measLink = plateStore.activeMeasurement
             if (measLink === undefined) measLink = plateStore.activeMeasurement
             if (measLink === null) return null;
             measId = measLink.measurementId;
@@ -215,22 +202,6 @@
         isMouseOnCanvas = false;
         canvasDragEnd(event);
     }
-    // const canvasMouseScroll = (event) => {
-    //     if (event.deltaY === 0 || !isMouseOnCanvas) return;
-    //     event.preventDefault();
-
-    //     let isZoomIn = event.deltaY < 0;
-    //     if (isZoomIn && scale.value <= scaleLimits[1]) scale.value *= 2;
-    //     else if (scale.value >= scaleLimits[0]) scale.value /= 2;
-    //     else return;
-    //     reloadImage();
-    // }
-    // onMounted(() => {
-    //     window.addEventListener('wheel', canvasMouseScroll, { passive: false });
-    // });
-    // onUnmounted(() => {
-    //     window.removeEventListener('wheel', canvasMouseScroll);
-    // });
 
     const doZoom = (amount) => {
         if (amount > 0 && scale.value <= scaleLimits[1]) scale.value *= (2 * amount);

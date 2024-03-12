@@ -76,7 +76,7 @@ import CaptureScriptsView from '@/pages/datacapture/CaptureScriptsView.vue'
 import CaptureScriptView from '@/pages/datacapture/CaptureScriptView.vue'
 import CaptureConfigsView from '@/pages/datacapture/CaptureConfigsView.vue'
 import CaptureConfigView from '@/pages/datacapture/CaptureConfigView.vue'
-import MeasurementsView from "@/pages/datacapture/MeasurementsView.vue"
+import BrowseMeasurements from "@/pages/datacapture/BrowseMeasurements.vue"
 import MeasurementDetailsView from "@/pages/datacapture/MeasurementDetailsView.vue"
 import BrowseImageRenderConfigs from "@/pages/datacapture/BrowseImageRenderConfigs.vue"
 import ImageRenderConfigDetails from "@/pages/datacapture/ImageRenderConfigDetails.vue"
@@ -154,7 +154,7 @@ const routes = createRouter({
         {name: "dataCaptureScript", path: "/datacapture/script/:id", component: CaptureScriptView},
         {name: "dataCaptureConfigs", path: "/datacapture/configs", component: CaptureConfigsView},
         {name: "dataCaptureConfig", path: "/datacapture/config/:id", component: CaptureConfigView},
-        {name: "measurements", path: "/datacapture/meas", component: MeasurementsView},
+        {name: "measurements", path: "/datacapture/meas", component: BrowseMeasurements},
         {name: "measurementDetails", path: "/datacapture/meas/:id", component: MeasurementDetailsView},
         {name: "imageRenderConfigs", path: "/datacapture/render-configs", component: BrowseImageRenderConfigs},
         {

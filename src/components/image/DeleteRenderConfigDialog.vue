@@ -18,17 +18,18 @@
 </template>
 
 <script setup>
-    import {ref, computed} from 'vue';
-    import {useStore} from 'vuex';
+import {ref, computed} from 'vue';
+import {useMeasurementStore} from "@/stores/measurement";
 
-    const props = defineProps({
-        id: Number
-    });
+const props = defineProps({
+  id: Number
+});
 
-    const store = useStore();
-    const config = computed(() => store.getters['measurements/getRenderConfig'](props.id));
-    const showDialog = ref(false);
-    const confirmDelete = () => {
-        store.dispatch('measurements/deleteRenderConfig', props.id);
-    };
+const showDialog = ref(false);
+
+const measurementStore = useMeasurementStore()
+const config = computed(() => measurementStore.getRenderConfigById(props.id));
+const confirmDelete = () => {
+  measurementStore.deleteRenderConfig(props.id)
+}
 </script>

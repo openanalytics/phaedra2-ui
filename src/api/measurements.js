@@ -3,8 +3,8 @@ import axios from "axios";
 const apiURL = (config.VUE_APP_API_BASE_URL || process.env.VUE_APP_API_BASE_URL) + '/measurement-service';
 
 export default {
-    async getAllMeasurements() {
-        const response = await axios.get(`${apiURL}/measurements`);
+    async getAllMeasurements(range) {
+        const response = await axios.get(`${apiURL}/measurements`, {params: range});
         return response.data;
     },
     async getMeasurementById(id) {

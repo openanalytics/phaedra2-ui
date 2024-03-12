@@ -10,9 +10,8 @@
         <q-table
             table-header-class="text-grey"
             class="full-width"
-            :rows="measurements"
+            :rows="measurementStore.measurements"
             :columns="columns"
-            :visible-columns="visibleColumns"
             :filter="filter"
             :filter-method="filterMethod"
             row-key="id"
@@ -23,10 +22,11 @@
             separator="cell"
             flat dense square
         >
+          <template v-slot:top-left>
+            <q-btn color="primary" icon="refresh" size="sm" @click="refreshList" class="on-left"/>
+          </template>
           <template v-slot:top-right>
-            <div class="row">
-              <q-btn flat round color="primary" icon="settings" style="border-radius: 50%;" @click="configdialog=true"/>
-            </div>
+            <date-range-selector v-model:from="fromDate" v-model:to="toDate" @rangeChanged="refreshList"/>
           </template>
           <template v-slot:header="props">
             <q-tr :props="props">
@@ -46,30 +46,42 @@
         </q-table>
       </oa-section>
     </div>
-    <table-config v-model:show="configdialog" v-model:visibleColumns="visibleColumns"
-                  v-model:columns="columns"></table-config>
   </q-page>
 </template>
 
 <script setup>
-import {computed, ref, watch} from 'vue'
-import {useStore} from "vuex";
+import {onMounted, ref} from 'vue'
 import {useRouter} from "vue-router";
 import FormatUtils from "@/lib/FormatUtils";
 import FilterUtils from "@/lib/FilterUtils.js";
-import TableConfig from "@/components/table/TableConfig";
 import OaSection from "@/components/widgets/OaSection";
 import UserChip from "@/components/widgets/UserChip";
 import ColumnFilter from "@/components/table/ColumnFilter";
+import {useMeasurementStore} from "@/stores/measurement";
+import DateRangeSelector from "@/components/widgets/DateRangeSelector.vue";
+import {date} from "quasar";
 
 const router = useRouter()
 const loading = ref(true);
-const store = useStore()
 
-const measurements = computed(() => store.getters['measurements/getAll']() || [])
-store.dispatch('measurements/loadAll').then(() => loading.value = false);
+const measurementStore = useMeasurementStore()
+onMounted(() => {
+  refreshList()
+})
 
-const visibleColumns = ref([])
+const now = new Date();
+const fromDate = ref(date.subtractFromDate(now, { days: 7 }));
+const toDate = ref(date.addToDate(now, { days: 1 }));
+const getDateRange = () => {
+  return { from: fromDate.value.getTime(), to: toDate.value.getTime() };
+};
+
+const refreshList = () => {
+  loading.value = true;
+  measurementStore.loadAllMeasurements(getDateRange()).then(() => {
+    loading.value = false
+  })
+};
 
 const columns = ref([
   {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
@@ -85,14 +97,4 @@ const columns = ref([
 
 const filter = FilterUtils.makeFilter(columns.value);
 const filterMethod = FilterUtils.defaultFilterMethod();
-
-const configdialog = ref(false)
-
-const updateVisibleColumns = (columns) => {
-  visibleColumns.value = [...columns]
-}
-
-watch(measurements, () => {
-  visibleColumns.value = [...columns.value.map(a => a.name)];
-})
 </script>

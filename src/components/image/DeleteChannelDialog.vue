@@ -18,22 +18,24 @@
 </template>
 
 <script setup>
-    import {computed} from 'vue';
-    import {useStore} from 'vuex';
+import {onMounted, ref} from 'vue';
+import {useMeasurementStore} from "@/stores/measurement";
 
-    const props = defineProps({
-        configId: Number,
-        channelNr: Number
-    });
+const props = defineProps({
+  configId: Number,
+  channelNr: Number
+});
 
-    const store = useStore();
-    const config = computed(() => store.getters['measurements/getRenderConfig'](props.configId));
-    const channel = computed(() => config.value.config.channelConfigs[props.channelNr - 1]);
+const measurementStore = useMeasurementStore()
+const channel = ref({})
+onMounted(() => {
+  channel.value = measurementStore.renderConfig?.config.channelConfigs[props.channelNr - 1] ?? {}
+})
 
-    const confirmDelete = () => {
-        let newConfig = { ...config.value.config };
-        newConfig.channelConfigs = [ ...config.value.config.channelConfigs ];
-        newConfig.channelConfigs.splice(props.channelNr - 1, 1);
-        store.dispatch('measurements/updateRenderConfig', { id: props.configId, config: newConfig });
-    };
+const confirmDelete = () => {
+  let newConfig = {...measurementStore.renderConfig};
+  newConfig.channelConfigs = [...measurementStore.renderConfig.config.channelConfigs];
+  newConfig.channelConfigs.splice(props.channelNr - 1, 1);
+  measurementStore.updateRenderConfig({id: props.configId, config: newConfig})
+};
 </script>
