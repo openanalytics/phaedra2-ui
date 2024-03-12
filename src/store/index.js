@@ -5,7 +5,7 @@ import experiments from './modules/experiments'
 import plates from './modules/plates'
 import wells from './modules/wells'
 import protocols from './modules/protocols'
-import pipelines from './modules/pipelines'
+// import pipelines from './modules/pipelines'
 import features from './modules/features'
 import measurements from './modules/measurements'
 import resultdata from './modules/resultdata'
@@ -27,7 +27,7 @@ export default createStore({
     plates,
     wells,
     protocols,
-    pipelines,
+    // pipelines,
     features,
     measurements,
     resultdata,

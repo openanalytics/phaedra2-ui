@@ -141,7 +141,7 @@ onMounted(() => {
   pipelineStore.loadPipelineExecutionById(executionId)
 })
 
-const canCancel = computed(() => pipelineStore.execution?.status == 'RUNNING');
+const canCancel = computed(() => pipelineStore.execution?.status === 'RUNNING');
 const showCancelDialog = ref(false);
 const confirmCancel = () => {
   pipelineStore.cancelPipelineExecution(executionId)
