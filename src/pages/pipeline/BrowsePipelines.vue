@@ -65,7 +65,6 @@
 
 <script setup>
 import {ref, onMounted} from 'vue';
-import {useStore} from 'vuex';
 import {useRouter} from "vue-router";
 import FilterUtils from "@/lib/FilterUtils.js"
 import FormatUtils from "@/lib/FormatUtils.js"

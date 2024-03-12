@@ -98,8 +98,7 @@
 </template>
 
 <script setup>
-import {onMounted, ref, watch} from "vue";
-import {useStore} from "vuex";
+import {onMounted, ref} from "vue";
 import {useRoute, useRouter} from 'vue-router';
 import {Codemirror} from 'vue-codemirror';
 import {json} from '@codemirror/lang-json';
@@ -111,8 +110,6 @@ import DeleteDialog from "@/components/widgets/DeleteDialog";
 import ConfirmDialog from "@/components/widgets/ConfirmDialog";
 import EditableField from "@/components/widgets/EditableField";
 import {usePipelineStore} from "@/stores/pipeline";
-
-const store = useStore();
 
 const pipelineStatusToggle = ref(false);
 const pipelineStore = usePipelineStore()
