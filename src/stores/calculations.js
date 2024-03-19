@@ -19,7 +19,6 @@ export const useCalcStore = defineStore('calculation', {
                 return f.id === id
             })
             this.formulas[index] = {...this.formulas[index], ...formula}
-            // ctx.commit('cacheFormula', formula);
         },
         async getFormulaInputs(id) {
             const formulaInputs = await calculationsAPI.getFormulaInputs(id);
