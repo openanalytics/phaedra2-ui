@@ -59,16 +59,16 @@ const actions = {
             })
         }
     },
-    // async createFeature(ctx, args) {
-    //     await featuresAPI.createFeature(args.newFeature)
-    //         .then((result) => {
-    //             ctx.commit('cacheOne', result);
-    //             ctx.commit('features/cacheInProtocol', result, {root: true})
-    //             args.civs.forEach(c => {
-    //                 ctx.dispatch('createCalculationInputValue',{featureId: result.id, civ: c})
-    //             })
-    //         })
-    // },
+    async createFeature(ctx, args) {
+        await featuresAPI.createFeature(args.newFeature)
+            .then((result) => {
+                ctx.commit('cacheOne', result);
+                ctx.commit('features/cacheInProtocol', result, {root: true})
+                args.civs.forEach(c => {
+                    ctx.dispatch('createCalculationInputValue',{featureId: result.id, civ: c})
+                })
+            })
+    },
     async deleteFeature(ctx, id) {
         await featuresAPI.deleteFeature(id)
         ctx.commit('deleteFeature', id)
@@ -147,8 +147,8 @@ const mutations = {
         const f = state.features.find(f => f.id === id)
         state.features = state.features.filter(feature => feature.id !== id)
         if (f){
-        let i = state.featuresInProtocol[f.protocolId].findIndex(t => t.id === id);
-        state.featuresInProtocol[f.protocolId].splice(i, 1);}
+            let i = state.featuresInProtocol[f.protocolId].findIndex(t => t.id === id);
+            state.featuresInProtocol[f.protocolId].splice(i, 1);}
     },
     editFeature(state, feature) {
         //Replace properties in state.plates
