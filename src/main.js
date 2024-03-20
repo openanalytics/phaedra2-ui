@@ -66,8 +66,6 @@ import BrowseProtocols from '@/pages/protocol/BrowseProtocols.vue'
 import ProtocolView from '@/pages/protocol/ProtocolView.vue'
 import NewProtocolView from "@/pages/protocol/NewProtocolView.vue"
 import ImportProtocolView from "@/pages/protocol/ImportProtocolView.vue"
-import FeatureView from "@/pages/feature/FeatureView.vue"
-import FormulaTab  from "@/pages/feature/FormulaTab.vue"
 
 import BrowseFormulas from "@/pages/calculation/formula/BrowseFormulas.vue"
 import FormulaView from "@/pages/calculation/formula/FormulaView.vue"
@@ -135,12 +133,6 @@ const routes = createRouter({
         {name: "protocol", path: "/protocol/:id", component: ProtocolView},
         {name: "newProtocol", path: "/protocol/new", component: NewProtocolView},
         {name: "importProtocol", path: "/protocol/import", component: ImportProtocolView},
-        {
-            name: "feature", path: "/feature/:id", component: FeatureView,
-            children: [
-                {path: '', component: FormulaTab, name: "featureFormula"},
-            ]
-        },
 
         {name: "browseTemplates", path: "/templates", component: BrowseTemplates},
         {name: "template", path: "/template/:id", component: PlateTemplateView},

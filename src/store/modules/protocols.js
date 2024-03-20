@@ -67,53 +67,48 @@ const actions = {
         const updatedProtocol = await protocolAPI.editProtocol(protocol);
         ctx.commit('cacheProtocols', [updatedProtocol]);
     },
-    async downloadAsJson({rootGetters}, id) {
-        //TODO This should move out of the store. Suggested: into the lib folder.
-
-        //Make hard copy of protocol and assign features + formulaName, delete id
-        const protocol = {...rootGetters['protocols/getById'](id)}
-        delete protocol.id
-        //If there are features, add them
-        if (rootGetters['features/getByProtocolId'](id)){
-            protocol.features = rootGetters['features/getByProtocolId'](id).map(a => {return {...a}})
-            protocol.features.forEach(f => {
-                //Add formulaName
-                if(rootGetters['calculations/getFormula'](f.formulaId))
-                    f.formulaName = rootGetters['calculations/getFormula'](f.formulaId).name
-                //Load, remove ids and add civ
-                if(rootGetters['features/getCalculationInputValueByFeatureId'](f.id)){
-                    f.calculationInputValues = rootGetters['features/getCalculationInputValueByFeatureId'](f.id).map(a => {return {...a}})
-                    f.calculationInputValues.forEach(c => {delete c.id; delete c.featureId})}
-                delete f.id
-                delete f.protocolId
-            })}
-        //Parse and save to default downloads folder, a lot of boilerplate code form stackoverflow
-        const data = JSON.stringify(protocol)
-        const blob = new Blob([data], {type: 'text/plain'})
-        const e = document.createEvent('MouseEvents'),
-            a = document.createElement('a');
-        //File name
-        a.download = protocol.name + ".json";
-        a.href = window.URL.createObjectURL(blob);
-        a.dataset.downloadurl = ['text/json', a.download, a.href].join(':');
-        e.initEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
-        a.dispatchEvent(e);
-    },
-    async importAsJson({dispatch}, json) {
-        const features = json.features
-        delete json.features
-        //Add new protocol without features
-        const protocol = await dispatch('saveNewProtocol', json)
-        //Add new features without formulaName, with new protocolId
-        if (features){
-            features.forEach(f => {
-                const civs = f.calculationInputValues
-                f.protocolId = protocol.id
-                delete f.formulaName
-                delete f.calculationInputValues
-                dispatch('features/createFeature', {newFeature: f, civs: civs}, {root:true})
-            })}
-    }
+    //     delete protocol.id
+    //     //If there are features, add them
+    //     if (rootGetters['features/getByProtocolId'](id)){
+    //     protocol.features = rootGetters['features/getByProtocolId'](id).map(a => {return {...a}})
+    //     protocol.features.forEach(f => {
+    //         //Add formulaName
+    //         if(rootGetters['calculations/getFormula'](f.formulaId))
+    //             f.formulaName = rootGetters['calculations/getFormula'](f.formulaId).name
+    //         //Load, remove ids and add civ
+    //         if(rootGetters['features/getCalculationInputValueByFeatureId'](f.id)){
+    //         f.calculationInputValues = rootGetters['features/getCalculationInputValueByFeatureId'](f.id).map(a => {return {...a}})
+    //         f.calculationInputValues.forEach(c => {delete c.id; delete c.featureId})}
+    //         delete f.id
+    //         delete f.protocolId
+    //     })}
+    //     //Parse and save to default downloads folder, a lot of boilerplate code form stackoverflow
+    //     const data = JSON.stringify(protocol)
+    //     const blob = new Blob([data], {type: 'text/plain'})
+    //     const e = document.createEvent('MouseEvents'),
+    //         a = document.createElement('a');
+    //     //File name
+    //     a.download = protocol.name + ".json";
+    //     a.href = window.URL.createObjectURL(blob);
+    //     a.dataset.downloadurl = ['text/json', a.download, a.href].join(':');
+    //     e.initEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+    //     a.dispatchEvent(e);
+    // },
+    // async importAsJson({dispatch}, json) {
+    //     const features = json.features
+    //     delete json.features
+    //     //Add new protocol without features
+    //     const protocol = await dispatch('saveNewProtocol', json)
+    //     //Add new features without formulaName, with new protocolId
+    //     if (features){
+    //     features.forEach(f => {
+    //         const civs = f.calculationInputValues
+    //         f.protocolId = protocol.id
+    //         delete f.formulaName
+    //         delete f.calculationInputValues
+    //         dispatch('features/createFeature', {newFeature: f, civs: civs}, {root:true})
+    //     })}
+    // }
 }
 
 const mutations = {

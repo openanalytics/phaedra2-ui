@@ -27,46 +27,46 @@ const getters = {
 }
 
 const actions = {
-    async loadById(ctx, plateTemplateId) {
-        let plateTemplate = ctx.getters.getById(plateTemplateId)
-        if (plateTemplate) {
-            ctx.commit('loadPlateTemplate', plateTemplate)
-        } else {
-            try {
-                plateTemplate = await templateAPI.getPlateTemplateById(plateTemplateId)
-                ctx.commit('loadPlateTemplate', plateTemplate)
-            } catch (err) {
-                console.error(err)
-            }
-        }
-
-        //TODO add properties and tags load
-    },
-    async loadAll(ctx) {
-        const response = await templateAPI.getAllPlateTemplates();
-        ctx.commit('cacheAllPlateTemplates', response);
-    },
-    async createNewPlateTemplate(ctx, newPlateTemplate) {
-        const createdTemplate = await templateAPI.createPlateTemplate(newPlateTemplate);
-        // ctx.commit('cachePlateTemplate', createdTemplate);
-        return createdTemplate;
-    },
-    async deletePlateTemplate(ctx, id) {
-        await templateAPI.deletePlateTemplate(id)
-            .then(() => {
-                ctx.commit('uncachePlateTemplate', id)
-            })
-    },
-    async updatePlateTemplate(ctx, args) {
-        await templateAPI.editPlateTemplate(args)
-        ctx.commit('updatePlateTemplate', args)
-    },
-    async updateWellTemplates(ctx, args) {
-        ctx.commit('updateWellTemplates', args)
-    },
-    async savePlateTemplate(ctx) {
-        ctx.commit('savePlateTemplate')
-    }
+    // async loadById(ctx, plateTemplateId) {
+    //     let plateTemplate = ctx.getters.getById(plateTemplateId)
+    //     if (plateTemplate) {
+    //         ctx.commit('loadPlateTemplate', plateTemplate)
+    //     } else {
+    //         try {
+    //             plateTemplate = await templateAPI.getPlateTemplateById(plateTemplateId)
+    //             ctx.commit('loadPlateTemplate', plateTemplate)
+    //         } catch (err) {
+    //             console.error(err)
+    //         }
+    //     }
+    //
+    //     //TODO add properties and tags load
+    // },
+    // async loadAll(ctx) {
+    //     const response = await templateAPI.getAllPlateTemplates();
+    //     ctx.commit('cacheAllPlateTemplates', response);
+    // },
+    // async createNewPlateTemplate(ctx, newPlateTemplate) {
+    //     const createdTemplate = await templateAPI.createPlateTemplate(newPlateTemplate);
+    //     // ctx.commit('cachePlateTemplate', createdTemplate);
+    //     return createdTemplate;
+    // },
+    // async deletePlateTemplate(ctx, id) {
+    //     await templateAPI.deletePlateTemplate(id)
+    //         .then(() => {
+    //             ctx.commit('uncachePlateTemplate', id)
+    //         })
+    // },
+    // async updatePlateTemplate(ctx, args) {
+    //     await templateAPI.editPlateTemplate(args)
+    //     ctx.commit('updatePlateTemplate', args)
+    // },
+    // async updateWellTemplates(ctx, args) {
+    //     ctx.commit('updateWellTemplates', args)
+    // },
+    // async savePlateTemplate(ctx) {
+    //     ctx.commit('savePlateTemplate')
+    // }
 }
 
 const mutations = {

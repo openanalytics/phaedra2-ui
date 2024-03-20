@@ -59,16 +59,16 @@ const actions = {
             })
         }
     },
-    async createFeature(ctx, args) {
-        await featuresAPI.createFeature(args.newFeature)
-            .then((result) => {
-                ctx.commit('cacheOne', result);
-                ctx.commit('features/cacheInProtocol', result, {root: true})
-                args.civs.forEach(c => {
-                    ctx.dispatch('createCalculationInputValue',{featureId: result.id, civ: c})
-                })
-            })
-    },
+    // async createFeature(ctx, args) {
+    //     await featuresAPI.createFeature(args.newFeature)
+    //         .then((result) => {
+    //             ctx.commit('cacheOne', result);
+    //             ctx.commit('features/cacheInProtocol', result, {root: true})
+    //             args.civs.forEach(c => {
+    //                 ctx.dispatch('createCalculationInputValue',{featureId: result.id, civ: c})
+    //             })
+    //         })
+    // },
     async deleteFeature(ctx, id) {
         await featuresAPI.deleteFeature(id)
         ctx.commit('deleteFeature', id)
