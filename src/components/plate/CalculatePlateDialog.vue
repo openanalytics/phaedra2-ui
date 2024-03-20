@@ -33,7 +33,6 @@
 <script setup>
 
 import {computed, onUpdated, ref} from "vue";
-import {useStore} from "vuex";
 import ProtocolSelectableList from "@/components/protocol/ProtocolSelectableList";
 import {useCalcStore} from "@/stores/calculations";
 import projectsGraphQlAPI from "@/api/graphql/projects";
@@ -41,7 +40,6 @@ import projectsGraphQlAPI from "@/api/graphql/projects";
 const props = defineProps(['show', 'plate']);
 const emits = defineEmits(['update:show']);
 
-const store = useStore();
 const calculationStore = useCalcStore()
 
 const showDialog = computed({

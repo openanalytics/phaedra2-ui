@@ -64,14 +64,13 @@
 </template>
 
 <script setup>
-    import {computed, ref} from "vue";
-    import {useStore} from "vuex";
+    import {ref} from "vue";
 
     import FormatUtils from "@/lib/FormatUtils.js";
     import ColorUtils from "@/lib/ColorUtils.js";
 
     import UserChip from "@/components/widgets/UserChip";
-    import StatusLabel from "@/components/widgets/StatusLabel"; 
+    import StatusLabel from "@/components/widgets/StatusLabel";
 
     const props = defineProps({
         job: Object

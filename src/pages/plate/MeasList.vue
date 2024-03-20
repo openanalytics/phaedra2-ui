@@ -78,7 +78,6 @@
 
 <script setup>
 import {ref, watch} from 'vue'
-import {useStore} from 'vuex'
 import {useRouter} from "vue-router";
 import FormatUtils from "@/lib/FormatUtils";
 import FilterUtils from "@/lib/FilterUtils";
@@ -88,7 +87,6 @@ import LinkMeasurementDialog from "@/components/measurement/LinkMeasurementDialo
 import projectsGraphQlAPI from "@/api/graphql/projects";
 import {usePlateStore} from "@/stores/plate";
 
-const store = useStore();
 const router = useRouter();
 const props = defineProps({ plate: Object, readOnly: Boolean });
 const readOnly = ref(props.readOnly)

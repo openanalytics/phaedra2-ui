@@ -15,11 +15,9 @@
 
 <script setup>
     import {ref} from "vue";
-    import {useStore} from "vuex";
     import protocolsGraphQlAPI from "@/api/graphql/protocols"
 
     const loading = ref(true);
-    const store = useStore();
     const protocols = ref([])
 
     //TODO: Implement onError

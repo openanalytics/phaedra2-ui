@@ -54,17 +54,10 @@ const confirmDelete = () => {
     case 'plate':
       break;
     case 'protocol':
-      store.dispatch('protocols/deleteProtocol', props.id).then( () => {
-        router.push({name: "browseProtocols"});
-      });
       break;
     case 'template':
-      store.dispatch('templates/deletePlateTemplate', props.id).then( () => {
-        router.push({name: "browseTemplates"});
-      });
       break;
     case 'feature':
-      store.dispatch('features/deleteFeature', props.id);
       break;
     case 'formula':
       store.dispatch('calculations/deleteFormula', props.id);

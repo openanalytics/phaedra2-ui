@@ -39,7 +39,6 @@
 </template>
 
 <script setup>
-import {useStore} from "vuex";
 import {onMounted, ref} from "vue";
 import {useRouter} from "vue-router";
 
@@ -49,7 +48,6 @@ import {useFeatureStore} from "@/stores/feature";
 import OaSection from "@/components/widgets/OaSection";
 import FeatureList from "@/components/feature/FeatureList";
 
-const store = useStore();
 const router = useRouter();
 const protocolStore = useProtocolStore();
 const featureStore = useFeatureStore();
@@ -76,9 +74,8 @@ const wellTypeOptions = ['LC', 'HC', 'NC', 'PC'];
 
 const saveProtocol = () => {
     newProtocol.value.createdOn = new Date();
-    store.dispatch("protocols/saveNewProtocol", newProtocol.value)
-    .then(protocol => {
-        router.push({path: '/protocol/' + protocol?.id});
+    protocolStore.createProtocol(newProtocol.value).then(protocol => {
+      router.push({path: '/protocol/' + protocol?.id})
     })
 }
 

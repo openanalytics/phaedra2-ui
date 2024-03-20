@@ -36,13 +36,11 @@
 
 <script setup>
 import {ref, computed} from "vue";
-import {useStore} from 'vuex';
 import {useRouter} from 'vue-router';
 import OaSection from "@/components/widgets/OaSection";
 import {useProjectStore} from "@/stores/project";
 import {useUserInfoStore} from "@/stores/userinfo";
 
-const store = useStore();
 const projectStore = useProjectStore()
 const userInfoStore = useUserInfoStore()
 const router = useRouter();

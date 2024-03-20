@@ -24,7 +24,7 @@
         <router-link :to="{ name: 'newProtocol' }" class="nav-link">
           <q-btn label="Cancel" type="reset" color="primary" flat class="a-ml-sm on-right"></q-btn>
         </router-link>
-        <q-btn label="Import" type="submit" color="primary" @click="importAsJson"></q-btn>
+        <q-btn label="Import" type="submit" color="primary" @click="importFromJson"></q-btn>
       </div>
     </div>
   </q-page>
@@ -34,13 +34,16 @@
 
 import {ref} from "vue";
 import OaSectionHeader from "../../components/widgets/OaSectionHeader";
-import {useStore} from "vuex";
+import {useProtocolStore} from "@/stores/protocol";
+import {useRouter} from "vue-router";
 
 const jsonFiles = ref([])
 const jsonStatusMessage = ref("")
-const store = useStore()
 
-const importAsJson = () => {
+const router = useRouter()
+const protocolStore = useProtocolStore()
+
+const importFromJson = () => {
   console.log('importing')
   if (jsonFiles.value.length === 0) {
     jsonStatusMessage.value = "No json files selected."
@@ -51,7 +54,9 @@ const importAsJson = () => {
     const fr = new FileReader();
     fr.onload = e => {
       const result = JSON.parse(e.target.result)
-      store.dispatch('protocols/importAsJson', result)
+      protocolStore.importFromJson(result).then((protocol) => {
+        router.push("/protocol/" + protocol.id);
+      })
     }
     fr.readAsText(f)
   })

@@ -10,9 +10,8 @@
         <q-table
             class="full-width"
             table-header-class="text-grey"
-            :rows="protocols"
+            :rows="protocolStore.protocols"
             :columns="columns"
-            :visible-columns="visibleColumns"
             :filter="filter"
             :filter-method="filterMethod"
             row-key="id"
@@ -55,8 +54,7 @@
 </template>
 
 <script setup>
-import {ref, computed, watch} from 'vue'
-import {useStore} from 'vuex'
+import {ref, onMounted} from 'vue'
 import {useRouter} from 'vue-router'
 import FormatUtils from "@/lib/FormatUtils.js"
 import FilterUtils from "@/lib/FilterUtils.js"
@@ -65,16 +63,22 @@ import UserChip from "@/components/widgets/UserChip";
 import OaSection from "@/components/widgets/OaSection";
 import ColumnFilter from "@/components/table/ColumnFilter";
 import TagList from "@/components/tag/TagList";
+import {useProtocolStore} from "@/stores/protocol";
 
-const store = useStore();
+const protocolStore = useProtocolStore()
 const router = useRouter();
 
 const loading = ref(true);
-
-const protocols = computed(() => store.getters['protocols/getAll']());
-store.dispatch('protocols/loadAll').then(() => {
-  loading.value = false
+const protocols = ref([])
+onMounted(() => {
+  fetchAllProtocols()
 })
+
+const fetchAllProtocols = () => {
+  protocolStore.loadAllProtocols().then(() => {
+    loading.value = false
+  })
+}
 
 const columns = ref([
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
@@ -100,13 +104,4 @@ const visibleColumns = ref([])
 const selectProtocol = (event, row) => {
   router.push("/protocol/" + row.id);
 }
-
-const updateVisibleColumns = (columns) => {
-  visibleColumns.value = [...columns]
-}
-
-watch(protocols, () => {
-  visibleColumns.value = [...columns.value.map(a => a.name)];
-  loading.value = false
-})
 </script>

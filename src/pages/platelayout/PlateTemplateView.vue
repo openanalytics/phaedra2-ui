@@ -145,8 +145,9 @@ const onDescriptionChanged = async (newDescription) => {
   await templateStore.editTemplateDescription(newDescription)
 };
 
-const onDeleted = () => {
-  router.push({name: 'dashboard'})
+const onDeleted = async () => {
+  await templateStore.deleteTemplate()
+  await router.push({name: "browseTemplates"});
 }
 
 const openDeleteDialog = () => {

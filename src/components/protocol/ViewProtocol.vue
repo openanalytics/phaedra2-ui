@@ -59,6 +59,9 @@
             <q-btn size="sm" icon="edit" class="oa-action-button" label="Rename" @click="showRenameDialog = true"/>
           </div>
           <div class="row justify-end action-button">
+            <q-btn size="sm" icon="import_export" class="oa-action-button" label="Export" @click="exportToJson"/>
+          </div>
+          <div class="row justify-end action-button">
             <q-btn size="sm" icon="delete" class="oa-action-button" label="Delete" @click="openDeleteDialog"/>
           </div>
         </div>
@@ -71,7 +74,7 @@
   </div>
 
   <rename-dialog v-model:show="showRenameDialog" objectClass="protocol" fieldName="name" :object="protocolStore.protocol" @valueChanged="onNameChanged"/>
-  <delete-dialog v-if="protocolStore.protocol" :id="protocolStore.protocol.id" :name="protocolStore.protocol.name" :objectClass="'protocol'" v-model:show="showDialog"/>
+  <delete-dialog v-if="protocolStore.protocol" :id="protocolStore.protocol.id" :name="protocolStore.protocol.name" :objectClass="'protocol'" v-model:show="showDeleteDialog" @onDeleted="onDeleted"/>
 </template>
 
 <style scoped lang="scss">
@@ -81,7 +84,6 @@
 </style>
 
 <script setup>
-  import {useStore} from "vuex";
   import {ref} from "vue";
   import OaSection from "@/components/widgets/OaSection";
   import FormatUtils from "@/lib/FormatUtils.js"
@@ -93,17 +95,19 @@
   import TagList from "@/components/tag/TagList.vue";
   import EditableField from "@/components/widgets/EditableField.vue";
   import RenameDialog from "@/components/widgets/RenameDialog.vue";
+  import {useJsonDataExport} from "@/composable/jsonDataExport";
+  import {useRouter} from "vue-router";
 
   const props = defineProps(['editMode']);
   const emit = defineEmits(['editMode']);
 
   const protocolStore = useProtocolStore();
 
-  const store = useStore();
-  const showDialog = ref(false);
+  const exportToJson = () => {
+    const filename = protocolStore.protocol.name.replaceAll(" ", "_").trim() + ".json"
 
-  const exportToJson = (id) => {
-    store.dispatch('protocols/downloadAsJson', id);
+    const exportProtocol = useJsonDataExport()
+    exportProtocol.exportToJson(protocolStore.protocol, filename)
   }
 
   const showRenameDialog = ref(false)
@@ -114,9 +118,15 @@
   const onDescriptionChanged = async (newDescription) => {
     await protocolStore.editProtocolDescription(newDescription)
   }
-
+  const showDeleteDialog = ref(false);
   const openDeleteDialog = () => {
-    showDialog.value = true;
+    showDeleteDialog.value = true;
+  }
+
+  const router = useRouter()
+  const onDeleted = async () => {
+    await protocolStore.deleteProtocol()
+    await router.push({name: "browseProtocols"});
   }
 
   const onAddTag = async (newTag) => {

@@ -3,6 +3,7 @@ import templateAPI from  "@/api/templates.js"
 import templatesGraphQlAPI from '@/api/graphql/templates'
 import metadataAPI from "@/api/metadata";
 import projectsGraphQlAPI from "@/api/graphql/projects";
+import protocolAPI from "@/api/protocols";
 
 export const useTemplateStore = defineStore("template", {
     state: () => ({
@@ -35,6 +36,10 @@ export const useTemplateStore = defineStore("template", {
         async renameTemplate(newTemplateName) {
             await templateAPI.editPlateTemplate({id: this.template.id, name: newTemplateName})
             await this.reloadTemplate()
+        },
+        async deleteTemplate() {
+            await templateAPI.deletePlateTemplate(this.template?.id)
+            this.reset()
         },
         async editTemplateDescription(newDescription) {
             await templateAPI.editPlateTemplate({id: this.template.id, description: newDescription})
@@ -72,6 +77,10 @@ export const useTemplateStore = defineStore("template", {
                 propertyName: property.propertyName
             })
             await this.reloadTemplate()
-        }
+        },
+        reset() {
+            this.template = {}
+            this.updated = false
+        },
     }
 })

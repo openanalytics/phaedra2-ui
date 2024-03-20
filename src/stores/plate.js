@@ -10,7 +10,7 @@ import plateAPI from "@/api/plates";
 
 export const usePlateStore = defineStore("plate", {
     state: () => ({
-        plate: {},
+        plate: null,
         wells:[],
         measurements: [],
         resultSets: [],
@@ -32,7 +32,7 @@ export const usePlateStore = defineStore("plate", {
             return state.protocols.map(p => p.features)
         },
         isApproved: (state) => {
-            return state.plate.approvalStatus === 'APPROVED'
+            return state.plate !== null && state.plate.approvalStatus === 'APPROVED'
         }
     },
     actions: {
@@ -90,10 +90,10 @@ export const usePlateStore = defineStore("plate", {
             this.reset()
         },
         isLoaded(plateId) {
-            return this.plate.id === `${plateId}`
+            return this.plate?.id === `${plateId}`
         },
         reset() {
-            this.plate = {}
+            this.plate = null
             this.wells = []
             this.measurements = []
             this.resultSets = []

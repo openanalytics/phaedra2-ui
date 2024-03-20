@@ -12,12 +12,11 @@
 
 <script setup>
 import {useRoute} from "vue-router";
-import {computed, onMounted, ref} from "vue";
+import {onMounted, ref} from "vue";
 import {useProtocolStore} from "@/stores/protocol";
 import {useFormulasStore} from "@/stores/formulas";
 import {useFeatureStore} from "@/stores/feature";
 import ViewProtocol from "@/components/protocol/ViewProtocol";
-import EditProtocol from "@/components/protocol/EditProtocol";
 
 const route = useRoute();
 const protocolStore = useProtocolStore();

@@ -6,6 +6,7 @@ import metadataAPI from "@/api/metadata";
 export const useProtocolStore = defineStore("protocol",  {
     state: () => ({
         protocol: {},
+        protocols: [],
         updated: false
     }),
     getters: {
@@ -24,6 +25,10 @@ export const useProtocolStore = defineStore("protocol",  {
             await this.loadProtocol(this.protocol.id)
             this.updated = false
         },
+        async createProtocol(protocol){
+            const newProtocol = await protocolAPI.createNewProtocol(protocol)
+            return newProtocol
+        },
         async saveProtocol() {
             await protocolAPI.editProtocol(this.protocol)
             await this.reloadProtocol()
@@ -40,6 +45,13 @@ export const useProtocolStore = defineStore("protocol",  {
         async deleteProtocol() {
             await protocolAPI.deleteProtocol(this.protocol.id)
             this.reset()
+        },
+        async loadAllProtocols() {
+            const {onResult, onError} = protocolGraphQLAPI.protocols()
+            onResult(({data}) => {
+                this.protocols = data.protocols
+            })
+            //TODO: implement onError event!
         },
         addFeature(feature) {
             if (this.protocol.features) {
@@ -97,6 +109,22 @@ export const useProtocolStore = defineStore("protocol",  {
         reset() {
             this.protocol = {}
             this.updated = false
+        },
+        async importFromJson(json) {
+            const features = json.features
+            delete json.features
+            //Add new protocol without features
+            const protocol = await this.createProtocol(json)
+            //Add new features without formulaName, with new protocolId
+            if (features?.length > 0) {
+                protocol["features"] = []
+                features.forEach(feature => {
+                    feature["protocolId"] = protocol.id
+                    protocol.features.push(feature)
+                })
+                await protocolAPI.editProtocol(protocol)
+            }
+            return protocol
         }
     }
 

@@ -162,7 +162,6 @@
 
 <script setup>
 import {computed, onMounted, ref} from 'vue'
-import {useStore} from "vuex";
 import {useRoute} from 'vue-router'
 
 import OaSection from "@/components/widgets/OaSection";
@@ -180,7 +179,6 @@ import {useMeasurementStore} from "@/stores/measurement";
 const activeTab = ref('wellData');
 const loading = ref(true);
 
-const store = useStore();
 const route = useRoute();
 const measId = parseInt(route.params.id);
 
