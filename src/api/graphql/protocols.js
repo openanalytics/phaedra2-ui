@@ -14,6 +14,7 @@ export default {
                     description
                     createdOn
                     createdBy
+                    tags
                 }
             }
         `
