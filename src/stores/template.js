@@ -2,8 +2,6 @@ import { defineStore } from "pinia"
 import templateAPI from  "@/api/templates.js"
 import templatesGraphQlAPI from '@/api/graphql/templates'
 import metadataAPI from "@/api/metadata";
-import projectsGraphQlAPI from "@/api/graphql/projects";
-import protocolAPI from "@/api/protocols";
 
 export const useTemplateStore = defineStore("template", {
     state: () => ({

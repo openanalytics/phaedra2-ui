@@ -84,6 +84,7 @@ const refreshList = () => {
 };
 
 const columns = ref([
+  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
   {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
   {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
   {name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},

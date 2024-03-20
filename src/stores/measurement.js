@@ -18,6 +18,9 @@ export const useMeasurementStore = defineStore("measurement", {
         },
         getRenderConfigById: state => {
             return (renderConfigId) => state.renderConfigs?.find(renderConfig => renderConfig.id === renderConfigId)
+        },
+        getWellImage: state => {
+            return (wellNr) => wellNr ? state.measImages[state.measurement.id + '#' + wellNr] : ''
         }
     },
     actions: {
