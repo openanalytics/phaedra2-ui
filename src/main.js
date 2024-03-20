@@ -1,8 +1,6 @@
 // Create Vue App
 // --------------------------------------------------------------------
 import axios from "axios";
-import "quasar/dist/quasar.css"
-import Quasar from "quasar/dist/quasar.umd.js"
 import 'material-icons/iconfont/material-icons.css';
 import 'splitpanes/dist/splitpanes.css'
 
@@ -12,6 +10,9 @@ import { publicPath } from '../vue.config'
 import store from '@/store/index.js'
 
 import {createApp} from "vue"
+import { Quasar } from 'quasar'
+import "quasar/dist/quasar.css"
+
 import {createPinia} from "pinia"
 
 import App from "@/App.vue"
