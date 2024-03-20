@@ -5,7 +5,7 @@ import experiments from './modules/experiments'
 import plates from './modules/plates'
 import wells from './modules/wells'
 import protocols from './modules/protocols'
-// import pipelines from './modules/pipelines'
+import pipelines from './modules/pipelines'
 import features from './modules/features'
 import measurements from './modules/measurements'
 import resultdata from './modules/resultdata'
@@ -13,7 +13,7 @@ import calculations from './modules/calculations'
 import datacapture from './modules/datacapture'
 import templates from './modules/templates'
 import metadata from './modules/metadata'
-// import userinfo from './modules/userinfo'
+import userinfo from './modules/userinfo'
 import ui from './modules/ui'
 import curvedata from "./modules/curvedata";
 import charting from "./modules/charting";
@@ -27,7 +27,7 @@ export default createStore({
     plates,
     wells,
     protocols,
-    // pipelines,
+    pipelines,
     features,
     measurements,
     resultdata,
@@ -35,7 +35,7 @@ export default createStore({
     datacapture,
     templates,
     metadata,
-    // userinfo,
+    userinfo,
     ui,
     curvedata,
     charting
