@@ -23,7 +23,7 @@
 
       <!-- Template for top-level links, e.g. Dashboard (header: "link") -->
       <template v-slot:header-link="prop">
-        <div class="row items-center" style="padding-left: 8px;">
+        <div class="row items-center">
           <q-icon :name="prop.node.icon" size="28px" class="q-mr-sm text-primary"/>
           <div class="text-weight-bold">
             <router-link :to="{ name: prop.node.route }" class="nav-link">{{ prop.node.label }}</router-link>
