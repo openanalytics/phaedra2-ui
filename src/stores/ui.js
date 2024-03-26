@@ -7,12 +7,20 @@ export const useUIStore = defineStore("ui", {
         showQuickHeatmap: false,
         selectedPlate: null,
 
+        showChartViewer: false,
+        chartViews: [],
+
         showDRCView: false,
         selectedDRCurves: [],
 
         selectedWells: [],
         selectedSubstances: new Map([])
     }),
+    getters: {
+        getChartView: (state) => {
+            return (chartId) => state.chartViews.find(cv => cv.id == chartId)
+        }
+    },
     actions: {
         getSelectedWells: (state) => () => {
             return [...state.selectedWells];
@@ -28,6 +36,17 @@ export const useUIStore = defineStore("ui", {
             } else {
                 this.selectedDRCurves = [curve]
             }
+        },
+        addChartView (chart) {
+            this.chartViews.push({id: this.chartViews.length, ...chart})
+            this.showChartViewer = true
+        },
+        removeChartView (chartId) {
+            const index = this.chartViews.findIndex((chartView) => chartView.id === chartId)
+            if (index > -1) {
+                this.chartViews.splice(index, 1)
+            }
+            this.chartViews.length > 0 ? this.showChartViewer = true : this.showChartViewer = false
         }
     }
 })

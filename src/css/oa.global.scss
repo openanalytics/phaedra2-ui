@@ -26,6 +26,8 @@
   color: $secondary;
   min-height: 36px;
   height: fit-content;
+  display: flex;
+  align-items: center;
 }
 
 .oa-section-title2 {

@@ -11,7 +11,9 @@
       :filter-method="filterMethod"
       :pagination="{ rowsPerPage: 10, sortBy: 'barcode' }"
       :loading="loading"
-      @row-contextmenu="selectPlate"
+      @rowClick="selectPlate"
+      @row-dblclick="gotoPlateView"
+      @row-contextmenu="plateContextMenu"
       separator="cell"
       virtual-scroll
       style="max-height: 600px"
@@ -36,9 +38,6 @@
           </q-item>
         </q-list>
       </q-btn-dropdown>
-<!--      <div class="row">-->
-<!--        <q-btn flat round color="primary" icon="settings" style="border-radius: 50%;" @click="configdialog=true"/>-->
-<!--      </div>-->
     </template>
     <template v-slot:header="props">
       <q-tr :props="props">
@@ -50,16 +49,16 @@
         <column-filter v-for="col in props.cols" :key="col.name" v-model="filter[col.name]"/>
       </q-tr>
     </template>
-    <template v-slot:body-cell-barcode="props">
-      <q-td :props="props">
-        <router-link :to="'/plate/' + props.row.id" class="nav-link">
-          <div class="row items-center cursor-pointer">
-            <q-icon name="view_module" class="icon q-pr-sm"/>
-            {{ props.row.barcode }}
-          </div>
-        </router-link>
-      </q-td>
-    </template>
+<!--    <template v-slot:body-cell-barcode="props">-->
+<!--      <q-td :props="props">-->
+<!--        <router-link :to="'/plate/' + props.row.id" class="nav-link">-->
+<!--          <div class="row items-center cursor-pointer">-->
+<!--            <q-icon name="view_module" class="icon q-pr-sm"/>-->
+<!--            {{ props.row.barcode }}-->
+<!--          </div>-->
+<!--        </router-link>-->
+<!--      </q-td>-->
+<!--    </template>-->
     <template v-slot:body-cell-link-status="props">
       <q-td :props="props">
         <q-tooltip transition-show="flip-right" transition-hide="flip-left">
@@ -112,7 +111,6 @@
     </template>
   </q-table>
 
-<!--  <TableConfig v-model:show="configdialog" v-model:visibleColumns="visibleColumns" v-model:columns="columns"/>-->
   <PlateActionMenu v-show="showPlateContextMenu" :plate="selectedPlate" touch-position context-menu />
 </template>
 
@@ -125,10 +123,9 @@
 
 <script setup>
 import {computed, onMounted, ref, watch} from "vue";
-import {useRoute} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 
 import UserChip from "@/components/widgets/UserChip";
-// import TableConfig from "@/components/table/TableConfig";
 import ColumnFilter from "@/components/table/ColumnFilter";
 import PlateActionMenu from "@/components/plate/PlateActionMenu";
 import StatusFlag from "@/components/widgets/StatusFlag";
@@ -137,11 +134,14 @@ import FormatUtils from "@/lib/FormatUtils";
 import FilterUtils from "@/lib/FilterUtils.js"
 import {useExperimentStore} from "@/stores/experiment";
 import {useExportTableData} from "@/composable/exportTableData";
+import {usePlateStore} from "@/stores/plate";
 
 const props = defineProps(['plates', 'experiment', 'newPlateTab'])
 const emit = defineEmits(['update:newPlateTab', 'showPlateInspector'])
 
 const route = useRoute()
+const router = useRouter()
+const plateStore = usePlateStore()
 const experimentStore = useExperimentStore()
 
 const loading = ref()
@@ -167,13 +167,21 @@ const filterMethod = FilterUtils.defaultFilterMethod();
 
 const selectedPlate = ref({});
 const showPlateContextMenu = ref(false);
-const selectPlate = (event, row) => {
+
+const plateContextMenu = (event, row) => {
   selectedPlate.value = row;
   showPlateContextMenu.value = true;
 }
 
-const configdialog = ref(false)
-const showConfigDialog = ref(false)
+const gotoPlateView = (event, row) => {
+  selectedPlate.value = row;
+  router.push({name: "plate", params: { plateId: selectedPlate.value.id }});
+}
+
+const selectPlate = (event, row) => {
+  selectedPlate.value = row;
+  plateStore.loadPlate(selectedPlate.value.id)
+}
 
 const openNewPlateTab = () => {
   emit('update:newPlateTab', true)

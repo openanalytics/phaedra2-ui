@@ -74,27 +74,32 @@
       </oa-section>
     </div>
 
-    <div class="q-px-sm" v-if="experimentStore.experiment">
-      <q-tabs v-model="activeTab" inline-label dense no-caps align="left" class="oa-section-title">
-        <q-tab name="overview" icon="table_rows" label="Overview"/>
-        <q-tab name="statistics" icon="functions" label="Statistics"/>
-        <q-tab name="heatmaps" icon="view_module" label="Heatmaps"/>
-      </q-tabs>
-      <div class="row oa-section-body">
-        <q-tab-panels v-model="activeTab" animated class="full-width">
-          <q-tab-panel name="overview" class="q-pa-none">
-            <PlateList :experiment="experimentStore.experiment" :plates="experimentStore.plates"
-                       v-model:newPlateTab="newPlateTab"/>
-          </q-tab-panel>
-          <q-tab-panel name="statistics" class="q-pa-none">
-            <PlateStatsList :experiment="experimentStore.experiment" :plates="experimentStore.plates"/>
-          </q-tab-panel>
-          <q-tab-panel name="heatmaps" class="q-pa-none">
-            <PlateGrid :experiment="experimentStore.experiment" :plates="experimentStore.plates"/>
-          </q-tab-panel>
-        </q-tab-panels>
-      </div>
-    </div>
+    <Splitpanes class="default-theme" :horizontal="horizontal" >
+      <Pane class="q-pa-sm" v-if="experimentStore.experiment" style="background-color: #E6E6E6">
+        <q-tabs v-model="activeTab" inline-label dense no-caps align="left" class="oa-section-title">
+          <q-tab name="overview" icon="table_rows" label="Overview"/>
+          <q-tab name="statistics" icon="functions" label="Statistics"/>
+          <q-tab name="heatmaps" icon="view_module" label="Heatmaps"/>
+        </q-tabs>
+        <div class="row oa-section-body">
+          <q-tab-panels v-model="activeTab" animated class="full-width">
+            <q-tab-panel name="overview" class="q-pa-none">
+              <PlateList :experiment="experimentStore.experiment" :plates="experimentStore.plates"
+                         v-model:newPlateTab="newPlateTab"/>
+            </q-tab-panel>
+            <q-tab-panel name="statistics" class="q-pa-none">
+              <PlateStatsList :experiment="experimentStore.experiment" :plates="experimentStore.plates"/>
+            </q-tab-panel>
+            <q-tab-panel name="heatmaps" class="q-pa-none">
+              <PlateGrid :experiment="experimentStore.experiment" :plates="experimentStore.plates"/>
+            </q-tab-panel>
+          </q-tab-panels>
+        </div>
+      </Pane>
+      <Pane class="q-pa-sm" v-if="uiStore.showChartViewer" style="background-color: #E6E6E6" ref="chartViewerPane">
+        <ChartViewer :update="Date.now()"/>
+      </Pane>
+    </Splitpanes>
 
     <div class="q-pa-sm" v-if="newPlateTab && experimentStore.isOpen">
       <oa-section title="New Plate" icon="add">
@@ -122,10 +127,6 @@
       </oa-section>
     </div>
 
-    <div class="q-pa-sm">
-      <ChartViewer/>
-    </div>
-
     <div v-if="experimentStore.isOpen">
       <rename-dialog v-model:show="showRenameDialog" objectClass="experiment" :object="experimentStore.experiment"
                      @valueChanged="onNameChanged"/>
@@ -137,8 +138,7 @@
 </template>
 
 <script setup>
-import {ref, watchEffect, computed, onMounted} from 'vue'
-import {useStore} from 'vuex'
+import {ref, watchEffect, onMounted} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 
 import TagList from "@/components/tag/TagList";
@@ -156,12 +156,19 @@ import FormatUtils from "@/lib/FormatUtils.js"
 import ChartViewer from "@/components/chart/ChartViewer.vue";
 import {useExperimentStore} from "@/stores/experiment";
 import {useProjectStore} from "@/stores/project";
+import {Pane, Splitpanes} from "splitpanes";
+import {useUIStore} from "@/stores/ui";
+import {usePlateStore} from "@/stores/plate";
 
-const store = useStore();
+const uiStore = useUIStore()
+const plateStore = usePlateStore()
 const projectStore = useProjectStore()
 const experimentStore = useExperimentStore()
 const route = useRoute();
 const router = useRouter();
+
+const activeTab = ref('overview')
+const horizontal = ref(false)
 
 const experimentId = parseInt(route.params.experimentId)
 onMounted(() => {
@@ -175,9 +182,6 @@ watchEffect(() => {
       projectStore.loadProject(projectId)
   }
 });
-
-const activeTab = ref('overview')
-const charts = computed(() => store.getters['ui/getChartViews']())
 
 const newPlateTab = ref(false)
 const newPlate = ref({

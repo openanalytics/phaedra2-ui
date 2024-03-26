@@ -132,19 +132,19 @@
         </q-item-section>
         <q-menu>
           <q-list>
-            <q-item dense clickable @click="chart('scatter', props.plate.id)" v-close-popup>
+            <q-item dense clickable @click="addScatterPlot(props.plate.id)" v-close-popup>
               <q-item-section avatar>
                 <q-icon name="scatter_plot"/>
               </q-item-section>
               <q-item-section>Scatterplot 2D</q-item-section>
             </q-item>
-            <q-item dense clickable @click="chart('box', props.plate.id)" v-close-popup>
+            <q-item dense clickable @click="addBoxPlot(props.plate.id)" v-close-popup>
               <q-item-section avatar>
                 <q-icon name="candlestick_chart"/>
               </q-item-section>
               <q-item-section>Boxplot</q-item-section>
             </q-item>
-            <q-item dense clickable @click="chart('histogram', props.plate.id)" v-close-popup>
+            <q-item dense clickable @click="addHistogram(props.plate.id)" v-close-popup>
               <q-item-section avatar>
                 <q-icon name="bar_chart"/>
               </q-item-section>
@@ -275,8 +275,16 @@ const onDeletePlate = () => {
   showDeleteDialog.value = true;
 }
 
-const chart = (type, plateId) => {
-  store.dispatch('ui/addChartView', {'type': type, "plateId": plateId})
+const addScatterPlot = (plateId) => {
+  uiStore.addChartView({type: 'scatter', plateId: plateId, label: 'Scatter Plot'})
+}
+
+const addBoxPlot = (plateId) => {
+  uiStore.addChartView({type: 'box', plateId: plateId, label: 'Box Plot'})
+}
+
+const addHistogram = (plateId) => {
+  uiStore.addChartView({type: 'histogram', plateId: plateId, label: 'Histogram'})
 }
 
 const clonePlates = () => {

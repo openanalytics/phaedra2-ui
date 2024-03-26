@@ -1,66 +1,94 @@
 <template>
-  <Pane style="background-color: #E6E6E6">
-    <q-btn label="Close" icon="close" size="sm" class="oa-action-button" @click="removeChartView" flat dense/>
-    <div :id="`plot_${chartView.id}`"/>
-
+    <div id="chart" ref="plot"/>
     <div class="col oa-section-body">
       <q-select class="q-pa-xs"
                 v-model="selectedProtocol"
-                :options="protocolOptions"
+                :options="plateStore.protocols"
                 :option-value="'id'"
                 :option-label="'name'"
                 label="Select protocol"
                 @update:model-value="handleProtocolSelection"
                 dense/>
       <q-select class="q-pa-xs"
-                v-if="chartView.type === 'scatter'"
-                v-model="selectedXAxisFeature"
-                :options="selectedProtocol?.features"
-                :option-value="'id'"
-                :option-label="'name'"
-                label="Select x feature"
-                @update:model-value="handleXAxisFeatureSelection"
+                v-if="showXAxisSelector"
+                v-model="selectedXAxisOption"
+                :options="plotValueOptions"
+                :option-label="'label'"
+                label="Select x values"
+                @update:model-value="selectionHandler"
                 dense/>
       <q-select class="q-pa-xs"
-                v-model="selectedYAxisFeature"
-                :options="selectedProtocol?.features"
-                :option-value="'id'"
-                :option-label="'name'"
-                label="Select y feature"
-                @update:model-value="handleYAxisFeatureSelection"
+                v-if="showYAxisSelector"
+                v-model="selectedYAxisOption"
+                :options="plotValueOptions"
+                :option-label="'label'"
+                label="Select y values"
+                @update:model-value="selectionHandler"
                 dense/>
       <q-select class="q-pa-xs"
                 v-model="groupBy"
                 :options="groupByOptions"
                 :option-value="'value'"
                 :option-label="'label'"
-                @update:model-value="handleGroupBySelection"
+                @update:model-value="selectionHandler"
                 label="Group by"
                 dense/>
     </div>
-  </Pane>
 </template>
 
 <script setup>
 import Plotly from "plotly.js-cartesian-dist-min"
-import {computed, onMounted, reactive, ref, watch} from "vue"
+import {computed, onMounted, onUpdated, reactive, ref, watch} from "vue"
 import {useStore} from 'vuex'
 import {Pane} from "splitpanes";
 import chartsGraphQlAPI from '@/api/graphql/charts'
 import resultDataGraphQlAPI from '@/api/graphql/resultdata'
+import {useUIStore} from "@/stores/ui";
+import {usePlateStore} from "@/stores/plate";
+import useScatterChartData from "@/composable/scatterChartData";
+import useBoxPlotData from "@/composable/boxPlotData";
+import useHistogramData from "@/composable/histogramData";
 
 const store = useStore();
-const props = defineProps(['chartId', 'update']);
+const uiStore = useUIStore()
+const plateStore = usePlateStore()
+const props = defineProps(['width', 'chartId', 'update']);
 
-const chartView = computed(() => store.getters['ui/getChartView'](props.chartId))
-const protocolOptions = ref([])
+const chartView = computed(() => uiStore.getChartView(props.chartId))
+const showXAxisSelector = computed(() => chartView.value.type === 'scatter' || chartView.value.type === 'histogram');
+const showYAxisSelector = computed(() => chartView.value.type === 'scatter' || chartView.value.type === 'box');
 
-const {onResult, onError} = resultDataGraphQlAPI.protocolsByPlateId(chartView.value.plateId)
-onResult(({data}) => protocolOptions.value = data.protocols)
-
+const plotValueOptions = ref()
 const selectedProtocol = ref()
-const selectedXAxisFeature = ref()
-const selectedYAxisFeature = ref()
+const selectedXAxisOption = ref()
+const selectedYAxisOption = ref()
+
+onMounted(() => initSelectedValues())
+const initSelectedValues = () => {
+  selectedProtocol.value = plateStore.protocols[0]
+  updatePlotValueOptions()
+  handleChartUpdate()
+}
+
+const updatePlotValueOptions = () => {
+  plotValueOptions.value = [
+    {type: 'WELL_PROPERTY', label: "Well ID", value: "wellId"},
+    {type: 'WELL_PROPERTY', label: "Well Number", value: "wellNr"},
+    {type: 'WELL_PROPERTY', label: "Well Row", value: "row"},
+    {type: 'WELL_PROPERTY', label: "Well Column", value: "column"},
+    {type: 'WELL_PROPERTY', label: "Well Type", value: "wellType"},
+    {type: 'WELL_PROPERTY', label: "Well Substance", value: "wellSubstance"},
+    ...generateFeatureOptions()
+  ]
+
+  selectedXAxisOption.value = plotValueOptions.value[0]
+  selectedYAxisOption.value = plotValueOptions.value[1]
+}
+
+const generateFeatureOptions = () => {
+  return selectedProtocol.value.features.map(feature => ({ type: 'FEATURE_ID', label: `${feature.name}`, value: feature.id}))
+}
+
 const groupByOptions = ref([
   {label: 'No grouping', value: 'none'},
   {label: 'Group by well row', value: 'row'},
@@ -72,29 +100,64 @@ const groupByOptions = ref([
 const groupBy = ref(groupByOptions.value[0])
 
 const chartPlot = reactive([])
+const plot = ref()
 
 const handleChartUpdate = () => {
-  console.log("handleChartUpdate: chart has been updated!")
-  const chartView = computed(() => store.getters['ui/getChartView'](props.chartId))
-  chartPlot.value = chartsGraphQlAPI.basicPlot(chartView.value.type, chartView.value.plateId, selectedProtocol.value?.id, selectedXAxisFeature.value?.id, selectedYAxisFeature.value?.id, groupBy.value.value)
+  const chartView = computed(() => uiStore.getChartView(props.chartId))
+  if (chartView.value.type === 'scatter') {
+    const scatterChartData = useScatterChartData()
+    scatterChartData.getChartData(chartView.value.plateId, selectedProtocol.value.id, selectedXAxisOption.value.value, selectedXAxisOption.value.type, selectedYAxisOption.value.value, selectedYAxisOption.value.type).then((scatterData) => {
+      chartPlot.value = {
+        data: [{
+          x: scatterData.xvalues,
+          y: scatterData.yvalues,
+          mode: "markers",
+          type: "scatter"
+        }],
+        layout: {
+          chartTitle: "Plate Scatter Plot",
+          xAxisLabel: selectedXAxisOption.value.label,
+          yAxisLabel: selectedYAxisOption.value.label,
+        }
+      }
+    })
+  } else if (chartView.value.type === 'box') {
+    const boxPlotData = useBoxPlotData()
+    boxPlotData.getChartData(chartView.value.plateId, selectedProtocol.value.id, selectedYAxisOption.value.value, selectedYAxisOption.value.type).then(boxPlotData => {
+      chartPlot.value = {
+        data: [{
+          y: boxPlotData.yvalues,
+          type: "box",
+        }],
+        layout: {
+          chartTitle: "Plate Box Plot",
+          yAxisLabel: selectedYAxisOption.value.label
+        }
+      }
+    })
+  } else if (chartView.value.type === 'histogram') {
+    const histogramData = useHistogramData()
+    histogramData.getChartData(chartView.value.plateId, selectedProtocol.value.id, selectedXAxisOption.value.value, selectedXAxisOption.value.type).then(histogramData => {
+      chartPlot.value = {
+        data: [{
+          x: histogramData.xvalues,
+          type: "histogram",
+        }],
+        layout: {
+          chartTitle: "Plate Histogram Plot",
+          yAxisLabel: selectedXAxisOption.value.label
+        }
+      }
+    })
+  }
 }
 
 const handlePlotUpdate = () => {
   console.log("handleUpdatePlot: chart has been updated!")
-  Plotly.react("plot_" + chartView.value.id, chartPlot.value?.data, layout(chartView.value), {displaylogo: false});
+  Plotly.react("chart", chartPlot.value?.data, layout(chartView.value), {displaylogo: false});
 }
 
-const initSelectedValues = () => {
-  selectedProtocol.value = protocolOptions.value[0]
-  selectedXAxisFeature.value = selectedProtocol.value.features[0]
-  selectedYAxisFeature.value = selectedProtocol.value.features[1]
-
-  handleChartUpdate()
-}
-
-const removeChartView = () => {
-  store.dispatch('ui/removeChartView', props.chartId)
-}
+onUpdated(() => handlePlotUpdate())
 
 const layout = (chartView) => {
   return {
@@ -115,30 +178,14 @@ const layout = (chartView) => {
 }
 
 watch(() => props.update, handlePlotUpdate)
-
-watch(() => protocolOptions.value, initSelectedValues)
-
 watch(() => chartPlot.value, handlePlotUpdate)
 
-const handleProtocolSelection = (selectedProtocol) => {
-  selectedXAxisFeature.value = selectedProtocol.features[0]
-  selectedYAxisFeature.value = selectedProtocol.features[1]
+const handleProtocolSelection = () => {
+  updatePlotValueOptions()
   handleChartUpdate()
 }
 
-const handleXAxisFeatureSelection = (selectedXAxisFeature) => {
-  console.log("Selected x-axis feature " + JSON.stringify(selectedXAxisFeature.value))
-  handleChartUpdate()
-}
-
-const handleYAxisFeatureSelection = (selectedYAxisFeature) => {
-  console.log("Selected x-axis feature " + JSON.stringify(selectedYAxisFeature.value))
-  handleChartUpdate()
-}
-
-const handleGroupBySelection = (groupBy) => {
-  console.log("Selected group by type " + JSON.stringify(groupBy.value))
-  handleChartUpdate()
-}
+const createSelectionHandler = () => () => handleChartUpdate();
+const selectionHandler = createSelectionHandler();
 
 </script>

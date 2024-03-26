@@ -11,18 +11,15 @@
     </div>
     <div v-else>
         <div class="row oa-section-title">
-            <div class="column" style="justify-content: center;">
-                <q-icon class="q-pr-md" style="min-width: 56px;" :name="icon" />
-            </div>
-            <div class="column text-h6">{{title}}</div>
+          <q-icon class="column q-pa-sm" :name="icon" size="sm"/>
+          <div class="column text-h6 align">{{ title }}</div>
         </div>
         <div class="oa-section-body">
             <slot></slot>
         </div>
     </div>
 </template>
-  
+
 <script setup>
     const props = defineProps([ 'title', 'icon', 'collapsible' ])
 </script>
-  
