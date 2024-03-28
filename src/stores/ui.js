@@ -1,5 +1,5 @@
 import { defineStore } from "pinia"
-import templateAPI from  "@/api/templates.js"
+import projectsGraphQlAPI from "@/api/graphql/projects";
 
 export const useUIStore = defineStore("ui", {
     state: () => ({
@@ -22,6 +22,12 @@ export const useUIStore = defineStore("ui", {
         }
     },
     actions: {
+        loadSelectedPlate(plateId) {
+            const {onResult, onError} = projectsGraphQlAPI.plateById(plateId)
+            onResult(({data}) => {
+                this.plate = data.plate;
+            })
+        },
         getSelectedWells: (state) => () => {
             return [...state.selectedWells];
         },

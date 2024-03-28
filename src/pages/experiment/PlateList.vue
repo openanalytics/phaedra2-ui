@@ -134,14 +134,14 @@ import FormatUtils from "@/lib/FormatUtils";
 import FilterUtils from "@/lib/FilterUtils.js"
 import {useExperimentStore} from "@/stores/experiment";
 import {useExportTableData} from "@/composable/exportTableData";
-import {usePlateStore} from "@/stores/plate";
+import {useUIStore} from "@/stores/ui";
 
 const props = defineProps(['plates', 'experiment', 'newPlateTab'])
 const emit = defineEmits(['update:newPlateTab', 'showPlateInspector'])
 
 const route = useRoute()
 const router = useRouter()
-const plateStore = usePlateStore()
+const uiStore = useUIStore()
 const experimentStore = useExperimentStore()
 
 const loading = ref()
@@ -180,7 +180,7 @@ const gotoPlateView = (event, row) => {
 
 const selectPlate = (event, row) => {
   selectedPlate.value = row;
-  plateStore.loadPlate(selectedPlate.value.id)
+  uiStore.selectedPlate = selectedPlate.value
 }
 
 const openNewPlateTab = () => {

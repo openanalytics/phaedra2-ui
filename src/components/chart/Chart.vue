@@ -3,7 +3,7 @@
     <div class="col oa-section-body">
       <q-select class="q-pa-xs"
                 v-model="selectedProtocol"
-                :options="plateStore.protocols"
+                :options="plateProtocols"
                 :option-value="'id'"
                 :option-label="'name'"
                 label="Select protocol"
@@ -51,23 +51,29 @@ import useHistogramData from "@/composable/histogramData";
 
 const store = useStore();
 const uiStore = useUIStore()
-const plateStore = usePlateStore()
 const props = defineProps(['width', 'chartId', 'update']);
 
 const chartView = computed(() => uiStore.getChartView(props.chartId))
 const showXAxisSelector = computed(() => chartView.value.type === 'scatter' || chartView.value.type === 'histogram');
 const showYAxisSelector = computed(() => chartView.value.type === 'scatter' || chartView.value.type === 'box');
 
+const plateProtocols = ref([])
 const plotValueOptions = ref()
-const selectedProtocol = ref()
+const selectedProtocol = ref({})
 const selectedXAxisOption = ref()
 const selectedYAxisOption = ref()
 
 onMounted(() => initSelectedValues())
 const initSelectedValues = () => {
-  selectedProtocol.value = plateStore.protocols[0]
-  updatePlotValueOptions()
-  handleChartUpdate()
+  const {onResult, onError} = resultDataGraphQlAPI.protocolsByPlateId(uiStore.selectedPlate.id)
+  onResult(({data}) => {
+    plateProtocols.value = data.protocols;
+    if (!(selectedProtocol.value) || !plateProtocols.value.map(plateProtocol => plateProtocol.id).includes(selectedProtocol.value.id)) {
+      selectedProtocol.value = plateProtocols.value[0]
+    }
+    updatePlotValueOptions()
+    handleChartUpdate()
+  })
 }
 
 const updatePlotValueOptions = () => {
@@ -81,12 +87,16 @@ const updatePlotValueOptions = () => {
     ...generateFeatureOptions()
   ]
 
-  selectedXAxisOption.value = plotValueOptions.value[0]
-  selectedYAxisOption.value = plotValueOptions.value[1]
+  if (!(selectedXAxisOption.value) || !plotValueOptions.value.map(plotValueOption => plotValueOption.value).includes(selectedXAxisOption.value.value)) {
+    selectedXAxisOption.value = plotValueOptions.value[0]
+  }
+  if (!(selectedYAxisOption.value) || !plotValueOptions.value.map(plotValueOption => plotValueOption.value).includes(selectedYAxisOption.value.value)) {
+    selectedYAxisOption.value = plotValueOptions.value[1]
+  }
 }
 
 const generateFeatureOptions = () => {
-  return selectedProtocol.value.features.map(feature => ({ type: 'FEATURE_ID', label: `${feature.name}`, value: feature.id}))
+  return selectedProtocol.value?.features.map(feature => ({ type: 'FEATURE_ID', label: `${feature.name}`, value: feature.id})) ?? []
 }
 
 const groupByOptions = ref([
@@ -106,46 +116,41 @@ const handleChartUpdate = () => {
   const chartView = computed(() => uiStore.getChartView(props.chartId))
   if (chartView.value.type === 'scatter') {
     const scatterChartData = useScatterChartData()
-    scatterChartData.getChartData(chartView.value.plateId, selectedProtocol.value.id, selectedXAxisOption.value.value, selectedXAxisOption.value.type, selectedYAxisOption.value.value, selectedYAxisOption.value.type).then((scatterData) => {
+    scatterChartData.getChartData(uiStore.selectedPlate.id, selectedProtocol.value?.id, selectedXAxisOption.value.value, selectedXAxisOption.value.type, selectedYAxisOption.value.value, selectedYAxisOption.value.type, groupBy.value.value).then((scatterData) => {
+      console.log("Scatter Chart Data: " + Object.keys(scatterData))
+      const data = Object.keys(scatterData).map(groupByKey => {return {x: scatterData[groupByKey].xvalues, y: scatterData[groupByKey].yvalues, mode: "markers", type: "scatter", name: groupByKey}})
       chartPlot.value = {
-        data: [{
-          x: scatterData.xvalues,
-          y: scatterData.yvalues,
-          mode: "markers",
-          type: "scatter"
-        }],
+        data: data,
         layout: {
           chartTitle: "Plate Scatter Plot",
-          xAxisLabel: selectedXAxisOption.value.label,
-          yAxisLabel: selectedYAxisOption.value.label,
+          xAxisLabel: selectedXAxisOption.value?.label ?? '',
+          yAxisLabel: selectedYAxisOption.value?.label ?? '',
         }
       }
     })
   } else if (chartView.value.type === 'box') {
     const boxPlotData = useBoxPlotData()
-    boxPlotData.getChartData(chartView.value.plateId, selectedProtocol.value.id, selectedYAxisOption.value.value, selectedYAxisOption.value.type).then(boxPlotData => {
+    boxPlotData.getChartData(uiStore.selectedPlate.id, selectedProtocol.value?.id, selectedYAxisOption.value.value, selectedYAxisOption.value.type, groupBy.value.value).then(boxPlotData => {
+      console.log("Box Plot Data: " + JSON.stringify(boxPlotData))
+      const data = Object.keys(boxPlotData).map(groupByKey => {return {y: boxPlotData[groupByKey].yvalues, type: "box", name: groupByKey}})
       chartPlot.value = {
-        data: [{
-          y: boxPlotData.yvalues,
-          type: "box",
-        }],
+        data: data,
         layout: {
           chartTitle: "Plate Box Plot",
-          yAxisLabel: selectedYAxisOption.value.label
+          yAxisLabel: selectedYAxisOption.value?.label ?? ''
         }
       }
     })
   } else if (chartView.value.type === 'histogram') {
     const histogramData = useHistogramData()
-    histogramData.getChartData(chartView.value.plateId, selectedProtocol.value.id, selectedXAxisOption.value.value, selectedXAxisOption.value.type).then(histogramData => {
+    histogramData.getChartData(uiStore.selectedPlate.id, selectedProtocol.value?.id, selectedXAxisOption.value.value, selectedXAxisOption.value.type, groupBy.value.value).then(histogramData => {
+      console.log("Histogram Data: " + JSON.stringify(histogramData))
+      const data = Object.keys(histogramData).map(groupByKey => {return {x: histogramData[groupByKey].xvalues, type: "histogram", name: groupByKey}})
       chartPlot.value = {
-        data: [{
-          x: histogramData.xvalues,
-          type: "histogram",
-        }],
+        data: data,
         layout: {
           chartTitle: "Plate Histogram Plot",
-          yAxisLabel: selectedXAxisOption.value.label
+          yAxisLabel: selectedXAxisOption.value?.label ?? ''
         }
       }
     })
@@ -156,8 +161,6 @@ const handlePlotUpdate = () => {
   console.log("handleUpdatePlot: chart has been updated!")
   Plotly.react("chart", chartPlot.value?.data, layout(chartView.value), {displaylogo: false});
 }
-
-onUpdated(() => handlePlotUpdate())
 
 const layout = (chartView) => {
   return {
@@ -179,6 +182,7 @@ const layout = (chartView) => {
 
 watch(() => props.update, handlePlotUpdate)
 watch(() => chartPlot.value, handlePlotUpdate)
+watch(() => uiStore.selectedPlate, initSelectedValues)
 
 const handleProtocolSelection = () => {
   updatePlotValueOptions()
