@@ -51,7 +51,8 @@ const handleChartResize = () => {
 
 const closeTab = (chartId) => {
   uiStore.removeChartView(chartId)
-  activeTab.value = uiStore.chartViews[0].id
+  if (uiStore.chartViews.length > 0)
+    activeTab.value = uiStore.chartViews[0].id
   console.log("Active tab: " + activeTab.value)
   update.value = Date.now()
 }
