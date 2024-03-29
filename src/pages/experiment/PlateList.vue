@@ -49,16 +49,6 @@
         <column-filter v-for="col in props.cols" :key="col.name" v-model="filter[col.name]"/>
       </q-tr>
     </template>
-<!--    <template v-slot:body-cell-barcode="props">-->
-<!--      <q-td :props="props">-->
-<!--        <router-link :to="'/plate/' + props.row.id" class="nav-link">-->
-<!--          <div class="row items-center cursor-pointer">-->
-<!--            <q-icon name="view_module" class="icon q-pr-sm"/>-->
-<!--            {{ props.row.barcode }}-->
-<!--          </div>-->
-<!--        </router-link>-->
-<!--      </q-td>-->
-<!--    </template>-->
     <template v-slot:body-cell-link-status="props">
       <q-td :props="props">
         <q-tooltip transition-show="flip-right" transition-hide="flip-left">

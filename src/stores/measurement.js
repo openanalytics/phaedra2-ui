@@ -42,8 +42,9 @@ export const useMeasurementStore = defineStore("measurement", {
                 }, {});
             });
         },
-        async loadMeasImage({wellNr, scale}) {
-            this.measImages[this.measurement.id + '#' + wellNr] = await measAPI.getMeasImage(this.measurement.id, wellNr, scale);
+        async loadMeasImage({wellNr, renderConfigId, channels, scale}) {
+            if (wellNr)
+                this.measImages[this.measurement.id + '#' + wellNr] = await measAPI.getMeasImage(this.measurement.id, wellNr, renderConfigId, channels, scale);
         },
         async loadAllRenderConfigs() {
             this.renderConfigs = await measurementsAPI.getRenderConfigs()

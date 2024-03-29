@@ -1,245 +1,254 @@
 <template>
-    <div class="viewer-panel relative-position">
-        <div class="row canvas-container" ref="canvasContainer">
-            <canvas ref="canvas" :class="(dragInProgress)?'cursor-grabbing':'cursor-grab'"
-                @mousedown="canvasDragStart"
-                @mousemove="canvasDragMove"
-                @mouseup="canvasDragEnd"
-                @mouseenter="mouseEnter"
-                @mouseleave="mouseLeave"
-            ></canvas>
+  <div class="viewer-panel relative-position">
+    <div id="container">
+      <div id="control-panel">
+        <q-badge color="blue" rounded class="on-right" style="height: 24px">{{ selectedWellInfo }}</q-badge>
+        <q-btn color="blue" size="xs" round class="on-right" icon="zoom_in" @click="zoomIn">
+          <q-tooltip>Zoom In</q-tooltip>
+        </q-btn>
+        <q-btn color="blue" size="xs" round class="on-right" icon="zoom_out" @click="zoomOut">
+          <q-tooltip>Zoom Out</q-tooltip>
+        </q-btn>
+      </div>
+      <div class="image-container" style="width: 100%; height: 500px; overflow: auto;">
+        <div class="q-img__container" style="position: relative;">
+          <q-img :src="wellImage" :style="{transform: `scale(${normalizedScale})`, transformOrigin: 'center'}" />
         </div>
-        <div class="absolute-center" v-if="loading">
-            <q-spinner-pie color="info" size="7em"/>
-        </div>
-        <div class="absolute-center" v-if="selectedWell && errorInfo">
-            <q-badge color="negative">{{ errorInfo }}</q-badge>
-        </div>
-        <div class="absolute-top-left q-pl-sm q-pt-sm">
-            <q-badge color="blue">{{ selectedWellInfo }}</q-badge>
-            <q-btn color="blue" size="xs" round class="on-right" icon="zoom_in" @click="doZoom(1)"><q-tooltip>Zoom In</q-tooltip></q-btn>
-            <q-btn color="blue" size="xs" round class="on-right" icon="zoom_out" @click="doZoom(-1)"><q-tooltip>Zoom Out</q-tooltip></q-btn>
-        </div>
-        <div ref="configPanel" class="q-pt-sm">
-            <q-list bordered class="rounded-borders">
-                <q-expansion-item dense expand-separator icon="settings" label="Render Settings" default-opened>
-                    <div class="q-pb-sm">
-                        <q-select dense outlined v-model="selectedRenderConfig" label="Channel Configuration" class="q-pa-sm"
-                            :options="measurementStore.renderConfigs" option-label="name"
-                         />
-                    </div>
-                    <q-table
-                        dense flat hide-bottom
-                        selection="multiple" v-model:selected="selectedChannels"
-                        table-header-class="text-grey"
-                        :rows="selectedRenderConfig?.config?.channelConfigs"
-                        :columns="channelColumns"
-                        :pagination="{ rowsPerPage: 20 }"
-                        row-key="name"
-                    >
-                        <template v-slot:body-cell-rgb="props">
-                            <q-td :props="props">
-                                <div :style="{ width: '25px', backgroundColor: ColorUtils.asCSSColor(props.row.rgb) }">&nbsp;</div>
-                            </q-td>
-                        </template>
-                        <template v-slot:body-cell-contrast="props">
-                            <q-td :props="props">
-                                <q-range dense thumb-size="12px" label :model-value="{ min: (props.row.contrastMin * 100), max: (props.row.contrastMax * 100) }" :min="0" :max="100" />
-                            </q-td>
-                        </template>
-                    </q-table>
-                </q-expansion-item>
-            </q-list>
-        </div>
+      </div>
+      <div class="absolute-center" v-if="loading">
+        <q-spinner-pie color="info" size="7em"/>
+      </div>
+      <div class="absolute-center" v-if="selectedWell && errorInfo">
+        <q-badge color="negative">{{ errorInfo }}</q-badge>
+      </div>
     </div>
+    <div ref="configPanel" class="q-pt-sm">
+      <q-list bordered class="rounded-borders">
+        <q-expansion-item dense expand-separator icon="settings" label="Render Settings" default-opened>
+          <div class="q-pb-sm">
+            <q-select dense outlined v-model="selectedRenderConfig" label="Channel Configuration" class="q-pa-sm"
+                      :options="measurementStore.renderConfigs" option-label="name"
+            />
+          </div>
+          <q-table
+              dense flat hide-bottom
+              selection="multiple" v-model:selected="selectedChannels"
+              table-header-class="text-grey"
+              :rows="selectedRenderConfig?.config?.channelConfigs"
+              :columns="channelColumns"
+              :pagination="{ rowsPerPage: 20 }"
+              row-key="name"
+          >
+            <template v-slot:body-cell-rgb="props">
+              <q-td :props="props">
+                <div :style="{ width: '25px', backgroundColor: ColorUtils.asCSSColor(props.row.rgb) }">&nbsp;</div>
+              </q-td>
+            </template>
+            <template v-slot:body-cell-contrast="props">
+              <q-td :props="props">
+                <q-range dense thumb-size="12px" label
+                         :model-value="{ min: (props.row.contrastMin * 100), max: (props.row.contrastMax * 100) }"
+                         :min="0" :max="100"/>
+              </q-td>
+            </template>
+          </q-table>
+        </q-expansion-item>
+      </q-list>
+    </div>
+  </div>
 </template>
 
 <style scoped>
-    .canvas-container {
-        overflow: scroll;
-        max-height: v-bind(maxCanvasHeight);
-    }
+.canvas-container {
+  overflow: scroll;
+  max-height: v-bind(maxCanvasHeight);
+}
+
+#container {
+  position: relative;
+}
+
+#control-panel {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 99;
+}
 </style>
 
 <script setup>
-    import {computed, ref, watch, onMounted} from 'vue'
-    import {useUIStore} from "@/stores/ui";
-    import ColorUtils from '@/lib/ColorUtils';
-    import WellUtils from "@/lib/WellUtils.js";
-    import {usePlateStore} from "@/stores/plate";
-    import {useMeasurementStore} from "@/stores/measurement";
+import {computed, ref, watch, onMounted} from 'vue'
+import {useUIStore} from "@/stores/ui";
+import ColorUtils from '@/lib/ColorUtils';
+import WellUtils from "@/lib/WellUtils.js";
+import {usePlateStore} from "@/stores/plate";
+import {useMeasurementStore} from "@/stores/measurement";
 
-    const configPanel = ref(null);
-    const maxCanvasHeight = ref(100);
-    const calculateCanvasHeight = () => {
-        //TODO Calculate the actual available height. These magic numbers are title bar, paddings, etc.
-        let maxPanelHeight = document.documentElement.clientHeight - (50 + 8 + 36 + 1 + 16);
-        maxCanvasHeight.value = (maxPanelHeight - 17 - (configPanel.value ? configPanel.value.clientHeight : 0)) + 'px';
-    };
+const configPanel = ref(null);
+const maxCanvasHeight = ref(100);
+const calculateCanvasHeight = () => {
+  //TODO Calculate the actual available height. These magic numbers are title bar, paddings, etc.
+  let maxPanelHeight = document.documentElement.clientHeight - (50 + 8 + 36 + 1 + 16);
+  maxCanvasHeight.value = (maxPanelHeight - 17 - (configPanel.value ? configPanel.value.clientHeight : 0)) + 'px';
+};
 
-    const measurementStore = useMeasurementStore()
-    const uiStore = useUIStore();
-    const plateStore = usePlateStore()
-    const loading = ref(false);
+const measurementStore = useMeasurementStore()
+const uiStore = useUIStore();
+const plateStore = usePlateStore()
+const loading = ref(false);
 
-    const selectedRenderConfig = ref(null);
-    onMounted(() => {
-      measurementStore.loadAllRenderConfigs()
-    })
+const selectedRenderConfig = ref(null);
+onMounted(() => {
+  measurementStore.loadAllRenderConfigs()
+})
 
-    const channelColumns = [
-        { name: 'name', label: 'Channel', align: 'left', field: 'name' },
-        { name: 'rgb', label: 'Color', align: 'left', field: 'rgb' },
-        { name: 'contrast', label: 'Contrast Range', align: 'left' },
-        { name: 'alpha', label: 'Alpha', align: 'left', field: 'alpha', format: val => (val * 100) + '%' },
-    ];
+const channelColumns = [
+  {name: 'name', label: 'Channel', align: 'left', field: 'name'},
+  {name: 'rgb', label: 'Color', align: 'left', field: 'rgb'},
+  {name: 'contrast', label: 'Contrast Range', align: 'left'},
+  {name: 'alpha', label: 'Alpha', align: 'left', field: 'alpha', format: val => (val * 100) + '%'},
+];
 
-    const scale = ref(0.25);
-    const scaleLimits = [ 0.125, 8];
+const scale = ref(0.25);
+const relativeScale = ref(1.0)
+const normalizedScale = ref(relativeScale.value / scale.value)
+const scaleLimits = [0.125, 8];
 
-    // Canvas loading and drawing
-    // --------------------------
+// Canvas loading and drawing
+// --------------------------
 
-    const selectedChannels = ref([]);
-    const selectedWell = computed(() => {
-        let wells = uiStore.selectedWells;
-        if (wells && wells.length > 0) return wells[0];
-        return null;
-    });
-    const selectedWellInfo = computed(() => {
-        let info = '';
-        if (selectedWell.value?.row && selectedWell.value?.column) {
-            info += WellUtils.getWellCoordinate(selectedWell.value.row, selectedWell.value.column);
-        } else if (selectedWell.value?.nr && selectedWell.value?.measId) {
-            // let meas = store.getters['measurements/getById'](selectedWell.value.measId);
-            let pos = WellUtils.getWellPosition(selectedWell.value.nr, measurementStore.measurement.columns);
-            info += WellUtils.getWellCoordinate(pos[0], pos[1]);
-        } else {
-            return "No Well Selected";
-        }
-        return `${info}, Zoom: ${scale.value * 100}%`;
-    });
-    const errorInfo = ref(null);
+const selectedChannels = ref([]);
+const selectedWell = computed(() => {
+  let wells = uiStore.selectedWells;
+  if (wells && wells.length > 0) return wells[0];
+  return null;
+})
+const selectedWellInfo = computed(() => {
+  let info = '';
+  if (selectedWell.value?.row && selectedWell.value?.column) {
+    info += WellUtils.getWellCoordinate(selectedWell.value.row, selectedWell.value.column);
+  } else if (selectedWell.value?.nr && selectedWell.value?.measId) {
+    // let meas = store.getters['measurements/getById'](selectedWell.value.measId);
+    let pos = WellUtils.getWellPosition(selectedWell.value.nr, measurementStore.measurement.columns);
+    info += WellUtils.getWellCoordinate(pos[0], pos[1]);
+  } else {
+    return "No Well Selected";
+  }
+  return `${info}, Zoom: ${relativeScale.value * 100}%`;
+})
 
-    const getImageURL = async () => {
-        if (selectedChannels.value.length === 0) return;
-        let channelNames = selectedChannels.value.map(c => c.name).join(',');
-        let measId = null;
-        let wellNr = null;
+const wellImage = ref(null)
+const getImageURL = async () => {
+  if (selectedChannels.value.length === 0) return;
+  let channelNames = selectedChannels.value.map(c => c.name).join(',');
+  let measId = null;
+  let wellNr = null;
 
-        let well = selectedWell.value;
-        if (well?.plateId) {
-            //TODO Assuming here that meas is already stored.
-            await plateStore.loadPlateMeasurements(well.plateId)
-            let measLink = plateStore.activeMeasurement
-            if (measLink === undefined) measLink = plateStore.activeMeasurement
-            if (measLink === null) return null;
-            measId = measLink.measurementId;
-            wellNr = WellUtils.getWellNr(well.row, well.column, measLink.columns);
-        } else if (well?.measId && well?.nr) {
-            measId = well.measId;
-            wellNr = well.nr;
-        } else {
-            return null;
-        }
+  let well = selectedWell.value;
+  if (well?.plateId) {
+    //TODO Assuming here that meas is already stored.
+    await plateStore.loadPlateMeasurements(well.plateId)
+    let measLink = plateStore.activeMeasurement
+    if (measLink === undefined) measLink = plateStore.activeMeasurement
+    if (measLink === null) return null;
+    measId = measLink.measurementId;
+    wellNr = WellUtils.getWellNr(well.row, well.column, measLink.columns);
+  } else if (well?.measId && well?.nr) {
+    measId = well.measId;
+    wellNr = well.nr;
+  } else {
+    return null;
+  }
 
-        if (!selectedRenderConfig.value) return null;
+  if (!selectedRenderConfig.value) return null;
 
-        let baseURL = (config.VUE_APP_API_BASE_URL || process.env.VUE_APP_API_BASE_URL);
-        return `${baseURL}/measurement-service/measurements/${measId}/images/${wellNr}/${channelNames}?renderConfigId=${selectedRenderConfig.value.id}&scale=${scale.value}`;
-    }
-    const BLANK_IMG = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
-    const reloadImage = () => {
-        let url = getImageURL();
-        if (url) {
-            loading.value = true;
-            image.src = url;
-        } else {
-            image.src = BLANK_IMG;
-            setTimeout(draw());
-        }
-    }
-    watch(selectedChannels, reloadImage);
-    watch(selectedWell, reloadImage);
+  await measurementStore.loadMeasImage({
+    wellNr: wellNr,
+    renderConfigId: selectedRenderConfig.value.id,
+    channels: channelNames,
+    scale: scale.value
+  })
+}
+const BLANK_IMG = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+const reloadImage = () => {
+  if (selectedChannels.value.length === 0) return;
+  const channelNames = selectedChannels.value.map(c => c.name).join(',');
 
-    const image = new Image();
-    image.addEventListener('load', () => {
-        loading.value = false;
-        errorInfo.value = null;
-        calculateCanvasHeight();
-        setTimeout(draw());
-    }, false);
-    image.addEventListener('error', e => {
-        loading.value = false;
-        errorInfo.value = 'Failed to load image!';
-    }, false);
+  loading.value = true
+  measurementStore.loadMeasImage({
+    wellNr: selectedWell.value?.nr,
+    renderConfigId: selectedRenderConfig.value?.id,
+    channels: channelNames,
+    scale: scale.value
+  }).then(() => {
+    loading.value = false
+    wellImage.value = measurementStore.getWellImage(selectedWell.value?.nr)
+  })
+}
+watch(selectedChannels, reloadImage);
+watch(selectedWell, reloadImage);
 
-    const canvas = ref(null);
-    const canvasContainer = ref(null);
+const zoomIn = () => {
+  relativeScale.value <= scaleLimits[1] ? relativeScale.value += 0.25 : relativeScale.value = scaleLimits[1]
+  normalizedScale.value = relativeScale.value / scale.value
+  console.log("Zoom in scale: " + normalizedScale.value)
+}
 
-    function draw() {
-        if (canvas.value === null) return;
-        let ctx = canvas.value.getContext('2d');
-        if (image.src && image.src != BLANK_IMG) {
-            console.log("WellImageViewer Draw " + image.src)
-            canvas.value.width = image.width;
-            canvas.value.height = image.height;
-            ctx.drawImage(image, 0, 0);
-        } else {
-            canvas.value.width = 100;
-            canvas.value.height = 100;
-        }
-    }
+const zoomOut = () => {
+  relativeScale.value >= scaleLimits[0] ? relativeScale.value -= 0.25 : relativeScale.value = scaleLimits[0]
+  normalizedScale.value = relativeScale.value / scale.value
+  console.log("Zoom out scale: " + normalizedScale.value)
+}
 
-    // Mouse scroll behaviour
-    // ----------------------
+// Mouse scroll behaviour
+// ----------------------
 
-    let isMouseOnCanvas = false;
-    const mouseEnter = (event) => {
-        isMouseOnCanvas = true;
-    }
-    const mouseLeave = (event) => {
-        isMouseOnCanvas = false;
-        canvasDragEnd(event);
-    }
+// let isMouseOnCanvas = false;
+// const mouseEnter = (event) => {
+//   isMouseOnCanvas = true;
+// }
+// const mouseLeave = (event) => {
+//   isMouseOnCanvas = false;
+//   canvasDragEnd(event);
+// }
+//
+// const doZoom = (amount) => {
+//   if (amount > 0 && scale.value <= scaleLimits[1]) scale.value *= (2 * amount);
+//   else if (scale.value >= scaleLimits[0]) scale.value /= (2 * (0 - amount));
+//   else return;
+//   // reloadImage();
+// }
 
-    const doZoom = (amount) => {
-        if (amount > 0 && scale.value <= scaleLimits[1]) scale.value *= (2 * amount);
-        else if (scale.value >= scaleLimits[0]) scale.value /= (2 * (0 - amount));
-        else return;
-        reloadImage();
-    }
-
-    // Mouse drag behaviour
-    // --------------------
-
-    const dragInProgress = ref(false);
-    let dragPrevPosition = null;
-    let canvasBounds = null;
-
-    const canvasDragStart = (event) => {
-        if (dragInProgress.value) return;
-        event.preventDefault();
-        dragInProgress.value = true;
-        canvasBounds = canvas.value.parentNode.getBoundingClientRect();
-    };
-    const canvasDragMove = (event) => {
-        if (!dragInProgress.value) return;
-        canvasBounds = canvas.value.parentNode.getBoundingClientRect();
-        let currentPosition = { x: event.x - canvasBounds.left, y: event.y - canvasBounds.top};
-        if (dragPrevPosition != null) {
-            let diff = { x: currentPosition.x - dragPrevPosition.x, y: currentPosition.y - dragPrevPosition.y };
-            canvasContainer.value.scrollTop = canvasContainer.value.scrollTop - diff.y;
-            canvasContainer.value.scrollLeft = canvasContainer.value.scrollLeft - diff.x;
-        }
-        dragPrevPosition = currentPosition;
-    };
-    const canvasDragEnd = (event) => {
-        if (!dragInProgress.value) return;
-        event.preventDefault();
-        dragInProgress.value = false;
-        dragPrevPosition = null;
-    };
-
-    reloadImage();
+// // Mouse drag behaviour
+// // --------------------
+//
+// const dragInProgress = ref(false);
+// let dragPrevPosition = null;
+// let canvasBounds = null;
+//
+// const canvasDragStart = (event) => {
+//   if (dragInProgress.value) return;
+//   event.preventDefault();
+//   dragInProgress.value = true;
+//   canvasBounds = canvas.value.parentNode.getBoundingClientRect();
+// };
+// const canvasDragMove = (event) => {
+//   if (!dragInProgress.value) return;
+//   canvasBounds = canvas.value.parentNode.getBoundingClientRect();
+//   let currentPosition = {x: event.x - canvasBounds.left, y: event.y - canvasBounds.top};
+//   if (dragPrevPosition != null) {
+//     let diff = {x: currentPosition.x - dragPrevPosition.x, y: currentPosition.y - dragPrevPosition.y};
+//     canvasContainer.value.scrollTop = canvasContainer.value.scrollTop - diff.y;
+//     canvasContainer.value.scrollLeft = canvasContainer.value.scrollLeft - diff.x;
+//   }
+//   dragPrevPosition = currentPosition;
+// };
+// const canvasDragEnd = (event) => {
+//   if (!dragInProgress.value) return;
+//   event.preventDefault();
+//   dragInProgress.value = false;
+//   dragPrevPosition = null;
+// };
+//
+// reloadImage();
 </script>

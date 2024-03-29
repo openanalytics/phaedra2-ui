@@ -44,13 +44,17 @@ export default {
         await axios.delete(`${apiURL}/renderconfigurations/${id}`);
     },
 
-    async getMeasImage(measId, wellNr, scale) {
-        let renderConfigId = 4;
-        const response = await axios.get(`${apiURL}/measurements/${measId}/images/${wellNr}?renderConfigId=${renderConfigId}&scale=${scale}`, {
-            responseType: 'arraybuffer'
+    async getMeasImage(measId, wellNr, renderConfigId, channels, scale = 1.0) {
+        // responseType: 'arraybuffer'
+        let imageUrl = `${apiURL}/measurements/${measId}/images/${wellNr}?renderConfigId=${renderConfigId}&scale=${scale}`
+        if (channels)
+            imageUrl = `${apiURL}/measurements/${measId}/images/${wellNr}/${channels}?renderConfigId=${renderConfigId}&scale=${scale}`
+        const response = await axios.get(imageUrl, {
+            responseType: 'blob'
         });
         // Return as a base64-encoded string that can be used directly in img tags
-        return 'data:image/jpeg;base64,' + Buffer.from(response.data, 'binary').toString('base64');
+        // return 'data:image/jpeg;base64,' + Buffer.from(response.data, 'binary').toString('base64');
+        return URL.createObjectURL(response.data)
     },
     async getSubWellData(measId, wellNr, subWellColumns) {
         const subWellData = {}

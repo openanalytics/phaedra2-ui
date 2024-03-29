@@ -149,7 +149,7 @@
                             @wellSelection="handleWellSelection"/>
                 </div>
                 <div class="col-6 q-px-sm">
-                  <WellImageViewer></WellImageViewer>
+                  <WellImageViewer/>
                 </div>
               </div>
             </q-tab-panel>

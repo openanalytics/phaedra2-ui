@@ -158,7 +158,6 @@ import {useExperimentStore} from "@/stores/experiment";
 import {useProjectStore} from "@/stores/project";
 import {Pane, Splitpanes} from "splitpanes";
 import {useUIStore} from "@/stores/ui";
-import {usePlateStore} from "@/stores/plate";
 
 const uiStore = useUIStore()
 const projectStore = useProjectStore()
