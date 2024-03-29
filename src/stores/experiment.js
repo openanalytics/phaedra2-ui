@@ -16,9 +16,9 @@ export const useExperimentStore = defineStore("experiment", {
             return state.experiment.status === 'CLOSED'
         },
         getPlateByPlateId: (state, plateId) => {
-            return state.experiment.plates.find(p => p.id === plateId)
+            return state.experiment.plates.find(p => p.id === plateId) ?? {}
         },
-        plates: state => state.experiment.plates
+        plates: state => state.experiment.plates ?? []
     },
     actions: {
         loadExperiment(experimentId) {

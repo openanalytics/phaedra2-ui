@@ -10,6 +10,7 @@ export const useUIStore = defineStore("ui", {
         // Selection Handling
         showQuickHeatmap: false,
         selectedPlate: null,
+        selectedPlates: [],
 
         showChartViewer: false,
         chartViews: [],
@@ -47,10 +48,8 @@ export const useUIStore = defineStore("ui", {
                 this.selectedPlate = data.plate;
                 this.selectedPlate["wells"] = data.wells;
 
-                this.loadPlateMeasurements(plateId)
                 this.loadPlateCalculations(plateId)
                 this.loadPlateProtocols(plateId)
-                this.loadPlateCurves(plateId)
             })
         },
         async loadPlateMeasurements(plateId) {

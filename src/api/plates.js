@@ -50,10 +50,7 @@ export default {
     async clonePlates(plates){
         try {
             const plateIds = plates?.map(p => p.id) ?? []
-            let params = "?"
-            for (let i = 0; i < plateIds.length; i++) {
-                params = params + 'plateIds=' + plateIds + '&'
-            }
+            const params = '?' + plateIds.map(value => `plateIds=${value}`).join('&')
 
             const response = await axios.put(apiURL + '/plates/clone' + params)
             if (response.status === 200) return response.data;
@@ -64,11 +61,7 @@ export default {
     async movePlates(plates, experimentId){
         try {
             const plateIds = plates?.map(p => p.id) ?? []
-            let params = "?"
-            for (let i = 0; i < plateIds.length; i++) {
-                params = params + 'plateIds=' + plateIds + '&'
-            }
-            params = params + 'experimentId=' + experimentId
+            const params = '?' + plateIds.map(value => `plateIds=${value}`).join('&') + `&experimentId=${experimentId}`
 
             const response = await axios.put(apiURL + '/plates/move' + params)
             if (response.status === 200) return response.data;

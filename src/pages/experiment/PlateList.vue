@@ -14,6 +14,8 @@
       @rowClick="selectPlate"
       @row-dblclick="gotoPlateView"
       @row-contextmenu="plateContextMenu"
+      selection="multiple"
+      v-model:selected="uiStore.selectedPlates"
       separator="cell"
       virtual-scroll
       style="max-height: 600px"
@@ -41,11 +43,15 @@
     </template>
     <template v-slot:header="props">
       <q-tr :props="props">
+        <q-th auto-width/>
         <q-th v-for="col in props.cols" :key="col.name" :props="props">
           {{col.label}}
         </q-th>
       </q-tr>
       <q-tr :props="props">
+        <q-th auto-width>
+          <q-checkbox v-model="props.selected" dense />
+        </q-th>
         <column-filter v-for="col in props.cols" :key="col.name" v-model="filter[col.name]"/>
       </q-tr>
     </template>
@@ -86,9 +92,9 @@
       </q-td>
     </template>
     <template v-slot:body-cell-menu="props">
-      <q-td :props="props">
-        <div class="row items-center cursor-pointer">
-          <q-btn flat round icon="more_horiz" size="sm" >
+      <q-td :props="props" @click.stop>
+        <div class="row items-center cursor-pointer menu">
+          <q-btn flat round icon="more_horiz" size="sm" @click="selectPlate(null, props.row)" >
             <PlateActionMenu :plate="props.row" @showPlateInspector="openPlateInspector(props.row)" />
           </q-btn>
         </div>
@@ -135,9 +141,8 @@ const uiStore = useUIStore()
 const experimentStore = useExperimentStore()
 
 const loading = ref()
-const plates = computed( () => experimentStore.plates)
 
-const columns = ref([
+const columns = [
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
   {name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
   {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
@@ -150,9 +155,11 @@ const columns = ref([
   {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
   {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
   {name: 'menu', align: 'left', sortable: false}
-])
+]
 
-const filter = FilterUtils.makeFilter(columns.value);
+const plates = computed(() => experimentStore.plates)
+
+const filter = FilterUtils.makeFilter(columns);
 const filterMethod = FilterUtils.defaultFilterMethod();
 
 const selectedPlate = ref({});
@@ -168,8 +175,20 @@ const gotoPlateView = (event, row) => {
   router.push({name: "plate", params: { plateId: selectedPlate.value.id }});
 }
 
+const isSelected = (row) => uiStore.selectedPlates.includes(row)
+const updateSelectedPlates = (condition, row) => condition ? uiStore.selectedPlates.filter(plate => plate.id !== row.id) : [row]
 const selectPlate = (event, row) => {
-  selectedPlate.value = row;
+  selectedPlate.value = row
+
+  if (event && (event.ctrlKey || event.metaKey)) {
+    if (isSelected(row)) {
+      uiStore.selectedPlates = updateSelectedPlates(true, row)
+    } else {
+      uiStore.selectedPlates.push(row)
+    }
+  } else {
+    uiStore.selectedPlates = updateSelectedPlates(isSelected(row), row)
+  }
   uiStore.loadSelectedPlate(row.id)
 }
 
@@ -183,16 +202,16 @@ const openPlateInspector = (plate) => {
 
 const visibleColumns = ref([])
 onMounted(() => {
-  visibleColumns.value = [...columns.value.map(a => a.name)];
+  visibleColumns.value = [...columns.map(a => a.name)];
   loading.value = false
 })
 
 watch(plates, () => {
-  visibleColumns.value = [...columns.value.map(a => a.name)];
+  visibleColumns.value = [...columns.map(a => a.name)];
   loading.value = false
 })
 
-const exportTableData = useExportTableData(columns.value)
+const exportTableData = useExportTableData(columns)
 
 const exportToCSV = () => {
   exportTableData.exportToCSV(filterMethod(plates.value, filter.value), props.experiment.name)

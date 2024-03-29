@@ -171,7 +171,7 @@
     <calculate-plate-dialog v-model:show="showCalculateDialog" :plate="props.plate" />
     <link-plate-dialog v-model:show="showLinkDialog" :plate="props.plate"/>
     <delete-dialog v-model:show="showDeleteDialog" :id="props.plate.id" :name="props.plate.barcode" :objectClass="'plate'" @onDeleted="onDeletePlate"/>
-    <move-plate-dialog v-model:show="showMovePlatesDialog" :plates="[props.plate]" :experiment="experimentStore.experiment" :experiments="projectStore.experiments" @movePlates="onMovePlates"/>
+    <move-plate-dialog v-model:show="showMovePlatesDialog" :plates="uiStore.selectedPlates" :experiment="experimentStore.experiment" :experiments="projectStore.experiments" @movePlates="onMovePlates"/>
   </q-menu>
 </template>
 
@@ -188,9 +188,6 @@ import {useStore} from 'vuex'
 import {useExperimentStore} from "@/stores/experiment";
 import {useRouter} from "vue-router";
 import {useUIStore} from "@/stores/ui";
-import projectsGraphQlAPI from "@/api/graphql/projects";
-import resultDataGraphQlAPI from "@/api/graphql/resultdata";
-import {usePlateStore} from "@/stores/plate";
 import MovePlateDialog from "@/components/plate/MovePlateDialog.vue";
 import {useProjectStore} from "@/stores/project";
 
@@ -293,7 +290,7 @@ const addHistogram = (plateId) => {
 }
 
 const clonePlates = () => {
-  experimentStore.clonePlates([props.plate])
+  experimentStore.clonePlates(uiStore.selectedPlates)
 }
 
 const movePlates = () => {
@@ -302,6 +299,6 @@ const movePlates = () => {
 
 const onMovePlates = (toExperiment) => {
   console.log("Move plate(s) " + [props.plate.barcode] + " to experiment " + toExperiment.name)
-  experimentStore.movePlates([props.plate], toExperiment.id)
+  experimentStore.movePlates(uiStore.selectedPlates, toExperiment.id)
 }
 </script>
