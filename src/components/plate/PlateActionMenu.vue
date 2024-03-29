@@ -198,7 +198,6 @@ const props = defineProps(['plate', 'plates']);
 
 const store = useStore()
 const uiStore = useUIStore()
-const plateStore = usePlateStore()
 const router = useRouter()
 const experimentStore = useExperimentStore()
 const projectStore = useProjectStore()
@@ -276,15 +275,21 @@ const onDeletePlate = () => {
 }
 
 const addScatterPlot = (plateId) => {
-  uiStore.addChartView({type: 'scatter', plateId: plateId, label: 'Scatter Plot'})
+  uiStore.loadSelectedPlate(plateId).then(() => {
+    uiStore.addChartView({type: 'scatter', plateId: plateId, label: 'Scatter Plot'})
+  })
 }
 
 const addBoxPlot = (plateId) => {
-  uiStore.addChartView({type: 'box', plateId: plateId, label: 'Box Plot'})
+  uiStore.loadSelectedPlate(plateId).then(() => {
+    uiStore.addChartView({type: 'box', plateId: plateId, label: 'Box Plot'})
+  })
 }
 
 const addHistogram = (plateId) => {
-  uiStore.addChartView({type: 'histogram', plateId: plateId, label: 'Histogram'})
+  uiStore.loadSelectedPlate(plateId).then(() => {
+    uiStore.addChartView({type: 'histogram', plateId: plateId, label: 'Histogram'})
+  })
 }
 
 const clonePlates = () => {

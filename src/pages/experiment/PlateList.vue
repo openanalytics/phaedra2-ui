@@ -180,7 +180,7 @@ const gotoPlateView = (event, row) => {
 
 const selectPlate = (event, row) => {
   selectedPlate.value = row;
-  uiStore.selectedPlate = selectedPlate.value
+  uiStore.loadSelectedPlate(row.id)
 }
 
 const openNewPlateTab = () => {

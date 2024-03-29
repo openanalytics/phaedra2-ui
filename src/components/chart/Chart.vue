@@ -65,16 +65,16 @@ const selectedYAxisOption = ref()
 
 onMounted(() => initSelectedValues())
 const initSelectedValues = () => {
-  const {onResult, onError} = resultDataGraphQlAPI.protocolsByPlateId(uiStore.selectedPlate.id)
-  onResult(({data}) => {
-    plateProtocols.value = data.protocols;
-    if (!(selectedProtocol.value) || !plateProtocols.value.map(plateProtocol => plateProtocol.id).includes(selectedProtocol.value.id)) {
-      selectedProtocol.value = plateProtocols.value[0]
-    }
-    updatePlotValueOptions()
-    handleChartUpdate()
-  })
+  plateProtocols.value = uiStore.protocols
+  if (!(selectedProtocol.value) || !plateProtocols.value.map(plateProtocol => plateProtocol.id).includes(selectedProtocol.value.id)) {
+    selectedProtocol.value = plateProtocols.value[0]
+
+  }
+  updatePlotValueOptions()
+  handleChartUpdate()
 }
+
+onUpdated(() => handleChartUpdate())
 
 const updatePlotValueOptions = () => {
   plotValueOptions.value = [
@@ -182,7 +182,6 @@ const layout = (chartView) => {
 
 watch(() => props.update, handlePlotUpdate)
 watch(() => chartPlot.value, handlePlotUpdate)
-watch(() => uiStore.selectedPlate, initSelectedValues)
 
 const handleProtocolSelection = () => {
   updatePlotValueOptions()

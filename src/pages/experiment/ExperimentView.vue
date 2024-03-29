@@ -97,7 +97,7 @@
         </div>
       </Pane>
       <Pane class="q-pa-sm" v-if="uiStore.showChartViewer" style="background-color: #E6E6E6" ref="chartViewerPane">
-        <ChartViewer :update="Date.now()"/>
+        <ChartViewer :update="Date.now()" @changeOrientation="horizontal = !horizontal"/>
       </Pane>
     </Splitpanes>
 
@@ -161,7 +161,6 @@ import {useUIStore} from "@/stores/ui";
 import {usePlateStore} from "@/stores/plate";
 
 const uiStore = useUIStore()
-const plateStore = usePlateStore()
 const projectStore = useProjectStore()
 const experimentStore = useExperimentStore()
 const route = useRoute();
