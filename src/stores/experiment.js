@@ -56,8 +56,8 @@ export const useExperimentStore = defineStore("experiment", {
             await plateAPI.addPlate(plate)
             this.loadExperiment(this.experiment.id)
         },
-        async linkPlate(plate) {
-            await plateAPI.linkPlate(plate.id, plate.linkTemplateId)
+        async setPlateLayout(plates, templateId) {
+            await plateAPI.setPlateLayout(plates, templateId)
             this.loadExperiment(this.experiment.id)
         },
         async validatePlate(plateId) {

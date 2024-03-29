@@ -50,10 +50,10 @@ export default {
     async clonePlates(plates){
         try {
             const plateIds = plates?.map(p => p.id) ?? []
-            const params = '?' + plateIds.map(value => `plateIds=${value}`).join('&')
-
-            const response = await axios.put(apiURL + '/plates/clone' + params)
-            if (response.status === 200) return response.data;
+            if (plateIds.length > 0) {
+                const response = await axios.post(apiURL + '/plates/clone', plateIds)
+                if (response.status === 200) return response.data;
+            }
         } catch (error) {
             console.log(error);
         }
@@ -61,10 +61,13 @@ export default {
     async movePlates(plates, experimentId){
         try {
             const plateIds = plates?.map(p => p.id) ?? []
-            const params = '?' + plateIds.map(value => `plateIds=${value}`).join('&') + `&experimentId=${experimentId}`
-
-            const response = await axios.put(apiURL + '/plates/move' + params)
-            if (response.status === 200) return response.data;
+            if (plateIds.length > 0) {
+                const response = await axios.post(apiURL + '/plates/move', {
+                    plateIds: plateIds,
+                    experimentId: experimentId
+                })
+                if (response.status === 200) return response.data;
+            }
         } catch (error) {
             console.log(error);
         }
@@ -82,9 +85,18 @@ export default {
         const response = await axios.put(endpoint, plateMeasurement);
         return response.data;
     },
-    async linkPlate(plateId, plateTemplateId) {
-        const endpoint = apiURL + '/plates/' + plateId + '/link/' + plateTemplateId;
-        const response = await axios.put(endpoint);
-        return response.data;
+    async setPlateLayout(plates, plateTemplateId) {
+        try {
+            const plateIds = plates?.map(p => p.id) ?? []
+            if (plateIds.length > 0) {
+                const response = await axios.post(apiURL + '/plates/link-template', {
+                    plateIds: plateIds,
+                    plateTemplateId: plateTemplateId
+                })
+                if (response.status === 200) return response.data;
+            }
+        } catch (error) {
+            console.log(error);
+        }
     }
 }

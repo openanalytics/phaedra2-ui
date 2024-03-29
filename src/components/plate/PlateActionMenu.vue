@@ -160,7 +160,7 @@
           <q-item-section avatar>
             <q-icon name="delete"/>
           </q-item-section>
-          <q-item-section>Delete Plate</q-item-section>
+          <q-item-section>Delete Plate(s)</q-item-section>
         </q-item>
       </div>
     </q-list>
@@ -169,7 +169,7 @@
     <approve-dialog v-model:show="showApproveDialog" :plate="props.plate" @onApprove="onApprovePlate"/>
     <disapprove-dialog v-model:show="showDisapproveDialog" :plate="props.plate" @onDisapprove="onDisapprovePlate"/>
     <calculate-plate-dialog v-model:show="showCalculateDialog" :plate="props.plate" />
-    <link-plate-dialog v-model:show="showLinkDialog" :plate="props.plate"/>
+    <link-plate-dialog v-model:show="showLinkDialog" :plates="uiStore.selectedPlates"/>
     <delete-dialog v-model:show="showDeleteDialog" :id="props.plate.id" :name="props.plate.barcode" :objectClass="'plate'" @onDeleted="onDeletePlate"/>
     <move-plate-dialog v-model:show="showMovePlatesDialog" :plates="uiStore.selectedPlates" :experiment="experimentStore.experiment" :experiments="projectStore.experiments" @movePlates="onMovePlates"/>
   </q-menu>
