@@ -6,8 +6,7 @@ import metadataAPI from "@/api/metadata";
 
 export const useExperimentStore = defineStore("experiment", {
     state: () => ({
-        experiment: {},
-        plates: []
+        experiment: {}
     }),
     getters: {
         isOpen: (state) => {
@@ -17,15 +16,16 @@ export const useExperimentStore = defineStore("experiment", {
             return state.experiment.status === 'CLOSED'
         },
         getPlateByPlateId: (state, plateId) => {
-            return state.plates.find(p => p.id === plateId)
-        }
+            return state.experiment.plates.find(p => p.id === plateId)
+        },
+        plates: state => state.experiment.plates
     },
     actions: {
         loadExperiment(experimentId) {
             const {onResult, onError} = projectsGraphQlAPI.experimentById(experimentId)
             onResult(({data}) => {
                 this.experiment = data.experiment
-                this.plates = data.plates
+                this.experiment["plates"] = data.plates
             })
         },
         isLoaded(experimentId) {
@@ -137,7 +137,6 @@ export const useExperimentStore = defineStore("experiment", {
         },
         reset() {
             this.experiment = {}
-            this.plates = []
         },
     }
 })

@@ -6,17 +6,19 @@ import metadataAPI from "@/api/metadata";
 
 export const useProjectStore = defineStore("project" , {
     state: () => ({
-        project: {},
-        experiments: [],
-        projectAccess: []
+        project: {}
     }),
+    getters: {
+        experiments: state => state.project.experiments,
+        projectAccess: state => state.project.projectAccess
+    },
     actions: {
         loadProject(projectId) {
             const {onResult, onError} = projectsGraphQlAPI.projectById(projectId)
             onResult(({data}) => {
                 this.project = data.project
-                this.experiments = data.experiments
-                this.projectAccess = data.projectAccess
+                this.project["experiments"] = data.experiments
+                this.project["projectAccess"] = data.projectAccess
             })
         },
         isLoaded(projectId) {
@@ -93,9 +95,6 @@ export const useProjectStore = defineStore("project" , {
         },
         reset() {
             this.project = {}
-            this.experiments = []
-            this.projectAccess = []
         }
-
     }
 })

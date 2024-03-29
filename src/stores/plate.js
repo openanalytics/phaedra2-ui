@@ -11,28 +11,38 @@ import plateAPI from "@/api/plates";
 export const usePlateStore = defineStore("plate", {
     state: () => ({
         plate: null,
-        wells:[],
-        measurements: [],
-        resultSets: [],
-        protocols: [],
-        curves:[]
     }),
     getters: {
+        wells: (state) => {
+            return state.plate?.wells ?? []
+        },
+        measurements: (state) => {
+            return state.plate?.measurements ?? []
+        },
+        resultSets: (state) => {
+            return state.plate?.resultSets ?? []
+        },
+        protocols: (state) => {
+            return state.plate?.protocols ?? []
+        },
+        curves: (state) => {
+            return state.plate?.curves ?? []
+        },
         activeMeasurement: (state) => {
-            return state.measurements?.filter(m => m.active === true)[0]
+            return state.plate?.measurements?.filter(m => m.active === true)[0]
         },
         activeResultSet: (state) => {
-            const activeMeasId = state.measurements?.filter(m => m.active === true)[0]?.measurementId ?? null
-            return state.resultSets?.filter(rs => rs.measId === activeMeasId && rs.outcome === 'SUCCESS')[0]
+            const activeMeasId = state.plate?.measurements?.filter(m => m.active === true)[0]?.measurementId ?? null
+            return state.plate?.resultSets?.filter(rs => rs.measId === activeMeasId && rs.outcome === 'SUCCESS')[0]
         },
         protocolById: (state) => {
-          return (protocolId) => state.protocols.find(p => p.id === protocolId) ?? null
+          return (protocolId) => state.plate?.protocols.find(p => p.id === protocolId) ?? null
         },
         featuresByProtocolId: (state) => {
-            return (protocolId) => state.protocols.find(p => p.id === protocolId)?.features
+            return (protocolId) => state.plate?.protocols.find(p => p.id === protocolId)?.features
         },
         featureById: (state) => {
-            return state.protocols.map(p => p.features)
+            return state.plate?.protocols.map(p => p.features)
         },
         isApproved: (state) => {
             return state.plate !== null && state.plate.approvalStatus === 'APPROVED'
@@ -43,7 +53,7 @@ export const usePlateStore = defineStore("plate", {
             const {onResult, onError} = projectsGraphQlAPI.plateById(plateId)
             onResult(({data}) => {
                 this.plate = data.plate;
-                this.wells = data.wells;
+                this.plate["wells"] = data.wells;
 
                 this.loadPlateMeasurements(plateId)
                 this.loadPlateCalculations(plateId)
@@ -52,32 +62,35 @@ export const usePlateStore = defineStore("plate", {
             })
         },
         async reloadPlate() {
-            const {onResult, onError} = projectsGraphQlAPI.plateById(this.plate.id)
-            onResult(({data}) => {
-                this.plate = data.plate
-                this.wells = data.wells
-            })
+            this.loadPlate(this.plate.id)
         },
         async loadPlateMeasurements(plateId) {
             const {onResult, onError} = projectsGraphQlAPI.measurementsByPlateId(plateId)
-            onResult(({data}) => this.measurements = data.plateMeasurements)
+            onResult(({data}) => {
+                this.plate["measurements"] = data.plateMeasurements;
+            })
         },
         async loadPlateCalculations(plateId) {
             const {onResult, onError} = resultdataGraphQlAPI.resultSetsByPlateId(plateId)
-            onResult(({data}) => this.resultSets = data.resultSets)
+            onResult(({data}) => {
+                this.plate["resultSets"] = data.resultSets;
+            })
         },
         async loadPlateProtocols(plateId) {
             const {onResult, onError} = resultDataGraphQlAPI.protocolsByPlateId(plateId)
-            onResult(({data}) => this.protocols = data.protocols)
+            onResult(({data}) => {
+                this.plate["protocols"] = data.protocols;
+            })
         },
         async loadPlateCurves(plateId) {
           const {onResult, onError} = curvesGraphQlAPI.curvesByPlateId(plateId)
             onResult(({data}) => {
                 const colorList = ColorUtils.getColorList(data.curves?.length)
-                this.curves = data.curves?.map((curve, index) => {
+                const curves = data.curves?.map((curve, index) => {
                     curve['color'] = colorList[index]
                     return curve
                 })
+                this.plate["curves"] = curves;
             })
         },
         async renamePlate(newBarcode) {
@@ -97,11 +110,6 @@ export const usePlateStore = defineStore("plate", {
         },
         reset() {
             this.plate = null
-            this.wells = []
-            this.measurements = []
-            this.resultSets = []
-            this.protocols = []
-            this.curves = []
         },
         async fitDoseResponseCurves(plate) {
             await calculationsAPI.fitDoseResponseCurves()
