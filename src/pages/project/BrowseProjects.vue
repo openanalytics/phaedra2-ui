@@ -17,6 +17,7 @@
             :filter-method="filterMethod"
             :visible-columns=visibleColumns
             :loading="loading"
+            @row-dblclick="gotoProjectView"
             separator="cell"
             flat square dense
         >
@@ -37,11 +38,9 @@
           </template>
           <template v-slot:body-cell-name="props">
             <q-td :props="props">
-              <router-link :to="'/project/' + props.row.id" class="nav-link">
                 <div class="row items-center cursor-pointer">
                   {{ props.row.name }}
                 </div>
-              </router-link>
             </q-td>
           </template>
           <template v-slot:body-cell-tags="props">
@@ -80,6 +79,7 @@ import OaSection from "@/components/widgets/OaSection";
 import ColumnFilter from "@/components/table/ColumnFilter";
 import ProjectActionMenu from "@/components/project/ProjectActionMenu";
 import projectAPI from "@/api/projects";
+import {useRouter} from "vue-router";
 
 const loading = ref(true);
 const projects = ref([])
@@ -115,6 +115,11 @@ const fetchAllProjects = () => {
 const handleDeleteProject = async (project) => {
     await projectAPI.deleteProject(project.id)
     fetchAllProjects()
+}
+
+const router = useRouter()
+const gotoProjectView = (event, row) => {
+  router.push({name: "project", params: { id: row.id }});
 }
 
 watch(projects, () => {

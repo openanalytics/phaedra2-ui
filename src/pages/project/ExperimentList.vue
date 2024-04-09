@@ -13,6 +13,7 @@
         :pagination="{ rowsPerPage: 10, sortBy: 'name' }"
         :loading="loading"
         @row-contextmenu="selectExperiment"
+        @rowDblclick="gotoExperimentView"
         separator="cell"
         flat dense square
     >
@@ -55,12 +56,10 @@
       </template>
       <template v-slot:body-cell-name="props">
         <q-td :props="props">
-          <router-link :to="'/experiment/' + props.row.id" class="nav-link">
             <div class="row items-center cursor-pointer">
               <q-icon name="science" class="icon q-pr-sm"/>
               {{ props.row.name }}
             </div>
-          </router-link>
         </q-td>
       </template>
       <template v-slot:body-cell-tags="props">
@@ -163,6 +162,7 @@ import TagList from "@/components/tag/TagList";
 import FormatUtils from "@/lib/FormatUtils.js"
 import FilterUtils from "@/lib/FilterUtils";
 import {useExportTableData} from "@/composable/exportTableData";
+import {useRouter} from "vue-router";
 
 
 const columns = ref([
@@ -229,6 +229,11 @@ const exportToCSV = () => {
 
 const exportToXLSX = () => {
   exportTableData.exportToXLSX(filterMethod(experiments.value, filter.value), props.project.name)
+}
+
+const router = useRouter()
+const gotoExperimentView = (event, row) => {
+  router.push({name: "experiment", params: { experimentId: row.id }});
 }
 </script>
 
