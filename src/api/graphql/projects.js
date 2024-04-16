@@ -169,10 +169,14 @@ export default {
                     barcode
                     description
                     linkStatus
+                    linkTemplateName
                     calculationStatus
                     calculationError
+                    calculatedOn
                     validationStatus
+                    validatedOn
                     approvalStatus
+                    approvedOn
                     rows
                     columns
                     tags
@@ -202,6 +206,7 @@ export default {
                     linkStatus
                     linkSource
                     linkTemplateId
+                    linkTemplateName
                     linkedOn
                     calculationStatus
                     calculationError
@@ -252,7 +257,7 @@ export default {
             variables,
             defaultOptions))
     },
-    wellsById(plateId) {
+    wellsByPlateId(plateId) {
         const QUERY = gql`
             query getPlateWells($plateId: ID) {
                 wells:getPlateWells(plateId: $plateId) {

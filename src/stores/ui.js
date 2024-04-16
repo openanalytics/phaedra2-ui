@@ -8,6 +8,8 @@ import ColorUtils from "@/lib/ColorUtils";
 export const useUIStore = defineStore("ui", {
     state: () => ({
         // Selection Handling
+        selectedProject: null,
+
         showQuickHeatmap: false,
         selectedPlate: null,
         selectedPlates: [],

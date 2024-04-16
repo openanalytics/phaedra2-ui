@@ -3,6 +3,7 @@ import projectsGraphQlAPI from "@/api/graphql/projects"
 import experimentAPI from '@/api/experiments.js'
 import plateAPI from "@/api/plates";
 import metadataAPI from "@/api/metadata";
+import {useUserInfoStore} from "@/stores/userinfo";
 
 export const useExperimentStore = defineStore("experiment", {
     state: () => ({
@@ -61,9 +62,12 @@ export const useExperimentStore = defineStore("experiment", {
             this.loadExperiment(this.experiment.id)
         },
         async validatePlate(plateId) {
+            const userInfoStore = useUserInfoStore()
             await plateAPI.editPlate({
                 id: plateId,
                 validationStatus: 'VALIDATED',
+                validatedOn: new Date(),
+                validatedBy: userInfoStore.getUserName()
             })
             this.loadExperiment(this.experiment.id)
         },

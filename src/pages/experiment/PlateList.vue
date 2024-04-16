@@ -11,7 +11,7 @@
       :filter-method="filterMethod"
       :pagination="{ rowsPerPage: 10, sortBy: 'barcode' }"
       :loading="loading"
-      @rowClick="selectPlate"
+      @row-click="selectPlate"
       @row-dblclick="gotoPlateView"
       @row-contextmenu="plateContextMenu"
       selection="multiple"
@@ -58,7 +58,7 @@
     <template v-slot:body-cell-link-status="props">
       <q-td :props="props">
         <q-tooltip transition-show="flip-right" transition-hide="flip-left">
-          {{'Linked with: ' + props.row.linkSource}}
+          {{'Linked with: ' + props.row.linkTemplateName}}
         </q-tooltip>
         <StatusFlag :object="props.row" :statusField="'linkStatus'" />
       </q-td>
@@ -179,6 +179,7 @@ const isSelected = (row) => uiStore.selectedPlates.includes(row)
 const updateSelectedPlates = (condition, row) => condition ? uiStore.selectedPlates.filter(plate => plate.id !== row.id) : [row]
 const selectPlate = (event, row) => {
   selectedPlate.value = row
+  uiStore.loadSelectedPlate(row.id)
 
   if (event && (event.ctrlKey || event.metaKey)) {
     if (isSelected(row)) {
@@ -189,7 +190,6 @@ const selectPlate = (event, row) => {
   } else {
     uiStore.selectedPlates = updateSelectedPlates(isSelected(row), row)
   }
-  uiStore.loadSelectedPlate(row.id)
 }
 
 const openNewPlateTab = () => {
