@@ -10,7 +10,7 @@ import { publicPath } from '../vue.config'
 import store from '@/store/index.js'
 
 import {createApp} from "vue"
-import { Quasar } from 'quasar'
+import {Notify, Quasar} from 'quasar'
 import "quasar/dist/quasar.css"
 
 import {createPinia} from "pinia"
@@ -38,6 +38,9 @@ if (token) {
 // Quasar UI with Material Icons and SplitPanes
 // --------------------------------------------------------------------
 app.use(Quasar, {
+    plugins: {
+        Notify
+    },
     config: {
         brand: {
             primary: '#32a6d3',

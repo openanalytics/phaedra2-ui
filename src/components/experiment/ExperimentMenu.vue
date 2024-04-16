@@ -1,14 +1,6 @@
 <template>
   <q-menu>
     <q-list dense>
-<!--      <q-item dense clickable @click="browseDoseResponseCurves">-->
-<!--        <q-item-section avatar>-->
-<!--          <q-icon name="show_chart"/>-->
-<!--        </q-item-section>-->
-<!--        <q-item-section>Browse Dose-Response Curves</q-item-section>-->
-<!--      </q-item>-->
-<!--      <q-separator/>-->
-
       <div v-if="isOpen">
         <q-item dense clickable @click="openLinkPlateDialog">
           <q-item-section avatar>
@@ -16,12 +8,12 @@
           </q-item-section>
           <q-item-section>Set Plate Layout</q-item-section>
         </q-item>
-<!--        <q-item dense clickable @click="calculatePlates">-->
-<!--          <q-item-section avatar>-->
-<!--            <q-icon name="calculate"/>-->
-<!--          </q-item-section>-->
-<!--          <q-item-section>(Re)Calculate Plate(s)</q-item-section>-->
-<!--        </q-item>-->
+        <q-item dense clickable @click="calculatePlates">
+          <q-item-section avatar>
+            <q-icon name="calculate"/>
+          </q-item-section>
+          <q-item-section>(Re)Calculate Plate(s)</q-item-section>
+        </q-item>
       </div>
 
 <!--      <q-separator/>-->
@@ -126,9 +118,9 @@
       </div>
     </q-list>
 
-    <DeleteDialog v-if="isOpen" :id="props.experiment.id" :name="props.experiment.name" :objectClass="'experiment'"
+    <delete-dialog v-if="isOpen" :id="props.experiment.id" :name="props.experiment.name" :objectClass="'experiment'"
                   v-model:show="showDeleteDialog" @onDeleted="onDeleted"/>
-    <LinkPlateDialog v-if="isOpen" v-model:show="showLinkPlateDialog" :experiment="props.experiment"/>
+    <link-plate-layout-dialog v-if="isOpen" v-model:show="showLinkPlateDialog" :experiment="props.experiment"/>
 <!--    <ExportPlateListDialog v-model:show="showExportPlateListDialog" :experiments="[props.experiment]"/>-->
   </q-menu>
 </template>
@@ -137,7 +129,7 @@
 import DeleteDialog from "@/components/widgets/DeleteDialog";
 import {useProjectStore} from "@/stores/project";
 import {computed, ref} from "vue";
-import LinkPlateDialog from "@/components/plate/LinkPlateDialog.vue";
+import LinkPlateLayoutDialog from "@/components/plate/LinkPlateLayoutDialog.vue";
 // import ExportPlateListDialog from "@/components/experiment/ExportPlateListDialog.vue";
 
 const props = defineProps(['experiment'])

@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="showDialog" persistent>
+  <q-dialog v-model="showDialog">
     <q-card style="min-width: 60vw">
 
       <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
@@ -9,11 +9,11 @@
 
       <q-card-section>
         <div class="row q-pb-md">
-          <span>By linking plates with a layout definition, substance and control information can be retrieved and applied to the plate(s).</span>
+          <span>By linking plate(s) with a layout definition, substance and control information can be retrieved and applied to the plate(s).</span>
         </div>
 
         <q-card-section>
-          <div class="q-pb-md">Selected plate(s) to move:</div>
+          <div class="q-pb-md">Selected plate(s):</div>
           <q-list dense bordered>
             <q-item v-for="plate in props.plates" :key="plate.id">
               <q-item-section avatar>
@@ -33,10 +33,10 @@
               :rows="allTemplates"
               :columns="templateColumns"
               :pagination="{ rowsPerPage: 5 }"
-              selection="single"
               :filter="props.plates"
               :filter-method="filterMethod"
               v-model:selected="selectedTemplates"
+              selection="single"
               @selection="handleTemplateSelection"
               table-header-class="text-grey"
               square flat dense>
