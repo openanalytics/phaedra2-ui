@@ -74,8 +74,8 @@
       </oa-section>
     </div>
 
-    <Splitpanes class="default-theme" :horizontal="horizontal" >
-      <Pane class="q-pa-sm" v-if="experimentStore.experiment" style="background-color: #E6E6E6">
+    <splitpanes class="default-theme" :horizontal="horizontal" >
+      <pane class="q-pa-sm" v-if="experimentStore.experiment" style="background-color: #E6E6E6">
         <q-tabs v-model="activeTab" inline-label dense no-caps align="left" class="oa-section-title">
           <q-tab name="overview" icon="table_rows" label="Overview"/>
           <q-tab name="statistics" icon="functions" label="Statistics"/>
@@ -95,11 +95,11 @@
             </q-tab-panel>
           </q-tab-panels>
         </div>
-      </Pane>
-      <Pane class="q-pa-sm" v-if="uiStore.showChartViewer" style="background-color: #E6E6E6" ref="chartViewerPane">
+      </pane>
+      <pane class="q-pa-sm" v-if="uiStore.showChartViewer" style="background-color: #E6E6E6" ref="chartViewerPane">
         <ChartViewer :update="Date.now()" @changeOrientation="horizontal = !horizontal"/>
-      </Pane>
-    </Splitpanes>
+      </pane>
+    </splitpanes>
 
     <div class="q-pa-sm" v-if="newPlateTab && experimentStore.isOpen">
       <oa-section title="New Plate" icon="add">

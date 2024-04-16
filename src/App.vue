@@ -16,23 +16,26 @@
     <q-drawer
         v-model="drawer"
         show-if-above
-
         :width="250"
-        :breakpoint="500"
-        bordered>
-      <Navigator></Navigator>
+        :breakpoint="500">
+<!--      <Navigator/>-->
+      <splitpanes class="default-theme" horizontal >
+        <pane style="overflow-y: scroll; scrollbar-width: thin; background: #ffffff">
+          <Navigator/>
+        </pane>
+<!--        <pane style="overflow-y: scroll; background: #ffffff">-->
+<!--          <Selector/>-->
+<!--        </pane>-->
+      </splitpanes>
     </q-drawer>
     <q-page-container>
-      <Splitpanes class="default-theme" @resize="updatePanelSizes">
-        <Pane :size="100 - (navigatorSize + sidePanelSize)" style="background-color: #ffffff;">
+      <splitpanes class="default-theme" @resize="updatePanelSizes">
+        <pane style="background-color: #ffffff;">
           <div style="max-height: calc(100vh - 50px); overflow: auto;">
             <router-view :key="$route.fullPath"></router-view>
           </div>
-        </Pane>
-        <Pane :size="sidePanelSize" style="background-color: #ffffff;">
-          <SidePanel/>
-        </Pane>
-      </Splitpanes>
+        </pane>
+      </splitpanes>
     </q-page-container>
   </q-layout>
 </template>

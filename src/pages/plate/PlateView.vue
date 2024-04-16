@@ -71,8 +71,8 @@
       </oa-section>
     </div>
 
-    <Splitpanes class="default-theme" :horizontal="horizontal">
-      <Pane class="q-pa-sm" v-if="plateStore.plate" style="background-color: #E6E6E6">
+    <splitpanes class="default-theme" :horizontal="horizontal">
+      <pane class="q-pa-sm" v-if="plateStore.plate" style="background-color: #E6E6E6">
         <q-tabs inline-label dense no-caps align="left" class="oa-section-title" v-model="activeTab">
           <q-tab name="layout" icon="view_module" label="Layout" class="oa-section-title"/>
           <q-tab name="heatmap" icon="view_module" label="Heatmap" class="oa-section-title"/>
@@ -105,12 +105,12 @@
             </q-tab-panel>
           </q-tab-panels>
         </div>
-      </Pane>
-      <Pane v-if="uiStore.showDRCView" style="background-color: #E6E6E6" ref="drcViewPane">
+      </pane>
+      <pane v-if="uiStore.showDRCView" style="background-color: #E6E6E6" ref="drcViewPane">
         <DRCView :height="height" :width="width" :curves="uiStore.selectedDRCurves" :update="Date.now()"
                  @changeOrientation="horizontal = !horizontal"/>
-      </Pane>
-    </Splitpanes>
+      </pane>
+    </splitpanes>
 
     <rename-dialog v-model:show="showRenameDialog" objectClass="plate" fieldName="barcode" :object="plateStore.plate" @valueChanged="onNameChanged"/>
     <delete-dialog v-model:show="showDeleteDialog" :id="plateStore.plate.id" :name="plateStore.plate.barcode" :objectClass="'plate'" @onDeleted="onDeleted"/>

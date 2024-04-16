@@ -1,8 +1,8 @@
 <template>
-  <Pane>
+  <pane>
     <q-btn label="Close" icon="close" size="sm" class="oa-action-button" @click="removeChartView" flat dense/>
     <div :id="`plot_${chartId}`" class="q-ma-sm"/>
-  </Pane>
+  </pane>
 </template>
 
 <script setup>
