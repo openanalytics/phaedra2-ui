@@ -21,9 +21,10 @@
                             </q-field>
                         </div>
                         <div class="col-3">
-                            <q-select v-model="formula.language" label="Language" :options="languages" options-dense :readonly=!editMode stack-label dense :borderless="!editMode"></q-select>
-                            <q-select v-model="formula.scope" label="Scope" :options="scopes" options-dense :readonly=!editMode stack-label dense :borderless="!editMode"></q-select>
-                            <q-input v-model="formula.versionNumber" label="Version" stack-label dense borderless></q-input>
+                          <q-select v-model="formula.category" label="Category" :options="categories" options-dense :readonly=!editMode stack-label dense :borderless="!editMode"/>
+                            <q-select v-model="formula.language" label="Language" :options="languages" options-dense :readonly=!editMode stack-label dense :borderless="!editMode"/>
+                            <q-select v-model="formula.scope" label="Scope" :options="scopes" options-dense :readonly=!editMode stack-label dense :borderless="!editMode"/>
+                            <q-input v-model="formula.versionNumber" label="Version" stack-label dense borderless/>
                         </div>
                         <div class="col-2">
                             <q-field label="Created On" stack-label dense borderless>
@@ -64,7 +65,7 @@
                 </div>
             </oa-section>
             <oa-section title="Formula" icon="description" class="q-pt-sm">
-                <div class="q-pa-md" style="max-height: 750px">
+                <div class="q-pa-md">
                     <codemirror
                         :disabled="!editMode"
                         v-model="formula.formula"
@@ -135,6 +136,7 @@ const formulaInputs = computed(() => {
 });
 if (formulaId > 0) store.dispatch('calculations/getFormulaInputs', formulaId);
 
-const languages = computed(() => (store.getters['calculations/getLanguages']() || []));
-const scopes = computed(() => (store.getters['calculations/getScopes']() || []));
+const categories = computed(() => (store.getters['calculations/getCategories']() || []))
+const languages = computed(() => (store.getters['calculations/getLanguages']() || []))
+const scopes = computed(() => (store.getters['calculations/getScopes']() || []))
 </script>

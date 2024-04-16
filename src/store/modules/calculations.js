@@ -6,7 +6,7 @@ const state = () => ({
 
     calculationJobs: [],
 
-    categories: [ 'CALCULATION', 'HIT_CALLING', 'OUTLIER_DETECTION', 'POLISHING' ],
+    categories: [ 'CALCULATION', 'HIT_CALLING', 'OUTLIER_DETECTION', 'POLISHING', 'CURVE_FITTING' ],
     languages: [ 'JAVASCRIPT', 'R', 'JAVASTAT' ],
     scopes: [ 'PLATE', 'WELL', 'SUB_WELL' ]
 })
