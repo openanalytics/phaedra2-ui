@@ -98,5 +98,33 @@ export default {
         } catch (error) {
             console.log(error);
         }
+    },
+    async acceptWells(plateId, wells) {
+        try {
+            if (wells.length > 0) {
+                const wellIds = wells.map(well => well.id)
+                await axios.put(`${apiURL}/plates/${plateId}/wells/accept`, {
+                    wellIds: wellIds
+                })
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    },
+    async rejectWells(plateId, wells, rejectionType, description) {
+        try {
+            if (wells.length > 0) {
+                const wellIds = wells.map(well => well.id)
+                await axios.put(`${apiURL}/plates/${plateId}/wells/reject`, {
+                    wellIds: wellIds,
+                    wellStatusDTO: {
+                        status: rejectionType,
+                        description: description
+                    }
+                })
+            }
+        } catch (error) {
+            console.log(error)
+        }
     }
 }

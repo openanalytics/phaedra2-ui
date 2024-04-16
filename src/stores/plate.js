@@ -64,6 +64,12 @@ export const usePlateStore = defineStore("plate", {
         async reloadPlate() {
             this.loadPlate(this.plate.id)
         },
+        async reloadPlateWells() {
+            const {onResult, onError} = projectsGraphQlAPI.wellsByPlateId(this.plate.id)
+            onResult(({data}) => {
+                this.plate["wells"] = data.wells;
+            })
+        },
         async loadPlateMeasurements(plateId) {
             const {onResult, onError} = projectsGraphQlAPI.measurementsByPlateId(plateId)
             onResult(({data}) => {
@@ -138,6 +144,14 @@ export const usePlateStore = defineStore("plate", {
                 propertyName: property.propertyName
             })
             await this.reloadPlate()
+        },
+        async acceptWells(wells) {
+            await plateAPI.acceptWells(this.plate.id, wells)
+            await this.reloadPlateWells()
+        },
+        async rejectWells(wells, rejectionType, description) {
+            await plateAPI.rejectWells(this.plate.id, wells, rejectionType, description)
+            await this.reloadPlateWells()
         }
     }
 })

@@ -42,6 +42,9 @@ export const useUIStore = defineStore("ui", {
         getSelectedSubstances: (state) => () => {
             return [...state.selectedSubstances.keys()];
         },
+        isPlateSelected: (state) => () => {
+            return state.selectedPlate || state.selectedPlates.length > 0
+        }
     },
     actions: {
         async loadSelectedPlate(plateId) {

@@ -1,42 +1,40 @@
 <template>
-    <q-menu>
-        <q-list dense>
-            <q-item clickable v-close-popup @click="showWellImage">
-                <q-item-section avatar><q-icon color="primary" name="image"/></q-item-section>
-                <q-item-section>Show Well Image</q-item-section>
-            </q-item>
-            <q-separator />
-<!--            <q-item clickable v-close-popup>-->
-<!--                <q-item-section avatar><q-icon color="positive" name="check_circle"/></q-item-section>-->
-<!--                <q-item-section>Accept Well</q-item-section>-->
-<!--            </q-item>-->
-<!--            <q-item clickable v-close-popup @click="rejectWells">-->
-<!--                <q-item-section avatar><q-icon color="negative" name="cancel"/></q-item-section>-->
-<!--                <q-item-section>Reject Well</q-item-section>-->
-<!--            </q-item>-->
-        </q-list>
-    </q-menu>
+  <q-menu>
+    <q-list dense>
+      <menu-item icon="image" color="primary" label="Show Well Image" @click="showWellImage"/>
+      <menu-item icon="show_chart" color="primary" label="Show Dose-Response Curve" @click="showDoseResponseCurve"/>
+      <q-separator/>
+      <menu-item icon="check_circle" color="positive" label="Accept Well(s)" @click="acceptWells"/>
+      <menu-item icon="cancel" color="negative" label="Reject Well(s)" @click="rejectWells"/>
+    </q-list>
+  </q-menu>
 </template>
 
 <script setup>
-    import {useStore} from 'vuex'
+import {useStore} from 'vuex'
+import MenuItem from "@/components/widgets/MenuItem.vue";
 
-    const store = useStore();
+const store = useStore();
+const emits = defineEmits(['acceptWells', 'rejectWells'])
 
-    const showWellImage = () => {
-        store.dispatch('ui/openSideView', 'wellImage');
-    }
+const showWellImage = () => {
+  store.dispatch('ui/openSideView', 'wellImage');
+}
 
-    const viewDoseResponseCurve = () => {
-      store.dispatch('ui/openSideView', 'doseResponseCurve')
-    }
+const viewDoseResponseCurve = () => {
+  store.dispatch('ui/openSideView', 'doseResponseCurve')
+}
 
-    const rejectWells = () => {
-      //TODO
-    }
+const rejectWells = () => {
+  emits('rejectWells')
+}
 
-    const acceptWells = () => {
-      // TODO
-    }
+const acceptWells = () => {
+  emits('acceptWells')
+}
+
+const showDoseResponseCurve = () => {
+  emits('showDoseResponseCurve')
+}
 
 </script>

@@ -10,7 +10,7 @@ const getWellTypeColor = (wellType) => {
 }
 
 const getWellCoordinate = (row, column) => {
-    return getWellRowLabel(row) + column;
+    return getWellRowLabel(row) + (column < 10 ? '0' + column : column);
 }
 
 const getWellRowLabel = (row) => {
@@ -76,6 +76,8 @@ const getWellNrByWellPos = (wellPos, columnCount) => {
     }
 }
 
+const isRejected = (well)  => /REJECTED.*/.test(well.status);
+
 
 export default {
     getWellTypeColor,
@@ -85,5 +87,6 @@ export default {
     getWellPosition,
     getWell,
     getWellPositions,
-    getWellNrByWellPos
+    getWellNrByWellPos,
+    isRejected
 }

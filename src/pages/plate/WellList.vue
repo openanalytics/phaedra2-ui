@@ -2,17 +2,20 @@
   <q-table
       class="full-width"
       table-header-class="text-grey"
-      virtual-scroll
-      :pagination="{ rowsPerPage: plate.columns, sortBy: 'number' }"
       :rows="wells"
       :columns="columns"
       :visible-columns="visibleColumns"
-      :filter="filter"
-      :filter-method="filterMethod"
       row-key="id"
       column-key="name"
-      separator="cell"
+      :filter="filter"
+      :filter-method="filterMethod"
+      :pagination="{ rowsPerPage: plate.columns, sortBy: 'number' }"
       :loading="loading"
+      @row-click="selectWell"
+      selection="multiple"
+      v-model:selected="uiStore.selectedWells"
+      separator="cell"
+      virtual-scroll
       flat square dense
   >
     <template v-slot:top-right>
@@ -37,11 +40,15 @@
     </template>
     <template v-slot:header="props">
       <q-tr :props="props">
+        <q-th auto-width/>
         <q-th v-for="col in props.cols" :key="col.name" :props="props">
           {{col.label}}
         </q-th>
       </q-tr>
       <q-tr :props="props">
+        <q-th auto-width>
+          <q-checkbox v-model="props.selected" dense />
+        </q-th>
         <column-filter v-for="col in props.cols" :key="col.name" v-model="filter[col.name]"/>
       </q-tr>
     </template>
@@ -55,7 +62,7 @@
     </template>
     <template v-slot:body-cell-status="props">
       <q-td :props="props">
-        <q-icon v-if="props.row.status === 'ACCEPTED_DEFAULT'" name="check_circle" color="positive"/>
+        <q-icon v-if="!WellUtils.isRejected(props.row)" name="check_circle" color="positive"/>
         <q-icon v-else name="cancel" color="negative"/>
       </q-td>
     </template>
@@ -66,6 +73,7 @@
     </template>
   </q-table>
 <!--  <table-config v-model:show="showConfigDialog" :columns="columns" @update:visibleColumns="updateVisibleColumns"/>-->
+  <WellActionMenu touch-position context-menu @rejectWells="handleRejectWells" @acceptWells="handleAcceptWells"/>
 </template>
 
 <style scoped>
@@ -81,10 +89,13 @@ import {usePlateStore} from "@/stores/plate"
 import resultDataGraphQlAPI from "@/api/graphql/resultdata"
 import ColorUtils from "@/lib/ColorUtils";
 import {useExportTableData} from "@/composable/exportTableData";
+import WellActionMenu from "@/components/well/WellActionMenu.vue";
+import {useUIStore} from "@/stores/ui";
 
 const props = defineProps(['plate', 'wells']);
 
 const plateStore = usePlateStore()
+const uiStore = useUIStore()
 
 const loading = ref(true);
 const features = ref([])
@@ -97,6 +108,7 @@ const {onResult, onError} = resultDataGraphQlAPI.resultDataByResultSetId(resultS
 onResult(({data}) => resultData.value = data.resultData)
 
 const columns = ref([
+  {name: 'id', align: 'left', label: 'Well ID', field: 'id', sortable: true},
   {name: 'coordinate', align: 'left', label: 'Coordinate', field: 'coordinate', sortable: true},
   {name: 'number', align: 'left', label: 'Number', field: 'number', sortable: true},
   {name: 'status', align: 'left', label: 'Status', field: 'status', sortable: true},
@@ -104,8 +116,9 @@ const columns = ref([
   {name: 'substance', align: 'left', label: 'Substance', field: 'substance', sortable: true},
   {name: 'concentration', align: 'left', label: 'Concentration', field: 'concentration', sortable: true},
 ]);
-const wells = ref(props.wells.map(well => {
+const wells = computed(() => props.wells.map(well => {
   return {
+    id: well.id,
     coordinate: WellUtils.getWellCoordinate(well?.row, well?.column) ?? "",
     number: WellUtils.getWellNr(well?.row, well?.column, props.plate.columns) ?? "",
     status: well.status,
@@ -161,6 +174,37 @@ const exportToCSV = () => {
 }
 const exportToXLSX = () => {
   exportTableData.exportToXLSX(filterMethod(wells.value, filter.value), props.plate.barcode)
+}
+
+const selectedWell = ref(null)
+const isSelected = (row) => uiStore.selectedWells.includes(row)
+const updateSelectedWells = (condition, row) => condition ? uiStore.selectedWells.filter(well => well.id !== row.id) : [row]
+const selectWell = (event, row) => {
+  selectedWell.value = row
+
+  if (event && (event.ctrlKey || event.metaKey)) {
+    if (isSelected(row)) {
+      uiStore.selectedWells = updateSelectedWells(true, row)
+    } else {
+      uiStore.selectedWells.push(row)
+    }
+  } else {
+    uiStore.selectedWells = updateSelectedWells(isSelected(row), row)
+  }
+}
+
+const handleRejectWells = () => {
+  if (uiStore.selectedWells.length > 0) {
+    plateStore.rejectWells(uiStore.selectedWells, 'REJECTED_PHAEDRA', 'Test well rejection')
+    console.log("Reject wells: " + JSON.stringify(uiStore.selectedWells))
+  }
+}
+
+const handleAcceptWells = () => {
+  if (uiStore.selectedWells.length > 0) {
+    plateStore.acceptWells(uiStore.selectedWells)
+    console.log("Accept wells: " + JSON.stringify(uiStore.selectedWells))
+  }
 }
 </script>
 

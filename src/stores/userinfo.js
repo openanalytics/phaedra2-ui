@@ -14,7 +14,7 @@ export const useUserInfoStore = defineStore("userinfo" , {
         getUserName: state => (id) => {
             const userName = state.userNames[id];
             if (userName) return userName;
-            if (id.includes(":")) return id.substring(id.lastIndexOf(":") + 1).toLowerCase();
+            if (id?.includes(":")) return id.substring(id.lastIndexOf(":") + 1).toLowerCase();
             return "Unknown";
         }
     },

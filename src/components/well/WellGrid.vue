@@ -29,8 +29,8 @@
                   :style="{ backgroundColor: wellColorFunction ? wellColorFunction(well || {}) : '#969696' }"
                   :ref="slot => addWellSlot(slot, r, c)">
 
-              <div v-if="well?.status === 'REJECTED'" class="absolute-center">
-                  <img src="/rejected_cross.svg" class="vertical-middle" style="width: 100%; height: 100%;"/>
+              <div v-if="WellUtils.isRejected(well)" class="absolute-center">
+                  <img :src="publicPath + 'rejected_cross.svg'" class="vertical-middle" style="width: 100%; height: 100%;"/>
               </div>
               <div v-if="wellImageFunction" class="full-height row items-center justify-center">
                 <img :src="wellImageFunction(well || {})" />
@@ -47,86 +47,104 @@
     </div>
   </div>
 
-  <WellActionMenu touch-position context-menu />
+  <WellActionMenu touch-position context-menu @reject-wells="handleRejectWells" @accept-wells="handleAcceptWells"/>
 </template>
 
 <script setup>
-  import {ref, computed, watchEffect} from 'vue'
-  import {useUIStore} from "@/stores/ui";
-  import WellActionMenu from "@/components/well/WellActionMenu.vue"
-  import WellUtils from "@/lib/WellUtils.js"
-  import SelectionBoxHelper from "@/lib/SelectionBoxHelper.js"
+import {ref, computed, watchEffect} from 'vue'
+import {useUIStore} from "@/stores/ui";
+import WellActionMenu from "@/components/well/WellActionMenu.vue"
+import WellUtils from "@/lib/WellUtils.js"
+import SelectionBoxHelper from "@/lib/SelectionBoxHelper.js"
+import {publicPath} from "../../../vue.config";
+import {usePlateStore} from "@/stores/plate";
 
-  const props = defineProps(['plate', 'wells', 'loading', 'wellColorFunction', 'wellImageFunction', 'wellLabelFunctions'])
-  const emit = defineEmits(['wellSelection']);
-  const uiStore = useUIStore();
+const props = defineProps(['plate', 'wells', 'loading', 'wellColorFunction', 'wellImageFunction', 'wellLabelFunctions'])
+const emit = defineEmits(['wellSelection']);
+const uiStore = useUIStore()
+const plateStore = usePlateStore()
 
-  const selectedWells = ref([]);
-  const plate = computed(() => props.plate)
-  const wells = computed(() => props.wells)
-  const wellHighlights = computed(() => [...Array(wells.value?.length).keys()]
+const selectedWells = ref([]);
+const plate = computed(() => props.plate)
+const wells = computed(() => props.wells)
+const wellHighlights = computed(() => [...Array(wells.value?.length).keys()]
     .map(nr => nr + 1)
     .map(nr => selectedWells.value?.find(w => nr == WellUtils.getWellNr(w.row, w.column, plate.value?.columns))));
 
-  const emitWellSelection = (wells, append) => {
-    if (!append) selectedWells.value.splice(0);
-    for (const well of wells) {
-      if (append && selectedWells.value.some(w => w.id === well.id)) continue;
-      selectedWells.value.push(well);
-    }
-    uiStore.selectedWells = selectedWells.value;
-    emit('wellSelection', selectedWells.value);
-  };
+const emitWellSelection = (wells, append) => {
+  if (!append) selectedWells.value.splice(0);
+  for (const well of wells) {
+    if (append && selectedWells.value.some(w => w.id === well.id)) continue;
+    selectedWells.value.push(well);
+  }
+  uiStore.selectedWells = selectedWells.value;
+  emit('wellSelection', selectedWells.value);
+};
 
-  window.addEventListener('keyup', function (event) {
-    if (selectedWells.value.length === 0) return;
-    let currentWell = selectedWells.value[0];
-    let nextPosition = [];
-    switch (event.key) {
-      case "ArrowUp":
-        nextPosition = [ currentWell.row - 1, currentWell.column ];
-        break;
-      case "ArrowDown":
-        nextPosition = [ currentWell.row + 1, currentWell.column ];
-        break;
-      case "ArrowLeft":
-        nextPosition = [ currentWell.row, currentWell.column - 1 ];
-        break;
-      case "ArrowRight":
-        nextPosition = [ currentWell.row, currentWell.column + 1 ];
-        break;
-    }
-    const nextWell = WellUtils.getWell(wells.value, nextPosition[0], nextPosition[1]);
-    if (nextWell) emitWellSelection([nextWell]);
-  });
+window.addEventListener('keyup', function (event) {
+  if (selectedWells.value.length === 0) return;
+  let currentWell = selectedWells.value[0];
+  let nextPosition = [];
+  switch (event.key) {
+    case "ArrowUp":
+      nextPosition = [currentWell.row - 1, currentWell.column];
+      break;
+    case "ArrowDown":
+      nextPosition = [currentWell.row + 1, currentWell.column];
+      break;
+    case "ArrowLeft":
+      nextPosition = [currentWell.row, currentWell.column - 1];
+      break;
+    case "ArrowRight":
+      nextPosition = [currentWell.row, currentWell.column + 1];
+      break;
+  }
+  const nextWell = WellUtils.getWell(wells.value, nextPosition[0], nextPosition[1]);
+  if (nextWell) emitWellSelection([nextWell]);
+});
 
-  // Well selection handling
-  const rootElement = ref(null);
-  const wellSlots = ref([]);
-  const addWellSlot = (slot, row, col) => {
-    // Note: use wellNr, as wells may not be loaded yet at this point.
-    const wellNr = WellUtils.getWellNr(row, col, plate.value.columns);
-    wellSlots.value[wellNr - 1] = slot;
-  };
-  const selectionBoxSupport = SelectionBoxHelper.addSelectionBoxSupport(rootElement, wellSlots, (wellNrs, append) => {
-    emitWellSelection(wells.value.filter((well, i) => wellNrs.find(nr => nr === i + 1)), append);
-  });
+// Well selection handling
+const rootElement = ref(null);
+const wellSlots = ref([]);
+const addWellSlot = (slot, row, col) => {
+  // Note: use wellNr, as wells may not be loaded yet at this point.
+  const wellNr = WellUtils.getWellNr(row, col, plate.value.columns);
+  wellSlots.value[wellNr - 1] = slot;
+};
+const selectionBoxSupport = SelectionBoxHelper.addSelectionBoxSupport(rootElement, wellSlots, (wellNrs, append) => {
+  emitWellSelection(wells.value.filter((well, i) => wellNrs.find(nr => nr === i + 1)), append);
+});
 
-  const selectRow = (n, append) => {
-    emitWellSelection(wells.value.filter(w => w.row === n), append);
-  };
-  const selectColumn = (n, append) => {
-    emitWellSelection(wells.value.filter(w => w.column === n), append);
-  };
+const selectRow = (n, append) => {
+  emitWellSelection(wells.value.filter(w => w.row === n), append);
+};
+const selectColumn = (n, append) => {
+  emitWellSelection(wells.value.filter(w => w.column === n), append);
+};
 
-  const gridColumnStyle = computed(() => { return "repeat(" + (plate.value.columns + 1) + ", 1fr)" });
-  const wellSlotMinHeight = ((props.wellLabelFunctions?.length || 1) * 15) + "px";
+const gridColumnStyle = computed(() => {
+  return "repeat(" + (plate.value.columns + 1) + ", 1fr)"
+});
+const wellSlotMinHeight = ((props.wellLabelFunctions?.length || 1) * 15) + "px";
 
-  const wellSlotFontSize = ref(null);
-  watchEffect(() => {
-    wellSlotFontSize.value = (props?.plate?.columns > 24) ? "0.4vw" : "65%";
-  });
+const wellSlotFontSize = ref(null);
+watchEffect(() => {
+  wellSlotFontSize.value = (props?.plate?.columns > 24) ? "0.4vw" : "65%";
+});
 
+const handleRejectWells = () => {
+  if (selectedWells.value.length > 0) {
+    plateStore.rejectWells(selectedWells.value, 'REJECTED_PHAEDRA', 'Test well rejection')
+    console.log("Reject wells: " + JSON.stringify(selectedWells.value))
+  }
+}
+
+const handleAcceptWells = () => {
+  if (selectedWells.value.length > 0) {
+    plateStore.acceptWells(selectedWells.value)
+    console.log("Accept wells: " + JSON.stringify(selectedWells.value))
+  }
+}
 </script>
 
 <style scoped>
