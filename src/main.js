@@ -10,7 +10,7 @@ import { publicPath } from '../vue.config'
 import store from '@/store/index.js'
 
 import {createApp} from "vue"
-import {Notify, Quasar} from 'quasar'
+import {Loading, Notify, Quasar} from 'quasar'
 import "quasar/dist/quasar.css"
 
 import {createPinia} from "pinia"
@@ -39,7 +39,8 @@ if (token) {
 // --------------------------------------------------------------------
 app.use(Quasar, {
     plugins: {
-        Notify
+        Notify,
+        Loading
     },
     config: {
         brand: {

@@ -58,7 +58,7 @@
     <template v-slot:body-cell-link-status="props">
       <q-td :props="props">
         <q-tooltip transition-show="flip-right" transition-hide="flip-left">
-          {{'Linked with: ' + props.row.linkTemplateName}}
+          {{'Linked with plate template ' + props.row.linkTemplateName}}
         </q-tooltip>
         <StatusFlag :object="props.row" :statusField="'linkStatus'" />
       </q-td>
@@ -119,7 +119,7 @@
 
 <script setup>
 import {computed, onMounted, ref, watch} from "vue";
-import {useRoute, useRouter} from "vue-router";
+import {useRouter} from "vue-router";
 
 import UserChip from "@/components/widgets/UserChip";
 import ColumnFilter from "@/components/table/ColumnFilter";
@@ -135,7 +135,6 @@ import {useUIStore} from "@/stores/ui";
 const props = defineProps(['plates', 'experiment', 'newPlateTab'])
 const emit = defineEmits(['update:newPlateTab', 'showPlateInspector'])
 
-const route = useRoute()
 const router = useRouter()
 const uiStore = useUIStore()
 const experimentStore = useExperimentStore()

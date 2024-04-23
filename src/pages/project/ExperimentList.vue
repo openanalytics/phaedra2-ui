@@ -12,8 +12,11 @@
         :filter-method="filterMethod"
         :pagination="{ rowsPerPage: 10, sortBy: 'name' }"
         :loading="loading"
-        @row-contextmenu="selectExperiment"
-        @rowDblclick="gotoExperimentView"
+        @row-click="selectExperiment"
+        @row-dblclick="gotoExperimentView"
+        @row-contextmenu="experimentContextMenu"
+        selection="multiple"
+        v-model:selected="uiStore.selectedExperiments"
         separator="cell"
         flat dense square
     >
@@ -46,11 +49,15 @@
       </template>
       <template v-slot:header="props">
         <q-tr :props="props">
-          <q-th v-for="col in props.cols" :key="col.name" :props="props" auto-width>
+          <q-th auto-width/>
+          <q-th v-for="col in props.cols" :key="col.name" :props="props">
             {{col.label}}
           </q-th>
         </q-tr>
         <q-tr :props="props">
+          <q-th auto-width>
+            <q-checkbox v-model="props.selected" dense />
+          </q-th>
           <column-filter v-for="col in props.cols" :key="col.name" v-model="filter[col.name]"/>
         </q-tr>
       </template>
@@ -163,7 +170,18 @@ import FormatUtils from "@/lib/FormatUtils.js"
 import FilterUtils from "@/lib/FilterUtils";
 import {useExportTableData} from "@/composable/exportTableData";
 import {useRouter} from "vue-router";
+import {useUIStore} from "@/stores/ui";
 
+const props = defineProps({
+  experiments: [Object],
+  project: Object
+})
+const emits = defineEmits(['createNewExperiment'])
+
+const router = useRouter()
+const uiStore = useUIStore()
+
+const loading = ref()
 
 const columns = ref([
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
@@ -180,25 +198,37 @@ const columns = ref([
   {name: 'menu', align: 'left', sortable: false}
 ])
 
-const props = defineProps({
-  experiments: [Object],
-  project: Object
-})
-
-const selectedExperiment = ref({});
-const showExperimentContextMenu = ref(false);
-const selectExperiment = (event, row) => {
-  selectedExperiment.value = row;
-  showExperimentContextMenu.value = true;
-}
-
-const emits = defineEmits(['createNewExperiment'])
-
-const loading = ref()
 const experiments = computed( () => props.experiments ? props.experiments : [])
 
 const filter = FilterUtils.makeFilter(columns.value);
 const filterMethod = FilterUtils.defaultFilterMethod();
+
+const selectedExperiment = ref({})
+const showExperimentContextMenu = ref(false)
+const experimentContextMenu = (event, row) => {
+  selectExperiment(event, row)
+  showExperimentContextMenu.value = true;
+}
+
+const gotoExperimentView = (event, row) => {
+  selectedExperiment.value = row;
+  router.push({name: "experiment", params: { experimentId: row.id }});
+}
+
+const isSelected = (row) => uiStore.selectedExperiments.includes(row)
+const updateSelectedExperiments = (condition, row) => condition ? uiStore.selectedExperiments.filter(experiment => experiment.id !== row.id) : [row]
+const selectExperiment = (event, row) => {
+  selectedExperiment.value = row
+  if (event && (event.ctrlKey || event.metaKey)) {
+    if (isSelected(row)) {
+      uiStore.selectedExperiments = updateSelectedExperiments(true, row)
+    } else {
+      uiStore.selectedExperiments.push(row)
+    }
+  } else {
+    uiStore.selectedExperiments = updateSelectedExperiments(isSelected(row), row)
+  }
+}
 
 const showNewExperimentDialog = ref(false)
 const newExperimentName = ref('')
@@ -229,11 +259,6 @@ const exportToCSV = () => {
 
 const exportToXLSX = () => {
   exportTableData.exportToXLSX(filterMethod(experiments.value, filter.value), props.project.name)
-}
-
-const router = useRouter()
-const gotoExperimentView = (event, row) => {
-  router.push({name: "experiment", params: { experimentId: row.id }});
 }
 </script>
 

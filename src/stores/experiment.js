@@ -3,7 +3,6 @@ import projectsGraphQlAPI from "@/api/graphql/projects"
 import experimentAPI from '@/api/experiments.js'
 import plateAPI from "@/api/plates";
 import metadataAPI from "@/api/metadata";
-import {useUserInfoStore} from "@/stores/userinfo";
 
 export const useExperimentStore = defineStore("experiment", {
     state: () => ({
@@ -25,8 +24,11 @@ export const useExperimentStore = defineStore("experiment", {
         loadExperiment(experimentId) {
             const {onResult, onError} = projectsGraphQlAPI.experimentById(experimentId)
             onResult(({data}) => {
-                this.experiment = data.experiment
-                this.experiment["plates"] = data.plates
+                this.experiment = {...data.experiment, plates: data.plates}
+            })
+
+            onError((error) => {
+                console.error(error)
             })
         },
         isLoaded(experimentId) {
@@ -61,49 +63,38 @@ export const useExperimentStore = defineStore("experiment", {
             await plateAPI.setPlateLayout(plates, templateId)
             this.loadExperiment(this.experiment.id)
         },
-        async validatePlate(plateId) {
-            const userInfoStore = useUserInfoStore()
-            await plateAPI.editPlate({
-                id: plateId,
-                validationStatus: 'VALIDATED',
-                validatedOn: new Date(),
-                validatedBy: userInfoStore.getUserName()
-            })
+        async validatePlates(plates) {
+            const plateIds = plates.map(plate => plate.id)
+            await plateAPI.validatePlates(plateIds)
             this.loadExperiment(this.experiment.id)
         },
-        async invalidatePlate(plateId, reason) {
-            await plateAPI.editPlate({
-                id: plateId,
-                invalidatedReason: reason,
-                validationStatus: 'INVALIDATED',
-            })
+        async invalidatePlates(plates, reason) {
+            const plateIds = plates.map(plate => plate.id)
+            await plateAPI.invalidatePlates(plateIds, reason)
             this.loadExperiment(this.experiment.id)
         },
-        async approvePlate(plateId) {
-            await plateAPI.editPlate({
-                id: plateId,
-                approvalStatus: 'APPROVED',
-            })
+        async approvePlates(plates) {
+            const plateIds = plates.map(plate => plate.id)
+            await plateAPI.approvePlates(plateIds)
             this.loadExperiment(this.experiment.id)
         },
-        async disapprovePlate(plateId, reason) {
-            await plateAPI.editPlate({
-                id: plateId,
-                disapprovedReason: reason,
-                approvalStatus: 'DISAPPROVED',
-            })
+        async disapprovePlates(plates, reason){
+            const plateIds = plates.map(plate => plate.id)
+            await plateAPI.disapprovePlates(plateIds, reason)
             this.loadExperiment(this.experiment.id)
         },
-        async resetPlateValidation(plateId) {
-            await plateAPI.editPlate({
-                id: plateId,
-                invalidatedReason: "",
-                validationStatus: 'VALIDATION_NOT_SET',
-            })
+        async resetPlateValidations(plates) {
+            const plateIds = plates.map(plate => plate.id)
+            await plateAPI.resetPlateValidations(plateIds)
             this.loadExperiment(this.experiment.id)
         },
         async deletePlate(plateId) {
             await plateAPI.deletePlateById(plateId)
+            this.loadExperiment(this.experiment.id)
+        },
+        async deletePlates(plates) {
+            const plateIds = plates.map(plate => plate.id)
+            await plateAPI.deletePlates(plateIds)
             this.loadExperiment(this.experiment.id)
         },
         async clonePlates(plates) {
@@ -114,6 +105,11 @@ export const useExperimentStore = defineStore("experiment", {
             await plateAPI.movePlates(plates, experimentId)
             this.loadExperiment(this.experiment.id)
         },
+        async linkMeasurement(plates, measurementId) {
+            const plateIds = plates.map(plate => plate.id)
+            await plateAPI.linkMeasurement(plateIds, measurementId)
+            this.loadExperiment(this.experiment.id)
+        },
         async addTag(newTag) {
             await metadataAPI.addTag({'objectId': this.experiment.id, 'objectClass': 'EXPERIMENT', 'tag': newTag })
             this.loadExperiment(this.experiment.id)
@@ -122,13 +118,14 @@ export const useExperimentStore = defineStore("experiment", {
             await metadataAPI.removeTag({'objectId': this.experiment.id, 'objectClass': 'EXPERIMENT', 'tag': tag})
             this.loadExperiment(this.experiment.id)
         },
-        async addPropertty(newProperty) {
-            await metadataAPI.addProperty({
+        async addPropertty({name, value}) {
+            const newProperty = {
                 objectId: this.experiment.id,
                 objectClass: 'EXPERIMENT',
-                propertyName: newProperty.name,
-                propertyValue: newProperty.value
-            });
+                propertyName: name,
+                propertyValue: value
+            }
+            await metadataAPI.addProperty(newProperty);
             this.loadExperiment(this.experiment.id)
         },
         async deleteProperty(property) {

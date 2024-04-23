@@ -9,10 +9,8 @@
         <div class="row">
           <div class="col-10">
             <span>Are you sure you want to delete the {{objectClass}} <b>{{ name }}</b>?</span><br/>
-            <span>Type <span style="font-weight: bold">{{
-                name
-              }}</span> and press the button to confirm:</span><br/>
-            <q-input dense v-model="nameModel" autofocus/>
+            <span>Type <span style="font-weight: bold">delete </span> and press the button to confirm:</span><br/>
+            <q-input dense v-model="confirmationValue" autofocus/>
             <br>
             <span class="text-accent">WARNING: The {{objectClass}} and associated data will be deleted!</span>
           </div>
@@ -20,7 +18,7 @@
       </q-card-section>
       <q-card-actions align="right" class="text-primary">
         <q-btn flat label="Cancel" v-close-popup/>
-          <q-btn :label="'Delete '+objectClass" color="accent" v-if="name===nameModel" v-close-popup
+          <q-btn :label="'Delete '+objectClass" color="accent" v-if="'delete'===confirmationValue" v-close-popup
                  @click="confirmDelete"/>
       </q-card-actions>
     </q-card>
@@ -43,7 +41,7 @@ const showDialog = computed({
   get: () => props.show,
   set: (v) => emit('update:show', v)
 });
-const nameModel = ref(null)
+const confirmationValue = ref(null)
 
 const confirmDelete = () => {
   switch (props.objectClass) {

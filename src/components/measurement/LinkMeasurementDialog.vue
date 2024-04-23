@@ -33,7 +33,7 @@
             :pagination="{ rowsPerPage: 10, sortBy: 'createdOn', descending: true }"
             :filter="filter"
             :filter-method="filterMethod"
-            v-model:selected="selectedMeasurements"
+            v-model:selected="selectedMeasurement"
             selection="single"
             virtual-scroll
             style="max-height: 400px"
@@ -53,7 +53,7 @@
 
       <q-card-actions class="text-primary" align="right">
         <q-btn flat label="Cancel" v-close-popup/>
-        <q-btn label="Link" color="primary" @click="doLink" :disable="selectedMeasurements.length == 0" v-close-popup/>
+        <q-btn label="Link" color="primary" @click="doLink" :disable="selectedMeasurement.length == 0" v-close-popup/>
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -84,16 +84,15 @@ onMounted(() => {
 })
 
 const doLink = () => {
-    const selectedMeas = selectedMeasurements.value[0];
-    const plateIds = props.plates.map(p => plate.id)
-    const { mutate: linkMeasurements } = projectsGraphQlAPI.linkPlateMeasurement(plateIds, selectedMeas.id)
-    linkMeasurements().then(() => {
-      emit('linkPlateMeasurement')
-    })
+  emit('linkPlateMeasurement', selectedMeasurement.value[0])
+    // const plateIds = props.plates.map(plate => plate.id)
+    // const { mutate: linkMeasurements } = projectsGraphQlAPI.linkPlateMeasurement(plateIds, selectedMeas.id)
+    // linkMeasurements().then(() => {
+    // })
 };
 
 const availableMeasurements = computed(() => (measurements.value || []).filter(m => m.rows == props.plates[0].rows));
-const selectedMeasurements = ref([]);
+const selectedMeasurement = ref([]);
 
 const columns = [
     {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},

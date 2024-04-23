@@ -39,6 +39,14 @@ export default {
             console.log(error);
         }
     },
+    async deletePlates(plateIds) {
+        try {
+            const response = await axios.post(apiURL + '/plates/delete', plateIds);
+            if (response.status === 200) return response.data;
+        } catch (error) {
+            console.log(error);
+        }
+    },
     async editPlate(plate) {
         try {
             const response = await axios.put(apiURL + '/plates/' + plate.id, plate);
@@ -72,10 +80,13 @@ export default {
             console.log(error);
         }
     },
-    async linkMeasurement(plateId, measurement) {
+    async linkMeasurement(plateIds, measurementId) {
         try {
-            const response = await axios.post(apiURL + '/plates/' + plateId + '/measurements', measurement);
-            if (response.status === 201) return response.data;
+            const response = await axios.post(apiURL + '/plates/link-measurement', {
+                plateIds: plateIds,
+                measurementId: measurementId
+            })
+            if (response.status === 200) return response.data;
         } catch (error) {
             console.log(error);
         }
@@ -123,6 +134,49 @@ export default {
                     }
                 })
             }
+        } catch (error) {
+            console.log(error)
+        }
+    },
+    async validatePlates(plateIds) {
+        try {
+            await axios.put(`${apiURL}/plates/validate`, plateIds)
+        } catch (error) {
+            console.log(error)
+        }
+    },
+    async invalidatePlates(plateIds, reason) {
+        try {
+            const data = {
+                plateIds: plateIds,
+                reason: reason
+            }
+            await axios.put(`${apiURL}/plates/invalidate`, data)
+        } catch (error) {
+            console.log(error)
+        }
+    },
+    async resetPlateValidations(plateIds) {
+        try {
+            await axios.put(`${apiURL}/plates/reset-validations`, plateIds)
+        } catch (error) {
+            console.log(error)
+        }
+    },
+    async approvePlates(plateIds) {
+        try {
+            await axios.put(`${apiURL}/plates/approve`, plateIds)
+        } catch (error) {
+            console.log(error)
+        }
+    },
+    async disapprovePlates(plateIds, reason) {
+        try {
+            const data = {
+                plateIds: plateIds,
+                reason: reason
+            }
+            await axios.put(`${apiURL}/plates/disapprove`, data)
         } catch (error) {
             console.log(error)
         }

@@ -2,120 +2,63 @@
   <q-menu>
     <q-list dense>
       <div v-if="isOpen">
-        <q-item dense clickable @click="openLinkPlateDialog">
-          <q-item-section avatar>
-            <q-icon name="playlist_add"/>
-          </q-item-section>
-          <q-item-section>Set Plate Layout</q-item-section>
-        </q-item>
-        <q-item dense clickable @click="calculatePlates">
-          <q-item-section avatar>
-            <q-icon name="calculate"/>
-          </q-item-section>
-          <q-item-section>(Re)Calculate Plate(s)</q-item-section>
-        </q-item>
+        <menu-item icon="playlist_add" label="Set Plate Layout"
+                   @click="openLinkPlateDialog" v-close-popup/>
+        <menu-item icon="calculate" label="(Re)Calculate Plate(s)" @click="calculatePlates"/>
       </div>
-
-<!--      <q-separator/>-->
-
-<!--      &lt;!&ndash; Charts &ndash;&gt;-->
-<!--      <q-item dense clickable>-->
-<!--        <q-item-section avatar>-->
-<!--          <q-icon name="insert_chart"/>-->
-<!--        </q-item-section>-->
-<!--        <q-item-section>Charts</q-item-section>-->
-<!--        <q-item-section side>-->
-<!--          <q-icon name="keyboard_arrow_right"/>-->
-<!--        </q-item-section>-->
-<!--        <q-menu>-->
-<!--          <q-list>-->
-<!--            <q-item dense clickable @click="chart('plate_trend', props.experiment.id)" v-close-popup>-->
-<!--              <q-item-section avatar>-->
-<!--                <q-icon name="timeline"/>-->
-<!--              </q-item-section>-->
-<!--              <q-item-section>Plate Trend</q-item-section>-->
-<!--            </q-item>-->
-<!--            <q-item dense clickable @click="chart('box', props.experiment.id)" v-close-popup>-->
-<!--              <q-item-section avatar>-->
-<!--                <q-icon name="candlestick_chart"/>-->
-<!--              </q-item-section>-->
-<!--              <q-item-section>Plate Boxplot</q-item-section>-->
-<!--            </q-item>-->
-
-<!--            <q-separator/>-->
-
-<!--            <q-item dense clickable @click="chart('scatter', props.experiment.id)" v-close-popup>-->
-<!--              <q-item-section avatar>-->
-<!--                <q-icon name="scatter_plot"/>-->
-<!--              </q-item-section>-->
-<!--              <q-item-section>Well 2D Scatter Plot</q-item-section>-->
-<!--            </q-item>-->
-<!--            <q-item dense clickable @click="chart('histogram', props.experiment.id)">-->
-<!--              <q-item-section avatar>-->
-<!--                <q-icon name="bar_chart"/>-->
-<!--              </q-item-section>-->
-<!--              <q-item-section>Well 1D Histogram</q-item-section>-->
-<!--            </q-item>-->
-<!--          </q-list>-->
-<!--        </q-menu>-->
-<!--      </q-item>-->
-
-<!--      <q-separator/>-->
-
-<!--      <q-item dense clickable>-->
-<!--        <q-item-section avatar>-->
-<!--          <q-icon name="save_alt"/>-->
-<!--        </q-item-section>-->
-<!--        <q-item-section>Export</q-item-section>-->
-<!--        <q-item-section side>-->
-<!--          <q-icon name="keyboard_arrow_right"/>-->
-<!--        </q-item-section>-->
-<!--        <q-menu>-->
-<!--          <q-list>-->
-<!--&lt;!&ndash;            <q-item dense clickable @click="showExportPlateListDialog = true">&ndash;&gt;-->
-<!--&lt;!&ndash;              <q-item-section avatar>&ndash;&gt;-->
-<!--&lt;!&ndash;                <q-icon name="save_alt"/>&ndash;&gt;-->
-<!--&lt;!&ndash;              </q-item-section>&ndash;&gt;-->
-<!--&lt;!&ndash;              <q-item-section>Export Plate List</q-item-section>&ndash;&gt;-->
-<!--&lt;!&ndash;            </q-item>&ndash;&gt;-->
-<!--            <q-item dense clickable >-->
-<!--              <q-item-section avatar>-->
-<!--                <q-icon name="save_alt"/>-->
-<!--              </q-item-section>-->
-<!--              <q-item-section>Export Well Data</q-item-section>-->
-<!--            </q-item>-->
-<!--            <q-item dense clickable >-->
-<!--              <q-item-section avatar>-->
-<!--                <q-icon name="save_alt"/>-->
-<!--              </q-item-section>-->
-<!--              <q-item-section>Export Subwell Data</q-item-section>-->
-<!--            </q-item>-->
-<!--          </q-list>-->
-<!--        </q-menu>-->
-<!--      </q-item>-->
 
       <q-separator/>
 
-      <q-item v-if="isOpen" dense clickable @click="handleCloseExperiment">
+      <!-- Charts -->
+      <q-item dense clickable>
         <q-item-section avatar>
-          <q-icon name="lock"/>
+          <q-icon name="insert_chart"/>
         </q-item-section>
-        <q-item-section>Close Experiment</q-item-section>
+        <q-item-section>Charts</q-item-section>
+        <q-item-section side>
+          <q-icon name="keyboard_arrow_right"/>
+        </q-item-section>
+        <q-menu>
+          <q-list>
+            <menu-item icon="timeline" label="Plate Trend"
+                       @click="showPlateTrendChart" v-close-popup/>
+<!--            <menu-item icon="candlestick_chart" label="Plate Boxplot"-->
+<!--                       @click="chart('box', props.experiment.id)" v-close-popup/>-->
+
+<!--            <q-separator/>-->
+
+<!--            <menu-item icon="scatter_plot" label="Well 2D Scatter Plot"-->
+<!--                       @click="chart('scatter', props.experiment.id)" v-close-popup/>-->
+<!--            <menu-item icon="bar_chart" label="Well 1D Histogram"-->
+<!--                       @click="chart('histogram', props.experiment.id)" v-close-popup/>-->
+          </q-list>
+        </q-menu>
       </q-item>
-      <q-item v-if="!isOpen" dense clickable @click="handleOpenExperiment">
+
+      <q-separator/>
+
+      <q-item dense clickable>
         <q-item-section avatar>
-          <q-icon name="lock_open"/>
+          <q-icon name="save_alt"/>
         </q-item-section>
-        <q-item-section>Open Experiment</q-item-section>
+        <q-item-section>Export</q-item-section>
+        <q-item-section side>
+          <q-icon name="keyboard_arrow_right"/>
+        </q-item-section>
+        <q-menu>
+          <q-list>
+<!--            <menu-item icon="save_alt" label="Export Plate List" @click="showExportPlateListDialog = true"/>-->
+            <menu-item icon="save_alt" label="Export Well Data" @click="exportPlateWellData" v-close-popup/>
+            <menu-item icon="save_alt" label="Export Well Data" @click="exportPlateSubWellData" v-close-popup/>
+          </q-list>
+        </q-menu>
       </q-item>
-      <div v-if="isOpen">
-        <q-item dense clickable @click="openDeleteDialog">
-          <q-item-section avatar>
-            <q-icon name="delete"/>
-          </q-item-section>
-          <q-item-section>Delete Experiment</q-item-section>
-        </q-item>
-      </div>
+
+      <q-separator/>
+
+      <menu-item v-if="isOpen" icon="lock" label="Close Experiment" @click="handleCloseExperiment" v-close-popup/>
+      <menu-item v-if="!isOpen" icon="lock_open" label="Open Experiment" @click="handleOpenExperiment" v-close-popup/>
+      <menu-item v-if="isOpen" icon="delete" label="Delete Experiment" @click="openDeleteDialog" v-close-popup/>
     </q-list>
 
     <delete-dialog v-if="isOpen" :id="props.experiment.id" :name="props.experiment.name" :objectClass="'experiment'"
@@ -130,8 +73,11 @@ import DeleteDialog from "@/components/widgets/DeleteDialog";
 import {useProjectStore} from "@/stores/project";
 import {computed, ref} from "vue";
 import LinkPlateLayoutDialog from "@/components/plate/LinkPlateLayoutDialog.vue";
+import MenuItem from "@/components/widgets/MenuItem.vue";
+import {useQuasar} from "quasar";
 // import ExportPlateListDialog from "@/components/experiment/ExportPlateListDialog.vue";
 
+const $q = useQuasar();
 const props = defineProps(['experiment'])
 const projectStore = useProjectStore()
 
@@ -162,21 +108,21 @@ const onDeleted = () => {
   projectStore.deleteExperiment(props.experiment.id)
 }
 
-const linkPlateLayouts = () => {
-  console.log("Link plate template to all plate within experiment " + props.experiment.id)
-  //TODO
+const showUnderConstructionMessage = () => {
+  $q.notify({
+    type: 'warning',
+    message: 'Feature is under construction!',
+    position: "top",
+    actions: [
+      { icon: 'close', color: "secondary", round: true }
+    ]
+  })
 }
 
-const calculatePlates = () => {
-  //TODO
-}
-
-const browseDoseResponseCurves = () => {
-  //TODO
-}
-
-const chart = (type, experimentId) => {
-  // store.dispatch('ui/addChartView', {'type': type, "experimentId": experimentId})
-  //TODO
-}
+const linkPlateLayouts = showUnderConstructionMessage;
+const calculatePlates = showUnderConstructionMessage;
+const browseDoseResponseCurves = showUnderConstructionMessage;
+const showPlateTrendChart = showUnderConstructionMessage;
+const exportPlateWellData = showUnderConstructionMessage;
+const exportPlateSubWellData = showUnderConstructionMessage;
 </script>
