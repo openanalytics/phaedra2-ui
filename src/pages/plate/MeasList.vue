@@ -54,7 +54,7 @@
     </template>
   </q-table>
 
-  <LinkMeasurementDialog v-model:show="showLinkMeasDialog" :plate="plate"
+  <LinkMeasurementDialog v-model:show="showLinkMeasDialog" :plates="[plate]"
                          @linkPlateMeasurement="handleLinkPlateMeasurement"/>
 
   <q-dialog v-model="confirm" persistent>

@@ -61,15 +61,13 @@
 
 <script setup>
 
-import {computed, onMounted, ref, watch} from "vue"
-import {useStore} from "vuex"
+import {computed, onMounted, ref} from "vue"
 import FormatUtils from "@/lib/FormatUtils"
 import FilterUtils from "@/lib/FilterUtils"
-import projectsGraphQlAPI from "@/api/graphql/projects"
 import measurementsGraphQlAPI from "@/api/graphql/measurements"
+import plateActions from "@/composable/plate/plateActions";
 
-const store = useStore();
-const props = defineProps(['show', 'plate', 'plates'])
+const props = defineProps(['show', 'plates'])
 const emit = defineEmits([ 'update:show', 'linkPlateMeasurement' ])
 
 const showDialog = computed({
@@ -83,12 +81,9 @@ onMounted(() => {
   onResult(({data}) => measurements.value = data.measurements)
 })
 
-const doLink = () => {
-  emit('linkPlateMeasurement', selectedMeasurement.value[0])
-    // const plateIds = props.plates.map(plate => plate.id)
-    // const { mutate: linkMeasurements } = projectsGraphQlAPI.linkPlateMeasurement(plateIds, selectedMeas.id)
-    // linkMeasurements().then(() => {
-    // })
+const doLink = async () => {
+  await plateActions.linkMeasurement(props.plates, selectedMeasurement.value[0]);
+  emit('linkPlateMeasurement', selectedMeasurement.value[0]);
 };
 
 const availableMeasurements = computed(() => (measurements.value || []).filter(m => m.rows == props.plates[0].rows));
@@ -106,12 +101,7 @@ const columns = [
 
 const filter = ref({
       "colDef.name": columns.filter((col) => col.name === "name")[0],
-      name:
-          props.plate
-              ? props.plate.barcode
-              : props.plates && props.plates[0]
-                  ? props.plates[0].barcode
-                  : "",
+      name: props.plates && props.plates[0] ? props.plates[0].barcode : "",
 })
 const filterMethod = FilterUtils.defaultFilterMethod();
 

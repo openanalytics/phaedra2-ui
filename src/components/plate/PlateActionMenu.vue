@@ -111,7 +111,7 @@
     <delete-dialog v-model:show="showDeleteDialog" :id="props.plate.id" :name="props.plate.barcode" :objectClass="'plate'" @onDeleted="onDeletePlate"/>
     <move-plate-dialog v-model:show="showMovePlatesDialog" :plates="uiStore.selectedPlates" :experiment="experimentStore.experiment"
                        :experiments="projectStore.experiments" @movePlates="onMovePlates"/>
-    <link-measurement-dialog v-model:show="showLinkMeasDialog" :plates="uiStore.selectedPlates" @linkPlateMeasurement="onLinkMeasurement"/>
+    <link-measurement-dialog v-model:show="showLinkMeasDialog" :plates="uiStore.selectedPlates" />
   </q-menu>
 </template>
 
@@ -182,10 +182,6 @@ const linkMeasurement = () => {
   handlePlateSelection(() => {
     showLinkMeasDialog.value = true
   }, 'No plate(s) have been selected!')
-}
-const onLinkMeasurement = (measurement) => {
-  $q.loading.show()
-  experimentStore.linkMeasurement(uiStore.selectedPlates, measurement.id).then(() => $q.loading.hide())
 }
 
 const showLinkDialog = ref(false);
