@@ -65,7 +65,18 @@ export default {
                     measId
                     protocolId
                     outcome
-                    errorsText
+                    errorsText,
+                    errors {
+                        timestamp,
+                        description,
+                        featureId,
+                        featureName,
+                        formulaId,
+                        formulaName,
+                        civType,
+                        civSource,
+                        civVariableName
+                    }
                 }
             }
         `
