@@ -41,9 +41,14 @@
                       <template :key="variable.variableName" v-for="variable in variables.list">
                           <div class="col-4">
                             <q-select v-if="variable.inputSource === 'FEATURE'" :options="availableFeatures(newFeature)"
-                                      v-model="variable.sourceFeatureId" option-value="id" option-label="name" emit-value map-options
-                                      :label="variable.variableName"/>
-                            <q-input v-else v-model="variable.sourceMeasColName" :label="variable.variableName"/>
+                                      v-model="variable.sourceFeatureId" option-value="id" option-label="name"
+                                      :label="variable.variableName" emit-value map-options dense/>
+                            <q-select v-if="variable.inputSource === 'MEASUREMENT_WELL_COLUMN'"
+                                      v-model="variable.sourceMeasColName" :options="wellColumnOptions"
+                                      @filter="measWellColumnFilter" use-input input-debounce="0" dense/>
+                            <q-select v-if="variable.inputSource === 'MEASUREMENT_SUBWELL_COLUMN'"
+                                      v-model="variable.sourceMeasSubWellColName" :options="subWellColumnOptions"
+                                      @filter="measSubWellColumnFilter" use-input input-debounce="0" dense/>
                           </div>
                           <div class="col-1"/>
                           <div class="col-4">
@@ -89,16 +94,23 @@
 </template>
 
 <script setup>
-  import {computed, reactive, ref, watch} from "vue";
+import {computed, onMounted, reactive, ref, watch} from "vue";
   import {useProtocolStore} from "@/stores/protocol";
   import {useFormulasStore} from "@/stores/formulas";
   import drcModelOptions from "@/resources/dose_response_curve_fit_models.json"
+  import {useMeasurementStore} from "@/stores/measurement";
 
   const protocolStore = useProtocolStore()
   const formulasStore = useFormulasStore()
+  const measStore = useMeasurementStore()
 
   const props = defineProps(['show', 'protocol'])
   const emit = defineEmits(['update:show', 'createFeature'])
+
+  onMounted(() => {
+    measStore.loadMeasurementWellDataColumns()
+    measStore.loadMeasurementSubWellDataColumns()
+  })
 
   const newFeature = ref({
     name: null,
@@ -164,6 +176,7 @@
         variableName: i,
         inputSource: inputSource[0],
         sourceMeasColName: undefined,
+        sourceMeasSubWellColName: undefined,
         sourceFeatureId: undefined,
         featureId: newFeature.value.id,
         formulaId: selectedFormula.value.id
@@ -178,10 +191,41 @@
         variableName: i.variableName,
         inputSource: i.inputSource,
         sourceMeasColName: i.sourceMeasColName,
+        sourceMeasSubWellColName: i.sourceMeasSubWellColName,
         sourceFeatureId: i.sourceFeatureId,
         featureId: newFeature.value.id,
         formulaId: selectedFormula.value.id
       }
     })
   })
+
+const wellColumnOptions = ref([])
+const subWellColumnOptions = ref([])
+const measWellColumnFilter = (val, update) => {
+  if (val === '') {
+    update(() => {
+      wellColumnOptions.value = measStore.wellDataColumns
+    })
+    return
+  }
+
+  update(() => {
+    const needle = val.toLowerCase()
+    wellColumnOptions.value = measStore.wellDataColumns.filter(v => v.toLowerCase().indexOf(needle) > -1)
+  })
+}
+
+const measSubWellColumnFilter = (val, update) => {
+  if (val === '') {
+    update(() => {
+      subWellColumnOptions.value = measStore.subWellDataColumns
+    })
+    return
+  }
+
+  update(() => {
+    const needle = val.toLowerCase()
+    subWellColumnOptions.value = measStore.subWellDataColumns.filter(v => v.toLowerCase().indexOf(needle) > -1)
+  })
+}
 </script>

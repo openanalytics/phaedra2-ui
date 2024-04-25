@@ -1,13 +1,13 @@
 <template>
   <div>
     <q-toolbar class="oa-section-title">
-        <q-icon name="functions" class="on-left"/>
-        <div class="text-h6 q-pr-xl">Edit Feature: {{ featureStore.feature.name }}</div>
-        <q-tabs v-model="activeTab" align="left" inline-label dense no-caps>
-          <q-tab name="general" icon="info" label="General Info"/>
-          <q-tab name="calculation" icon="functions" label="Calculation"/>
-          <q-tab name="curve_fitting" icon="show_chart" label="Dose-Response Curve"/>
-        </q-tabs>
+      <q-icon name="functions" class="on-left"/>
+      <div class="text-h6 q-pr-xl">Edit Feature: {{ featureStore.feature.name }}</div>
+      <q-tabs v-model="activeTab" align="left" inline-label dense no-caps>
+        <q-tab name="general" icon="info" label="General Info"/>
+        <q-tab name="calculation" icon="functions" label="Calculation"/>
+        <q-tab name="curve_fitting" icon="show_chart" label="Dose-Response Curve"/>
+      </q-tabs>
     </q-toolbar>
 
     <div class="row oa-section-body">
@@ -52,11 +52,15 @@
                       </div>
                       <div class="col-4 on-right">
                         <q-select v-if="variable.inputSource === 'FEATURE'"
-                          v-model="variable.sourceFeatureId"
-                          :options="availableFeatures()"
-                          option-value="id" option-label="name"
-                          emit-value map-options label="Name" dense/>
-                        <q-input v-else v-model="variable.sourceMeasColName" label="Name" dense/>
+                                  v-model="variable.sourceFeatureId" :options="availableFeatures()"
+                                  option-value="id" option-label="name"
+                                  emit-value map-options label="Name" dense/>
+                        <q-select v-if="variable.inputSource === 'MEASUREMENT_WELL_COLUMN'"
+                                  v-model="variable.sourceMeasColName" :options="wellColumnOptions"
+                                  @filter="measWellColumnFilter" use-input input-debounce="0" dense/>
+                        <q-select v-if="variable.inputSource === 'MEASUREMENT_SUBWELL_COLUMN'"
+                                  v-model="variable.sourceMeasSubWellColName" :options="subWellColumnOptions"
+                                  @filter="measSubWellColumnFilter" use-input input-debounce="0" dense/>
                       </div>
                     </div>
                   </template>
@@ -112,12 +116,19 @@ import {useFormulasStore} from "@/stores/formulas";
 import {useFeatureStore} from "@/stores/feature";
 import drcModelOptions from "@/resources/dose_response_curve_fit_models.json"
 import ArrayUtils from "@/lib/ArrayUtils";
+import {useMeasurementStore} from "@/stores/measurement";
 
-const protocolStore = useProtocolStore();
+const protocolStore = useProtocolStore()
 const formulasStore = useFormulasStore()
 const featureStore = useFeatureStore()
+const measStore = useMeasurementStore()
 
 const emit = defineEmits(['updateFeature', 'cancel'])
+
+onMounted(() => {
+  measStore.loadMeasurementWellDataColumns()
+  measStore.loadMeasurementSubWellDataColumns()
+})
 
 const activeTab = ref('general');
 
@@ -190,5 +201,28 @@ const updateFeature = () => {
 const onCancel = () => {
   featureStore.$reset()
   emit('cancel')
+}
+
+const wellColumnOptions = ref([])
+const subWellColumnOptions = ref([])
+const measWellColumnFilter = (val, update) => {
+  stringFilter(val, update, wellColumnOptions, measStore.wellDataColumns);
+}
+
+const measSubWellColumnFilter = (val, update) => {
+  stringFilter(val, update, subWellColumnOptions, measStore.subWellDataColumns);
+}
+
+const stringFilter = (val, update, selectOptions, inputOptions) => {
+  if (val === '') {
+    update(() => {
+      selectOptions.value = inputOptions
+    })
+    return
+  }
+  update(() => {
+    const needle = val.toLowerCase()
+    selectOptions.value = inputOptions.filter(v => v.toLowerCase().indexOf(needle) > -1)
+  })
 }
 </script>

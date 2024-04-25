@@ -10,7 +10,9 @@ export const useMeasurementStore = defineStore("measurement", {
         renderConfigs: [],
         wellData: {},
         subWellData: [],
-        measImages: {}
+        measImages: {},
+        wellDataColumns: null,
+        subWellDataColumns: null,
     }),
     getters: {
         getMeasurementById: state => {
@@ -58,6 +60,12 @@ export const useMeasurementStore = defineStore("measurement", {
         async deleteRenderConfig(renderConfigId){
             await measAPI.deleteRenderConfig(renderConfigId)
             await this.loadAllRenderConfigs()
+        },
+        async loadMeasurementWellDataColumns() {
+            this.wellDataColumns = await measAPI.getUniqueWellDataColumns()
+        },
+        async loadMeasurementSubWellDataColumns() {
+            this.subWellDataColumns = await measAPI.getUniqueSubWellDataColumns()
         }
     }
 })

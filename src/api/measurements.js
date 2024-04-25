@@ -63,5 +63,21 @@ export default {
             subWellData[swColumn] = response.data
         }
         return subWellData;
+    },
+    async getUniqueWellDataColumns() {
+        try {
+            const response = await axios.get(`${apiURL}/measurements/welldata/columns`)
+            return response.data
+        } catch (error) {
+            console.log(error)
+        }
+    },
+    async getUniqueSubWellDataColumns() {
+        try {
+            const response = await axios.get(`${apiURL}/measurements/subwelldata/columns`)
+            return response.data
+        } catch (error) {
+            console.log(error)
+        }
     }
 }
