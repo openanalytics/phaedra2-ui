@@ -64,7 +64,7 @@
       <template v-slot:body-cell-name="props">
         <q-td :props="props">
             <div class="row items-center cursor-pointer">
-              <q-icon name="science" class="icon q-pr-sm"/>
+              <q-icon name="science" size="xs" class="icon q-pr-sm"/>
               {{ props.row.name }}
             </div>
         </q-td>

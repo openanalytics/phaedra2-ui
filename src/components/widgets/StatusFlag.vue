@@ -1,6 +1,6 @@
 <template>
     <div>
-        <q-icon :class="flag.class" :name="flag.name" :color="flag.color">
+        <q-icon :class="flag.class" size="xs" :name="flag.name" :color="flag.color">
           <q-tooltip v-if="statusReason != null">
             {{ statusReason }}
           </q-tooltip>
