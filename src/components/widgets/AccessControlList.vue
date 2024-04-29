@@ -52,7 +52,7 @@ const props = defineProps(['projectAccess', 'readOnly'])
 const emits = defineEmits(['addAccess', 'removeAccess'])
 const userInfoStore = useUserInfoStore()
 
-const projectAccess = computed(() => props.projectAccess)
+const projectAccess = computed(() => props.projectAccess ?? [])
 
 const userInfo = computed(() => userInfoStore.userInfo);
 const teamNames = computed(() => userInfo.value.teams);

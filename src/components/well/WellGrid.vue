@@ -66,7 +66,7 @@ const plateStore = usePlateStore()
 
 const selectedWells = ref([]);
 const plate = computed(() => props.plate)
-const wells = computed(() => props.wells)
+const wells = computed(() => props.wells ?? [])
 const wellHighlights = computed(() => [...Array(wells.value?.length).keys()]
     .map(nr => nr + 1)
     .map(nr => selectedWells.value?.find(w => nr == WellUtils.getWellNr(w.row, w.column, plate.value?.columns))));

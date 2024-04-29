@@ -32,8 +32,8 @@ import {useRoute} from "vue-router";
 const route = useRoute();
 
 const props = defineProps(['protocols', 'measurements'])
-const measurements = computed(() => props.measurements)
-const protocols = computed(() => props.protocols)
+const measurements = computed(() => props.measurements ?? [])
+const protocols = computed(() => props.protocols ?? [])
 
 const emits = defineEmits(['featureOptionSelection', 'rawFeatureSelection', 'calculatedFeatureSelection'])
 
