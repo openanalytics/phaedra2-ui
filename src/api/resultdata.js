@@ -9,7 +9,7 @@ export default {
     },
     async getResultSetsByPlateId(plateId) {
         const response = await axios.get(`${apiURL}/resultsets?plateId=${plateId}`);
-        return response.data.data;
+        return response.data;
     },
     async getResultDataByResultSetId(rsId) {
         const response = await axios.get(`${apiURL}/resultsets/${rsId}/resultdata`);
