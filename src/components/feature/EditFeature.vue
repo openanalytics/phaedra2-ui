@@ -59,7 +59,7 @@
                                   v-model="variable.sourceMeasColName" :options="wellColumnOptions"
                                   @filter="measWellColumnFilter" use-input input-debounce="0" dense/>
                         <q-select v-if="variable.inputSource === 'MEASUREMENT_SUBWELL_COLUMN'"
-                                  v-model="variable.sourceMeasSubWellColName" :options="subWellColumnOptions"
+                                  v-model="variable.sourceMeasColName" :options="subWellColumnOptions"
                                   @filter="measSubWellColumnFilter" use-input input-debounce="0" dense/>
                       </div>
                     </div>
