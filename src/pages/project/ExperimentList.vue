@@ -50,7 +50,7 @@
       <template v-slot:header="props">
         <q-tr :props="props">
           <q-th auto-width/>
-          <q-th v-for="col in props.cols" :key="col.name" :props="props">
+          <q-th v-for="col in props.cols" :key="col.name" :props="props" auto-width>
             {{col.label}}
           </q-th>
         </q-tr>
@@ -92,15 +92,6 @@
       <template v-slot:body-cell-nrPlatesApproved="props">
         <q-td :props="props">
           <ProgressBarField :actualValue="props.row.summary?.nrPlatesApproved" :maxValue="props.row.summary?.nrPlates" />
-        </q-td>
-      </template>
-      <template v-slot:body-cell-menu="props">
-        <q-td :props="props">
-          <div class="row items-center cursor-pointer">
-            <q-btn flat round icon="more_horiz" size="sm" >
-              <ExperimentMenu :experiment="props.row" />
-            </q-btn>
-          </div>
         </q-td>
       </template>
       <template v-slot:body-cell-status="props">
@@ -194,8 +185,7 @@ const columns = ref([
   {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
   {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
   {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
-  {name: 'status', align: 'center', label: 'Status', field: 'status', sortable: true},
-  {name: 'menu', align: 'left', sortable: false}
+  {name: 'status', align: 'center', label: 'Status', field: 'status', sortable: true}
 ])
 
 const experiments = computed( () => props.experiments ? props.experiments : [])

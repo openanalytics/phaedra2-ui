@@ -24,7 +24,7 @@
 
       <div v-if="props.plate.approvalStatus === 'APPROVAL_NOT_SET' && experimentStore.isOpen">
         <!-- Validation Menu -->
-        <q-item clickable v-if="props.plate.approvalStatus === 'APPROVAL_NOT_SET'">
+        <q-item dense clickable v-if="props.plate.approvalStatus === 'APPROVAL_NOT_SET'">
           <q-item-section avatar>
             <q-icon name="outlined_flag"/>
           </q-item-section>

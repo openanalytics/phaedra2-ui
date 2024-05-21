@@ -1,7 +1,7 @@
 <template>
-  <q-menu>
+  <q-menu context-menu v-if="project">
     <q-list>
-      <q-item clickable @click="deleteProject()">
+      <q-item dense clickable @click="deleteProject">
         <q-item-section avatar>
           <q-icon name="delete"/>
         </q-item-section>
@@ -9,7 +9,7 @@
       </q-item>
     </q-list>
 
-    <DeleteDialog v-model:show="showDeleteDialog" :id="props.project.id" :name="props.project.name" :objectClass="'project'" @onDeleted="handleDeleteProject"/>
+    <DeleteDialog v-model:show="showDeleteDialog" :id="project?.id" :name="project?.name" :objectClass="'project'" @onDeleted="handleDeleteProject"/>
   </q-menu>
 </template>
 
