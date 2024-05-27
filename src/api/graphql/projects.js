@@ -70,6 +70,7 @@ export default {
                     tags
                     summary {
                         nrPlates
+                        nrPlatesLinkedLayout
                         nrPlatesApproved
                         nrPlatesCalculated
                         nrPlatesValidated

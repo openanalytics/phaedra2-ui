@@ -79,6 +79,11 @@
           <UserChip :id="props.row.createdBy" />
         </q-td>
       </template>
+      <template v-slot:body-cell-nrPlatesLinkedLayout="props">
+        <q-td :props="props">
+          <ProgressBarField :actualValue="props.row.summary?.nrPlatesLinkedLayout" :maxValue="props.row.summary?.nrPlates" />
+        </q-td>
+      </template>
       <template v-slot:body-cell-nrPlatesCalculated="props">
         <q-td :props="props">
           <ProgressBarField :actualValue="props.row.summary?.nrPlatesCalculated" :maxValue="props.row.summary?.nrPlates" />
@@ -179,6 +184,7 @@ const columns = ref([
   {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
   {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
   {name: 'nrPlates', align: 'left', label: 'Plates', field: row => row.summary?.nrPlates ?? 0, sortable: true},
+  {name: 'nrPlatesLinkedLayout', align: 'left', label: 'Linked', field: row => row.summary?.nrPlatesLinkedLayout ?? 0, sortable: true},
   {name: 'nrPlatesCalculated', align: 'left', label: 'Calculated', field: row => row.summary?.nrPlatesCalculated ?? 0, sortable: true},
   {name: 'nrPlatesValidated', align: 'left', label: 'Validated', field: row => row.summary?.nrPlatesValidated ?? 0, sortable: true},
   {name: 'nrPlatesApproved', align: 'left', label: 'Approved', field: row => row.summary?.nrPlatesApproved ?? 0, sortable: true},
