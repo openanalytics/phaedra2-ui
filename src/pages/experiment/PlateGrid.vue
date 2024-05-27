@@ -49,17 +49,17 @@ const handleFeatureOptionSelection = () => {
 }
 
 const handleRawFeatureSelection = (rawFeature) => {
-  console.log("handleRawFeatureSelection: " + JSON.stringify(rawFeature))
   for (let i = 0; i < plateDataPerPlate.value.length; i++) {
-      const {onResult} = measurementsGraphQlAPI.measurementWellData(rawFeature.measurementId, rawFeature.column)
-      onResult(({data}) => {
-        plateDataPerPlate.value[i].resultData = { values: data?.wellData ? data.wellData : [] }
-      })
+    // TODO: Implement onError handler
+    const {onResult} = measurementsGraphQlAPI.measurementWellData(rawFeature.measurementId,
+        rawFeature.column)
+    onResult(({data}) => {
+      plateDataPerPlate.value[i].resultData = {values: data?.wellData ? data.wellData : []}
+    })
   }
 }
 
 const handleCalculatedFeatureSelection = (calculatedFeature) => {
-  console.log("handleCalculatedFeatureSelection: " + JSON.stringify(calculatedFeature))
   for (let i = 0; i < plateDataPerPlate.value.length; i++) {
     const plateId = plateDataPerPlate.value[i].plate.id
 

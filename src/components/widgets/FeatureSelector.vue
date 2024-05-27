@@ -5,7 +5,7 @@
     </div>
     <div class="col-8">
       <q-select v-if="selectedFeatureOption === 'raw'"
-                v-model="selectedFeature"
+                v-model="selectedRawFeature"
                 :options="rawFeatureOptions"
                 option-label="column"
                 options-dense
@@ -13,7 +13,7 @@
                 @filter="filterRawOptions"
                 dense use-input hide-selected fill-input />
       <q-select v-if="selectedFeatureOption === 'calculated'"
-                v-model="selectedFeature"
+                v-model="selectedCalcFeature"
                 :options="calculatedFeatureOptions"
                 options-dense
                 option-value="featureId"
@@ -27,9 +27,7 @@
 
 <script setup>
 import {ref, computed, onMounted, watch} from 'vue'
-import {useRoute} from "vue-router";
-
-const route = useRoute();
+import {useSelectedFeature} from "@/composable/feature/featureSelector";
 
 const props = defineProps(['protocols', 'measurements'])
 const measurements = computed(() => props.measurements ?? [])
@@ -49,7 +47,7 @@ const allRawFeatures = ref([])
 const rawFeatureOptions = ref([])
 const allCalculatedFeatures = ref([])
 const calculatedFeatureOptions = ref([])
-const selectedFeature = ref(null)
+const {selectedRawFeature, selectedCalcFeature} = useSelectedFeature()
 
 const initFeatureOptions = () =>  {
   allRawFeatures.value = measurements.value.flatMap(measurement => measurement?.wellColumns
@@ -77,24 +75,30 @@ const initFeatureOptions = () =>  {
 watch([measurements, protocols], () => initFeatureOptions())
 
 const initSelectedFeature = () => {
-  if (selectedFeatureOption.value === 'raw' && rawFeatureOptions.value?.length > 0) {
-    handleRawFeatureSelection(rawFeatureOptions.value[0])
-  } else if (calculatedFeatureOptions.value?.length > 0) {
-    handleCalculatedFeatureSelection(calculatedFeatureOptions.value[0])
+  if (selectedFeatureOption.value === 'raw') {
+    if (rawFeatureOptions.value?.length > 0) {
+      handleRawFeatureSelection(rawFeatureOptions.value[0])
+    } else {
+      handleRawFeatureSelection(null)
+    }
+  } else {
+    if (calculatedFeatureOptions.value?.length > 0) {
+      handleCalculatedFeatureSelection(calculatedFeatureOptions.value[0])
+    } else {
+      handleCalculatedFeatureSelection(null)
+    }
   }
 }
 watch(selectedFeatureOption, () => initSelectedFeature())
 
-
-
 const handleRawFeatureSelection = (feature) => {
-  selectedFeature.value = feature
-  emits('rawFeatureSelection', feature)
+  if (selectedRawFeature.value === null) selectedRawFeature.value = feature
+  emits('rawFeatureSelection', selectedRawFeature.value)
 }
 
 const handleCalculatedFeatureSelection = (feature) => {
-  selectedFeature.value = feature
-  emits('calculatedFeatureSelection', feature)
+  if (selectedCalcFeature.value === null) selectedCalcFeature.value = feature
+  emits('calculatedFeatureSelection', selectedCalcFeature.value)
 }
 
 const filterRawOptions = (filter, update) => {
