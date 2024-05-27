@@ -84,19 +84,20 @@ const initSelectedFeature = () => {
   } else {
     if (calculatedFeatureOptions.value?.length > 0) {
       handleCalculatedFeatureSelection(calculatedFeatureOptions.value[0])
-    } else {
-      handleCalculatedFeatureSelection(null)
     }
+    handleCalculatedFeatureSelection(null)
   }
 }
 watch(selectedFeatureOption, () => initSelectedFeature())
 
 const handleRawFeatureSelection = (feature) => {
+  console.log(JSON.stringify(selectedRawFeature.value))
   if (selectedRawFeature.value === null) selectedRawFeature.value = feature
   emits('rawFeatureSelection', selectedRawFeature.value)
 }
 
 const handleCalculatedFeatureSelection = (feature) => {
+  console.log(JSON.stringify(selectedCalcFeature.value))
   if (selectedCalcFeature.value === null) selectedCalcFeature.value = feature
   emits('calculatedFeatureSelection', selectedCalcFeature.value)
 }
