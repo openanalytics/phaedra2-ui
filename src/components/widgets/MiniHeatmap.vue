@@ -1,21 +1,17 @@
 <template>
-    <div>
-        <div class="oa-section-title2">
-            <div class="row items-center">
-                <q-icon name="view_module" size="24px" class="q-mr-sm"/>
-                <router-link :to="'/plate/' + plate?.id" class="nav-link">
-                  {{ plate?.barcode }}
-                </router-link>
-            </div>
-        </div>
-        <div class="q-pa-xs oa-section-body">
-            <canvas ref="canvas"/>
-        </div>
+  <div class="oa-section-title2">
+    <div class="row items-center">
+      <q-icon name="view_module" size="24px" class="q-mr-sm"/>
+      <router-link :to="'/plate/' + plate?.id" class="nav-link">
+        {{ plate?.barcode }}
+      </router-link>
     </div>
+    <canvas ref="canvas" class="q-pa-xs oa-section-body"/>
+  </div>
 </template>
 
 <script setup>
-import {ref, computed, watch, onMounted} from 'vue'
+import {ref, computed, watch} from 'vue'
 import WellUtils from "@/lib/WellUtils.js"
 import ColorUtils from "@/lib/ColorUtils.js"
 
@@ -26,10 +22,6 @@ const plateData = computed(() => props.plateData)
 
 const canvas = ref(null);
 const lut = ref(ColorUtils.createLUT([], ColorUtils.defaultHeatmapGradients));
-
-onMounted(() => {
-  draw()
-})
 
 watch([plateData], () => {
   if (plateData.value.values) {
