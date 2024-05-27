@@ -39,15 +39,15 @@ const wellColorFunction = (index) => {
 function draw() {
   if (canvas.value === null) return
 
-  let ctx = canvas.value.getContext('2d')
+  const ctx = canvas.value.getContext('2d')
 
-  let parent = canvas.value.parentElement
-  let parentStyle = getComputedStyle(parent)
-  let parentPaddingH = parseInt(parentStyle.paddingLeft) + parseInt(parentStyle.paddingRight)
-  let availableWidth = parent.clientWidth - parentPaddingH
+  const parent = canvas.value.parentElement
+  const parentStyle = getComputedStyle(parent)
+  const parentPaddingH = parseInt(parentStyle.paddingLeft) + parseInt(parentStyle.paddingRight)
+  const availableWidth = parent.clientWidth - parentPaddingH
 
-  let wellWidth = Math.floor(availableWidth / plate.value.columns) - 2
-  let wellSize = [wellWidth, wellWidth]
+  const wellWidth = Math.floor(availableWidth / plate.value.columns) - 2
+  const wellSize = [wellWidth, wellWidth]
 
   canvas.value.width = (wellWidth + 2) * plate.value.columns
   canvas.value.height = (wellWidth + 2) * plate.value.rows
@@ -57,12 +57,12 @@ function draw() {
       //Note: getWell takes ~1sec for 1536 wells
       // let well = WellUtils.getWell(wells.value, r + 1, c + 1)
       // This optimization assumes wells are always sorted by number:
-      let wellNr = WellUtils.getWellNr(r + 1, c + 1, props.plate.columns);
+      const wellNr = WellUtils.getWellNr(r + 1, c + 1, props.plate.columns);
       // let well = wells.value[wellNr - 1];
       // if (!well) continue;
 
-      let x = c * (wellSize[0] + 2)
-      let y = r * (wellSize[1] + 2)
+      const x = c * (wellSize[0] + 2)
+      const y = r * (wellSize[1] + 2)
 
       ctx.fillStyle = wellColorFunction(wellNr - 1)
       ctx.fillRect(x, y, wellSize[0], wellSize[1])
