@@ -52,6 +52,9 @@
           <q-th auto-width/>
           <q-th v-for="col in props.cols" :key="col.name" :props="props" auto-width>
             {{col.label}}
+            <q-tooltip>
+              {{ col.description }}
+            </q-tooltip>
           </q-th>
         </q-tr>
         <q-tr :props="props">
@@ -180,18 +183,18 @@ const uiStore = useUIStore()
 const loading = ref()
 
 const columns = ref([
-  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
-  {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
-  {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-  {name: 'nrPlates', align: 'left', label: 'Plates', field: row => row.summary?.nrPlates ?? 0, sortable: true},
-  {name: 'nrPlatesLinkedLayout', align: 'left', label: 'Linked', field: row => row.summary?.nrPlatesLinkedLayout ?? 0, sortable: true},
-  {name: 'nrPlatesCalculated', align: 'left', label: 'Calculated', field: row => row.summary?.nrPlatesCalculated ?? 0, sortable: true},
-  {name: 'nrPlatesValidated', align: 'left', label: 'Validated', field: row => row.summary?.nrPlatesValidated ?? 0, sortable: true},
-  {name: 'nrPlatesApproved', align: 'left', label: 'Approved', field: row => row.summary?.nrPlatesApproved ?? 0, sortable: true},
-  {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
-  {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
-  {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
-  {name: 'status', align: 'center', label: 'Status', field: 'status', sortable: true}
+  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true, description: 'The experiment id'},
+  {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true, description: 'The experiment name'},
+  {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true, description: 'The experiment description'},
+  {name: 'nrPlates', align: 'left', label: 'Plates', field: row => row.summary?.nrPlates ?? 0, sortable: true, description: 'Total nr of plates'},
+  {name: 'nrPlatesLinkedLayout', align: 'left', label: 'Linked', field: row => row.summary?.nrPlatesLinkedLayout ?? 0, sortable: true, description: 'Nr of plates with layout'},
+  {name: 'nrPlatesCalculated', align: 'left', label: 'Calculated', field: row => row.summary?.nrPlatesCalculated ?? 0, sortable: true, description: 'Nr of calculated plates'},
+  {name: 'nrPlatesValidated', align: 'left', label: 'Validated', field: row => row.summary?.nrPlatesValidated ?? 0, sortable: true, description: 'Nr of validated plates'},
+  {name: 'nrPlatesApproved', align: 'left', label: 'Approved', field: row => row.summary?.nrPlatesApproved ?? 0, sortable: true, description: 'Nr of approved plates'},
+  {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true, description: 'The experiment tags'},
+  {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate, description: 'Created on date'},
+  {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true, description: 'Created by user'},
+  {name: 'status', align: 'center', label: 'Status', field: 'status', sortable: true, description: 'Open or closed'}
 ])
 
 const experiments = computed( () => props.experiments ? props.experiments : [])
