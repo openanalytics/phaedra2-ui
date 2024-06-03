@@ -330,6 +330,24 @@ export default {
             variables,
             defaultOptions))
     },
+    activeMeasurementByPlateIds(plateIds) {
+        const QUERY = gql`
+            query getActiveMeasurementByPlateIds($plateIds: [ID]) {
+                plateMeasurements:getActiveMeasurementByPlateIds(plateIds: $plateIds) {
+                    plateId
+                    barcode
+                    rows
+                    columns
+                    measurementId
+                    active
+                }
+            }
+        `
+        const variables = {'plateIds': plateIds}
+        return provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY,
+            variables,
+            defaultOptions))
+    },
     activeMeasurementsByExperimentId(experimentId) {
         const QUERY = gql`
             query getActiveMeasurementsByExperimentId {

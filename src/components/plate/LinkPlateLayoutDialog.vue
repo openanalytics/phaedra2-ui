@@ -4,7 +4,7 @@
 
       <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
         <q-avatar icon="playlist_add" color="primary" text-color="white"/>
-        Select Plate Layout
+        Select Plate(s) Layout
       </q-card-section>
 
       <q-card-section>
@@ -30,16 +30,26 @@
             <q-btn v-if="quickView" size="sm" color="accent" icon="remove_red_eye" label="Hide Quick view" @click="handleHideQuickView"/>
           </div>
           <q-table
-              :rows="allTemplates"
+              :rows="filteredTemplates"
               :columns="templateColumns"
               :pagination="{ rowsPerPage: 5 }"
-              :filter="props.plates"
-              :filter-method="filterMethod"
+              :filter="filter"
               v-model:selected="selectedTemplates"
               selection="single"
+              virtual-scroll
               @selection="handleTemplateSelection"
+              style="max-height: 400px"
               table-header-class="text-grey"
               square flat dense>
+            <template v-slot:top-left>
+              <div class="row">
+                <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
+                  <template v-slot:append>
+                    <q-icon name="search"/>
+                  </template>
+                </q-input>
+              </div>
+            </template>
             <template v-slot:body-cell-layout="props">
               <q-td :props="props">
                 {{ props.row.rows }} x {{ props.row.columns }}
@@ -69,7 +79,6 @@
  */
 
 import {computed, ref} from "vue";
-import {useRoute} from "vue-router";
 
 import FormatUtils from "@/lib/FormatUtils";
 import TemplateQuickView from "@/components/layout/TemplateQuickView";
@@ -80,9 +89,7 @@ const props = defineProps(['show', 'plate', "plates"]);
 const emit = defineEmits(['update:show', "onLinkPlate"]);
 
 const experimentStore = useExperimentStore()
-const route = useRoute();
 
-const experimentId = parseInt(route.params.id);
 const allTemplates = ref([])
 const selectedTemplates = ref([])
 const selectedTemplate = ref(null)
@@ -90,6 +97,9 @@ const quickView = ref(false)
 
 const {onResult, onError} = templatesGraphQlAPI.templates()
 onResult(({data}) => allTemplates.value = data.plateTemplates)
+// TODO: Implement onError
+
+const filteredTemplates = computed(() => preFilterTemplates(allTemplates.value))
 
 const showDialog = computed({
   get: () => props.show,
@@ -101,6 +111,7 @@ const handleTemplateSelection = (selected) => {
   onResult(({data}) => {
     selectedTemplate.value = data.plateTemplate
   })
+  // TODO: Implement onError
 }
 
 const handleShowQuickView = () => {
@@ -112,17 +123,11 @@ const handleHideQuickView = () => {
 }
 
 const templateColumns = [
+  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
   {name: 'name', align: 'left', label: 'Template Name', field: 'name', sortable: true},
   {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
   {name: 'layout', align: 'left', label: 'Dimensions', field: 'layout', sortable: true},
-  {
-    name: 'createdOn',
-    align: 'left',
-    label: 'Created On',
-    field: 'createdOn',
-    sortable: true,
-    format: FormatUtils.formatDate
-  },
+  {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
 ]
 
 const linkPlate = () => {
@@ -131,7 +136,7 @@ const linkPlate = () => {
 
 const checkPlateDimensions = () => {
   const countRows = props.plates.map(p => p.rows).filter(onlyUnique).length;
-  const countColumns = props.plates.map(p => p.rows).filter(onlyUnique).length;
+  const countColumns = props.plates.map(p => p.columns).filter(onlyUnique).length;
   return (countRows <= 1 && countColumns <= 1);
 }
 
@@ -139,12 +144,12 @@ const onlyUnique = (value, index, self) => {
   return self.indexOf(value) === index;
 }
 
-const filterMethod = (tableRows, terms) => {
-  if (terms.length === 0) return tableRows;
+const preFilterTemplates = (allTemplates) => {
   if (!checkPlateDimensions()) return [];
-  const correctRows = tableRows.filter(row => row.rows === terms[0].rows);
-  return correctRows.filter(row => row.columns === terms[0].columns);
+  return allTemplates.filter(row => row.rows === props.plates[0]?.rows && row.columns === props.plates[0]?.columns);
 }
+
+const filter = ref('')
 
 const checkAllDimensions = () => {
   if (!isTemplateSelected()) return true;

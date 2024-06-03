@@ -114,7 +114,7 @@
 
     <rename-dialog v-model:show="showRenameDialog" objectClass="plate" fieldName="barcode" :object="plateStore.plate" @valueChanged="onNameChanged"/>
     <delete-dialog v-model:show="showDeleteDialog" :id="plateStore.plate.id" :name="plateStore.plate.barcode" :objectClass="'plate'" @onDeleted="onDeleted"/>
-    <calculate-plate-dialog v-model:show="showCalculateDialog" :plate="plateStore.plate"/>
+    <calculate-plate-dialog v-model:show="showCalculateDialog" :plates="[plateStore.plate]"/>
   </q-page>
 </template>
 
