@@ -3,7 +3,7 @@
     <q-list dense>
       <div v-if="isOpen">
         <menu-item icon="playlist_add" label="Set Plate Layout" @click="openLinkPlateDialog"/>
-        <menu-item icon="calculate" label="(Re)Calculate Plate(s)" @click="calculatePlates"/>
+        <menu-item icon="calculate" label="(Re)Calculate Plate(s)" @click="openRecalculatePlatesDialog"/>
       </div>
 
       <q-separator/>
@@ -63,6 +63,7 @@
     <delete-dialog v-if="isOpen" :id="props.experiment.id" :name="props.experiment.name" :objectClass="'experiment'"
                   v-model:show="showDeleteDialog" @onDeleted="onDeleted"/>
     <link-plate-layout-dialog v-if="isOpen" v-model:show="showLinkPlateDialog" :plates="plates"/>
+    <calculate-plate-dialog v-if="isOpen" v-model:show="showCalculatePlateDialog" :plates="plates" />
 <!--    <ExportPlateListDialog v-model:show="showExportPlateListDialog" :experiments="[props.experiment]"/>-->
   </q-menu>
 </template>
@@ -75,6 +76,7 @@ import LinkPlateLayoutDialog from "@/components/plate/LinkPlateLayoutDialog.vue"
 import MenuItem from "@/components/widgets/MenuItem.vue";
 import {useQuasar} from "quasar";
 import projectsGraphQlAPI from "@/api/graphql/projects";
+import CalculatePlateDialog from "@/components/plate/CalculatePlateDialog.vue";
 // import ExportPlateListDialog from "@/components/experiment/ExportPlateListDialog.vue";
 
 const $q = useQuasar();
@@ -84,6 +86,7 @@ const projectStore = useProjectStore()
 const isOpen = computed(() => props.experiment.status === 'OPEN' ? true : false )
 const showDeleteDialog = ref(false);
 const showLinkPlateDialog = ref(false)
+const showCalculatePlateDialog = ref(false)
 
 const plates = ref([])
 
@@ -93,17 +96,24 @@ const openDeleteDialog = () => {
   showDeleteDialog.value = true;
 }
 
-const openLinkPlateDialog = () =>  {
+const getPlates = () => {
   const {onResult, onError} = projectsGraphQlAPI.experimentById(props.experiment.id)
   onResult(({data}) => {
     plates.value = [...data.plates]
   })
-
   onError((error) => {
-    console.error(error)
+    displayErrorNotification("Error while updating plates: " + error.message)
   })
+}
 
+const openLinkPlateDialog = () =>  {
+  getPlates()
   showLinkPlateDialog.value = true
+}
+
+const openRecalculatePlatesDialog = () => {
+  getPlates()
+  showCalculatePlateDialog.value = true
 }
 
 const handleCloseExperiment = () => {
@@ -131,9 +141,18 @@ const showUnderConstructionMessage = () => {
   })
 }
 
-const linkPlateLayouts = showUnderConstructionMessage;
-const calculatePlates = showUnderConstructionMessage;
-const browseDoseResponseCurves = showUnderConstructionMessage;
+const displayErrorNotification = (errorMessage) => {
+  $q.notify({
+    type: 'negative',
+    message: "Unable to retrieve experiment's plates!",
+    position: "top",
+    actions: [
+      { icon: 'close', color: "secondary", round: true }
+    ]
+  })
+  console.error(errorMessage)
+}
+
 const showPlateTrendChart = showUnderConstructionMessage;
 const exportPlateWellData = showUnderConstructionMessage;
 const exportPlateSubWellData = showUnderConstructionMessage;
