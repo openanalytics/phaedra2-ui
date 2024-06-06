@@ -90,7 +90,7 @@ const columns = ref([
   {name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
   {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
   {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-  {name: 'layout', align: 'left', label: 'Dimensions', field: 'layout', sortable: true, format: (val, row) => row.rows + " x " + row.columns},
+  {name: 'dimensions', align: 'left', label: 'Dimensions', field: t => `${t.rows} x ${t.columns}`, sortable: true},
   {name: 'wellColumns', align: 'left', label: 'WellData Columns', field: row => (row?.wellColumns?.length || 0), sortable: true},
   {name: 'subWellColumns', align: 'left', label: 'SubwellData Columns', field: row => (row?.subWellColumns?.length || 0), sortable: true},
   {name: 'imageChannels', align: 'left', label: 'Image Channels', field: row => (row?.imageChannels?.length || 0), sortable: true},

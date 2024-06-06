@@ -140,7 +140,7 @@ const columns = [
   {name: 'status-calculation', align: 'center', label: 'C', field: 'calculationStatus'},
   {name: 'status-validated', align: 'center', label: 'V', field: 'validationStatus'},
   {name: 'status-approved', align: 'center', label: 'A', field: 'approvalStatus'},
-  {name: 'dimensions', align: 'left', label: 'Dimensions', field: row => row.rows + " x " + row.columns, sortable: true},
+  {name: 'dimensions', align: 'left', label: 'Dimensions', field: t => `${t.rows} x ${t.columns}`, sortable: true},
   {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
   {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
   {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true}
