@@ -42,12 +42,14 @@
                           <div class="col-4">
                             <q-select v-if="variable.inputSource === 'FEATURE'" :options="availableFeatures(newFeature)"
                                       v-model="variable.sourceFeatureId" option-value="id" option-label="name"
-                                      :label="variable.variableName" emit-value map-options dense/>
+                                      :label="variable.variableName" stack-label emit-value map-options dense/>
                             <q-select v-if="variable.inputSource === 'MEASUREMENT_WELL_COLUMN'"
                                       v-model="variable.sourceMeasColName" :options="wellColumnOptions"
+                                      :label="variable.variableName" stack-label
                                       @filter="measWellColumnFilter" use-input input-debounce="0" dense/>
                             <q-select v-if="variable.inputSource === 'MEASUREMENT_SUBWELL_COLUMN'"
                                       v-model="variable.sourceMeasSubWellColName" :options="subWellColumnOptions"
+                                      :label="variable.variableName" stack-label
                                       @filter="measSubWellColumnFilter" use-input input-debounce="0" dense/>
                           </div>
                           <div class="col-1"/>

@@ -19,7 +19,7 @@
               <q-item-section avatar>
                 <q-icon color="primary" name="view_module" />
               </q-item-section>
-              <q-item-section>{{ plate.barcode }} ({{plate.id}}) with dimensions {{ plate.rows }} x {{ plate.columns }}</q-item-section>
+              <q-item-section>{{ plate.barcode }} ({{ plate.id }}) with dimensions {{ plate.rows }} x {{ plate.columns }}</q-item-section>
             </q-item>
           </q-list>
         </q-card-section>
@@ -27,12 +27,11 @@
 
       <q-card-section>
         <q-table
-            :rows="availableMeasurements"
+            :rows="filteredMeasurements"
             :columns="columns"
             row-key="id"
-            :pagination="{ rowsPerPage: 10, sortBy: 'createdOn', descending: true }"
+            :pagination="{ rowsPerPage: 5, sortBy: 'createdOn', descending: true }"
             :filter="filter"
-            :filter-method="filterMethod"
             v-model:selected="selectedMeasurement"
             selection="single"
             virtual-scroll
@@ -41,7 +40,7 @@
             flat square dense>
           <template v-slot:top-left>
             <div class="row">
-              <q-input outlined dense debounce="300" v-model="filter.name" placeholder="Search">
+              <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
                 <template v-slot:append>
                   <q-icon name="search"/>
                 </template>
@@ -70,24 +69,26 @@ import plateActions from "@/composable/plate/plateActions";
 const props = defineProps(['show', 'plates'])
 const emit = defineEmits([ 'update:show', 'linkPlateMeasurement' ])
 
+const filter = ref('')
+
 const showDialog = computed({
     get: () => props.show,
     set: (v) => emit('update:show', v)
 });
 
-const measurements = ref([])
-onMounted(() => {
-  const {onResult, onError} = measurementsGraphQlAPI.measurementsAll()
-  onResult(({data}) => measurements.value = data.measurements)
-})
+const allMeasurements = ref([])
+const selectedMeasurement = ref([]);
+
+const {onResult, onError} = measurementsGraphQlAPI.measurementsAll()
+onResult(({data}) => allMeasurements.value = data.measurements)
+// TODO: Implement onError
+
+const filteredMeasurements = computed(() => preFilterMeasurements(allMeasurements.value))
 
 const doLink = async () => {
   await plateActions.linkMeasurement(props.plates, selectedMeasurement.value[0]);
   emit('linkPlateMeasurement', selectedMeasurement.value[0]);
 };
-
-const availableMeasurements = computed(() => (measurements.value || []).filter(m => m.rows == props.plates[0].rows));
-const selectedMeasurement = ref([]);
 
 const columns = [
     {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
@@ -99,10 +100,19 @@ const columns = [
     {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate },
 ];
 
-const filter = ref({
-      "colDef.name": columns.filter((col) => col.name === "name")[0],
-      name: props.plates && props.plates[0] ? props.plates[0].barcode : "",
-})
-const filterMethod = FilterUtils.defaultFilterMethod();
+const checkPlateDimensions = () => {
+  const countRows = props.plates.map(p => p.rows).filter(onlyUnique).length;
+  const countColumns = props.plates.map(p => p.columns).filter(onlyUnique).length;
+  return (countRows <= 1 && countColumns <= 1);
+}
+
+const onlyUnique = (value, index, self) => {
+  return self.indexOf(value) === index;
+}
+
+const preFilterMeasurements = (allMeasurements) => {
+  if (!checkPlateDimensions()) return [];
+  return allMeasurements.filter(row => row.rows === props.plates[0].rows && row.columns === props.plates[0].columns);
+}
 
 </script>

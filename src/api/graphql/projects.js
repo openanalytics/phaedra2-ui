@@ -70,6 +70,7 @@ export default {
                     tags
                     summary {
                         nrPlates
+                        nrPlatesLinkedLayout
                         nrPlatesApproved
                         nrPlatesCalculated
                         nrPlatesValidated
@@ -325,6 +326,24 @@ export default {
             }
         `
         const variables = {'plateId': plateId}
+        return provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY,
+            variables,
+            defaultOptions))
+    },
+    activeMeasurementByPlateIds(plateIds) {
+        const QUERY = gql`
+            query getActiveMeasurementByPlateIds($plateIds: [ID]) {
+                plateMeasurements:getActiveMeasurementByPlateIds(plateIds: $plateIds) {
+                    plateId
+                    barcode
+                    rows
+                    columns
+                    measurementId
+                    active
+                }
+            }
+        `
+        const variables = {'plateIds': plateIds}
         return provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY,
             variables,
             defaultOptions))

@@ -70,7 +70,7 @@ const propertyColumns = [
   {name: 'actions'}
 ]
 
-const propertyRows = computed(() => props.properties)
+const propertyRows = computed(() => props.properties ?? [])
 
 const showNewPropertyDialog = ref(false);
 const newProperty = ref({name: '', value: ''});

@@ -49,25 +49,29 @@ const handleFeatureOptionSelection = () => {
 }
 
 const handleRawFeatureSelection = (rawFeature) => {
-  console.log("handleRawFeatureSelection: " + JSON.stringify(rawFeature))
-  for (let i = 0; i < plateDataPerPlate.value.length; i++) {
-      const {onResult} = measurementsGraphQlAPI.measurementWellData(rawFeature.measurementId, rawFeature.column)
+  if (rawFeature) {
+    for (let i = 0; i < plateDataPerPlate.value.length; i++) {
+      // TODO: Implement onError handler
+      const {onResult} = measurementsGraphQlAPI.measurementWellData(rawFeature.measurementId,
+          rawFeature.column)
       onResult(({data}) => {
-        plateDataPerPlate.value[i].resultData = { values: data?.wellData ? data.wellData : [] }
+        plateDataPerPlate.value[i].resultData = {values: data?.wellData ? data.wellData : []}
       })
+    }
   }
 }
 
 const handleCalculatedFeatureSelection = (calculatedFeature) => {
-  console.log("handleCalculatedFeatureSelection: " + JSON.stringify(calculatedFeature))
-  for (let i = 0; i < plateDataPerPlate.value.length; i++) {
-    const plateId = plateDataPerPlate.value[i].plate.id
+  if (calculatedFeature) {
+    for (let i = 0; i < plateDataPerPlate.value.length; i++) {
+      const plateId = plateDataPerPlate.value[i].plate.id
 
-    // TODO: Implement onError handler
-    const {onResult, onError} = resultDataGraphQlAPI.featureValuesByPlateIdAndFeatureIdAndProtocolId(plateId, calculatedFeature.featureId, calculatedFeature.protocolId)
-    onResult(({data}) => {
-      plateDataPerPlate.value[i].resultData = { values: data?.featureValues ? data.featureValues.map(fv => fv.value) : [] }
-    })
+      // TODO: Implement onError handler
+      const {onResult, onError} = resultDataGraphQlAPI.featureValuesByPlateIdAndFeatureIdAndProtocolId(plateId, calculatedFeature.featureId, calculatedFeature.protocolId)
+      onResult(({data}) => {
+        plateDataPerPlate.value[i].resultData = { values: data?.featureValues ? data.featureValues.map(fv => fv.value) : [] }
+      })
+    }
   }
 }
 </script>

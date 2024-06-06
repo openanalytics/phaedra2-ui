@@ -6,7 +6,7 @@ const defaultFilterMethod = function () {
             for (const colName of Object.keys(filter)) {
                 const term = String(filter[colName]?.term || "").toLowerCase();
                 if (term == "") continue;
-                
+
                 const colDef = filter[colName].definition || {};
 
                 let valueToCompare = row[colName];
@@ -15,7 +15,7 @@ const defaultFilterMethod = function () {
 
                 if (!valueToCompare) {
                     // Some entity-specific cases
-                    if (colName == "dimensions" && row.rows && row.columns) valueToCompare = `${row.rows}x${row.columns}`
+                    if (colName == "dimensions" && row.rows && row.columns) valueToCompare = `${row.rows} x ${row.columns}`
                 }
 
                 if (!String(valueToCompare || "").toLowerCase().includes(term)) {

@@ -49,7 +49,6 @@ import useScatterChartData from "@/composable/scatterChartData";
 import useBoxPlotData from "@/composable/boxPlotData";
 import useHistogramData from "@/composable/histogramData";
 
-const store = useStore();
 const uiStore = useUIStore()
 const props = defineProps(['width', 'chartId', 'update']);
 

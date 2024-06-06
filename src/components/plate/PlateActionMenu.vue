@@ -24,7 +24,7 @@
 
       <div v-if="props.plate.approvalStatus === 'APPROVAL_NOT_SET' && experimentStore.isOpen">
         <!-- Validation Menu -->
-        <q-item clickable v-if="props.plate.approvalStatus === 'APPROVAL_NOT_SET'">
+        <q-item dense clickable v-if="props.plate.approvalStatus === 'APPROVAL_NOT_SET'">
           <q-item-section avatar>
             <q-icon name="outlined_flag"/>
           </q-item-section>
@@ -106,7 +106,7 @@
     <invalidate-dialog v-model:show="showInvalidateDialog" :plates="uiStore.selectedPlates" @onInvalidate="onInvalidatePlate"/>
     <approve-dialog v-model:show="showApproveDialog" :plates="uiStore.selectedPlates" @onApprove="onApprovePlate"/>
     <disapprove-dialog v-model:show="showDisapproveDialog" :plates="uiStore.selectedPlates" @onDisapprove="onDisapprovePlate"/>
-    <calculate-plate-dialog v-model:show="showCalculateDialog" :plate="props.plate" />
+    <calculate-plate-dialog v-model:show="showCalculateDialog" :plates="uiStore.selectedPlates" />
     <link-plate-layout-dialog v-model:show="showLinkDialog" :plates="uiStore.selectedPlates"/>
     <delete-dialog v-model:show="showDeleteDialog" :id="props.plate.id" :name="props.plate.barcode" :objectClass="'plate'" @onDeleted="onDeletePlate"/>
     <move-plate-dialog v-model:show="showMovePlatesDialog" :plates="uiStore.selectedPlates" :experiment="experimentStore.experiment"

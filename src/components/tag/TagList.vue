@@ -45,7 +45,7 @@ import Tag from "@/components/tag/Tag"
 
 const props = defineProps(['tags', 'objectId', 'objectClass', 'readOnly']);
 const emits = defineEmits(['addTag', 'removeTag'])
-const tags = computed(() => props.tags)
+const tags = computed(() => props.tags ?? [])
 
 const showAddTagDialog = ref(false);
 const newTag = ref('');

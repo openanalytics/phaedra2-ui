@@ -18,7 +18,10 @@
             :visible-columns=visibleColumns
             :loading="loading"
             @row-dblclick="gotoProjectView"
+            @row-click="(e, row) => selectedProjects = [row]"
             separator="cell"
+            selection="multiple"
+            v-model:selected="selectedProjects"
             flat square dense
         >
           <template v-slot:top-left>
@@ -28,11 +31,13 @@
           </template>
           <template v-slot:header="props">
             <q-tr :props="props">
-                <q-th v-for="col in props.cols" :key="col.name" :name="col.name" :props="props">
+                <q-th auto-width/>
+                <q-th v-for="col in props.cols" :key="col.name" :name="col.name" :props="props" auto-width>
                   {{col.label}}
                 </q-th>
             </q-tr>
             <q-tr :props="props">
+              <q-th auto-width/>
               <column-filter v-for="col in props.cols" :key="col.name" v-model="filter[col.name]"/>
             </q-tr>
           </template>
@@ -53,16 +58,8 @@
             <UserChip :id="props.row.createdBy" />
           </q-td>
         </template>
-          <template v-slot:body-cell-menu="props">
-            <q-td :props="props">
-              <div class="row items-center cursor-pointer">
-                <q-btn flat round icon="more_horiz" size="sm" >
-                  <ProjectActionMenu :project="props.row" @onDeleteProject="handleDeleteProject(props.row)"/>
-                </q-btn>
-              </div>
-            </q-td>
-          </template>
       </q-table>
+      <ProjectActionMenu :project="selectedProjects[0]" />
     </oa-section>
   </q-page>
 </template>
@@ -85,6 +82,7 @@ const loading = ref(true);
 const projects = ref([])
 
 const visibleColumns = ref([])
+const selectedProjects = ref([])
 
 onMounted(() => {
   fetchAllProjects()
@@ -96,8 +94,7 @@ const columns = ref([
   {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
   {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
   {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
-  {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
-  {name: 'menu', align: 'left', field: 'menu', sortable: false}
+  {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true}
 ]);
 
 const filter = FilterUtils.makeFilter(columns.value);
