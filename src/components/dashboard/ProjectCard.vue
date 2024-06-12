@@ -28,7 +28,7 @@
 
 <script setup>
 import projectsGraphQlAPI from "@/api/graphql/projects"
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
 
 const props = defineProps({ project: Object })
 
@@ -36,11 +36,22 @@ const total = ref(0)
 const open = ref(0)
 const closed = ref(0)
 
-projectsGraphQlAPI.experimentsByProjectId(props.project.id).then(experiments => {
-  total.value = experiments.length
-  open.value = experiments.filter(exp => exp.status === 'OPEN').length
-  closed.value = experiments.filter(exp => exp.status === 'CLOSED').length
+onMounted(() => {
+  fetchProjectExperiments()
 })
+
+const fetchProjectExperiments = () => {
+  const {onResult, onError} = projectsGraphQlAPI.experimentsByProjectId(props.project.id)
+  onResult(({data}) => {
+    total.value = data.experiments?.length ?? 0
+    open.value = data.experiments?.filter(exp => exp.status === 'OPEN').length ?? 0
+    closed.value = data.experiments?.filter(exp => exp.status === 'CLOSED').length ?? 0
+  })
+
+  // onError((error) => {
+  //   displayErrorNotification("Error while updating plates: " + error.message)
+  // })
+}
 
 </script>
 

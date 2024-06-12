@@ -118,31 +118,25 @@ export default {
 
         return computed(() => query.result.value?.projectAccess ?? [])
     },
-    async experimentsByProjectId(projectId) {
-        const result = await axios({
-            url: 'https://phaedra.poc.openanalytics.io/phaedra/api/v1/plate-service/graphql',
-            method: 'post',
-            data: {
-                query: `
-                    query getExperimentsByProjectId {
-                        experiments:getExperimentsByProjectId(projectId: ${projectId}) {
-                            id
-                            projectId
-                            name
-                            description
-                            status
-                            tags
-                            createdOn
-                            createdBy
-                            updatedOn
-                            updatedBy
-                        }
-                    }
-                `
+    experimentsByProjectId(projectId) {
+        const QUERY = gql`
+            query getExperimentsByProjectId {
+                experiments:getExperimentsByProjectId(projectId: ${projectId}) {
+                    id
+                    projectId
+                    name
+                    description
+                    status
+                    tags
+                    createdOn
+                    createdBy
+                    updatedOn
+                    updatedBy
+                }
             }
-        })
-        console.log(result.data)
-        return result.data.data.experiments
+        `
+        const variables = {'projectId': projectId}
+        return provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY, variables, defaultOptions))
     },
     experimentById(experimentId) {
         const QUERY = gql`
