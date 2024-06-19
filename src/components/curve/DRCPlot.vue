@@ -13,7 +13,7 @@ const updateDRCPlotView = () => {
       title: "Feature"
     },
     xaxis: {
-      title: "Concentration"
+      title: "log10(Molar)"
     },
     margin: {t: 50, b: 50},
     showlegend: false,
@@ -35,7 +35,7 @@ const updateDRCPlotView = () => {
         y0: top,
         y1: top,
         line: {
-          color: 'rgb(255, 0, 0)',
+          color: 'rgb(0, 255, 0)',
           width: 4,
           dash: 'dot'
         }
@@ -47,7 +47,7 @@ const updateDRCPlotView = () => {
         y0: bottom,
         y1: bottom,
         line: {
-          color: 'rgb(0, 255, 0)',
+          color: 'rgb(255, 0, 0)',
           width: 4,
           dash: 'dot'
         }

@@ -124,7 +124,6 @@ import LinkPlateLayoutDialog from "@/components/plate/LinkPlateLayoutDialog.vue"
 import DeleteDialog from "@/components/widgets/DeleteDialog";
 
 import {ref} from "vue";
-import {useStore} from 'vuex'
 import {useExperimentStore} from "@/stores/experiment";
 import {useRouter} from "vue-router";
 import {useUIStore} from "@/stores/ui";
@@ -137,7 +136,6 @@ import MenuItem from "@/components/widgets/MenuItem.vue";
 const props = defineProps(['plate', 'plates']);
 const $q = useQuasar()
 
-const store = useStore()
 const uiStore = useUIStore()
 const router = useRouter()
 const experimentStore = useExperimentStore()

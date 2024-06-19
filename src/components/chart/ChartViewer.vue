@@ -1,6 +1,7 @@
  <template>
    <div class="row oa-section-title justify-evenly">
-     <div class="col text-h6 q-pl-md">{{ uiStore.selectedPlate.barcode }}</div>
+    <!--TODO: Needs to be fixed at first possible moment -->
+     <div class="col text-h6 q-pl-md">{{ uiStore.selectedPlate?.barcode ?? 'Experiment Plate Trend' }}</div>
      <div class="text-h6">
        <slot name="actions" class="row">
          <q-btn v-if="horizontal" icon="view_stream" @click="changeOrientation" class="q-pa-xs" size="md" flat>
@@ -24,7 +25,8 @@
      <div class="oa-section-body">
        <q-tab-panels v-model="activeTab">
          <q-tab-panel v-for="chart in uiStore.chartViews" :key="chart.id" :name="chart.id">
-           <Chart :chartId="chart.id" :update="update"/>
+           <Chart v-if="chart.type !== 'trend'" :chartId="chart.id" :update="update"/>
+           <TrendChart v-if="chart.type === 'trend'" :experiments="uiStore.selectedExperiments" :update="update"/>
          </q-tab-panel>
        </q-tab-panels>
      </div>
@@ -32,9 +34,10 @@
  </template>
 
 <script setup>
-import {computed, onUpdated, ref} from "vue"
+import {onUpdated, ref} from "vue"
 import Chart from "./Chart"
 import {useUIStore} from "@/stores/ui";
+import TrendChart from "@/components/chart/TrendChart.vue";
 
 const uiStore = useUIStore()
 const props = defineProps(['chartTemplate', 'update'])

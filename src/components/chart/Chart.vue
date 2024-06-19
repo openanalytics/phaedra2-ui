@@ -1,5 +1,5 @@
 <template>
-    <div id="chart" ref="plot"/>
+    <div id="chart"/>
     <div class="col oa-section-body">
       <q-select class="q-pa-xs"
                 v-model="selectedProtocol"
@@ -39,12 +39,7 @@
 <script setup>
 import Plotly from "plotly.js-cartesian-dist-min"
 import {computed, onMounted, onUpdated, reactive, ref, watch} from "vue"
-import {useStore} from 'vuex'
-import {Pane} from "splitpanes";
-import chartsGraphQlAPI from '@/api/graphql/charts'
-import resultDataGraphQlAPI from '@/api/graphql/resultdata'
 import {useUIStore} from "@/stores/ui";
-import {usePlateStore} from "@/stores/plate";
 import useScatterChartData from "@/composable/scatterChartData";
 import useBoxPlotData from "@/composable/boxPlotData";
 import useHistogramData from "@/composable/histogramData";
@@ -73,7 +68,6 @@ const initSelectedValues = () => {
   handleChartUpdate()
 }
 
-onUpdated(() => handleChartUpdate())
 
 const updatePlotValueOptions = () => {
   plotValueOptions.value = [
@@ -109,7 +103,6 @@ const groupByOptions = ref([
 const groupBy = ref(groupByOptions.value[0])
 
 const chartPlot = reactive([])
-const plot = ref()
 
 const handleChartUpdate = () => {
   const chartView = computed(() => uiStore.getChartView(props.chartId))
