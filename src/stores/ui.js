@@ -47,6 +47,9 @@ export const useUIStore = defineStore("ui", {
         },
         isPlateSelected: (state) => () => {
             return state.selectedPlates.length > 0
+        },
+        isExperimentSelected: (state) => () => {
+            return state.selectedExperiments.length > 0
         }
     },
     actions: {

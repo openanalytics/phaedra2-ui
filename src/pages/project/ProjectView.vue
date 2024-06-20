@@ -64,10 +64,18 @@
             </oa-section>
         </div>
 
-        <div class="q-px-sm">
-            <ExperimentList :experiments="projectStore.experiments" :project="projectStore.project" @createNewExperiment="onCreateNewExperiment"/>
-        </div>
-
+        <splitpanes class="default-theme" :horizontal="horizontal" >
+          <pane class="q-pa-sm" v-if="projectStore.project" style="background-color: #E6E6E6">
+            <div class="row oa-section-body">
+              <ExperimentList :experiments="projectStore.experiments"
+                              :project="projectStore.project"
+                              @createNewExperiment="onCreateNewExperiment"/>
+            </div>
+          </pane>
+          <pane class="q-pa-sm" v-if="uiStore.showChartViewer" style="background-color: #E6E6E6" ref="chartViewerPane">
+            <ChartViewer :update="Date.now()" @changeOrientation="horizontal = !horizontal"/>
+          </pane>
+        </splitpanes>
         <rename-dialog v-model:show="showRenameDialog" objectClass="project" :object="projectStore.project" @valueChanged="onNameChanged" />
         <delete-dialog v-model:show="showDeleteDialog" :id="projectStore.project?.id" :name="projectStore.project?.name" :objectClass="'project'" @onDeleted="onDeleted" />
     </q-page>
@@ -95,10 +103,16 @@ import RenameDialog from "@/components/widgets/RenameDialog"
 
 import FormatUtils from "@/lib/FormatUtils.js"
 import {useProjectStore} from "@/stores/project";
+import {Pane, Splitpanes} from "splitpanes";
+import ChartViewer from "@/components/chart/ChartViewer.vue";
+import {useUIStore} from "@/stores/ui";
 
 const route = useRoute()
 const router = useRouter()
+const uiStore = useUIStore()
 const projectStore = useProjectStore()
+
+const horizontal = ref(false)
 
 const projectId = parseInt(route.params.id);
 onMounted(() => {

@@ -93,6 +93,7 @@ const doLink = async () => {
 const columns = [
     {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
     {name: 'name', align: 'left', label: 'Measurement Name', field: 'name', sortable: true},
+    {name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
     {name: 'layout', align: 'left', label: 'Dimensions', field: 'layout', sortable: true, format: (val, row) => row.rows + " x " + row.columns},
     {name: 'wellColumns', align: 'left', label: 'Well Columns', field: 'wellColumns', sortable: true, format: val => `${val?.length || 0}` },
     {name: 'subWellColumns', align: 'left', label: 'SubWell Columns', field: 'subWellColumns', sortable: true, format: val => `${val?.length || 0}` },
