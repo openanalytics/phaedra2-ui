@@ -37,7 +37,6 @@
         </q-item-section>
         <q-menu>
           <q-list>
-<!--            <menu-item icon="save_alt" label="Export Plate List" @click="showExportPlateListDialog = true"/>-->
             <menu-item icon="save_alt" label="Export Well Data" @click="exportPlateWellData" v-close-popup/>
             <menu-item icon="save_alt" label="Export Sub-Well Data" @click="exportPlateSubWellData" v-close-popup/>
           </q-list>
@@ -55,7 +54,6 @@
                   v-model:show="showDeleteDialog" @onDeleted="onDeleted"/>
     <link-plate-layout-dialog v-if="isOpen" v-model:show="showLinkPlateDialog" :plates="plates"/>
     <calculate-plate-dialog v-if="isOpen" v-model:show="showCalculatePlateDialog" :plates="plates" />
-<!--    <ExportPlateListDialog v-model:show="showExportPlateListDialog" :experiments="[props.experiment]"/>-->
   </q-menu>
 </template>
 
@@ -69,7 +67,6 @@ import {useQuasar} from "quasar";
 import projectsGraphQlAPI from "@/api/graphql/projects";
 import CalculatePlateDialog from "@/components/plate/CalculatePlateDialog.vue";
 import {useUIStore} from "@/stores/ui";
-// import ExportPlateListDialog from "@/components/experiment/ExportPlateListDialog.vue";
 
 const $q = useQuasar();
 const props = defineProps(['experiment'])
@@ -81,8 +78,6 @@ const showLinkPlateDialog = ref(false)
 const showCalculatePlateDialog = ref(false)
 
 const plates = ref([])
-
-// const showExportPlateListDialog = ref(false)
 
 const openDeleteDialog = () => {
   showDeleteDialog.value = true;

@@ -26,7 +26,7 @@
        <q-tab-panels v-model="activeTab">
          <q-tab-panel v-for="chart in uiStore.chartViews" :key="chart.id" :name="chart.id">
            <Chart v-if="chart.type !== 'trend'" :chartId="chart.id" :update="update"/>
-           <TrendChart v-if="chart.type === 'trend'" :experiments="uiStore.selectedExperiments" :update="update"/>
+           <TrendChart v-if="chart.type === 'trend'" :chartId="chart.id" :update="update"/>
          </q-tab-panel>
        </q-tab-panels>
      </div>

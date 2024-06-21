@@ -10,6 +10,7 @@ export const useUIStore = defineStore("ui", {
         // Selection Handling
         selectedProject: null,
 
+        selectedExperiment: null,
         selectedExperiments: [],
 
         showQuickHeatmap: false,
@@ -49,7 +50,7 @@ export const useUIStore = defineStore("ui", {
             return state.selectedPlates.length > 0
         },
         isExperimentSelected: (state) => () => {
-            return state.selectedExperiments.length > 0
+            return state.selectedExperiments.length > 0 || state.selectedExperiments !== null
         }
     },
     actions: {

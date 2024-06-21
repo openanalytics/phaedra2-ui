@@ -13,8 +13,9 @@ import Plotly from "plotly.js-cartesian-dist-min"
 import usePlateTrendChartData from "@/composable/plateTrendChartData";
 import {ref, watch} from "vue";
 import {useUIStore} from "@/stores/ui";
+import {useExperimentStore} from "@/stores/experiment";
 
-const props = defineProps(['experiments', 'update'])
+const props = defineProps(['chartId','update'])
 
 const chartData = ref([])
 const plates = ref([])
@@ -32,9 +33,10 @@ const statOptions = ref([])
 const selectedStat = ref(null)
 
 const uiStore = useUIStore()
+const experimentStore = useExperimentStore()
 const plateTrendChartData = usePlateTrendChartData()
-watch(() => props.update, () => {
-  plateTrendChartData.getChartData(uiStore.selectedExperiments[0]?.id).then((data) => {
+watch(() => [uiStore.selectedExperiments, props.update], () => {
+  plateTrendChartData.getChartData(uiStore.selectedExperiments[0]?.id ?? experimentStore.experiment?.id).then((data) => {
     chartData.value = data
     plates.value = chartData.value.map(cd => "Plate" + cd.barcode)
     featureOptions.value = [...new Set(chartData.value.flatMap(cd => cd.featureStats?.map(fs => fs.featureId)))] ?? []
@@ -168,6 +170,7 @@ const updateChartTraces = () => {
   }
 
   var layout = {
+    autosize: true,
     title: 'Plate Trend Chart',
     yaxis: {
       title: selectedStat.value,

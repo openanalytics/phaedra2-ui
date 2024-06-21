@@ -86,6 +86,8 @@
         </q-item-section>
         <q-menu>
           <q-list>
+            <menu-item icon="timeline" label="Plate Trend"
+                       @click="addExperimentPlateTrendChart" v-close-popup="hideMenu"/>
             <menu-item icon="scatter_plot" label="Scatterplot 2D"
                        @click="addScatterPlot(props.plate.id)" v-close-popup="hideMenu"/>
             <menu-item icon="candlestick_chart" label="Boxplot"
@@ -273,6 +275,12 @@ const addHistogram = (plateId) => {
       $q.loading.hide()
       uiStore.addChartView({type: 'histogram', plateId: plateId, label: 'Histogram'})
   })}, 'No plate(s) have been selected!')
+}
+
+const addExperimentPlateTrendChart = (experimentId) => {
+  if (uiStore.isExperimentSelected()) {
+    uiStore.addChartView({type: 'trend', experimentId: experimentId, label: 'Experiment Trend Chart'})
+  }
 }
 
 const showDeleteDialog = ref(null);
