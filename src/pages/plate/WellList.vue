@@ -80,11 +80,10 @@
 </style>
 
 <script setup>
-import {ref, computed, watch} from 'vue'
+import {ref, computed, watch, reactive} from 'vue'
 import WellUtils from "@/lib/WellUtils.js"
 import FilterUtils from "@/lib/FilterUtils"
 import ColumnFilter from "@/components/table/ColumnFilter";
-import TableConfig from "@/components/table/TableConfig"
 import {usePlateStore} from "@/stores/plate"
 import resultDataGraphQlAPI from "@/api/graphql/resultdata"
 import ColorUtils from "@/lib/ColorUtils";
@@ -107,7 +106,7 @@ features.value = plateStore.featuresByProtocolId(resultSet?.protocolId)
 const {onResult, onError} = resultDataGraphQlAPI.resultDataByResultSetId(resultSet?.id)
 onResult(({data}) => resultData.value = data.resultData)
 
-const columns = ref([
+const baseColumns = [
   {name: 'id', align: 'left', label: 'Well ID', field: 'id', sortable: true},
   {name: 'coordinate', align: 'left', label: 'Coordinate', field: 'coordinate', sortable: true},
   {name: 'number', align: 'left', label: 'Number', field: 'number', sortable: true},
@@ -115,7 +114,8 @@ const columns = ref([
   {name: 'wellType', align: 'left', label: 'Well Type', field: 'wellType', sortable: true},
   {name: 'substance', align: 'left', label: 'Substance', field: 'substance', sortable: true},
   {name: 'concentration', align: 'left', label: 'Concentration', field: 'concentration', sortable: true},
-]);
+]
+const columns = ref([])
 const wells = computed(() => props.wells.map(well => {
   return {
     id: well.id,
@@ -128,46 +128,17 @@ const wells = computed(() => props.wells.map(well => {
   }
 }))
 
-// const showConfigDialog = ref(false);
 const visibleColumns = ref([])
 
 let filter = FilterUtils.makeFilter(columns.value)
 const filterMethod = FilterUtils.defaultFilterMethod();
 
 let exportTableData = null
-watch([features, resultData], () => {
-  if (features.value !== undefined && resultData.value !== undefined) {
-    const featureCols = computed(() => (features.value ?? []).map(f => {
-      return {
-        name: f.name,
-        align: 'left',
-        label: f.name,
-        field: f.name,
-        sortable: true,
-        'featureId': f.id,
-        isFeature: true,
-        lut: null
-      }
-    }))
-    columns.value = [...columns.value, ...featureCols.value]
-    filter = FilterUtils.makeFilter(columns.value)
-    featureCols.value.forEach(fCol => {
-      const featValues = resultData.value.filter(rd => rd.featureId === fCol.featureId)[0]?.values ?? []
-      fCol.lut = ColorUtils.createLUT(featValues, ColorUtils.defaultHeatmapGradients)
-      wells.value.forEach((row, index) => {
-        row[fCol.field] = featValues[index]
-      })
-    })
-  }
-  visibleColumns.value = [...columns.value.map(a => a.name)];
+watch([features, resultData, wells], () => {
+  updateTable()
   loading.value = false
-
   exportTableData = useExportTableData(columns.value)
 })
-
-const updateVisibleColumns = (columns) => {
-  visibleColumns.value = [...columns]
-}
 
 const exportToCSV = () => {
   exportTableData.exportToCSV(filterMethod(wells.value, filter.value), props.plate.barcode)
@@ -196,15 +167,41 @@ const selectWell = (event, row) => {
 const handleRejectWells = () => {
   if (uiStore.selectedWells.length > 0) {
     plateStore.rejectWells(uiStore.selectedWells, 'REJECTED_PHAEDRA', 'Test well rejection')
-    console.log("Reject wells: " + JSON.stringify(uiStore.selectedWells))
   }
 }
 
 const handleAcceptWells = () => {
   if (uiStore.selectedWells.length > 0) {
     plateStore.acceptWells(uiStore.selectedWells)
-    console.log("Accept wells: " + JSON.stringify(uiStore.selectedWells))
   }
+}
+
+const updateTable = () => {
+  if (features.value && resultData.value) {
+    const featureCols = computed(() => (features.value ?? []).map(f => {
+      return {
+        name: f.name,
+        align: 'left',
+        label: f.name,
+        field: f.name,
+        sortable: true,
+        'featureId': f.id,
+        isFeature: true,
+        lut: null
+      }
+    }))
+    columns.value = [...baseColumns, ...featureCols.value]
+    filter = FilterUtils.makeFilter(columns.value)
+
+    featureCols.value.forEach(fCol => {
+      const featValues = resultData.value.filter(rd => rd.featureId === fCol.featureId)[0]?.values ?? []
+      fCol.lut = ColorUtils.createLUT(featValues, ColorUtils.defaultHeatmapGradients)
+      wells.value.forEach((row, index) => {
+        row[fCol.field] = featValues[index]
+      })
+    })
+  }
+  visibleColumns.value = [...columns.value.map(a => a.name)];
 }
 </script>
 
