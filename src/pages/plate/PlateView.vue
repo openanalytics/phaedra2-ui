@@ -92,7 +92,7 @@
                             :protocols="plateStore.protocols" />
             </q-tab-panel>
             <q-tab-panel name="wells" class="q-px-none">
-              <WellList :plate="plateStore.plate" :wells="plateStore.wells"/>
+              <WellList :plate="plateStore.plate" :wells="plateStore.wells" @wellStatusChanged="onWellStatusChanged"/>
             </q-tab-panel>
             <q-tab-panel name="measurements" icon="view_module" label="Layout" class="q-px-none">
               <MeasList :plate="plateStore.plate" :read-only="readOnly"/>
@@ -114,7 +114,7 @@
 
     <rename-dialog v-model:show="showRenameDialog" objectClass="plate" fieldName="barcode" :object="plateStore.plate" @valueChanged="onNameChanged"/>
     <delete-dialog v-model:show="showDeleteDialog" :id="plateStore.plate.id" :name="plateStore.plate.barcode" :objectClass="'plate'" @onDeleted="onDeleted"/>
-    <calculate-plate-dialog v-model:show="showCalculateDialog" :plates="[plateStore.plate]"/>
+    <calculate-plate-dialog v-model:show="showCalculateDialog" :plates="[plateStore.plate]" :protocol-id="plateStore.activeResultSet?.protocolId"/>
   </q-page>
 </template>
 
@@ -144,6 +144,7 @@ import {usePlateStore} from "@/stores/plate";
 import DRCList from "@/components/curve/DRCList.vue";
 import DRCView from "@/components/curve/DRCView.vue";
 import {useUIStore} from "@/stores/ui";
+import {useNotification} from "@/composable/notification";
 
 const route = useRoute();
 const projectStore = useProjectStore()
@@ -215,4 +216,12 @@ const onRemoveProperty = async (property) => {
   await plateStore.deleteProperty(property)
 }
 
+const wellStatusNotification = useNotification()
+const onWellStatusChanged = () => {
+  wellStatusNotification.showInfoNotification(
+      "Plate's well(s) status has changed! Recalculate plate?",
+      () => { showCalculateDialog.value = true },
+      () => { }
+  )
+}
 </script>

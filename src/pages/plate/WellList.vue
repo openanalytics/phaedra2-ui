@@ -92,6 +92,7 @@ import WellActionMenu from "@/components/well/WellActionMenu.vue";
 import {useUIStore} from "@/stores/ui";
 
 const props = defineProps(['plate', 'wells']);
+const emits = defineEmits(['wellStatusChanged'])
 
 const plateStore = usePlateStore()
 const uiStore = useUIStore()
@@ -166,13 +167,17 @@ const selectWell = (event, row) => {
 
 const handleRejectWells = () => {
   if (uiStore.selectedWells.length > 0) {
-    plateStore.rejectWells(uiStore.selectedWells, 'REJECTED_PHAEDRA', 'Test well rejection')
+    plateStore.rejectWells(uiStore.selectedWells, 'REJECTED_PHAEDRA', 'Test well rejection').then(() => {
+      emits('wellStatusChanged')
+    })
   }
 }
 
 const handleAcceptWells = () => {
   if (uiStore.selectedWells.length > 0) {
-    plateStore.acceptWells(uiStore.selectedWells)
+    plateStore.acceptWells(uiStore.selectedWells).then(() => {
+      emits('wellStatusChanged')
+    })
   }
 }
 
