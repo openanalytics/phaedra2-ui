@@ -11,7 +11,8 @@
                 :wells="props.wells"
                 :loading="dataLoading"
                 :wellColorFunction="wellColorFunction"
-                :wellLabelFunctions="wellLabelFunctions"/>
+                :wellLabelFunctions="wellLabelFunctions"
+                @wellStatusChanged="() => emits('wellStatusChanged')"/>
       <ColorLegend class="q-pt-sm" :rangeValues="rangeValues" :plate="plate" />
     </div>
 </template>
@@ -28,6 +29,7 @@ import resultDataGraphQlAPI from '@/api/graphql/resultdata'
 import measurementsGraphQlAPI from "@/api/graphql/measurements";
 
 const props = defineProps(['plate', 'wells', 'measurements', 'protocols']);
+const emits = defineEmits(['wellStatusChanged'])
 
 const wellData = ref([])
 const dataLoading = ref(false);
@@ -84,4 +86,5 @@ const calcRangeValues = (values) => {
   const max = Math.max(...values.filter(v => !isNaN(v)));
   return {min: min, mean: mean, max: max};
 }
+
 </script>

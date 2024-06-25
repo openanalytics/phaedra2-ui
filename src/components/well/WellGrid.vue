@@ -58,9 +58,10 @@ import WellUtils from "@/lib/WellUtils.js"
 import SelectionBoxHelper from "@/lib/SelectionBoxHelper.js"
 import {publicPath} from "../../../vue.config";
 import {usePlateStore} from "@/stores/plate";
+import {useNotification} from "@/composable/notification";
 
 const props = defineProps(['plate', 'wells', 'loading', 'wellColorFunction', 'wellImageFunction', 'wellLabelFunctions'])
-const emit = defineEmits(['wellSelection']);
+const emit = defineEmits(['wellSelection', 'wellStatusChanged']);
 const uiStore = useUIStore()
 const plateStore = usePlateStore()
 
@@ -134,15 +135,17 @@ watchEffect(() => {
 
 const handleRejectWells = () => {
   if (selectedWells.value.length > 0) {
-    plateStore.rejectWells(selectedWells.value, 'REJECTED_PHAEDRA', 'Test well rejection')
-    console.log("Reject wells: " + JSON.stringify(selectedWells.value))
+    plateStore.rejectWells(selectedWells.value, 'REJECTED_PHAEDRA', 'Test well rejection').then(() => {
+      emit('wellStatusChanged')
+    })
   }
 }
 
 const handleAcceptWells = () => {
   if (selectedWells.value.length > 0) {
-    plateStore.acceptWells(selectedWells.value)
-    console.log("Accept wells: " + JSON.stringify(selectedWells.value))
+    plateStore.acceptWells(selectedWells.value).then(() => {
+      emit('wellStatusChanged')
+    })
   }
 }
 </script>

@@ -84,12 +84,12 @@
         <div class="row oa-section-body">
           <q-tab-panels v-model="activeTab" animated style="width: 100%; height: 100%">
             <q-tab-panel name="layout">
-              <PlateLayout :plate="plateStore.plate" :wells="plateStore.wells"/>
+              <PlateLayout :plate="plateStore.plate" :wells="plateStore.wells" @wellStatusChanged="onWellStatusChanged"/>
             </q-tab-panel>
             <q-tab-panel name="heatmap">
               <PlateHeatmap :plate="plateStore.plate" :wells="plateStore.wells"
                             :measurements="plateStore.activeMeasurement !== undefined ? [plateStore.activeMeasurement] : []"
-                            :protocols="plateStore.protocols" />
+                            :protocols="plateStore.protocols" @wellStatusChanged="onWellStatusChanged"/>
             </q-tab-panel>
             <q-tab-panel name="wells" class="q-px-none">
               <WellList :plate="plateStore.plate" :wells="plateStore.wells" @wellStatusChanged="onWellStatusChanged"/>
