@@ -153,7 +153,7 @@ import RenameDialog from "@/components/widgets/RenameDialog";
 import OaSection from "@/components/widgets/OaSection";
 import FormatUtils from "@/lib/FormatUtils.js"
 
-import ChartViewer from "@/components/chart/ChartViewer.vue";
+import ChartViewer from "@/components/chart/ChartViewer";
 import {useExperimentStore} from "@/stores/experiment";
 import {useProjectStore} from "@/stores/project";
 import {Pane, Splitpanes} from "splitpanes";

@@ -110,6 +110,9 @@
         <DRCView :height="height" :width="width" :curves="uiStore.selectedDRCurves" :update="Date.now()"
                  @changeOrientation="horizontal = !horizontal"/>
       </pane>
+      <pane class="q-pa-sm" v-if="uiStore.showChartViewer" style="background-color: #E6E6E6" ref="chartViewerPane">
+        <ChartViewer :update="Date.now()" @changeOrientation="horizontal = !horizontal"/>
+      </pane>
     </splitpanes>
 
     <rename-dialog v-model:show="showRenameDialog" objectClass="plate" fieldName="barcode" :object="plateStore.plate" @valueChanged="onNameChanged"/>
@@ -143,6 +146,7 @@ import {useExperimentStore} from "@/stores/experiment";
 import {usePlateStore} from "@/stores/plate";
 import DRCList from "@/components/curve/DRCList.vue";
 import DRCView from "@/components/curve/DRCView.vue";
+import ChartViewer from "@/components/chart/ChartViewer.vue";
 import {useUIStore} from "@/stores/ui";
 import {useNotification} from "@/composable/notification";
 
@@ -162,6 +166,7 @@ const update = ref(Date.now())
 const readOnly = ref(plateStore.isApproved || experimentStore.isClosed)
 
 const drcViewPane = ref()
+const chartViewerPane = ref()
 
 const plateId = parseInt(route.params.plateId)
 onMounted(() => {

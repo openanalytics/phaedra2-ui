@@ -18,7 +18,7 @@
 </template>
 
 <script setup>
-import {ref, watch, defineProps, computed} from 'vue'
+import {ref, watch, defineProps} from 'vue'
 import WellGrid from "@/components/well/WellGrid"
 import FeatureSelector from "@/components/widgets/FeatureSelector"
 import ColorLegend from "@/components/widgets/ColorLegend"

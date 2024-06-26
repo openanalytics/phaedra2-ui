@@ -51,7 +51,7 @@
 </template>
 
 <script setup>
-import {ref, computed, watchEffect} from 'vue'
+import {ref, computed, watchEffect, onMounted, watch} from 'vue'
 import {useUIStore} from "@/stores/ui";
 import WellActionMenu from "@/components/well/WellActionMenu.vue"
 import WellUtils from "@/lib/WellUtils.js"
@@ -65,26 +65,41 @@ const emit = defineEmits(['wellSelection', 'wellStatusChanged']);
 const uiStore = useUIStore()
 const plateStore = usePlateStore()
 
-const selectedWells = ref([]);
+
+
+// const selectedWells = ref(uiStore.selectedWells);
 const plate = computed(() => props.plate)
 const wells = computed(() => props.wells ?? [])
-const wellHighlights = computed(() => [...Array(wells.value?.length).keys()]
+// const wellHighlights = computed(() => [...Array(props.wells?.length).keys()]
+//     .map(nr => nr + 1)
+//     .map(nr => uiStore.selectedWells?.find(w => nr == WellUtils.getWellNr(w.row, w.column, plate.value?.columns))));
+
+const wellHighlights = ref([])
+onMounted(() => {
+  wellHighlights.value = [...Array(props.wells?.length).keys()]
     .map(nr => nr + 1)
-    .map(nr => selectedWells.value?.find(w => nr == WellUtils.getWellNr(w.row, w.column, plate.value?.columns))));
+    .map(nr => uiStore.selectedWells?.find(w => nr == WellUtils.getWellNr(w.row, w.column, plate.value?.columns)))
+})
+
+watch(uiStore.selectedWells, ()=> {
+  wellHighlights.value = [...Array(props.wells?.length).keys()]
+  .map(nr => nr + 1)
+  .map(nr => uiStore.selectedWells?.find(w => nr == WellUtils.getWellNr(w.row, w.column, plate.value?.columns)));
+})
 
 const emitWellSelection = (wells, append) => {
-  if (!append) selectedWells.value.splice(0);
+  if (!append) uiStore.selectedWells.splice(0);
   for (const well of wells) {
-    if (append && selectedWells.value.some(w => w.id === well.id)) continue;
-    selectedWells.value.push(well);
+    if (append && uiStore.selectedWells.some(w => w.id === well.id)) continue;
+    uiStore.selectedWells.push(well);
   }
-  uiStore.selectedWells = selectedWells.value;
-  emit('wellSelection', selectedWells.value);
+  // uiStore.selectedWells = selectedWells.value;
+  emit('wellSelection', uiStore.selectedWells);
 };
 
 window.addEventListener('keyup', function (event) {
-  if (selectedWells.value.length === 0) return;
-  let currentWell = selectedWells.value[0];
+  if (uiStore.selectedWells.length === 0) return;
+  let currentWell = uiStore.selectedWells[0];
   let nextPosition = [];
   switch (event.key) {
     case "ArrowUp":
@@ -134,16 +149,16 @@ watchEffect(() => {
 });
 
 const handleRejectWells = () => {
-  if (selectedWells.value.length > 0) {
-    plateStore.rejectWells(selectedWells.value, 'REJECTED_PHAEDRA', 'Test well rejection').then(() => {
+  if (uiStore.selectedWells.length > 0) {
+    plateStore.rejectWells(uiStore.selectedWells, 'REJECTED_PHAEDRA', 'Test well rejection').then(() => {
       emit('wellStatusChanged')
     })
   }
 }
 
 const handleAcceptWells = () => {
-  if (selectedWells.value.length > 0) {
-    plateStore.acceptWells(selectedWells.value).then(() => {
+  if (uiStore.selectedWells.length > 0) {
+    plateStore.acceptWells(uiStore.selectedWells).then(() => {
       emit('wellStatusChanged')
     })
   }

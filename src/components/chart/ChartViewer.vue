@@ -1,7 +1,7 @@
  <template>
    <div class="row oa-section-title justify-evenly">
     <!--TODO: Needs to be fixed at first possible moment -->
-     <div class="col text-h6 q-pl-md">{{ uiStore.selectedPlate?.barcode ?? 'Experiment Plate Trend' }}</div>
+<!--     <div class="col text-h6 q-pl-md">{{ uiStore.selectedPlate?.barcode ?? 'Experiment Plate Trend' }}</div>-->
      <div class="text-h6">
        <slot name="actions" class="row">
          <q-btn v-if="horizontal" icon="view_stream" @click="changeOrientation" class="q-pa-xs" size="md" flat>
@@ -31,6 +31,8 @@
        </q-tab-panels>
      </div>
    </div>
+
+   <WellActionMenu touch-position context-menu @acceptWells="handleAcceptWells" @rejectWells="handleRejectWells"/>
  </template>
 
 <script setup>
@@ -38,6 +40,7 @@ import {onUpdated, ref} from "vue"
 import Chart from "./Chart"
 import {useUIStore} from "@/stores/ui";
 import TrendChart from "@/components/chart/TrendChart.vue";
+import WellActionMenu from "@/components/well/WellActionMenu"
 
 const uiStore = useUIStore()
 const props = defineProps(['chartTemplate', 'update'])
@@ -63,6 +66,14 @@ const horizontal = ref(true)
 const changeOrientation = () => {
   horizontal.value = !horizontal.value
   emits('changeOrientation')
+}
+
+const handleRejectWells = () => {
+  console.log("Handle Reject Well action")
+}
+
+const handleAcceptWells = () => {
+  console.log("Handle Accept Well action")
 }
 </script>
 

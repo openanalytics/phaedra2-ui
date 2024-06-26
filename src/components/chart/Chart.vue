@@ -1,5 +1,5 @@
 <template>
-    <div id="chart"/>
+    <div ref="chart"/>
     <div class="col oa-section-body">
       <q-select class="q-pa-xs"
                 v-model="selectedProtocol"
@@ -43,6 +43,7 @@ import {useUIStore} from "@/stores/ui";
 import useScatterChartData from "@/composable/scatterChartData";
 import useBoxPlotData from "@/composable/boxPlotData";
 import useHistogramData from "@/composable/histogramData";
+import WellUtils from "@/lib/WellUtils";
 
 const uiStore = useUIStore()
 const props = defineProps(['width', 'chartId', 'update']);
@@ -51,6 +52,7 @@ const chartView = computed(() => uiStore.getChartView(props.chartId))
 const showXAxisSelector = computed(() => chartView.value.type === 'scatter' || chartView.value.type === 'histogram');
 const showYAxisSelector = computed(() => chartView.value.type === 'scatter' || chartView.value.type === 'box');
 
+const chart = ref(null)
 const plateProtocols = ref([])
 const plotValueOptions = ref()
 const selectedProtocol = ref({})
@@ -66,6 +68,24 @@ const initSelectedValues = () => {
   }
   updatePlotValueOptions()
   handleChartUpdate()
+
+  Plotly.react(chart.value, chartPlot.value?.data, layout(chartView.value), {displaylogo: false})
+  chart.value.on('plotly_click', (data) => {
+    const selectedWells = data?.points?.map(p => p.customdata) ?? []
+    uiStore.selectedWells = selectedWells
+
+    const selectedWellIndices = uiStore.selectedWells.map(well => WellUtils.getWellNr(well.row, well.column, uiStore.selectedPlate.columns) - 1)
+    if (selectedWellIndices.length > 0) Plotly.restyle(chart.value, 'selectedpoints', [selectedWellIndices])
+  })
+
+  chart.value.on('plotly_selected', (data) => {
+    const selectedWells = data?.points?.map(p => p.customdata) ?? []
+    uiStore.selectedWells = selectedWells
+  })
+
+  chart.value.addEventListener('contextmenu', (ev) => {
+    ev.preventDefault()
+  })
 }
 
 
@@ -110,13 +130,13 @@ const handleChartUpdate = () => {
     const scatterChartData = useScatterChartData()
     scatterChartData.getChartData(uiStore.selectedPlate.id, selectedProtocol.value?.id, selectedXAxisOption.value.value, selectedXAxisOption.value.type, selectedYAxisOption.value.value, selectedYAxisOption.value.type, groupBy.value.value).then((scatterData) => {
       console.log("Scatter Chart Data: " + Object.keys(scatterData))
-      const data = Object.keys(scatterData).map(groupByKey => {return {x: scatterData[groupByKey].xvalues, y: scatterData[groupByKey].yvalues, mode: "markers", type: "scatter", name: groupByKey}})
+      const data = Object.keys(scatterData).map(groupByKey => {return {x: scatterData[groupByKey].xvalues, y: scatterData[groupByKey].yvalues, customdata: scatterData[groupByKey].customdata, mode: "markers", type: "scatter", name: groupByKey}})
       chartPlot.value = {
         data: data,
         layout: {
           chartTitle: "Plate Scatter Plot",
           xAxisLabel: selectedXAxisOption.value?.label ?? '',
-          yAxisLabel: selectedYAxisOption.value?.label ?? '',
+          yAxisLabel: selectedYAxisOption.value?.label ?? ''
         }
       }
     })
@@ -151,7 +171,12 @@ const handleChartUpdate = () => {
 
 const handlePlotUpdate = () => {
   console.log("handleUpdatePlot: chart has been updated!")
-  Plotly.react("chart", chartPlot.value?.data, layout(chartView.value), {displaylogo: false});
+  if (chartPlot.value) {
+    Plotly.react(chart.value, chartPlot.value?.data, layout(chartView.value), {displaylogo: false})
+
+    const selectedWellIndices = uiStore.selectedWells.map(well => WellUtils.getWellNr(well.row, well.column, uiStore.selectedPlate.columns) - 1)
+    if (selectedWellIndices.length > 0) Plotly.restyle(chart.value, 'selectedpoints', [selectedWellIndices])
+  }
 }
 
 const layout = (chartView) => {
@@ -174,6 +199,7 @@ const layout = (chartView) => {
 
 watch(() => props.update, handlePlotUpdate)
 watch(() => chartPlot.value, handlePlotUpdate)
+watch(uiStore.selectedWells, () =>  handlePlotUpdate())
 
 const handleProtocolSelection = () => {
   updatePlotValueOptions()
