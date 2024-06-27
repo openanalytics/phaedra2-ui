@@ -4,6 +4,7 @@ import resultdataGraphQlAPI from "@/api/graphql/resultdata";
 import resultDataGraphQlAPI from "@/api/graphql/resultdata";
 import curvesGraphQlAPI from "@/api/graphql/curvedata";
 import ColorUtils from "@/lib/ColorUtils";
+import {ref} from "vue";
 
 export const useUIStore = defineStore("ui", {
     state: () => ({
@@ -24,7 +25,7 @@ export const useUIStore = defineStore("ui", {
         showDRCView: false,
         selectedDRCurves: [],
 
-        selectedWells: [],
+        selectedWells: ref([]),
         selectedSubstances: new Map([])
     }),
     getters: {

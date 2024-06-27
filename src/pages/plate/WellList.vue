@@ -139,7 +139,7 @@ watch([features, resultData, wells], () => {
   updateTable()
   loading.value = false
   exportTableData = useExportTableData(columns.value)
-})
+}, {deep: true})
 
 const exportToCSV = () => {
   exportTableData.exportToCSV(filterMethod(wells.value, filter.value), props.plate.barcode)

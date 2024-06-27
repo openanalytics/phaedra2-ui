@@ -38,12 +38,11 @@
 
 <script setup>
 import Plotly from "plotly.js-cartesian-dist-min"
-import {computed, onMounted, onUpdated, reactive, ref, watch} from "vue"
+import {computed, onMounted, ref, watch} from "vue"
 import {useUIStore} from "@/stores/ui";
 import useScatterChartData from "@/composable/scatterChartData";
 import useBoxPlotData from "@/composable/boxPlotData";
 import useHistogramData from "@/composable/histogramData";
-import WellUtils from "@/lib/WellUtils";
 
 const uiStore = useUIStore()
 const props = defineProps(['width', 'chartId', 'update']);
@@ -75,13 +74,6 @@ const initSelectedValues = () => {
     isPlotlyClick = true
     const selectedWells = data?.points?.filter(p => p.data?.type === 'scatter').map(p => p.customdata) ?? []
     uiStore.selectedWells = selectedWells
-
-    if (uiStore.selectedWells.length > 0) {
-      const selectedWellIndices = uiStore.selectedWells.map(well => WellUtils.getWellNr(well.row, well.column, uiStore.selectedPlate.columns) - 1)
-      if (selectedWellIndices.length > 0) {
-        Plotly.restyle(chart.value, 'selectedpoints', [selectedWellIndices])
-      }
-    }
   })
 
   chart.value.on('plotly_selected', (data) => {
@@ -137,7 +129,7 @@ const groupByOptions = ref([
 ])
 const groupBy = ref(groupByOptions.value[0])
 
-const chartPlot = reactive([])
+const chartPlot = ref([])
 
 const handleChartUpdate = () => {
   const chartView = computed(() => uiStore.getChartView(props.chartId))
@@ -192,18 +184,21 @@ const handleChartUpdate = () => {
 
 const handlePlotUpdate = () => {
   console.log("handleUpdatePlot: chart has been updated!")
-  if (chartPlot.value) {
+  if (chartPlot.value.data) {
+    Plotly.react(chart.value, chartPlot.value.data, layout(chartView.value), {displaylogo: false})
+
     const selectedWellIds = uiStore.selectedWells.map(well => Number.parseInt(well.id))
+    const selectedpoints = []
     if (selectedWellIds.length > 0 ) {
       chartPlot.value.data.forEach(dataArr => {
-        const wellIndices = dataArr.customdata.map((well, wIndex) => ({ wellId: well.id, wellIndex: wIndex }))
-        const selectedWellIndices = wellIndices.filter(wIndex => selectedWellIds.includes(wIndex.wellId)).map(wIndex => wIndex.wellIndex)
-        dataArr['selectedpoints'] = selectedWellIndices
+        const wellIndices = dataArr.customdata.map(
+            (well, wIndex) => ({wellId: well.id, wellIndex: wIndex}))
+        const selectedWellIndices = wellIndices.filter(
+            wIndex => selectedWellIds.includes(wIndex.wellId)).map(wIndex => wIndex.wellIndex)
+        selectedpoints.push(selectedWellIndices)
       })
-    } else {
-      chartPlot.value.data.forEach(dataArr => dataArr['selectedpoints'] = null)
     }
-    Plotly.react(chart.value, chartPlot.value.data, layout(chartView.value), {displaylogo: false})
+    Plotly.restyle(chart.value, 'selectedpoints', selectedpoints)
   }
 }
 
@@ -227,7 +222,7 @@ const layout = (chartView) => {
 
 watch(() => props.update, handlePlotUpdate)
 watch(() => chartPlot.value, handlePlotUpdate)
-watch(() => uiStore.selectedWells, () =>  handlePlotUpdate(), {deep: true})
+watch(() => uiStore.selectedWells.value, handlePlotUpdate, {deep: true})
 
 const handleProtocolSelection = () => {
   updatePlotValueOptions()

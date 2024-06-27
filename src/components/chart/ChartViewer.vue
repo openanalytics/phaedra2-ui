@@ -1,27 +1,22 @@
  <template>
-   <div class="row oa-section-title justify-evenly">
-    <!--TODO: Needs to be fixed at first possible moment -->
-<!--     <div class="col text-h6 q-pl-md">{{ uiStore.selectedPlate?.barcode ?? 'Experiment Plate Trend' }}</div>-->
-     <div class="text-h6">
-       <slot name="actions" class="row">
-         <q-btn v-if="horizontal" icon="view_stream" @click="changeOrientation" class="q-pa-xs" size="md" flat>
-           <q-tooltip>Show vertical view</q-tooltip>
-         </q-btn>
-         <q-btn v-if="!horizontal" icon="view_column" @click="changeOrientation" class="q-pa-xs" size="md" flat>
-           <q-tooltip>Show horizontal view</q-tooltip>
-         </q-btn>
-       </slot>
-     </div>
-   </div>
    <div ref="chartViewer">
-     <q-tabs v-model="activeTab" inline-label dense align="left" no-caps class="oa-section-title">
-       <q-tab v-for="chart in uiStore.chartViews" :key="chart.id" :name="chart.id">
-         <div class="flex flex-center">
-           <div class="q-pr-sm">{{ chart.label }}</div>
-           <q-btn icon="close" size="xs" @click="closeTab(chart.id)" round flat/>
-         </div>
-       </q-tab>
-     </q-tabs>
+     <q-toolbar class="oa-section-title">
+       <q-tabs v-model="activeTab" inline-label dense align="left" no-caps class="oa-section-title">
+         <q-tab v-for="chart in uiStore.chartViews" :key="chart.id" :name="chart.id">
+           <div class="flex flex-center">
+             <div class="q-pr-sm">{{ chart.label }}</div>
+             <q-btn icon="close" size="xs" @click="closeTab(chart.id)" round flat/>
+           </div>
+         </q-tab>
+       </q-tabs>
+       <q-space/>
+       <q-btn v-if="horizontal" icon="view_stream" @click="changeOrientation" class="q-pa-xs" size="md" flat>
+         <q-tooltip>Show vertical view</q-tooltip>
+       </q-btn>
+       <q-btn v-if="!horizontal" icon="view_column" @click="changeOrientation" class="q-pa-xs" size="md" flat>
+         <q-tooltip>Show horizontal view</q-tooltip>
+       </q-btn>
+     </q-toolbar>
      <div class="oa-section-body">
        <q-tab-panels v-model="activeTab">
          <q-tab-panel v-for="chart in uiStore.chartViews" :key="chart.id" :name="chart.id">

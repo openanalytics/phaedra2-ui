@@ -27,7 +27,7 @@
     "keycloak-js": "23.0.4",
     "material-icons": "^1.2.0",
     "pinia": "^2.0.27",
-    "plotly.js-cartesian-dist-min": "^2.29.1",
+    "plotly.js-cartesian-dist-min": "^2.33.0",
     "quasar": "2.15.4",
     "react": "^18.2.0",
     "roboto-fontface": "*",
