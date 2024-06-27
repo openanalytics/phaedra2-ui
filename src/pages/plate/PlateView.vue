@@ -84,15 +84,15 @@
         <div class="row oa-section-body">
           <q-tab-panels v-model="activeTab" animated style="width: 100%; height: 100%">
             <q-tab-panel name="layout">
-              <PlateLayout :plate="plateStore.plate" :wells="plateStore.wells"/>
+              <PlateLayout :plate="plateStore.plate" :wells="plateStore.wells" @wellStatusChanged="onWellStatusChanged"/>
             </q-tab-panel>
             <q-tab-panel name="heatmap">
               <PlateHeatmap :plate="plateStore.plate" :wells="plateStore.wells"
                             :measurements="plateStore.activeMeasurement !== undefined ? [plateStore.activeMeasurement] : []"
-                            :protocols="plateStore.protocols" />
+                            :protocols="plateStore.protocols" @wellStatusChanged="onWellStatusChanged"/>
             </q-tab-panel>
             <q-tab-panel name="wells" class="q-px-none">
-              <WellList :plate="plateStore.plate" :wells="plateStore.wells"/>
+              <WellList :plate="plateStore.plate" :wells="plateStore.wells" @wellStatusChanged="onWellStatusChanged"/>
             </q-tab-panel>
             <q-tab-panel name="measurements" icon="view_module" label="Layout" class="q-px-none">
               <MeasList :plate="plateStore.plate" :read-only="readOnly"/>
@@ -110,11 +110,14 @@
         <DRCView :height="height" :width="width" :curves="uiStore.selectedDRCurves" :update="Date.now()"
                  @changeOrientation="horizontal = !horizontal"/>
       </pane>
+      <pane class="q-pa-sm" v-if="uiStore.showChartViewer" style="background-color: #E6E6E6" ref="chartViewerPane">
+        <ChartViewer :update="Date.now()" @changeOrientation="horizontal = !horizontal" @wellStatusChanged="onWellStatusChanged"/>
+      </pane>
     </splitpanes>
 
     <rename-dialog v-model:show="showRenameDialog" objectClass="plate" fieldName="barcode" :object="plateStore.plate" @valueChanged="onNameChanged"/>
     <delete-dialog v-model:show="showDeleteDialog" :id="plateStore.plate.id" :name="plateStore.plate.barcode" :objectClass="'plate'" @onDeleted="onDeleted"/>
-    <calculate-plate-dialog v-model:show="showCalculateDialog" :plates="[plateStore.plate]"/>
+    <calculate-plate-dialog v-model:show="showCalculateDialog" :plates="[plateStore.plate]" :protocol-id="plateStore.activeResultSet?.protocolId"/>
   </q-page>
 </template>
 
@@ -143,7 +146,9 @@ import {useExperimentStore} from "@/stores/experiment";
 import {usePlateStore} from "@/stores/plate";
 import DRCList from "@/components/curve/DRCList.vue";
 import DRCView from "@/components/curve/DRCView.vue";
+import ChartViewer from "@/components/chart/ChartViewer.vue";
 import {useUIStore} from "@/stores/ui";
+import {useNotification} from "@/composable/notification";
 
 const route = useRoute();
 const projectStore = useProjectStore()
@@ -155,12 +160,11 @@ const router = useRouter()
 const horizontal = ref(false)
 const height = ref(400)
 const width = ref(500)
-const curves = ref([])
-const update = ref(Date.now())
 
 const readOnly = ref(plateStore.isApproved || experimentStore.isClosed)
 
 const drcViewPane = ref()
+const chartViewerPane = ref()
 
 const plateId = parseInt(route.params.plateId)
 onMounted(() => {
@@ -215,4 +219,12 @@ const onRemoveProperty = async (property) => {
   await plateStore.deleteProperty(property)
 }
 
+const wellStatusNotification = useNotification()
+const onWellStatusChanged = () => {
+  wellStatusNotification.showInfoNotification(
+      "Plate's well(s) status has changed! Recalculate plate?",
+      () => { showCalculateDialog.value = true },
+      () => { }
+  )
+}
 </script>

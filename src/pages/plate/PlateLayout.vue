@@ -3,7 +3,8 @@
   <WellGrid :plate="plateStore.plate"
             :wells="plateStore.wells"
             :wellColorFunction="wellColorFunction"
-            :wellLabelFunctions="wellLabelFunctions"/>
+            :wellLabelFunctions="wellLabelFunctions"
+            @wellStatusChanged="() => emits('wellStatusChanged')"/>
 </template>
 
 <script setup>
@@ -15,6 +16,7 @@ import {usePlateStore} from "@/stores/plate";
 const plateStore = usePlateStore()
 
 const props = defineProps(['plate', 'wells']);
+const emits = defineEmits(['wellStatusChanged'])
 
 const wellColorFunction = (well) => WellUtils.getWellTypeColor(well.wellType)
 

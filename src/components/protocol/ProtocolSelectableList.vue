@@ -26,8 +26,10 @@
     import {ref} from "vue";
     import protocolsGraphQlAPI from "@/api/graphql/protocols"
 
+    const props = defineProps(['protocolId'])
+
     const protocols = ref([])
-    const filter = ref('')
+    const filter = ref(props.protocolId ?? '')
     const loading = ref(true)
 
     //TODO: Implement onError
@@ -44,9 +46,9 @@
         {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
     ]
 
-    const filterMethod = (tableRows, terms) => {
-      if (terms.length === 0) return tableRows;
-      const correctRows = tableRows.filter(row => row.id === terms[0].id);
-      return correctRows.filter(row => row.name === terms[0].name);
-    }
+    // const filterMethod = (tableRows, terms) => {
+    //   if (terms.length === 0) return tableRows;
+    //   const correctRows = tableRows.filter(row => row.id === terms[0].id);
+    //   return correctRows.filter(row => row.name === terms[0].name);
+    // }
 </script>

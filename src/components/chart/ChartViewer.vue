@@ -1,27 +1,22 @@
  <template>
-   <div class="row oa-section-title justify-evenly">
-    <!--TODO: Needs to be fixed at first possible moment -->
-     <div class="col text-h6 q-pl-md">{{ uiStore.selectedPlate?.barcode ?? 'Experiment Plate Trend' }}</div>
-     <div class="text-h6">
-       <slot name="actions" class="row">
-         <q-btn v-if="horizontal" icon="view_stream" @click="changeOrientation" class="q-pa-xs" size="md" flat>
-           <q-tooltip>Show vertical view</q-tooltip>
-         </q-btn>
-         <q-btn v-if="!horizontal" icon="view_column" @click="changeOrientation" class="q-pa-xs" size="md" flat>
-           <q-tooltip>Show horizontal view</q-tooltip>
-         </q-btn>
-       </slot>
-     </div>
-   </div>
    <div ref="chartViewer">
-     <q-tabs v-model="activeTab" inline-label dense align="left" no-caps class="oa-section-title">
-       <q-tab v-for="chart in uiStore.chartViews" :key="chart.id" :name="chart.id">
-         <div class="flex flex-center">
-           <div class="q-pr-sm">{{ chart.label }}</div>
-           <q-btn icon="close" size="xs" @click="closeTab(chart.id)" round flat/>
-         </div>
-       </q-tab>
-     </q-tabs>
+     <q-toolbar class="oa-section-title">
+       <q-tabs v-model="activeTab" inline-label dense align="left" no-caps class="oa-section-title">
+         <q-tab v-for="chart in uiStore.chartViews" :key="chart.id" :name="chart.id">
+           <div class="flex flex-center">
+             <div class="q-pr-sm">{{ chart.label }}</div>
+             <q-btn icon="close" size="xs" @click="closeTab(chart.id)" round flat/>
+           </div>
+         </q-tab>
+       </q-tabs>
+       <q-space/>
+       <q-btn v-if="horizontal" icon="view_stream" @click="changeOrientation" class="q-pa-xs" size="md" flat>
+         <q-tooltip>Show vertical view</q-tooltip>
+       </q-btn>
+       <q-btn v-if="!horizontal" icon="view_column" @click="changeOrientation" class="q-pa-xs" size="md" flat>
+         <q-tooltip>Show horizontal view</q-tooltip>
+       </q-btn>
+     </q-toolbar>
      <div class="oa-section-body">
        <q-tab-panels v-model="activeTab">
          <q-tab-panel v-for="chart in uiStore.chartViews" :key="chart.id" :name="chart.id">
@@ -31,17 +26,24 @@
        </q-tab-panels>
      </div>
    </div>
+
+   <WellActionMenu touch-position context-menu @acceptWells="handleAcceptWells" @rejectWells="handleRejectWells"/>
  </template>
 
 <script setup>
 import {onUpdated, ref} from "vue"
 import Chart from "./Chart"
-import {useUIStore} from "@/stores/ui";
 import TrendChart from "@/components/chart/TrendChart.vue";
+import WellActionMenu from "@/components/well/WellActionMenu"
+import {useUIStore} from "@/stores/ui";
+import {usePlateStore} from "@/stores/plate";
+
 
 const uiStore = useUIStore()
+const plateStore = usePlateStore()
+
 const props = defineProps(['chartTemplate', 'update'])
-const emits = defineEmits(['changeOrientation'])
+const emits = defineEmits(['changeOrientation', 'wellStatusChanged'])
 
 const activeTab = ref(uiStore.chartViews[0].id)
 const update = ref(Date.now())
@@ -63,6 +65,24 @@ const horizontal = ref(true)
 const changeOrientation = () => {
   horizontal.value = !horizontal.value
   emits('changeOrientation')
+}
+
+const handleRejectWells = () => {
+  console.log("Reject selected wells: " + JSON.stringify(uiStore.selectedWells))
+  if (uiStore.selectedWells.length > 0) {
+    plateStore.rejectWells(uiStore.selectedWells, 'REJECTED_PHAEDRA', 'Well rejection from chart!').then(() => {
+      emits('wellStatusChanged')
+    })
+  }
+}
+
+const handleAcceptWells = () => {
+  console.log("Accept selected wells: " + JSON.stringify(uiStore.selectedWells))
+  if (uiStore.selectedWells.length > 0) {
+    plateStore.acceptWells(uiStore.selectedWells).then(() => {
+      emits('wellStatusChanged')
+    })
+  }
 }
 </script>
 

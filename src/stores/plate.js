@@ -33,7 +33,7 @@ export const usePlateStore = defineStore("plate", {
         },
         activeResultSet: (state) => {
             const activeMeasId = state.plate?.measurements?.filter(m => m.active === true)[0]?.measurementId ?? null
-            return state.plate?.resultSets?.filter(rs => rs.measId === activeMeasId && rs.outcome === 'SUCCESS')[0]
+            return state.plate?.resultSets?.filter(rs => rs.measId === activeMeasId && rs.outcome === 'SUCCESS')[0] ?? null
         },
         protocolById: (state) => {
           return (protocolId) => state.plate?.protocols.find(p => p.id === protocolId) ?? null

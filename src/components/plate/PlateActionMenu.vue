@@ -256,6 +256,7 @@ const addScatterPlot = (plateId) => {
       uiStore.addChartView({type: 'scatter', plateId: plateId, label: 'Scatter Plot'})
     })
   }, 'No plate(s) have been selected!')
+  hideMenu.value = true
 }
 
 const addBoxPlot = (plateId) => {
@@ -266,6 +267,7 @@ const addBoxPlot = (plateId) => {
       uiStore.addChartView({type: 'box', plateId: plateId, label: 'Box Plot'})
     })
   }, 'No plate(s) have been selected!')
+  hideMenu.value = true
 }
 
 const addHistogram = (plateId) => {
@@ -275,6 +277,7 @@ const addHistogram = (plateId) => {
       $q.loading.hide()
       uiStore.addChartView({type: 'histogram', plateId: plateId, label: 'Histogram'})
   })}, 'No plate(s) have been selected!')
+  hideMenu.value = true
 }
 
 const addExperimentPlateTrendChart = (experimentId) => {
