@@ -12,7 +12,6 @@ import WellGrid from "@/components/well/WellGrid.vue"
 import WellTypeLegend from "@/components/well/WellTypeLegend.vue"
 import WellUtils from "@/lib/WellUtils.js"
 import {usePlateStore} from "@/stores/plate";
-import {useNotification} from "@/composable/notification";
 
 const plateStore = usePlateStore()
 

@@ -38,13 +38,17 @@
 <script setup>
 import {onUpdated, ref} from "vue"
 import Chart from "./Chart"
-import {useUIStore} from "@/stores/ui";
 import TrendChart from "@/components/chart/TrendChart.vue";
 import WellActionMenu from "@/components/well/WellActionMenu"
+import {useUIStore} from "@/stores/ui";
+import {usePlateStore} from "@/stores/plate";
+
 
 const uiStore = useUIStore()
+const plateStore = usePlateStore()
+
 const props = defineProps(['chartTemplate', 'update'])
-const emits = defineEmits(['changeOrientation'])
+const emits = defineEmits(['changeOrientation', 'wellStatusChanged'])
 
 const activeTab = ref(uiStore.chartViews[0].id)
 const update = ref(Date.now())
@@ -69,11 +73,21 @@ const changeOrientation = () => {
 }
 
 const handleRejectWells = () => {
-  console.log("Handle Reject Well action")
+  console.log("Reject selected wells: " + JSON.stringify(uiStore.selectedWells))
+  if (uiStore.selectedWells.length > 0) {
+    plateStore.rejectWells(uiStore.selectedWells, 'REJECTED_PHAEDRA', 'Well rejection from chart!').then(() => {
+      emits('wellStatusChanged')
+    })
+  }
 }
 
 const handleAcceptWells = () => {
-  console.log("Handle Accept Well action")
+  console.log("Accept selected wells: " + JSON.stringify(uiStore.selectedWells))
+  if (uiStore.selectedWells.length > 0) {
+    plateStore.acceptWells(uiStore.selectedWells).then(() => {
+      emits('wellStatusChanged')
+    })
+  }
 }
 </script>
 

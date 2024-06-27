@@ -81,19 +81,25 @@ onMounted(() => {
     .map(nr => uiStore.selectedWells?.find(w => nr == WellUtils.getWellNr(w.row, w.column, plate.value?.columns)))
 })
 
-watch(uiStore.selectedWells, ()=> {
+watch(() => uiStore.selectedWells, () => {
   wellHighlights.value = [...Array(props.wells?.length).keys()]
   .map(nr => nr + 1)
   .map(nr => uiStore.selectedWells?.find(w => nr == WellUtils.getWellNr(w.row, w.column, plate.value?.columns)));
-})
+}, {deep: true})
+
+const selectWells = (wells, append) => {
+  if (!append) return wells;
+  const selectedWells = [];
+  for (const well of wells) {
+    if (!uiStore.selectedWells.some(w => w.id === well.id)) {
+      selectedWells.push(well);
+    }
+  }
+  return selectedWells;
+}
 
 const emitWellSelection = (wells, append) => {
-  if (!append) uiStore.selectedWells.splice(0);
-  for (const well of wells) {
-    if (append && uiStore.selectedWells.some(w => w.id === well.id)) continue;
-    uiStore.selectedWells.push(well);
-  }
-  // uiStore.selectedWells = selectedWells.value;
+  uiStore.selectedWells = selectWells(wells, append);
   emit('wellSelection', uiStore.selectedWells);
 };
 

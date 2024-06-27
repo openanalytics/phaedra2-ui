@@ -111,7 +111,7 @@
                  @changeOrientation="horizontal = !horizontal"/>
       </pane>
       <pane class="q-pa-sm" v-if="uiStore.showChartViewer" style="background-color: #E6E6E6" ref="chartViewerPane">
-        <ChartViewer :update="Date.now()" @changeOrientation="horizontal = !horizontal"/>
+        <ChartViewer :update="Date.now()" @changeOrientation="horizontal = !horizontal" @wellStatusChanged="onWellStatusChanged"/>
       </pane>
     </splitpanes>
 
@@ -160,8 +160,6 @@ const router = useRouter()
 const horizontal = ref(false)
 const height = ref(400)
 const width = ref(500)
-const curves = ref([])
-const update = ref(Date.now())
 
 const readOnly = ref(plateStore.isApproved || experimentStore.isClosed)
 

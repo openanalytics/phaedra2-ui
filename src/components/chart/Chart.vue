@@ -69,13 +69,19 @@ const initSelectedValues = () => {
   updatePlotValueOptions()
   handleChartUpdate()
 
+  let isPlotlyClick = false
   Plotly.react(chart.value, chartPlot.value?.data, layout(chartView.value), {displaylogo: false})
   chart.value.on('plotly_click', (data) => {
-    const selectedWells = data?.points?.map(p => p.customdata) ?? []
+    isPlotlyClick = true
+    const selectedWells = data?.points?.filter(p => p.data?.type === 'scatter').map(p => p.customdata) ?? []
     uiStore.selectedWells = selectedWells
 
-    const selectedWellIndices = uiStore.selectedWells.map(well => WellUtils.getWellNr(well.row, well.column, uiStore.selectedPlate.columns) - 1)
-    if (selectedWellIndices.length > 0) Plotly.restyle(chart.value, 'selectedpoints', [selectedWellIndices])
+    if (uiStore.selectedWells.length > 0) {
+      const selectedWellIndices = uiStore.selectedWells.map(well => WellUtils.getWellNr(well.row, well.column, uiStore.selectedPlate.columns) - 1)
+      if (selectedWellIndices.length > 0) {
+        Plotly.restyle(chart.value, 'selectedpoints', [selectedWellIndices])
+      }
+    }
   })
 
   chart.value.on('plotly_selected', (data) => {
@@ -85,6 +91,15 @@ const initSelectedValues = () => {
 
   chart.value.addEventListener('contextmenu', (ev) => {
     ev.preventDefault()
+  })
+  chart.value.addEventListener('click', (ev) => {
+    if (!isPlotlyClick) {
+      uiStore.selectedWells = []
+      Plotly.restyle(chart.value, 'selectedpoints', null)
+    } else {
+      isPlotlyClick = false
+    }
+
   })
 }
 
@@ -130,9 +145,15 @@ const handleChartUpdate = () => {
     const scatterChartData = useScatterChartData()
     scatterChartData.getChartData(uiStore.selectedPlate.id, selectedProtocol.value?.id, selectedXAxisOption.value.value, selectedXAxisOption.value.type, selectedYAxisOption.value.value, selectedYAxisOption.value.type, groupBy.value.value).then((scatterData) => {
       console.log("Scatter Chart Data: " + Object.keys(scatterData))
-      const data = Object.keys(scatterData).map(groupByKey => {return {x: scatterData[groupByKey].xvalues, y: scatterData[groupByKey].yvalues, customdata: scatterData[groupByKey].customdata, mode: "markers", type: "scatter", name: groupByKey}})
+      const traces = Object.keys(scatterData).map(groupByKey => {return {x: scatterData[groupByKey].xvalues, y: scatterData[groupByKey].yvalues, customdata: scatterData[groupByKey].customdata, mode: "markers", type: "scatter", name: groupByKey}})
+      traces.forEach(trace => {
+        trace['marker'] = {size: 12}
+        if (trace.name === 'PC') trace.marker['color'] = 'rgb(33,186,69)'
+        if (trace.name === 'NC') trace.marker['color'] = 'rgb(229,35,35)'
+
+      })
       chartPlot.value = {
-        data: data,
+        data: traces,
         layout: {
           chartTitle: "Plate Scatter Plot",
           xAxisLabel: selectedXAxisOption.value?.label ?? '',
@@ -144,9 +165,9 @@ const handleChartUpdate = () => {
     const boxPlotData = useBoxPlotData()
     boxPlotData.getChartData(uiStore.selectedPlate.id, selectedProtocol.value?.id, selectedYAxisOption.value.value, selectedYAxisOption.value.type, groupBy.value.value).then(boxPlotData => {
       console.log("Box Plot Data: " + JSON.stringify(boxPlotData))
-      const data = Object.keys(boxPlotData).map(groupByKey => {return {y: boxPlotData[groupByKey].yvalues, type: "box", name: groupByKey}})
+      const traces = Object.keys(boxPlotData).map(groupByKey => {return {y: boxPlotData[groupByKey].yvalues, type: "box", name: groupByKey}})
       chartPlot.value = {
-        data: data,
+        data: traces,
         layout: {
           chartTitle: "Plate Box Plot",
           yAxisLabel: selectedYAxisOption.value?.label ?? ''
@@ -157,9 +178,9 @@ const handleChartUpdate = () => {
     const histogramData = useHistogramData()
     histogramData.getChartData(uiStore.selectedPlate.id, selectedProtocol.value?.id, selectedXAxisOption.value.value, selectedXAxisOption.value.type, groupBy.value.value).then(histogramData => {
       console.log("Histogram Data: " + JSON.stringify(histogramData))
-      const data = Object.keys(histogramData).map(groupByKey => {return {x: histogramData[groupByKey].xvalues, type: "histogram", name: groupByKey}})
+      const traces = Object.keys(histogramData).map(groupByKey => {return {x: histogramData[groupByKey].xvalues, type: "histogram", name: groupByKey}})
       chartPlot.value = {
-        data: data,
+        data: traces,
         layout: {
           chartTitle: "Plate Histogram Plot",
           yAxisLabel: selectedXAxisOption.value?.label ?? ''
@@ -172,10 +193,17 @@ const handleChartUpdate = () => {
 const handlePlotUpdate = () => {
   console.log("handleUpdatePlot: chart has been updated!")
   if (chartPlot.value) {
-    Plotly.react(chart.value, chartPlot.value?.data, layout(chartView.value), {displaylogo: false})
-
-    const selectedWellIndices = uiStore.selectedWells.map(well => WellUtils.getWellNr(well.row, well.column, uiStore.selectedPlate.columns) - 1)
-    if (selectedWellIndices.length > 0) Plotly.restyle(chart.value, 'selectedpoints', [selectedWellIndices])
+    const selectedWellIds = uiStore.selectedWells.map(well => Number.parseInt(well.id))
+    if (selectedWellIds.length > 0 ) {
+      chartPlot.value.data.forEach(dataArr => {
+        const wellIndices = dataArr.customdata.map((well, wIndex) => ({ wellId: well.id, wellIndex: wIndex }))
+        const selectedWellIndices = wellIndices.filter(wIndex => selectedWellIds.includes(wIndex.wellId)).map(wIndex => wIndex.wellIndex)
+        dataArr['selectedpoints'] = selectedWellIndices
+      })
+    } else {
+      chartPlot.value.data.forEach(dataArr => dataArr['selectedpoints'] = null)
+    }
+    Plotly.react(chart.value, chartPlot.value.data, layout(chartView.value), {displaylogo: false})
   }
 }
 
@@ -199,7 +227,7 @@ const layout = (chartView) => {
 
 watch(() => props.update, handlePlotUpdate)
 watch(() => chartPlot.value, handlePlotUpdate)
-watch(uiStore.selectedWells, () =>  handlePlotUpdate())
+watch(() => uiStore.selectedWells, () =>  handlePlotUpdate(), {deep: true})
 
 const handleProtocolSelection = () => {
   updatePlotValueOptions()
