@@ -66,7 +66,6 @@ const confirmOK = () => {
             contrastMax: modifiedChannels[ch.name]?.max || ch.contrastMax
         }})
     };
-    console.log(settings)
     uiStore.updateImageRenderSettings(settings);
 }
 

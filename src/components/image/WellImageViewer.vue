@@ -1,5 +1,5 @@
 <template>
-  <div class="viewer-panel relative-position">
+  <div class="">
     <div id="container">
       <div id="control-panel" class="row">
         <q-badge color="blue" rounded style="height: 24px">{{ selectedWellInfo }}</q-badge>
@@ -26,10 +26,8 @@
         </q-badge>
         <q-btn color="blue" size="xs" round icon="settings" class="q-ml-sm" @click="showRenderConfigDialog = true" />
       </div>
-      <div class="image-container" style="width: 100%; height: 500px; overflow: auto;">
-        <div class="q-img__container" style="position: relative;">
-          <q-img :src="wellImage" fit="none" position="left top" />
-        </div>
+      <div class="image-container" style="width: 100%; max-height: 70vh; overflow: auto;">
+        <img :src="wellImage" />
       </div>
       <div class="absolute-center" v-if="loading">
         <q-spinner-pie color="info" size="7em"/>
@@ -112,6 +110,7 @@ const reloadImage = async () => {
   } finally {
     loading.value = false;
     wellImage.value = measurementStore.getWellImage(selectedWell.value?.nr);
+    console.log(wellImage.value)
   }
 }
 watch(selectedWell, reloadImage);

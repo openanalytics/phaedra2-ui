@@ -100,8 +100,10 @@ const selectWells = (wells, append) => {
 
 const wellImages = ref({})
 watchEffect(async () => {
-  for (const well of wells.value) {
-    wellImages.value[well.nr] = await props.wellImageFunction(well);
+  if (props.wellImageFunction) {
+    for (const well of wells.value) {
+      wellImages.value[well.nr] = await props.wellImageFunction(well);
+    }
   }
 });
 
