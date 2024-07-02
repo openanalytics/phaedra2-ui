@@ -26,7 +26,13 @@ export const useUIStore = defineStore("ui", {
         selectedDRCurves: [],
 
         selectedWells: ref([]),
-        selectedSubstances: new Map([])
+        selectedSubstances: new Map([]),
+
+        imageRenderSettings: {
+            scale: 0.25,
+            channels: [],
+            baseRenderConfigId: null
+        }
     }),
     getters: {
         wells: (state) => {
@@ -110,6 +116,9 @@ export const useUIStore = defineStore("ui", {
         removeChartView (chartId) {
             this.chartViews = this.chartViews.filter(chartView => chartView.id !== chartId)
             this.chartViews.length > 0 ? this.showChartViewer = true : this.showChartViewer = false
+        },
+        updateImageRenderSettings(newSettings) {
+            this.imageRenderSettings = { ...this.imageRenderSettings, ...newSettings };
         }
     }
 })
