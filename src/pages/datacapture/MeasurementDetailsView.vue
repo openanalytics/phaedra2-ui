@@ -142,13 +142,13 @@
             </q-tab-panel>
             <q-tab-panel name="imageData" class="q-px-none">
               <div class="row q-px-sm">
-                <div class="col-6">
+                <div class="col-4">
                   <WellGrid :plate="plate"
                             :wells="plate.wells"
                             :wellImageFunction="wellImageFunction"
                             @wellSelection="handleWellSelection"/>
                 </div>
-                <div class="col-6 q-px-sm">
+                <div class="col-8 q-px-sm">
                   <WellImageViewer/>
                 </div>
               </div>
@@ -244,11 +244,11 @@ const plate = computed(() => {
   }
 })
 const wellImageFunction = async (well) => {
-  // await measurementStore.loadMeasImage({ wellNr: well.nr, scale: 0.01 })
-  // // const img = store.getters['measurements/getMeasImage']({ measId: meas.value.id, wellNr: well.nr });
-  // // if (!img) store.dispatch('measurements/loadMeasImage', { measId: meas.value.id, wellNr: well.nr, scale: 0.01 });
-  // return measurementStore.measImages[measId + '#' + well.nr];
-  return "";
+  // const img = measurementStore.getWellImage(1);
+  // console.log(img)
+  // if (!img) await measurementStore.loadMeasImage({ wellNr: 1, scale: 0.01, renderConfigId: 4, channels: [ "NucStain" ] })
+  // return measurementStore.getWellImage(1);
+  return null;
 }
 
 const handleWellSelection = (selectedWells) => {

@@ -33,7 +33,7 @@
                   <img :src="publicPath + 'rejected_cross.svg'" class="vertical-middle" style="width: 100%; height: 100%;"/>
               </div>
               <div v-if="wellImageFunction" class="full-height row items-center justify-center">
-                <img :src="wellImageFunction(well || {})" />
+                <img :src="wellImages[well.nr]" />
               </div>
               <div v-if="wellLabelFunctions">
                 <span v-for="wellLabelFunction in wellLabelFunctions" :key="wellLabelFunction" class="wellLabel" style="white-space: pre;">
@@ -97,6 +97,13 @@ const selectWells = (wells, append) => {
   }
   return selectedWells;
 }
+
+const wellImages = ref({})
+watchEffect(async () => {
+  for (const well of wells.value) {
+    wellImages.value[well.nr] = await props.wellImageFunction(well);
+  }
+});
 
 const emitWellSelection = (wells, append) => {
   uiStore.selectedWells = selectWells(wells, append);
