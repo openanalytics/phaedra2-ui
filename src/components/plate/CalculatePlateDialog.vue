@@ -30,7 +30,7 @@
           <div class="q-pb-sm">
             Select the protocol to use for calculation:
           </div>
-          <protocol-selectable-list v-model:selected="selected"/>
+          <protocol-selectable-list v-model:selected="selected" :protocolId="props.protocolId"/>
         </q-card-section>
 
         <q-card-actions align="right" class="text-primary">
@@ -51,7 +51,8 @@ import ProtocolSelectableList from "@/components/protocol/ProtocolSelectableList
 import {useCalcStore} from "@/stores/calculations";
 import projectsGraphQlAPI from "@/api/graphql/projects";
 
-const props = defineProps(['show', 'plate', 'plates']);
+
+const props = defineProps(['show', 'plate', 'plates', "protocolId"]);
 const emits = defineEmits(['update:show']);
 
 const calculationStore = useCalcStore()

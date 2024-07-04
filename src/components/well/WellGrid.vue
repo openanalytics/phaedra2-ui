@@ -33,7 +33,7 @@
                   <img :src="publicPath + 'rejected_cross.svg'" class="vertical-middle" style="width: 100%; height: 100%;"/>
               </div>
               <div v-if="wellImageFunction" class="full-height row items-center justify-center">
-                <img :src="wellImageFunction(well || {})" />
+                <img :src="wellImages[well.nr]" />
               </div>
               <div v-if="wellLabelFunctions">
                 <span v-for="wellLabelFunction in wellLabelFunctions" :key="wellLabelFunction" class="wellLabel" style="white-space: pre;">
@@ -51,39 +51,70 @@
 </template>
 
 <script setup>
-import {ref, computed, watchEffect} from 'vue'
+import {ref, computed, watchEffect, onMounted, watch} from 'vue'
 import {useUIStore} from "@/stores/ui";
 import WellActionMenu from "@/components/well/WellActionMenu.vue"
 import WellUtils from "@/lib/WellUtils.js"
 import SelectionBoxHelper from "@/lib/SelectionBoxHelper.js"
 import {publicPath} from "../../../vue.config";
 import {usePlateStore} from "@/stores/plate";
+import {useNotification} from "@/composable/notification";
 
 const props = defineProps(['plate', 'wells', 'loading', 'wellColorFunction', 'wellImageFunction', 'wellLabelFunctions'])
-const emit = defineEmits(['wellSelection']);
+const emit = defineEmits(['wellSelection', 'wellStatusChanged']);
 const uiStore = useUIStore()
 const plateStore = usePlateStore()
 
-const selectedWells = ref([]);
+
+
+// const selectedWells = ref(uiStore.selectedWells);
 const plate = computed(() => props.plate)
 const wells = computed(() => props.wells ?? [])
-const wellHighlights = computed(() => [...Array(wells.value?.length).keys()]
+// const wellHighlights = computed(() => [...Array(props.wells?.length).keys()]
+//     .map(nr => nr + 1)
+//     .map(nr => uiStore.selectedWells?.find(w => nr == WellUtils.getWellNr(w.row, w.column, plate.value?.columns))));
+
+const wellHighlights = ref([])
+onMounted(() => {
+  wellHighlights.value = [...Array(props.wells?.length).keys()]
     .map(nr => nr + 1)
-    .map(nr => selectedWells.value?.find(w => nr == WellUtils.getWellNr(w.row, w.column, plate.value?.columns))));
+    .map(nr => uiStore.selectedWells?.find(w => nr == WellUtils.getWellNr(w.row, w.column, plate.value?.columns)))
+})
+
+watch(() => uiStore.selectedWells, () => {
+  wellHighlights.value = [...Array(props.wells?.length).keys()]
+  .map(nr => nr + 1)
+  .map(nr => uiStore.selectedWells?.find(w => nr == WellUtils.getWellNr(w.row, w.column, plate.value?.columns)));
+}, {deep: true})
+
+const selectWells = (wells, append) => {
+  if (!append) return wells;
+  const selectedWells = [];
+  for (const well of wells) {
+    if (!uiStore.selectedWells.some(w => w.id === well.id)) {
+      selectedWells.push(well);
+    }
+  }
+  return selectedWells;
+}
+
+const wellImages = ref({})
+watchEffect(async () => {
+  if (props.wellImageFunction) {
+    for (const well of wells.value) {
+      wellImages.value[well.nr] = await props.wellImageFunction(well);
+    }
+  }
+});
 
 const emitWellSelection = (wells, append) => {
-  if (!append) selectedWells.value.splice(0);
-  for (const well of wells) {
-    if (append && selectedWells.value.some(w => w.id === well.id)) continue;
-    selectedWells.value.push(well);
-  }
-  uiStore.selectedWells = selectedWells.value;
-  emit('wellSelection', selectedWells.value);
+  uiStore.selectedWells = selectWells(wells, append);
+  emit('wellSelection', uiStore.selectedWells);
 };
 
 window.addEventListener('keyup', function (event) {
-  if (selectedWells.value.length === 0) return;
-  let currentWell = selectedWells.value[0];
+  if (uiStore.selectedWells.length === 0) return;
+  let currentWell = uiStore.selectedWells[0];
   let nextPosition = [];
   switch (event.key) {
     case "ArrowUp":
@@ -133,16 +164,18 @@ watchEffect(() => {
 });
 
 const handleRejectWells = () => {
-  if (selectedWells.value.length > 0) {
-    plateStore.rejectWells(selectedWells.value, 'REJECTED_PHAEDRA', 'Test well rejection')
-    console.log("Reject wells: " + JSON.stringify(selectedWells.value))
+  if (uiStore.selectedWells.length > 0) {
+    plateStore.rejectWells(uiStore.selectedWells, 'REJECTED_PHAEDRA', 'Test well rejection').then(() => {
+      emit('wellStatusChanged')
+    })
   }
 }
 
 const handleAcceptWells = () => {
-  if (selectedWells.value.length > 0) {
-    plateStore.acceptWells(selectedWells.value)
-    console.log("Accept wells: " + JSON.stringify(selectedWells.value))
+  if (uiStore.selectedWells.length > 0) {
+    plateStore.acceptWells(uiStore.selectedWells).then(() => {
+      emit('wellStatusChanged')
+    })
   }
 }
 </script>

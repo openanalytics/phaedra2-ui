@@ -4,12 +4,14 @@ import resultdataGraphQlAPI from "@/api/graphql/resultdata";
 import resultDataGraphQlAPI from "@/api/graphql/resultdata";
 import curvesGraphQlAPI from "@/api/graphql/curvedata";
 import ColorUtils from "@/lib/ColorUtils";
+import {ref} from "vue";
 
 export const useUIStore = defineStore("ui", {
     state: () => ({
         // Selection Handling
         selectedProject: null,
 
+        selectedExperiment: null,
         selectedExperiments: [],
 
         showQuickHeatmap: false,
@@ -23,8 +25,14 @@ export const useUIStore = defineStore("ui", {
         showDRCView: false,
         selectedDRCurves: [],
 
-        selectedWells: [],
-        selectedSubstances: new Map([])
+        selectedWells: ref([]),
+        selectedSubstances: new Map([]),
+
+        imageRenderSettings: {
+            scale: 0.25,
+            channels: [],
+            baseRenderConfigId: null
+        }
     }),
     getters: {
         wells: (state) => {
@@ -47,6 +55,9 @@ export const useUIStore = defineStore("ui", {
         },
         isPlateSelected: (state) => () => {
             return state.selectedPlates.length > 0
+        },
+        isExperimentSelected: (state) => () => {
+            return state.selectedExperiments.length > 0 || state.selectedExperiments !== null
         }
     },
     actions: {
@@ -105,6 +116,9 @@ export const useUIStore = defineStore("ui", {
         removeChartView (chartId) {
             this.chartViews = this.chartViews.filter(chartView => chartView.id !== chartId)
             this.chartViews.length > 0 ? this.showChartViewer = true : this.showChartViewer = false
+        },
+        updateImageRenderSettings(newSettings) {
+            this.imageRenderSettings = { ...this.imageRenderSettings, ...newSettings };
         }
     }
 })

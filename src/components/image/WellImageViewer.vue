@@ -1,60 +1,42 @@
 <template>
-  <div class="viewer-panel relative-position">
+  <div class="">
     <div id="container">
-      <div id="control-panel">
-        <q-badge color="blue" rounded class="on-right" style="height: 24px">{{ selectedWellInfo }}</q-badge>
-        <q-btn color="blue" size="xs" round class="on-right" icon="zoom_in" @click="zoomIn">
-          <q-tooltip>Zoom In</q-tooltip>
-        </q-btn>
+      <div id="control-panel" class="row">
+        <q-badge color="blue" rounded style="height: 24px">{{ selectedWellInfo }}</q-badge>
         <q-btn color="blue" size="xs" round class="on-right" icon="zoom_out" @click="zoomOut">
           <q-tooltip>Zoom Out</q-tooltip>
         </q-btn>
+        <q-badge color="blue" rounded class="q-mx-xs" style="height: 24px">{{ (uiStore.imageRenderSettings.scale*100) + "%" }}</q-badge>
+        <q-btn color="blue" size="xs" round icon="zoom_in" @click="zoomIn">
+          <q-tooltip>Zoom In</q-tooltip>
+        </q-btn>
+        <q-badge color="blue" rounded class="on-right" style="height: 24px">
+          <q-btn-dropdown dense unelevated size="sm" icon="palette">
+            <q-list dense>
+              <q-item clickable v-close-popup v-for="cfg in availableRenderConfigs" :key="cfg.id">
+                <q-item-section avatar>
+                  <q-icon color="primary" name="check" v-if="uiStore.imageRenderSettings.baseRenderConfigId == cfg.id" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label @click="selectRenderConfig(cfg)">{{cfg.name}}</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
+        </q-badge>
+        <q-btn color="blue" size="xs" round icon="settings" class="q-ml-sm" @click="showRenderConfigDialog = true" />
       </div>
-      <div class="image-container" style="width: 100%; height: 500px; overflow: auto;">
-        <div class="q-img__container" style="position: relative;">
-          <q-img :src="wellImage" :style="{transform: `scale(${normalizedScale})`, transformOrigin: 'center'}" />
-        </div>
+      <div class="image-container" style="width: 100%; max-height: 70vh; overflow: auto;">
+        <img :src="wellImage" />
       </div>
       <div class="absolute-center" v-if="loading">
         <q-spinner-pie color="info" size="7em"/>
       </div>
-      <div class="absolute-center" v-if="selectedWell && errorInfo">
+      <!--<div class="absolute-center" v-if="selectedWell && errorInfo">
         <q-badge color="negative">{{ errorInfo }}</q-badge>
-      </div>
+      </div>-->
     </div>
-    <div ref="configPanel" class="q-pt-sm">
-      <q-list bordered class="rounded-borders">
-        <q-expansion-item dense expand-separator icon="settings" label="Render Settings" default-opened>
-          <div class="q-pb-sm">
-            <q-select dense outlined v-model="selectedRenderConfig" label="Channel Configuration" class="q-pa-sm"
-                      :options="measurementStore.renderConfigs" option-label="name"
-            />
-          </div>
-          <q-table
-              dense flat hide-bottom
-              selection="multiple" v-model:selected="selectedChannels"
-              table-header-class="text-grey"
-              :rows="selectedRenderConfig?.config?.channelConfigs"
-              :columns="channelColumns"
-              :pagination="{ rowsPerPage: 20 }"
-              row-key="name"
-          >
-            <template v-slot:body-cell-rgb="props">
-              <q-td :props="props">
-                <div :style="{ width: '25px', backgroundColor: ColorUtils.asCSSColor(props.row.rgb) }">&nbsp;</div>
-              </q-td>
-            </template>
-            <template v-slot:body-cell-contrast="props">
-              <q-td :props="props">
-                <q-range dense thumb-size="12px" label
-                         :model-value="{ min: (props.row.contrastMin * 100), max: (props.row.contrastMax * 100) }"
-                         :min="0" :max="100"/>
-              </q-td>
-            </template>
-          </q-table>
-        </q-expansion-item>
-      </q-list>
-    </div>
+    <RenderConfigDialog v-model="showRenderConfigDialog" />
   </div>
 </template>
 
@@ -78,51 +60,29 @@
 
 <script setup>
 import {computed, ref, watch, onMounted} from 'vue'
-import {useUIStore} from "@/stores/ui";
-import ColorUtils from '@/lib/ColorUtils';
-import WellUtils from "@/lib/WellUtils.js";
-import {usePlateStore} from "@/stores/plate";
 import {useMeasurementStore} from "@/stores/measurement";
-
-const configPanel = ref(null);
-const maxCanvasHeight = ref(100);
-const calculateCanvasHeight = () => {
-  //TODO Calculate the actual available height. These magic numbers are title bar, paddings, etc.
-  let maxPanelHeight = document.documentElement.clientHeight - (50 + 8 + 36 + 1 + 16);
-  maxCanvasHeight.value = (maxPanelHeight - 17 - (configPanel.value ? configPanel.value.clientHeight : 0)) + 'px';
-};
+import {useUIStore} from "@/stores/ui";
+import WellUtils from "@/lib/WellUtils.js";
+import RenderConfigDialog from './RenderConfigDialog.vue';
 
 const measurementStore = useMeasurementStore()
 const uiStore = useUIStore();
-const plateStore = usePlateStore()
 const loading = ref(false);
+const scaleLimits = [0.125, 8];
 
-const selectedRenderConfig = ref(null);
+const availableRenderConfigs = computed(() => [...measurementStore.renderConfigs].sort((c1, c2) => c1.name.localeCompare(c2.name)));
+const showRenderConfigDialog = ref(false);
+
 onMounted(() => {
   measurementStore.loadAllRenderConfigs()
 })
 
-const channelColumns = [
-  {name: 'name', label: 'Channel', align: 'left', field: 'name'},
-  {name: 'rgb', label: 'Color', align: 'left', field: 'rgb'},
-  {name: 'contrast', label: 'Contrast Range', align: 'left'},
-  {name: 'alpha', label: 'Alpha', align: 'left', field: 'alpha', format: val => (val * 100) + '%'},
-];
-
-const scale = ref(0.25);
-const relativeScale = ref(1.0)
-const normalizedScale = ref(relativeScale.value / scale.value)
-const scaleLimits = [0.125, 8];
-
-// Canvas loading and drawing
-// --------------------------
-
-const selectedChannels = ref([]);
 const selectedWell = computed(() => {
   let wells = uiStore.selectedWells;
   if (wells && wells.length > 0) return wells[0];
   return null;
 })
+
 const selectedWellInfo = computed(() => {
   let info = '';
   if (selectedWell.value?.row && selectedWell.value?.column) {
@@ -134,121 +94,48 @@ const selectedWellInfo = computed(() => {
   } else {
     return "No Well Selected";
   }
-  return `${info}, Zoom: ${relativeScale.value * 100}%`;
+  return info;
 })
 
-const wellImage = ref(null)
-const getImageURL = async () => {
-  if (selectedChannels.value.length === 0) return;
-  let channelNames = selectedChannels.value.map(c => c.name).join(',');
-  let measId = null;
-  let wellNr = null;
-
-  let well = selectedWell.value;
-  if (well?.plateId) {
-    //TODO Assuming here that meas is already stored.
-    await plateStore.loadPlateMeasurements(well.plateId)
-    let measLink = plateStore.activeMeasurement
-    if (measLink === undefined) measLink = plateStore.activeMeasurement
-    if (measLink === null) return null;
-    measId = measLink.measurementId;
-    wellNr = WellUtils.getWellNr(well.row, well.column, measLink.columns);
-  } else if (well?.measId && well?.nr) {
-    measId = well.measId;
-    wellNr = well.nr;
-  } else {
-    return null;
+const wellImage = ref(null);
+const reloadImage = async () => {
+  loading.value = true;
+  try {
+    await measurementStore.loadMeasImage({
+      wellNr: selectedWell.value?.nr,
+      renderConfigId: uiStore.imageRenderSettings.baseRenderConfigId,
+      channels: uiStore.imageRenderSettings.channels.filter(ch => ch.enabled),
+      scale: uiStore.imageRenderSettings.scale
+    });
+  } finally {
+    loading.value = false;
+    wellImage.value = measurementStore.getWellImage(selectedWell.value?.nr);
+    console.log(wellImage.value)
   }
-
-  if (!selectedRenderConfig.value) return null;
-
-  await measurementStore.loadMeasImage({
-    wellNr: wellNr,
-    renderConfigId: selectedRenderConfig.value.id,
-    channels: channelNames,
-    scale: scale.value
-  })
 }
-const BLANK_IMG = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
-const reloadImage = () => {
-  if (selectedChannels.value.length === 0) return;
-  const channelNames = selectedChannels.value.map(c => c.name).join(',');
-
-  loading.value = true
-  measurementStore.loadMeasImage({
-    wellNr: selectedWell.value?.nr,
-    renderConfigId: selectedRenderConfig.value?.id,
-    channels: channelNames,
-    scale: scale.value
-  }).then(() => {
-    loading.value = false
-    wellImage.value = measurementStore.getWellImage(selectedWell.value?.nr)
-  })
-}
-watch(selectedChannels, reloadImage);
 watch(selectedWell, reloadImage);
+uiStore.$subscribe((mutation) => {
+  if (mutation.events?.key == "imageRenderSettings" || mutation.events?.key == "enabled") reloadImage();
+});
+
+const selectRenderConfig = (cfg) => {
+  const settings = {
+    baseRenderConfigId: cfg.id,
+    channels: cfg.config.channelConfigs.map(ch => { return { ...ch, enabled: true }})
+  };
+  uiStore.updateImageRenderSettings(settings);
+}
 
 const zoomIn = () => {
-  relativeScale.value <= scaleLimits[1] ? relativeScale.value += 0.25 : relativeScale.value = scaleLimits[1]
-  normalizedScale.value = relativeScale.value / scale.value
-  console.log("Zoom in scale: " + normalizedScale.value)
+  const newScale = uiStore.imageRenderSettings.scale * 2;
+  if (newScale <= scaleLimits[1]) {
+    uiStore.updateImageRenderSettings({scale: newScale});
+  }
 }
-
 const zoomOut = () => {
-  relativeScale.value >= scaleLimits[0] ? relativeScale.value -= 0.25 : relativeScale.value = scaleLimits[0]
-  normalizedScale.value = relativeScale.value / scale.value
-  console.log("Zoom out scale: " + normalizedScale.value)
+  const newScale = uiStore.imageRenderSettings.scale / 2;
+  if (newScale >= scaleLimits[0]) {
+    uiStore.updateImageRenderSettings({scale: newScale});
+  }
 }
-
-// Mouse scroll behaviour
-// ----------------------
-
-// let isMouseOnCanvas = false;
-// const mouseEnter = (event) => {
-//   isMouseOnCanvas = true;
-// }
-// const mouseLeave = (event) => {
-//   isMouseOnCanvas = false;
-//   canvasDragEnd(event);
-// }
-//
-// const doZoom = (amount) => {
-//   if (amount > 0 && scale.value <= scaleLimits[1]) scale.value *= (2 * amount);
-//   else if (scale.value >= scaleLimits[0]) scale.value /= (2 * (0 - amount));
-//   else return;
-//   // reloadImage();
-// }
-
-// // Mouse drag behaviour
-// // --------------------
-//
-// const dragInProgress = ref(false);
-// let dragPrevPosition = null;
-// let canvasBounds = null;
-//
-// const canvasDragStart = (event) => {
-//   if (dragInProgress.value) return;
-//   event.preventDefault();
-//   dragInProgress.value = true;
-//   canvasBounds = canvas.value.parentNode.getBoundingClientRect();
-// };
-// const canvasDragMove = (event) => {
-//   if (!dragInProgress.value) return;
-//   canvasBounds = canvas.value.parentNode.getBoundingClientRect();
-//   let currentPosition = {x: event.x - canvasBounds.left, y: event.y - canvasBounds.top};
-//   if (dragPrevPosition != null) {
-//     let diff = {x: currentPosition.x - dragPrevPosition.x, y: currentPosition.y - dragPrevPosition.y};
-//     canvasContainer.value.scrollTop = canvasContainer.value.scrollTop - diff.y;
-//     canvasContainer.value.scrollLeft = canvasContainer.value.scrollLeft - diff.x;
-//   }
-//   dragPrevPosition = currentPosition;
-// };
-// const canvasDragEnd = (event) => {
-//   if (!dragInProgress.value) return;
-//   event.preventDefault();
-//   dragInProgress.value = false;
-//   dragPrevPosition = null;
-// };
-//
-// reloadImage();
 </script>

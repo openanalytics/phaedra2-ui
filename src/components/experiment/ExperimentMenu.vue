@@ -20,16 +20,7 @@
         <q-menu>
           <q-list>
             <menu-item icon="timeline" label="Plate Trend"
-                       @click="showPlateTrendChart" v-close-popup/>
-<!--            <menu-item icon="candlestick_chart" label="Plate Boxplot"-->
-<!--                       @click="chart('box', props.experiment.id)" v-close-popup/>-->
-
-<!--            <q-separator/>-->
-
-<!--            <menu-item icon="scatter_plot" label="Well 2D Scatter Plot"-->
-<!--                       @click="chart('scatter', props.experiment.id)" v-close-popup/>-->
-<!--            <menu-item icon="bar_chart" label="Well 1D Histogram"-->
-<!--                       @click="chart('histogram', props.experiment.id)" v-close-popup/>-->
+                       @click="addExperimentPlateTrendChart" v-close-popup/>
           </q-list>
         </q-menu>
       </q-item>
@@ -46,7 +37,6 @@
         </q-item-section>
         <q-menu>
           <q-list>
-<!--            <menu-item icon="save_alt" label="Export Plate List" @click="showExportPlateListDialog = true"/>-->
             <menu-item icon="save_alt" label="Export Well Data" @click="exportPlateWellData" v-close-popup/>
             <menu-item icon="save_alt" label="Export Sub-Well Data" @click="exportPlateSubWellData" v-close-popup/>
           </q-list>
@@ -64,7 +54,6 @@
                   v-model:show="showDeleteDialog" @onDeleted="onDeleted"/>
     <link-plate-layout-dialog v-if="isOpen" v-model:show="showLinkPlateDialog" :plates="plates"/>
     <calculate-plate-dialog v-if="isOpen" v-model:show="showCalculatePlateDialog" :plates="plates" />
-<!--    <ExportPlateListDialog v-model:show="showExportPlateListDialog" :experiments="[props.experiment]"/>-->
   </q-menu>
 </template>
 
@@ -77,7 +66,7 @@ import MenuItem from "@/components/widgets/MenuItem.vue";
 import {useQuasar} from "quasar";
 import projectsGraphQlAPI from "@/api/graphql/projects";
 import CalculatePlateDialog from "@/components/plate/CalculatePlateDialog.vue";
-// import ExportPlateListDialog from "@/components/experiment/ExportPlateListDialog.vue";
+import {useUIStore} from "@/stores/ui";
 
 const $q = useQuasar();
 const props = defineProps(['experiment'])
@@ -89,8 +78,6 @@ const showLinkPlateDialog = ref(false)
 const showCalculatePlateDialog = ref(false)
 
 const plates = ref([])
-
-// const showExportPlateListDialog = ref(false)
 
 const openDeleteDialog = () => {
   showDeleteDialog.value = true;
@@ -153,7 +140,12 @@ const displayErrorNotification = (errorMessage) => {
   console.error(errorMessage)
 }
 
-const showPlateTrendChart = showUnderConstructionMessage;
+const uiStore = useUIStore()
+const addExperimentPlateTrendChart = (experimentId) => {
+  if (uiStore.isExperimentSelected()) {
+    uiStore.addChartView({type: 'trend', experimentId: experimentId, label: 'Experiment Trend Chart'})
+  }
+}
 const exportPlateWellData = showUnderConstructionMessage;
 const exportPlateSubWellData = showUnderConstructionMessage;
 </script>

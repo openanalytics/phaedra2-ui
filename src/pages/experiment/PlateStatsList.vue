@@ -93,7 +93,7 @@
 
     const plates = computed( () => (props.plates || []))
     const plateStatRows = ref([])
-    
+
     // Phase 1: fetch protocol and feature info
 
     const protocols = ref([])
@@ -115,7 +115,6 @@
     }
 
     // Phase 2: fetch plate stats
-
     const fetchResultSets = () => {
       const plateIds = plates.value.map(plate => plate.id)
 

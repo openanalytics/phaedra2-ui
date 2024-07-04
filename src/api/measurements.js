@@ -45,15 +45,38 @@ export default {
     },
 
     async getMeasImage(measId, wellNr, renderConfigId, channels, scale = 1.0) {
-        // responseType: 'arraybuffer'
-        let imageUrl = `${apiURL}/measurements/${measId}/images/${wellNr}?renderConfigId=${renderConfigId}&scale=${scale}`
-        if (channels)
-            imageUrl = `${apiURL}/measurements/${measId}/images/${wellNr}/${channels}?renderConfigId=${renderConfigId}&scale=${scale}`
+        let imageUrl = `${apiURL}/measurements/${measId}/images/${wellNr}`;
+        
+        let additionalChannelConfigs = null;
+        if (channels) {
+            if (typeof channels === "string") {
+                // Assume it's a pre-formatted string of channel names
+                imageUrl += `/${channels}`;
+            } else if (Array.isArray(channels) && channels.length > 0) {
+                if (typeof channels[0] === "string") {
+                    const channelNames = channels.join(',');
+                    imageUrl += `/${channelNames}`;
+                } else {
+                    // It's an array of channel objects
+                    const channelNames = channels.map(ch => ch.name).join(',');
+                    imageUrl += `/${channelNames}`;
+                    additionalChannelConfigs = channels;
+                }
+            }
+        }
+
+        imageUrl += `?scale=${scale}`;
+        if (renderConfigId) imageUrl += `&renderConfigId=${renderConfigId}`;
+        
+        if (additionalChannelConfigs) {
+            for (const cfg of additionalChannelConfigs) {
+                imageUrl += `&channel=(name=${cfg.name},contrast=${cfg.contrastMin}-${cfg.contrastMax})`;
+            }
+        }
+
         const response = await axios.get(imageUrl, {
             responseType: 'blob'
         });
-        // Return as a base64-encoded string that can be used directly in img tags
-        // return 'data:image/jpeg;base64,' + Buffer.from(response.data, 'binary').toString('base64');
         return URL.createObjectURL(response.data)
     },
     async getSubWellData(measId, wellNr, subWellColumns) {

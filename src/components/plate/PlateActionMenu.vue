@@ -86,6 +86,8 @@
         </q-item-section>
         <q-menu>
           <q-list>
+            <menu-item icon="timeline" label="Plate Trend"
+                       @click="addExperimentPlateTrendChart" v-close-popup="hideMenu"/>
             <menu-item icon="scatter_plot" label="Scatterplot 2D"
                        @click="addScatterPlot(props.plate.id)" v-close-popup="hideMenu"/>
             <menu-item icon="candlestick_chart" label="Boxplot"
@@ -124,7 +126,6 @@ import LinkPlateLayoutDialog from "@/components/plate/LinkPlateLayoutDialog.vue"
 import DeleteDialog from "@/components/widgets/DeleteDialog";
 
 import {ref} from "vue";
-import {useStore} from 'vuex'
 import {useExperimentStore} from "@/stores/experiment";
 import {useRouter} from "vue-router";
 import {useUIStore} from "@/stores/ui";
@@ -137,7 +138,6 @@ import MenuItem from "@/components/widgets/MenuItem.vue";
 const props = defineProps(['plate', 'plates']);
 const $q = useQuasar()
 
-const store = useStore()
 const uiStore = useUIStore()
 const router = useRouter()
 const experimentStore = useExperimentStore()
@@ -256,6 +256,7 @@ const addScatterPlot = (plateId) => {
       uiStore.addChartView({type: 'scatter', plateId: plateId, label: 'Scatter Plot'})
     })
   }, 'No plate(s) have been selected!')
+  hideMenu.value = true
 }
 
 const addBoxPlot = (plateId) => {
@@ -266,6 +267,7 @@ const addBoxPlot = (plateId) => {
       uiStore.addChartView({type: 'box', plateId: plateId, label: 'Box Plot'})
     })
   }, 'No plate(s) have been selected!')
+  hideMenu.value = true
 }
 
 const addHistogram = (plateId) => {
@@ -275,6 +277,13 @@ const addHistogram = (plateId) => {
       $q.loading.hide()
       uiStore.addChartView({type: 'histogram', plateId: plateId, label: 'Histogram'})
   })}, 'No plate(s) have been selected!')
+  hideMenu.value = true
+}
+
+const addExperimentPlateTrendChart = (experimentId) => {
+  if (uiStore.isExperimentSelected()) {
+    uiStore.addChartView({type: 'trend', experimentId: experimentId, label: 'Experiment Trend Chart'})
+  }
 }
 
 const showDeleteDialog = ref(null);
