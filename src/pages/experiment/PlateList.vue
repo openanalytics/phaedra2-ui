@@ -73,11 +73,17 @@
     </template>
     <template v-slot:body-cell-status-validated="props">
       <q-td :props="props">
+        <q-tooltip transition-show="flip-right" transition-hide="flip-left">
+          {{'Validated on: ' + FormatUtils.formatDate(props.row.validatedOn)}}
+        </q-tooltip>
         <StatusFlag :object="props.row" :statusField="'validationStatus'" />
       </q-td>
     </template>
     <template v-slot:body-cell-status-approved="props">
       <q-td :props="props">
+        <q-tooltip transition-show="flip-right" transition-hide="flip-left">
+          {{'Approved on: ' + FormatUtils.formatDate(props.row.approvedOn)}}
+        </q-tooltip>
         <StatusFlag :object="props.row" :statusField="'approvalStatus'" />
       </q-td>
     </template>

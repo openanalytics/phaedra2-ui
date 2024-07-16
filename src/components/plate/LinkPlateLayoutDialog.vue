@@ -84,6 +84,7 @@ import FormatUtils from "@/lib/FormatUtils";
 import TemplateQuickView from "@/components/layout/TemplateQuickView";
 import {useExperimentStore} from "@/stores/experiment";
 import templatesGraphQlAPI from "@/api/graphql/templates";
+import {useQuasar} from "quasar";
 
 const props = defineProps(['show', 'plate', "plates"]);
 const emit = defineEmits(['update:show', "onLinkPlate"]);
@@ -130,8 +131,10 @@ const templateColumns = [
   {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
 ]
 
+const $q = useQuasar()
 const linkPlate = () => {
-  experimentStore.setPlateLayout(props.plates, selectedTemplate.value.id)
+  $q.loading.show()
+  experimentStore.setPlateLayout(props.plates, selectedTemplate.value.id).then(() => $q.loading.hide())
 }
 
 const checkPlateDimensions = () => {
