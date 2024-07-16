@@ -32,9 +32,9 @@
       <div class="absolute-center" v-if="loading">
         <q-spinner-pie color="info" size="7em"/>
       </div>
-      <!--<div class="absolute-center" v-if="selectedWell && errorInfo">
-        <q-badge color="negative">{{ errorInfo }}</q-badge>
-      </div>-->
+      <div class="absolute-center" v-if="selectedWell && errorMessage">
+        <q-badge color="negative">{{ errorMessage }}</q-badge>
+      </div>
     </div>
     <RenderConfigDialog v-model="showRenderConfigDialog" />
   </div>
@@ -68,6 +68,7 @@ import RenderConfigDialog from './RenderConfigDialog.vue';
 const measurementStore = useMeasurementStore()
 const uiStore = useUIStore();
 const loading = ref(false);
+const errorMessage = ref(null);
 const scaleLimits = [0.125, 8];
 
 const availableRenderConfigs = computed(() => [...measurementStore.renderConfigs].sort((c1, c2) => c1.name.localeCompare(c2.name)));
@@ -100,6 +101,8 @@ const selectedWellInfo = computed(() => {
 const wellImage = ref(null);
 const reloadImage = async () => {
   loading.value = true;
+  errorMessage.value = null;
+
   try {
     await measurementStore.loadMeasImage({
       wellNr: selectedWell.value?.nr,
@@ -107,10 +110,15 @@ const reloadImage = async () => {
       channels: uiStore.imageRenderSettings.channels.filter(ch => ch.enabled),
       scale: uiStore.imageRenderSettings.scale
     });
+  } catch (error) {
+    if (error?.response?.status == 404) {
+      errorMessage.value = "No image available for this well";
+    } else {
+      errorMessage.value = error;
+    }
   } finally {
     loading.value = false;
     wellImage.value = measurementStore.getWellImage(selectedWell.value?.nr);
-    console.log(wellImage.value)
   }
 }
 watch(selectedWell, reloadImage);
