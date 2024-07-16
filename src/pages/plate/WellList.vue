@@ -83,12 +83,13 @@
 import {ref, computed, watch, reactive} from 'vue'
 import WellUtils from "@/lib/WellUtils.js"
 import FilterUtils from "@/lib/FilterUtils"
-import ColumnFilter from "@/components/table/ColumnFilter";
-import {usePlateStore} from "@/stores/plate"
-import resultDataGraphQlAPI from "@/api/graphql/resultdata"
 import ColorUtils from "@/lib/ColorUtils";
+import FormatUtils from "@/lib/FormatUtils";
+import resultDataGraphQlAPI from "@/api/graphql/resultdata"
 import {useExportTableData} from "@/composable/exportTableData";
+import ColumnFilter from "@/components/table/ColumnFilter";
 import WellActionMenu from "@/components/well/WellActionMenu.vue";
+import {usePlateStore} from "@/stores/plate"
 import {useUIStore} from "@/stores/ui";
 
 const props = defineProps(['plate', 'wells']);
@@ -108,7 +109,7 @@ const {onResult, onError} = resultDataGraphQlAPI.resultDataByResultSetId(resultS
 onResult(({data}) => resultData.value = data.resultData)
 
 const baseColumns = [
-  {name: 'id', align: 'left', label: 'Well ID', field: 'id', sortable: true},
+  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
   {name: 'coordinate', align: 'left', label: 'Coordinate', field: 'coordinate', sortable: true},
   {name: 'number', align: 'left', label: 'Number', field: 'number', sortable: true},
   {name: 'status', align: 'left', label: 'Status', field: 'status', sortable: true},
@@ -125,7 +126,7 @@ const wells = computed(() => props.wells.map(well => {
     status: well.status,
     wellType: well.wellType,
     substance: well.wellSubstance?.name ?? "",
-    concentration: well.wellSubstance?.concentration?.toExponential(3) ?? ""
+    concentration: FormatUtils.formatToScientificNotation(well.wellSubstance?.concentration)
   }
 }))
 
@@ -182,6 +183,8 @@ const handleAcceptWells = () => {
 }
 
 const updateTable = () => {
+  columns.value = [...baseColumns];
+
   if (features.value && resultData.value) {
     const featureCols = computed(() => (features.value ?? []).map(f => {
       return {
@@ -195,8 +198,7 @@ const updateTable = () => {
         lut: null
       }
     }))
-    columns.value = [...baseColumns, ...featureCols.value]
-    filter = FilterUtils.makeFilter(columns.value)
+    columns.value = [...columns.value, ...featureCols.value];
 
     featureCols.value.forEach(fCol => {
       const featValues = resultData.value.filter(rd => rd.featureId === fCol.featureId)[0]?.values ?? []
@@ -206,6 +208,8 @@ const updateTable = () => {
       })
     })
   }
+
+  filter = FilterUtils.makeFilter(columns.value);
   visibleColumns.value = [...columns.value.map(a => a.name)];
 }
 </script>
