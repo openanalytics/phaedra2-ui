@@ -221,7 +221,7 @@ const onRemoveProperty = async (property) => {
 
 const wellStatusNotification = useNotification()
 const onWellStatusChanged = () => {
-  wellStatusNotification.showInfoNotification(
+  wellStatusNotification.showInfo(
       "Plate's well(s) status has changed! Recalculate plate?",
       () => { showCalculateDialog.value = true },
       () => { }

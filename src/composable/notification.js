@@ -3,7 +3,7 @@ import { useQuasar } from 'quasar'
 export function useNotification() {
   const $q = useQuasar()
 
-  const showInfoNotification = (message, yesHandler = () => {}, noHandler = () => {}) => {
+  const showInfo = (message, yesHandler = () => {}, noHandler = () => {}) => {
     console.log(`Notification: ${message}`)
     $q.notify({
       type: 'info',
@@ -18,7 +18,17 @@ export function useNotification() {
     })
   }
 
+  const showWarning = (message) => {
+    console.log(`Notification: ${message}`)
+    $q.notify({
+      type: 'warning',
+      message: message,
+      position: "top",
+    })
+  }
+
   return {
-    showInfoNotification
+    showInfo,
+    showWarning
   }
 }

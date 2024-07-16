@@ -60,12 +60,11 @@
 
 <script setup>
 
-import {computed, onMounted, ref} from "vue"
+import {computed, ref} from "vue"
 import FormatUtils from "@/lib/FormatUtils"
-import FilterUtils from "@/lib/FilterUtils"
 import measurementsGraphQlAPI from "@/api/graphql/measurements"
 import plateActions from "@/composable/plate/plateActions";
-import {useQuasar} from "quasar";
+import {useLoadingHandler} from "@/composable/loadingHandler"
 
 const props = defineProps(['show', 'plates'])
 const emit = defineEmits([ 'update:show', 'linkPlateMeasurement' ])
@@ -86,13 +85,10 @@ onResult(({data}) => allMeasurements.value = data.measurements)
 
 const filteredMeasurements = computed(() => preFilterMeasurements(allMeasurements.value))
 
-const $q = useQuasar()
-const doLink = () => {
-  $q.loading.show()
-  plateActions.linkMeasurement(props.plates, selectedMeasurement.value[0]).then(() => {
-    $q.loading.hide()
-    emit('linkPlateMeasurement', selectedMeasurement.value[0])
-  })
+const loadingHandler = useLoadingHandler()
+const doLink = async () => {
+  await loadingHandler.handleLoadingDuring(plateActions.linkMeasurement(props.plates, selectedMeasurement.value[0]))
+  emit('linkPlateMeasurement', selectedMeasurement.value[0])
 }
 
 const columns = [
