@@ -85,7 +85,7 @@
           <q-tab-panels v-model="activeTab" animated class="full-width">
             <q-tab-panel name="overview" class="q-pa-none">
               <PlateList :experiment="experimentStore.experiment" :plates="experimentStore.plates"
-                         v-model:newPlateTab="newPlateTab"/>
+                         v-model:newPlateTab="showNewPlateDialog"/>
             </q-tab-panel>
             <q-tab-panel name="statistics" class="q-pa-none">
               <PlateStatsList :experiment="experimentStore.experiment" :plates="experimentStore.plates"/>
@@ -101,38 +101,13 @@
       </pane>
     </splitpanes>
 
-    <div class="q-pa-sm" v-if="newPlateTab && experimentStore.isOpen">
-      <oa-section title="New Plate" icon="add">
-        <div class="col-12 q-pa-md">
-          <div class="row" style="min-width: 90vw">
-            <div class="col col-5">
-              <q-input v-model="newPlate.barcode" square autofocus label="Barcode"></q-input>
-              <q-input v-model="newPlate.description" square label="Description"></q-input>
-              <br>
-            </div>
-            <div class="col col-1">
-
-            </div>
-            <div class="col col-4">
-              <q-input v-model="newPlate.rows" square label="Rows"></q-input>
-              <q-input v-model="newPlate.columns" square label="Columns"></q-input>
-              <br>
-            </div>
-          </div>
-          <div class="row justify-end">
-            <q-btn size="sm" label="Cancel" class="oa-action-button" @click="newPlateTab = false"/>
-            <q-btn size="sm" label="Add plate" class="oa-action-button" @click="createNewPlate"/>
-          </div>
-        </div>
-      </oa-section>
-    </div>
-
     <div v-if="experimentStore.isOpen">
       <rename-dialog v-model:show="showRenameDialog" objectClass="experiment" :object="experimentStore.experiment"
                      @valueChanged="onNameChanged"/>
       <delete-dialog v-model:show="showDeleteDialog" :id="experimentStore.experiment?.id"
                      :name="experimentStore.experiment?.name" :objectClass="'experiment'"
                      @onDeleted="onDeleteExperiment"/>
+      <new-plate-dialog v-model:show="showNewPlateDialog" />
     </div>
   </q-page>
 </template>
@@ -158,6 +133,7 @@ import {useExperimentStore} from "@/stores/experiment";
 import {useProjectStore} from "@/stores/project";
 import {Pane, Splitpanes} from "splitpanes";
 import {useUIStore} from "@/stores/ui";
+import NewPlateDialog from "@/pages/experiment/NewPlateDialog.vue";
 
 const uiStore = useUIStore()
 const projectStore = useProjectStore()
@@ -181,7 +157,7 @@ watchEffect(() => {
   }
 });
 
-const newPlateTab = ref(false)
+const showNewPlateDialog = ref(false)
 const newPlate = ref({
     barcode: null,
     description: null,

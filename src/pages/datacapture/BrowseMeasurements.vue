@@ -8,8 +8,8 @@
     <div class="q-pa-sm">
       <oa-section title="Captured Measurements" icon="text_snippet">
         <q-table
-            table-header-class="text-grey"
             class="full-width"
+            table-header-class="text-grey"
             :rows="measurementStore.measurements"
             :columns="columns"
             :filter="filter"
@@ -17,7 +17,7 @@
             row-key="id"
             column-key="name"
             :pagination="{ rowsPerPage: 20, sortBy: 'createdOn', descending: true}"
-            @row-click="(e, row) => router.push('/datacapture/meas/' + row.id)"
+            @row-dblclick="gotoMeasurementView"
             :loading="loading"
             separator="cell"
             flat dense square
@@ -98,4 +98,8 @@ const columns = ref([
 
 const filter = FilterUtils.makeFilter(columns.value);
 const filterMethod = FilterUtils.defaultFilterMethod();
+
+const gotoMeasurementView = (event, row) => {
+  router.push('/datacapture/meas/' + row.id)
+}
 </script>
