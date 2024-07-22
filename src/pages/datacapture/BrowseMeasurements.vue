@@ -7,43 +7,22 @@
   <q-page class="oa-root-div">
     <div class="q-pa-sm">
       <oa-section title="Captured Measurements" icon="text_snippet">
-        <q-table
-            class="full-width"
-            table-header-class="text-grey"
-            :rows="measurementStore.measurements"
-            :columns="columns"
-            :filter="filter"
-            :filter-method="filterMethod"
-            row-key="id"
-            column-key="name"
-            :pagination="{ rowsPerPage: 20, sortBy: 'createdOn', descending: true}"
-            @row-dblclick="gotoMeasurementView"
-            :loading="loading"
-            separator="cell"
-            flat dense square
-        >
+        <generic-table :rows="measurementStore.measurements"
+                       :columns="columns"
+                       :loading="loading"
+                       @row-dblclick="gotoMeasurementView">
           <template v-slot:top-left>
             <q-btn color="primary" icon="refresh" size="sm" @click="refreshList" class="on-left"/>
           </template>
           <template v-slot:top-right>
-            <date-range-selector v-model:from="fromDate" v-model:to="toDate" @rangeChanged="refreshList"/>
+            <date-range-selector v-model:from="fromDate" v-model:to="toDate"
+                                 @rangeChanged="refreshList"/>
           </template>
-          <template v-slot:header="props">
-            <q-tr :props="props">
-              <q-th v-for="col in props.cols" :key="col.name" :props="props">
-                {{ col.label }}
-              </q-th>
-            </q-tr>
-            <q-tr :props="props">
-              <column-filter v-for="col in props.cols" :key="col.name" v-model="filter[col.name]"/>
-            </q-tr>
-          </template>
-          <template v-slot:body-cell-createdBy="props">
-            <q-td :props="props">
-              <UserChip :id="props.row.createdBy"/>
-            </q-td>
-          </template>
-        </q-table>
+        </generic-table>
+
+        <div class="q-mt-md">
+          Selected: {{ JSON.stringify(selectedMeasurements.map(m => m.id)) }}
+        </div>
       </oa-section>
     </div>
   </q-page>
@@ -53,16 +32,15 @@
 import {onMounted, ref} from 'vue'
 import {useRouter} from "vue-router";
 import FormatUtils from "@/lib/FormatUtils";
-import FilterUtils from "@/lib/FilterUtils.js";
 import OaSection from "@/components/widgets/OaSection";
-import UserChip from "@/components/widgets/UserChip";
-import ColumnFilter from "@/components/table/ColumnFilter";
 import {useMeasurementStore} from "@/stores/measurement";
 import DateRangeSelector from "@/components/widgets/DateRangeSelector.vue";
 import {date} from "quasar";
+import GenericTable from "@/components/table/GenericTable.vue";
 
 const router = useRouter()
 const loading = ref(true);
+const selectedMeasurements = ref([])
 
 const measurementStore = useMeasurementStore()
 onMounted(() => {
@@ -95,9 +73,6 @@ const columns = ref([
   {name: 'subWellColumns', align: 'left', label: 'SubwellData Columns', field: row => (row?.subWellColumns?.length || 0), sortable: true},
   {name: 'imageChannels', align: 'left', label: 'Image Channels', field: row => (row?.imageChannels?.length || 0), sortable: true},
 ])
-
-const filter = FilterUtils.makeFilter(columns.value);
-const filterMethod = FilterUtils.defaultFilterMethod();
 
 const gotoMeasurementView = (event, row) => {
   router.push('/datacapture/meas/' + row.id)
