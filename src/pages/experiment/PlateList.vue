@@ -122,7 +122,7 @@ import {useExportTableData} from "@/composable/exportTableData";
 import {useUIStore} from "@/stores/ui";
 import GenericTable from "@/components/table/GenericTable.vue";
 
-const props = defineProps(['plates', 'experiment', 'newPlateTab'])
+const props = defineProps(['plates', 'experiment', 'newPlateTab', 'newPlateFromMeasurements'])
 const emit = defineEmits(['update:newPlateTab', 'showPlateInspector'])
 
 const router = useRouter()
@@ -184,8 +184,8 @@ const openNewPlateDialog = () => {
   emit('update:newPlateTab', true)
 }
 
-const oopenNewPlateFromMeasurementsDialog = () => {
-
+const openNewPlateFromMeasurementsDialog = () => {
+  emit('update:newPlateFromMeasurements', true)
 }
 
 const visibleColumns = ref([])

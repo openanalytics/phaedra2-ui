@@ -59,6 +59,10 @@ export const useExperimentStore = defineStore("experiment", {
             await plateAPI.addPlate(plate)
             this.loadExperiment(this.experiment.id)
         },
+        async addPlates(plates) {
+            await Promise.all(plates.map(plate => plateAPI.addPlate(plate)));
+            this.loadExperiment(this.experiment.id)
+        },
         async setPlateLayout(plates, templateId) {
             await plateAPI.setPlateLayout(plates, templateId)
             this.loadExperiment(this.experiment.id)

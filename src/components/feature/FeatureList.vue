@@ -1,35 +1,12 @@
 <template>
   <oa-section title="Features" icon="functions" :collapsible="true">
-    <q-table
-        table-header-class="text-grey"
-        :rows="features"
-        :columns="columns"
-        :visible-columns="visibleColumns"
-        :filter="filter"
-        :filter-method="filterMethod"
-        row-key="id"
-        column-key="name"
-        :pagination="{ rowsPerPage: 20, sortBy: 'name' }"
-        :loading="loading"
-        separator="cell"
-        flat dense>
-
+    <generic-table :rows="features" :columns="columns">
       <template v-slot:top-left>
         <div class="col action-button on-left">
           <q-btn icon="add" class="oa-button" label="Add Feature" @click="showNewFeatureView" size="sm" dense/>
           <q-btn v-if="protocolStore.isUpdated" icon="save" class="oa-action-button" label="Save" @click="confirmChanges = true" size="sm" dense/>
           <q-btn v-if="protocolStore.isUpdated" icon="restart_alt" class="oa-action-button" label="Reset" @click="protocolStore.reloadProtocol" size="sm" dense/>
         </div>
-      </template>
-      <template v-slot:header="props">
-        <q-tr :props="props">
-          <q-th v-for="col in props.cols" :key="col.name" :props="props">
-            {{ col.label }}
-          </q-th>
-        </q-tr>
-        <q-tr :props="props">
-          <column-filter v-for="col in props.cols" :key="col.name" v-model="filter[col.name]"/>
-        </q-tr>
       </template>
       <template v-slot:body-cell-formulaId="props">
         <q-td :props="props">
@@ -54,7 +31,7 @@
           <span>No features to show.</span>
         </div>
       </template>
-    </q-table>
+    </generic-table>
   </oa-section>
 
   <div class="q-pt-md">
@@ -79,9 +56,8 @@
 </template>
 
 <script setup>
-import {computed, ref, watch} from "vue";
+import {computed, ref} from "vue";
 import {useRouter} from 'vue-router';
-import FilterUtils from "@/lib/FilterUtils";
 
 import {useFeatureStore} from "@/stores/feature";
 import {useProtocolStore} from "@/stores/protocol";
@@ -91,7 +67,7 @@ import OaSection from "@/components/widgets/OaSection";
 import EditFeature from "@/components/feature/EditFeature";
 import ViewFeature from "@/components/feature/ViewFeature";
 import NewFeature from "@/components/feature/NewFeature";
-import ColumnFilter from "@/components/table/ColumnFilter.vue";
+import GenericTable from "@/components/table/GenericTable.vue";
 
 const columns = ref([
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
@@ -112,19 +88,9 @@ const emit = defineEmits(['addFeature'])
 
 const router = useRouter()
 
-const loading = ref(false)
 const confirmChanges = ref(false)
 
 const features = computed(() => { return protocolStore.getFeatures() })
-
-const filter = FilterUtils.makeFilter(columns.value);
-const filterMethod = FilterUtils.defaultFilterMethod();
-const visibleColumns = ref([])
-
-watch(features, () => {
-  visibleColumns.value = [...columns.value.map(a => a.name)];
-  loading.value = false
-})
 
 const getFormulaName = (id) => {
   const formula = formulasStore.getFormulaById(parseInt(id))

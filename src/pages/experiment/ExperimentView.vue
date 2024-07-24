@@ -85,7 +85,7 @@
           <q-tab-panels v-model="activeTab" animated class="full-width">
             <q-tab-panel name="overview" class="q-pa-none">
               <PlateList :experiment="experimentStore.experiment" :plates="experimentStore.plates"
-                         v-model:newPlateTab="showNewPlateDialog"/>
+                         v-model:newPlateTab="showNewPlateDialog" v-model:newPlateFromMeasurements="showNewPlateFromMeasDialog"/>
             </q-tab-panel>
             <q-tab-panel name="statistics" class="q-pa-none">
               <PlateStatsList :experiment="experimentStore.experiment" :plates="experimentStore.plates"/>
@@ -108,6 +108,7 @@
                      :name="experimentStore.experiment?.name" :objectClass="'experiment'"
                      @onDeleted="onDeleteExperiment"/>
       <new-plate-dialog v-model:show="showNewPlateDialog" />
+      <new-plate-from-measurement-dialog v-model:show="showNewPlateFromMeasDialog"/>
     </div>
   </q-page>
 </template>
@@ -134,6 +135,7 @@ import {useProjectStore} from "@/stores/project";
 import {Pane, Splitpanes} from "splitpanes";
 import {useUIStore} from "@/stores/ui";
 import NewPlateDialog from "@/pages/experiment/NewPlateDialog.vue";
+import NewPlateFromMeasurementDialog from "@/pages/experiment/NewPlateFromMeasurementDialog.vue";
 
 const uiStore = useUIStore()
 const projectStore = useProjectStore()
@@ -158,6 +160,7 @@ watchEffect(() => {
 });
 
 const showNewPlateDialog = ref(false)
+const showNewPlateFromMeasDialog = ref(false)
 const newPlate = ref({
     barcode: null,
     description: null,

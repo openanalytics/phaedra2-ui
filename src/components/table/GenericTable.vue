@@ -6,18 +6,14 @@
       :columns="columns"
       :filter="filter"
       :filter-method="filterMethod"
-      row-key="id"
-      column-key="name"
+      :row-key="rowKey"
+      :column-key="columnKey"
       :selection="selection"
       :selected="selected"
       :pagination="pagination"
       :loading="loading"
       separator="cell"
-      @row-click="rowClick"
-      @row-dblclick="rowDblclick"
-      @row-contextmenu="rowContextMenu"
-      flat dense square virtual-scroll
-  >
+      flat dense square virtual-scroll bordered>
     <template v-slot:header="props">
       <q-tr :props="props">
         <q-th v-if="selection" auto-width/>
@@ -36,6 +32,22 @@
       </q-tr>
     </template>
 
+    <template v-slot:body-cell-tags="props">
+      <q-td :props="props">
+        <tag-list :tags="props.row.tags" :readOnly="true" />
+      </q-td>
+    </template>
+    <template v-slot:body-cell-createdBy="props">
+      <q-td :props="props">
+        <UserChip :id="props.row.createdBy"/>
+      </q-td>
+    </template>
+    <template v-slot:body-cell-updatedBy="props">
+      <q-td :props="props">
+        <UserChip :id="props.row.updatedBy"/>
+      </q-td>
+    </template>
+
     <slot />
 
     <template v-for="(value, name) in $slots" v-slot:[name]="data">
@@ -48,11 +60,15 @@
 import {defineProps, defineEmits, ref, computed} from 'vue'
 import ColumnFilter from "@/components/table/ColumnFilter";
 import FilterUtils from "@/lib/FilterUtils";
+import TagList from "@/components/tag/TagList.vue";
+import UserChip from "@/components/widgets/UserChip.vue";
 
 // use defineProps for props
 const props = defineProps({
   rows: { type: Array, required: true },
   columns: { type: Array, required: true },
+  rowKey: {type: String, required:  false, default: () => "id"},
+  columnKey: {type: String, required: false, default: () => "name"},
   visibleColumns: { type: Array, default: () => [] },
   loading: { type: Boolean, default: false },
   selection: {type: String, required: false},
@@ -66,20 +82,4 @@ const filter = FilterUtils.makeFilter(props.columns)
 const filterMethod = FilterUtils.defaultFilterMethod()
 
 const selected = ref([])
-
-// Use defineEmit to define emit function
-const emit = defineEmits(['row-dblclick'])
-
-// Methods are no longer required
-const rowClick = (event, row) => {
-  emit('row-click', event, row)
-}
-
-const rowDblclick = (event, row) => {
-  emit('row-dblclick', event, row)
-}
-
-const rowContextMenu = (event, row) => {
-  emit('row-contextmenu', event, row)
-}
 </script>

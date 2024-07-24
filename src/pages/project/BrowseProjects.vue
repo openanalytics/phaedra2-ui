@@ -25,16 +25,6 @@
               </div>
             </q-td>
           </template>
-          <template v-slot:body-cell-tags="props">
-            <q-td :props="props">
-              <tag-list :tags="props.row.tags" :readOnly="true" />
-            </q-td>
-          </template>
-          <template v-slot:body-cell-createdBy="props">
-            <q-td :props="props">
-              <UserChip :id="props.row.createdBy" />
-            </q-td>
-          </template>
         </generic-table>
       <ProjectActionMenu :project="selectedProjects[0]" />
     </oa-section>
@@ -44,13 +34,11 @@
 <script setup>
 import {onMounted, ref, watch} from 'vue'
 import FormatUtils from "@/lib/FormatUtils.js"
-import FilterUtils from "@/lib/FilterUtils.js"
 import projectsGraphQlAPI from "@/api/graphql/projects"
 
 import UserChip from "@/components/widgets/UserChip";
 import TagList from "@/components/tag/TagList";
 import OaSection from "@/components/widgets/OaSection";
-import ColumnFilter from "@/components/table/ColumnFilter";
 import ProjectActionMenu from "@/components/project/ProjectActionMenu";
 import projectAPI from "@/api/projects";
 import {useRouter} from "vue-router";

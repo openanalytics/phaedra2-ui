@@ -7,47 +7,16 @@
   <q-page class="oa-root-div">
     <div class="q-pa-sm">
       <oa-section title="Protocols" icon="ballot">
-        <q-table
-            class="full-width"
-            table-header-class="text-grey"
+        <generic-table
             :rows="protocolStore.protocols"
             :columns="columns"
-            :filter="filter"
-            :filter-method="filterMethod"
-            row-key="id"
-            column-key="name"
-            :pagination="{ rowsPerPage: 20, sortBy: 'name' }"
-            :loading="loading"
-            @row-click="selectProtocol"
-            separator="cell"
-            flat square dense
-        >
+            @row-click="selectProtocol">
           <template v-slot:top-left>
             <router-link :to="{ name: 'newProtocol' }" class="nav-link">
               <q-btn size="sm" icon="add" color="primary" label="New Protocol..."/>
             </router-link>
           </template>
-          <template v-slot:header="props">
-            <q-tr :props="props">
-              <q-th v-for="col in props.cols" :key="col.name" :props="props">
-                {{col.label}}
-              </q-th>
-            </q-tr>
-            <q-tr :props="props">
-              <column-filter v-for="col in props.cols" :key="col.name" v-model="filter[col.name]"/>
-            </q-tr>
-          </template>
-          <template v-slot:body-cell-createdBy="props">
-            <q-td :props="props">
-              <UserChip :id="props.row.createdBy" />
-            </q-td>
-          </template>
-          <template v-slot:body-cell-tags="props">
-            <q-td :props="props">
-              <tag-list :tags="props.row.tags" :readOnly="true" />
-            </q-td>
-          </template>
-        </q-table>
+        </generic-table>
       </oa-section>
     </div>
   </q-page>
@@ -57,27 +26,22 @@
 import {ref, onMounted} from 'vue'
 import {useRouter} from 'vue-router'
 import FormatUtils from "@/lib/FormatUtils.js"
-import FilterUtils from "@/lib/FilterUtils.js"
 
-import UserChip from "@/components/widgets/UserChip";
 import OaSection from "@/components/widgets/OaSection";
-import ColumnFilter from "@/components/table/ColumnFilter";
-import TagList from "@/components/tag/TagList";
 import {useProtocolStore} from "@/stores/protocol";
+import GenericTable from "@/components/table/GenericTable.vue";
+import {useLoadingHandler} from "@/composable/loadingHandler";
 
 const protocolStore = useProtocolStore()
 const router = useRouter();
 
-const loading = ref(true);
-const protocols = ref([])
 onMounted(() => {
   fetchAllProtocols()
 })
 
-const fetchAllProtocols = () => {
-  protocolStore.loadAllProtocols().then(() => {
-    loading.value = false
-  })
+const loadingHandler = useLoadingHandler()
+const fetchAllProtocols = async () => {
+  await loadingHandler.handleLoadingDuring(protocolStore.loadAllProtocols())
 }
 
 const columns = ref([
@@ -94,12 +58,7 @@ const columns = ref([
     format: FormatUtils.formatDate
   },
   {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
-  // {name: 'menu', align: 'left', field: 'menu', sortable: false}
 ])
-
-const filter = FilterUtils.makeFilter(columns.value);
-const filterMethod = FilterUtils.defaultFilterMethod();
-const visibleColumns = ref([])
 
 const selectProtocol = (event, row) => {
   router.push("/protocol/" + row.id);
