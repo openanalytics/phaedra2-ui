@@ -6,20 +6,7 @@
 
   <q-page class="oa-root-div q-pa-sm">
     <oa-section title="Data Capture Jobs" icon="cloud_upload" :collapsible="true">
-      <q-table
-          table-header-class="text-grey"
-          class="full-width"
-          :rows="jobs"
-          :columns="columns"
-          :visible-columns="visibleColumns"
-          row-key="id"
-          column-key="name"
-          :filter="filter"
-          :filter-method="filterMethod"
-          :pagination="{ rowsPerPage: 20, sortBy: 'createDate', descending: true }"
-          separator="cell"
-          square dense flat
-      >
+      <oa-table :rows="jobs" :columns="columns">
         <template v-slot:top-left>
           <div class="justify-end">
             <q-btn color="primary" icon="refresh" size="sm" @click="refreshList" class="on-left"/>
@@ -28,26 +15,6 @@
         </template>
         <template v-slot:top-right>
           <date-range-selector v-model:from="fromDate" v-model:to="toDate" @rangeChanged="refreshList"/>
-        </template>
-        <template v-slot:header="props">
-          <q-tr :props="props">
-            <q-th v-for="col in props.cols" :key="col.name" :props="props">
-              {{col.label}}
-            </q-th>
-          </q-tr>
-          <q-tr :props="props">
-            <column-filter v-for="col in props.cols" :key="col.name" v-model="filter[col.name]"/>
-          </q-tr>
-        </template>
-        <template v-slot:body-cell-statusCode="props">
-          <q-td :props="props">
-            <StatusLabel :status="props.row.statusCode"/>
-          </q-td>
-        </template>
-        <template v-slot:body-cell-createdBy="props">
-          <q-td :props="props">
-            <UserChip :id="props.row.createdBy"/>
-          </q-td>
         </template>
         <template v-slot:body-cell-details="props">
           <q-td :props="props">
@@ -64,10 +31,7 @@
             <span>No jobs to show.</span>
           </div>
         </template>
-      </q-table>
-
-      <table-config v-model:show="configdialog" v-model:columns="columns"
-                    v-model:visibleColumns="visibleColumns"></table-config>
+      </oa-table>
 
       <q-dialog v-model="showJobDetails">
         <CaptureJobDetailsPanel :job="jobDetails"></CaptureJobDetailsPanel>
@@ -137,18 +101,14 @@
 </template>
 
 <script setup>
-import {ref, computed, onMounted, onBeforeUnmount, reactive, watch} from 'vue'
+import {ref, computed, onMounted, onBeforeUnmount, reactive} from 'vue'
 import {useStore} from 'vuex'
 import {date} from 'quasar'
 import FormatUtils from "@/lib/FormatUtils.js"
-import FilterUtils from "@/lib/FilterUtils.js"
 import OaSection from "@/components/widgets/OaSection";
 import CaptureJobDetailsPanel from "./CaptureJobDetailsPanel";
-import TableConfig from "@/components/table/TableConfig";
-import ColumnFilter from "@/components/table/ColumnFilter";
-import UserChip from "@/components/widgets/UserChip";
-import StatusLabel from "@/components/widgets/StatusLabel";
 import DateRangeSelector from "@/components/widgets/DateRangeSelector";
+import OaTable from "@/components/table/OaTable.vue";
 
 const store = useStore();
 
@@ -164,8 +124,6 @@ const refreshList = () => store.dispatch('datacapture/loadJobs', {
 });
 refreshList();
 
-const visibleColumns = ref([])
-
 const captureConfigList = computed(() => store.getters['datacapture/getAllCaptureConfigs']());
 store.dispatch('datacapture/loadAllCaptureConfigs');
 const selectedConfig = ref({});
@@ -175,16 +133,11 @@ const columns = ref([
   {name: 'createDate', align: 'left', label: 'Created On', field: 'createDate', sortable: true, format: FormatUtils.formatDate },
   {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
   {name: 'sourcePath', align: 'left', label: 'Source Path', field: 'sourcePath', sortable: true, format: t => FormatUtils.formatTextMaxLength(t, 50) },
-  {name: 'statusCode', label: 'Status', field: 'statusCode', sortable: true},
+  {name: 'status', label: 'Status', field: 'statusCode', sortable: true},
   {name: 'statusMessage', align: 'left', label: 'Message', field: 'statusMessage', sortable: true, format: t => FormatUtils.formatTextMaxLength(t, 50) },
   {name: 'details'},
   {name: 'cancel'}
 ]);
-
-const filter = FilterUtils.makeFilter(columns.value);
-const filterMethod = FilterUtils.defaultFilterMethod();
-
-const configdialog = ref(false);
 
 // Auto-refresh
 let timer = null;
@@ -255,14 +208,4 @@ const submitJobAction = async () => {
   })
   refreshList();
 }
-
-const showConfig = ref(false);
-
-const updateVisibleColumns = (columns) => {
-  visibleColumns.value = [...columns]
-}
-
-watch(jobs, () => {
-  visibleColumns.value = [...columns.value.map(a => a.name)];
-})
 </script>

@@ -29,33 +29,18 @@
             <q-btn v-if="!quickView" size="sm" color="primary" icon="remove_red_eye" label="Show Quick view" :disable="!isTemplateSelected()" @click="handleShowQuickView"/>
             <q-btn v-if="quickView" size="sm" color="accent" icon="remove_red_eye" label="Hide Quick view" @click="handleHideQuickView"/>
           </div>
-          <q-table
+          <oa-table
               :rows="filteredTemplates"
               :columns="templateColumns"
-              :pagination="{ rowsPerPage: 5 }"
-              :filter="filter"
               v-model:selected="selectedTemplates"
               selection="single"
-              virtual-scroll
-              @selection="handleTemplateSelection"
-              style="max-height: 400px"
-              table-header-class="text-grey"
-              square flat dense>
-            <template v-slot:top-left>
-              <div class="row">
-                <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
-                  <template v-slot:append>
-                    <q-icon name="search"/>
-                  </template>
-                </q-input>
-              </div>
-            </template>
+              @selection="handleTemplateSelection">
             <template v-slot:body-cell-layout="props">
               <q-td :props="props">
                 {{ props.row.rows }} x {{ props.row.columns }}
               </q-td>
             </template>
-          </q-table>
+          </oa-table>
           <span v-if="!checkAllDimensions()" class="text-accent">The selected template has different dimensions compared to the selected plates.</span><br>
         </q-card-section>
 
@@ -85,6 +70,7 @@ import TemplateQuickView from "@/components/layout/TemplateQuickView";
 import {useExperimentStore} from "@/stores/experiment";
 import templatesGraphQlAPI from "@/api/graphql/templates";
 import {useLoadingHandler} from "@/composable/loadingHandler";
+import OaTable from "@/components/table/OaTable.vue";
 
 const props = defineProps(['show', 'plate', "plates"]);
 const emit = defineEmits(['update:show', "onLinkPlate"]);
@@ -150,8 +136,6 @@ const preFilterTemplates = (allTemplates) => {
   if (!checkPlateDimensions()) return [];
   return allTemplates.filter(row => row.rows === props.plates[0]?.rows && row.columns === props.plates[0]?.columns);
 }
-
-const filter = ref('')
 
 const checkAllDimensions = () => {
   if (!isTemplateSelected()) return true;

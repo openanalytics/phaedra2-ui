@@ -1,23 +1,8 @@
 <template>
-  <q-table
-      class="full-width"
-      table-header-class="text-grey"
-      :rows="wells"
-      :columns="columns"
-      :visible-columns="visibleColumns"
-      row-key="id"
-      column-key="name"
-      :filter="filter"
-      :filter-method="filterMethod"
-      :pagination="{ rowsPerPage: plate.columns, sortBy: 'number' }"
-      :loading="loading"
-      @row-click="selectWell"
-      selection="multiple"
-      v-model:selected="uiStore.selectedWells"
-      separator="cell"
-      virtual-scroll
-      flat square dense
-  >
+  <oa-table :columns="columns" :rows="wells"
+                 selection="multiple"
+                 v-model:selected="uiStore.selectedWells"
+                 @row-click="selectWell">
     <template v-slot:top-right>
       <div class="row action-button">
         <q-btn-dropdown size="sm" class="oa-button q-mr-md" label="Export">
@@ -35,7 +20,6 @@
             </q-item>
           </q-list>
         </q-btn-dropdown>
-<!--        <q-btn size="sm" flat round color="primary" icon="settings" style="border-radius: 50%;" @click="showConfigDialog=true"/>-->
       </div>
     </template>
     <template v-slot:header="props">
@@ -71,8 +55,7 @@
         <span>No wells to show.</span>
       </div>
     </template>
-  </q-table>
-<!--  <table-config v-model:show="showConfigDialog" :columns="columns" @update:visibleColumns="updateVisibleColumns"/>-->
+  </oa-table>
   <WellActionMenu touch-position context-menu @rejectWells="handleRejectWells" @acceptWells="handleAcceptWells"/>
 </template>
 
@@ -91,6 +74,7 @@ import ColumnFilter from "@/components/table/ColumnFilter";
 import WellActionMenu from "@/components/well/WellActionMenu.vue";
 import {usePlateStore} from "@/stores/plate"
 import {useUIStore} from "@/stores/ui";
+import OaTable from "@/components/table/OaTable.vue";
 
 const props = defineProps(['plate', 'wells']);
 const emits = defineEmits(['wellStatusChanged'])
@@ -150,11 +134,10 @@ const exportToXLSX = () => {
 }
 
 const selectedWell = ref(null)
-const isSelected = (row) => uiStore.selectedWells.includes(row)
+const isSelected = (row) => uiStore.selectedWells.findIndex(w => w.id === row.id) > -1
 const updateSelectedWells = (condition, row) => condition ? uiStore.selectedWells.filter(well => well.id !== row.id) : [row]
 const selectWell = (event, row) => {
   selectedWell.value = row
-
   if (event && (event.ctrlKey || event.metaKey)) {
     if (isSelected(row)) {
       uiStore.selectedWells = updateSelectedWells(true, row)

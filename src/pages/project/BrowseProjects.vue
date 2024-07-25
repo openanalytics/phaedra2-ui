@@ -6,59 +6,26 @@
 
   <q-page class="oa-root-div">
       <oa-section title="Projects" icon="folder" class="q-pa-sm">
-        <q-table
-            table-header-class="text-grey"
-            :pagination="{ rowsPerPage: 20, sortBy: 'name' }"
-            :rows="projects"
+        <oa-table
             :columns="columns"
-            row-key="id"
-            column-key="name"
-            :filter="filter"
-            :filter-method="filterMethod"
-            :visible-columns=visibleColumns
-            :loading="loading"
+            :rows="projects"
             @row-dblclick="gotoProjectView"
             @row-click="(e, row) => selectedProjects = [row]"
-            separator="cell"
             selection="multiple"
-            v-model:selected="selectedProjects"
-            flat square dense
-        >
+            v-model:selected="selectedProjects">
           <template v-slot:top-left>
             <router-link :to="{ name: 'newProject' }" class="nav-link">
               <q-btn size="sm" icon="add" class="oa-button" label="New Project" />
             </router-link>
           </template>
-          <template v-slot:header="props">
-            <q-tr :props="props">
-                <q-th auto-width/>
-                <q-th v-for="col in props.cols" :key="col.name" :name="col.name" :props="props" auto-width>
-                  {{col.label}}
-                </q-th>
-            </q-tr>
-            <q-tr :props="props">
-              <q-th auto-width/>
-              <column-filter v-for="col in props.cols" :key="col.name" v-model="filter[col.name]"/>
-            </q-tr>
-          </template>
           <template v-slot:body-cell-name="props">
             <q-td :props="props">
-                <div class="row items-center cursor-pointer">
-                  {{ props.row.name }}
-                </div>
+              <div class="row items-center cursor-pointer">
+                {{ props.row.name }}
+              </div>
             </q-td>
           </template>
-          <template v-slot:body-cell-tags="props">
-            <q-td :props="props">
-              <tag-list :tags="props.row.tags" :readOnly="true" />
-          </q-td>
-        </template>
-        <template v-slot:body-cell-createdBy="props">
-          <q-td :props="props">
-            <UserChip :id="props.row.createdBy" />
-          </q-td>
-        </template>
-      </q-table>
+        </oa-table>
       <ProjectActionMenu :project="selectedProjects[0]" />
     </oa-section>
   </q-page>
@@ -67,16 +34,15 @@
 <script setup>
 import {onMounted, ref, watch} from 'vue'
 import FormatUtils from "@/lib/FormatUtils.js"
-import FilterUtils from "@/lib/FilterUtils.js"
 import projectsGraphQlAPI from "@/api/graphql/projects"
 
 import UserChip from "@/components/widgets/UserChip";
 import TagList from "@/components/tag/TagList";
 import OaSection from "@/components/widgets/OaSection";
-import ColumnFilter from "@/components/table/ColumnFilter";
 import ProjectActionMenu from "@/components/project/ProjectActionMenu";
 import projectAPI from "@/api/projects";
 import {useRouter} from "vue-router";
+import OaTable from "@/components/table/OaTable.vue";
 
 const loading = ref(true);
 const projects = ref([])
@@ -96,9 +62,6 @@ const columns = ref([
   {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
   {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true}
 ]);
-
-const filter = FilterUtils.makeFilter(columns.value);
-const filterMethod = FilterUtils.defaultFilterMethod();
 
 const fetchAllProjects = () => {
   const {onResult, onError} = projectsGraphQlAPI.projects()

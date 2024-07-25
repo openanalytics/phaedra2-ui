@@ -1,17 +1,9 @@
 <template>
-  <q-table
-      separator="cell"
-      :rows="curveData"
-      :columns="curveTableColumns"
-      row-key="substance"
-      column-key="name"
-      :filter="filter"
-      :filter-method="filterMethod"
-      virtual-scroll
-      style="max-height: 600px"
-      :pagination="pagination"
-      :rows-per-page-options="[0]"
-      flat square dense>
+  <oa-table :columns="curveTableColumns"
+                 :rows="curveData"
+                 row-key="substance"
+                 :filter="filter"
+                 :filter-method="filterMethod">
     <template v-slot:header="props">
       <q-tr class="text-grey">
         <q-th colspan="3"/>
@@ -54,29 +46,25 @@
         <DRCActionMenu @showDRCView="handleShowDRCView(props.row.curve_info[props.col.featureId].curve)"/>
       </q-td>
     </template>
-  </q-table>
+  </oa-table>
 </template>
 
 <script setup>
 import {ref} from "vue";
-import {useStore} from "vuex";
 import MiniDRCView from "@/components/curve/MiniDRCView.vue"
 import FormatUtils from "@/lib/FormatUtils";
 import ColumnFilter from "@/components/table/ColumnFilter.vue";
 import FilterUtils from "@/lib/FilterUtils";
 import {useUIStore} from "@/stores/ui";
 import DRCActionMenu from "@/components/curve/DRCActionMenu.vue";
+import OaTable from "@/components/table/OaTable.vue";
 
-const store = useStore()
 const uiStore = useUIStore()
 
 const props = defineProps(['plate', 'curves', 'protocols'])
 const emits = defineEmits(['handleSelection', 'showDRCView'])
 
 const curves = ref(props.curves)
-const pagination = ref({ rowsPerPage: 0 })
-
-
 const features = props.protocols.flatMap(protocol => protocol.features)
 const fetchFeatureName = (featureId) => {
   return features.find(f => f.id = featureId)?.name
