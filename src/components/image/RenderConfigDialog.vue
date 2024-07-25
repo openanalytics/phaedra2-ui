@@ -5,7 +5,7 @@
                 <q-avatar icon="palette" color="primary" text-color="white"/> Render Config
             </q-card-section>
             <q-card-section>
-                <generic-table
+                <oa-table
                     selection="multiple"
                     v-model:selected="selectedChannels"
                     :rows="uiStore.imageRenderSettings.channels"
@@ -26,7 +26,7 @@
                             />
                         </q-td>
                     </template>
-                </generic-table>
+                </oa-table>
             </q-card-section>
             <q-card-actions class="text-primary float-right">
                 <q-btn flat label="Cancel" v-close-popup/>
@@ -40,7 +40,7 @@
 import { ref} from 'vue';
 import {useUIStore} from "@/stores/ui";
 import ColorUtils from '@/lib/ColorUtils';
-import GenericTable from "@/components/table/GenericTable.vue";
+import OaTable from "@/components/table/OaTable.vue";
 
 const uiStore = useUIStore();
 const props = defineProps({

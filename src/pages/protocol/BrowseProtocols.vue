@@ -7,16 +7,16 @@
   <q-page class="oa-root-div">
     <div class="q-pa-sm">
       <oa-section title="Protocols" icon="ballot">
-        <generic-table
+        <oa-table
             :rows="protocolStore.protocols"
             :columns="columns"
-            @row-click="selectProtocol">
+            @row-dblclick="gotoProtocolView">
           <template v-slot:top-left>
             <router-link :to="{ name: 'newProtocol' }" class="nav-link">
               <q-btn size="sm" icon="add" color="primary" label="New Protocol..."/>
             </router-link>
           </template>
-        </generic-table>
+        </oa-table>
       </oa-section>
     </div>
   </q-page>
@@ -29,7 +29,7 @@ import FormatUtils from "@/lib/FormatUtils.js"
 
 import OaSection from "@/components/widgets/OaSection";
 import {useProtocolStore} from "@/stores/protocol";
-import GenericTable from "@/components/table/GenericTable.vue";
+import OaTable from "@/components/table/OaTable.vue";
 import {useLoadingHandler} from "@/composable/loadingHandler";
 
 const protocolStore = useProtocolStore()
@@ -60,7 +60,8 @@ const columns = ref([
   {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
 ])
 
-const selectProtocol = (event, row) => {
+
+const gotoProtocolView = (event, row) => {
   router.push("/protocol/" + row.id);
 }
 </script>

@@ -6,7 +6,7 @@
 
   <q-page class="oa-root-div">
       <oa-section title="Projects" icon="folder" class="q-pa-sm">
-        <generic-table
+        <oa-table
             :columns="columns"
             :rows="projects"
             @row-dblclick="gotoProjectView"
@@ -25,7 +25,7 @@
               </div>
             </q-td>
           </template>
-        </generic-table>
+        </oa-table>
       <ProjectActionMenu :project="selectedProjects[0]" />
     </oa-section>
   </q-page>
@@ -42,7 +42,7 @@ import OaSection from "@/components/widgets/OaSection";
 import ProjectActionMenu from "@/components/project/ProjectActionMenu";
 import projectAPI from "@/api/projects";
 import {useRouter} from "vue-router";
-import GenericTable from "@/components/table/GenericTable.vue";
+import OaTable from "@/components/table/OaTable.vue";
 
 const loading = ref(true);
 const projects = ref([])

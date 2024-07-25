@@ -6,7 +6,7 @@
 
   <q-page class="oa-root-div">
     <oa-section title="Pipeline Executions" icon="play_circle_outline" class="q-pa-sm">
-      <generic-table
+      <oa-table
           :rows="pipelineStore.executions"
           :columns="columns"
           :loading="loading"
@@ -17,7 +17,7 @@
         <template v-slot:top-right>
           <date-range-selector v-model:from="fromDate" v-model:to="toDate" @rangeChanged="refreshList"/>
         </template>
-      </generic-table>
+      </oa-table>
     </oa-section>
   </q-page>
 </template>
@@ -30,7 +30,7 @@ import FormatUtils from "@/lib/FormatUtils.js"
 import OaSection from "@/components/widgets/OaSection";
 import DateRangeSelector from "@/components/widgets/DateRangeSelector";
 import {usePipelineStore} from "@/stores/pipeline";
-import GenericTable from "@/components/table/GenericTable.vue";
+import OaTable from "@/components/table/OaTable.vue";
 
 const router = useRouter();
 const loading = ref(true);

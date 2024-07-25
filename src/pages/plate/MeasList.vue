@@ -1,5 +1,5 @@
 <template>
-  <generic-table :rows="plateMeasurements" :columns="columns"
+  <oa-table :rows="plateMeasurements" :columns="columns"
                  @row-dblclick="onSelectMeasurement">
     <template v-slot:top-left>
       <q-btn size="sm" icon="add" class="oa-button q-mb-md" label="Link Measurement"
@@ -24,7 +24,7 @@
                   @update:model-value="val => handleSetActiveMeasurement(val, props.row)"/>
       </q-td>
     </template>
-  </generic-table>
+  </oa-table>
 
   <LinkMeasurementDialog v-model:show="showLinkMeasDialog" :plates="[plate]"
                          @linkPlateMeasurement="handleLinkPlateMeasurement"/>
@@ -55,7 +55,7 @@ import FormatUtils from "@/lib/FormatUtils";
 import LinkMeasurementDialog from "@/components/measurement/LinkMeasurementDialog";
 import projectsGraphQlAPI from "@/api/graphql/projects";
 import {usePlateStore} from "@/stores/plate";
-import GenericTable from "@/components/table/GenericTable.vue";
+import OaTable from "@/components/table/OaTable.vue";
 
 const props = defineProps({ plate: Object, readOnly: Boolean });
 const readOnly = ref(props.readOnly)

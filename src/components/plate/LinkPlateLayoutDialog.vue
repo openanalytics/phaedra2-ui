@@ -29,7 +29,7 @@
             <q-btn v-if="!quickView" size="sm" color="primary" icon="remove_red_eye" label="Show Quick view" :disable="!isTemplateSelected()" @click="handleShowQuickView"/>
             <q-btn v-if="quickView" size="sm" color="accent" icon="remove_red_eye" label="Hide Quick view" @click="handleHideQuickView"/>
           </div>
-          <generic-table
+          <oa-table
               :rows="filteredTemplates"
               :columns="templateColumns"
               v-model:selected="selectedTemplates"
@@ -40,7 +40,7 @@
                 {{ props.row.rows }} x {{ props.row.columns }}
               </q-td>
             </template>
-          </generic-table>
+          </oa-table>
           <span v-if="!checkAllDimensions()" class="text-accent">The selected template has different dimensions compared to the selected plates.</span><br>
         </q-card-section>
 
@@ -70,7 +70,7 @@ import TemplateQuickView from "@/components/layout/TemplateQuickView";
 import {useExperimentStore} from "@/stores/experiment";
 import templatesGraphQlAPI from "@/api/graphql/templates";
 import {useLoadingHandler} from "@/composable/loadingHandler";
-import GenericTable from "@/components/table/GenericTable.vue";
+import OaTable from "@/components/table/OaTable.vue";
 
 const props = defineProps(['show', 'plate', "plates"]);
 const emit = defineEmits(['update:show', "onLinkPlate"]);

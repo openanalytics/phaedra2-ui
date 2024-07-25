@@ -1,6 +1,6 @@
 <template>
   <oa-section title="Features" icon="functions" :collapsible="true">
-    <generic-table :rows="features" :columns="columns">
+    <oa-table :rows="features" :columns="columns">
       <template v-slot:top-left>
         <div class="col action-button on-left">
           <q-btn icon="add" class="oa-button" label="Add Feature" @click="showNewFeatureView" size="sm" dense/>
@@ -31,7 +31,7 @@
           <span>No features to show.</span>
         </div>
       </template>
-    </generic-table>
+    </oa-table>
   </oa-section>
 
   <div class="q-pt-md">
@@ -67,7 +67,7 @@ import OaSection from "@/components/widgets/OaSection";
 import EditFeature from "@/components/feature/EditFeature";
 import ViewFeature from "@/components/feature/ViewFeature";
 import NewFeature from "@/components/feature/NewFeature";
-import GenericTable from "@/components/table/GenericTable.vue";
+import OaTable from "@/components/table/OaTable.vue";
 
 const columns = ref([
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},

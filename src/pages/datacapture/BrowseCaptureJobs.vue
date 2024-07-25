@@ -6,7 +6,7 @@
 
   <q-page class="oa-root-div q-pa-sm">
     <oa-section title="Data Capture Jobs" icon="cloud_upload" :collapsible="true">
-      <generic-table :rows="jobs" :columns="columns">
+      <oa-table :rows="jobs" :columns="columns">
         <template v-slot:top-left>
           <div class="justify-end">
             <q-btn color="primary" icon="refresh" size="sm" @click="refreshList" class="on-left"/>
@@ -31,7 +31,7 @@
             <span>No jobs to show.</span>
           </div>
         </template>
-      </generic-table>
+      </oa-table>
 
       <q-dialog v-model="showJobDetails">
         <CaptureJobDetailsPanel :job="jobDetails"></CaptureJobDetailsPanel>
@@ -108,7 +108,7 @@ import FormatUtils from "@/lib/FormatUtils.js"
 import OaSection from "@/components/widgets/OaSection";
 import CaptureJobDetailsPanel from "./CaptureJobDetailsPanel";
 import DateRangeSelector from "@/components/widgets/DateRangeSelector";
-import GenericTable from "@/components/table/GenericTable.vue";
+import OaTable from "@/components/table/OaTable.vue";
 
 const store = useStore();
 

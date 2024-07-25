@@ -7,13 +7,13 @@
   <q-page class="oa-root-div">
     <div class="q-pa-sm">
       <oa-section title="Plate Layout Templates" icon="border_outer">
-        <generic-table :rows="templates" :columns="columns" @row-click="selectTemplate">
+        <oa-table :rows="templates" :columns="columns" @row-dblclick="selectTemplate">
           <template v-slot:top-left>
             <router-link :to="{ name: 'newPlateTemplate' }" class="nav-link">
               <q-btn size="sm" icon="add" class="oa-button" label="New Plate Template"/>
             </router-link>
           </template>
-        </generic-table>
+        </oa-table>
       </oa-section>
     </div>
   </q-page>
@@ -26,7 +26,7 @@ import FormatUtils from "@/lib/FormatUtils.js"
 import templatesGraphQlAPI from '@/api/graphql/templates'
 
 import OaSection from "@/components/widgets/OaSection";
-import GenericTable from "@/components/table/GenericTable.vue";
+import OaTable from "@/components/table/OaTable.vue";
 import {useLoadingHandler} from "@/composable/loadingHandler";
 
 const templates = ref([])

@@ -7,7 +7,7 @@
   <q-page class="oa-root-div">
     <div class="q-pa-sm">
       <oa-section title="Calculation Formulas" icon="functions">
-        <generic-table
+        <oa-table
             :rows="formulas"
             :columns="columns"
             @row-dblclick="selectFormula">
@@ -45,7 +45,7 @@
               </div>
             </q-td>
           </template>
-        </generic-table>
+        </oa-table>
       </oa-section>
     </div>
   </q-page>
@@ -59,7 +59,7 @@ import {useRouter} from 'vue-router'
 import FormatUtils from "@/lib/FormatUtils.js"
 import DeleteFormulaDialog from "@/pages/calculation/formula/DeleteFormulaDialog.vue";
 import OaSection from "@/components/widgets/OaSection";
-import GenericTable from "@/components/table/GenericTable.vue";
+import OaTable from "@/components/table/OaTable.vue";
 
 const loading = ref(true);
 

@@ -1,5 +1,5 @@
 <template>
-  <generic-table :columns="columns"
+  <oa-table :columns="columns"
                  :rows="plates"
                  :visible-columns="visibleColumns"
                  @row-click="selectPlate"
@@ -95,7 +95,7 @@
         <span>No plates to show.</span>
       </div>
     </template>
-  </generic-table>
+  </oa-table>
   <PlateActionMenu v-show="showPlateContextMenu" :plate="selectedPlate" touch-position context-menu />
 </template>
 
@@ -120,7 +120,7 @@ import FilterUtils from "@/lib/FilterUtils.js"
 import {useExperimentStore} from "@/stores/experiment";
 import {useExportTableData} from "@/composable/exportTableData";
 import {useUIStore} from "@/stores/ui";
-import GenericTable from "@/components/table/GenericTable.vue";
+import OaTable from "@/components/table/OaTable.vue";
 
 const props = defineProps(['plates', 'experiment', 'newPlateTab', 'newPlateFromMeasurements'])
 const emit = defineEmits(['update:newPlateTab', 'showPlateInspector'])

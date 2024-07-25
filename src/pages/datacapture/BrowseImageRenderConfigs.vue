@@ -6,7 +6,7 @@
 
   <q-page class="oa-root-div">
     <oa-section title="Image Render Configurations" icon="palette" class="q-pa-sm">
-      <generic-table
+      <oa-table
           :rows="measurementStore.renderConfigs"
           :columns="columns"
           :loading="loading"
@@ -29,7 +29,7 @@
             <q-btn flat round icon="delete" size="sm" @click="deleteConfig(props.row.id)"/>
           </q-td>
         </template>
-      </generic-table>
+      </oa-table>
     </oa-section>
   </q-page>
 
@@ -45,7 +45,7 @@ import ColorButton from "@/components/image/ColorButton";
 import CreateRenderConfigDialog from "@/components/image/CreateRenderConfigDialog";
 import DeleteRenderConfigDialog from "@/components/image/DeleteRenderConfigDialog";
 import {useMeasurementStore} from "@/stores/measurement";
-import GenericTable from "@/components/table/GenericTable.vue";
+import OaTable from "@/components/table/OaTable.vue";
 import {useRouter} from "vue-router";
 import {useLoadingHandler} from "@/composable/loadingHandler";
 

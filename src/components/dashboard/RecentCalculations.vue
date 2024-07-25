@@ -1,6 +1,6 @@
 <template>
     <div class="q-pa-sm">
-        <generic-table :columns="columns" :rows="resultSets">
+        <oa-table :columns="columns" :rows="resultSets">
             <template v-slot:body-cell-protocolId="props">
                 <q-td :props="props">
                     <router-link :to="'/protocol/' + props.row.protocolId" class="nav-link">
@@ -24,7 +24,7 @@
                     <StatusLabel :status="props.row.outcome"/>
                 </q-td>
             </template>
-        </generic-table>
+        </oa-table>
     </div>
 </template>
 
@@ -33,7 +33,7 @@ import {computed} from "vue";
 import {useStore} from "vuex";
 import FormatUtils from "@/lib/FormatUtils";
 import StatusLabel from "@/components/widgets/StatusLabel";
-import GenericTable from "@/components/table/GenericTable.vue";
+import OaTable from "@/components/table/OaTable.vue";
 
 
 const store = useStore();

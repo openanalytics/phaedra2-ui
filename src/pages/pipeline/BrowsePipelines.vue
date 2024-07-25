@@ -6,14 +6,14 @@
 
   <q-page class="oa-root-div">
     <oa-section title="Pipelines" icon="route" class="q-pa-sm">
-      <generic-table
+      <oa-table
           :rows="pipelineStore.pipelines"
           :columns="columns"
           @row-dblclick="gotoPipelineDetails">
         <template v-slot:top-left>
           <q-btn color="primary" icon="add" size="sm" label="New Pipeline..." @click="router.push('/pipeline/new')"/>
         </template>
-      </generic-table>
+      </oa-table>
     </oa-section>
   </q-page>
 </template>
@@ -24,7 +24,7 @@ import {useRouter} from "vue-router";
 import FormatUtils from "@/lib/FormatUtils.js"
 import OaSection from "@/components/widgets/OaSection";
 import {usePipelineStore} from "@/stores/pipeline";
-import GenericTable from "@/components/table/GenericTable.vue";
+import OaTable from "@/components/table/OaTable.vue";
 import {useLoadingHandler} from "@/composable/loadingHandler";
 
 const pipelineStore = usePipelineStore()

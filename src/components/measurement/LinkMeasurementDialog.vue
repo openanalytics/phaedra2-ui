@@ -24,12 +24,12 @@
       </q-card-section>
 
       <q-card-section>
-        <generic-table
+        <oa-table
             :rows="filteredMeasurements"
             :columns="columns"
             v-model:selected="selectedMeasurement"
             selection="single">
-        </generic-table>
+        </oa-table>
       </q-card-section>
 
       <q-card-actions class="text-primary" align="right">
@@ -47,7 +47,7 @@ import FormatUtils from "@/lib/FormatUtils"
 import measurementsGraphQlAPI from "@/api/graphql/measurements"
 import plateActions from "@/composable/plate/plateActions";
 import {useLoadingHandler} from "@/composable/loadingHandler"
-import GenericTable from "@/components/table/GenericTable.vue";
+import OaTable from "@/components/table/OaTable.vue";
 
 const props = defineProps(['show', 'plates'])
 const emit = defineEmits([ 'update:show', 'linkPlateMeasurement' ])

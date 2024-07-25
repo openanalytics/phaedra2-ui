@@ -6,7 +6,7 @@
 
   <q-page class="oa-root-div">
     <oa-section title="Capture Scripts" icon="data_object" class="q-pa-sm">
-      <generic-table
+      <oa-table
           :rows="scripts"
           :columns="columns"
           :loading="loading"
@@ -20,7 +20,7 @@
             <span>No Capture Scripts to show.</span>
           </div>
         </template>
-      </generic-table>
+      </oa-table>
     </oa-section>
   </q-page>
 </template>
@@ -31,7 +31,7 @@ import {useStore} from 'vuex'
 import {useRouter} from 'vue-router';
 import FormatUtils from "@/lib/FormatUtils.js"
 import OaSection from "@/components/widgets/OaSection";
-import GenericTable from "@/components/table/GenericTable.vue";
+import OaTable from "@/components/table/OaTable.vue";
 
 const store = useStore();
 const loading = ref(true);

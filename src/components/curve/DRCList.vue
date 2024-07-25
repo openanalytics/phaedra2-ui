@@ -1,5 +1,5 @@
 <template>
-  <generic-table :columns="curveTableColumns"
+  <oa-table :columns="curveTableColumns"
                  :rows="curveData"
                  row-key="substance"
                  :filter="filter"
@@ -46,7 +46,7 @@
         <DRCActionMenu @showDRCView="handleShowDRCView(props.row.curve_info[props.col.featureId].curve)"/>
       </q-td>
     </template>
-  </generic-table>
+  </oa-table>
 </template>
 
 <script setup>
@@ -57,7 +57,7 @@ import ColumnFilter from "@/components/table/ColumnFilter.vue";
 import FilterUtils from "@/lib/FilterUtils";
 import {useUIStore} from "@/stores/ui";
 import DRCActionMenu from "@/components/curve/DRCActionMenu.vue";
-import GenericTable from "@/components/table/GenericTable.vue";
+import OaTable from "@/components/table/OaTable.vue";
 
 const uiStore = useUIStore()
 

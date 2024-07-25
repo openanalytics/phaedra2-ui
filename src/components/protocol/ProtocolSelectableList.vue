@@ -1,16 +1,16 @@
 <template>
-    <generic-table
+    <oa-table
         :rows="protocols"
         :columns="columns"
         v-model:selected="selected"
         selection="single">
-    </generic-table>
+    </oa-table>
 </template>
 
 <script setup>
     import {ref} from "vue";
     import protocolsGraphQlAPI from "@/api/graphql/protocols"
-    import GenericTable from "@/components/table/GenericTable.vue";
+    import OaTable from "@/components/table/OaTable.vue";
 
     const props = defineProps(['protocolId'])
 

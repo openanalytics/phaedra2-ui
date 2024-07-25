@@ -1,5 +1,5 @@
 <template>
-  <generic-table
+  <oa-table
       :title="'Result Sets'"
       :rows="resultSets"
       :columns="columns"
@@ -24,7 +24,7 @@
         <q-btn label="Details" icon-right="chevron_right" size="sm" @click="doShowDetails(props.row)"/>
       </q-td>
     </template>
-  </generic-table>
+  </oa-table>
 
   <q-dialog v-model="showResultSetDetails">
     <ResultSetDetailsPanel :resultSet="resultSetDetails"></ResultSetDetailsPanel>
@@ -38,7 +38,7 @@ import FormatUtils from "../../lib/FormatUtils";
 import StatusLabel from "@/components/widgets/StatusLabel"
 import ResultSetDetailsPanel from "@/components/resultdata/ResultSetDetailsPanel";
 import {usePlateStore} from "@/stores/plate";
-import GenericTable from "@/components/table/GenericTable.vue";
+import OaTable from "@/components/table/OaTable.vue";
 import {useRouter} from "vue-router";
 
 const props = defineProps({ plate: Object });

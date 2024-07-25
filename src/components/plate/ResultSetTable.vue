@@ -1,5 +1,5 @@
 <template>
-  <generic-table
+  <oa-table
            :title="'Result Set ' + props.resultSet[0].resultSetId"
            :rows="props.resultSet"
            :columns="columns"
@@ -8,13 +8,13 @@
     <template v-slot:top-left>
       <q-btn size="sm" color="primary" icon="arrow_back" label="Back" @click="emit('update:resultSetShow', false)"/>
     </template>
-  </generic-table>
+  </oa-table>
 </template>
 
 <script setup>
   import {computed, ref} from 'vue'
   import {useStore} from "vuex";
-  import GenericTable from "@/components/table/GenericTable.vue";
+  import OaTable from "@/components/table/OaTable.vue";
 
   const store = useStore();
   const props = defineProps({

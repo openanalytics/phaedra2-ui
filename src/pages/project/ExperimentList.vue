@@ -1,6 +1,6 @@
 <template>
   <oa-section title="Experiments" icon="science">
-    <generic-table :columns="columns"
+    <oa-table :columns="columns"
                    :rows="experiments"
                     @row-click="selectExperiment"
                     @row-dblclick="gotoExperimentView"
@@ -90,7 +90,7 @@
           <span>No experiments to show.</span>
         </div>
       </template>
-    </generic-table>
+    </oa-table>
     <ExperimentMenu v-show="showExperimentContextMenu" :experiment="selectedExperiment" touch-position context-menu />
   </oa-section>
 
@@ -136,7 +136,7 @@ import FilterUtils from "@/lib/FilterUtils";
 import {useExportTableData} from "@/composable/exportTableData";
 import {useRouter} from "vue-router";
 import {useUIStore} from "@/stores/ui";
-import GenericTable from "@/components/table/GenericTable.vue";
+import OaTable from "@/components/table/OaTable.vue";
 
 const props = defineProps({
   experiments: [Object],

@@ -1,5 +1,5 @@
 <template>
-  <generic-table :rows="measurementStore.measurements"
+  <oa-table :rows="measurementStore.measurements"
                  :columns="columns"
                  @row-dblclick="handleDblRowClick">
     <template v-slot:top-left>
@@ -15,12 +15,12 @@
         <UserChip :id="props.row.createdBy" />
       </q-td>
     </template>
-  </generic-table>
+  </oa-table>
 </template>
 
 <script setup>
 import DateRangeSelector from "@/components/widgets/DateRangeSelector";
-import GenericTable from "@/components/table/GenericTable";
+import OaTable from "@/components/table/OaTable.vue";
 import {useMeasurementStore} from "@/stores/measurement";
 import {onMounted, ref} from "vue";
 import FormatUtils from "@/lib/FormatUtils";

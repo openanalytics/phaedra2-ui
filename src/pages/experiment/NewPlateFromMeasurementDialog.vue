@@ -13,7 +13,7 @@
       </q-card-section>
 
       <q-card-section class="q-pa-sm">
-        <generic-table :rows="measurementStore.measurements"
+        <oa-table :rows="measurementStore.measurements"
                        :columns="columns"
                        selection="multiple"
                        v-model:selected="selectedMeasurements">
@@ -21,7 +21,7 @@
             <date-range-selector v-model:from="fromDate" v-model:to="toDate"
                                  @rangeChanged="refreshList"/>
           </template>
-        </generic-table>
+        </oa-table>
       </q-card-section>
 
       <q-card-actions align="right" class="text-primary">
@@ -34,7 +34,7 @@
 
 <script setup>
 import DateRangeSelector from "@/components/widgets/DateRangeSelector";
-import GenericTable from "@/components/table/GenericTable";
+import OaTable from "@/components/table/OaTable.vue";
 import {useMeasurementStore} from "@/stores/measurement";
 import {computed, onMounted, ref} from "vue";
 import FormatUtils from "@/lib/FormatUtils";

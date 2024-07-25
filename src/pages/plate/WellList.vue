@@ -1,5 +1,5 @@
 <template>
-  <generic-table :columns="columns" :rows="wells"
+  <oa-table :columns="columns" :rows="wells"
                  selection="multiple"
                  v-model:selected="uiStore.selectedWells"
                  @row-click="selectWell">
@@ -55,7 +55,7 @@
         <span>No wells to show.</span>
       </div>
     </template>
-  </generic-table>
+  </oa-table>
   <WellActionMenu touch-position context-menu @rejectWells="handleRejectWells" @acceptWells="handleAcceptWells"/>
 </template>
 
@@ -74,7 +74,7 @@ import ColumnFilter from "@/components/table/ColumnFilter";
 import WellActionMenu from "@/components/well/WellActionMenu.vue";
 import {usePlateStore} from "@/stores/plate"
 import {useUIStore} from "@/stores/ui";
-import GenericTable from "@/components/table/GenericTable.vue";
+import OaTable from "@/components/table/OaTable.vue";
 
 const props = defineProps(['plate', 'wells']);
 const emits = defineEmits(['wellStatusChanged'])
