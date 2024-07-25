@@ -27,12 +27,12 @@ import templatesGraphQlAPI from '@/api/graphql/templates'
 
 import OaSection from "@/components/widgets/OaSection";
 import GenericTable from "@/components/table/GenericTable.vue";
+import {useLoadingHandler} from "@/composable/loadingHandler";
 
-const router = useRouter();
 const templates = ref([])
-
-onMounted(() => {
-  fetchPlateTemplates()
+const loading = useLoadingHandler()
+onMounted(async () => {
+  await loading.handleLoadingDuring(fetchPlateTemplates())
 })
 
 const columns = ref([
@@ -47,14 +47,14 @@ const columns = ref([
   {name: 'updatedBy', align: 'left', label: 'Updated By', field: 'updatedBy', sortable: true}
 ]);
 
+const router = useRouter();
 const selectTemplate = (event, row) => {
   router.push("/template/" + row.id);
 }
 
-const fetchPlateTemplates = () => {
+const fetchPlateTemplates = async () => {
   const {onResult, onError} = templatesGraphQlAPI.templates()
   onResult(({data}) => templates.value = data.plateTemplates)
-
   //TODO: implement onError event handling
 }
 </script>

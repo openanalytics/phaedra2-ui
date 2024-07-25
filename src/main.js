@@ -74,10 +74,10 @@ import ImportProtocolView from "@/pages/protocol/ImportProtocolView.vue"
 import BrowseFormulas from "@/pages/calculation/formula/BrowseFormulas.vue"
 import FormulaView from "@/pages/calculation/formula/FormulaView.vue"
 
-import CaptureJobsView from '@/pages/datacapture/CaptureJobsView.vue'
-import CaptureScriptsView from '@/pages/datacapture/CaptureScriptsView.vue'
+import BrowseCaptureJobs from '@/pages/datacapture/BrowseCaptureJobs.vue'
+import BrowseCaptureScripts from '@/pages/datacapture/BrowseCaptureScripts.vue'
 import CaptureScriptView from '@/pages/datacapture/CaptureScriptView.vue'
-import CaptureConfigsView from '@/pages/datacapture/CaptureConfigsView.vue'
+import BrowseCaptureConfigs from '@/pages/datacapture/BrowseCaptureConfigs.vue'
 import CaptureConfigView from '@/pages/datacapture/CaptureConfigView.vue'
 import BrowseMeasurements from "@/pages/datacapture/BrowseMeasurements.vue"
 import MeasurementDetailsView from "@/pages/datacapture/MeasurementDetailsView.vue"
@@ -146,10 +146,10 @@ const routes = createRouter({
         {name: "calcFormulas", path: "/calc/formulas", component: BrowseFormulas},
         {name: "calcFormula", path: "/calc/formula/:id", component: FormulaView},
 
-        {name: "dataCaptureJobs", path: "/datacapture/jobs", component: CaptureJobsView},
-        {name: "dataCaptureScripts", path: "/datacapture/scripts", component: CaptureScriptsView},
+        {name: "dataCaptureJobs", path: "/datacapture/jobs", component: BrowseCaptureJobs},
+        {name: "dataCaptureScripts", path: "/datacapture/scripts", component: BrowseCaptureScripts},
         {name: "dataCaptureScript", path: "/datacapture/script/:id", component: CaptureScriptView},
-        {name: "dataCaptureConfigs", path: "/datacapture/configs", component: CaptureConfigsView},
+        {name: "dataCaptureConfigs", path: "/datacapture/configs", component: BrowseCaptureConfigs},
         {name: "dataCaptureConfig", path: "/datacapture/config/:id", component: CaptureConfigView},
         {name: "measurements", path: "/datacapture/meas", component: BrowseMeasurements},
         {name: "measurementDetails", path: "/datacapture/meas/:id", component: MeasurementDetailsView},

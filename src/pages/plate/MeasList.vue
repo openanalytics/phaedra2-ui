@@ -57,7 +57,6 @@ import projectsGraphQlAPI from "@/api/graphql/projects";
 import {usePlateStore} from "@/stores/plate";
 import GenericTable from "@/components/table/GenericTable.vue";
 
-const router = useRouter();
 const props = defineProps({ plate: Object, readOnly: Boolean });
 const readOnly = ref(props.readOnly)
 
@@ -101,6 +100,7 @@ const updateActiveState = (plateId, measurementId) => {
   })
 };
 
+const router = useRouter();
 const onSelectMeasurement = (event, row) => {
     router.push("/datacapture/meas/" + row.measurementId);
 }

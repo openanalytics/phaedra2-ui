@@ -20,7 +20,7 @@
         <q-th v-for="col in props.cols" :key="col.name" :props="props">
           {{col.label}}
           <q-tooltip>
-            {{ col.description }}
+            {{ col.description || col.label}}
           </q-tooltip>
         </q-th>
       </q-tr>
@@ -47,6 +47,11 @@
         <UserChip :id="props.row.updatedBy"/>
       </q-td>
     </template>
+    <template v-slot:body-cell-status="props">
+      <q-td :props="props">
+        <StatusLabel :status="props.row.status || props.row.statusCode"/>
+      </q-td>
+    </template>
 
     <slot />
 
@@ -57,11 +62,12 @@
 </template>
 
 <script setup>
-import {defineProps, defineEmits, ref, computed} from 'vue'
+import {defineProps, ref} from 'vue'
 import ColumnFilter from "@/components/table/ColumnFilter";
 import FilterUtils from "@/lib/FilterUtils";
 import TagList from "@/components/tag/TagList.vue";
 import UserChip from "@/components/widgets/UserChip.vue";
+import StatusLabel from "@/components/widgets/StatusLabel.vue";
 
 // use defineProps for props
 const props = defineProps({

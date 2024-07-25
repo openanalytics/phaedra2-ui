@@ -57,14 +57,10 @@
                 </div>
             </oa-section>
             <oa-section title="Channels" icon="collections" :collapsible="true" class="q-pt-sm">
-                <q-table
-                    table-header-class="text-grey"
-                    flat dense hide-bottom
+                <generic-table
                     :rows="channels"
                     :columns="columns"
-                    row-key="id"
-                    :pagination="{ rowsPerPage: 100 }"
-                >
+                    row-key="id">
                     <template v-slot:top-left>
                         <q-btn size="sm" color="primary" icon="add" label="Add..." @click="doAddChannel" class="q-mt-sm" />
                     </template>
@@ -102,7 +98,7 @@
                             <q-btn flat round icon="delete" size="sm" @click="doDeleteChannel(props.rowIndex)" />
                         </q-td>
                     </template>
-                </q-table>
+                </generic-table>
             </oa-section>
         </div>
     </q-page>
@@ -121,6 +117,7 @@ import UserChip from "@/components/widgets/UserChip";
 
 import FormatUtils from "@/lib/FormatUtils.js"
 import {useMeasurementStore} from "@/stores/measurement";
+import GenericTable from "@/components/table/GenericTable.vue";
 
 const route = useRoute();
 const configId = parseInt(route.params.id);

@@ -5,13 +5,11 @@
                 <q-avatar icon="palette" color="primary" text-color="white"/> Render Config
             </q-card-section>
             <q-card-section>
-                <q-table
-                    dense flat hide-bottom
-                    selection="multiple" v-model:selected="selectedChannels"
-                    table-header-class="text-grey"
+                <generic-table
+                    selection="multiple"
+                    v-model:selected="selectedChannels"
                     :rows="uiStore.imageRenderSettings.channels"
                     :columns="channelColumns"
-                    :pagination="{ rowsPerPage: 20 }"
                     row-key="name"
                 >
                     <template v-slot:body-cell-rgb="props">
@@ -28,7 +26,7 @@
                             />
                         </q-td>
                     </template>
-                </q-table>
+                </generic-table>
             </q-card-section>
             <q-card-actions class="text-primary float-right">
                 <q-btn flat label="Cancel" v-close-popup/>
@@ -39,9 +37,10 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref} from 'vue';
 import {useUIStore} from "@/stores/ui";
 import ColorUtils from '@/lib/ColorUtils';
+import GenericTable from "@/components/table/GenericTable.vue";
 
 const uiStore = useUIStore();
 const props = defineProps({
