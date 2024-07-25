@@ -9,12 +9,6 @@
       <date-range-selector v-model:from="fromDate" v-model:to="toDate"
                            @rangeChanged="refreshList"/>
     </template>
-
-    <template v-slot:body-cell-createdBy="props">
-      <q-td :props="props">
-        <UserChip :id="props.row.createdBy" />
-      </q-td>
-    </template>
   </oa-table>
 </template>
 
@@ -26,7 +20,6 @@ import {onMounted, ref} from "vue";
 import FormatUtils from "@/lib/FormatUtils";
 import {date} from "quasar";
 import {useLoadingHandler} from "@/composable/loadingHandler";
-import UserChip from "@/components/widgets/UserChip.vue";
 
 const emits = defineEmits(['rowDlbClick'])
 

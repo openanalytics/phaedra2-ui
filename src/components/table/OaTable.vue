@@ -1,7 +1,5 @@
 <template>
   <q-table
-      class="full-width"
-      table-header-class="text-grey"
       :rows="rows"
       :columns="columns"
       :filter="filter"
@@ -12,6 +10,8 @@
       :selected="selected"
       :pagination="pagination"
       :loading="loading"
+      class="full-width"
+      table-header-class="text-grey"
       separator="cell"
       flat dense square virtual-scroll bordered>
     <template v-slot:header="props">

@@ -80,16 +80,6 @@
         <StatusFlag :object="props.row" :statusField="'approvalStatus'"/>
       </q-td>
     </template>
-    <template v-slot:body-cell-tags="props">
-      <q-td :props="props">
-        <tag-list :tags="props.row.tags" :readOnly="true"/>
-      </q-td>
-    </template>
-    <template v-slot:body-cell-createdBy="props">
-      <q-td :props="props">
-        <UserChip :id="props.row.createdBy"/>
-      </q-td>
-    </template>
     <template v-slot:no-data>
       <div class="full-width row text-info">
         <span>No plates to show.</span>
@@ -110,11 +100,8 @@
 import {computed, onMounted, ref, watch} from "vue";
 import {useRouter} from "vue-router";
 
-import UserChip from "@/components/widgets/UserChip";
-import ColumnFilter from "@/components/table/ColumnFilter";
 import PlateActionMenu from "@/components/plate/PlateActionMenu";
 import StatusFlag from "@/components/widgets/StatusFlag";
-import TagList from "@/components/tag/TagList";
 import FormatUtils from "@/lib/FormatUtils";
 import FilterUtils from "@/lib/FilterUtils.js"
 import {useExperimentStore} from "@/stores/experiment";
