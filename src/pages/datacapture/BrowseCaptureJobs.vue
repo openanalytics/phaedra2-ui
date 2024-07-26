@@ -6,7 +6,7 @@
 
   <q-page class="oa-root-div q-pa-sm">
     <oa-section title="Data Capture Jobs" icon="cloud_upload" :collapsible="true">
-      <oa-table :rows="jobs" :columns="columns">
+      <oa-table :rows="jobs" :columns="columns" :pagination="{ rowsPerPage: 20, sortBy: 'createDate', descending: true }">
         <template v-slot:top-left>
           <div class="justify-end">
             <q-btn color="primary" icon="refresh" size="sm" @click="refreshList" class="on-left"/>
@@ -21,9 +21,10 @@
             <q-btn label="Details" icon-right="chevron_right" size="sm" @click="doShowJobDetails(props.row)"/>
           </q-td>
         </template>
-        <template v-slot:body-cell-cancel="props">
+        <template v-slot:body-cell-actions="props">
           <q-td :props="props">
-            <q-btn label="Cancel" icon-right="cancel" size="sm" @click="cancelJob(props.row.id)" v-if="canCancelJob(props.row)"/>
+            <q-btn v-if="canCancelJob(props.row)" label="Cancel" icon-right="cancel" size="sm" @click="cancelJob(props.row.id)" />
+            <q-btn v-if="canResubmitJob(props.row)" label="Re-submit" icon-right="restart_alt" size="sm" @click="jobToResubmit = props.row; showResubmitConfirmation = true" />
           </q-td>
         </template>
         <template v-slot:no-data>
@@ -98,6 +99,8 @@
       </q-dialog>
     </oa-section>
   </q-page>
+
+  <confirm-dialog title="Re-submit Job" :message="'Are you sure you want to re-submit this capture job? ' + jobToResubmit?.sourcePath" v-model:show="showResubmitConfirmation" @onConfirm="resubmitJob"/>
 </template>
 
 <script setup>
@@ -109,6 +112,7 @@ import OaSection from "@/components/widgets/OaSection";
 import CaptureJobDetailsPanel from "./CaptureJobDetailsPanel";
 import DateRangeSelector from "@/components/widgets/DateRangeSelector";
 import OaTable from "@/components/table/OaTable.vue";
+import ConfirmDialog from "@/components/widgets/ConfirmDialog"
 
 const store = useStore();
 
@@ -132,11 +136,11 @@ const columns = ref([
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
   {name: 'createDate', align: 'left', label: 'Created On', field: 'createDate', sortable: true, format: FormatUtils.formatDate },
   {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
-  {name: 'sourcePath', align: 'left', label: 'Source Path', field: 'sourcePath', sortable: true, format: t => FormatUtils.formatTextMaxLength(t, 50) },
-  {name: 'status', label: 'Status', field: 'statusCode', sortable: true},
+  {name: 'sourcePath', align: 'left', label: 'Source Path', field: 'sourcePath', sortable: true, format: t => FormatUtils.formatTextMaxLength(t, 100) },
+  {name: 'status', align: 'left', label: 'Status', field: 'statusCode', sortable: true},
   {name: 'statusMessage', align: 'left', label: 'Message', field: 'statusMessage', sortable: true, format: t => FormatUtils.formatTextMaxLength(t, 50) },
-  {name: 'details'},
-  {name: 'cancel'}
+  {name: 'details', align: 'center' },
+  {name: 'actions', align: 'center' }
 ]);
 
 // Auto-refresh
@@ -181,6 +185,20 @@ const handleFolderSelection = (files) => {
 const canCancelJob = job => job.statusCode == 'Submitted' || job.statusCode == 'Running'
 const cancelJob = (id) => {
   store.dispatch('datacapture/cancelJob', id);
+};
+
+const canResubmitJob = job => job.statusCode != 'Submitted' && job.statusCode != 'Running'
+const showResubmitConfirmation = ref(false);
+const jobToResubmit = ref(null);
+const resubmitJob = () => {
+  if (!jobToResubmit.value) return;
+  const newJob = {
+    captureConfig: jobToResubmit.value.captureConfig,
+    sourcePath: jobToResubmit.value.sourcePath
+  };
+  if (jobToResubmit.value.files) newJob.files = jobToResubmit.value.files;
+  store.dispatch('datacapture/submitJob', newJob);
+  refreshList();
 };
 
 const captureJobs = []
