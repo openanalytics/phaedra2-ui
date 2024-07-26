@@ -39,16 +39,6 @@
             </div>
         </q-td>
       </template>
-      <template v-slot:body-cell-tags="props">
-        <q-td :props="props">
-          <tag-list :tags="props.row.tags" :readOnly="true" />
-        </q-td>
-      </template>
-      <template v-slot:body-cell-createdBy="props">
-        <q-td :props="props">
-          <UserChip :id="props.row.createdBy" />
-        </q-td>
-      </template>
       <template v-slot:body-cell-nrPlatesLinkedLayout="props">
         <q-td :props="props">
           <ProgressBarField :actualValue="props.row.summary?.nrPlatesLinkedLayout" :maxValue="props.row.summary?.nrPlates" />
@@ -116,20 +106,14 @@
       </q-card-actions>
     </q-card>
   </q-dialog>
-
-<!--  <TableConfig v-model:show="showConfigDialog" v-model:columns="columns" v-model:visibleColumns="visibleColumns"></TableConfig>-->
 </template>
 
 <script setup>
 import {ref, computed, watch} from 'vue'
 
-// import TableConfig from "@/components/table/TableConfig";
 import ProgressBarField from "@/components/widgets/ProgressBarField";
-import UserChip from "@/components/widgets/UserChip";
 import ExperimentMenu from "@/components/experiment/ExperimentMenu";
 import OaSection from "@/components/widgets/OaSection";
-import ColumnFilter from "@/components/table/ColumnFilter";
-import TagList from "@/components/tag/TagList";
 
 import FormatUtils from "@/lib/FormatUtils.js"
 import FilterUtils from "@/lib/FilterUtils";
