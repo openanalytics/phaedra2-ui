@@ -1,18 +1,17 @@
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import { defineStore } from "pinia";
 import RecentCalculations from "@/components/dashboard/panes/RecentCalculations";
 import RecentProjects from "@/components/dashboard/panes/RecentProjects";
 import RecentExperiments from "@/components/dashboard/panes/RecentExperiments";
-export const usePanesStore = defineStore("panes", () => {
-  const draggedElement = ref();
+import { shallowRef } from "vue";
 
-  const panes = ref([
+export const usePanesStore = defineStore("panes", () => {
+  const panes = shallowRef([
     {
       component: RecentCalculations,
       id: "recent-calculations-pane",
       title: "Recent Calculations",
       icon: "calculate",
-      pane: "right",
       closable: false,
     },
     {
@@ -20,7 +19,6 @@ export const usePanesStore = defineStore("panes", () => {
       id: "recent-projects-pane",
       title: "Recent Projects",
       icon: "folder",
-      pane: "center",
       closable: false,
     },
     {
@@ -28,51 +26,108 @@ export const usePanesStore = defineStore("panes", () => {
       id: "recent-experiments-pane",
       title: "Recent Experiments",
       icon: "science",
-      pane: "left",
       closable: true,
     },
   ]);
 
-  const leftPaneComponents = computed(() =>
-    panes.value.filter((pane) => pane.pane == "left")
-  );
-  const centerPaneComponents = computed(() =>
-    panes.value.filter((pane) => pane.pane == "center")
-  );
-  const bottomPaneComponents = computed(() =>
-    panes.value.filter((pane) => pane.pane == "bottom")
-  );
-  const rightPaneComponents = computed(() =>
-    panes.value.filter((pane) => pane.pane == "right")
-  );
+  const draggedElement = ref();
 
-  function removeItem(component) {
-    var pane = panes.value.find((pane) => {
-      return pane.component == component;
+  const dynamicPanes = ref([
+    "V",
+    [
+      "H",
+      ["recent-calculations-pane"],
+      ["recent-projects-pane"],
+      ["recent-experiments-pane"],
+    ],
+  ]);
+
+  function mapComponents(idMap) {
+    return idMap.map((id) => panes.value.filter((pane) => pane.id == id)[0]);
+  }
+
+  function removeItem(id, array) {
+    return array.map((pane) => {
+      if (pane == "V" || pane == "H" || typeof pane == "string") {
+        return pane;
+      }
+      if (
+        pane.find(
+          (component) => component == id && typeof component != "object"
+        )
+      ) {
+        pane = pane.filter(
+          (component) => component != id && typeof component != "object"
+        );
+        return pane;
+      }
+      return removeItem(id, pane);
     });
-    if (pane.closable) {
-      pane.pane = undefined;
+  }
+
+  function removeEmptyArrays(array) {
+    if (typeof array == "object") {
+      if (array.length == 2) {
+        if (array[0] == "H" || array[0] == "V") {
+          array = array[1];
+        }
+      }
+
+      for (let i = 0; i < array.length; i++) {
+        array[i] = removeEmptyArrays(array[i]);
+      }
+    }
+    if (typeof array == "object") {
+      return array.filter((pane) => pane.length != 0);
+    }
+    return array;
+  }
+
+  function insertItem(id, toId, array, position) {
+    return array.map((pane) => {
+      if (pane == "V" || pane == "H" || typeof pane == "string") {
+        return pane;
+      }
+      if (
+        pane.find(
+          (component) => component == toId && typeof component != "object"
+        )
+      ) {
+        if (position == "center") {
+          return [...pane, id];
+        }
+        if (position == "left") {
+          return ["V", [id], pane];
+        }
+        if (position == "right") {
+          return ["V", pane, [id]];
+        }
+        if (position == "top") {
+          return ["H", [id], pane];
+        }
+        if (position == "bottom") {
+          return ["H", pane, [id]];
+        }
+        return [...pane, id];
+      }
+      return insertItem(id, toId, pane, position);
+    });
+  }
+
+  function addItem(id, toId, position) {
+    if (id != toId) {
+      dynamicPanes.value = removeItem(id, dynamicPanes.value);
+      dynamicPanes.value = removeEmptyArrays(dynamicPanes.value);
+      dynamicPanes.value = insertItem(id, toId, dynamicPanes.value, position);
     }
   }
 
-  function addItem(component, list) {
-    console.log("yupi yey");
-    console.log(component);
-    console.log(list);
-    var pane = panes.value.find((pane) => {
-      return pane.component == component;
-    });
-    pane.pane = list;
-  }
-
   return {
-    leftPaneComponents,
-    rightPaneComponents,
-    bottomPaneComponents,
-    centerPaneComponents,
+    dynamicPanes,
     draggedElement,
     removeItem,
     addItem,
+    mapComponents,
     panes,
   };
 });

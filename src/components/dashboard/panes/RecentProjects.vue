@@ -1,6 +1,4 @@
 <template>
-  <!-- <div class="q-pa-sm"> -->
-  <!-- <oa-section title="Recent Projects" icon="folder" :collapsible="true"> -->
   <div v-if="recentProjects.length > 0" class="row q-pa-sm">
     <ProjectCard
       :project="project"
@@ -8,8 +6,6 @@
       :key="project.id"
     />
   </div>
-  <!-- </oa-section> -->
-  <!-- </div> -->
 </template>
 
 <script setup>
