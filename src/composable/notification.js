@@ -24,11 +24,26 @@ export function useNotification() {
       type: 'warning',
       message: message,
       position: "top",
+      actions: [
+        { icon: 'close', color: "secondary", round: true }
+      ]
+    })
+  }
+
+  const showError = (message) => {
+    $q.notify({
+      type: 'negative',
+      message: message,
+      position: "top",
+      actions: [
+        { icon: 'close', color: "secondary", round: true }
+      ]
     })
   }
 
   return {
     showInfo,
-    showWarning
+    showWarning,
+    showError
   }
 }

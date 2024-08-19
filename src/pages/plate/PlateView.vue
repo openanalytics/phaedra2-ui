@@ -149,6 +149,7 @@ import DRCView from "@/components/curve/DRCView.vue";
 import ChartViewer from "@/components/chart/ChartViewer.vue";
 import {useUIStore} from "@/stores/ui";
 import {useNotification} from "@/composable/notification";
+import {useLoadingHandler} from "@/composable/loadingHandler";
 
 const route = useRoute();
 const projectStore = useProjectStore()
@@ -167,6 +168,7 @@ const drcViewPane = ref()
 const chartViewerPane = ref()
 
 const plateId = parseInt(route.params.plateId)
+const loadingHandler = useLoadingHandler()
 onMounted(() => {
   plateStore.loadPlate(plateId)
 })

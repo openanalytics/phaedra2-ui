@@ -50,7 +50,6 @@
   import { publicPath } from '../vue.config'
   import { Splitpanes, Pane } from 'splitpanes'
 
-  import SidePanel from "@/components/widgets/SidePanel.vue"
   import Navigator from "@/components/navigator/Navigator.vue"
   import UserInfoButton from "@/components/widgets/UserInfoButton.vue"
 

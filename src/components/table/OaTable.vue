@@ -14,7 +14,7 @@
       table-header-class="text-grey"
       separator="cell"
       flat dense square virtual-scroll bordered>
-    <template v-slot:header="props">
+    <template v-slot:header="props" v-if="props.filterRow">
       <q-tr :props="props">
         <q-th v-if="selection" auto-width/>
         <q-th v-for="col in props.cols" :key="col.name" :props="props">
@@ -71,7 +71,7 @@ import StatusLabel from "@/components/widgets/StatusLabel.vue";
 
 // use defineProps for props
 const props = defineProps({
-  rows: { type: Array, required: true },
+  rows: { type: Array, required: true, default: () => [] },
   columns: { type: Array, required: true },
   rowKey: {type: String, required:  false, default: () => "id"},
   columnKey: {type: String, required: false, default: () => "name"},
@@ -81,7 +81,8 @@ const props = defineProps({
   pagination: { type: Object,
     default: () =>
         ({ rowsPerPage: 10, sortBy: 'createdOn', descending: true})
-  }
+  },
+  filterRow: {type: Boolean, required: false, default: () => true}
 })
 
 const filter = FilterUtils.makeFilter(props.columns)
