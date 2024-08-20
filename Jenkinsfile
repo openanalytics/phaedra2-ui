@@ -37,7 +37,8 @@ pipeline {
                             --context ${env.WORKSPACE} \
                             --cache=true \
                             --cache-repo ${env.REGISTRY}/${env.PHA2_SHARED_CACHE} \
-                            --destination ${env.REGISTRY}/${env.REPO}${env.REPO_SUFFIX}:${env.TAG}
+                            --destination ${env.REGISTRY}/${env.REPO}${env.REPO_SUFFIX}:${env.TAG} \
+                            --destination ${env.REGISTRY}/${env.REPO}${env.REPO_SUFFIX}:latest
                     """
                 }
             }

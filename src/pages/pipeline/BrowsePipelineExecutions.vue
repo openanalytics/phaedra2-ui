@@ -10,7 +10,8 @@
           :rows="pipelineStore.executions"
           :columns="columns"
           :loading="loading"
-          @row-dblclick="gotoPipelineExecutionDetails">
+          @row-click="gotoPipelineExecutionDetails"
+      >
         <template v-slot:top-left>
           <q-btn color="primary" icon="refresh" size="sm" @click="refreshList" class="on-left"/>
         </template>
@@ -44,15 +45,12 @@ onMounted(() => {
   refreshList();
 })
 
-const getDateRange = () => {
-  return { from: fromDate.value.getTime(), to: toDate.value.getTime() };
-};
-
-const refreshList = () => {
+const refreshList = async () => {
   loading.value = true;
-  pipelineStore.loadAllPipelineExecutions(getDateRange()).then(() => {
-    loading.value = false
-  })
+  const dateRange = { from: fromDate.value.getTime(), to: toDate.value.getTime() };
+  await pipelineStore.loadPipelineExecutions(dateRange);
+  await pipelineStore.loadPipelines(pipelineStore.executions.map(e => e.pipelineId));
+  loading.value = false;
 };
 
 const columns = ref([

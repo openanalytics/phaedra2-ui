@@ -1,5 +1,6 @@
 import {defineStore} from "pinia";
 import pipelineAPI from "@/api/pipelines";
+import ArrayUtils from "@/lib/ArrayUtils"
 
 export const usePipelineStore = defineStore("pipeline", {
     state: () => ({
@@ -14,12 +15,18 @@ export const usePipelineStore = defineStore("pipeline", {
             return (pipelineId) => state.pipelines.filter(pp => pp.id == pipelineId)[0]
         },
         getPipelineExecutionLogById: state => {
-            return (executionId) => state.executionLogs[executionId]
+            return (executionId) => state.executionLogs[executionId] || []
         }
     },
     actions: {
         async loadPipeline(pipelineId) {
-            this.pipeline = await pipelineAPI.getPipelineById(pipelineId)
+            this.pipeline = await pipelineAPI.getPipelineById(pipelineId);
+            this.pipelines = ArrayUtils.mergeBy(this.pipelines, [this.pipeline], "id");
+        },
+        async loadPipelines(ids) {
+            const distinctIds = [...new Set(ids)];
+            const loadedPipelines = await Promise.all(distinctIds.map(async id => await pipelineAPI.getPipelineById(id)));
+            this.pipelines = ArrayUtils.mergeBy(this.pipelines, loadedPipelines, "id");
         },
         async loadAllPipelines() {
             this.pipelines = await pipelineAPI.getAllPipelines()
@@ -47,8 +54,8 @@ export const usePipelineStore = defineStore("pipeline", {
             this.pipeline.status = 'DISABLED'
             await this.updatePipeline(this.pipeline)
         },
-        async loadAllPipelineExecutions(range) {
-            this.executions = await pipelineAPI.getAllPipelineExecutions(range)
+        async loadPipelineExecutions(range) {
+            this.executions = await pipelineAPI.getPipelineExecutions(range)
         },
         async loadPipelineExecutionById(executionId) {
             this.execution = await pipelineAPI.getPipelineExecutionById(executionId)
