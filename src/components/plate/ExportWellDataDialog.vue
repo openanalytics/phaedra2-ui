@@ -18,11 +18,8 @@
             <FilterPlatesStep v-model:filterPlates="filterModel.plateFilter"/>
           </q-step>
 
-          <q-step title="Filter Wells/Compounds" :name="3">
-            <div class="row q-pb-md" style="font-size: 16px">
-              <span>Step 3/4: Set well and/or compound filters.</span>
-            </div>
-            <q-separator class="q-mb-md"/>
+          <q-step title="Filter Wells/Substances" :name="3">
+            <FilterWellsStep v-model:wellFilter="filterModel.wellFilter"/>
           </q-step>
 
           <q-step title="Include Data" :name="4">
@@ -30,6 +27,16 @@
               <span>Step 4/4: Include additional well data to the export.</span>
             </div>
             <q-separator class="q-mb-md"/>
+            <q-list dense>
+              <div class="q-pa-xs">
+                <q-checkbox v-model="filterModel.includeBasicCurveProperties"
+                            label="Include Curve properties (Basic)" dense/>
+              </div>
+              <div class="q-pa-xs">
+                <q-checkbox v-model="filterModel.includeAllCurveProperties"
+                            label="Include Curve properties (All)" dense/>
+              </div>
+            </q-list>
           </q-step>
 
           <template v-slot:navigation>
@@ -51,6 +58,8 @@ import resultDataGraphQlAPI from "@/api/graphql/resultdata";
 import {useNotification} from "@/composable/notification";
 import SelectFeaturesStep from "@/components/plate/SelectFeaturesStep.vue";
 import FilterPlatesStep from "@/components/plate/FilterPlatesStep.vue";
+import FilterWellsStep from "@/components/plate/FilterWellsStep.vue"
+import platesAPI from "@/api/plates";
 
 const props = defineProps(['show', "experiment"])
 const emits = defineEmits(['update:show']);
@@ -58,6 +67,7 @@ const emits = defineEmits(['update:show']);
 const experimentProtocols = ref([])
 const experimentFeatures = ref([])
 const filterModel = ref({
+  experimentId: props.experiment.id,
   selectedFeatures: [],
   plateFilter: {
     filterOnValidation: false,
@@ -78,11 +88,20 @@ const filterModel = ref({
     },
     includeInvalidatedPlates: false,
     includeDisapprovedPlates: false,
-  }
+  },
+  wellFilter: {
+    substances: [],
+    includeRejectedWells: false,
+    includeInvalidatedSubstances: false,
+    wellTypes: [],
+  },
+  includeAllCurveProperties: false,
+  includeBasicCurveProperties: false
 })
 
 onMounted(() => {
   fetchProtocolsByExperiment()
+  fetchUniqueWellSubstances()
 })
 
 const useNotify = useNotification()
@@ -93,6 +112,10 @@ const fetchProtocolsByExperiment = () => {
     experimentFeatures.value = data.protocols.map(extractFeatures).flat()
   })
   onError((error) => useNotify.showError(error))
+}
+
+const fetchUniqueWellSubstances = () => {
+  platesAPI
 }
 
 const extractFeatures = (protocol) => {
@@ -125,7 +148,9 @@ const finish = () => {
 }
 
 const isValid = () => {
-  if (step.value == 1) return
+  if (step.value == 1)
+    return filterModel.value.selectedFeatures.length > 0
+  return true
 }
 
 </script>

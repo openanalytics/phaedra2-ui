@@ -40,7 +40,7 @@
 
           <template v-slot:navigation>
             <q-stepper-navigation>
-              <q-btn v-if="step < 3" @click="next" color="primary" label="Continue" :disable="!isValid" />
+              <q-btn v-if="step < 3" @click="next" color="primary" label="Continue" :disable="!isValid()" />
               <q-btn v-if="step == 3" @click="finish" color="primary" label="Finish" :disable="!isValid" />
               <q-btn v-if="step > 1" @click="previous" color="primary" label="Back" class="q-ml-sm" flat />
             </q-stepper-navigation>
@@ -54,9 +54,12 @@
 <script setup>
 import {computed, onMounted, ref} from "vue";
 import resultDataGraphQlAPI from "@/api/graphql/resultdata";
+import queriesGraphQlAPI from "@/api/graphql/queries";
 import {useNotification} from "@/composable/notification";
 import SelectFeaturesStep from "@/components/plate/SelectFeaturesStep";
 import FilterPlatesStep from "@/components/plate/FilterPlatesStep.vue";
+import {useLoadingHandler} from "@/composable/loadingHandler";
+import exportToExcel from "@/service/exportToExcel";
 
 const props = defineProps(['show', "experiment"])
 const emits = defineEmits(['update:show']);
@@ -65,6 +68,7 @@ const experimentProtocols = ref([])
 const experimentFeatures = ref([])
 
 const filterModel = ref({
+  experimentId: props.experiment.id,
   selectedFeatures: [],
   plateFilter: {
     filterOnValidation: false,
@@ -111,6 +115,7 @@ const extractFeatures = (protocol) => {
   return protocol.features.map(feature => ({
     "id": feature.id,
     "name": feature.name,
+    "protocolId": protocol.id,
     "protocol": protocol.name
   }))
 }
@@ -131,13 +136,25 @@ const previous = () => {
   if (step.value > 1) step.value--
 }
 
-const finish = () => {
+const loadingHandler = useLoadingHandler()
+const finish = async () => {
   if (step.value >= 3) showDialog.value = false
+  await loadingHandler.handleLoadingDuring(fetchPlateDataResults())
+}
+
+const fetchPlateDataResults = async () => {
   console.log(JSON.stringify(filterModel.value))
+  const {onResult, onError} = queriesGraphQlAPI.exportPlateData(filterModel.value)
+  onResult(({data}) => {
+    exportToExcel.exportPlateDataToXLSX(data.plateData, props.experiment.name)
+    console.log(JSON.stringify(data.plateData))
+  })
 }
 
 const isValid = () => {
-  if (step.value == 1) return
+  if (step.value == 1)
+    return filterModel.value.selectedFeatures.length > 0
+  return true
 }
 
 </script>

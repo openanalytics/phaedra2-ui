@@ -89,5 +89,6 @@
 <script setup>
 
 const filterPlates = defineModel('filterPlates', {required: true})
+console.log("filterPlates: " + JSON.stringify(filterPlates.value))
 
 </script>

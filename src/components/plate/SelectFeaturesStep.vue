@@ -16,6 +16,7 @@ const selectedFeatures = defineModel('selectedFeatures', {required: true})
 const columns = ref([
   {name: 'id', align: 'center', label: 'ID', field: 'id', sortable: true},
   {name: 'name', align: 'center', label: 'Feature', field: 'name', sortable: true},
+  {name: 'protocolId', align: 'center', label: 'Protocol ID', field: "protocolId", sortable: true},
   {name: 'protocol', align: 'center', label: 'Protocol', field: "protocol", sortable: true}
 ])
 
