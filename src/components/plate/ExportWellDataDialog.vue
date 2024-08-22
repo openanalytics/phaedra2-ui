@@ -30,19 +30,19 @@
             <q-list dense>
               <div class="q-pa-xs">
                 <q-checkbox v-model="filterModel.includeBasicCurveProperties"
-                            label="Include Curve properties (Basic)" dense/>
+                            label="Include Curve properties (Basic)" disable dense/>
               </div>
               <div class="q-pa-xs">
                 <q-checkbox v-model="filterModel.includeAllCurveProperties"
-                            label="Include Curve properties (All)" dense/>
+                            label="Include Curve properties (All)" disable dense/>
               </div>
             </q-list>
           </q-step>
 
           <template v-slot:navigation>
             <q-stepper-navigation class="row no-wrap">
-              <q-btn v-if="step < 4" @click="next" color="primary" label="Continue" :disable="!isValid"/>
-              <q-btn v-if="step == 4" @click="finish" color="primary" label="Finish" :disable="!isValid"/>
+              <q-btn v-if="step < 4" @click="next" color="primary" label="Continue" :disable="!isValid()"/>
+              <q-btn v-if="step == 4" @click="finish" color="primary" label="Finish" :disable="!isValid()"/>
               <q-btn v-if="step > 1" @click="previous" color="primary" label="Back" class="q-ml-sm" flat/>
             </q-stepper-navigation>
           </template>
@@ -60,6 +60,9 @@ import SelectFeaturesStep from "@/components/plate/SelectFeaturesStep.vue";
 import FilterPlatesStep from "@/components/plate/FilterPlatesStep.vue";
 import FilterWellsStep from "@/components/plate/FilterWellsStep.vue"
 import platesAPI from "@/api/plates";
+import {useLoadingHandler} from "@/composable/loadingHandler";
+import queriesGraphQlAPI from "@/api/graphql/queries";
+import exportToExcel from "@/service/exportToExcel";
 
 const props = defineProps(['show', "experiment"])
 const emits = defineEmits(['update:show']);
@@ -141,9 +144,19 @@ const previous = () => {
   if (step.value > 1) step.value--
 }
 
-const finish = () => {
+const loadingHandler = useLoadingHandler()
+const finish = async () => {
   if (step.value >= 4) showDialog.value = false
+  await loadingHandler.handleLoadingDuring(fetchPlateDataResults())
+}
+
+const fetchPlateDataResults = async () => {
   console.log(JSON.stringify(filterModel.value))
+  const {onResult, onError} = queriesGraphQlAPI.exportWellData(filterModel.value)
+  onResult(({data}) => {
+    exportToExcel.exportWellDataToXLSX(data.wellData, props.experiment.name)
+    console.log(JSON.stringify(data.wellData))
+  })
 }
 
 const isValid = () => {

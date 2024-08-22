@@ -26,7 +26,7 @@
             <q-list dense>
               <div class="q-pa-xs">
                 <q-checkbox v-model="filterModel.plateStats.summary" label="Plate Summery (#DRC, #SDP)"
-                            dense/>
+                            dense disable/>
               </div>
               <div class="q-pa-xs">
                 <q-checkbox v-model="filterModel.plateStats.featureStats" label="Feature Statistics" dense/>
@@ -41,7 +41,7 @@
           <template v-slot:navigation>
             <q-stepper-navigation>
               <q-btn v-if="step < 3" @click="next" color="primary" label="Continue" :disable="!isValid()" />
-              <q-btn v-if="step == 3" @click="finish" color="primary" label="Finish" :disable="!isValid" />
+              <q-btn v-if="step == 3" @click="finish" color="primary" label="Finish" :disable="!isValid()" />
               <q-btn v-if="step > 1" @click="previous" color="primary" label="Back" class="q-ml-sm" flat />
             </q-stepper-navigation>
           </template>
@@ -92,7 +92,7 @@ const filterModel = ref({
   },
   plateStats: {
     summary: false,
-    featureStats: false,
+    featureStats: true,
     featureStatsByWellType: false
   }
 })
