@@ -100,7 +100,7 @@ const prepareWellData = (data, headers) => {
 const writeWorkbook = (filename, headers, data) => {
   const workbook = XLSX.utils.book_new()
   const worksheet = XLSX.utils.aoa_to_sheet([...headers, ...data], { skipHeader: true })
-  XLSX.utils.book_append_sheet(workbook, worksheet, filename)
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet 1")
   XLSX.writeFile(workbook, filename.concat(".xlsx"))
 }
 
