@@ -156,7 +156,7 @@ const filterMethod = FilterUtils.defaultFilterMethod();
 const selectedExperiment = ref({})
 const showExperimentContextMenu = ref(false)
 const experimentContextMenu = (event, row) => {
-  selectExperiment(event, row)
+  // selectExperiment(event, row)
   showExperimentContextMenu.value = true;
 }
 

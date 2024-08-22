@@ -71,11 +71,13 @@ import {useExperimentStore} from "@/stores/experiment";
 import templatesGraphQlAPI from "@/api/graphql/templates";
 import {useLoadingHandler} from "@/composable/loadingHandler";
 import OaTable from "@/components/table/OaTable.vue";
+import {useNotification} from "@/composable/notification";
 
 const props = defineProps(['show', 'plate', "plates"]);
-const emit = defineEmits(['update:show', "onLinkPlate"]);
+const emits = defineEmits(['update:show', "onLinkPlate"]);
 
 const experimentStore = useExperimentStore()
+const useNotify = useNotification()
 
 const allTemplates = ref([])
 const selectedTemplates = ref([])
@@ -84,13 +86,13 @@ const quickView = ref(false)
 
 const {onResult, onError} = templatesGraphQlAPI.templates()
 onResult(({data}) => allTemplates.value = data.plateTemplates)
-// TODO: Implement onError
+onError((error) => useNotify.showError(error))
 
 const filteredTemplates = computed(() => preFilterTemplates(allTemplates.value))
 
 const showDialog = computed({
   get: () => props.show,
-  set: (v) => emit('update:show', v)
+  set: (v) => emits('update:show', v)
 });
 
 const handleTemplateSelection = (selected) => {
@@ -98,7 +100,7 @@ const handleTemplateSelection = (selected) => {
   onResult(({data}) => {
     selectedTemplate.value = data.plateTemplate
   })
-  // TODO: Implement onError
+  onError((error) => useNotify.showError(error))
 }
 
 const handleShowQuickView = () => {
@@ -120,6 +122,7 @@ const templateColumns = [
 const loadingHandler = useLoadingHandler()
 const linkPlate = async () => {
   await loadingHandler.handleLoadingDuring(experimentStore.setPlateLayout(props.plates, selectedTemplate.value.id))
+  emits('onLinkPlate')
 }
 
 const checkPlateDimensions = () => {

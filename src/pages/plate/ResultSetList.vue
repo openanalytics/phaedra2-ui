@@ -2,8 +2,7 @@
   <oa-table
       :title="'Result Sets'"
       :rows="resultSets"
-      :columns="columns"
-      :loading="loading">
+      :columns="columns">
     <template v-slot:body-cell-measurement="props">
       <q-td :props="props" @dblclick="gotoMeasurement(props.row)">
           <div class="items-center cursor-pointer"> {{ props.value }} </div>
@@ -40,9 +39,10 @@ import ResultSetDetailsPanel from "@/components/resultdata/ResultSetDetailsPanel
 import {usePlateStore} from "@/stores/plate";
 import OaTable from "@/components/table/OaTable.vue";
 import {useRouter} from "vue-router";
+import {useLoadingHandler} from "@/composable/loadingHandler";
+import resultdataGraphQlAPI from "@/api/graphql/resultdata";
 
 const props = defineProps({ plate: Object });
-const loading = ref(true);
 const plateStore = usePlateStore()
 
 // Details panel
@@ -55,10 +55,17 @@ const doShowDetails = (rs) => {
 
 const resultSets = ref([])
 
-onMounted(() => {
-  resultSets.value = plateStore.resultSets
-  loading.value = false
+const loadingHandler = useLoadingHandler()
+onMounted(async () => {
+  await loadingHandler.handleLoadingDuring(fetchResultSets())
 })
+
+const fetchResultSets = async () => {
+  const {onResult, onError} = resultdataGraphQlAPI.resultSetsByPlateId(props.plate.id)
+  onResult(({data}) => {
+    resultSets.value = data.resultSets;
+  })
+}
 
 const columns = ref([
     { name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true },

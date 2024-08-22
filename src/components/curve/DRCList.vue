@@ -1,17 +1,14 @@
 <template>
-  <oa-table :columns="curveTableColumns"
-                 :rows="curveData"
-                 row-key="substance"
-                 :filter="filter"
-                 :filter-method="filterMethod">
+  <oa-table :columns="curveTableColumns" :rows="curveData" row-key="substance"
+            :filter="filter" :filter-method="filterMethod">
     <template v-slot:header="props">
-      <q-tr class="text-grey">
+      <q-tr :props="props">
         <q-th colspan="3"/>
         <q-th v-for="fid in featureIds" :key="fid" colspan="7">
           {{ fetchFeatureName(fid) }}
         </q-th>
       </q-tr>
-      <q-tr :props="props" class="text-grey">
+      <q-tr :props="props">
         <q-th v-for="col in props.cols" :key="col.name" :props="props">
           {{ col.label }}
         </q-th>
@@ -37,13 +34,19 @@
     </template>
     <template v-slot:body-cell="props">
       <q-td :props="props">
-        {{ props.row.curve_info[props.col.featureId][props.col.name] ?? FormatUtils.formatToScientificNotation(props.row.curve_info[props.col.featureId][props.col.name], 2) }}
+        {{
+          props.row.curve_info[props.col.featureId][props.col.name]
+          ?? FormatUtils.formatToScientificNotation(
+              props.row.curve_info[props.col.featureId][props.col.name], 2)
+        }}
       </q-td>
     </template>
     <template v-slot:body-cell-curve="props">
-      <q-td :props="props" @click="uiStore.addDRCure(props.row.curve_info[props.col.featureId].curve, $event)">
+      <q-td :props="props"
+            @click="uiStore.addDRCure(props.row.curve_info[props.col.featureId].curve, $event)">
         <MiniDRCView :curvedata="props.row.curve_info[props.col.featureId].curve"/>
-        <DRCActionMenu @showDRCView="handleShowDRCView(props.row.curve_info[props.col.featureId].curve)"/>
+        <DRCActionMenu
+            @showDRCView="handleShowDRCView(props.row.curve_info[props.col.featureId].curve)"/>
       </q-td>
     </template>
   </oa-table>
