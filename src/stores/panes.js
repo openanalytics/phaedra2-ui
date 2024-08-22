@@ -1,45 +1,19 @@
 import { ref } from "vue";
 import { defineStore } from "pinia";
-import RecentCalculations from "@/components/dashboard/panes/RecentCalculations";
-import RecentProjects from "@/components/dashboard/panes/RecentProjects";
-import RecentExperiments from "@/components/dashboard/panes/RecentExperiments";
 import { shallowRef } from "vue";
+import { panesList } from "@/maps/panes/panesList";
 
 export const usePanesStore = defineStore("panes", () => {
-  const panes = shallowRef([
-    {
-      component: RecentCalculations,
-      id: "recent-calculations-pane",
-      title: "Recent Calculations",
-      icon: "calculate",
-      closable: false,
-    },
-    {
-      component: RecentProjects,
-      id: "recent-projects-pane",
-      title: "Recent Projects",
-      icon: "folder",
-      closable: false,
-    },
-    {
-      component: RecentExperiments,
-      id: "recent-experiments-pane",
-      title: "Recent Experiments",
-      icon: "science",
-      closable: true,
-    },
-  ]);
+  const panes = shallowRef(panesList);
 
   const draggedElement = ref();
+  const key = ref(0);
 
   const dynamicPanes = ref([
-    "V",
-    [
-      "H",
-      ["recent-calculations-pane"],
-      ["recent-projects-pane"],
-      ["recent-experiments-pane"],
-    ],
+    "H",
+    ["recent-calculations-pane"],
+    ["recent-projects-pane"],
+    ["recent-experiments-pane"],
   ]);
 
   function mapComponents(idMap) {
@@ -122,12 +96,24 @@ export const usePanesStore = defineStore("panes", () => {
     }
   }
 
+  function updateKey() {
+    key.value = ++key.value % 100;
+  }
+
+  function setDynamicPanesStartValue(value) {
+    console.log(value);
+    dynamicPanes.value = value;
+    updateKey();
+  }
+
   return {
+    key,
     dynamicPanes,
     draggedElement,
     removeItem,
     addItem,
     mapComponents,
     panes,
+    setDynamicPanesStartValue,
   };
 });

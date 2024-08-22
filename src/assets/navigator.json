@@ -7,6 +7,14 @@
     "role": "user"
   },
   {
+    "label": "Workbench",
+    "header": "link",
+    "route": "workbench",
+    "icon": "handyman",
+    "role": "user",
+    "menu": "WorkbenchMenu"
+  },
+  {
     "label": "Project",
     "header": "category",
     "role": "user",
@@ -15,7 +23,8 @@
         "label": "New Project...",
         "icon": "add",
         "route": "newProject"
-      }, {
+      },
+      {
         "label": "Projects",
         "icon": "folder_open",
         "route": "browseProjects"
@@ -50,7 +59,8 @@
         "label": "New Protocol...",
         "icon": "add",
         "route": "newProtocol"
-      }, {
+      },
+      {
         "label": "Protocols",
         "icon": "ballot",
         "route": "browseProtocols"

@@ -1,3 +1,14 @@
+<template>
+  <Splitpanes :horizontal="dynamicPanes[0] === 'H'" class="default-theme">
+    <template v-for="(pane, k) in dynamicPanes.slice(1)" :key="k">
+      <Pane v-if="pane[0] === 'V' || pane[0] === 'H'">
+        <PanesDashboard :dynamicPanes="pane" />
+      </Pane>
+      <SplitPane v-else :panes="panesStore.mapComponents(pane)" />
+    </template>
+  </Splitpanes>
+</template>
+
 <script setup>
 import SplitPane from "./SplitPane.vue";
 import PanesDashboard from "./PanesDashboard.vue";
@@ -8,21 +19,6 @@ defineProps(["dynamicPanes"]);
 
 const panesStore = usePanesStore();
 </script>
-
-<template>
-  <Splitpanes
-    :horizontal="dynamicPanes[0] === 'H'"
-    class="default-theme"
-    :push-other-panes="false"
-  >
-    <template v-for="(pane, k) in dynamicPanes.slice(1)" :key="k">
-      <Pane v-if="pane[0] === 'V' || pane[0] === 'H'">
-        <PanesDashboard :dynamicPanes="pane" />
-      </Pane>
-      <SplitPane v-else :panes="panesStore.mapComponents(pane)" />
-    </template>
-  </Splitpanes>
-</template>
 
 <style>
 .splitpanes--vertical > .splitpanes__splitter {

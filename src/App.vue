@@ -20,19 +20,10 @@
         >
           <Navigator />
         </pane>
-        <!--        <pane style="overflow-y: scroll; background: #ffffff">-->
-        <!--          <Selector/>-->
-        <!--        </pane>-->
       </splitpanes>
     </q-drawer>
-    <q-page-container>
-      <!-- <splitpanes class="default-theme" @resize="updatePanelSizes"> -->
-      <!-- <pane style="background-color: #ffffff"> -->
-      <!-- <div style="max-height: calc(100vh - 50px); overflow: auto"> -->
+    <q-page-container style="height: calc(100vh - 50px)">
       <router-view :key="$route.fullPath"></router-view>
-      <!-- </div> -->
-      <!-- </pane> -->
-      <!-- </splitpanes> -->
     </q-page-container>
   </q-layout>
 </template>

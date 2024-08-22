@@ -1,6 +1,9 @@
 <template>
   <Pane min-size="5">
-    <template v-if="panes && panes.length > 0">
+    <template
+      v-if="panes && panes.length > 0"
+      style="position: relative; width: 100%; height: 100%"
+    >
       <q-tabs
         v-model="activeTab"
         inline-label
@@ -37,7 +40,7 @@
             width: 100%;
             display: flex;
             max-width: 100%;
-            height: max-content;
+            height: 100%;
           "
           v-for="component in panes"
           :key="component.id"
@@ -45,12 +48,8 @@
         >
           <component
             :is="component.component"
-            style="
-              position: relative;
-              width: 100%;
-              max-width: 100%;
-              height: max-content;
-            "
+            :key="component.id"
+            style="position: relative; width: 100%; max-width: 100%"
           />
           <DropArea position="left" @dropped="drop('left')" />
           <DropArea position="top" @dropped="drop('top')" />
@@ -64,7 +63,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { usePanesStore } from "../../stores/panes";
 import DropArea from "./DropArea.vue";
 
@@ -85,6 +84,15 @@ function drop(position) {
 onMounted(() => {
   activeTab.value = props.panes[0].title;
 });
+
+watch(
+  () => props.panes,
+  () => {
+    if (props.panes.length == 1) {
+      activeTab.value = props.panes[0].title;
+    }
+  }
+);
 </script>
 
 <style>
