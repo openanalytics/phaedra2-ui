@@ -35,9 +35,6 @@
     <div>
       <q-checkbox v-model="wellFilter.includeRejectedWells" label="Include rejected wells" dense/>
     </div>
-    <div>
-      <q-checkbox v-model="wellFilter.includeInvalidatedSubstances" label="Include invalidated substances" dense/>
-    </div>
   </div>
   <q-separator class="q-mb-md q-mt-md"/>
   <div class="q-pa-xs">

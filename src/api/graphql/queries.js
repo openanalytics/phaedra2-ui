@@ -69,10 +69,10 @@ export default {
                     wellType
                     substanceName
                     concentration
-#                    features {
-#                        featureId
-#                        value
-#                    }
+                    features {
+                        featureId
+                        value
+                    }
                 }
             }
         `

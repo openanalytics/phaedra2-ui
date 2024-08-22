@@ -92,7 +92,6 @@ const filterModel = ref({
   wellFilter: {
     substances: [],
     includeRejectedWells: false,
-    includeInvalidatedSubstances: false,
     wellTypes: [],
   },
   includeAllCurveProperties: false,
