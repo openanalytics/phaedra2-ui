@@ -1,23 +1,8 @@
 <template>
-  <q-table
-      class="full-width"
-      table-header-class="text-grey"
-      :rows="wells"
-      :columns="columns"
-      :visible-columns="visibleColumns"
-      row-key="id"
-      column-key="name"
-      :filter="filter"
-      :filter-method="filterMethod"
-      :pagination="{ rowsPerPage: plate.columns, sortBy: 'number' }"
-      :loading="loading"
-      @row-click="selectWell"
-      selection="multiple"
-      v-model:selected="uiStore.selectedWells"
-      separator="cell"
-      virtual-scroll
-      flat square dense
-  >
+  <oa-table :columns="columns" :rows="wells"
+                 selection="multiple"
+                 v-model:selected="uiStore.selectedWells"
+                 @row-click="selectWell">
     <template v-slot:top-right>
       <div class="row action-button">
         <q-btn-dropdown size="sm" class="oa-button q-mr-md" label="Export">
@@ -35,7 +20,6 @@
             </q-item>
           </q-list>
         </q-btn-dropdown>
-<!--        <q-btn size="sm" flat round color="primary" icon="settings" style="border-radius: 50%;" @click="showConfigDialog=true"/>-->
       </div>
     </template>
     <template v-slot:header="props">
@@ -71,8 +55,7 @@
         <span>No wells to show.</span>
       </div>
     </template>
-  </q-table>
-<!--  <table-config v-model:show="showConfigDialog" :columns="columns" @update:visibleColumns="updateVisibleColumns"/>-->
+  </oa-table>
   <WellActionMenu touch-position context-menu @rejectWells="handleRejectWells" @acceptWells="handleAcceptWells"/>
 </template>
 
@@ -83,13 +66,15 @@
 import {ref, computed, watch, reactive} from 'vue'
 import WellUtils from "@/lib/WellUtils.js"
 import FilterUtils from "@/lib/FilterUtils"
-import ColumnFilter from "@/components/table/ColumnFilter";
-import {usePlateStore} from "@/stores/plate"
-import resultDataGraphQlAPI from "@/api/graphql/resultdata"
 import ColorUtils from "@/lib/ColorUtils";
+import FormatUtils from "@/lib/FormatUtils";
+import resultDataGraphQlAPI from "@/api/graphql/resultdata"
 import {useExportTableData} from "@/composable/exportTableData";
+import ColumnFilter from "@/components/table/ColumnFilter";
 import WellActionMenu from "@/components/well/WellActionMenu.vue";
+import {usePlateStore} from "@/stores/plate"
 import {useUIStore} from "@/stores/ui";
+import OaTable from "@/components/table/OaTable.vue";
 
 const props = defineProps(['plate', 'wells']);
 const emits = defineEmits(['wellStatusChanged'])
@@ -108,7 +93,7 @@ const {onResult, onError} = resultDataGraphQlAPI.resultDataByResultSetId(resultS
 onResult(({data}) => resultData.value = data.resultData)
 
 const baseColumns = [
-  {name: 'id', align: 'left', label: 'Well ID', field: 'id', sortable: true},
+  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
   {name: 'coordinate', align: 'left', label: 'Coordinate', field: 'coordinate', sortable: true},
   {name: 'number', align: 'left', label: 'Number', field: 'number', sortable: true},
   {name: 'status', align: 'left', label: 'Status', field: 'status', sortable: true},
@@ -125,7 +110,7 @@ const wells = computed(() => props.wells.map(well => {
     status: well.status,
     wellType: well.wellType,
     substance: well.wellSubstance?.name ?? "",
-    concentration: well.wellSubstance?.concentration?.toExponential(3) ?? ""
+    concentration: FormatUtils.formatToScientificNotation(well.wellSubstance?.concentration)
   }
 }))
 
@@ -149,11 +134,10 @@ const exportToXLSX = () => {
 }
 
 const selectedWell = ref(null)
-const isSelected = (row) => uiStore.selectedWells.includes(row)
+const isSelected = (row) => uiStore.selectedWells.findIndex(w => w.id === row.id) > -1
 const updateSelectedWells = (condition, row) => condition ? uiStore.selectedWells.filter(well => well.id !== row.id) : [row]
 const selectWell = (event, row) => {
   selectedWell.value = row
-
   if (event && (event.ctrlKey || event.metaKey)) {
     if (isSelected(row)) {
       uiStore.selectedWells = updateSelectedWells(true, row)
@@ -182,6 +166,8 @@ const handleAcceptWells = () => {
 }
 
 const updateTable = () => {
+  columns.value = [...baseColumns];
+
   if (features.value && resultData.value) {
     const featureCols = computed(() => (features.value ?? []).map(f => {
       return {
@@ -195,8 +181,7 @@ const updateTable = () => {
         lut: null
       }
     }))
-    columns.value = [...baseColumns, ...featureCols.value]
-    filter = FilterUtils.makeFilter(columns.value)
+    columns.value = [...columns.value, ...featureCols.value];
 
     featureCols.value.forEach(fCol => {
       const featValues = resultData.value.filter(rd => rd.featureId === fCol.featureId)[0]?.values ?? []
@@ -206,6 +191,8 @@ const updateTable = () => {
       })
     })
   }
+
+  filter = FilterUtils.makeFilter(columns.value);
   visibleColumns.value = [...columns.value.map(a => a.name)];
 }
 </script>

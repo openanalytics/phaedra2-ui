@@ -22,14 +22,17 @@ export const useExperimentStore = defineStore("experiment", {
     },
     actions: {
         loadExperiment(experimentId) {
-            const {onResult, onError} = projectsGraphQlAPI.experimentById(experimentId)
-            onResult(({data}) => {
-                this.experiment = {...data.experiment, plates: data.plates}
-            })
+            if (experimentId) {
+                const {onResult, onError} = projectsGraphQlAPI.experimentById(
+                    experimentId)
+                onResult(({data}) => {
+                    this.experiment = {...data.experiment, plates: data.plates}
+                })
 
-            onError((error) => {
-                console.error(error)
-            })
+                onError((error) => {
+                    console.error(error)
+                })
+            }
         },
         isLoaded(experimentId) {
             return this.experiment.id === `${experimentId}`
@@ -59,9 +62,13 @@ export const useExperimentStore = defineStore("experiment", {
             await plateAPI.addPlate(plate)
             this.loadExperiment(this.experiment.id)
         },
+        async addPlates(plates) {
+            await Promise.all(plates.map(plate => plateAPI.addPlate(plate)));
+            this.loadExperiment(this.experiment.id)
+        },
         async setPlateLayout(plates, templateId) {
             await plateAPI.setPlateLayout(plates, templateId)
-            this.loadExperiment(this.experiment.id)
+            this.loadExperiment(this.experiment?.id)
         },
         async validatePlates(plates) {
             const plateIds = plates.map(plate => plate.id)

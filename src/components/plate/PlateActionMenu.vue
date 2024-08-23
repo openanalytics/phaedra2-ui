@@ -132,16 +132,17 @@ import {useUIStore} from "@/stores/ui";
 import MovePlateDialog from "@/components/plate/MovePlateDialog.vue";
 import {useProjectStore} from "@/stores/project";
 import LinkMeasurementDialog from "@/components/measurement/LinkMeasurementDialog.vue";
-import { useQuasar } from 'quasar'
 import MenuItem from "@/components/widgets/MenuItem.vue";
+import {useLoadingHandler} from "@/composable/loadingHandler";
+import {useNotification} from "@/composable/notification";
 
 const props = defineProps(['plate', 'plates']);
-const $q = useQuasar()
 
 const uiStore = useUIStore()
 const router = useRouter()
 const experimentStore = useExperimentStore()
 const projectStore = useProjectStore()
+const loadingHandler = useLoadingHandler()
 
 const hideMenu = ref(false)
 
@@ -157,10 +158,10 @@ const browseDoseResponseCurves = () => {
   }, 'No plate(s) have been selected!');
 }
 
-const clonePlates = () => {
-  handlePlateSelection(() => {
-    $q.loading.show()
-    experimentStore.clonePlates(uiStore.selectedPlates).then(() => $q.loading.hide());
+
+const clonePlates = async () => {
+  handlePlateSelection(async () => {
+    await loadingHandler.handleLoadingDuring(experimentStore.clonePlates(uiStore.selectedPlates))
     hideMenu.value = true
   }, 'No plate(s) have been selected!');
 }
@@ -171,10 +172,9 @@ const movePlates = () => {
     showMovePlatesDialog.value = true;
   }, 'No plate(s) have been selected!');
 }
-const onMovePlates = (toExperiment) => {
+const onMovePlates = async (toExperiment) => {
   console.log("Move plate(s) " + [props.plate.barcode] + " to experiment " + toExperiment.name)
-  $q.loading.show()
-  experimentStore.movePlates(uiStore.selectedPlates, toExperiment.id).then(() => $q.loading.hide())
+  await loadingHandler.handleLoadingDuring(experimentStore.movePlates(uiStore.selectedPlates, toExperiment.id))
 }
 
 const showLinkMeasDialog = ref(false)
@@ -198,10 +198,9 @@ const calculatePlate = () => {
   }, 'No plate(s) have been selected!')
 }
 
-const validate = () => {
-  handlePlateSelection(() => {
-    $q.loading.show()
-    experimentStore.validatePlates(uiStore.selectedPlates).then(() => $q.loading.hide())
+const validate = async () => {
+  handlePlateSelection(async () => {
+    await loadingHandler.handleLoadingDuring(experimentStore.validatePlates(uiStore.selectedPlates))
   }, 'No plate(s) have been selected!')
 }
 
@@ -211,16 +210,14 @@ const invalidate = () => {
     showInvalidateDialog.value = true
   }, 'No plate(s) have been selected!')
 }
-const onInvalidatePlate = (reason) => {
-  $q.loading.show()
-  experimentStore.invalidatePlates(uiStore.selectedPlates, reason.value).then(() => $q.loading.hide())
+const onInvalidatePlate = async (reason) => {
+  await loadingHandler.handleLoadingDuring(experimentStore.invalidatePlates(uiStore.selectedPlates, reason.value))
   showInvalidateDialog.value = false;
 }
 
-const resetValidation = () => {
-  handlePlateSelection(() => {
-    $q.loading.show()
-    experimentStore.resetPlateValidations(uiStore.selectedPlates).then(() => $q.loading.hide())
+const resetValidation = async () => {
+  handlePlateSelection(async () => {
+    await loadingHandler.handleLoadingDuring(experimentStore.resetPlateValidations(uiStore.selectedPlates))
   }, 'No plate(s) have been selected!')
 }
 
@@ -230,10 +227,9 @@ const approve = () => {
     showApproveDialog.value = true;
   }, 'No plate(s) have been selected!')
 }
-const onApprovePlate = () => {
-  $q.loading.show()
-  experimentStore.approvePlates(uiStore.selectedPlates).then(() => $q.loading.hide())
-  showApproveDialog.value = true
+const onApprovePlate = async () => {
+  await loadingHandler.handleLoadingDuring(experimentStore.approvePlates(uiStore.selectedPlates))
+  showApproveDialog.value = false
 }
 
 const showDisapproveDialog = ref(false);
@@ -242,41 +238,32 @@ const disapprove = () => {
     showDisapproveDialog.value = true;
   }, 'No plate(s) have been selected!')
 }
-const onDisapprovePlate = (reason) => {
-  $q.loading.show()
-  experimentStore.disapprovePlates(uiStore.selectedPlates, reason.value).then(() => $q.loading.hide())
+const onDisapprovePlate = async (reason) => {
+  await loadingHandler.handleLoadingDuring(experimentStore.disapprovePlates(uiStore.selectedPlates, reason.value))
   showDisapproveDialog.value = false
 }
 
-const addScatterPlot = (plateId) => {
-  handlePlateSelection(() => {
-    $q.loading.show()
-    uiStore.loadSelectedPlate(plateId).then(() => {
-      $q.loading.hide()
-      uiStore.addChartView({type: 'scatter', plateId: plateId, label: 'Scatter Plot'})
-    })
+const addScatterPlot = async (plateId) => {
+  handlePlateSelection(async () => {
+    await loadingHandler.handleLoadingDuring(uiStore.loadSelectedPlate(plateId))
+    uiStore.addChartView({type: 'scatter', plateId: plateId, label: 'Scatter Plot'})
   }, 'No plate(s) have been selected!')
   hideMenu.value = true
 }
 
-const addBoxPlot = (plateId) => {
-  handlePlateSelection(() => {
-    $q.loading.show()
-    uiStore.loadSelectedPlate(plateId).then(() => {
-      $q.loading.hide()
-      uiStore.addChartView({type: 'box', plateId: plateId, label: 'Box Plot'})
-    })
+const addBoxPlot = async (plateId) => {
+  handlePlateSelection(async () => {
+    await loadingHandler.handleLoadingDuring(uiStore.loadSelectedPlate(plateId))
+    uiStore.addChartView({type: 'box', plateId: plateId, label: 'Box Plot'})
   }, 'No plate(s) have been selected!')
   hideMenu.value = true
 }
 
-const addHistogram = (plateId) => {
-  handlePlateSelection(() => {
-    $q.loading.show()
-    uiStore.loadSelectedPlate(plateId).then(() => {
-      $q.loading.hide()
-      uiStore.addChartView({type: 'histogram', plateId: plateId, label: 'Histogram'})
-  })}, 'No plate(s) have been selected!')
+const addHistogram = async (plateId) => {
+  handlePlateSelection(async () => {
+    await loadingHandler.handleLoadingDuring(uiStore.loadSelectedPlate(plateId))
+    uiStore.addChartView({type: 'histogram', plateId: plateId, label: 'Histogram'})
+  }, 'No plate(s) have been selected!')
   hideMenu.value = true
 }
 
@@ -290,20 +277,16 @@ const showDeleteDialog = ref(null);
 const deletePlate = () => {
   handlePlateSelection(() => showDeleteDialog.value = true, 'No plate(s) have been selected!')
 }
-const onDeletePlate = () => {
-  $q.loading.show()
-  experimentStore.deletePlates(uiStore.selectedPlates).then(() => $q.loading.hide())
-  showDeleteDialog.value = true
+const onDeletePlate = async () => {
+  await loadingHandler.handleLoadingDuring(experimentStore.deletePlates(uiStore.selectedPlates))
+  showDeleteDialog.value = false
 }
 
+const notify = useNotification()
 const handlePlateSelection = (action, onFailureMessage) => {
   if (!uiStore.isPlateSelected()) {
     hideMenu.value = true
-    $q.notify({
-      type: 'warning',
-      message: onFailureMessage,
-      position: "top"
-    });
+    notify.showWarning(onFailureMessage)
   } else {
     hideMenu.value = false
     action();

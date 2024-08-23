@@ -89,6 +89,8 @@
                   :filter="filter"
                   :filter-method="filterMethod"
                   :loading="loading"
+                  separator="cell"
+                  bordered
               >
                 <template v-slot:top-left>
                   <div v-if="wellNrLimit > 0">
@@ -136,7 +138,8 @@
                     :columns="subWellDataColumns"
                     row-key="id"
                     :pagination="{ rowsPerPage: 100 }"
-                    :loading="loading">
+                    :loading="loading"
+                    separator="cell" bordered>
                 </q-table>
               </div>
             </q-tab-panel>
@@ -145,7 +148,6 @@
                 <div class="col-4">
                   <WellGrid :plate="plate"
                             :wells="plate.wells"
-                            :wellImageFunction="wellImageFunction"
                             @wellSelection="handleWellSelection"/>
                 </div>
                 <div class="col-8 q-px-sm">
@@ -243,13 +245,14 @@ const plate = computed(() => {
     })
   }
 })
-const wellImageFunction = async (well) => {
-  // const img = measurementStore.getWellImage(1);
-  // console.log(img)
-  // if (!img) await measurementStore.loadMeasImage({ wellNr: 1, scale: 0.01, renderConfigId: 4, channels: [ "NucStain" ] })
-  // return measurementStore.getWellImage(1);
-  return null;
-}
+
+// const wellImageFunction = async (well) => {
+//   const img = measurementStore.getWellImage(1);
+//   console.log(img)
+//   if (!img) await measurementStore.loadMeasImage({ wellNr: 1, scale: 0.01, renderConfigId: 4, channels: [ "NucStain" ] })
+//   return measurementStore.getWellImage(1);
+//   return null;
+// }
 
 const handleWellSelection = (selectedWells) => {
   // console.log("handleWellSelection event: " + JSON.stringify(selectedWells))

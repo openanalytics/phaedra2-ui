@@ -12,42 +12,24 @@
           <span>By linking plates with a measurement it allows the user to apply protocol(s) with calculation features on the plate(s)</span>
         </div>
 
-        <q-card-section>
-          <div class="q-pb-md">Selected plate(s):</div>
-          <q-list dense bordered>
-            <q-item v-for="plate in props.plates" :key="plate.id">
-              <q-item-section avatar>
-                <q-icon color="primary" name="view_module" />
-              </q-item-section>
-              <q-item-section>{{ plate.barcode }} ({{ plate.id }}) with dimensions {{ plate.rows }} x {{ plate.columns }}</q-item-section>
-            </q-item>
-          </q-list>
-        </q-card-section>
+        <div>Selected plate(s):</div>
+        <q-list dense bordered >
+          <q-item v-for="plate in props.plates" :key="plate.id">
+            <q-item-section avatar>
+              <q-icon color="primary" name="view_module" />
+            </q-item-section>
+            <q-item-section>{{ plate.barcode }} ({{ plate.id }}) with dimensions {{ plate.rows }} x {{ plate.columns }}</q-item-section>
+          </q-item>
+        </q-list>
       </q-card-section>
 
       <q-card-section>
-        <q-table
+        <oa-table
             :rows="filteredMeasurements"
             :columns="columns"
-            row-key="id"
-            :pagination="{ rowsPerPage: 5, sortBy: 'createdOn', descending: true }"
-            :filter="filter"
             v-model:selected="selectedMeasurement"
-            selection="single"
-            virtual-scroll
-            style="max-height: 400px"
-            table-header-class="text-grey"
-            flat square dense>
-          <template v-slot:top-left>
-            <div class="row">
-              <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
-                <template v-slot:append>
-                  <q-icon name="search"/>
-                </template>
-              </q-input>
-            </div>
-          </template>
-        </q-table>
+            selection="single">
+        </oa-table>
       </q-card-section>
 
       <q-card-actions class="text-primary" align="right">
@@ -60,11 +42,12 @@
 
 <script setup>
 
-import {computed, onMounted, ref} from "vue"
+import {computed, ref} from "vue"
 import FormatUtils from "@/lib/FormatUtils"
-import FilterUtils from "@/lib/FilterUtils"
 import measurementsGraphQlAPI from "@/api/graphql/measurements"
 import plateActions from "@/composable/plate/plateActions";
+import {useLoadingHandler} from "@/composable/loadingHandler"
+import OaTable from "@/components/table/OaTable.vue";
 
 const props = defineProps(['show', 'plates'])
 const emit = defineEmits([ 'update:show', 'linkPlateMeasurement' ])
@@ -85,10 +68,11 @@ onResult(({data}) => allMeasurements.value = data.measurements)
 
 const filteredMeasurements = computed(() => preFilterMeasurements(allMeasurements.value))
 
+const loadingHandler = useLoadingHandler()
 const doLink = async () => {
-  await plateActions.linkMeasurement(props.plates, selectedMeasurement.value[0]);
-  emit('linkPlateMeasurement', selectedMeasurement.value[0]);
-};
+  await loadingHandler.handleLoadingDuring(plateActions.linkMeasurement(props.plates, selectedMeasurement.value[0]))
+  emit('linkPlateMeasurement', selectedMeasurement.value[0])
+}
 
 const columns = [
     {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},

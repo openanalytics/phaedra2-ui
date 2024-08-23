@@ -53,7 +53,7 @@ export default {
         const response = await axios.get(apiURL + '/pipeline-executions/' + id + '/log');
         return response.data;
     },
-    async getAllPipelineExecutions(range) {
+    async getPipelineExecutions(range) {
         const response = await axios.get(apiURL + '/pipeline-executions', {params: range});
         return response.data;
     },

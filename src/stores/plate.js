@@ -36,16 +36,16 @@ export const usePlateStore = defineStore("plate", {
             return state.plate?.resultSets?.filter(rs => rs.measId === activeMeasId && rs.outcome === 'SUCCESS')[0] ?? null
         },
         protocolById: (state) => {
-          return (protocolId) => state.plate?.protocols.find(p => p.id === protocolId) ?? null
+          return (protocolId) => state.plate?.protocols?.find(p => p.id === protocolId) ?? null
         },
         featuresByProtocolId: (state) => {
-            return (protocolId) => state.plate?.protocols.find(p => p.id === protocolId)?.features
+            return (protocolId) => state.plate?.protocols?.find(p => p.id === protocolId)?.features
         },
         featureById: (state) => {
-            return state.plate?.protocols.map(p => p.features)
+            return state.plate?.protocols?.map(p => p.features)
         },
         isApproved: (state) => {
-            return state.plate !== null && state.plate.approvalStatus === 'APPROVED'
+            return state.plate !== null && state.plate?.approvalStatus === 'APPROVED'
         }
     },
     actions: {

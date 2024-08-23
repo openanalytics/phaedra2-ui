@@ -1,25 +1,12 @@
 <template>
   <oa-section title="Experiments" icon="science">
-    <q-table
-        class="full-width"
-        table-header-class="text-grey"
-        :rows="experiments"
-        :columns="columns"
-        :visible-columns="visibleColumns"
-        row-key="id"
-        column-key="name"
-        :filter="filter"
-        :filter-method="filterMethod"
-        :pagination="{ rowsPerPage: 10, sortBy: 'name' }"
-        :loading="loading"
-        @row-click="selectExperiment"
-        @row-dblclick="gotoExperimentView"
-        @row-contextmenu="experimentContextMenu"
-        selection="multiple"
-        v-model:selected="uiStore.selectedExperiments"
-        separator="cell"
-        flat dense square
-    >
+    <oa-table :columns="columns"
+                   :rows="experiments"
+                    @row-click="selectExperiment"
+                    @row-dblclick="gotoExperimentView"
+                    @row-contextmenu="experimentContextMenu"
+                    selection="multiple"
+                    v-model:selected="uiStore.selectedExperiments">
       <template v-slot:top-left>
         <div class="row action-button on-left">
           <q-btn size="sm" icon="add" class="oa-button" label="New Experiment" @click="showNewExperimentDialog = true"/>
@@ -42,27 +29,7 @@
               </q-item>
             </q-list>
           </q-btn-dropdown>
-<!--          <q-btn size="sm" icon="settings" color="primary" @click="showConfigDialog=true">-->
-<!--            <q-tooltip>Configure Table Columns</q-tooltip>-->
-<!--          </q-btn>-->
         </div>
-      </template>
-      <template v-slot:header="props">
-        <q-tr :props="props">
-          <q-th auto-width/>
-          <q-th v-for="col in props.cols" :key="col.name" :props="props">
-            {{col.label}}
-            <q-tooltip>
-              {{ col.description }}
-            </q-tooltip>
-          </q-th>
-        </q-tr>
-        <q-tr :props="props">
-          <q-th auto-width>
-            <q-checkbox v-model="props.selected" dense />
-          </q-th>
-          <column-filter v-for="col in props.cols" :key="col.name" v-model="filter[col.name]"/>
-        </q-tr>
       </template>
       <template v-slot:body-cell-name="props">
         <q-td :props="props">
@@ -70,16 +37,6 @@
               <q-icon name="science" size="xs" class="icon q-pr-sm"/>
               {{ props.row.name }}
             </div>
-        </q-td>
-      </template>
-      <template v-slot:body-cell-tags="props">
-        <q-td :props="props">
-          <tag-list :tags="props.row.tags" :readOnly="true" />
-        </q-td>
-      </template>
-      <template v-slot:body-cell-createdBy="props">
-        <q-td :props="props">
-          <UserChip :id="props.row.createdBy" />
         </q-td>
       </template>
       <template v-slot:body-cell-nrPlatesLinkedLayout="props">
@@ -123,8 +80,7 @@
           <span>No experiments to show.</span>
         </div>
       </template>
-    </q-table>
-
+    </oa-table>
     <ExperimentMenu v-show="showExperimentContextMenu" :experiment="selectedExperiment" touch-position context-menu />
   </oa-section>
 
@@ -150,26 +106,21 @@
       </q-card-actions>
     </q-card>
   </q-dialog>
-
-<!--  <TableConfig v-model:show="showConfigDialog" v-model:columns="columns" v-model:visibleColumns="visibleColumns"></TableConfig>-->
 </template>
 
 <script setup>
 import {ref, computed, watch} from 'vue'
 
-// import TableConfig from "@/components/table/TableConfig";
 import ProgressBarField from "@/components/widgets/ProgressBarField";
-import UserChip from "@/components/widgets/UserChip";
 import ExperimentMenu from "@/components/experiment/ExperimentMenu";
 import OaSection from "@/components/widgets/OaSection";
-import ColumnFilter from "@/components/table/ColumnFilter";
-import TagList from "@/components/tag/TagList";
 
 import FormatUtils from "@/lib/FormatUtils.js"
 import FilterUtils from "@/lib/FilterUtils";
 import {useExportTableData} from "@/composable/exportTableData";
 import {useRouter} from "vue-router";
 import {useUIStore} from "@/stores/ui";
+import OaTable from "@/components/table/OaTable.vue";
 
 const props = defineProps({
   experiments: [Object],
@@ -205,7 +156,7 @@ const filterMethod = FilterUtils.defaultFilterMethod();
 const selectedExperiment = ref({})
 const showExperimentContextMenu = ref(false)
 const experimentContextMenu = (event, row) => {
-  selectExperiment(event, row)
+  // selectExperiment(event, row)
   showExperimentContextMenu.value = true;
 }
 
