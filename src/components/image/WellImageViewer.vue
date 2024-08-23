@@ -26,7 +26,7 @@
         </q-badge>
         <q-btn color="blue" size="xs" round icon="settings" class="q-ml-sm" @click="showRenderConfigDialog = true" />
       </div>
-      <div class="image-container" style="width: 100%; max-height: 70vh; overflow: auto;">
+      <div class="image-container" style="width: 100%; min-height: 30vh; max-height: 70vh; overflow: auto;">
         <img :src="wellImage" />
       </div>
       <div class="absolute-center" v-if="loading">
@@ -102,13 +102,20 @@ const selectedWellInfo = computed(() => {
 const wellImage = ref(null);
 const plateStore = usePlateStore()
 const reloadImage = async () => {
+  const wellNr = selectedWell.value?.nr || selectedWell.value?.wellNr;
+  if (!wellNr) return;
+
   loading.value = true;
   errorMessage.value = null;
 
   try {
+    const measId = Number.parseInt(plateStore.activeMeasurement?.measurementId);
+    // If an active plate meas is available, make sure it's loaded in the meas store
+    if (measId && measurementStore.measurement?.id != measId) await measurementStore.loadMeasurementById(measId);
+
     const params = {
-      measurementId: Number.parseInt(plateStore.activeMeasurement?.measurementId) ?? null,
-      wellNr: selectedWell.value?.nr ?? selectedWell.value?.wellNr,
+      measurementId: measId,
+      wellNr: wellNr,
       renderConfigId: uiStore.imageRenderSettings.baseRenderConfigId,
       channels: uiStore.imageRenderSettings.channels.filter(ch => ch.enabled),
       scale: uiStore.imageRenderSettings.scale
@@ -122,7 +129,7 @@ const reloadImage = async () => {
     }
   } finally {
     loading.value = false;
-    wellImage.value = measurementStore.getWellImage(selectedWell.value?.nr);
+    wellImage.value = measurementStore.getWellImage(wellNr);
   }
 }
 watch(selectedWell, reloadImage);
