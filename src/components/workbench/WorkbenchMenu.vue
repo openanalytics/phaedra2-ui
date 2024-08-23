@@ -4,10 +4,10 @@
     round
     icon="add"
     class="q-mr-sm text-primary"
-    @click="activateMenu"
+    @click.self="activateMenu"
   />
 
-  <q-menu v-model="showMenu">
+  <q-menu v-model="showMenu" anchor="top right" self="top left">
     <q-list style="min-width: 100px">
       <q-item clickable>
         <q-item-section>Projects</q-item-section>

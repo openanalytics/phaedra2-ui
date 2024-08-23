@@ -16,12 +16,29 @@
           v-for="component in panes"
           :key="component.id"
           :name="component.title"
-          :label="component.title"
-          :icon="component.icon"
           :id="`${component.id}`"
           draggable="true"
           v-on:dragstart="dragStart(component)"
         >
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            "
+          >
+            <div>
+              <q-icon
+                :name="component.icon"
+                style="margin-right: 5px"
+              /><span>{{ component.title }}</span>
+            </div>
+            <q-icon
+              name="close"
+              style="margin-left: 15px"
+              @click.stop="panesStore.removeItem(component.id)"
+            />
+          </div>
         </q-tab>
       </q-tabs>
 

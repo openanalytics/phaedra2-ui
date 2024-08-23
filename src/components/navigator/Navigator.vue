@@ -23,12 +23,15 @@
 
       <!-- Template for top-level links, e.g. Dashboard (header: "link") -->
       <template v-slot:header-link="prop">
-        <div class="row items-center">
-          <q-icon
-            :name="prop.node.icon"
-            size="28px"
-            class="q-mr-sm text-primary"
-          />
+        <q-icon
+          :name="prop.node.icon"
+          size="28px"
+          class="q-mr-sm text-primary"
+        />
+        <div
+          style="width: 100%"
+          class="row nowrap justify-between items-center"
+        >
           <div class="text-weight-bold">
             <router-link :to="{ name: prop.node.route }" class="nav-link">{{
               prop.node.label

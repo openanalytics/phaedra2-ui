@@ -4,6 +4,7 @@ import RecentProjects from "@/components/dashboard/panes/RecentProjects";
 import RecentExperiments from "@/components/dashboard/panes/RecentExperiments";
 import ProjectBrowser from "@/components/project/browser/ProjectBrowser.vue";
 import ProjectDetails from "@/components/project/ProjectDetails.vue";
+import ExperimentList from "../../pages/project/ExperimentList.vue";
 
 export const panesList = [
   {
@@ -46,6 +47,13 @@ export const panesList = [
     id: "project-details-pane",
     title: "Project Details",
     icon: "details",
+    closable: true,
+  },
+  {
+    component: ExperimentList,
+    id: "experiment-list-pane",
+    title: "Experiments",
+    icon: "science",
     closable: true,
   },
 ];

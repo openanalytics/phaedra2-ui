@@ -29,11 +29,11 @@
         style="background-color: #e6e6e6"
       >
         <div class="row oa-section-body">
-          <ExperimentList
-            :experiments="projectStore.experiments"
-            :project="projectStore.project"
-            @createNewExperiment="onCreateNewExperiment"
-          />
+          <oa-section title="Experiments" icon="science">
+            <ExperimentList
+              @createNewExperiment="onCreateNewExperiment"
+            />
+          </oa-section>
         </div>
       </pane>
       <pane
@@ -58,7 +58,7 @@
 </style>
 
 <script setup>
-import { onBeforeMount, ref } from "vue";
+import { onBeforeMount, onMounted, ref } from "vue";
 
 import ExperimentList from "@/pages/project/ExperimentList.vue";
 import OaSection from "@/components/widgets/OaSection";
@@ -69,15 +69,21 @@ import ChartViewer from "@/components/chart/ChartViewer.vue";
 import { useUIStore } from "@/stores/ui";
 import { useExperimentStore } from "@/stores/experiment";
 import ProjectDetails from "@/components/project/ProjectDetails.vue";
+import { useRoute } from "vue-router";
 
 const uiStore = useUIStore();
 const projectStore = useProjectStore();
+const route = useRoute();
 
 const horizontal = ref(false);
 
 onBeforeMount(() => {
   const experimentStore = useExperimentStore();
   experimentStore.reset();
+});
+
+onMounted(() => {
+  projectStore.loadProject(route.params.id);
 });
 
 const onCreateNewExperiment = async (newExperiment) => {

@@ -20,7 +20,12 @@ export const usePanesStore = defineStore("panes", () => {
     return idMap.map((id) => panes.value.filter((pane) => pane.id == id)[0]);
   }
 
-  function removeItem(id, array) {
+  function removeItem(id) {
+    dynamicPanes.value = removeItemRecursive(id, dynamicPanes.value);
+    dynamicPanes.value = removeEmptyArrays(dynamicPanes.value);
+  }
+
+  function removeItemRecursive(id, array) {
     return array.map((pane) => {
       if (pane == "V" || pane == "H" || typeof pane == "string") {
         return pane;
@@ -35,7 +40,7 @@ export const usePanesStore = defineStore("panes", () => {
         );
         return pane;
       }
-      return removeItem(id, pane);
+      return removeItemRecursive(id, pane);
     });
   }
 
@@ -90,7 +95,7 @@ export const usePanesStore = defineStore("panes", () => {
 
   function addItem(id, toId, position) {
     if (id != toId) {
-      dynamicPanes.value = removeItem(id, dynamicPanes.value);
+      removeItem(id);
       dynamicPanes.value = removeEmptyArrays(dynamicPanes.value);
       dynamicPanes.value = insertItem(id, toId, dynamicPanes.value, position);
     }
@@ -101,7 +106,6 @@ export const usePanesStore = defineStore("panes", () => {
   }
 
   function setDynamicPanesStartValue(value) {
-    console.log(value);
     dynamicPanes.value = value;
     updateKey();
   }

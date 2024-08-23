@@ -1,5 +1,5 @@
 <template>
-  <div class="row q-pa-md">
+  <div class="row q-pa-md" v-show="projectStore.project">
     <div class="col-3">
       <q-field label="ID" stack-label dense borderless>
         <template v-slot:control>
@@ -102,8 +102,8 @@
 </style>
 
 <script setup>
-import { onBeforeMount, onMounted, ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
 
 import TagList from "@/components/tag/TagList";
 import PropertyTable from "@/components/property/PropertyTable";
@@ -115,22 +115,9 @@ import RenameDialog from "@/components/widgets/RenameDialog";
 
 import FormatUtils from "@/lib/FormatUtils.js";
 import { useProjectStore } from "@/stores/project";
-import { useExperimentStore } from "@/stores/experiment";
 
-const route = useRoute();
 const router = useRouter();
 const projectStore = useProjectStore();
-
-const projectId = parseInt(route.params.id);
-
-onBeforeMount(() => {
-  const experimentStore = useExperimentStore();
-  experimentStore.reset();
-});
-
-onMounted(() => {
-  projectStore.loadProject(projectId);
-});
 
 const showDeleteDialog = ref(false);
 const showRenameDialog = ref(false);
