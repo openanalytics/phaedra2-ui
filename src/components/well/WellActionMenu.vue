@@ -11,22 +11,15 @@
 </template>
 
 <script setup>
-import {useStore} from 'vuex'
 import MenuItem from "@/components/widgets/MenuItem.vue";
 import {useUIStore} from "@/stores/ui";
 
-const store = useStore();
-const emits = defineEmits(['acceptWells', 'rejectWells'])
+const emits = defineEmits(['acceptWells', 'rejectWells', 'showDoseResponseCurve'])
 
 const uiStore = useUIStore()
 
 const showWellImage = () => {
-  store.dispatch('ui/openSideView', 'wellImage');
   uiStore.showImageView = true
-}
-
-const viewDoseResponseCurve = () => {
-  store.dispatch('ui/openSideView', 'doseResponseCurve')
 }
 
 const rejectWells = () => {
@@ -39,6 +32,7 @@ const acceptWells = () => {
 
 const showDoseResponseCurve = () => {
   emits('showDoseResponseCurve')
+  uiStore.showDRCView = true
 }
 
 </script>

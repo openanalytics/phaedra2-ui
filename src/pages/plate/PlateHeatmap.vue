@@ -12,7 +12,8 @@
                 :loading="dataLoading"
                 :wellColorFunction="wellColorFunction"
                 :wellLabelFunctions="wellLabelFunctions"
-                @wellStatusChanged="() => emits('wellStatusChanged')"/>
+                @wellStatusChanged="() => emits('wellStatusChanged')"
+                @wellSelection="handleWellSelection"/>
       <ColorLegend class="q-pt-sm" :rangeValues="rangeValues" :plate="plate" />
     </div>
 </template>
@@ -27,6 +28,8 @@ import WellUtils from "@/lib/WellUtils.js"
 
 import resultDataGraphQlAPI from '@/api/graphql/resultdata'
 import measurementsGraphQlAPI from "@/api/graphql/measurements";
+import {usePlateStore} from "@/stores/plate";
+import {useUIStore} from "@/stores/ui";
 
 const props = defineProps(['plate', 'wells', 'measurements', 'protocols']);
 const emits = defineEmits(['wellStatusChanged'])
@@ -85,6 +88,16 @@ const calcRangeValues = (values) => {
   const mean = values.reduce((x, y) => x + y, 0) / values.length;
   const max = Math.max(...values.filter(v => !isNaN(v)));
   return {min: min, mean: mean, max: max};
+}
+
+const plateStore = usePlateStore()
+const uiStore = useUIStore()
+const handleWellSelection = () => {
+  if (uiStore.selectedWells.length > 0) {
+    const selectedSubstance = [... new Set(uiStore.selectedWells.map(well => well.wellSubstance?.name))]
+    const selectedCurves = plateStore.curves.filter(curve => selectedSubstance.includes(curve.substanceName))
+    uiStore.selectedDRCurves = selectedCurves
+  }
 }
 
 </script>
