@@ -196,7 +196,6 @@ import { ref, computed, watch } from "vue";
 import ProgressBarField from "@/components/widgets/ProgressBarField";
 import UserChip from "@/components/widgets/UserChip";
 import ExperimentMenu from "@/components/experiment/ExperimentMenu";
-import OaSection from "@/components/widgets/OaSection";
 import ColumnFilter from "@/components/table/ColumnFilter";
 import TagList from "@/components/tag/TagList";
 

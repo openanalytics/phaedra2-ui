@@ -30,9 +30,7 @@
       >
         <div class="row oa-section-body">
           <oa-section title="Experiments" icon="science">
-            <ExperimentList
-              @createNewExperiment="onCreateNewExperiment"
-            />
+            <ExperimentList @createNewExperiment="onCreateNewExperiment" />
           </oa-section>
         </div>
       </pane>
@@ -60,7 +58,7 @@
 <script setup>
 import { onBeforeMount, onMounted, ref } from "vue";
 
-import ExperimentList from "@/pages/project/ExperimentList.vue";
+import ExperimentList from "@/components/experiment/ExperimentList.vue";
 import OaSection from "@/components/widgets/OaSection";
 
 import { useProjectStore } from "@/stores/project";
