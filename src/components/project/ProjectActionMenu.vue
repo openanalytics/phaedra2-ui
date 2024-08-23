@@ -1,5 +1,5 @@
 <template>
-  <q-menu context-menu v-if="project">
+  <q-menu context-menu v-if="project" auto-close>
     <q-list>
       <q-item dense clickable @click="deleteProject">
         <q-item-section avatar>
@@ -10,9 +10,15 @@
       <!-- v-if="router.currentRoute.name == 'workbench'" -->
       <q-item dense clickable @click="openProjectDetails">
         <q-item-section avatar>
-          <q-icon name="delete" />
+          <q-icon name="details" />
         </q-item-section>
         <q-item-section>Open Project Details</q-item-section>
+      </q-item>
+      <q-item dense clickable @click="openExperiments">
+        <q-item-section avatar>
+          <q-icon name="science" />
+        </q-item-section>
+        <q-item-section>Open Experiments</q-item-section>
       </q-item>
     </q-list>
 
@@ -32,7 +38,6 @@ import DeleteDialog from "@/components/widgets/DeleteDialog.vue";
 import { useProjectStore } from "@/stores/project";
 import { usePanesStore } from "@/stores/panes";
 import { useExperimentStore } from "@/stores/experiment";
-import { useRoute } from "vue-router";
 
 const props = defineProps(["project"]);
 const emit = defineEmits(["onDeleteProject"]);
@@ -42,7 +47,6 @@ const experimentStore = useExperimentStore();
 const panesStore = usePanesStore();
 
 const showDeleteDialog = ref(false);
-const { route } = useRoute();
 
 const deleteProject = () => {
   showDeleteDialog.value = true;
@@ -53,12 +57,19 @@ const handleDeleteProject = () => {
   showDeleteDialog.value = false;
 };
 
-const openProjectDetails = () => {
-  console.log(route);
-  projectStore.loadProject(props.project.id);
+const fetchProjectData = () => {
   experimentStore.reset();
-  panesStore.addItem("project-details-pane", "browse-projects-pane", "right");
-  panesStore.addItem("experiment-list-pane", "project-details-pane", "bottom");
+  projectStore.loadProject(props.project.id);
+};
+
+const openProjectDetails = () => {
+  fetchProjectData();
+  panesStore.addItem("project-details-pane", "browse-projects-pane", "center");
+};
+
+const openExperiments = () => {
+  fetchProjectData();
+  panesStore.addItem("experiment-list-pane", "browse-projects-pane", "center");
 };
 </script>
 

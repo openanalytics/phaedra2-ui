@@ -4,6 +4,7 @@ import projectAPI from "@/api/projects";
 import experimentAPI from "@/api/experiments";
 import metadataAPI from "@/api/metadata";
 import { useUIStore } from "./ui";
+import { useSelectionStore } from "./selection";
 
 export const useProjectStore = defineStore("project", {
   state: () => ({
@@ -21,6 +22,8 @@ export const useProjectStore = defineStore("project", {
         this.project["experiments"] = data.experiments;
         this.project["projectAccess"] = data.projectAccess;
         const uiStore = useUIStore();
+        const selectionStore = useSelectionStore();
+        selectionStore.experiments = data.experiments;
         uiStore.selectedProject = this.project;
       });
     },
