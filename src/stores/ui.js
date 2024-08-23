@@ -28,6 +28,7 @@ export const useUIStore = defineStore("ui", {
         selectedWells: ref([]),
         selectedSubstances: new Map([]),
 
+        showImageView: false,
         imageRenderSettings: {
             scale: 0.25,
             channels: [],

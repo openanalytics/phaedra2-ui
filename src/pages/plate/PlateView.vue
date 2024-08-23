@@ -113,6 +113,9 @@
       <pane class="q-pa-sm" v-if="uiStore.showChartViewer" style="background-color: #E6E6E6" ref="chartViewerPane">
         <ChartViewer :update="Date.now()" @changeOrientation="horizontal = !horizontal" @wellStatusChanged="onWellStatusChanged"/>
       </pane>
+      <pane class="q-pa-sm" v-if="uiStore.showImageView" style="background-color: #E6E6E6" ref="imageViewPane" >
+        <WellImageViewer/>
+      </pane>
     </splitpanes>
 
     <rename-dialog v-model:show="showRenameDialog" objectClass="plate" fieldName="barcode" :object="plateStore.plate" @valueChanged="onNameChanged"/>
@@ -150,6 +153,7 @@ import ChartViewer from "@/components/chart/ChartViewer.vue";
 import {useUIStore} from "@/stores/ui";
 import {useNotification} from "@/composable/notification";
 import {useLoadingHandler} from "@/composable/loadingHandler";
+import WellImageViewer from "@/components/image/WellImageViewer.vue";
 
 const route = useRoute();
 const projectStore = useProjectStore()
@@ -166,6 +170,7 @@ const readOnly = ref(plateStore.isApproved || experimentStore.isClosed)
 
 const drcViewPane = ref()
 const chartViewerPane = ref()
+const imageViewPane = ref()
 
 const plateId = parseInt(route.params.plateId)
 const loadingHandler = useLoadingHandler()

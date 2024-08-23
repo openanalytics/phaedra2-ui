@@ -64,6 +64,7 @@ import {useMeasurementStore} from "@/stores/measurement";
 import {useUIStore} from "@/stores/ui";
 import WellUtils from "@/lib/WellUtils.js";
 import RenderConfigDialog from './RenderConfigDialog.vue';
+import {usePlateStore} from "@/stores/plate";
 
 const measurementStore = useMeasurementStore()
 const uiStore = useUIStore();
@@ -99,17 +100,20 @@ const selectedWellInfo = computed(() => {
 })
 
 const wellImage = ref(null);
+const plateStore = usePlateStore()
 const reloadImage = async () => {
   loading.value = true;
   errorMessage.value = null;
 
   try {
-    await measurementStore.loadMeasImage({
-      wellNr: selectedWell.value?.nr,
+    const params = {
+      measurementId: Number.parseInt(plateStore.activeMeasurement?.measurementId) ?? null,
+      wellNr: selectedWell.value?.nr ?? selectedWell.value?.wellNr,
       renderConfigId: uiStore.imageRenderSettings.baseRenderConfigId,
       channels: uiStore.imageRenderSettings.channels.filter(ch => ch.enabled),
       scale: uiStore.imageRenderSettings.scale
-    });
+    }
+    await measurementStore.loadMeasImage(params);
   } catch (error) {
     if (error?.response?.status == 404) {
       errorMessage.value = "No image available for this well";
