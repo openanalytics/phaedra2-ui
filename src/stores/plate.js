@@ -1,157 +1,207 @@
- import { defineStore } from "pinia"
+import {defineStore} from "pinia"
 import calculationsAPI from "@/api/calculations"
 import projectsGraphQlAPI from "@/api/graphql/projects"
 import resultdataGraphQlAPI from "@/api/graphql/resultdata";
 import plateAPI from "@/api/plates";
- import resultDataGraphQlAPI from "@/api/graphql/resultdata";
- import curvesGraphQlAPI from "@/api/graphql/curvedata";
- import ColorUtils from "@/lib/ColorUtils";
- import metadataAPI from "@/api/metadata";
+import resultDataGraphQlAPI from "@/api/graphql/resultdata";
+import curvesGraphQlAPI from "@/api/graphql/curvedata";
+import ColorUtils from "@/lib/ColorUtils";
+import metadataAPI from "@/api/metadata";
+import {computed, ref} from "vue";
 
-export const usePlateStore = defineStore("plate", {
-    state: () => ({
-        plate: null,
-    }),
-    getters: {
-        wells: (state) => {
-            return state.plate?.wells ?? []
-        },
-        measurements: (state) => {
-            return state.plate?.measurements ?? []
-        },
-        resultSets: (state) => {
-            return state.plate?.resultSets ?? []
-        },
-        protocols: (state) => {
-            return state.plate?.protocols ?? []
-        },
-        curves: (state) => {
-            return state.plate?.curves ?? []
-        },
-        activeMeasurement: (state) => {
-            return state.plate?.measurements?.filter(m => m.active === true)[0]
-        },
-        activeResultSet: (state) => {
-            const activeMeasId = state.plate?.measurements?.filter(m => m.active === true)[0]?.measurementId ?? null
-            return state.plate?.resultSets?.filter(rs => rs.measId === activeMeasId && rs.outcome === 'SUCCESS')[0] ?? null
-        },
-        protocolById: (state) => {
-          return (protocolId) => state.plate?.protocols?.find(p => p.id === protocolId) ?? null
-        },
-        featuresByProtocolId: (state) => {
-            return (protocolId) => state.plate?.protocols?.find(p => p.id === protocolId)?.features
-        },
-        featureById: (state) => {
-            return state.plate?.protocols?.map(p => p.features)
-        },
-        isApproved: (state) => {
-            return state.plate !== null && state.plate?.approvalStatus === 'APPROVED'
-        }
-    },
-    actions: {
-        async loadPlate(plateId) {
-            const {onResult, onError} = projectsGraphQlAPI.plateById(plateId)
-            onResult(({data}) => {
-                this.plate = data.plate;
-                this.plate["wells"] = data.wells;
+export const usePlateStore = defineStore("plate", () => {
+  const plate = ref(null)
+  const wells = computed(() => plate.value?.wells ?? [])
+  const measurements = computed(() => plate.value?.measurements ?? [])
+  const resultSets = computed(() => plate.value?.resultSets ?? [])
+  const protocols = computed(() => plate.value?.protocols ?? [])
+  const curves = computed(() => plate.value?.curves ?? [])
+  const activeMeasurement = computed(
+      () => plate.value?.measurements?.filter(m => m.active === true)[0])
+  const activeResultSet = computed(() => {
+    const activeMeasId = plate.value?.measurements?.filter(
+        m => m.active === true)[0]?.measurementId ?? null
+    return plate.value?.resultSets?.filter(
+            rs => rs.measId === activeMeasId && rs.outcome === 'SUCCESS')[0]
+        ?? null
+  })
 
-                this.loadPlateMeasurements(plateId)
-                this.loadPlateCalculations(plateId)
-                this.loadPlateProtocols(plateId)
-                this.loadPlateCurves(plateId)
-            })
-        },
-        async reloadPlate() {
-            this.loadPlate(this.plate.id)
-        },
-        async reloadPlateWells() {
-            const {onResult, onError} = projectsGraphQlAPI.wellsByPlateId(this.plate.id)
-            onResult(({data}) => {
-                this.plate["wells"] = data.wells;
-            })
-        },
-        async loadPlateMeasurements(plateId) {
-            const {onResult, onError} = projectsGraphQlAPI.measurementsByPlateId(plateId)
-            onResult(({data}) => {
-                this.plate["measurements"] = data.plateMeasurements;
-            })
-        },
-        async loadPlateCalculations(plateId) {
-            const {onResult, onError} = resultdataGraphQlAPI.resultSetsByPlateId(plateId)
-            onResult(({data}) => {
-                this.plate["resultSets"] = data.resultSets;
-            })
-        },
-        async loadPlateProtocols(plateId) {
-            const {onResult, onError} = resultDataGraphQlAPI.protocolsByPlateId(plateId)
-            onResult(({data}) => {
-                this.plate["protocols"] = data.protocols;
-            })
-        },
-        async loadPlateCurves(plateId) {
-          const {onResult, onError} = curvesGraphQlAPI.curvesByPlateId(plateId)
-            onResult(({data}) => {
-                const colorList = ColorUtils.getColorList(data.curves?.length)
-                const curves = data.curves?.map((curve, index) => {
-                    curve['color'] = colorList[index]
-                    return curve
-                })
-                this.plate["curves"] = curves;
-            })
-        },
-        async renamePlate(newBarcode) {
-            await plateAPI.editPlate({ id: this.plate.id, barcode: newBarcode })
-            await this.reloadPlate()
-        },
-        async editPlateDescription(newDescription) {
-            await plateAPI.editPlate({id: this.plate.id, description: newDescription})
-            await this.reloadPlate()
-        },
-        async deletePlate() {
-            await plateAPI.deletePlateById(this.plate.id)
-            this.reset()
-        },
-        isLoaded(plateId) {
-            return this.plate?.id === `${plateId}`
-        },
-        reset() {
-            this.plate = null
-        },
-        async fitDoseResponseCurves(plate) {
-            await calculationsAPI.fitDoseResponseCurves()
-        },
-        async addTag(newTag) {
-            await metadataAPI.addTag({'objectId': this.plate.id, 'objectClass': 'PLATE', 'tag': newTag})
-            await this.reloadPlate()
-        },
-        async deleteTag(tag) {
-            await metadataAPI.removeTag({'objectId': Number.parseInt(this.plate.id), 'objectClass': 'PLATE', 'tag': tag })
-            await this.reloadPlate()
-        },
-        async addPropertty(newProperty) {
-            await metadataAPI.addProperty({
-                objectId: this.plate.id,
-                objectClass: 'PLATE',
-                propertyName: newProperty.name,
-                propertyValue: newProperty.value
-            })
-            await this.reloadPlate()
-        },
-        async deleteProperty(property) {
-            await metadataAPI.removeProperty({
-                objectId: this.plate.id,
-                objectClass: 'PLATE',
-                propertyName: property.propertyName
-            })
-            await this.reloadPlate()
-        },
-        async acceptWells(wells) {
-            await plateAPI.acceptWells(this.plate.id, wells)
-            await this.reloadPlateWells()
-        },
-        async rejectWells(wells, rejectionType, description) {
-            await plateAPI.rejectWells(this.plate.id, wells, rejectionType, description)
-            await this.reloadPlateWells()
-        }
-    }
+  const featureById = computed(
+      () => plate.value?.protocols?.map(p => p.features))
+  const isApproved = computed(() => plate.value?.approvalStatus === 'APPROVED')
+
+  function featuresByProtocolId(protocolId) {
+    return plate.value?.protocols?.find(p => p.id === protocolId)?.features
+  }
+
+  function protocolById(protocolId) {
+    return plate.value?.protocols?.find(p => p.id === protocolId) ?? null
+  }
+
+  async function loadPlate(plateId) {
+    const {onResult, onError} = projectsGraphQlAPI.plateById(plateId)
+    onResult(({data}) => {
+      plate.value = data.plate;
+      plate.value["wells"] = data.wells;
+
+      loadPlateMeasurements(plateId)
+      loadPlateCalculations(plateId)
+      loadPlateProtocols(plateId)
+      loadPlateCurves(plateId)
+    })
+  }
+
+  async function reloadPlate() {
+    await loadPlate(plate.value.id)
+  }
+
+  async function reloadPlateWells() {
+    const {onResult, onError} = projectsGraphQlAPI.wellsByPlateId(
+        plate.value.id)
+    onResult(({data}) => {
+      plate.value["wells"] = data.wells;
+    })
+  }
+
+  async function loadPlateMeasurements(plateId) {
+    const {onResult, onError} = projectsGraphQlAPI.measurementsByPlateId(
+        plateId)
+    onResult(({data}) => {
+      plate.value["measurements"] = data.plateMeasurements;
+    })
+  }
+
+  async function loadPlateCalculations(plateId) {
+    const {onResult, onError} = resultdataGraphQlAPI.resultSetsByPlateId(
+        plateId)
+    onResult(({data}) => {
+      plate.value["resultSets"] = data.resultSets;
+    })
+  }
+
+  async function loadPlateProtocols(plateId) {
+    const {onResult, onError} = resultDataGraphQlAPI.protocolsByPlateId(
+        plateId)
+    onResult(({data}) => {
+      plate.value["protocols"] = data.protocols;
+    })
+  }
+
+  async function loadPlateCurves(plateId) {
+    const {onResult, onError} = curvesGraphQlAPI.curvesByPlateId(plateId)
+    onResult(({data}) => {
+      const colorList = ColorUtils.getColorList(data.curves?.length)
+      const curves = data.curves?.map((curve, index) => {
+        curve['color'] = colorList[index]
+        return curve
+      })
+      plate.value["curves"] = curves;
+    })
+  }
+
+  async function renamePlate(newBarcode) {
+    await plateAPI.editPlate({id: plate.value.id, barcode: newBarcode})
+    await reloadPlate()
+  }
+
+  async function editPlateDescription(newDescription) {
+    await plateAPI.editPlate({id: plate.value.id, description: newDescription})
+    await reloadPlate()
+  }
+
+  async function deletePlate() {
+    await plateAPI.deletePlateById(plate.value.id)
+    reset()
+  }
+
+  function isLoaded(plateId) {
+    return plate.value?.id === `${plateId}`
+  }
+
+  function reset() {
+    plate.value = null
+  }
+
+  async function fitDoseResponseCurves(plate) {
+    await calculationsAPI.fitDoseResponseCurves()
+  }
+
+  async function addTag(newTag) {
+    await metadataAPI.addTag(
+        {'objectId': plate.value.id, 'objectClass': 'PLATE', 'tag': newTag})
+    await reloadPlate()
+  }
+
+  async function deleteTag(tag) {
+    await metadataAPI.removeTag({
+      'objectId': Number.parseInt(plate.value.id),
+      'objectClass': 'PLATE',
+      'tag': tag
+    })
+    await reloadPlate()
+  }
+
+  async function addPropertty(newProperty) {
+    await metadataAPI.addProperty({
+      objectId: plate.value.id,
+      objectClass: 'PLATE',
+      propertyName: newProperty.name,
+      propertyValue: newProperty.value
+    })
+    await reloadPlate()
+  }
+
+  async function deleteProperty(property) {
+    await metadataAPI.removeProperty({
+      objectId: plate.value.id,
+      objectClass: 'PLATE',
+      propertyName: property.propertyName
+    })
+    await reloadPlate()
+  }
+
+  async function acceptWells(wells) {
+    await plateAPI.acceptWells(plate.value.id, wells)
+    await reloadPlateWells()
+  }
+
+  async function rejectWells(wells, rejectionType, description) {
+    await plateAPI.rejectWells(plate.value.id, wells, rejectionType,
+        description)
+    await reloadPlateWells()
+  }
+
+  return {
+    plate,
+    wells,
+    measurements,
+    resultSets,
+    protocols,
+    curves,
+    activeMeasurement,
+    activeResultSet,
+    protocolById,
+    featuresByProtocolId,
+    featureById,
+    isApproved,
+    loadPlate,
+    reloadPlate,
+    reloadPlateWells,
+    loadPlateMeasurements,
+    loadPlateCalculations,
+    loadPlateProtocols,
+    loadPlateCurves,
+    renamePlate,
+    editPlateDescription,
+    deletePlate,
+    isLoaded,
+    reset,
+    fitDoseResponseCurves,
+    addTag,
+    deleteTag,
+    addPropertty,
+    deleteProperty,
+    acceptWells,
+    rejectWells
+  }
 })
