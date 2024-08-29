@@ -7,15 +7,15 @@ import {computed, ref} from "vue";
 
 export const useProjectStore = defineStore("project", () => {
   const project = ref({})
-  const experiments = computed(() => project.value.experiments ?? [])
-  const projectAccess = computed(() => project.value.projectAccess ?? [])
+  const experiments = ref([])
+  const projectAccess = ref([])
 
   const loadProject = (projectId) => {
     const {onResult, onError} = projectsGraphQlAPI.projectById(projectId)
     onResult(({data}) => {
       project.value = data.project
-      project.value["experiments"] = data.experiments
-      project.value["projectAccess"] = data.projectAccess
+      experiments.value = data.experiments
+      projectAccess.value = data.projectAccess
     })
   }
   const isLoaded = (projectId) => {

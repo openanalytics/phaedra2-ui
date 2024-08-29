@@ -3,17 +3,20 @@ import projectsGraphQlAPI from "@/api/graphql/projects"
 import experimentAPI from '@/api/experiments.js'
 import plateAPI from "@/api/plates";
 import metadataAPI from "@/api/metadata";
-import {computed, ref} from "vue";
+import {computed, ref, watch} from "vue";
+import {useProjectStore} from "@/stores/project";
 
 export const useExperimentStore = defineStore("experiment", () => {
+  const projectStore = useProjectStore()
+
   const experiment = ref({})
+  const plates = ref([])
 
   const isOpen = computed(() => experiment.value.status === 'OPEN')
   const isClosed = computed(() => experiment.value.status === 'CLOSED')
-  const plates = computed(() => experiment.value.plates ?? [])
 
   function getPlateByPlateId(plateId) {
-    return experiment.value.plates.find(p => p.id === plateId) ?? {}
+    return plates.value.find(p => p.id === plateId) ?? {}
   }
 
   function loadExperiment(experimentId) {
@@ -21,7 +24,8 @@ export const useExperimentStore = defineStore("experiment", () => {
       const {onResult, onError} = projectsGraphQlAPI.experimentById(
           experimentId)
       onResult(({data}) => {
-        experiment.value = {...data.experiment, plates: data.plates}
+        experiment.value = data.experiment
+        plates.value = data.plates
       })
 
       onError((error) => {
@@ -176,6 +180,10 @@ export const useExperimentStore = defineStore("experiment", () => {
   function reset() {
     experiment.value = {}
   }
+
+  watch(experiment, () => {
+    projectStore.loadProject(experiment.value.projectId)
+  })
 
   return {
     experiment,

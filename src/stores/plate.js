@@ -7,47 +7,44 @@ import resultDataGraphQlAPI from "@/api/graphql/resultdata";
 import curvesGraphQlAPI from "@/api/graphql/curvedata";
 import ColorUtils from "@/lib/ColorUtils";
 import metadataAPI from "@/api/metadata";
-import {computed, ref} from "vue";
+import {computed, ref, watch} from "vue";
+import {useExperimentStore} from "@/stores/experiment";
 
 export const usePlateStore = defineStore("plate", () => {
+  const experimentStore = useExperimentStore()
+
   const plate = ref(null)
-  const wells = computed(() => plate.value?.wells ?? [])
-  const measurements = computed(() => plate.value?.measurements ?? [])
-  const resultSets = computed(() => plate.value?.resultSets ?? [])
-  const protocols = computed(() => plate.value?.protocols ?? [])
-  const curves = computed(() => plate.value?.curves ?? [])
-  const activeMeasurement = computed(
-      () => plate.value?.measurements?.filter(m => m.active === true)[0])
+  const wells = ref([])
+  const measurements = ref([])
+  const resultSets = ref([])
+  const protocols = ref([])
+  const curves = ref([])
+  const activeMeasurement = computed(() => measurements.value.filter(m => m.active === true)[0])
   const activeResultSet = computed(() => {
-    const activeMeasId = plate.value?.measurements?.filter(
+    const activeMeasId = measurements.value.filter(
         m => m.active === true)[0]?.measurementId ?? null
-    return plate.value?.resultSets?.filter(
+    return resultSets.value.filter(
             rs => rs.measId === activeMeasId && rs.outcome === 'SUCCESS')[0]
         ?? null
   })
 
   const featureById = computed(
-      () => plate.value?.protocols?.map(p => p.features))
+      () => protocols.value.map(p => p.features))
   const isApproved = computed(() => plate.value?.approvalStatus === 'APPROVED')
 
   function featuresByProtocolId(protocolId) {
-    return plate.value?.protocols?.find(p => p.id === protocolId)?.features
+    return protocols.value.find(p => p.id === protocolId)?.features
   }
 
   function protocolById(protocolId) {
-    return plate.value?.protocols?.find(p => p.id === protocolId) ?? null
+    return protocols.value.find(p => p.id === protocolId) ?? null
   }
 
   async function loadPlate(plateId) {
     const {onResult, onError} = projectsGraphQlAPI.plateById(plateId)
     onResult(({data}) => {
       plate.value = data.plate;
-      plate.value["wells"] = data.wells;
-
-      loadPlateMeasurements(plateId)
-      loadPlateCalculations(plateId)
-      loadPlateProtocols(plateId)
-      loadPlateCurves(plateId)
+      wells.value = data.wells
     })
   }
 
@@ -59,7 +56,7 @@ export const usePlateStore = defineStore("plate", () => {
     const {onResult, onError} = projectsGraphQlAPI.wellsByPlateId(
         plate.value.id)
     onResult(({data}) => {
-      plate.value["wells"] = data.wells;
+      wells.value = data.wells;
     })
   }
 
@@ -67,7 +64,7 @@ export const usePlateStore = defineStore("plate", () => {
     const {onResult, onError} = projectsGraphQlAPI.measurementsByPlateId(
         plateId)
     onResult(({data}) => {
-      plate.value["measurements"] = data.plateMeasurements;
+      measurements.value = data.plateMeasurements;
     })
   }
 
@@ -75,7 +72,7 @@ export const usePlateStore = defineStore("plate", () => {
     const {onResult, onError} = resultdataGraphQlAPI.resultSetsByPlateId(
         plateId)
     onResult(({data}) => {
-      plate.value["resultSets"] = data.resultSets;
+      resultSets.value = data.resultSets;
     })
   }
 
@@ -83,7 +80,7 @@ export const usePlateStore = defineStore("plate", () => {
     const {onResult, onError} = resultDataGraphQlAPI.protocolsByPlateId(
         plateId)
     onResult(({data}) => {
-      plate.value["protocols"] = data.protocols;
+      protocols.value = data.protocols;
     })
   }
 
@@ -91,11 +88,10 @@ export const usePlateStore = defineStore("plate", () => {
     const {onResult, onError} = curvesGraphQlAPI.curvesByPlateId(plateId)
     onResult(({data}) => {
       const colorList = ColorUtils.getColorList(data.curves?.length)
-      const curves = data.curves?.map((curve, index) => {
+      curves.value = data.curves?.map((curve, index) => {
         curve['color'] = colorList[index]
         return curve
       })
-      plate.value["curves"] = curves;
     })
   }
 
@@ -170,6 +166,15 @@ export const usePlateStore = defineStore("plate", () => {
         description)
     await reloadPlateWells()
   }
+
+  watch(plate, async () => {
+    experimentStore.loadExperiment(plate.value.experimentId)
+
+    await loadPlateMeasurements(plate.value.id)
+    await loadPlateCalculations(plate.value.id)
+    await loadPlateProtocols(plate.value.id)
+    await loadPlateCurves(plate.value.id)
+  })
 
   return {
     plate,
