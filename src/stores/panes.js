@@ -22,6 +22,7 @@ export const usePanesStore = defineStore("panes", () => {
 
   function removeItem(id) {
     dynamicPanes.value = removeItemRecursive(id, dynamicPanes.value);
+    console.log(removeEmptyArrays(dynamicPanes.value));
     dynamicPanes.value = removeEmptyArrays(dynamicPanes.value);
   }
 
@@ -44,20 +45,20 @@ export const usePanesStore = defineStore("panes", () => {
     });
   }
 
-  function removeEmptyArrays(array) {
-    if (typeof array == "object") {
-      if (array.length == 2) {
+  function removeEmptyArrays(array, nestedIdx = 0) {
+    if (Array.isArray(array)) {
+      if (array.length == 2 && nestedIdx > 0) {
         if (array[0] == "H" || array[0] == "V") {
           array = array[1];
         }
       }
 
       for (let i = 0; i < array.length; i++) {
-        array[i] = removeEmptyArrays(array[i]);
+        array[i] = removeEmptyArrays(array[i], ++nestedIdx);
       }
     }
-    if (typeof array == "object") {
-      return array.filter((pane) => pane.length != 0);
+    if (Array.isArray(array)) {
+      return array.filter((pane) => !Array.isArray(pane) || pane.length != 0);
     }
     return array;
   }
@@ -96,7 +97,6 @@ export const usePanesStore = defineStore("panes", () => {
   function addItem(id, toId, position) {
     if (id != toId) {
       removeItem(id);
-      dynamicPanes.value = removeEmptyArrays(dynamicPanes.value);
       dynamicPanes.value = insertItem(id, toId, dynamicPanes.value, position);
     }
   }
