@@ -1,3 +1,7 @@
+<template>
+  <div id="chart" ref="curve" />
+</template>
+
 <script setup>
 import {onMounted, onUpdated, ref, watch} from "vue"
 import Plotly from "plotly.js-cartesian-dist-min"
@@ -115,7 +119,3 @@ watch(() => props.curves, updateDRCPlotView)
 onMounted(() => updateDRCPlotView())
 onUpdated(() => resizeDRCPlotView())
 </script>
-
-<template>
-  <div id="chart" ref="curve" style="padding-top: 30px"/>
-</template>

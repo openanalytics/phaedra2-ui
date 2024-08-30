@@ -17,7 +17,7 @@
         </slot>
       </div>
     </div>
-    <div class="oa-section-body">
+    <div class="oa-section-body" style="min-height: 30vh; max-height: 70vh; overflow: auto;">
       <DRCPlot :width="props.width" :height="props.height" :curves="props.curves" :update="Date.now()"/>
     </div>
     <q-separator class="q-pt-md oa-section-body"/>

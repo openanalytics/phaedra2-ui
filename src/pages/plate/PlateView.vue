@@ -55,7 +55,7 @@
       <pane class="q-pa-sm" v-if="uiStore.showImageView" style="background-color: #E6E6E6" ref="imageViewPane" >
         <div class="row oa-section-title">
           <div class="col text-h6 q-ml-md">
-            Well Image View
+            Well Image
           </div>
           <div class="col-1 text-h6">
             <q-btn icon="close" @click="closeImageView" class="q-pa-xs" size="md" flat/>

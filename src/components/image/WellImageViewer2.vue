@@ -1,5 +1,11 @@
 <template>
-  <div class="">
+  <div class="q-pa-sm">
+    <div class="row oa-section-title justify-evenly">
+      <div class="col-1 text-h6 q-ml-md">
+        <q-icon name="image" />
+      </div>
+      <div class="col text-h6">Well Image</div>
+    </div>
     <div id="container">
       <div id="control-panel" class="row">
         <q-badge color="blue" rounded style="height: 24px">{{ selectedWellInfo }}</q-badge>
@@ -84,14 +90,11 @@ onMounted(() => {
 const loading = computed(() => props.loading);
 const selectedWell = computed(() => props.well)
 const wellImage = computed(() => props.wellImage)
+errorMessage.value = props.wellImage ?? props.wellImage ? null : "No image available for this well"
 const selectedWellInfo = computed(() => {
   let info = '';
   if (selectedWell.value?.row && selectedWell.value?.column) {
     info += WellUtils.getWellCoordinate(selectedWell.value.row, selectedWell.value.column);
-  } else if (selectedWell.value?.nr && selectedWell.value?.measId) {
-    // let meas = store.getters['measurements/getById'](selectedWell.value.measId);
-    let pos = WellUtils.getWellPosition(selectedWell.value.nr, measurementStore.measurement.columns);
-    info += WellUtils.getWellCoordinate(pos[0], pos[1]);
   } else {
     return "No Well Selected";
   }

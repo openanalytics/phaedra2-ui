@@ -13,13 +13,17 @@
   </q-breadcrumbs>
 
   <q-page class="oa-root-div" v-if="plateStore.plate">
-    <well-details/>
+    <WellDetails/>
     <splitpanes class="default-theme">
-      <pane class="q-pa-sm" style="background-color: #E6E6E6">
+      <pane style="background-color: #E6E6E6">
         <WellImageViewer2 :well="wellStore.well" :wellImage="wellStore.wellImage" :loading="wellStore.loadingImage"/>
       </pane>
-      <pane v-if="wellStore.wellDRCurve" class="q-pa-sm" style="background-color: #E6E6E6">
-        <DRCView :curves="wellStore.wellDRCurve" :height="height" :width="width" :update="Date.now()"/>
+      <pane style="background-color: #E6E6E6">
+        <DRCView :curves="wellStore.wellDRCurve" :height="height" :width="width" :update="Date.now()">
+          <template v-slot:actions>
+            <div/>
+          </template>
+        </DRCView>
       </pane>
     </splitpanes>
   </q-page>
@@ -49,7 +53,7 @@ const uiStore = useUIStore()
 const route = useRoute()
 const wellId = parseInt(route.params.wellId)
 
-const height = ref(400)
+const height = ref(500)
 const width = ref(500)
 
 onMounted(() => {

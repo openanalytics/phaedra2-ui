@@ -34,8 +34,12 @@ export const useWellStore = defineStore("well", () => {
     const channels = uiStore.imageRenderSettings.channels.filter(channel => channel.enabled) ?? []
     const scale = uiStore.imageRenderSettings.scale ?? 0.25
 
-    wellImage.value = await measAPI.getMeasImage(measurementId,
-        well.value.wellNr, renderConfigId, channels, scale)
+    try {
+      wellImage.value = await measAPI.getMeasImage(measurementId,
+          well.value.wellNr, renderConfigId, channels, scale)
+    } catch (error) {
+
+    }
     loadingImage.value = false
   }
 
