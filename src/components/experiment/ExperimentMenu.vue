@@ -2,7 +2,7 @@
   <q-menu>
     <q-list dense>
       <div v-if="isOpen">
-        <menu-item icon="playlist_add" label="Set Plate Layout" @click="openLinkPlateDialog"/>
+        <menu-item icon="playlist_add" label="Set Plate Layout" @click="setPlateLayout"/>
         <menu-item icon="calculate" label="(Re)Calculate Plate(s)" @click="openRecalculatePlatesDialog"/>
       </div>
 
@@ -104,9 +104,11 @@ const getPlates = () => {
   })
 }
 
-const openLinkPlateDialog = () =>  {
-  getPlates()
-  showLinkPlateDialog.value = true
+const setPlateLayout = () =>  {
+  handleExperimentSelection(() => {
+    getPlates()
+    showLinkPlateDialog.value = true
+  }, "No experiment is selected!")
 }
 
 const openRecalculatePlatesDialog = () => {
@@ -150,4 +152,14 @@ const addExperimentPlateTrendChart = (experimentId) => {
 const exportPlateList = openExportPlateListDialog
 const exportPlateWellData = openExportWellDataDialog
 const exportPlateSubWellData = () => notify.showWarning("Feature is under construction!")
+
+const handleExperimentSelection = (action, onFailureMessage) => {
+  if (!uiStore.isExperimentSelected()) {
+    hideMenu.value = true
+    notify.showWarning(onFailureMessage)
+  } else {
+    hideMenu.value = false
+    action();
+  }
+}
 </script>

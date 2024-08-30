@@ -50,7 +50,7 @@
   <WellActionMenu touch-position context-menu
                   @reject-wells="handleRejectWells"
                   @accept-wells="handleAcceptWells"
-                  @show-dose-response-curve="handleShowDRCView"/>>
+                  @show-dose-response-curve="handleShowDRCView"/>
 </template>
 
 <script setup>

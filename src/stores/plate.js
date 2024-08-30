@@ -19,10 +19,9 @@ export const usePlateStore = defineStore("plate", () => {
   const resultSets = ref([])
   const protocols = ref([])
   const curves = ref([])
-  const activeMeasurement = computed(() => measurements.value.filter(m => m.active === true)[0])
+  const activeMeasurement = ref(null)
   const activeResultSet = computed(() => {
-    const activeMeasId = measurements.value.filter(
-        m => m.active === true)[0]?.measurementId ?? null
+    const activeMeasId = activeMeasurement.value?.measurementId ?? null
     return resultSets.value.filter(
             rs => rs.measId === activeMeasId && rs.outcome === 'SUCCESS')[0]
         ?? null
@@ -65,6 +64,7 @@ export const usePlateStore = defineStore("plate", () => {
         plateId)
     onResult(({data}) => {
       measurements.value = data.plateMeasurements;
+      activeMeasurement.value = measurements.value.filter(m => m.active === true)[0]
     })
   }
 

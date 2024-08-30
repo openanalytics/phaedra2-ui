@@ -88,7 +88,7 @@
 </style>
 
 <script setup>
-import {onBeforeMount, onMounted, ref} from 'vue'
+import {onMounted, ref} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 
 import ExperimentList from "@/pages/project/ExperimentList.vue"
@@ -106,7 +106,6 @@ import {useProjectStore} from "@/stores/project";
 import {Pane, Splitpanes} from "splitpanes";
 import ChartViewer from "@/components/chart/ChartViewer.vue";
 import {useUIStore} from "@/stores/ui";
-import {useExperimentStore} from "@/stores/experiment";
 
 const route = useRoute()
 const router = useRouter()
@@ -116,11 +115,6 @@ const projectStore = useProjectStore()
 const horizontal = ref(false)
 
 const projectId = parseInt(route.params.id);
-
-onBeforeMount(() => {
-  const experimentStore = useExperimentStore()
-  experimentStore.reset()
-})
 
 onMounted(() => {
   projectStore.loadProject(projectId)

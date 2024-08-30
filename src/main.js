@@ -106,6 +106,7 @@ import NewPipeline from "@/pages/pipeline/NewPipeline.vue"
 import BrowsePipelineExecutions from "@/pages/pipeline/BrowsePipelineExecutions.vue"
 import PipelineExecutionDetails from "@/pages/pipeline/PipelineExecutionDetails.vue"
 import PipelineAdmin from "@/pages/pipeline/PipelineAdmin.vue"
+import WellView from "@/pages/well/WellView.vue";
 
 const routes = createRouter({
     history: createWebHistory(publicPath),
@@ -132,7 +133,9 @@ const routes = createRouter({
                 {path: 'wells', component: WellList}
             ]
         },
-
+        {
+            name: "well", path: "/well/:wellId", component: WellView
+        },
         {name: "browseProtocols", path: "/protocols", component: BrowseProtocols},
         {name: "protocol", path: "/protocol/:id", component: ProtocolView},
         {name: "newProtocol", path: "/protocol/new", component: NewProtocolView},

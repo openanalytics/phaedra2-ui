@@ -36,5 +36,37 @@ export default {
         return provideApolloClient(apolloCurvesClient)(() => useQuery(QUERY,
             null,
             defaultOptions))
+    },
+    curvesThatIncludesWellId(wellId) {
+        const QUERY = gql`
+            query getCurvesThatIncludesWellId {
+                curves:getCurvesThatIncludesWellId(wellId: ${wellId}) {
+                    id
+                    plateId
+                    protocolId
+                    featureId
+                    resultSetId
+                    substanceName
+                    substanceType
+                    fitDate
+                    version
+                    wells
+                    wellConcentrations
+                    featureValues
+                    xAxisLabels
+                    plotDoseData
+                    plotPredictionData
+                    weights
+                    curveProperties {
+                        name
+                        numericValue
+                        stringValue
+                    }
+                }
+            }
+        `
+        return provideApolloClient(apolloCurvesClient)(() => useQuery(QUERY,
+            null,
+            defaultOptions))
     }
 }

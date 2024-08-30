@@ -279,6 +279,31 @@ export default {
             variables,
             defaultOptions))
     },
+    wellById(wellId) {
+      const QUERY = gql`
+        query getWellById($wellId: ID) {
+            well:getWellById(wellId: $wellId) {
+                id,
+                plateId,
+                row,
+                column,
+                wellNr,
+                wellType,
+                status,
+                description,
+                wellSubstance {
+                    type,
+                    name
+                },
+                tags,
+            }
+        }
+      `
+        const variables = {'wellId': wellId}
+        return provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY,
+            variables,
+            defaultOptions))
+    },
     measurementsByPlateId(plateId) {
         const QUERY = gql`
             query getMeasurementsByPlateId($plateId: ID) {

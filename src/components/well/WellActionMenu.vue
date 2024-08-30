@@ -1,6 +1,8 @@
 <template>
   <q-menu>
     <q-list dense>
+      <menu-item icon="info" color="primary" label="Well Details View" @click="showWellDetails"/>
+      <q-separator/>
       <menu-item icon="image" color="primary" label="Show Well Image" @click="showWellImage"/>
       <menu-item icon="show_chart" color="primary" label="Show Dose-Response Curve" @click="showDoseResponseCurve"/>
       <q-separator/>
@@ -13,10 +15,16 @@
 <script setup>
 import MenuItem from "@/components/widgets/MenuItem.vue";
 import {useUIStore} from "@/stores/ui";
+import {useRouter} from "vue-router";
 
 const emits = defineEmits(['acceptWells', 'rejectWells', 'showDoseResponseCurve'])
 
 const uiStore = useUIStore()
+
+const router = useRouter()
+const showWellDetails = () => {
+  router.push({name: 'well', params: {wellId: uiStore.selectedWells[0].id}})
+}
 
 const showWellImage = () => {
   uiStore.showImageView = true
