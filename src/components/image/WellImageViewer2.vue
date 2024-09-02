@@ -77,7 +77,6 @@ const uiStore = useUIStore();
 
 const props = defineProps(["well", "wellImage", "loading"])
 
-const errorMessage = ref(null);
 const scaleLimits = [0.125, 8];
 
 const availableRenderConfigs = computed(() => [...measurementStore.renderConfigs].sort((c1, c2) => c1.name.localeCompare(c2.name)));
@@ -90,7 +89,7 @@ onMounted(() => {
 const loading = computed(() => props.loading);
 const selectedWell = computed(() => props.well)
 const wellImage = computed(() => props.wellImage)
-errorMessage.value = props.wellImage ?? props.wellImage ? null : "No image available for this well"
+const errorMessage = computed(() => props.wellImage ?? props.wellImage ? null : "No image available for this well")
 const selectedWellInfo = computed(() => {
   let info = '';
   if (selectedWell.value?.row && selectedWell.value?.column) {

@@ -1,5 +1,5 @@
-import {defineStore, skipHydrate} from "pinia";
-import {ref, watch, watchEffect} from "vue";
+import {defineStore} from "pinia";
+import {ref, watch} from "vue";
 import measAPI from "@/api/measurements";
 import projectsGraphQlAPI from "@/api/graphql/projects"
 import {usePlateStore} from "@/stores/plate";
@@ -38,7 +38,7 @@ export const useWellStore = defineStore("well", () => {
       wellImage.value = await measAPI.getMeasImage(measurementId,
           well.value.wellNr, renderConfigId, channels, scale)
     } catch (error) {
-
+      wellImage.value = null
     }
     loadingImage.value = false
   }
