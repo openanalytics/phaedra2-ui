@@ -6,9 +6,9 @@ import plateAPI from "@/api/plates";
 import resultDataGraphQlAPI from "@/api/graphql/resultdata";
 import curvesGraphQlAPI from "@/api/graphql/curvedata";
 import ColorUtils from "@/lib/ColorUtils";
-import metadataAPI from "@/api/metadata";
 import {computed, ref, watch} from "vue";
 import {useExperimentStore} from "@/stores/experiment";
+import {addTag, deleteTag, addProperty, deleteProperty} from "@/lib/MetadataUtils";
 
 export const usePlateStore = defineStore("plate", () => {
   const experimentStore = useExperimentStore()
@@ -20,6 +20,7 @@ export const usePlateStore = defineStore("plate", () => {
   const protocols = ref([])
   const curves = ref([])
   const activeMeasurement = ref(null)
+  const isMetadataUpdate = ref(false)
   const activeResultSet = computed(() => {
     const activeMeasId = activeMeasurement.value?.measurementId ?? null
     return resultSets.value.filter(
@@ -122,38 +123,24 @@ export const usePlateStore = defineStore("plate", () => {
     await calculationsAPI.fitDoseResponseCurves()
   }
 
-  async function addTag(newTag) {
-    await metadataAPI.addTag(
-        {'objectId': plate.value.id, 'objectClass': 'PLATE', 'tag': newTag})
-    await reloadPlate()
+  async function handleAddTag(newTag) {
+    isMetadataUpdate.value = true
+    await addTag(plate.value.id, 'PLATE', newTag, reloadPlate)
   }
 
-  async function deleteTag(tag) {
-    await metadataAPI.removeTag({
-      'objectId': Number.parseInt(plate.value.id),
-      'objectClass': 'PLATE',
-      'tag': tag
-    })
-    await reloadPlate()
+  async function handleDeleteTag(tag) {
+    isMetadataUpdate.value = true
+    await deleteTag(plate.value.id, 'PLATE', tag, reloadPlate)
   }
 
-  async function addPropertty(newProperty) {
-    await metadataAPI.addProperty({
-      objectId: plate.value.id,
-      objectClass: 'PLATE',
-      propertyName: newProperty.name,
-      propertyValue: newProperty.value
-    })
-    await reloadPlate()
+  async function handleAddProperty(newProperty) {
+    isMetadataUpdate.value = true
+    await addProperty(plate.value.id, 'PLATE', newProperty, reloadPlate)
   }
 
-  async function deleteProperty(property) {
-    await metadataAPI.removeProperty({
-      objectId: plate.value.id,
-      objectClass: 'PLATE',
-      propertyName: property.propertyName
-    })
-    await reloadPlate()
+  async function handleDeleteProperty(property) {
+    isMetadataUpdate.value = true
+    await deleteProperty(plate.value.id, 'PLATE', property, reloadPlate)
   }
 
   async function acceptWells(wells) {
@@ -168,12 +155,15 @@ export const usePlateStore = defineStore("plate", () => {
   }
 
   watch(plate, async () => {
-    experimentStore.loadExperiment(plate.value.experimentId)
+    if (!isMetadataUpdate.value) {
+      await experimentStore.loadExperiment(plate.value.experimentId)
+      await loadPlateMeasurements(plate.value.id)
+      await loadPlateCalculations(plate.value.id)
+      await loadPlateProtocols(plate.value.id)
+      await loadPlateCurves(plate.value.id)
+    }
 
-    await loadPlateMeasurements(plate.value.id)
-    await loadPlateCalculations(plate.value.id)
-    await loadPlateProtocols(plate.value.id)
-    await loadPlateCurves(plate.value.id)
+    isMetadataUpdate.value = false
   })
 
   return {
@@ -202,10 +192,10 @@ export const usePlateStore = defineStore("plate", () => {
     isLoaded,
     reset,
     fitDoseResponseCurves,
-    addTag,
-    deleteTag,
-    addPropertty,
-    deleteProperty,
+    handleAddTag,
+    handleDeleteTag,
+    handleAddProperty,
+    handleDeleteProperty,
     acceptWells,
     rejectWells
   }

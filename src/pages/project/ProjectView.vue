@@ -149,19 +149,19 @@ const onRemoveAccess = async (access) => {
 }
 
 const onAddTag = async (newTag) => {
-  await projectStore.addTag(newTag)
+  await projectStore.handleAddTag(newTag)
 }
 
 const onRemoveTag = async (tag) => {
-  await projectStore.deleteTag(tag)
+  await projectStore.handleDeleteTag(tag)
 }
 
 const onAddProperty = async (newProperty) => {
-  await projectStore.addPropertty(newProperty)
+  await projectStore.handleAddProperty(newProperty)
 }
 
 const onRemoveProperty = async (property) => {
-  await projectStore.deleteProperty(property)
+  await projectStore.handleDeleteProperty(property)
 }
 
 const openDeleteDialog = () => {

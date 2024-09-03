@@ -64,19 +64,19 @@ const onDescriptionChanged = async (newDescription) => {
 }
 
 const onAddTag = async (newTag) => {
-  await wellStore.addTag(newTag)
+  await wellStore.handleAddTag(newTag)
 }
 
 const onRemoveTag = async (tag) => {
-  await wellStore.deleteTag(tag)
+  await wellStore.handleDeleteTag(tag)
 }
 
 const onAddProperty = async (newProperty) => {
-  await wellStore.addPropertty(newProperty)
+  await wellStore.handleAddProperty(newProperty)
 }
 
 const onRemoveProperty = async (property) => {
-  await wellStore.deleteProperty(property)
+  await wellStore.handleDeleteProperty(property)
 }
 
 </script>

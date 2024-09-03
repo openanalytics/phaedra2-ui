@@ -2,15 +2,15 @@ import {defineStore} from "pinia"
 import projectsGraphQlAPI from "@/api/graphql/projects"
 import projectAPI from "@/api/projects";
 import experimentAPI from "@/api/experiments";
-import metadataAPI from "@/api/metadata";
-import {computed, ref} from "vue";
+import {addTag, deleteTag, addProperty, deleteProperty} from "@/lib/MetadataUtils";
+import {ref} from "vue";
 
 export const useProjectStore = defineStore("project", () => {
   const project = ref({})
   const experiments = ref([])
   const projectAccess = ref([])
 
-  const loadProject = (projectId) => {
+  const loadProject = async (projectId) => {
     const {onResult, onError} = projectsGraphQlAPI.projectById(projectId)
     onResult(({data}) => {
       project.value = data.project
@@ -18,9 +18,15 @@ export const useProjectStore = defineStore("project", () => {
       projectAccess.value = data.projectAccess
     })
   }
+
+  const reloadProject = async () => {
+    await loadProject(project.value.id)
+  }
+
   const isLoaded = (projectId) => {
     return project.value.id === `${projectId}`
   }
+
   const createNewProject = async (newProject) => {
     const createdProject = await projectAPI.createNewProject(newProject)
     project.value = createdProject
@@ -33,12 +39,12 @@ export const useProjectStore = defineStore("project", () => {
   }
   const renameProject = async (newName) => {
     await projectAPI.editProject({id: project.value.id, name: newName})
-    loadProject(project.value.id)
+    await reloadProject()
   }
   const editProjectDescription = async (newDescription) => {
     await projectAPI.editProject(
         {id: project.value.id, description: newDescription})
-    loadProject(project.value.id)
+    await reloadProject()
   }
   const deleteProject = async () => {
     await projectAPI.deleteProject(project.value.id)
@@ -47,55 +53,40 @@ export const useProjectStore = defineStore("project", () => {
   const addExperiment = async (experiment) => {
     experiment['projectId'] = project.value.id
     await experimentAPI.createExperiment(experiment);
-    loadProject(project.value.id)
+    await reloadProject()
   }
   const openExperiment = async (experimentId) => {
     await experimentAPI.editExperiment({id: experimentId, status: 'OPEN'})
-    loadProject(project.value.id)
+    await reloadProject()
   }
   const closeExperiment = async (experimentId) => {
     await experimentAPI.editExperiment({id: experimentId, status: 'CLOSED'})
-    loadProject(project.value.id)
+    await reloadProject()
   }
   const deleteExperiment = async (experimentId) => {
     await experimentAPI.deleteExperiment(experimentId);
-    loadProject(project.value.id)
+    await reloadProject()
   }
   const createProjectAccess = async (newAccess) => {
     newAccess['projectId'] = project.value.id;
     await projectAPI.createProjectAccess(newAccess)
-    loadProject(project.value.id)
+    await reloadProject()
   }
   const deleteProjectAccess = async (access) => {
     await projectAPI.deleteProjectAccess(access.id);
-    loadProject(project.value.id)
+    await reloadProject()
   }
-  const addTag = async (newTag) => {
-    await metadataAPI.addTag(
-        {'objectId': project.value.id, 'objectClass': 'PROJECT', 'tag': newTag})
-    loadProject(project.value.id)
+  const handleAddTag = async (newTag) => {
+    await addTag(project.value.id, 'PROJECT', newTag, reloadProject)
   }
-  const deleteTag = async (tag) => {
-    await metadataAPI.removeTag(
-        {'objectId': project.value.id, 'objectClass': 'PROJECT', 'tag': tag})
-    loadProject(project.value.id)
+  const handleDeleteTag = async (tag) => {
+    await deleteTag(project.value.id, 'PROJECT', tag, reloadProject)
   }
-  const addPropertty = async (newProperty) => {
-    await metadataAPI.addProperty({
-      objectId: project.value.id,
-      objectClass: 'PROJECT',
-      propertyName: newProperty.name,
-      propertyValue: newProperty.value
-    })
-    loadProject(project.value.id)
+  const handleAddProperty = async (newProperty) => {
+    await addProperty(project.value.id, 'PROJECT', newProperty, reloadProject)
   }
-  const deleteProperty = async (property) => {
-    await metadataAPI.removeProperty({
-      objectId: project.value.id,
-      objectClass: 'PROJECT',
-      propertyName: property.propertyName
-    })
-    loadProject(project.value.id)
+  const handleDeleteProperty = async (property) => {
+    await deleteProperty(project.value.id, 'PROJECT', property, reloadProject)
   }
   const reset = () => {
     project.value = {}
@@ -116,10 +107,10 @@ export const useProjectStore = defineStore("project", () => {
     deleteExperiment,
     createProjectAccess,
     deleteProjectAccess,
-    addTag,
-    deleteTag,
-    addPropertty,
-    deleteProperty,
+    handleAddTag,
+    handleDeleteTag,
+    handleAddProperty,
+    handleDeleteProperty,
     reset
   }
 })

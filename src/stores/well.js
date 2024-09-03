@@ -6,6 +6,12 @@ import {usePlateStore} from "@/stores/plate";
 import WellUtils from "@/lib/WellUtils";
 import curvesGraphQlAPI from "@/api/graphql/curvedata";
 import {useUIStore} from "@/stores/ui";
+import {
+  addProperty,
+  addTag,
+  deleteProperty,
+  deleteTag
+} from "@/lib/MetadataUtils";
 
 export const useWellStore = defineStore("well", () => {
   const plateStore = usePlateStore()
@@ -16,14 +22,19 @@ export const useWellStore = defineStore("well", () => {
   const loadingImage = ref(true)
   const wellDRCurve = ref([])
   const wellFeatureValues = ref([])
+  const isMetadataUpdate = ref(false)
 
-  const loadWell = (wellId) => {
+  const loadWell = async (wellId) => {
     const {onResult, onError} = projectsGraphQlAPI.wellById(wellId)
     onResult(({data}) => {
       well.value = data.well
       well.value["pos"] = WellUtils.getWellCoordinate(well.value.row,
           well.value.column)
     })
+  }
+
+  const reloadWell = async () => {
+    await loadWell(well.value.id)
   }
 
   const loadWellImage = async () => {
@@ -51,9 +62,32 @@ export const useWellStore = defineStore("well", () => {
     })
   }
 
+  async function handleAddTag(newTag) {
+    isMetadataUpdate.value = true
+    await addTag(well.value.id, 'WELL', newTag, reloadWell)
+  }
+
+  async function handleDeleteTag(tag) {
+    isMetadataUpdate.value = true
+    await deleteTag(well.value.id, 'WELL', tag, reloadWell)
+  }
+
+  async function handleAddProperty(newProperty) {
+    isMetadataUpdate.value = true
+    await addProperty(well.value.id, 'WELL', newProperty, reloadWell)
+  }
+
+  async function handleDeleteProperty(property) {
+    isMetadataUpdate.value = true
+    await deleteProperty(well.value.id, 'WELL', property, reloadWell)
+  }
+
   watch(well, async () => {
-    await plateStore.loadPlate(well.value.plateId)
-    await loadWellCurve()
+    if (!isMetadataUpdate.value) {
+      await plateStore.loadPlate(well.value.plateId)
+      await loadWellCurve()
+    }
+    isMetadataUpdate.value = false
   })
 
   watch(() => plateStore.activeMeasurement, async () => {
@@ -70,6 +104,10 @@ export const useWellStore = defineStore("well", () => {
     loadingImage,
     wellDRCurve,
     wellFeatureValues,
-    loadWell
+    loadWell,
+    handleAddTag,
+    handleDeleteTag,
+    handleAddProperty,
+    handleDeleteProperty
   }
 })

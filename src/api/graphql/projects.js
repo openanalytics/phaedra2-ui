@@ -296,6 +296,10 @@ export default {
                     name
                 },
                 tags,
+                properties {
+                    propertyName,
+                    propertyValue
+                }
             }
         }
       `

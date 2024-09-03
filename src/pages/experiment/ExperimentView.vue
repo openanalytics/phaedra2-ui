@@ -208,18 +208,18 @@ const handleOpenExperiment = () => {
 }
 
 const onAddTag = async (newTag) => {
-  await experimentStore.addTag(newTag)
+  await experimentStore.handleAddTag(newTag)
 }
 
 const onRemoveTag = async (tag) => {
-  await experimentStore.deleteTag(tag)
+  await experimentStore.handleDeleteTag(tag)
 }
 
 const onAddProperty = async (newProperty) => {
-  await experimentStore.addPropertty(newProperty)
+  await experimentStore.handleAddProperty(newProperty)
 }
 
 const onRemoveProperty = async (property) => {
-  await experimentStore.deleteProperty(property)
+  await experimentStore.handleDeleteProperty(property)
 }
 </script>

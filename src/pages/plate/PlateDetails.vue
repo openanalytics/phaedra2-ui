@@ -101,19 +101,19 @@ const onDeleted = async () => {
 }
 
 const onAddTag = async (newTag) => {
-  await plateStore.addTag(newTag)
+  await plateStore.handleAddTag(newTag)
 }
 
 const onRemoveTag = async (tag) => {
-  await plateStore.deleteTag(tag)
+  await plateStore.handleDeleteTag(tag)
 }
 
 const onAddProperty = async (newProperty) => {
-  await plateStore.addPropertty(newProperty)
+  await plateStore.handleAddProperty(newProperty)
 }
 
 const onRemoveProperty = async (property) => {
-  await plateStore.deleteProperty(property)
+  await plateStore.handleDeleteProperty(property)
 }
 </script>
 

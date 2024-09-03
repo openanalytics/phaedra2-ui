@@ -155,18 +155,18 @@ const openDeleteDialog = () => {
 }
 
 const onAddTag = async (newTag) => {
-  await templateStore.addTag(newTag)
+  await templateStore.handleAddTag(newTag)
 }
 
 const onRemoveTag = async (tag) => {
-  await templateStore.deleteTag(tag)
+  await templateStore.handleDeleteTag(tag)
 }
 
 const onAddProperty = async (newProperty) => {
-  await templateStore.addPropertty(newProperty)
+  await templateStore.handleAddProperty(newProperty)
 }
 
 const onRemoveProperty = async (property) => {
-  await templateStore.deleteProperty(property)
+  await templateStore.handleDeleteProperty(property)
 }
 </script>
