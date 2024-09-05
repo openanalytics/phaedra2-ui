@@ -66,8 +66,10 @@
           <component
             :is="component.component"
             :key="component.id"
+            v-bind="{ ...component.props }"
             style="position: relative; width: 100%; max-width: 100%"
           />
+
           <DropArea position="left" @dropped="drop('left')" />
           <DropArea position="top" @dropped="drop('top')" />
           <DropArea position="right" @dropped="drop('right')" />
@@ -83,6 +85,7 @@
 import { ref, onMounted, watch } from "vue";
 import { usePanesStore } from "../../stores/panes";
 import DropArea from "./DropArea.vue";
+import { useUIStore } from "../../stores/ui";
 
 const props = defineProps(["panes"]);
 const activeTab = ref();
