@@ -1,16 +1,6 @@
 <template>
-  <!-- <div class="q-pa-sm"> -->
-  <!-- <oa-section -->
-  <!-- title="Recent Calculations" icon="calculate" :collapsible="true" > -->
   <div class="q-pa-sm">
-    <q-table
-      flat
-      square
-      dense
-      table-header-class="text-grey"
-      :columns="columns"
-      :rows="resultSets"
-    >
+    <oa-table :columns="columns" :rows="resultSets">
       <template v-slot:body-cell-protocolId="props">
         <q-td :props="props">
           <router-link
@@ -37,17 +27,16 @@
           <StatusLabel :status="props.row.outcome" />
         </q-td>
       </template>
-    </q-table>
+    </oa-table>
   </div>
-  <!-- </oa-section> -->
-  <!-- </div> -->
 </template>
 
 <script setup>
-import FormatUtils from "@/lib/FormatUtils.js";
 import { computed } from "vue";
 import { useStore } from "vuex";
+import FormatUtils from "@/lib/FormatUtils";
 import StatusLabel from "@/components/widgets/StatusLabel";
+import OaTable from "@/components/table/OaTable.vue";
 
 const store = useStore();
 

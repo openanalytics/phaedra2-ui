@@ -6,20 +6,11 @@
 
   <q-page class="oa-root-div">
     <oa-section title="Pipeline Executions" icon="play_circle_outline" class="q-pa-sm">
-      <q-table
-          table-header-class="text-grey"
-          class="full-width"
+      <oa-table
           :rows="pipelineStore.executions"
           :columns="columns"
-          row-key="id"
-          column-key="name"
-          :filter="filter"
-          :filter-method="filterMethod"
-          :pagination="{ rowsPerPage: 20, sortBy: 'createdOn', descending: true }"
           :loading="loading"
-          @row-click="(e, row) => router.push('/pipeline-execution/' + row.id)"
-          separator="cell"
-          flat dense
+          @row-click="gotoPipelineExecutionDetails"
       >
         <template v-slot:top-left>
           <q-btn color="primary" icon="refresh" size="sm" @click="refreshList" class="on-left"/>
@@ -27,32 +18,7 @@
         <template v-slot:top-right>
           <date-range-selector v-model:from="fromDate" v-model:to="toDate" @rangeChanged="refreshList"/>
         </template>
-        <template v-slot:header="props">
-          <q-tr :props="props">
-            <q-th v-for="col in props.cols" :key="col.name" :props="props">
-              {{ col.label }}
-            </q-th>
-          </q-tr>
-          <q-tr :props="props">
-            <column-filter v-for="col in props.cols" :key="col.name" v-model="filter[col.name]"/>
-          </q-tr>
-        </template>
-        <template v-slot:body-cell-createdBy="props">
-          <q-td :props="props">
-            <UserChip :id="props.row.createdBy"/>
-          </q-td>
-        </template>
-        <template v-slot:body-cell-updatedBy="props">
-          <q-td :props="props">
-            <UserChip :id="props.row.updatedBy"/>
-          </q-td>
-        </template>
-        <template v-slot:body-cell-status="props">
-          <q-td :props="props">
-            <StatusLabel :status="props.row.status"/>
-          </q-td>
-        </template>
-      </q-table>
+      </oa-table>
     </oa-section>
   </q-page>
 </template>
@@ -62,13 +28,10 @@ import {ref, onMounted} from 'vue';
 import {useRouter} from "vue-router";
 import {date} from 'quasar'
 import FormatUtils from "@/lib/FormatUtils.js"
-import FilterUtils from "@/lib/FilterUtils.js"
-import UserChip from "@/components/widgets/UserChip";
-import StatusLabel from "@/components/widgets/StatusLabel";
 import OaSection from "@/components/widgets/OaSection";
 import DateRangeSelector from "@/components/widgets/DateRangeSelector";
-import ColumnFilter from "@/components/table/ColumnFilter";
 import {usePipelineStore} from "@/stores/pipeline";
+import OaTable from "@/components/table/OaTable.vue";
 
 const router = useRouter();
 const loading = ref(true);
@@ -82,18 +45,16 @@ onMounted(() => {
   refreshList();
 })
 
-const getDateRange = () => {
-  return { from: fromDate.value.getTime(), to: toDate.value.getTime() };
-};
-
-const refreshList = () => {
+const refreshList = async () => {
   loading.value = true;
-  pipelineStore.loadAllPipelineExecutions(getDateRange()).then(() => {
-    loading.value = false
-  })
+  const dateRange = { from: fromDate.value.getTime(), to: toDate.value.getTime() };
+  await pipelineStore.loadPipelineExecutions(dateRange);
+  await pipelineStore.loadPipelines(pipelineStore.executions.map(e => e.pipelineId));
+  loading.value = false;
 };
 
 const columns = ref([
+    {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
     {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
     {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
     {name: 'updatedOn', align: 'left', label: 'Updated On', field: 'updatedOn', sortable: true, format: FormatUtils.formatDate},
@@ -106,8 +67,9 @@ const columns = ref([
         return `${stepName} (${v} / ${stepCount})`;
     }},
     {name: 'status', align: 'center', label: 'Status', field: 'status'},
-]);
+])
 
-const filter = FilterUtils.makeFilter(columns.value);
-const filterMethod = FilterUtils.defaultFilterMethod();
+const gotoPipelineExecutionDetails = (e, row) => {
+  router.push(`/pipeline-execution/${row.id}`)
+}
 </script>

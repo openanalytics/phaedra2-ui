@@ -56,11 +56,19 @@ const apolloMeasurementsClient = new ApolloClient({
     cache: new InMemoryCache()
 })
 
+const apolloQueriesClient = new ApolloClient({
+    link: authLink.concat(createHttpLink({
+        uri: `${apiURL}/query-service/graphql`,
+    })),
+    cache: new InMemoryCache()
+})
+
 export {
     apolloResultDataClient,
     apolloPlatesClient,
     apolloChartsClient,
     apolloCurvesClient,
     apolloProtocolsClient,
-    apolloMeasurementsClient
+    apolloMeasurementsClient,
+    apolloQueriesClient
 }

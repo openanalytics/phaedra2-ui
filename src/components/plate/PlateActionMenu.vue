@@ -279,7 +279,7 @@ const deletePlate = () => {
 }
 const onDeletePlate = async () => {
   await loadingHandler.handleLoadingDuring(experimentStore.deletePlates(uiStore.selectedPlates))
-  showDeleteDialog.value = true
+  showDeleteDialog.value = false
 }
 
 const notify = useNotification()

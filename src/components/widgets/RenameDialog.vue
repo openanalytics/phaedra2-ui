@@ -5,7 +5,7 @@
                 <q-icon name="edit" class="q-pr-sm"/>
                 Rename {{objectClass}}
             </q-card-section>
-        
+
             <q-card-section>
                 <q-input dense v-model="fieldValue" />
             </q-card-section>

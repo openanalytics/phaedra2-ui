@@ -49,18 +49,9 @@
         </q-item-section>
         <q-menu>
           <q-list>
-            <menu-item
-              icon="save_alt"
-              label="Export Well Data"
-              @click="exportPlateWellData"
-              v-close-popup
-            />
-            <menu-item
-              icon="save_alt"
-              label="Export Sub-Well Data"
-              @click="exportPlateSubWellData"
-              v-close-popup
-            />
+            <menu-item icon="save_alt" label="Export Plate List" @click="openExportPlateListDialog"/>
+            <menu-item icon="save_alt" label="Export Well Data" @click="openExportWellDataDialog"/>
+            <menu-item icon="save_alt" label="Export Sub-Well Data" @click="exportPlateSubWellData"/>
           </q-list>
         </q-menu>
       </q-item>
@@ -104,52 +95,48 @@
       />
     </q-list>
 
-    <delete-dialog
-      v-if="isOpen"
-      :id="props.experiment.id"
-      :name="props.experiment.name"
-      :objectClass="'experiment'"
-      v-model:show="showDeleteDialog"
-      @onDeleted="onDeleted"
-    />
-    <link-plate-layout-dialog
-      v-if="isOpen"
-      v-model:show="showLinkPlateDialog"
-      :plates="plates"
-    />
-    <calculate-plate-dialog
-      v-if="isOpen"
-      v-model:show="showCalculatePlateDialog"
-      :plates="plates"
-    />
+    <delete-dialog v-if="isOpen" :id="props.experiment.id" :name="props.experiment.name" :objectClass="'experiment'"
+                  v-model:show="showDeleteDialog" @onDeleted="onDeleted"/>
+    <link-plate-layout-dialog v-if="isOpen" v-model:show="showLinkPlateDialog" :plates="plates" @on-link-plate="updateProject"/>
+    <calculate-plate-dialog v-if="isOpen" v-model:show="showCalculatePlateDialog" :plates="plates" />
+    <export-plate-list-dialog v-model:show="showExportPlateListDialog" :experiment="props.experiment"/>
+    <export-well-data-dialog v-model:show="showExportWellDataDialog" :experiment="props.experiment"/>
   </q-menu>
 </template>
 
 <script setup>
 import DeleteDialog from "@/components/widgets/DeleteDialog";
-import { useProjectStore } from "@/stores/project";
-import { computed, ref } from "vue";
-import LinkPlateLayoutDialog from "@/components/plate/LinkPlateLayoutDialog.vue";
-import MenuItem from "@/components/widgets/MenuItem.vue";
-import { useQuasar } from "quasar";
-import projectsGraphQlAPI from "@/api/graphql/projects";
-import CalculatePlateDialog from "@/components/plate/CalculatePlateDialog.vue";
-import { useUIStore } from "@/stores/ui";
 import { usePanesStore } from "@/stores/panes";
 import { useExperimentStore } from "@/stores/experiment";
-
-const $q = useQuasar();
-const props = defineProps(["experiment"]);
-const projectStore = useProjectStore();
 const panesStore = usePanesStore();
 const experimentStore = useExperimentStore();
+import {useProjectStore} from "@/stores/project";
+import {computed, ref} from "vue";
+import LinkPlateLayoutDialog from "@/components/plate/LinkPlateLayoutDialog";
+import MenuItem from "@/components/widgets/MenuItem.vue";
+import projectsGraphQlAPI from "@/api/graphql/projects";
+import CalculatePlateDialog from "@/components/plate/CalculatePlateDialog";
+import {useUIStore} from "@/stores/ui";
+import {useRoute} from "vue-router";
+import {useNotification} from "@/composable/notification";
+import ExportPlateListDialog from "@/components/plate/ExportPlateListDialog";
+import ExportWellDataDialog from "@/components/plate/ExportWellDataDialog";
+
+const props = defineProps(['experiment'])
+const projectStore = useProjectStore()
+const notify = useNotification()
+
+const route = useRoute();
+const projectId = parseInt(route.params.id)
 
 const isOpen = computed(() =>
   props.experiment.status === "OPEN" ? true : false
 );
 const showDeleteDialog = ref(false);
-const showLinkPlateDialog = ref(false);
-const showCalculatePlateDialog = ref(false);
+const showLinkPlateDialog = ref(false)
+const showCalculatePlateDialog = ref(false)
+const showExportPlateListDialog = ref(false)
+const showExportWellDataDialog = ref(false)
 
 const plates = ref([]);
 
@@ -165,9 +152,9 @@ const getPlates = () => {
     plates.value = [...data.plates];
   });
   onError((error) => {
-    displayErrorNotification("Error while updating plates: " + error.message);
-  });
-};
+    notify.showError("Error while updating plates: " + error.message)
+  })
+}
 
 const openLinkPlateDialog = () => {
   getPlates();
@@ -178,6 +165,14 @@ const openRecalculatePlatesDialog = () => {
   getPlates();
   showCalculatePlateDialog.value = true;
 };
+
+const openExportPlateListDialog = () => {
+  showExportPlateListDialog.value = true
+}
+
+const openExportWellDataDialog = () => {
+  showExportWellDataDialog.value = true
+}
 
 const handleCloseExperiment = () => {
   console.log("Close experiment " + props.experiment.name);
@@ -192,24 +187,9 @@ const onDeleted = () => {
   projectStore.deleteExperiment(props.experiment.id);
 };
 
-const showUnderConstructionMessage = () => {
-  $q.notify({
-    type: "warning",
-    message: "Feature is under construction!",
-    position: "top",
-    actions: [{ icon: "close", color: "secondary", round: true }],
-  });
-};
-
-const displayErrorNotification = (errorMessage) => {
-  $q.notify({
-    type: "negative",
-    message: "Unable to retrieve experiment's plates!",
-    position: "top",
-    actions: [{ icon: "close", color: "secondary", round: true }],
-  });
-  console.error(errorMessage);
-};
+const updateProject = () => {
+  projectStore.loadProject(projectId)
+}
 
 const uiStore = useUIStore();
 const addExperimentPlateTrendChart = (experimentId) => {
@@ -220,10 +200,6 @@ const addExperimentPlateTrendChart = (experimentId) => {
       label: "Experiment Trend Chart",
     });
   }
-};
-const exportPlateWellData = showUnderConstructionMessage;
-const exportPlateSubWellData = showUnderConstructionMessage;
-
 const openExperimentDetails = () => {
   selectedExperiment.value = row;
 };
@@ -232,4 +208,9 @@ const openPlates = () => {
   experimentStore.loadExperiment(props.experiment.id);
   panesStore.addItem("plates-list-pane", "experiment-list-pane", "center");
 };
+}
+
+const exportPlateList = openExportPlateListDialog
+const exportPlateWellData = openExportWellDataDialog
+const exportPlateSubWellData = () => notify.showWarning("Feature is under construction!")
 </script>

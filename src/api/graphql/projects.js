@@ -232,6 +232,7 @@ export default {
                 wells:getPlateWells(plateId: $plateId) {
                     id
                     plateId
+                    wellNr
                     row
                     column
                     wellType

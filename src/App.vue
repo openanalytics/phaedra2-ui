@@ -37,9 +37,8 @@ import { computed, ref, watch } from "vue";
 import { useStore } from "vuex";
 import { publicPath } from "../vue.config";
 
-import SidePanel from "@/components/widgets/SidePanel.vue";
-import Navigator from "@/components/navigator/Navigator.vue";
 import UserInfoButton from "@/components/widgets/UserInfoButton.vue";
+import Navigator from "@/components/navigator/Navigator.vue";
 
 const store = useStore();
 const drawer = ref(false);

@@ -89,6 +89,8 @@
                   :filter="filter"
                   :filter-method="filterMethod"
                   :loading="loading"
+                  separator="cell"
+                  bordered
               >
                 <template v-slot:top-left>
                   <div v-if="wellNrLimit > 0">
@@ -136,7 +138,8 @@
                     :columns="subWellDataColumns"
                     row-key="id"
                     :pagination="{ rowsPerPage: 100 }"
-                    :loading="loading">
+                    :loading="loading"
+                    separator="cell" bordered>
                 </q-table>
               </div>
             </q-tab-panel>

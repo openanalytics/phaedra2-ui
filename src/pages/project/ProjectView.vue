@@ -30,7 +30,11 @@
       >
         <div class="row oa-section-body">
           <oa-section title="Experiments" icon="science">
-            <ExperimentList @createNewExperiment="onCreateNewExperiment" />
+            <ExperimentList
+              @createNewExperiment="onCreateNewExperiment"
+              :experiments="projectStore.experiments"
+              :project="projectStore.project"
+            />
           </oa-section>
         </div>
       </pane>

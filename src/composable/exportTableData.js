@@ -30,6 +30,14 @@ export function useExportTableData(tableColumns) {
         writeFileXLSX(workbook, filename.concat(".xlsx"))
     }
 
+    function exportPlateDataToXLSX(data, filename) {
+
+    }
+
+    function exportWellDataToXLSX(data, filename) {
+
+    }
+
     return {
         exportToCSV,
         exportToXLSX

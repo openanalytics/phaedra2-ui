@@ -1,25 +1,14 @@
 <template>
-  <q-table
-      separator="cell"
-      :rows="curveData"
-      :columns="curveTableColumns"
-      row-key="substance"
-      column-key="name"
-      :filter="filter"
-      :filter-method="filterMethod"
-      virtual-scroll
-      style="max-height: 600px"
-      :pagination="pagination"
-      :rows-per-page-options="[0]"
-      flat square dense>
+  <oa-table :columns="curveTableColumns" :rows="curveData" row-key="substance"
+            :filter="filter" :filter-method="filterMethod">
     <template v-slot:header="props">
-      <q-tr class="text-grey">
+      <q-tr :props="props">
         <q-th colspan="3"/>
         <q-th v-for="fid in featureIds" :key="fid" colspan="7">
           {{ fetchFeatureName(fid) }}
         </q-th>
       </q-tr>
-      <q-tr :props="props" class="text-grey">
+      <q-tr :props="props">
         <q-th v-for="col in props.cols" :key="col.name" :props="props">
           {{ col.label }}
         </q-th>
@@ -45,38 +34,40 @@
     </template>
     <template v-slot:body-cell="props">
       <q-td :props="props">
-        {{ props.row.curve_info[props.col.featureId][props.col.name] ?? FormatUtils.formatToScientificNotation(props.row.curve_info[props.col.featureId][props.col.name], 2) }}
+        {{
+          props.row.curve_info[props.col.featureId][props.col.name]
+          ?? FormatUtils.formatToScientificNotation(
+              props.row.curve_info[props.col.featureId][props.col.name], 2)
+        }}
       </q-td>
     </template>
     <template v-slot:body-cell-curve="props">
-      <q-td :props="props" @click="uiStore.addDRCure(props.row.curve_info[props.col.featureId].curve, $event)">
+      <q-td :props="props"
+            @click="uiStore.addDRCure(props.row.curve_info[props.col.featureId].curve, $event)">
         <MiniDRCView :curvedata="props.row.curve_info[props.col.featureId].curve"/>
-        <DRCActionMenu @showDRCView="handleShowDRCView(props.row.curve_info[props.col.featureId].curve)"/>
+        <DRCActionMenu
+            @showDRCView="handleShowDRCView(props.row.curve_info[props.col.featureId].curve)"/>
       </q-td>
     </template>
-  </q-table>
+  </oa-table>
 </template>
 
 <script setup>
 import {ref} from "vue";
-import {useStore} from "vuex";
 import MiniDRCView from "@/components/curve/MiniDRCView.vue"
 import FormatUtils from "@/lib/FormatUtils";
 import ColumnFilter from "@/components/table/ColumnFilter.vue";
 import FilterUtils from "@/lib/FilterUtils";
 import {useUIStore} from "@/stores/ui";
 import DRCActionMenu from "@/components/curve/DRCActionMenu.vue";
+import OaTable from "@/components/table/OaTable.vue";
 
-const store = useStore()
 const uiStore = useUIStore()
 
 const props = defineProps(['plate', 'curves', 'protocols'])
 const emits = defineEmits(['handleSelection', 'showDRCView'])
 
 const curves = ref(props.curves)
-const pagination = ref({ rowsPerPage: 0 })
-
-
 const features = props.protocols.flatMap(protocol => protocol.features)
 const fetchFeatureName = (featureId) => {
   return features.find(f => f.id = featureId)?.name

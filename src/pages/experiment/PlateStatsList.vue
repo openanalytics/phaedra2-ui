@@ -7,7 +7,8 @@
       :filter="filter"
       :filter-method="filterMethod"
       :loading="loading"
-      dense flat square>
+      separator="cell"
+      dense flat square bordered>
     <template v-slot:top-right>
       <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
         <template v-slot:append>

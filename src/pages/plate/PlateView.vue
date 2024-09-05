@@ -260,6 +260,17 @@
           @wellStatusChanged="onWellStatusChanged"
         />
       </pane>
+      <pane class="q-pa-sm" v-if="uiStore.showImageView" style="background-color: #E6E6E6" ref="imageViewPane" >
+        <div class="row oa-section-title">
+          <div class="col text-h6 q-ml-md">
+            Well Image View
+          </div>
+          <div class="col-1 text-h6">
+            <q-btn icon="close" @click="closeImageView" class="q-pa-xs" size="md" flat/>
+          </div>
+        </div>
+        <WellImageViewer/>
+      </pane>
     </splitpanes>
 
     <rename-dialog
@@ -310,8 +321,10 @@ import { usePlateStore } from "@/stores/plate";
 import DRCList from "@/components/curve/DRCList.vue";
 import DRCView from "@/components/curve/DRCView.vue";
 import ChartViewer from "@/components/chart/ChartViewer.vue";
-import { useUIStore } from "@/stores/ui";
-import { useNotification } from "@/composable/notification";
+import {useUIStore} from "@/stores/ui";
+import {useNotification} from "@/composable/notification";
+import {useLoadingHandler} from "@/composable/loadingHandler";
+import WellImageViewer from "@/components/image/WellImageViewer.vue";
 
 const route = useRoute();
 const projectStore = useProjectStore();
@@ -326,10 +339,12 @@ const width = ref(500);
 
 const readOnly = ref(plateStore.isApproved || experimentStore.isClosed);
 
-const drcViewPane = ref();
-const chartViewerPane = ref();
+const drcViewPane = ref()
+const chartViewerPane = ref()
+const imageViewPane = ref()
 
-const plateId = parseInt(route.params.plateId);
+const plateId = parseInt(route.params.plateId)
+const loadingHandler = useLoadingHandler()
 onMounted(() => {
   plateStore.loadPlate(plateId);
 });
@@ -388,11 +403,13 @@ const onRemoveProperty = async (property) => {
 const wellStatusNotification = useNotification();
 const onWellStatusChanged = () => {
   wellStatusNotification.showInfo(
-    "Plate's well(s) status has changed! Recalculate plate?",
-    () => {
-      showCalculateDialog.value = true;
-    },
-    () => {}
-  );
-};
+      "Plate's well(s) status has changed! Recalculate plate?",
+      () => { showCalculateDialog.value = true },
+      () => { }
+  )
+}
+
+const closeImageView = () => {
+  uiStore.showImageView = false
+}
 </script>

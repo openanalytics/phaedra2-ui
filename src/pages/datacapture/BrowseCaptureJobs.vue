@@ -6,20 +6,7 @@
 
   <q-page class="oa-root-div q-pa-sm">
     <oa-section title="Data Capture Jobs" icon="cloud_upload" :collapsible="true">
-      <q-table
-          table-header-class="text-grey"
-          class="full-width"
-          :rows="jobs"
-          :columns="columns"
-          :visible-columns="visibleColumns"
-          row-key="id"
-          column-key="name"
-          :filter="filter"
-          :filter-method="filterMethod"
-          :pagination="{ rowsPerPage: 20, sortBy: 'createDate', descending: true }"
-          separator="cell"
-          square dense flat
-      >
+      <oa-table :rows="jobs" :columns="columns" :pagination="{ rowsPerPage: 20, sortBy: 'createDate', descending: true }">
         <template v-slot:top-left>
           <div class="justify-end">
             <q-btn color="primary" icon="refresh" size="sm" @click="refreshList" class="on-left"/>
@@ -29,34 +16,15 @@
         <template v-slot:top-right>
           <date-range-selector v-model:from="fromDate" v-model:to="toDate" @rangeChanged="refreshList"/>
         </template>
-        <template v-slot:header="props">
-          <q-tr :props="props">
-            <q-th v-for="col in props.cols" :key="col.name" :props="props">
-              {{col.label}}
-            </q-th>
-          </q-tr>
-          <q-tr :props="props">
-            <column-filter v-for="col in props.cols" :key="col.name" v-model="filter[col.name]"/>
-          </q-tr>
-        </template>
-        <template v-slot:body-cell-statusCode="props">
-          <q-td :props="props">
-            <StatusLabel :status="props.row.statusCode"/>
-          </q-td>
-        </template>
-        <template v-slot:body-cell-createdBy="props">
-          <q-td :props="props">
-            <UserChip :id="props.row.createdBy"/>
-          </q-td>
-        </template>
         <template v-slot:body-cell-details="props">
           <q-td :props="props">
             <q-btn label="Details" icon-right="chevron_right" size="sm" @click="doShowJobDetails(props.row)"/>
           </q-td>
         </template>
-        <template v-slot:body-cell-cancel="props">
+        <template v-slot:body-cell-actions="props">
           <q-td :props="props">
-            <q-btn label="Cancel" icon-right="cancel" size="sm" @click="cancelJob(props.row.id)" v-if="canCancelJob(props.row)"/>
+            <q-btn v-if="canCancelJob(props.row)" label="Cancel" icon-right="cancel" size="sm" @click="cancelJob(props.row.id)" />
+            <q-btn v-if="canResubmitJob(props.row)" label="Re-submit" icon-right="restart_alt" size="sm" @click="jobToResubmit = props.row; showResubmitConfirmation = true" />
           </q-td>
         </template>
         <template v-slot:no-data>
@@ -64,10 +32,7 @@
             <span>No jobs to show.</span>
           </div>
         </template>
-      </q-table>
-
-      <table-config v-model:show="configdialog" v-model:columns="columns"
-                    v-model:visibleColumns="visibleColumns"></table-config>
+      </oa-table>
 
       <q-dialog v-model="showJobDetails">
         <CaptureJobDetailsPanel :job="jobDetails"></CaptureJobDetailsPanel>
@@ -134,21 +99,20 @@
       </q-dialog>
     </oa-section>
   </q-page>
+
+  <confirm-dialog title="Re-submit Job" :message="'Are you sure you want to re-submit this capture job? ' + jobToResubmit?.sourcePath" v-model:show="showResubmitConfirmation" @onConfirm="resubmitJob"/>
 </template>
 
 <script setup>
-import {ref, computed, onMounted, onBeforeUnmount, reactive, watch} from 'vue'
+import {ref, computed, onMounted, onBeforeUnmount, reactive} from 'vue'
 import {useStore} from 'vuex'
 import {date} from 'quasar'
 import FormatUtils from "@/lib/FormatUtils.js"
-import FilterUtils from "@/lib/FilterUtils.js"
 import OaSection from "@/components/widgets/OaSection";
 import CaptureJobDetailsPanel from "./CaptureJobDetailsPanel";
-import TableConfig from "@/components/table/TableConfig";
-import ColumnFilter from "@/components/table/ColumnFilter";
-import UserChip from "@/components/widgets/UserChip";
-import StatusLabel from "@/components/widgets/StatusLabel";
 import DateRangeSelector from "@/components/widgets/DateRangeSelector";
+import OaTable from "@/components/table/OaTable.vue";
+import ConfirmDialog from "@/components/widgets/ConfirmDialog"
 
 const store = useStore();
 
@@ -164,8 +128,6 @@ const refreshList = () => store.dispatch('datacapture/loadJobs', {
 });
 refreshList();
 
-const visibleColumns = ref([])
-
 const captureConfigList = computed(() => store.getters['datacapture/getAllCaptureConfigs']());
 store.dispatch('datacapture/loadAllCaptureConfigs');
 const selectedConfig = ref({});
@@ -174,17 +136,12 @@ const columns = ref([
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
   {name: 'createDate', align: 'left', label: 'Created On', field: 'createDate', sortable: true, format: FormatUtils.formatDate },
   {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true},
-  {name: 'sourcePath', align: 'left', label: 'Source Path', field: 'sourcePath', sortable: true, format: t => FormatUtils.formatTextMaxLength(t, 50) },
-  {name: 'statusCode', label: 'Status', field: 'statusCode', sortable: true},
+  {name: 'sourcePath', align: 'left', label: 'Source Path', field: 'sourcePath', sortable: true, format: t => FormatUtils.formatTextMaxLength(t, 100) },
+  {name: 'status', align: 'left', label: 'Status', field: 'statusCode', sortable: true},
   {name: 'statusMessage', align: 'left', label: 'Message', field: 'statusMessage', sortable: true, format: t => FormatUtils.formatTextMaxLength(t, 50) },
-  {name: 'details'},
-  {name: 'cancel'}
+  {name: 'details', align: 'center' },
+  {name: 'actions', align: 'center' }
 ]);
-
-const filter = FilterUtils.makeFilter(columns.value);
-const filterMethod = FilterUtils.defaultFilterMethod();
-
-const configdialog = ref(false);
 
 // Auto-refresh
 let timer = null;
@@ -230,6 +187,20 @@ const cancelJob = (id) => {
   store.dispatch('datacapture/cancelJob', id);
 };
 
+const canResubmitJob = job => job.statusCode != 'Submitted' && job.statusCode != 'Running'
+const showResubmitConfirmation = ref(false);
+const jobToResubmit = ref(null);
+const resubmitJob = () => {
+  if (!jobToResubmit.value) return;
+  const newJob = {
+    captureConfig: jobToResubmit.value.captureConfig,
+    sourcePath: jobToResubmit.value.sourcePath
+  };
+  if (jobToResubmit.value.files) newJob.files = jobToResubmit.value.files;
+  store.dispatch('datacapture/submitJob', newJob);
+  refreshList();
+};
+
 const captureJobs = []
 const canSubmitJob = computed(() => (captureJobConfig.captureConfigName && (selectedSource.value.url || selectedSource.value.files)));
 const submitJobAction = async () => {
@@ -255,14 +226,4 @@ const submitJobAction = async () => {
   })
   refreshList();
 }
-
-const showConfig = ref(false);
-
-const updateVisibleColumns = (columns) => {
-  visibleColumns.value = [...columns]
-}
-
-watch(jobs, () => {
-  visibleColumns.value = [...columns.value.map(a => a.name)];
-})
 </script>

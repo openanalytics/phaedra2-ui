@@ -1,9 +1,10 @@
 import { ref } from "vue";
 import { defineStore } from "pinia";
 import { shallowRef } from "vue";
-import { panesList } from "@/maps/panes/panesList";
+import { usePanesList } from "../maps/panes/panesList";
 
 export const usePanesStore = defineStore("panes", () => {
+  const { panesList } = usePanesList();
   const panes = shallowRef(panesList);
 
   const draggedElement = ref();

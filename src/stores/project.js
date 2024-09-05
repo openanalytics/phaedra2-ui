@@ -3,7 +3,6 @@ import projectsGraphQlAPI from "@/api/graphql/projects";
 import projectAPI from "@/api/projects";
 import experimentAPI from "@/api/experiments";
 import metadataAPI from "@/api/metadata";
-import { useUIStore } from "./ui";
 import { useSelectionStore } from "./selection";
 
 export const useProjectStore = defineStore("project", {
@@ -18,13 +17,16 @@ export const useProjectStore = defineStore("project", {
     loadProject(projectId) {
       const { onResult, onError } = projectsGraphQlAPI.projectById(projectId);
       onResult(({ data }) => {
+        // console.log("loading project + exper");
+        // console.log(data);
         this.project = data.project;
         this.project["experiments"] = data.experiments;
         this.project["projectAccess"] = data.projectAccess;
-        const uiStore = useUIStore();
+        // const uiStore = useUIStore();
         const selectionStore = useSelectionStore();
         selectionStore.experiments = data.experiments;
-        uiStore.selectedProject = this.project;
+        selectionStore.projects = [data.project];
+        // uiStore.selected = this.project;
       });
     },
     isLoaded(projectId) {

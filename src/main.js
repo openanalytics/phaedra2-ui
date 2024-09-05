@@ -10,8 +10,8 @@ import { publicPath } from "../vue.config";
 import store from "@/store/index.js";
 
 import { createApp } from "vue";
-import { Loading, Notify, Quasar } from "quasar";
 import { Splitpanes, Pane } from "splitpanes";
+import { Loading, Notify, Quasar } from "quasar";
 import "quasar/dist/quasar.css";
 
 import { createPinia } from "pinia";
@@ -78,10 +78,10 @@ import ImportProtocolView from "@/pages/protocol/ImportProtocolView.vue";
 import BrowseFormulas from "@/pages/calculation/formula/BrowseFormulas.vue";
 import FormulaView from "@/pages/calculation/formula/FormulaView.vue";
 
-import CaptureJobsView from "@/pages/datacapture/CaptureJobsView.vue";
-import CaptureScriptsView from "@/pages/datacapture/CaptureScriptsView.vue";
+import BrowseCaptureJobs from "@/pages/datacapture/BrowseCaptureJobs.vue";
+import BrowseCaptureScripts from "@/pages/datacapture/BrowseCaptureScripts.vue";
 import CaptureScriptView from "@/pages/datacapture/CaptureScriptView.vue";
-import CaptureConfigsView from "@/pages/datacapture/CaptureConfigsView.vue";
+import BrowseCaptureConfigs from "@/pages/datacapture/BrowseCaptureConfigs.vue";
 import CaptureConfigView from "@/pages/datacapture/CaptureConfigView.vue";
 import BrowseMeasurements from "@/pages/datacapture/BrowseMeasurements.vue";
 import MeasurementDetailsView from "@/pages/datacapture/MeasurementDetailsView.vue";
@@ -89,7 +89,7 @@ import BrowseImageRenderConfigs from "@/pages/datacapture/BrowseImageRenderConfi
 import ImageRenderConfigDetails from "@/pages/datacapture/ImageRenderConfigDetails.vue";
 
 import ExperimentView from "@/pages/experiment/ExperimentView.vue";
-import PlateList from "@/components/plate/PlateList.vue";
+import PlateList from "@/pages/experiment/PlateList.vue";
 import PlateStatsList from "@/pages/experiment/PlateStatsList.vue";
 import PlateGrid from "@/pages/experiment/PlateGrid.vue";
 
@@ -111,22 +111,12 @@ import BrowsePipelineExecutions from "@/pages/pipeline/BrowsePipelineExecutions.
 import PipelineExecutionDetails from "@/pages/pipeline/PipelineExecutionDetails.vue";
 import PipelineAdmin from "@/pages/pipeline/PipelineAdmin.vue";
 import Workbench from "@/pages/workbench/Workbench.vue";
-import {
-  prepareDashboard,
-  prepareWorkbench,
-} from "./composable/router/prepareViews";
+import { prepareWorkbench } from "@/composable/router/prepareViews";
 
 const routes = createRouter({
   history: createWebHistory(publicPath),
   routes: [
-    {
-      name: "dashboard",
-      path: "/",
-      component: Dashboard,
-      beforeEnter: () => {
-        prepareDashboard();
-      },
-    },
+    { name: "dashboard", path: "/", component: Dashboard },
     {
       name: "workbench",
       path: "/workbench",
@@ -159,7 +149,6 @@ const routes = createRouter({
         { path: "wells", component: WellList },
       ],
     },
-
     { name: "browseProtocols", path: "/protocols", component: BrowseProtocols },
     { name: "protocol", path: "/protocol/:id", component: ProtocolView },
     { name: "newProtocol", path: "/protocol/new", component: NewProtocolView },
@@ -189,12 +178,12 @@ const routes = createRouter({
     {
       name: "dataCaptureJobs",
       path: "/datacapture/jobs",
-      component: CaptureJobsView,
+      component: BrowseCaptureJobs,
     },
     {
       name: "dataCaptureScripts",
       path: "/datacapture/scripts",
-      component: CaptureScriptsView,
+      component: BrowseCaptureScripts,
     },
     {
       name: "dataCaptureScript",
@@ -204,7 +193,7 @@ const routes = createRouter({
     {
       name: "dataCaptureConfigs",
       path: "/datacapture/configs",
-      component: CaptureConfigsView,
+      component: BrowseCaptureConfigs,
     },
     {
       name: "dataCaptureConfig",

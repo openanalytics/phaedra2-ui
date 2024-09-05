@@ -1,36 +1,63 @@
 <template>
-  <q-table
-    class="full-width"
-    table-header-class="text-grey"
-    :rows="plates"
+  <oa-table
     :columns="columns"
+    :rows="plates"
     :visible-columns="visibleColumns"
-    row-key="id"
-    column-key="name"
-    :filter="filter"
-    :filter-method="filterMethod"
-    :pagination="{ rowsPerPage: 10, sortBy: 'barcode' }"
-    :loading="loading"
     @row-click="selectPlate"
     @row-dblclick="gotoPlateView"
     @row-contextmenu="plateContextMenu"
     selection="multiple"
     v-model:selected="uiStore.selectedPlates"
-    separator="cell"
-    virtual-scroll
-    style="max-height: 600px"
-    flat
-    square
-    dense
   >
     <template v-slot:top-left v-if="experimentStore.isOpen">
-      <q-btn
-        size="sm"
-        icon="add"
-        label="New Plate"
-        @click="openNewPlateTab"
-        class="oa-button"
-      />
+      <q-btn size="sm" icon="add" label="New Plate" class="oa-button">
+        <q-menu>
+          <q-list size="sm" dense>
+            <q-item
+              clickable
+              v-close-popup
+              v-ripple
+              class="oa-button"
+              @click="openNewPlateDialog"
+            >
+              <q-item-section no-wrap>
+                <div style="vertical-align: center">
+                  <q-icon name="add" class="q-pr-md" />
+                  <span
+                    style="
+                      text-transform: uppercase;
+                      font-size: 12px;
+                      text-align: right;
+                    "
+                    >New Plate</span
+                  >
+                </div>
+              </q-item-section>
+            </q-item>
+            <q-item
+              clickable
+              v-close-popup
+              v-ripple
+              class="oa-button"
+              @click="openNewPlateFromMeasurementsDialog"
+            >
+              <q-item-section no-wrap class="row">
+                <div>
+                  <q-icon name="add" class="q-pr-md" />
+                  <span
+                    style="
+                      text-transform: uppercase;
+                      font-size: 12px;
+                      text-align: right;
+                    "
+                    >New Plate(s) from Measurement(s)</span
+                  >
+                </div>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-menu>
+      </q-btn>
     </template>
     <template v-slot:top-right>
       <q-btn-dropdown size="sm" class="oa-button q-mr-md" label="Export">
@@ -48,24 +75,6 @@
           </q-item>
         </q-list>
       </q-btn-dropdown>
-    </template>
-    <template v-slot:header="props">
-      <q-tr :props="props">
-        <q-th auto-width />
-        <q-th v-for="col in props.cols" :key="col.name" :props="props">
-          {{ col.label }}
-        </q-th>
-      </q-tr>
-      <q-tr :props="props">
-        <q-th auto-width>
-          <q-checkbox v-model="props.selected" dense />
-        </q-th>
-        <column-filter
-          v-for="col in props.cols"
-          :key="col.name"
-          v-model="filter[col.name]"
-        />
-      </q-tr>
     </template>
     <template v-slot:body-cell-link-status="props">
       <q-td :props="props">
@@ -101,23 +110,12 @@
         <StatusFlag :object="props.row" :statusField="'approvalStatus'" />
       </q-td>
     </template>
-    <template v-slot:body-cell-tags="props">
-      <q-td :props="props">
-        <tag-list :tags="props.row.tags" :readOnly="true" />
-      </q-td>
-    </template>
-    <template v-slot:body-cell-createdBy="props">
-      <q-td :props="props">
-        <UserChip :id="props.row.createdBy" />
-      </q-td>
-    </template>
     <template v-slot:no-data>
       <div class="full-width row text-info">
         <span>No plates to show.</span>
       </div>
     </template>
-  </q-table>
-
+  </oa-table>
   <PlateActionMenu
     v-show="showPlateContextMenu"
     :plate="selectedPlate"
@@ -137,18 +135,21 @@
 import { computed, onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 
-import UserChip from "@/components/widgets/UserChip";
-import ColumnFilter from "@/components/table/ColumnFilter";
 import PlateActionMenu from "@/components/plate/PlateActionMenu";
 import StatusFlag from "@/components/widgets/StatusFlag";
-import TagList from "@/components/tag/TagList";
 import FormatUtils from "@/lib/FormatUtils";
 import FilterUtils from "@/lib/FilterUtils.js";
 import { useExperimentStore } from "@/stores/experiment";
 import { useExportTableData } from "@/composable/exportTableData";
 import { useUIStore } from "@/stores/ui";
+import OaTable from "@/components/table/OaTable.vue";
 
-const props = defineProps(["plates", "experiment", "newPlateTab"]);
+const props = defineProps([
+  "plates",
+  "experiment",
+  "newPlateTab",
+  "newPlateFromMeasurements",
+]);
 const emit = defineEmits(["update:newPlateTab", "showPlateInspector"]);
 
 const router = useRouter();
@@ -255,12 +256,12 @@ const selectPlate = (event, row) => {
   }
 };
 
-const openNewPlateTab = () => {
+const openNewPlateDialog = () => {
   emit("update:newPlateTab", true);
 };
 
-const openPlateInspector = (plate) => {
-  emit("showPlateInspector", plate);
+const openNewPlateFromMeasurementsDialog = () => {
+  emit("update:newPlateFromMeasurements", true);
 };
 
 const visibleColumns = ref([]);
