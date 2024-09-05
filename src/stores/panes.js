@@ -22,7 +22,6 @@ export const usePanesStore = defineStore("panes", () => {
 
   function removeItem(id) {
     dynamicPanes.value = removeItemRecursive(id, dynamicPanes.value);
-    console.log(removeEmptyArrays(dynamicPanes.value));
     dynamicPanes.value = removeEmptyArrays(dynamicPanes.value);
   }
 
@@ -56,9 +55,9 @@ export const usePanesStore = defineStore("panes", () => {
       for (let i = 0; i < array.length; i++) {
         array[i] = removeEmptyArrays(array[i], ++nestedIdx);
       }
-    }
-    if (Array.isArray(array)) {
-      return array.filter((pane) => !Array.isArray(pane) || pane.length != 0);
+      if (Array.isArray(array)) {
+        return array.filter((pane) => pane.length != 0);
+      }
     }
     return array;
   }

@@ -185,7 +185,6 @@ const handleCloseExperiment = () => {
 };
 
 const handleOpenExperiment = () => {
-  console.log("Open experiment " + props.experiment.name);
   projectStore.openExperiment(props.experiment.id);
 };
 

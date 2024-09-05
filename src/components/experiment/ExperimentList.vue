@@ -399,3 +399,9 @@ const exportToXLSX = () => {
   text-decoration: none;
 }
 </style>
+
+<style>
+.q-table__container {
+  width: 100%;
+}
+</style>

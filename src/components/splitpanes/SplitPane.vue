@@ -89,6 +89,13 @@ const activeTab = ref();
 
 const panesStore = usePanesStore();
 
+watch(
+  () => props.panes,
+  () => {
+    activeTab.value = props.panes[props.panes.length - 1].title;
+  }
+);
+
 function dragStart(component) {
   panesStore.draggedElement = component.id;
 }
@@ -99,17 +106,8 @@ function drop(position) {
 }
 
 onMounted(() => {
-  activeTab.value = props.panes[0].title;
+  activeTab.value = props.panes[props.panes.length - 1].title;
 });
-
-watch(
-  () => props.panes,
-  () => {
-    if (props.panes.length == 1) {
-      activeTab.value = props.panes[0].title;
-    }
-  }
-);
 </script>
 
 <style>
