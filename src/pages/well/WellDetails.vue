@@ -11,8 +11,12 @@
           </q-field>
           <q-field label="Description" stack-label borderless dense>
             <template v-slot:control>
-              <EditableField :object="wellStore.well" fieldName="description"
-                             @valueChanged="onDescriptionChanged"/>
+              {{ wellStore.well.description }}
+            </template>
+          </q-field>
+          <q-field label="Status" stack-label borderless dense>
+            <template v-slot:control>
+              {{wellStore.well.status}}
             </template>
           </q-field>
           <q-field label="Tags" stack-label dense borderless>
@@ -26,7 +30,17 @@
         <div class="col-3">
           <q-field label="Position" stack-label borderless dense>
             <template v-slot:control>
-              ({{ wellStore.well.row }} x {{ wellStore.well.column }})
+              {{WellUtils.getWellCoordinate(wellStore.well.row, wellStore.well.column)}}
+            </template>
+          </q-field>
+          <q-field label="Row x Column" stack-label borderless dense>
+            <template v-slot:control>
+              {{wellStore.well.row}} x {{wellStore.well.column}}
+            </template>
+          </q-field>
+          <q-field label="Well Type" stack-label borderless dense>
+            <template v-slot:control>
+              {{wellStore.well.wellType}}
             </template>
           </q-field>
         </div>
@@ -38,10 +52,12 @@
 
         <div class="col-2">
           <div class="row justify-end">
-            <q-btn size="sm" icon="delete" class="oa-action-button" label="Reject"/>
+            <q-btn size="sm" icon="delete" class="oa-action-button" label="Reject"
+                   @click="handleRejectWells"/>
           </div>
           <div class="row justify-end">
-            <q-btn size="sm" icon="calculate" class="oa-action-button" label="Accept"/>
+            <q-btn size="sm" icon="calculate" class="oa-action-button" label="Accept"
+                   @click="handleAcceptWells"/>
           </div>
         </div>
       </div>
@@ -54,14 +70,12 @@
 import OaSection from "@/components/widgets/OaSection.vue";
 import {useWellStore} from "@/stores/well";
 import PropertyTable from "@/components/property/PropertyTable.vue";
-import EditableField from "@/components/widgets/EditableField.vue";
 import TagList from "@/components/tag/TagList.vue";
+import WellUtils from "../../lib/WellUtils";
+
+const emit = defineEmits(['wellStatusChanged'])
 
 const wellStore = useWellStore()
-
-const onDescriptionChanged = async (newDescription) => {
-  await wellStore.editPlateDescription(newDescription)
-}
 
 const onAddTag = async (newTag) => {
   await wellStore.handleAddTag(newTag)
@@ -77,6 +91,20 @@ const onAddProperty = async (newProperty) => {
 
 const onRemoveProperty = async (property) => {
   await wellStore.handleDeleteProperty(property)
+}
+
+const handleRejectWells = async () => {
+  if (wellStore.well) {
+    await wellStore.rejectWell( 'REJECTED_PHAEDRA', 'Well rejection from chart!')
+    emit('wellStatusChanged')
+  }
+}
+
+const handleAcceptWells = async () => {
+  if (wellStore.well) {
+    await wellStore.acceptWell()
+    emit('wellStatusChanged')
+  }
 }
 
 </script>

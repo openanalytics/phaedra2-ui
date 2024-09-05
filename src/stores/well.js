@@ -1,17 +1,13 @@
-import {defineStore} from "pinia";
-import {ref, watch} from "vue";
-import measAPI from "@/api/measurements";
+import {defineStore} from "pinia"
+import {ref, watch} from "vue"
+import measAPI from "@/api/measurements"
 import projectsGraphQlAPI from "@/api/graphql/projects"
-import {usePlateStore} from "@/stores/plate";
-import WellUtils from "@/lib/WellUtils";
-import curvesGraphQlAPI from "@/api/graphql/curvedata";
-import {useUIStore} from "@/stores/ui";
-import {
-  addProperty,
-  addTag,
-  deleteProperty,
-  deleteTag
-} from "@/lib/MetadataUtils";
+import {usePlateStore} from "@/stores/plate"
+import WellUtils from "@/lib/WellUtils"
+import curvesGraphQlAPI from "@/api/graphql/curvedata"
+import {useUIStore} from "@/stores/ui"
+import {addProperty, addTag, deleteProperty, deleteTag} from "@/lib/MetadataUtils"
+import plateAPI from "@/api/plates"
 
 export const useWellStore = defineStore("well", () => {
   const plateStore = usePlateStore()
@@ -82,6 +78,16 @@ export const useWellStore = defineStore("well", () => {
     await deleteProperty(well.value.id, 'WELL', property, reloadWell)
   }
 
+  async function rejectWell(rejectionType, description) {
+    await plateAPI.rejectWells(well.value.plateId, [well.value], rejectionType, description)
+    await reloadWell()
+  }
+
+  async function acceptWell() {
+    await plateAPI.acceptWells(well.value.plateId, [well.value])
+    await reloadWell()
+  }
+
   watch(well, async () => {
     if (!isMetadataUpdate.value) {
       await plateStore.loadPlate(well.value.plateId)
@@ -108,6 +114,8 @@ export const useWellStore = defineStore("well", () => {
     handleAddTag,
     handleDeleteTag,
     handleAddProperty,
-    handleDeleteProperty
+    handleDeleteProperty,
+    rejectWell,
+    acceptWell
   }
 })

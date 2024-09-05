@@ -13,7 +13,7 @@
   </q-breadcrumbs>
 
   <q-page class="oa-root-div" v-if="plateStore.plate">
-    <WellDetails/>
+    <WellDetails @wellStatusChanged="onWellStatusChanged"/>
     <splitpanes class="default-theme">
       <pane style="background-color: #E6E6E6">
         <WellImageViewer2 :well="wellStore.well" :wellImage="wellStore.wellImage" :loading="wellStore.loadingImage"/>
@@ -28,7 +28,7 @@
     </splitpanes>
   </q-page>
 
-
+  <calculate-plate-dialog v-model:show="showCalculateDialog" :plates="[plateStore.plate]" :protocol-id="plateStore.activeResultSet?.protocolId"/>
 </template>
 
 <script setup>
@@ -42,13 +42,14 @@ import WellDetails from "@/pages/well/WellDetails.vue";
 import {Pane, Splitpanes} from "splitpanes";
 import DRCView from "@/components/curve/DRCView.vue";
 import WellImageViewer2 from "@/components/image/WellImageViewer2.vue";
-import {useUIStore} from "@/stores/ui";
+import {useNotification} from "@/composable/notification";
+import {useGlobalEventStore} from "@/stores/event";
+import CalculatePlateDialog from "@/components/plate/CalculatePlateDialog.vue";
 
 const projectStore = useProjectStore()
 const experimentStore = useExperimentStore()
 const plateStore = usePlateStore()
 const wellStore = useWellStore()
-const uiStore = useUIStore()
 
 const route = useRoute()
 const wellId = parseInt(route.params.wellId)
@@ -59,6 +60,16 @@ const width = ref(500)
 onMounted(() => {
   wellStore.loadWell(wellId)
 })
+
+const showCalculateDialog = ref(false);
+const wellStatusNotification = useNotification()
+const onWellStatusChanged = () => {
+  wellStatusNotification.showInfo(
+      "Well's status has changed! Recalculate plate?",
+      () => { showCalculateDialog.value = true },
+      () => { }
+  )
+}
 
 </script>
 
