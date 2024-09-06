@@ -2,7 +2,7 @@
   <q-page class="oa-root-div">
     <WorkbenchMenu />
     <PanesDashboard
-      style="height: calc(100vh - 50px)"
+      style="height: calc(100vh - 96px)"
       :dynamicPanes="panesStore.dynamicPanes"
       class="dashboard"
       :splitKey="1"

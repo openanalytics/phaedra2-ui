@@ -3,7 +3,7 @@
     :columns="columns"
     :rows="projects"
     @row-dblclick="gotoProjectView"
-    @row-click="(e, row) => (selectedProjects = [row])"
+    @row-click="selectProject"
     selection="multiple"
     v-model:selected="selectedProjects"
   >
@@ -26,19 +26,19 @@
 <script setup>
 import { onMounted, ref, watch } from "vue";
 import FormatUtils from "@/lib/FormatUtils.js";
-import FilterUtils from "@/lib/FilterUtils.js";
 import projectsGraphQlAPI from "@/api/graphql/projects";
 
 import OaTable from "@/components/table/OaTable.vue";
 import ProjectActionMenu from "@/components/project/ProjectActionMenu";
-import projectAPI from "@/api/projects";
 import { useRouter } from "vue-router";
+import { useSelectionStore } from "@/stores/selection";
 
 const loading = ref(true);
 const projects = ref([]);
 
 const visibleColumns = ref([]);
 const selectedProjects = ref([]);
+const selectionStore = useSelectionStore();
 
 onMounted(() => {
   fetchAllProjects();
@@ -86,8 +86,17 @@ const gotoProjectView = (event, row) => {
   router.push({ name: "project", params: { id: row.id } });
 };
 
+function selectProject(event, row) {
+  selectedProjects.value = [row];
+}
+
 watch(projects, () => {
   visibleColumns.value = [...columns.value.map((a) => a.name)];
   loading.value = false;
+});
+
+watch(selectedProjects, (newVal, oldVal) => {
+  const projectsId = newVal.map((item) => item.id);
+  selectionStore.loadProjects(projectsId);
 });
 </script>

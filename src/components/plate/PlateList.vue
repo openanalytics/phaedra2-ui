@@ -144,12 +144,13 @@ import { useExportTableData } from "@/composable/exportTableData";
 import { useUIStore } from "@/stores/ui";
 import OaTable from "@/components/table/OaTable.vue";
 
-const props = defineProps([
-  "plates",
-  "experiment",
-  "newPlateTab",
-  "newPlateFromMeasurements",
-]);
+const props = defineProps({
+  plates: [Object],
+  experiment: Object,
+  newPlateTab: Boolean,
+  newPlateFromMeasurements: Boolean,
+});
+
 const emit = defineEmits(["update:newPlateTab", "showPlateInspector"]);
 
 const router = useRouter();
@@ -218,8 +219,6 @@ const columns = [
   },
 ];
 
-const plates = computed(() => experimentStore.plates);
-
 const filter = FilterUtils.makeFilter(columns);
 const filterMethod = FilterUtils.defaultFilterMethod();
 
@@ -270,7 +269,7 @@ onMounted(() => {
   loading.value = false;
 });
 
-watch(plates, () => {
+watch(props.plates, () => {
   visibleColumns.value = [...columns.map((a) => a.name)];
   loading.value = false;
 });
@@ -279,13 +278,13 @@ const exportTableData = useExportTableData(columns);
 
 const exportToCSV = () => {
   exportTableData.exportToCSV(
-    filterMethod(plates.value, filter.value),
+    filterMethod(props.plates, filter.value),
     props.experiment.name
   );
 };
 const exportToXLSX = () => {
   exportTableData.exportToXLSX(
-    filterMethod(plates.value, filter.value),
+    filterMethod(props.plates, filter.value),
     props.experiment.name
   );
 };

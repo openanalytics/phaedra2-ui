@@ -1,15 +1,15 @@
 <template>
-  <div class="row q-pa-md" v-show="projectStore.project">
+  <div class="row q-pa-md" v-show="project">
     <div class="col-3">
       <q-field label="ID" stack-label dense borderless>
         <template v-slot:control>
-          {{ projectStore.project.id }}
+          {{ project.id }}
         </template>
       </q-field>
       <q-field label="Description" stack-label dense borderless>
         <template v-slot:control>
           <EditableField
-            :object="projectStore.project"
+            :object="project"
             fieldName="description"
             @valueChanged="onDescriptionChanged"
           />
@@ -18,7 +18,7 @@
       <q-field label="Tags" stack-label dense borderless>
         <template v-slot:control>
           <tag-list
-            :tags="projectStore.project.tags"
+            :tags="project.tags"
             @addTag="onAddTag"
             @removeTag="onRemoveTag"
             class="q-pt-xs"
@@ -30,18 +30,18 @@
     <div class="col-3 q-pl-md">
       <q-field label="Created On" stack-label dense borderless>
         <template v-slot:control>
-          {{ FormatUtils.formatDate(projectStore.project.createdOn) }}
+          {{ FormatUtils.formatDate(project.createdOn) }}
         </template>
       </q-field>
       <q-field label="Created By" stack-label dense borderless>
         <template v-slot:control>
-          <UserChip :id="projectStore.project.createdBy" />
+          <UserChip :id="project.createdBy" />
         </template>
       </q-field>
       <q-field label="Access" stack-label dense borderless>
         <template v-slot:control>
           <AccessControlList
-            :projectAccess="projectStore.project.access"
+            :projectAccess="project.access"
             @addAccess="onAddAccess"
             @removeAccess="onRemoveAccess"
             class="q-mt-xs"
@@ -52,7 +52,7 @@
 
     <div class="col-4">
       <PropertyTable
-        :properties="projectStore.project.properties"
+        :properties="project.properties"
         @addProperty="onAddProperty"
         @removeProperty="onRemoveProperty"
       />
@@ -83,13 +83,13 @@
   <rename-dialog
     v-model:show="showRenameDialog"
     objectClass="project"
-    :object="projectStore.project"
+    :object="project"
     @valueChanged="onNameChanged"
   />
   <delete-dialog
     v-model:show="showDeleteDialog"
-    :id="projectStore.project?.id"
-    :name="projectStore.project?.name"
+    :id="project?.id"
+    :name="project?.name"
     :objectClass="'project'"
     @onDeleted="onDeleted"
   />
@@ -115,6 +115,10 @@ import RenameDialog from "@/components/widgets/RenameDialog";
 
 import FormatUtils from "@/lib/FormatUtils.js";
 import { useProjectStore } from "@/stores/project";
+
+const props = defineProps({
+  project: Object,
+});
 
 const router = useRouter();
 const projectStore = useProjectStore();

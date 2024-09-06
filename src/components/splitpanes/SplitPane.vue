@@ -49,7 +49,7 @@
         vertical
         transition-prev="jump-up"
         transition-next="jump-up"
-        style="position: relative; width: 100%; height: 100%"
+        style="position: relative; width: 100%; height: calc(100% - 30px)"
       >
         <q-tab-panel
           style="
@@ -59,13 +59,13 @@
             max-width: 100%;
             height: 100%;
           "
-          v-for="component in panes"
-          :key="component.id"
+          v-for="(component, id) in panes"
+          :key="id"
           :name="component.title"
         >
           <component
             :is="component.component"
-            :key="component.id"
+            :key="id"
             v-bind="{ ...component.props }"
             style="position: relative; width: 100%; max-width: 100%"
           />

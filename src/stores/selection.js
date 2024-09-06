@@ -1,5 +1,7 @@
 import { computed, ref } from "vue";
 import { defineStore } from "pinia";
+import projectsGraphQlAPI from "@/api/graphql/projects";
+import experimentsGraphQlAPI from "@/api/graphql/experiments";
 
 export const useSelectionStore = defineStore("selection", () => {
   const localProjects = ref([]);
@@ -65,7 +67,10 @@ export const useSelectionStore = defineStore("selection", () => {
   const plates = computed({
     get: () => localPlates.value,
     set: (newVal) => {
+      console.log(newVal);
+      console.log(localPlates.value);
       const changes = detectChanges(localPlates.value, newVal, "experimentId");
+
       if (changes.added.length || changes.removed.length) {
         let experimentsToAdd = changes.added.filter(
           (id) => !experimentsIds.value.includes(id)
@@ -106,8 +111,8 @@ export const useSelectionStore = defineStore("selection", () => {
     let added = [];
     let removed = [];
 
-    const oldMap = new Map(oldArray.map((item) => [item[id], item]));
-    const newMap = new Map(newArray.map((item) => [item[id], item]));
+    const oldMap = new Map((oldArray || []).map((item) => [item[id], item]));
+    const newMap = new Map((newArray || []).map((item) => [item[id], item]));
 
     for (let [id, newItem] of newMap) {
       if (!oldMap.has(id)) {
@@ -131,13 +136,53 @@ export const useSelectionStore = defineStore("selection", () => {
     return array.indexOf(value) === index;
   }
 
+  function loadProjects(projectIds, replace = true) {
+    const { onResult, onError } =
+      experimentsGraphQlAPI.experimentsByProjectIds(projectIds);
+    onResult(({ data }) => {
+      // let fetchedExperiments = data
+      // .map((item) => item.experiments)
+      // .reduce((item1, item2) => item1.concat(item2));
+      if (replace) {
+        setExperimentsAndRemoveChildren(data.experiments);
+      } else {
+        experiments.value = [...experiments.value, ...data.experiments];
+      }
+      // projects.value = [data.project];
+    });
+  }
+
+  function loadExperiment(experimentsId, replace = true) {
+    if (experimentsId) {
+      const { onResult, onError } =
+        projectsGraphQlAPI.platesByExperimentIds(experimentsId);
+      onResult(({ data }) => {
+        if (replace) {
+          plates.value = data.plates;
+        } else {
+          plates.value = [...plates.value, ...data.plates];
+        }
+      });
+    }
+  }
+
+  const key = ref(0);
+  function updateKey() {
+    key.value = (++key.value % 100) + 1;
+  }
+
   return {
     projects,
     experiments,
     plates,
     wells,
+    loadProjects,
+    loadExperiment,
+    detectChanges,
     setProjectsAndRemoveChildren,
     setExperimentsAndRemoveChildren,
     setPlatesAndRemoveChildren,
+    key,
+    updateKey,
   };
 });

@@ -54,6 +54,9 @@ export function usePanesList() {
       title: "Project Details",
       icon: "details",
       closable: true,
+      props: {
+        project: selectionStore.projects[0],
+      },
     },
     {
       component: ExperimentList,
@@ -71,6 +74,9 @@ export function usePanesList() {
       title: "Plates",
       icon: "science",
       closable: true,
+      props: {
+        plates: selectionStore.plates,
+      },
     },
   ]);
 

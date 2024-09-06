@@ -18,7 +18,7 @@
         icon="folder"
         :collapsible="true"
       >
-        <ProjectDetails />
+        <ProjectDetails :project="projectStore.project" />
       </oa-section>
     </div>
 

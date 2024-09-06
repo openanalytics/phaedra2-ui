@@ -150,6 +150,7 @@ import { useExportTableData } from "@/composable/exportTableData";
 import { useRouter } from "vue-router";
 import { useUIStore } from "@/stores/ui";
 import OaTable from "@/components/table/OaTable.vue";
+import { useSelectionStore } from "../../stores/selection";
 
 const props = defineProps({
   experiments: [Object],
@@ -159,6 +160,7 @@ const emits = defineEmits(["createNewExperiment"]);
 
 const router = useRouter();
 const uiStore = useUIStore();
+const selectionStore = useSelectionStore();
 
 const loading = ref();
 
@@ -340,6 +342,14 @@ const exportToXLSX = () => {
     props.project.name
   );
 };
+
+watch(
+  () => uiStore.selectedExperiments,
+  (newVal, oldVal) => {
+    const experimentsId = newVal.map((item) => item.id);
+    selectionStore.loadExperiment(experimentsId);
+  }
+);
 </script>
 
 <style scoped>
