@@ -17,10 +17,6 @@ export const useExperimentStore = defineStore("experiment", () => {
   const isOpen = computed(() => experiment.value.status === 'OPEN')
   const isClosed = computed(() => experiment.value.status === 'CLOSED')
 
-  function getPlateByPlateId(plateId) {
-    return plates.value.find(p => p.id === plateId) ?? {}
-  }
-
   async function loadExperiment(experimentId) {
     if (experimentId) {
       const {onResult, onError} = projectsGraphQlAPI.experimentById(
@@ -180,7 +176,6 @@ export const useExperimentStore = defineStore("experiment", () => {
     experiment,
     isOpen,
     isClosed,
-    getPlateByPlateId,
     plates,
     loadExperiment,
     isLoaded,

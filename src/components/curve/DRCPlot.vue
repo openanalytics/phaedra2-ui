@@ -1,14 +1,19 @@
 <template>
-  <div id="chart" ref="curve" />
+  <div ref="plot" />
 </template>
 
 <script setup>
 import {onMounted, onUpdated, ref, watch} from "vue"
 import Plotly from "plotly.js-cartesian-dist-min"
 import ArrayUtils from "@/lib/ArrayUtils";
+import {useUIStore} from "@/stores/ui";
+import {usePlateStore} from "@/stores/plate";
 
 const props = defineProps(['width', 'height', 'curves', 'update'])
-const curve = ref(null)
+const plot = ref(null)
+
+const uiStore = useUIStore()
+const plateStore = usePlateStore()
 
 const updateDRCPlotView = () => {
   const config = {autosize: true, displaylogo: false}
@@ -21,7 +26,7 @@ const updateDRCPlotView = () => {
     },
     margin: {t: 50, b: 50},
     showlegend: false,
-    width: curve.value.parentElement.offsetWidth > 0 ? curve.value.parentElement.offsetWidth : props.width,
+    width: plot.value.parentElement.offsetWidth > 0 ? plot.value.parentElement.offsetWidth : props.width,
     height: props.height,
   }
 
@@ -60,62 +65,102 @@ const updateDRCPlotView = () => {
   }
 
   if (props.curves?.length > 0) {
-    const curveData = props.curves?.map(value => {
-      const curve = {
-        x: value.plotDoseData,
-        y: value.plotPredictionData,
+    const curveData = props.curves?.map(curve => {
+      const spline = {
+        x: curve.plotDoseData,
+        y: curve.plotPredictionData,
         mode: 'lines',
         line: {
           shape: 'spline',
-          color: value.color
+          color: curve.color
         },
-        hovertemplate: `${value.substanceName} (${value.featureName}) <extra></extra>`,
+        hovertemplate: `${curve.substanceName} (${curve.featureName}) <extra></extra>`,
         showlegend: true,
-        legendgroup: `${value.substanceName} (${value.featureId})`,
-        name: `${value.substanceName}`
+        legendgroup: `${curve.substanceName} (${curve.featureId})`,
+        name: `${curve.substanceName}`
       }
 
-      const datapoints = {
-        x: value.wellConcentrations.map(wc => -wc),
-        y: value.featureValues,
+      const markers = {
+        x: curve.wellConcentrations.map(wc => -wc),
+        y: curve.featureValues,
         mode: 'markers',
         marker: {
-          size: value.weights?.map(w => (w + 1.0) * 10),
-          color: value.color,
-          line: {
-            width: 3
-          }
+          size: curve.weights?.map(w => (w + 1.0) * 10),
+          color: curve.color,
+          // symbol: []
         },
+        wellIds: curve.wells,
         hovertemplate: "x = %{x}, y = %{y}<extra></extra>",
         showlegend: false,
-        legendgroup: `${value.substanceName} (${value.featureId})`,
+        legendgroup: `${curve.substanceName} (${curve.featureId})`,
       }
 
-      return {"substanceName": value.substanceName, "curve": curve, "datapoints": datapoints}
+      return {"substanceName": curve.substanceName, "curve": spline, "datapoints": markers}
     })
 
     const line = curveData.map(cData => cData.curve)
     const scatter = curveData.map(cData => cData.datapoints)
     const data = ref(line.concat(scatter))
-    Plotly.newPlot(curve?.value, data.value, layout, config)
+    Plotly.react(plot?.value, data.value, layout, config)
   } else {
-    const data = []
-    Plotly.newPlot(curve?.value, data.value, layout, config)
+    const data = ref([])
+    Plotly.react(plot?.value, data.value, layout, config)
+  }
+
+  restylePlot()
+}
+
+const restylePlot = () => {
+  const wellIds = uiStore.selectedWells.map(well => well.id)
+  if (wellIds.length > 0 ) {
+    plot.value.data.forEach((dataArr, index) => {
+      if (dataArr.wellIds) {
+        const wellIndices = dataArr.wellIds.map(
+            (wellId, wIndex) => ({wellId: wellId, wellIndex: wIndex}))
+        const selectedWellIndices = wellIndices.filter(
+            wIndex => wellIds.includes(wIndex.wellId)).map(wIndex => wIndex.wellIndex)
+        Plotly.restyle(plot.value, 'selectedpoints', [selectedWellIndices], index)
+      }
+    })
   }
 }
 
 const resizeDRCPlotView = () => {
   const update = {
-    width: curve.value.offsetWidth - 10,
+    width: plot.value.offsetWidth - 10,
     height: props.height
   }
-  console.log("update: " + JSON.stringify(update))
-  console.log("curve.value.style['paddingTop']: " + curve.value.style['paddingTop'])
-  Plotly.relayout(curve?.value, update)
+  Plotly.relayout(plot?.value, update)
 }
 
 watch(() => props.curves, updateDRCPlotView)
 
-onMounted(() => updateDRCPlotView())
+onMounted(() => {
+  updateDRCPlotView()
+
+  let isPlotlyClick = false
+  plot.value?.on('plotly_click', (data) => {
+    isPlotlyClick = true
+    const selectedWellIds = data.points.map(p => p.data.wellIds[p.pointIndex])
+    uiStore.selectedWells = plateStore.wells.filter(well => selectedWellIds.includes(well.id))
+    restylePlot()
+  })
+
+  plot.value?.on('plotly_selected', (data) => {
+    console.log(JSON.stringify(data))
+  })
+
+  plot.value.addEventListener('contextmenu', (ev) => {
+    ev.preventDefault()
+  })
+  plot.value.addEventListener('click', (ev) => {
+    if (!isPlotlyClick) {
+      uiStore.selectedWells = []
+      Plotly.restyle(plot.value, 'selectedpoints', null)
+    } else {
+      isPlotlyClick = false
+    }
+  })
+})
 onUpdated(() => resizeDRCPlotView())
 </script>

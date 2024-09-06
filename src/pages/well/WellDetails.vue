@@ -1,7 +1,7 @@
 <template>
   <div class="q-pa-sm">
     <oa-section v-if="!wellStore.well" title="Loading well..." icon="crop_square"/>
-    <oa-section v-else :title="wellStore.well.pos" icon="crop_square" :collapsible="true">
+    <oa-section v-else :title="wellStore.well.pos" icon="square" :collapsible="true">
       <div class="row q-pa-sm">
         <div class="col-3">
           <q-field label="ID" stack-label borderless dense>

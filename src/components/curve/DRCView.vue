@@ -19,6 +19,7 @@
     </div>
     <div class="oa-section-body" style="min-height: 30vh; max-height: 70vh; overflow: auto;">
       <DRCPlot :width="props.width" :height="props.height" :curves="props.curves" :update="Date.now()"/>
+      <WellActionMenu touch-position context-menu @acceptWells="handleAcceptWells" @rejectWells="handleRejectWells"/>
     </div>
     <q-separator class="q-pt-md oa-section-body"/>
     <div class="oa-section-body">
@@ -30,11 +31,13 @@
 <script setup>
 import DRCProperties from "@/components/curve/DRCProperties.vue";
 import DRCPlot from "@/components/curve/DRCPlot.vue";
-import {onUpdated, ref} from "vue";
+import {ref} from "vue";
 import {useUIStore} from "@/stores/ui";
+import WellActionMenu from "@/components/well/WellActionMenu.vue";
+import {usePlateStore} from "@/stores/plate";
 
 const props = defineProps(['width', 'height', 'curves', 'update'])
-const emits = defineEmits(['closeDRCView', 'changeOrientation'])
+const emits = defineEmits(['closeDRCView', 'changeOrientation', 'wellStatusChanged'])
 
 const uiStore = useUIStore()
 const closeDRCView = () => {
@@ -47,7 +50,23 @@ const changeOrientation = () => {
   horizontal.value = !horizontal.value
   emits('changeOrientation')
 }
-</script>
 
-<style scoped>
-</style>
+const plateStore = usePlateStore()
+const handleRejectWells = () => {
+  console.log("Reject selected wells: " + JSON.stringify(uiStore.selectedWells))
+  if (uiStore.selectedWells.length > 0) {
+    plateStore.rejectWells(uiStore.selectedWells, 'REJECTED_PHAEDRA', 'Well rejection from chart!').then(() => {
+      emits('wellStatusChanged')
+    })
+  }
+}
+
+const handleAcceptWells = () => {
+  console.log("Accept selected wells: " + JSON.stringify(uiStore.selectedWells))
+  if (uiStore.selectedWells.length > 0) {
+    plateStore.acceptWells(uiStore.selectedWells).then(() => {
+      emits('wellStatusChanged')
+    })
+  }
+}
+</script>
