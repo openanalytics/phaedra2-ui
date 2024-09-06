@@ -2,13 +2,18 @@ import {provideApolloClient, useQuery} from '@vue/apollo-composable'
 import gql from 'graphql-tag'
 import {apolloCurvesClient} from "@/graphql/apollo.clients";
 
-const defaultOptions = { fetchPolicy: 'no-cache', errorPolicy: 'ignore'}
+const defaultOptions = {fetchPolicy: 'no-cache', errorPolicy: 'ignore'}
+
+const executeQuery = (query, variables) => {
+  return provideApolloClient(apolloCurvesClient)(
+      () => useQuery(gql`${query}`, variables, defaultOptions));
+}
 
 export default {
-    curvesByPlateId(plateId) {
-        const QUERY = gql`
-            query getCurvesByPlateId {
-                curves:getCurvesByPlateId(plateId: ${plateId}) {
+  curvesByPlateId(plateId) {
+    const query = `
+            query getCurvesByPlateId($plateId: ID) {
+                curves:getCurvesByPlateId(plateId: $plateId) {
                     id
                     plateId
                     protocolId
@@ -33,14 +38,12 @@ export default {
                 }
             }
         `
-        return provideApolloClient(apolloCurvesClient)(() => useQuery(QUERY,
-            null,
-            defaultOptions))
-    },
-    curvesThatIncludesWellId(wellId) {
-        const QUERY = gql`
-            query getCurvesThatIncludesWellId {
-                curves:getCurvesThatIncludesWellId(wellId: ${wellId}) {
+    return executeQuery(query, {plateId})
+  },
+  curvesThatIncludesWellId(wellId) {
+    const query = `
+            query getCurvesThatIncludesWellId($wellId: ID) {
+                curves:getCurvesThatIncludesWellId(wellId: $wellId) {
                     id
                     plateId
                     protocolId
@@ -65,8 +68,6 @@ export default {
                 }
             }
         `
-        return provideApolloClient(apolloCurvesClient)(() => useQuery(QUERY,
-            null,
-            defaultOptions))
-    }
+    return executeQuery(query, {wellId})
+  }
 }
