@@ -33,7 +33,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import DeleteDialog from "@/components/widgets/DeleteDialog.vue";
 import { useProjectStore } from "@/stores/project";
 import { usePanesStore } from "@/stores/panes";

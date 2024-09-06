@@ -151,10 +151,11 @@ import { useRouter } from "vue-router";
 import { useUIStore } from "@/stores/ui";
 import OaTable from "@/components/table/OaTable.vue";
 import { useSelectionStore } from "../../stores/selection";
+import projects from "../../api/graphql/projects";
 
 const props = defineProps({
   experiments: [Object],
-  project: Object,
+  projects: [Object],
 });
 const emits = defineEmits(["createNewExperiment"]);
 
@@ -268,6 +269,15 @@ const experiments = computed(() =>
   props.experiments ? props.experiments : []
 );
 
+const projectsNames = computed(() =>
+  uiStore.selectedExperiments
+    .map(
+      (experiment) =>
+        props.projects.find((item) => item.id == experiment.projectId).name
+    )
+    .filter(getUnique)
+);
+
 const filter = FilterUtils.makeFilter(columns.value);
 const filterMethod = FilterUtils.defaultFilterMethod();
 
@@ -330,17 +340,35 @@ const showConfigDialog = ref(false);
 const exportTableData = useExportTableData(columns.value);
 
 const exportToCSV = () => {
-  exportTableData.exportToCSV(
-    filterMethod(experiments.value, filter.value),
-    props.project.name
-  );
+  if (projectsNames.value.length > 1) {
+    exportTableData.exportToCSV(
+      filterMethod(experiments.value, filter.value),
+      "selectedExperimentExportList"
+    );
+  } else if (projectsNames.value.length) {
+    exportTableData.exportToCSV(
+      filterMethod(experiments.value, filter.value),
+      projectsNames.value[0]
+    );
+  }
 };
 
+function getUnique(value, index, array) {
+  return array.indexOf(value) === index;
+}
+
 const exportToXLSX = () => {
-  exportTableData.exportToXLSX(
-    filterMethod(experiments.value, filter.value),
-    props.project.name
-  );
+  if (projectsNames.value.length > 1) {
+    exportTableData.exportToXLSX(
+      filterMethod(experiments.value, filter.value),
+      "selectedExperimentExportList"
+    );
+  } else if (projectsNames.value.length) {
+    exportTableData.exportToXLSX(
+      filterMethod(experiments.value, filter.value),
+      projectsNames.value[0]
+    );
+  }
 };
 
 watch(

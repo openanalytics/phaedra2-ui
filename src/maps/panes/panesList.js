@@ -66,6 +66,7 @@ export function usePanesList() {
       closable: true,
       props: {
         experiments: selectionStore.experiments,
+        projects: selectionStore.projects,
       },
     },
     {

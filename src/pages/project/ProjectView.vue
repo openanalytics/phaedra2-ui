@@ -33,7 +33,7 @@
             <ExperimentList
               @createNewExperiment="onCreateNewExperiment"
               :experiments="projectStore.experiments"
-              :project="projectStore.project"
+              :projects="[projectStore.project]"
             />
           </oa-section>
         </div>

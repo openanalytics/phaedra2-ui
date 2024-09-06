@@ -97,6 +97,7 @@ watch(projects, () => {
 
 watch(selectedProjects, (newVal, oldVal) => {
   const projectsId = newVal.map((item) => item.id);
+  selectionStore.projects = selectedProjects.value;
   selectionStore.loadProjects(projectsId);
 });
 </script>

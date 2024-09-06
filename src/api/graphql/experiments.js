@@ -46,6 +46,13 @@ export default {
           updatedOn
           updatedBy
           tags
+          summary {
+            nrPlates
+            nrPlatesLinkedLayout
+            nrPlatesApproved
+            nrPlatesCalculated
+            nrPlatesValidated
+          }
         }
       }
     `;

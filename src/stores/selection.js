@@ -158,17 +158,12 @@ export const useSelectionStore = defineStore("selection", () => {
         projectsGraphQlAPI.platesByExperimentIds(experimentsId);
       onResult(({ data }) => {
         if (replace) {
-          plates.value = data.plates;
+          plates.value = data.plate;
         } else {
-          plates.value = [...plates.value, ...data.plates];
+          plates.value = [...plates.value, ...data.plate];
         }
       });
     }
-  }
-
-  const key = ref(0);
-  function updateKey() {
-    key.value = (++key.value % 100) + 1;
   }
 
   return {
@@ -182,7 +177,5 @@ export const useSelectionStore = defineStore("selection", () => {
     setProjectsAndRemoveChildren,
     setExperimentsAndRemoveChildren,
     setPlatesAndRemoveChildren,
-    key,
-    updateKey,
   };
 });

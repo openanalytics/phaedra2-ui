@@ -1,4 +1,4 @@
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { defineStore } from "pinia";
 import { shallowRef } from "vue";
 import { usePanesList } from "../maps/panes/panesList";
@@ -17,6 +17,9 @@ export const usePanesStore = defineStore("panes", () => {
     ["recent-experiments-pane"],
   ]);
 
+  const activePanes = computed(() => {
+    return dynamicPanes.value.flat(Infinity);
+  });
   function mapComponents(idMap) {
     return idMap.map((id) => panes.value.filter((pane) => pane.id == id)[0]);
   }
@@ -107,18 +110,15 @@ export const usePanesStore = defineStore("panes", () => {
   }
 
   function addItem(id, toId, position) {
-    console.log(id);
-    console.log(toId);
-    if (id != toId) {
-      removeItem(id);
+    if (!activePanes.value.includes(id) && id != toId) {
       dynamicPanes.value = insertItem(id, toId, dynamicPanes.value, position);
     }
   }
 
   function addMenuItem(id) {
-    console.log(id);
-    removeItem(id);
-    dynamicPanes.value = insertMenuItem(id, dynamicPanes.value);
+    if (!activePanes.value.includes(id) && id != toId) {
+      dynamicPanes.value = insertMenuItem(id, dynamicPanes.value);
+    }
   }
 
   function updateKey() {
@@ -139,6 +139,7 @@ export const usePanesStore = defineStore("panes", () => {
     addMenuItem,
     mapComponents,
     panes,
+    activePanes,
     setDynamicPanesStartValue,
   };
 });
