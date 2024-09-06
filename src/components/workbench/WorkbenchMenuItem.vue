@@ -12,15 +12,12 @@
 </style>
 
 <script setup>
-import { ref } from "vue";
 import { usePanesStore } from "@/stores/panes";
 
 const props = defineProps(["id", "name"]);
 const panesStore = usePanesStore();
 
-const showMenu = ref(false);
 function openPane() {
-  panesStore.addItem(props.id, panesStore.panes[0].id, "center");
-  showMenu.value = !showMenu.value;
+  panesStore.addMenuItem(props.id);
 }
 </script>

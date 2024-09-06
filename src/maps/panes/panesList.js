@@ -2,12 +2,12 @@ import CreateProjectForm from "@/components/project/forms/CreateProjectForm.vue"
 import RecentCalculations from "@/components/dashboard/panes/RecentCalculations";
 import RecentProjects from "@/components/dashboard/panes/RecentProjects";
 import RecentExperiments from "@/components/dashboard/panes/RecentExperiments";
-import ProjectBrowser from "@/components/project/browser/ProjectBrowser.vue";
 import ProjectDetails from "@/components/project/ProjectDetails.vue";
 import ExperimentList from "@/components/experiment/ExperimentList.vue";
 import PlateList from "@/components/plate/PlateList";
-import { useSelectionStore } from "../../stores/selection";
+import { useSelectionStore } from "@/stores/selection";
 import { computed, ref } from "vue";
+import ProjectsList from "@/components/project/ProjectsList.vue";
 
 export function usePanesList() {
   const selectionStore = useSelectionStore();
@@ -42,8 +42,8 @@ export function usePanesList() {
       closable: true,
     },
     {
-      component: ProjectBrowser,
-      id: "browse-projects-pane",
+      component: ProjectsList,
+      id: "project-list-pane",
       title: "Browse projects",
       icon: "folder_open",
       closable: true,

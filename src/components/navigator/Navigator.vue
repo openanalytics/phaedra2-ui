@@ -37,7 +37,6 @@
               prop.node.label
             }}</router-link>
           </div>
-          <WorkbenchMenu v-if="prop.node.menu" />
         </div>
       </template>
 
@@ -87,7 +86,6 @@
 import { ref, computed } from "vue";
 import navigatorDef from "@/assets/navigator.json";
 import { useUserInfoStore } from "@/stores/userinfo";
-import WorkbenchMenu from "@/components/workbench/WorkbenchMenu.vue";
 
 const userStore = useUserInfoStore();
 userStore.loadUserInfo();

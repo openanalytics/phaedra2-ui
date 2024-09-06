@@ -64,12 +64,12 @@ const fetchProjectData = () => {
 
 const openProjectDetails = () => {
   fetchProjectData();
-  panesStore.addItem("project-details-pane", "browse-projects-pane", "center");
+  panesStore.addItem("project-details-pane", "project-list-pane", "center");
 };
 
 const openExperiments = () => {
   fetchProjectData();
-  panesStore.addItem("experiment-list-pane", "browse-projects-pane", "center");
+  panesStore.addItem("experiment-list-pane", "project-list-pane", "center");
 };
 </script>
 

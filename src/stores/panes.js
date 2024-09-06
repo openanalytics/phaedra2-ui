@@ -94,11 +94,31 @@ export const usePanesStore = defineStore("panes", () => {
     });
   }
 
+  function insertMenuItem(id, array) {
+    return array.map((pane) => {
+      if (pane == "V" || pane == "H" || typeof pane == "string") {
+        return pane;
+      }
+      if (pane.find((component) => typeof component != "object")) {
+        return [...pane, id];
+      }
+      return insertItem(id, pane);
+    });
+  }
+
   function addItem(id, toId, position) {
+    console.log(id);
+    console.log(toId);
     if (id != toId) {
       removeItem(id);
       dynamicPanes.value = insertItem(id, toId, dynamicPanes.value, position);
     }
+  }
+
+  function addMenuItem(id) {
+    console.log(id);
+    removeItem(id);
+    dynamicPanes.value = insertMenuItem(id, dynamicPanes.value);
   }
 
   function updateKey() {
@@ -116,6 +136,7 @@ export const usePanesStore = defineStore("panes", () => {
     draggedElement,
     removeItem,
     addItem,
+    addMenuItem,
     mapComponents,
     panes,
     setDynamicPanesStartValue,

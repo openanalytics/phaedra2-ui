@@ -6,12 +6,12 @@
 
   <q-page class="oa-root-div">
     <oa-section title="Projects" icon="folder" class="q-pa-sm">
-      <ProjectBrowser />
+      <ProjectsList />
     </oa-section>
   </q-page>
 </template>
 
 <script setup>
-import ProjectBrowser from "@/components/project/browser/ProjectBrowser.vue";
 import OaSection from "@/components/widgets/OaSection";
+import ProjectsList from "@/components/project/ProjectsList.vue";
 </script>

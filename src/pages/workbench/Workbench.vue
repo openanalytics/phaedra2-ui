@@ -1,5 +1,6 @@
 <template>
   <q-page class="oa-root-div">
+    <WorkbenchMenu />
     <PanesDashboard
       style="height: calc(100vh - 50px)"
       :dynamicPanes="panesStore.dynamicPanes"
@@ -12,6 +13,7 @@
 <script setup>
 import { usePanesStore } from "@/stores/panes";
 import PanesDashboard from "@/components/splitpanes/PanesDashboard.vue";
+import WorkbenchMenu from "@/components/workbench/WorkbenchMenu.vue";
 
 const panesStore = usePanesStore();
 </script>
