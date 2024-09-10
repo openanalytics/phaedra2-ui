@@ -359,7 +359,8 @@ export default {
                 description,
                 wellSubstance {
                     type,
-                    name
+                    name,
+                    concentration
                 },
                 tags,
                 properties {

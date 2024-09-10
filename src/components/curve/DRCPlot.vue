@@ -9,11 +9,14 @@ import ArrayUtils from "@/lib/ArrayUtils";
 import {useUIStore} from "@/stores/ui";
 import {usePlateStore} from "@/stores/plate";
 
-const props = defineProps(['width', 'height', 'curves', 'update'])
+const props = defineProps(['width', 'height', 'curves', 'update', 'selectedWells'])
+const emits = defineEmits(['wellSelection'])
 const plot = ref(null)
 
 const uiStore = useUIStore()
 const plateStore = usePlateStore()
+
+const selectedWells = ref([])
 
 const updateDRCPlotView = () => {
   const config = {autosize: true, displaylogo: false}
@@ -107,11 +110,14 @@ const updateDRCPlotView = () => {
     Plotly.react(plot?.value, data.value, layout, config)
   }
 
-  restylePlot()
+  restylePlot(props.selectedWells)
 }
 
-const restylePlot = () => {
-  const wellIds = uiStore.selectedWells.map(well => well.id)
+const restylePlot = (wells) => {
+  //TODO: add selected wells as parameter
+  console.log("DRCPlot.vue restylePlot function!!")
+  selectedWells.value = wells
+  const wellIds = selectedWells.value.map(well => well.id)
   if (wellIds.length > 0 ) {
     plot.value.data.forEach((dataArr, index) => {
       if (dataArr.wellIds) {
@@ -123,6 +129,7 @@ const restylePlot = () => {
       }
     })
   }
+  emits('wellSelection', selectedWells.value)
 }
 
 const resizeDRCPlotView = () => {
@@ -142,8 +149,10 @@ onMounted(() => {
   plot.value?.on('plotly_click', (data) => {
     isPlotlyClick = true
     const selectedWellIds = data.points.map(p => p.data.wellIds[p.pointIndex])
-    uiStore.selectedWells = plateStore.wells.filter(well => selectedWellIds.includes(well.id))
-    restylePlot()
+    // uiStore.selectedWells = plateStore.wells.filter(well => selectedWellIds.includes(well.id))
+    selectedWells.value = plateStore.wells.filter(well => selectedWellIds.includes(well.id))
+    console.log("plotly_click: " + JSON.stringify(selectedWells))
+    restylePlot(selectedWells.value)
   })
 
   plot.value?.on('plotly_selected', (data) => {

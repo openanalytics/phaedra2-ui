@@ -18,7 +18,9 @@
       </div>
     </div>
     <div class="oa-section-body" style="min-height: 30vh; max-height: 70vh; overflow: auto;">
-      <DRCPlot :width="props.width" :height="props.height" :curves="props.curves" :update="Date.now()"/>
+      <DRCPlot :width="props.width" :height="props.height" :curves="props.curves"
+               :update="Date.now()" :selectedWells="uiStore.selectedWells"
+      @wellSelection="updateSelectedWells"/>
       <WellActionMenu touch-position context-menu @acceptWells="handleAcceptWells" @rejectWells="handleRejectWells"/>
     </div>
     <q-separator class="q-pt-md oa-section-body"/>
@@ -68,5 +70,10 @@ const handleAcceptWells = () => {
       emits('wellStatusChanged')
     })
   }
+}
+
+const updateSelectedWells = (selectedWells) => {
+  console.log("Selected wells are: " + JSON.stringify(selectedWells))
+  uiStore.selectedWells = selectedWells
 }
 </script>

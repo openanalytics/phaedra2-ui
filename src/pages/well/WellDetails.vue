@@ -3,7 +3,7 @@
     <oa-section v-if="!wellStore.well" title="Loading well..." icon="crop_square"/>
     <oa-section v-else :title="wellStore.well.pos" icon="square" :collapsible="true">
       <div class="row q-pa-sm">
-        <div class="col-3">
+        <div class="col-2">
           <q-field label="ID" stack-label borderless dense>
             <template v-slot:control>
               {{ wellStore.well.id }}
@@ -27,7 +27,7 @@
           </q-field>
         </div>
 
-        <div class="col-3">
+        <div class="col-2">
           <q-field label="Position" stack-label borderless dense>
             <template v-slot:control>
               {{WellUtils.getWellCoordinate(wellStore.well.row, wellStore.well.column)}}
@@ -41,6 +41,24 @@
           <q-field label="Well Type" stack-label borderless dense>
             <template v-slot:control>
               {{wellStore.well.wellType}}
+            </template>
+          </q-field>
+        </div>
+
+        <div class="col-2">
+          <q-field label="Substance Name" stack-label borderless dense>
+            <template v-slot:control>
+              {{wellStore.well.wellSubstance?.name}}
+            </template>
+          </q-field>
+          <q-field label="Substance Type" stack-label borderless dense>
+            <template v-slot:control>
+              {{wellStore.well.wellSubstance?.type}}
+            </template>
+          </q-field>
+          <q-field label="Concentration" stack-label borderless dense>
+            <template v-slot:control>
+              {{wellStore.well.wellSubstance?.concentration}}
             </template>
           </q-field>
         </div>
