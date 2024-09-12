@@ -43,7 +43,6 @@ import {Pane, Splitpanes} from "splitpanes";
 import DRCView from "@/components/curve/DRCView.vue";
 import WellImageViewer2 from "@/components/image/WellImageViewer2.vue";
 import {useNotification} from "@/composable/notification";
-import {useGlobalEventStore} from "@/stores/event";
 import CalculatePlateDialog from "@/components/plate/CalculatePlateDialog.vue";
 
 const projectStore = useProjectStore()
