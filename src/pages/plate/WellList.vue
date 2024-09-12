@@ -1,12 +1,14 @@
 <template>
-  <oa-table :columns="columns" :rows="wells"
-                 selection="multiple"
-                 v-model:selected="uiStore.selectedWells"
-                 @row-click="selectWell">
+  <oa-table :rows="wells" :columns="columns"
+            selection="multiple"
+            v-model:selected="uiStore.selectedWells"
+            :filter="filter"
+            :filter-method="filterMethod"
+            @row-click="selectWell">
     <template v-slot:top-right>
       <div class="row action-button">
         <q-btn-dropdown size="sm" class="oa-button q-mr-md" label="Export">
-          <q-list dense >
+          <q-list dense>
             <q-item clickable v-close-popup @click="exportToCSV">
               <q-item-section>
                 <q-item-label>Export to CSV</q-item-label>
@@ -26,22 +28,23 @@
       <q-tr :props="props">
         <q-th auto-width/>
         <q-th v-for="col in props.cols" :key="col.name" :props="props">
-          {{col.label}}
+          {{ col.label }}
         </q-th>
       </q-tr>
       <q-tr :props="props">
         <q-th auto-width>
-          <q-checkbox v-model="props.selected" dense />
+          <q-checkbox v-model="props.selected" dense/>
         </q-th>
         <column-filter v-for="col in props.cols" :key="col.name" v-model="filter[col.name]"/>
       </q-tr>
     </template>
     <template v-slot:body-cell="props">
-      <q-td v-if="props.col.isFeature" :props="props" :style="'background-color:' + props.col.lut.getColor(props.value)">
-        <div v-if="props.col.isFeature">{{props.value}}</div>
+      <q-td v-if="props.col.isFeature" :props="props"
+            :style="'background-color:' + props.col.lut.getColor(props.value)">
+        <div v-if="props.col.isFeature">{{ props.value }}</div>
       </q-td>
       <q-td v-else :props="props">
-        {{props.value}}
+        {{ props.value }}
       </q-td>
     </template>
     <template v-slot:body-cell-status="props">

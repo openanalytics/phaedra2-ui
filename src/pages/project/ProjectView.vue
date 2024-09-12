@@ -69,7 +69,8 @@
             <div class="row oa-section-body">
               <ExperimentList :experiments="projectStore.experiments"
                               :project="projectStore.project"
-                              @createNewExperiment="onCreateNewExperiment"/>
+                              @createNewExperiment="onCreateNewExperiment"
+              @selection="handleSelection"/>
             </div>
           </pane>
           <pane class="q-pa-sm" v-if="uiStore.showChartViewer" style="background-color: #E6E6E6" ref="chartViewerPane">
@@ -88,7 +89,7 @@
 </style>
 
 <script setup>
-import {onBeforeMount, onMounted, ref} from 'vue'
+import {onMounted, ref} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 
 import ExperimentList from "@/pages/project/ExperimentList.vue"
@@ -106,7 +107,6 @@ import {useProjectStore} from "@/stores/project";
 import {Pane, Splitpanes} from "splitpanes";
 import ChartViewer from "@/components/chart/ChartViewer.vue";
 import {useUIStore} from "@/stores/ui";
-import {useExperimentStore} from "@/stores/experiment";
 
 const route = useRoute()
 const router = useRouter()
@@ -116,11 +116,6 @@ const projectStore = useProjectStore()
 const horizontal = ref(false)
 
 const projectId = parseInt(route.params.id);
-
-onBeforeMount(() => {
-  const experimentStore = useExperimentStore()
-  experimentStore.reset()
-})
 
 onMounted(() => {
   projectStore.loadProject(projectId)
@@ -155,22 +150,26 @@ const onRemoveAccess = async (access) => {
 }
 
 const onAddTag = async (newTag) => {
-  await projectStore.addTag(newTag)
+  await projectStore.handleAddTag(newTag)
 }
 
 const onRemoveTag = async (tag) => {
-  await projectStore.deleteTag(tag)
+  await projectStore.handleDeleteTag(tag)
 }
 
 const onAddProperty = async (newProperty) => {
-  await projectStore.addPropertty(newProperty)
+  await projectStore.handleAddProperty(newProperty)
 }
 
 const onRemoveProperty = async (property) => {
-  await projectStore.deleteProperty(property)
+  await projectStore.handleDeleteProperty(property)
 }
 
 const openDeleteDialog = () => {
     showDeleteDialog.value = true
+}
+
+const handleSelection = (experiments) => {
+  uiStore.selectedExperiments = experiments
 }
 </script>

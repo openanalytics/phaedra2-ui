@@ -6,8 +6,8 @@
                  @row-dblclick="gotoPlateView"
                  @row-contextmenu="plateContextMenu"
                  selection="multiple"
-                 v-model:selected="uiStore.selectedPlates">
-    <template v-slot:top-left v-if="experimentStore.isOpen">
+                 v-model:selected="selectedPlates">
+    <template v-slot:top-left v-if="experiment.status === 'OPEN'">
       <q-btn size="sm" icon="add" label="New Plate" class="oa-button">
         <q-menu>
           <q-list size="sm" dense>
@@ -104,19 +104,13 @@ import PlateActionMenu from "@/components/plate/PlateActionMenu";
 import StatusFlag from "@/components/widgets/StatusFlag";
 import FormatUtils from "@/lib/FormatUtils";
 import FilterUtils from "@/lib/FilterUtils.js"
-import {useExperimentStore} from "@/stores/experiment";
 import {useExportTableData} from "@/composable/exportTableData";
-import {useUIStore} from "@/stores/ui";
 import OaTable from "@/components/table/OaTable.vue";
 
 const props = defineProps(['plates', 'experiment', 'newPlateTab', 'newPlateFromMeasurements'])
-const emit = defineEmits(['update:newPlateTab', 'showPlateInspector'])
+const emits = defineEmits(['update:newPlateTab', 'showPlateInspector', 'selection'])
 
 const router = useRouter()
-const uiStore = useUIStore()
-const experimentStore = useExperimentStore()
-
-const loading = ref()
 
 const columns = [
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
@@ -132,7 +126,8 @@ const columns = [
   {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true}
 ]
 
-const plates = computed(() => experimentStore.plates)
+const experiment = computed(() => props.experiment)
+const plates = computed(() => props.plates)
 
 const filter = FilterUtils.makeFilter(columns);
 const filterMethod = FilterUtils.defaultFilterMethod();
@@ -150,31 +145,15 @@ const gotoPlateView = (event, row) => {
   router.push({name: "plate", params: { plateId: selectedPlate.value.id }});
 }
 
-const isSelected = (row) => uiStore.selectedPlates.includes(row)
-const updateSelectedPlates = (condition, row) => condition ? uiStore.selectedPlates.filter(plate => plate.id !== row.id) : [row]
-const selectPlate = (event, row) => {
-  selectedPlate.value = row
-  uiStore.loadSelectedPlate(row.id)
-
-  if (event && (event.ctrlKey || event.metaKey)) {
-    if (isSelected(row)) {
-      uiStore.selectedPlates = updateSelectedPlates(true, row)
-    } else {
-      uiStore.selectedPlates.push(row)
-    }
-  } else {
-    uiStore.selectedPlates = updateSelectedPlates(isSelected(row), row)
-  }
-}
-
 const openNewPlateDialog = () => {
-  emit('update:newPlateTab', true)
+  emits('update:newPlateTab', true)
 }
 
 const openNewPlateFromMeasurementsDialog = () => {
-  emit('update:newPlateFromMeasurements', true)
+  emits('update:newPlateFromMeasurements', true)
 }
 
+const loading = ref()
 const visibleColumns = ref([])
 onMounted(() => {
   visibleColumns.value = [...columns.map(a => a.name)];
@@ -185,6 +164,26 @@ watch(plates, () => {
   visibleColumns.value = [...columns.map(a => a.name)];
   loading.value = false
 })
+
+const selectedPlates = ref()
+watch(selectedPlates, () => {
+  emits('selection', selectedPlates.value)
+})
+
+const isSelected = (row) => selectedPlates.value?.includes(row) ?? false
+const updateSelectedPlates = (condition, row) => condition ? selectedPlates.value.filter(plate => plate.id !== row.id) : [row]
+const selectPlate = (event, row) => {
+  selectedPlate.value = row
+  if (event && (event.ctrlKey || event.metaKey)) {
+    if (isSelected(row)) {
+      selectedPlates.value = updateSelectedPlates(true, row)
+    } else {
+      selectedPlates.value.push(row)
+    }
+  } else {
+    selectedPlates.value = updateSelectedPlates(isSelected(row), row)
+  }
+}
 
 const exportTableData = useExportTableData(columns)
 

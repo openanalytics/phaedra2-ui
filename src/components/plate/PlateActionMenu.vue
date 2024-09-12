@@ -15,8 +15,7 @@
 
       <menu-item icon="text_snippet" label="Link Measurement"
                  @click="linkMeasurement" v-close-popup="hideMenu"/>
-      <menu-item icon="playlist_add" label="Set Plate Layout"
-                 @click="setPlateLayout" v-close-popup="hideMenu"/>
+      <menu-item icon="playlist_add" label="Set Plate Layout" @click="setPlateLayout" v-close-popup="hideMenu"/>
       <menu-item icon="calculate" label="(Re)Calculate Plate"
                  @click="calculatePlate" v-close-popup="hideMenu"/>
 

@@ -84,8 +84,11 @@
         <div class="row oa-section-body">
           <q-tab-panels v-model="activeTab" animated class="full-width">
             <q-tab-panel name="overview" class="q-pa-none">
-              <PlateList :experiment="experimentStore.experiment" :plates="experimentStore.plates"
-                         v-model:newPlateTab="showNewPlateDialog" v-model:newPlateFromMeasurements="showNewPlateFromMeasDialog"/>
+              <PlateList :experiment="experimentStore.experiment"
+                         :plates="experimentStore.plates"
+                         v-model:newPlateTab="showNewPlateDialog"
+                         v-model:newPlateFromMeasurements="showNewPlateFromMeasDialog"
+                         @selection="handlePlateSelection"/>
             </q-tab-panel>
             <q-tab-panel name="statistics" class="q-pa-none">
               <PlateStatsList :experiment="experimentStore.experiment" :plates="experimentStore.plates"/>
@@ -208,18 +211,25 @@ const handleOpenExperiment = () => {
 }
 
 const onAddTag = async (newTag) => {
-  await experimentStore.addTag(newTag)
+  await experimentStore.handleAddTag(newTag)
 }
 
 const onRemoveTag = async (tag) => {
-  await experimentStore.deleteTag(tag)
+  await experimentStore.handleDeleteTag(tag)
 }
 
 const onAddProperty = async (newProperty) => {
-  await experimentStore.addPropertty(newProperty)
+  await experimentStore.handleAddProperty(newProperty)
 }
 
 const onRemoveProperty = async (property) => {
-  await experimentStore.deleteProperty(property)
+  await experimentStore.handleDeleteProperty(property)
+}
+
+const handlePlateSelection = async (plates) => {
+  uiStore.selectedPlate = plates[0] ?? null
+  uiStore.selectedPlates = plates
+  if (uiStore.selectedPlate)
+    await uiStore.loadSelectedPlate(plates[0].id )
 }
 </script>

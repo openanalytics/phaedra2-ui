@@ -2,11 +2,16 @@ import {provideApolloClient, useQuery} from '@vue/apollo-composable'
 import gql from 'graphql-tag'
 import {apolloPlatesClient} from "@/graphql/apollo.clients";
 
-const defaultOptions = { fetchPolicy: 'no-cache', errorPolicy: 'ignore'}
+const defaultOptions = {fetchPolicy: 'no-cache', errorPolicy: 'ignore'}
+
+const executeQuery = (query, variables) => {
+  return provideApolloClient(apolloPlatesClient)(
+      () => useQuery(gql`${query}`, variables, defaultOptions));
+}
 
 export default {
-    templates() {
-        const QUERY = gql`
+  templates() {
+    const query = `
             query getPlateTemplates {
                 plateTemplates:getPlateTemplates {
                     id
@@ -22,10 +27,10 @@ export default {
                 }
             }
         `
-        return provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY, null, defaultOptions))
-    },
-    templateById(plateTemplateId) {
-        const QUERY = gql`
+    return executeQuery(query, {})
+  },
+  templateById(plateTemplateId) {
+    const query = `
             query getPlateTemplateById($plateTemplateId: ID) {
                 plateTemplate:getPlateTemplateById(plateTemplateId: $plateTemplateId) {
                     id
@@ -57,9 +62,6 @@ export default {
                 }
             }
         `
-        const variables = {'plateTemplateId': plateTemplateId}
-        return provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY,
-            variables,
-            defaultOptions))
-    }
+    return executeQuery(query, {plateTemplateId})
+  }
 }
