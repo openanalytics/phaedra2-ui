@@ -226,7 +226,10 @@ const onRemoveProperty = async (property) => {
   await experimentStore.handleDeleteProperty(property)
 }
 
-const handlePlateSelection = (plates) => {
+const handlePlateSelection = async (plates) => {
+  uiStore.selectedPlate = plates[0] ?? null
   uiStore.selectedPlates = plates
+  if (uiStore.selectedPlate)
+    await uiStore.loadSelectedPlate(plates[0].id )
 }
 </script>

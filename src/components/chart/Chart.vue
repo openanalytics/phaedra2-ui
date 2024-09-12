@@ -134,7 +134,7 @@ const handleChartUpdate = () => {
   const chartView = computed(() => uiStore.getChartView(props.chartId))
   if (chartView.value.type === 'scatter') {
     const scatterChartData = useScatterChartData()
-    scatterChartData.getChartData(uiStore.selectedPlate.id, selectedProtocol.value?.id,
+    scatterChartData.getChartData(uiStore.selectedPlate?.id, selectedProtocol.value?.id,
         selectedXAxisOption.value.value, selectedXAxisOption.value.type,
         selectedYAxisOption.value.value, selectedYAxisOption.value.type, groupBy.value.value).then(
         (scatterData) => {
@@ -169,7 +169,7 @@ const handleChartUpdate = () => {
     })
   } else if (chartView.value.type === 'box') {
     const boxPlotData = useBoxPlotData()
-    boxPlotData.getChartData(uiStore.selectedPlate.id, selectedProtocol.value?.id, selectedYAxisOption.value.value, selectedYAxisOption.value.type, groupBy.value.value).then(boxPlotData => {
+    boxPlotData.getChartData(uiStore.selectedPlate?.id, selectedProtocol.value?.id, selectedYAxisOption.value.value, selectedYAxisOption.value.type, groupBy.value.value).then(boxPlotData => {
       console.log("Box Plot Data: " + JSON.stringify(boxPlotData))
       const traces = Object.keys(boxPlotData).map(groupByKey => {return {y: boxPlotData[groupByKey].yvalues, type: "box", name: groupByKey}})
       chartPlot.value = {
@@ -182,7 +182,7 @@ const handleChartUpdate = () => {
     })
   } else if (chartView.value.type === 'histogram') {
     const histogramData = useHistogramData()
-    histogramData.getChartData(uiStore.selectedPlate.id, selectedProtocol.value?.id, selectedXAxisOption.value.value, selectedXAxisOption.value.type, groupBy.value.value).then(histogramData => {
+    histogramData.getChartData(uiStore.selectedPlate?.id, selectedProtocol.value?.id, selectedXAxisOption.value.value, selectedXAxisOption.value.type, groupBy.value.value).then(histogramData => {
       console.log("Histogram Data: " + JSON.stringify(histogramData))
       const traces = Object.keys(histogramData).map(groupByKey => {return {x: histogramData[groupByKey].xvalues, type: "histogram", name: groupByKey}})
       chartPlot.value = {
@@ -236,7 +236,8 @@ const layout = (chartView) => {
 
 watch(() => props.update, handlePlotUpdate)
 watch(() => chartPlot.value, handlePlotUpdate)
-watch(() => uiStore.selectedWells.value, handlePlotUpdate, {deep: true})
+watch(() => uiStore.selectedPlate, handleChartUpdate)
+watch(() => uiStore.selectedWells, handlePlotUpdate, {deep: true})
 
 const handleProtocolSelection = () => {
   updatePlotValueOptions()
