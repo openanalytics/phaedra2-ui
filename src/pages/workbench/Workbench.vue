@@ -14,8 +14,19 @@
 import { usePanesStore } from "@/stores/panes";
 import PanesDashboard from "@/components/splitpanes/PanesDashboard.vue";
 import WorkbenchMenu from "@/components/workbench/WorkbenchMenu.vue";
+import { onMounted } from "vue";
+import { useSelectionStore } from "../../stores/selection";
+import projectsGraphQlAPI from "@/api/graphql/projects";
 
 const panesStore = usePanesStore();
+const selectionStore = useSelectionStore();
+
+onMounted(() => {
+  const { onResult, onError } = projectsGraphQlAPI.projects();
+  onResult(({ data }) => {
+    selectionStore.projects = data.projects;
+  });
+});
 </script>
 
 <style>

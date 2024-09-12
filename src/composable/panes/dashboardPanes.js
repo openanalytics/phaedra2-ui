@@ -8,7 +8,7 @@ export default function usePanes() {
     ["recent-experiments-pane"],
   ]);
 
-  const workbenchPanes = computed(() => ["H", ["project-list-pane"]]);
+  const workbenchPanes = computed(() => ["V", ["project-list-pane"]]);
 
   return { dashboardPanes, workbenchPanes };
 }

@@ -6,8 +6,9 @@ import ProjectDetails from "@/components/project/ProjectDetails.vue";
 import ExperimentList from "@/components/experiment/ExperimentList.vue";
 import PlateList from "@/components/plate/PlateList";
 import { useSelectionStore } from "@/stores/selection";
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import ProjectsList from "@/components/project/ProjectsList.vue";
+import WellList from "../../pages/plate/WellList.vue";
 
 export function usePanesList() {
   const selectionStore = useSelectionStore();
@@ -47,6 +48,7 @@ export function usePanesList() {
       title: "Browse projects",
       icon: "folder_open",
       closable: true,
+      selected: (e) => (selectionStore.selectedProjects = e),
     },
     {
       component: ProjectDetails,
@@ -66,8 +68,9 @@ export function usePanesList() {
       closable: true,
       props: {
         experiments: selectionStore.experiments,
-        projects: selectionStore.projects,
+        projects: selectionStore.selectedProjects,
       },
+      selected: (e) => (selectionStore.selectedExperiments = e),
     },
     {
       component: PlateList,
@@ -78,6 +81,19 @@ export function usePanesList() {
       props: {
         plates: selectionStore.plates,
       },
+      selected: (e) => (selectionStore.selectedPanes = e),
+    },
+    {
+      component: WellList,
+      id: "wells-list-pane",
+      title: "Wells",
+      icon: "science",
+      closable: true,
+      props: {
+        plate: selectionStore.plates ? selectionStore.plates[0] : [],
+        wells: selectionStore.wells,
+      },
+      selected: (e) => (selectionStore.selectedWells = e),
     },
   ]);
 

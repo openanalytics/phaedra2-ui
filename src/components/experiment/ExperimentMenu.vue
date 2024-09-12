@@ -91,15 +91,15 @@
         @click="openDeleteDialog"
         v-close-popup
       />
-      <menu-item
+      <!-- <menu-item
         v-if="isOpen"
         icon="details"
         label="Open Experiment Details"
         @click="openExperimentDetails"
         v-close-popup
-      />
+      /> -->
       <menu-item
-        v-if="isOpen"
+        v-if="isOpen && route.name == 'workbench'"
         icon="science"
         label="Open Plates"
         @click="openPlates"
@@ -233,9 +233,13 @@ const addExperimentPlateTrendChart = (experimentId) => {
     });
   }
 };
-const openExperimentDetails = () => {
-  selectedExperiment.value = row;
-};
+// const openExperimentDetails = () => {
+//   panesStore.addItem(
+//     "experiment-details-pane",
+//     "experiment-list-pane",
+//     "right"
+//   );
+// };
 
 const openPlates = () => {
   panesStore.addItem("plates-list-pane", "experiment-list-pane", "right");

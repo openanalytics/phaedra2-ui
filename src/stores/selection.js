@@ -1,4 +1,4 @@
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { defineStore } from "pinia";
 import projectsGraphQlAPI from "@/api/graphql/projects";
 import experimentsGraphQlAPI from "@/api/graphql/experiments";
@@ -9,29 +9,23 @@ export const useSelectionStore = defineStore("selection", () => {
   const localPlates = ref([]);
   const localWells = ref([]);
 
+  const selectedProjects = ref([]);
+  const selectedExperiments = ref([]);
+  const selectedPlates = ref([]);
+  const selectedWells = ref([]);
+
+  const selectedProjectsIds = computed(() =>
+    selectedProjects.value.map((item) => item.id)
+  );
+  const selectedExperimentsIds = computed(() =>
+    selectedExperiments.value.map((item) => item.id)
+  );
+
   const projectsIds = computed(() => projects.value.map((item) => item.id));
   const experimentsIds = computed(() =>
     experiments.value.map((item) => item.id)
   );
   const platesIds = computed(() => plates.value.map((item) => item.id));
-
-  function setProjectsAndRemoveChildren(newVal) {
-    projects.value = newVal;
-    localExperiments.value = [];
-    localPlates.value = [];
-    localWells.value = [];
-  }
-
-  function setExperimentsAndRemoveChildren(newVal) {
-    experiments.value = newVal;
-    localPlates.value = [];
-    localWells.value = [];
-  }
-
-  function setPlatesAndRemoveChildren(newVal) {
-    plates.value = newVal;
-    localWells.value = [];
-  }
 
   const projects = computed({
     get: () => localProjects.value,
@@ -67,8 +61,6 @@ export const useSelectionStore = defineStore("selection", () => {
   const plates = computed({
     get: () => localPlates.value,
     set: (newVal) => {
-      console.log(newVal);
-      console.log(localPlates.value);
       const changes = detectChanges(localPlates.value, newVal, "experimentId");
 
       if (changes.added.length || changes.removed.length) {
@@ -92,16 +84,18 @@ export const useSelectionStore = defineStore("selection", () => {
     set: (newVal) => {
       const changes = detectChanges(localWells.value, newVal, "plateId");
       if (changes.added.length || changes.removed.length) {
-        let platesToAdd = changes.added.filter(
+        let wellsToAdd = changes.added.filter(
           (id) => !platesIds.value.includes(id)
         );
 
-        let reducedPlates = localPlates.value.filter(
+        let reducedWells = localPlates.value.filter(
           (item) => !changes.removed.includes(item.id)
         );
 
-        // let fetchedPlates = fetchProjectsRequest(platesToAdd)
-        // plates.value = [...reducedPlates, ...fetchedPlates];
+        // if (wellsToAdd.length) {
+        //   let fetchedWells = loadPlate(wellsToAdd[0]);
+        //   wells.value = [...reducedPlates, ...fetchedWells];
+        // }
       }
       localWells.value = newVal;
     },
@@ -144,7 +138,7 @@ export const useSelectionStore = defineStore("selection", () => {
       // .map((item) => item.experiments)
       // .reduce((item1, item2) => item1.concat(item2));
       if (replace) {
-        setExperimentsAndRemoveChildren(data.experiments);
+        experiments.value = data.experiments;
       } else {
         experiments.value = [...experiments.value, ...data.experiments];
       }
@@ -157,6 +151,8 @@ export const useSelectionStore = defineStore("selection", () => {
       const { onResult, onError } =
         projectsGraphQlAPI.platesByExperimentIds(experimentsId);
       onResult(({ data }) => {
+        console.log("loaded plates!");
+        console.log(plates.value);
         if (replace) {
           plates.value = data.plate;
         } else {
@@ -166,16 +162,39 @@ export const useSelectionStore = defineStore("selection", () => {
     }
   }
 
+  function loadPlate(plateId, replace = true) {
+    if (plateId) {
+      const { onResult, onError } = projectsGraphQlAPI.plateById(plateId);
+      onResult(({ data }) => {
+        if (replace) {
+          this.wells = data.wells;
+        } else {
+          wells.value = [...wells.value, ...data.wells];
+        }
+      });
+    }
+  }
+
+  watch(selectedExperiments, () => {
+    loadExperiment(selectedExperimentsIds.value);
+  });
+
+  watch(selectedProjects, () => {
+    loadProjects(selectedProjectsIds.value);
+  });
+
   return {
     projects,
     experiments,
     plates,
     wells,
+    loadPlate,
     loadProjects,
     loadExperiment,
     detectChanges,
-    setProjectsAndRemoveChildren,
-    setExperimentsAndRemoveChildren,
-    setPlatesAndRemoveChildren,
+    selectedExperiments,
+    selectedPlates,
+    selectedProjects,
+    selectedWells,
   };
 });

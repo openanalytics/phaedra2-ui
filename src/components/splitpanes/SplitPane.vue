@@ -67,7 +67,9 @@
             :is="component.component"
             :key="id"
             v-bind="{ ...component.props }"
-            style="position: relative; width: 100%; max-width: 100%"
+            @selected="
+              (e) => (component.selected ? component.selected(e) : null)
+            "
           />
 
           <DropArea position="left" @dropped="drop('left')" />

@@ -6,6 +6,7 @@
     @row-click="selectProject"
     selection="multiple"
     v-model:selected="selectedProjects"
+    @update:selected="(newVal) => emits('selected', newVal)"
   >
     <template v-slot:top-left>
       <router-link :to="{ name: 'newProject' }" class="nav-link">
@@ -33,12 +34,13 @@ import ProjectActionMenu from "@/components/project/ProjectActionMenu";
 import { useRouter } from "vue-router";
 import { useSelectionStore } from "@/stores/selection";
 
+const emits = defineEmits("selected");
+
 const loading = ref(true);
 const projects = ref([]);
 
 const visibleColumns = ref([]);
 const selectedProjects = ref([]);
-const selectionStore = useSelectionStore();
 
 onMounted(() => {
   fetchAllProjects();
@@ -96,8 +98,7 @@ watch(projects, () => {
 });
 
 watch(selectedProjects, (newVal, oldVal) => {
-  const projectsId = newVal.map((item) => item.id);
-  selectionStore.projects = selectedProjects.value;
-  selectionStore.loadProjects(projectsId);
+  // const projectsId = newVal.map((item) => item.id);
+  emits("selected", newVal);
 });
 </script>

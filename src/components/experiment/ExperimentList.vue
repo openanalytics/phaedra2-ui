@@ -6,7 +6,7 @@
     @row-dblclick="gotoExperimentView"
     @row-contextmenu="experimentContextMenu"
     selection="multiple"
-    v-model:selected="uiStore.selectedExperiments"
+    v-model:selected="selectedExperiments"
   >
     <template v-slot:top-left>
       <div class="row action-button on-left">
@@ -139,7 +139,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onUpdated, onMounted } from "vue";
 
 import ProgressBarField from "@/components/widgets/ProgressBarField";
 import ExperimentMenu from "@/components/experiment/ExperimentMenu";
@@ -148,21 +148,17 @@ import FormatUtils from "@/lib/FormatUtils.js";
 import FilterUtils from "@/lib/FilterUtils";
 import { useExportTableData } from "@/composable/exportTableData";
 import { useRouter } from "vue-router";
-import { useUIStore } from "@/stores/ui";
 import OaTable from "@/components/table/OaTable.vue";
-import { useSelectionStore } from "../../stores/selection";
-import projects from "../../api/graphql/projects";
 
 const props = defineProps({
   experiments: [Object],
   projects: [Object],
 });
-const emits = defineEmits(["createNewExperiment"]);
+const emits = defineEmits(["createNewExperiment", "selected"]);
 
 const router = useRouter();
-const uiStore = useUIStore();
-const selectionStore = useSelectionStore();
 
+const selectedExperiments = ref([]);
 const loading = ref();
 
 const columns = ref([
@@ -270,7 +266,7 @@ const experiments = computed(() =>
 );
 
 const projectsNames = computed(() =>
-  uiStore.selectedExperiments
+  selectedExperiments.value
     .map(
       (experiment) =>
         props.projects.find((item) => item.id == experiment.projectId).name
@@ -293,26 +289,21 @@ const gotoExperimentView = (event, row) => {
   router.push({ name: "experiment", params: { experimentId: row.id } });
 };
 
-const isSelected = (row) => uiStore.selectedExperiments.includes(row);
+const isSelected = (row) => selectedExperiments.value.includes(row);
 const updateSelectedExperiments = (condition, row) =>
   condition
-    ? uiStore.selectedExperiments.filter(
-        (experiment) => experiment.id !== row.id
-      )
+    ? selectedExperiments.value.filter((experiment) => experiment.id !== row.id)
     : [row];
 const selectExperiment = (event, row) => {
   selectedExperiment.value = row;
   if (event && (event.ctrlKey || event.metaKey)) {
     if (isSelected(row)) {
-      uiStore.selectedExperiments = updateSelectedExperiments(true, row);
+      selectedExperiments.value = updateSelectedExperiments(true, row);
     } else {
-      uiStore.selectedExperiments.push(row);
+      selectedExperiments.value.push(row);
     }
   } else {
-    uiStore.selectedExperiments = updateSelectedExperiments(
-      isSelected(row),
-      row
-    );
+    selectedExperiments.value = updateSelectedExperiments(isSelected(row), row);
   }
 };
 
@@ -371,11 +362,17 @@ const exportToXLSX = () => {
   }
 };
 
+watch(selectedExperiments, (newVal) => {
+  emits("selected", newVal);
+});
+
 watch(
-  () => uiStore.selectedExperiments,
-  (newVal, oldVal) => {
-    const experimentsId = newVal.map((item) => item.id);
-    selectionStore.loadExperiment(experimentsId);
+  () => props.experiments,
+  (newVal) => {
+    const ids = newVal.map((item) => item.id);
+    selectedExperiments.value = selectedExperiments.value.filter((item) =>
+      ids.includes(item.id)
+    );
   }
 );
 </script>

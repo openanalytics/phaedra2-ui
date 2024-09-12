@@ -34,6 +34,7 @@
               @createNewExperiment="onCreateNewExperiment"
               :experiments="projectStore.experiments"
               :projects="[projectStore.project]"
+              @selected="(newVal) => (uiStore.selectedExperiments = newVal)"
             />
           </oa-section>
         </div>

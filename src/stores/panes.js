@@ -71,11 +71,40 @@ export const usePanesStore = defineStore("panes", () => {
       if (pane == "V" || pane == "H" || typeof pane == "string") {
         return pane;
       }
+      //TODO test for panes refreshing
+      // if (pane.length > 1) {
+      //   if (
+      //     (pane[0] == "V" || pane[0] == "H") &&
+      //     pane[1].find(
+      //       (component) => component == toId && typeof component != "object"
+      //     )
+      //   ) {
+      //     const paneDirection = pane[0];
+      //     const panes = pane[1];
+      //     if (position == "center") {
+      //       return [pane[0], ...pane[1], id];
+      //     }
+      //     if (position == "left" && pane[0] == "V") {
+      //       return [pane[0], [id], ...pane[1]];
+      //     }
+      //     if (position == "right" && pane[0] == "V") {
+      //       return [pane[0], ...pane[1], [id]];
+      //     }
+      //     if (position == "top" && pane[0] == "H") {
+      //       return [pane[0], [id], ...pane[1]];
+      //     }
+      //     if (position == "bottom" && pane[0] == "H") {
+      //       return [pane[0], ...pane[1], [id]];
+      //     }
+      //   }
+      // }
       if (
         pane.find(
           (component) => component == toId && typeof component != "object"
         )
       ) {
+        // const paneDirection = pane[0]
+        // const panes = pane.slice
         if (position == "center") {
           return [...pane, id];
         }

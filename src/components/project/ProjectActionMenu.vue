@@ -8,13 +8,23 @@
         <q-item-section>Delete Project </q-item-section>
       </q-item>
       <!-- v-if="router.currentRoute.name == 'workbench'" -->
-      <q-item dense clickable @click="openProjectDetails">
+      <q-item
+        v-show="route.name == 'workbench'"
+        dense
+        clickable
+        @click="openProjectDetails"
+      >
         <q-item-section avatar>
           <q-icon name="details" />
         </q-item-section>
         <q-item-section>Open Project Details</q-item-section>
       </q-item>
-      <q-item dense clickable @click="openExperiments">
+      <q-item
+        v-show="route.name == 'workbench'"
+        dense
+        clickable
+        @click="openExperiments"
+      >
         <q-item-section avatar>
           <q-icon name="science" />
         </q-item-section>
@@ -33,11 +43,12 @@
 </template>
 
 <script setup>
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import DeleteDialog from "@/components/widgets/DeleteDialog.vue";
 import { useProjectStore } from "@/stores/project";
 import { usePanesStore } from "@/stores/panes";
 import { useExperimentStore } from "@/stores/experiment";
+import { useRoute } from "vue-router";
 
 const props = defineProps(["project"]);
 const emit = defineEmits(["onDeleteProject"]);
@@ -45,6 +56,8 @@ const emit = defineEmits(["onDeleteProject"]);
 const projectStore = useProjectStore();
 const experimentStore = useExperimentStore();
 const panesStore = usePanesStore();
+
+const route = useRoute();
 
 const showDeleteDialog = ref(false);
 
