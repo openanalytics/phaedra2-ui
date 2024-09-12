@@ -84,8 +84,11 @@
         <div class="row oa-section-body">
           <q-tab-panels v-model="activeTab" animated class="full-width">
             <q-tab-panel name="overview" class="q-pa-none">
-              <PlateList :experiment="experimentStore.experiment" :plates="experimentStore.plates"
-                         v-model:newPlateTab="showNewPlateDialog" v-model:newPlateFromMeasurements="showNewPlateFromMeasDialog"/>
+              <PlateList :experiment="experimentStore.experiment"
+                         :plates="experimentStore.plates"
+                         v-model:newPlateTab="showNewPlateDialog"
+                         v-model:newPlateFromMeasurements="showNewPlateFromMeasDialog"
+                         @selection="handlePlateSelection"/>
             </q-tab-panel>
             <q-tab-panel name="statistics" class="q-pa-none">
               <PlateStatsList :experiment="experimentStore.experiment" :plates="experimentStore.plates"/>
@@ -221,5 +224,9 @@ const onAddProperty = async (newProperty) => {
 
 const onRemoveProperty = async (property) => {
   await experimentStore.handleDeleteProperty(property)
+}
+
+const handlePlateSelection = (plates) => {
+  uiStore.selectedPlates = plates
 }
 </script>

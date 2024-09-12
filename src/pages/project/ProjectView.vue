@@ -69,7 +69,8 @@
             <div class="row oa-section-body">
               <ExperimentList :experiments="projectStore.experiments"
                               :project="projectStore.project"
-                              @createNewExperiment="onCreateNewExperiment"/>
+                              @createNewExperiment="onCreateNewExperiment"
+              @selection="handleSelection"/>
             </div>
           </pane>
           <pane class="q-pa-sm" v-if="uiStore.showChartViewer" style="background-color: #E6E6E6" ref="chartViewerPane">
@@ -166,5 +167,9 @@ const onRemoveProperty = async (property) => {
 
 const openDeleteDialog = () => {
     showDeleteDialog.value = true
+}
+
+const handleSelection = (experiments) => {
+  uiStore.selectedExperiments = experiments
 }
 </script>

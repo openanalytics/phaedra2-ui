@@ -6,7 +6,7 @@
                     @row-dblclick="gotoExperimentView"
                     @row-contextmenu="experimentContextMenu"
                     selection="multiple"
-                    v-model:selected="uiStore.selectedExperiments">
+                    v-model:selected="selectedExperiments">
       <template v-slot:top-left>
         <div class="row action-button on-left">
           <q-btn size="sm" icon="add" class="oa-button" label="New Experiment" @click="showNewExperimentDialog = true"/>
@@ -119,19 +119,14 @@ import FormatUtils from "@/lib/FormatUtils.js"
 import FilterUtils from "@/lib/FilterUtils";
 import {useExportTableData} from "@/composable/exportTableData";
 import {useRouter} from "vue-router";
-import {useUIStore} from "@/stores/ui";
 import OaTable from "@/components/table/OaTable.vue";
 
 const props = defineProps({
   experiments: [Object],
   project: Object
 })
-const emits = defineEmits(['createNewExperiment'])
-
+const emits = defineEmits(['createNewExperiment', 'selection'])
 const router = useRouter()
-const uiStore = useUIStore()
-
-const loading = ref()
 
 const columns = ref([
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true, description: 'The experiment id'},
@@ -156,28 +151,12 @@ const filterMethod = FilterUtils.defaultFilterMethod();
 const selectedExperiment = ref({})
 const showExperimentContextMenu = ref(false)
 const experimentContextMenu = (event, row) => {
-  // selectExperiment(event, row)
   showExperimentContextMenu.value = true;
 }
 
 const gotoExperimentView = (event, row) => {
   selectedExperiment.value = row;
   router.push({name: "experiment", params: { experimentId: row.id }});
-}
-
-const isSelected = (row) => uiStore.selectedExperiments.includes(row)
-const updateSelectedExperiments = (condition, row) => condition ? uiStore.selectedExperiments.filter(experiment => experiment.id !== row.id) : [row]
-const selectExperiment = (event, row) => {
-  selectedExperiment.value = row
-  if (event && (event.ctrlKey || event.metaKey)) {
-    if (isSelected(row)) {
-      uiStore.selectedExperiments = updateSelectedExperiments(true, row)
-    } else {
-      uiStore.selectedExperiments.push(row)
-    }
-  } else {
-    uiStore.selectedExperiments = updateSelectedExperiments(isSelected(row), row)
-  }
 }
 
 const showNewExperimentDialog = ref(false)
@@ -193,11 +172,32 @@ const doCreateNewExperiment = () => {
   emits('createNewExperiment', newExperiment)
 }
 
+const loading = ref()
 const visibleColumns = ref([])
 watch(experiments, () => {
   visibleColumns.value = [...columns.value.map(a => a.name)];
   loading.value = false
 })
+
+const selectedExperiments = ref()
+watch(selectedExperiments, () => {
+  emits('selection', selectedExperiments.value)
+})
+
+const isSelected = (row) => selectedExperiments.value?.includes(row) ?? false
+const updateSelectedExperiments = (condition, row) => condition ? selectedExperiments.value.filter(experiment => experiment.id !== row.id) : [row]
+const selectExperiment = (event, row) => {
+  selectedExperiment.value = row
+  if (event && (event.ctrlKey || event.metaKey)) {
+    if (isSelected(row)) {
+      selectedExperiments.value = updateSelectedExperiments(true, row)
+    } else {
+      selectedExperiments.value.push(row)
+    }
+  } else {
+    selectedExperiments.value = updateSelectedExperiments(isSelected(row), row)
+  }
+}
 
 const showConfigDialog = ref(false)
 

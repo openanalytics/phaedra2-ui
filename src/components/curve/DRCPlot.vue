@@ -114,7 +114,6 @@ const updateDRCPlotView = () => {
 }
 
 const restylePlot = (wells) => {
-  //TODO: add selected wells as parameter
   console.log("DRCPlot.vue restylePlot function!!")
   selectedWells.value = wells
   const wellIds = selectedWells.value.map(well => well.id)
