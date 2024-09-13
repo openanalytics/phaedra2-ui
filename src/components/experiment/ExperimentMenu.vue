@@ -97,31 +97,24 @@
 </template>
 
 <script setup>
-import DeleteDialog from "@/components/widgets/DeleteDialog";
-import { usePanesStore } from "@/stores/panes";
-import { useExperimentStore } from "@/stores/experiment";
-const panesStore = usePanesStore();
-const experimentStore = useExperimentStore();
-import { useProjectStore } from "@/stores/project";
 import { computed, ref } from "vue";
-import LinkPlateLayoutDialog from "@/components/plate/LinkPlateLayoutDialog";
-import {useProjectStore} from "@/stores/project";
-import {computed, ref} from "vue";
-import LinkPlateLayoutDialog from "@/components/plate/LinkPlateLayoutDialog";
-import MenuItem from "@/components/widgets/MenuItem.vue";
-import projectsGraphQlAPI from "@/api/graphql/projects";
-import CalculatePlateDialog from "@/components/plate/CalculatePlateDialog";
-import { useUIStore } from "@/stores/ui";
 import { useRoute } from "vue-router";
 import { useNotification } from "@/composable/notification";
-import ExportPlateListDialog from "@/components/plate/ExportPlateListDialog";
-import ExportWellDataDialog from "@/components/plate/ExportWellDataDialog";
+
+import { usePanesStore } from "@/stores/panes";
+import { useProjectStore } from "@/stores/project";
+import { useUIStore } from "@/stores/ui";
+
+import projectsGraphQlAPI from "@/api/graphql/projects";
+
+import DeleteDialog from "@/components/widgets/DeleteDialog";
+import LinkPlateLayoutDialog from "@/components/plate/LinkPlateLayoutDialog";
+import MenuItem from "@/components/widgets/MenuItem.vue";
 import CalculatePlateDialog from "@/components/plate/CalculatePlateDialog";
-import {useUIStore} from "@/stores/ui";
-import {useRoute} from "vue-router";
-import {useNotification} from "@/composable/notification";
 import ExportPlateListDialog from "@/components/plate/ExportPlateListDialog";
 import ExportWellDataDialog from "@/components/plate/ExportWellDataDialog";
+
+const panesStore = usePanesStore();
 
 const props = defineProps(['experiment'])
 const projectStore = useProjectStore()

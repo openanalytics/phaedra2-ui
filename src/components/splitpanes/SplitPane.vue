@@ -67,8 +67,8 @@
             :is="component.component"
             :key="id"
             v-bind="{ ...component.props }"
-            @selected="
-              (e) => (component.selected ? component.selected(e) : null)
+            @selection="
+              (e) => (component.selection ? component.selection(e) : null)
             "
           />
 

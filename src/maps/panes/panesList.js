@@ -48,7 +48,7 @@ export function usePanesList() {
       title: "Browse projects",
       icon: "folder_open",
       closable: true,
-      selected: (e) => (selectionStore.selectedProjects = e),
+      selection: (e) => (selectionStore.selectedProjects = e),
     },
     {
       component: ProjectDetails,
@@ -70,7 +70,7 @@ export function usePanesList() {
         experiments: selectionStore.experiments,
         projects: selectionStore.selectedProjects,
       },
-      selected: (e) => (selectionStore.selectedExperiments = e),
+      selection: (e) => (selectionStore.selectedExperiments = e),
     },
     {
       component: PlateList,
@@ -81,7 +81,7 @@ export function usePanesList() {
       props: {
         plates: selectionStore.plates,
       },
-      selected: (e) => (selectionStore.selectedPanes = e),
+      selection: (e) => (selectionStore.selectedPanes = e),
     },
     {
       component: WellList,
@@ -93,7 +93,7 @@ export function usePanesList() {
         plate: selectionStore.plates ? selectionStore.plates[0] : [],
         wells: selectionStore.wells,
       },
-      selected: (e) => (selectionStore.selectedWells = e),
+      selection: (e) => (selectionStore.selectedWells = e),
     },
   ]);
 

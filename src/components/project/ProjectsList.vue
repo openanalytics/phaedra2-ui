@@ -28,13 +28,13 @@
 import { onMounted, ref, watch } from "vue";
 import FormatUtils from "@/lib/FormatUtils.js";
 import projectsGraphQlAPI from "@/api/graphql/projects";
+import projectAPI from "@/api/projects";
 
 import OaTable from "@/components/table/OaTable.vue";
 import ProjectActionMenu from "@/components/project/ProjectActionMenu";
 import { useRouter } from "vue-router";
-import { useSelectionStore } from "@/stores/selection";
 
-const emits = defineEmits("selected");
+const emits = defineEmits("selection");
 
 const loading = ref(true);
 const projects = ref([]);
@@ -83,6 +83,11 @@ const fetchAllProjects = () => {
   //TODO: implement onError event!
 };
 
+const handleDeleteProject = async (project) => {
+  await projectAPI.deleteProject(project.id)
+  fetchAllProjects()
+}
+
 const router = useRouter();
 const gotoProjectView = (event, row) => {
   router.push({ name: "project", params: { id: row.id } });
@@ -99,6 +104,6 @@ watch(projects, () => {
 
 watch(selectedProjects, (newVal, oldVal) => {
   // const projectsId = newVal.map((item) => item.id);
-  emits("selected", newVal);
+  emits("selection", newVal);
 });
 </script>

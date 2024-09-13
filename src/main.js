@@ -89,7 +89,7 @@ import BrowseImageRenderConfigs from "@/pages/datacapture/BrowseImageRenderConfi
 import ImageRenderConfigDetails from "@/pages/datacapture/ImageRenderConfigDetails.vue"
 
 import ExperimentView from "@/pages/experiment/ExperimentView.vue";
-import PlateList from "@/pages/experiment/PlateList.vue";
+import PlateList from "@/components/plate/PlateList.vue";
 import PlateStatsList from "@/pages/experiment/PlateStatsList.vue";
 import PlateGrid from "@/pages/experiment/PlateGrid.vue";
 

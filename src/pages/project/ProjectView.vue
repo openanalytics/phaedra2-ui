@@ -67,19 +67,18 @@
 </style>
 
 <script setup>
-import { onBeforeMount, onMounted, ref } from "vue";
-import {useRoute, useRouter} from 'vue-router'
+import {onBeforeMount, onMounted, ref} from "vue";
+import {useRoute} from "vue-router";
 
 import ExperimentList from "@/components/experiment/ExperimentList.vue";
 import OaSection from "@/components/widgets/OaSection";
 
-import { useProjectStore } from "@/stores/project";
-import { Pane, Splitpanes } from "splitpanes";
+import {useProjectStore} from "@/stores/project";
+import {Pane, Splitpanes} from "splitpanes";
 import ChartViewer from "@/components/chart/ChartViewer.vue";
-import { useUIStore } from "@/stores/ui";
-import { useExperimentStore } from "@/stores/experiment";
+import {useUIStore} from "@/stores/ui";
+import {useExperimentStore} from "@/stores/experiment";
 import ProjectDetails from "@/components/project/ProjectDetails.vue";
-import { useRoute } from "vue-router";
 
 const uiStore = useUIStore();
 const projectStore = useProjectStore();

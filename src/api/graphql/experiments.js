@@ -93,7 +93,7 @@ export default {
   experimentsByProjectIds(projectIds) {
     const query = `
             query experimentsByProjectIds($projectIds: [ID]) {
-                experiment:getExperimentsByProjectIds(projectIds: $projectIds) {
+                experiments:getExperimentsByProjectIds(projectIds: $projectIds) {
                     id
                     name
                     description
