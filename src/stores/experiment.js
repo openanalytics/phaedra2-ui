@@ -1,170 +1,207 @@
-import { defineStore } from "pinia";
-import projectsGraphQlAPI from "@/api/graphql/projects";
-import experimentAPI from "@/api/experiments.js";
+import {defineStore} from "pinia";
+import projectsGraphQlAPI from "@/api/graphql/projects"
+import experimentAPI from '@/api/experiments.js'
 import plateAPI from "@/api/plates";
-import metadataAPI from "@/api/metadata";
+import {computed, ref, watch} from "vue";
+import {useProjectStore} from "@/stores/project";
+import {addTag, deleteTag, addProperty, deleteProperty} from "@/lib/MetadataUtils";
 
-export const useExperimentStore = defineStore("experiment", {
-  state: () => ({
-    experiment: {},
-  }),
-  getters: {
-    isOpen: (state) => {
-      return state.experiment.status === "OPEN";
-    },
-    isClosed: (state) => {
-      return state.experiment.status === "CLOSED";
-    },
-    // getPlateByPlateId: (state, plateId) => {
-    //     return state.experiment.plates.find(p => p.id === plateId) ?? {}
-    // },
-    plates: (state) => state.experiment.plates ?? [],
-  },
-  actions: {
-    loadExperiment(experimentId) {
-      if (experimentId) {
-        const { onResult, onError } =
-          projectsGraphQlAPI.experimentById(experimentId);
-        onResult(({ data }) => {
-          this.experiment = { ...data.experiment, plates: data.plates };
-        });
+export const useExperimentStore = defineStore("experiment", () => {
+  const projectStore = useProjectStore()
 
-        onError((error) => {
-          console.error(error);
-        });
-      }
-    },
-    isLoaded(experimentId) {
-      return this.experiment.id === `${experimentId}`;
-    },
-    async renameExperiment(newName) {
-      await experimentAPI.editExperiment({
-        id: this.experiment.id,
-        name: newName,
-      });
-      this.loadExperiment(this.experiment.id);
-    },
-    async editExperimentDescription(newDescription) {
-      await experimentAPI.editExperiment({
-        id: this.experiment.id,
-        description: newDescription,
-      });
-      this.loadExperiment(this.experiment.id);
-    },
-    async openExperiment() {
-      await experimentAPI.editExperiment({
-        id: this.experiment.id,
-        status: "OPEN",
-      });
-      this.loadExperiment(this.experiment.id);
-    },
-    async closeExperiment() {
-      await experimentAPI.editExperiment({
-        id: this.experiment.id,
-        status: "CLOSED",
-      });
-      this.loadExperiment(this.experiment.id);
-    },
-    async deleteExperiment() {
-      await experimentAPI.deleteExperiment(this.experiment.id);
-      this.reset();
-    },
-    async addPlate(plate) {
-      plate["experimentId"] = this.experiment.id;
-      await plateAPI.addPlate(plate);
-      this.loadExperiment(this.experiment.id);
-    },
-    async addPlates(plates) {
-      await Promise.all(plates.map((plate) => plateAPI.addPlate(plate)));
-      this.loadExperiment(this.experiment.id);
-    },
-    async setPlateLayout(plates, templateId) {
-      await plateAPI.setPlateLayout(plates, templateId);
-      this.loadExperiment(this.experiment?.id);
-    },
-    async validatePlates(plates) {
-      const plateIds = plates.map((plate) => plate.id);
-      await plateAPI.validatePlates(plateIds);
-      this.loadExperiment(this.experiment.id);
-    },
-    async invalidatePlates(plates, reason) {
-      const plateIds = plates.map((plate) => plate.id);
-      await plateAPI.invalidatePlates(plateIds, reason);
-      this.loadExperiment(this.experiment.id);
-    },
-    async approvePlates(plates) {
-      const plateIds = plates.map((plate) => plate.id);
-      await plateAPI.approvePlates(plateIds);
-      this.loadExperiment(this.experiment.id);
-    },
-    async disapprovePlates(plates, reason) {
-      const plateIds = plates.map((plate) => plate.id);
-      await plateAPI.disapprovePlates(plateIds, reason);
-      this.loadExperiment(this.experiment.id);
-    },
-    async resetPlateValidations(plates) {
-      const plateIds = plates.map((plate) => plate.id);
-      await plateAPI.resetPlateValidations(plateIds);
-      this.loadExperiment(this.experiment.id);
-    },
-    async deletePlate(plateId) {
-      await plateAPI.deletePlateById(plateId);
-      this.loadExperiment(this.experiment.id);
-    },
-    async deletePlates(plates) {
-      const plateIds = plates.map((plate) => plate.id);
-      await plateAPI.deletePlates(plateIds);
-      this.loadExperiment(this.experiment.id);
-    },
-    async clonePlates(plates) {
-      await plateAPI.clonePlates(plates);
-      this.loadExperiment(this.experiment.id);
-    },
-    async movePlates(plates, experimentId) {
-      await plateAPI.movePlates(plates, experimentId);
-      this.loadExperiment(this.experiment.id);
-    },
-    async linkMeasurement(plates, measurementId) {
-      const plateIds = plates.map((plate) => plate.id);
-      await plateAPI.linkMeasurement(plateIds, measurementId);
-      this.loadExperiment(this.experiment.id);
-    },
-    async addTag(newTag) {
-      await metadataAPI.addTag({
-        objectId: this.experiment.id,
-        objectClass: "EXPERIMENT",
-        tag: newTag,
-      });
-      this.loadExperiment(this.experiment.id);
-    },
-    async deleteTag(tag) {
-      await metadataAPI.removeTag({
-        objectId: this.experiment.id,
-        objectClass: "EXPERIMENT",
-        tag: tag,
-      });
-      this.loadExperiment(this.experiment.id);
-    },
-    async addPropertty({ name, value }) {
-      const newProperty = {
-        objectId: this.experiment.id,
-        objectClass: "EXPERIMENT",
-        propertyName: name,
-        propertyValue: value,
-      };
-      await metadataAPI.addProperty(newProperty);
-      this.loadExperiment(this.experiment.id);
-    },
-    async deleteProperty(property) {
-      await metadataAPI.removeProperty({
-        objectId: this.experiment.id,
-        objectClass: "EXPERIMENT",
-        propertyName: property.propertyName,
-      });
-      this.loadExperiment(this.experiment.id);
-    },
-    reset() {
-      this.experiment = {};
-    },
-  },
-});
+  const experiment = ref({})
+  const plates = ref([])
+
+  const isMetadataUpdate = ref(false)
+
+  const isOpen = computed(() => experiment.value.status === 'OPEN')
+  const isClosed = computed(() => experiment.value.status === 'CLOSED')
+
+  async function loadExperiment(experimentId) {
+    if (experimentId) {
+      const {onResult, onError} = projectsGraphQlAPI.experimentById(
+          experimentId)
+      onResult(({data}) => {
+        experiment.value = data.experiment
+        plates.value = data.plates
+      })
+
+      onError((error) => {
+        console.error(error)
+      })
+    }
+  }
+
+  async function reloadExperiment() {
+    await loadExperiment(experiment.value.id)
+  }
+
+  function isLoaded(experimentId) {
+    return experiment.value.id === `${experimentId}`
+  }
+
+  async function renameExperiment(newName) {
+    await experimentAPI.editExperiment({id: experiment.value.id, name: newName})
+    await reloadExperiment()
+  }
+
+  async function editExperimentDescription(newDescription) {
+    await experimentAPI.editExperiment(
+        {id: experiment.value.id, description: newDescription})
+    await reloadExperiment()
+  }
+
+  async function openExperiment() {
+    await experimentAPI.editExperiment(
+        {id: experiment.value.id, status: 'OPEN'})
+    await reloadExperiment()
+  }
+
+  async function closeExperiment() {
+    await experimentAPI.editExperiment(
+        {id: experiment.value.id, status: 'CLOSED'})
+    await reloadExperiment()
+  }
+
+  async function deleteExperiment() {
+    await experimentAPI.deleteExperiment(experiment.value.id);
+    reset()
+  }
+
+  async function addPlate(plate) {
+    plate['experimentId'] = experiment.value.id
+    await plateAPI.addPlate(plate)
+    await reloadExperiment()
+  }
+
+  async function addPlates(plates) {
+    await Promise.all(plates.map(plate => plateAPI.addPlate(plate)));
+    await reloadExperiment()
+  }
+
+  async function setPlateLayout(plates, templateId) {
+    await plateAPI.setPlateLayout(plates, templateId)
+    await reloadExperiment()
+  }
+
+  async function validatePlates(plates) {
+    const plateIds = plates.map(plate => plate.id)
+    await plateAPI.validatePlates(plateIds)
+    await reloadExperiment()
+  }
+
+  async function invalidatePlates(plates, reason) {
+    const plateIds = plates.map(plate => plate.id)
+    await plateAPI.invalidatePlates(plateIds, reason)
+    await reloadExperiment()
+  }
+
+  async function approvePlates(plates) {
+    const plateIds = plates.map(plate => plate.id)
+    await plateAPI.approvePlates(plateIds)
+    await reloadExperiment()
+  }
+
+  async function disapprovePlates(plates, reason) {
+    const plateIds = plates.map(plate => plate.id)
+    await plateAPI.disapprovePlates(plateIds, reason)
+    await reloadExperiment()
+  }
+
+  async function resetPlateValidations(plates) {
+    const plateIds = plates.map(plate => plate.id)
+    await plateAPI.resetPlateValidations(plateIds)
+    await reloadExperiment()
+  }
+
+  async function deletePlate(plateId) {
+    await plateAPI.deletePlateById(plateId)
+    await reloadExperiment()
+  }
+
+  async function deletePlates(plates) {
+    const plateIds = plates.map(plate => plate.id)
+    await plateAPI.deletePlates(plateIds)
+    await reloadExperiment()
+  }
+
+  async function clonePlates(plates) {
+    await plateAPI.clonePlates(plates)
+    await reloadExperiment()
+  }
+
+  async function movePlates(plates, experimentId) {
+    await plateAPI.movePlates(plates, experimentId)
+    await reloadExperiment()
+  }
+
+  async function linkMeasurement(plates, measurementId) {
+    const plateIds = plates.map(plate => plate.id)
+    await plateAPI.linkMeasurement(plateIds, measurementId)
+    await reloadExperiment()
+  }
+
+  async function handleAddTag(newTag) {
+    isMetadataUpdate.value = true
+    await addTag(experiment.value.id, 'EXPERIMENT', newTag, reloadExperiment)
+  }
+
+  async function handleDeleteTag(tag) {
+    isMetadataUpdate.value = true
+    await deleteTag(experiment.value.id, 'EXPERIMENT', tag, reloadExperiment)
+  }
+
+  async function handleAddProperty(newProperty) {
+    isMetadataUpdate.value = true
+    await addProperty(experiment.value.id, 'EXPERIMENT', newProperty, reloadExperiment)
+  }
+
+  async function handleDeleteProperty(property) {
+    isMetadataUpdate.value = true
+    await deleteProperty(experiment.value.id, 'EXPERIMENT', property, reloadExperiment)
+  }
+
+  function reset() {
+    experiment.value = {}
+  }
+
+  watch(experiment, () => {
+    if (!isMetadataUpdate.value) {
+      projectStore.loadProject(experiment.value.projectId)
+    }
+    isMetadataUpdate.value = false
+  })
+
+  return {
+    experiment,
+    isOpen,
+    isClosed,
+    plates,
+    loadExperiment,
+    isLoaded,
+    renameExperiment,
+    editExperimentDescription,
+    openExperiment,
+    closeExperiment,
+    deleteExperiment,
+    addPlate,
+    addPlates,
+    setPlateLayout,
+    validatePlates,
+    invalidatePlates,
+    approvePlates,
+    disapprovePlates,
+    resetPlateValidations,
+    deletePlate,
+    deletePlates,
+    clonePlates,
+    movePlates,
+    linkMeasurement,
+    handleAddTag,
+    handleDeleteTag,
+    handleAddProperty,
+    handleDeleteProperty,
+    reset
+  }
+})
+

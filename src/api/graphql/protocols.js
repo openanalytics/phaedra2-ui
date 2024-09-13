@@ -2,11 +2,16 @@ import {provideApolloClient, useQuery} from '@vue/apollo-composable'
 import gql from 'graphql-tag'
 import {apolloProtocolsClient} from "@/graphql/apollo.clients";
 
-const defaultOptions = { fetchPolicy: 'no-cache', errorPolicy: 'ignore'}
+const defaultOptions = {fetchPolicy: 'no-cache', errorPolicy: 'ignore'}
+
+const executeQuery = (query, variables) => {
+  return provideApolloClient(apolloProtocolsClient)(
+      () => useQuery(gql`${query}`, variables, defaultOptions));
+}
 
 export default {
-    protocols() {
-        const QUERY = gql`
+  protocols() {
+    const query = `
             query getProtocols {
                 protocols:getProtocols {
                     id
@@ -18,11 +23,10 @@ export default {
                 }
             }
         `
-        return provideApolloClient(apolloProtocolsClient)(() => useQuery(QUERY,
-            null, defaultOptions))
-    },
-    protocolById(protocolId) {
-        const QUERY = gql`
+    return executeQuery(query, {});
+  },
+  protocolById(protocolId) {
+    const query = `
             query getProtocolById {
                 protocol:getProtocolById(protocolId: ${protocolId}) {
                     id
@@ -70,11 +74,10 @@ export default {
                 }
             }
         `
-        return provideApolloClient(apolloProtocolsClient)(() => useQuery(QUERY,
-            null, defaultOptions))
-    },
-    featureById(featureId) {
-        const QUERY = gql`
+    return executeQuery(query, {protocolId});
+  },
+  featureById(featureId) {
+    const query = `
             query getProtocolById($featureId: ID) {
                 feature:getFeatureById(featureId: $featureId) {
                     id
@@ -109,13 +112,10 @@ export default {
                 }
             }
         `
-        const variables = {'featureId': featureId}
-        return provideApolloClient(apolloProtocolsClient)(() => useQuery(QUERY,
-            variables,
-            defaultOptions))
-    },
-    featuresByProtocolId(protocolId) {
-        const QUERY = gql`
+    return executeQuery(query, {featureId});
+  },
+  featuresByProtocolId(protocolId) {
+    const query = `
             query getFeaturesByProtocolId($protocolId: ID) {
                 features:getFeaturesByProtocolId(protocolId: $protocolId) {
                     id
@@ -127,9 +127,6 @@ export default {
                 }
             }
         `
-        const variables = {'protocolId': protocolId}
-        return provideApolloClient(apolloProtocolsClient)(() => useQuery(QUERY,
-            variables,
-            defaultOptions))
-    }
+    return executeQuery(query, {protocolId});
+  }
 }

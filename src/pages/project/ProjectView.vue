@@ -30,14 +30,18 @@
       >
         <div class="row oa-section-body">
           <oa-section title="Experiments" icon="science">
-            <ExperimentList
-              @createNewExperiment="onCreateNewExperiment"
-              :experiments="projectStore.experiments"
-              :projects="[projectStore.project]"
-              @selected="(newVal) => (uiStore.selectedExperiments = newVal)"
-            />
+<!--            <ExperimentList-->
+<!--              @createNewExperiment="onCreateNewExperiment"-->
+<!--              :experiments="projectStore.experiments"-->
+<!--              :projects="[projectStore.project]"-->
+<!--              @selected="(newVal) => (uiStore.selectedExperiments = newVal)"-->
+<!--            />-->
+            <ExperimentList :experiments="projectStore.experiments"
+                            :project="projectStore.project"
+                            @createNewExperiment="onCreateNewExperiment"
+                            @selection="handleSelection"/>
           </oa-section>
-        </div>
+            </div>
       </pane>
       <pane
         class="q-pa-sm"
@@ -51,7 +55,9 @@
         />
       </pane>
     </splitpanes>
-  </q-page>
+        <rename-dialog v-model:show="showRenameDialog" objectClass="project" :object="projectStore.project" @valueChanged="onNameChanged" />
+        <delete-dialog v-model:show="showDeleteDialog" :id="projectStore.project?.id" :name="projectStore.project?.name" :objectClass="'project'" @onDeleted="onDeleted" />
+    </q-page>
 </template>
 
 <style scoped lang="scss">
@@ -62,6 +68,7 @@
 
 <script setup>
 import { onBeforeMount, onMounted, ref } from "vue";
+import {useRoute, useRouter} from 'vue-router'
 
 import ExperimentList from "@/components/experiment/ExperimentList.vue";
 import OaSection from "@/components/widgets/OaSection";
@@ -90,6 +97,43 @@ onMounted(() => {
 });
 
 const onCreateNewExperiment = async (newExperiment) => {
-  await projectStore.addExperiment(newExperiment);
-};
+  await projectStore.addExperiment(newExperiment)
+}
+
+const onDeleted = async () => {
+  await projectStore.deleteProject()
+  await router.push({name: 'browseProjects'})
+}
+
+const onAddAccess = async (newAccess) => {
+  await projectStore.createProjectAccess(newAccess)
+}
+
+const onRemoveAccess = async (access) => {
+  await projectStore.deleteProjectAccess(access)
+}
+
+const onAddTag = async (newTag) => {
+  await projectStore.handleAddTag(newTag)
+}
+
+const onRemoveTag = async (tag) => {
+  await projectStore.handleDeleteTag(tag)
+}
+
+const onAddProperty = async (newProperty) => {
+  await projectStore.handleAddProperty(newProperty)
+}
+
+const onRemoveProperty = async (property) => {
+  await projectStore.handleDeleteProperty(property)
+}
+
+const openDeleteDialog = () => {
+    showDeleteDialog.value = true
+}
+
+const handleSelection = (experiments) => {
+  uiStore.selectedExperiments = experiments
+}
 </script>

@@ -78,15 +78,15 @@ import ImportProtocolView from "@/pages/protocol/ImportProtocolView.vue";
 import BrowseFormulas from "@/pages/calculation/formula/BrowseFormulas.vue";
 import FormulaView from "@/pages/calculation/formula/FormulaView.vue";
 
-import BrowseCaptureJobs from "@/pages/datacapture/BrowseCaptureJobs.vue";
-import BrowseCaptureScripts from "@/pages/datacapture/BrowseCaptureScripts.vue";
-import CaptureScriptView from "@/pages/datacapture/CaptureScriptView.vue";
-import BrowseCaptureConfigs from "@/pages/datacapture/BrowseCaptureConfigs.vue";
-import CaptureConfigView from "@/pages/datacapture/CaptureConfigView.vue";
-import BrowseMeasurements from "@/pages/datacapture/BrowseMeasurements.vue";
-import MeasurementDetailsView from "@/pages/datacapture/MeasurementDetailsView.vue";
-import BrowseImageRenderConfigs from "@/pages/datacapture/BrowseImageRenderConfigs.vue";
-import ImageRenderConfigDetails from "@/pages/datacapture/ImageRenderConfigDetails.vue";
+import BrowseCaptureJobs from '@/pages/datacapture/BrowseCaptureJobs.vue'
+import BrowseCaptureScripts from '@/pages/datacapture/BrowseCaptureScripts.vue'
+import CaptureScriptView from '@/pages/datacapture/CaptureScriptView.vue'
+import BrowseCaptureConfigs from '@/pages/datacapture/BrowseCaptureConfigs.vue'
+import CaptureConfigView from '@/pages/datacapture/CaptureConfigView.vue'
+import BrowseMeasurements from "@/pages/datacapture/BrowseMeasurements.vue"
+import MeasurementDetailsView from "@/pages/datacapture/MeasurementDetailsView.vue"
+import BrowseImageRenderConfigs from "@/pages/datacapture/BrowseImageRenderConfigs.vue"
+import ImageRenderConfigDetails from "@/pages/datacapture/ImageRenderConfigDetails.vue"
 
 import ExperimentView from "@/pages/experiment/ExperimentView.vue";
 import PlateList from "@/pages/experiment/PlateList.vue";
@@ -104,164 +104,105 @@ import NewPlateTemplateView from "@/pages/platelayout/NewPlateTemplateView.vue";
 import ImportPlateTemplateFromFile from "@/pages/platelayout/ImportPlateTemplateFromFile.vue";
 import BrowseTemplates from "@/pages/platelayout/BrowseTemplates.vue";
 
-import BrowsePipelines from "@/pages/pipeline/BrowsePipelines.vue";
-import PipelineDetails from "@/pages/pipeline/PipelineDetails.vue";
-import NewPipeline from "@/pages/pipeline/NewPipeline.vue";
-import BrowsePipelineExecutions from "@/pages/pipeline/BrowsePipelineExecutions.vue";
-import PipelineExecutionDetails from "@/pages/pipeline/PipelineExecutionDetails.vue";
-import PipelineAdmin from "@/pages/pipeline/PipelineAdmin.vue";
+import BrowsePipelines from "@/pages/pipeline/BrowsePipelines.vue"
+import PipelineDetails from "@/pages/pipeline/PipelineDetails.vue"
+import NewPipeline from "@/pages/pipeline/NewPipeline.vue"
+import BrowsePipelineExecutions from "@/pages/pipeline/BrowsePipelineExecutions.vue"
+import PipelineExecutionDetails from "@/pages/pipeline/PipelineExecutionDetails.vue"
+import PipelineAdmin from "@/pages/pipeline/PipelineAdmin.vue"
+import WellView from "@/pages/well/WellView.vue";
 import Workbench from "@/pages/workbench/Workbench.vue";
 import { prepareWorkbench } from "@/composable/router/prepareViews";
 
 const routes = createRouter({
-  history: createWebHistory(publicPath),
-  routes: [
-    { name: "dashboard", path: "/", component: Dashboard },
-    {
-      name: "workbench",
-      path: "/workbench",
-      component: Workbench,
-      beforeEnter: () => {
-        prepareWorkbench();
-      },
-    },
-    { name: "browseProjects", path: "/projects", component: BrowseProjects },
-    { name: "project", path: "/project/:id", component: ProjectView },
-    { name: "newProject", path: "/project/new", component: NewProjectView },
-    {
-      name: "experiment",
-      path: "/experiment/:experimentId",
-      component: ExperimentView,
-      children: [
-        { path: "", component: PlateList, name: "plateList" },
-        { path: "statistics", component: PlateStatsList },
-        { path: "heatmaps", component: PlateGrid },
-      ],
-    },
-    {
-      name: "plate",
-      path: "/plate/:plateId",
-      component: PlateView,
-      children: [
-        { path: "", component: PlateLayout, name: "plateLayout" },
-        { path: "measurements", component: MeasList },
-        { path: "heatmap", component: PlateHeatmap },
-        { path: "wells", component: WellList },
-      ],
-    },
-    { name: "browseProtocols", path: "/protocols", component: BrowseProtocols },
-    { name: "protocol", path: "/protocol/:id", component: ProtocolView },
-    { name: "newProtocol", path: "/protocol/new", component: NewProtocolView },
-    {
-      name: "importProtocol",
-      path: "/protocol/import",
-      component: ImportProtocolView,
-    },
+    history: createWebHistory(publicPath),
+    routes: [
+        {name: "dashboard", path: "/", component: Dashboard},
+        {
+          name: "workbench",
+          path: "/workbench",
+          component: Workbench,
+          beforeEnter: () => {
+            prepareWorkbench();
+          },
+        },
+        {name: 'browseProjects', path: "/projects", component: BrowseProjects},
+        {name: "project", path: "/project/:id", component: ProjectView},
+        {name: "newProject", path: "/project/new", component: NewProjectView},
+        {
+            name: "experiment", path: "/experiment/:experimentId", component: ExperimentView,
+            children: [
+                {path: '', component: PlateList, name: "plateList"},
+                {path: 'statistics', component: PlateStatsList},
+                {path: 'heatmaps', component: PlateGrid}
+            ]
+        },
+        {
+            name: "plate", path: "/plate/:plateId", component: PlateView,
+            children: [
+                {path: '', component: PlateLayout, name: "plateLayout"},
+                {path: 'measurements', component: MeasList},
+                {path: 'heatmap', component: PlateHeatmap},
+                {path: 'wells', component: WellList}
+            ]
+        },
+        {
+            name: "well", path: "/well/:wellId", component: WellView
+        },
+        {name: "browseProtocols", path: "/protocols", component: BrowseProtocols},
+        {name: "protocol", path: "/protocol/:id", component: ProtocolView},
+        {name: "newProtocol", path: "/protocol/new", component: NewProtocolView},
+        {name: "importProtocol", path: "/protocol/import", component: ImportProtocolView},
 
-    { name: "browseTemplates", path: "/templates", component: BrowseTemplates },
-    { name: "template", path: "/template/:id", component: PlateTemplateView },
-    {
-      name: "newPlateTemplate",
-      path: "/template/new",
-      component: NewPlateTemplateView,
-      props: true,
-    },
-    {
-      name: "newPlateTemplateFromFile",
-      path: "/template/new",
-      component: ImportPlateTemplateFromFile,
-    },
+        {name: "browseTemplates", path: "/templates", component: BrowseTemplates},
+        {name: "template", path: "/template/:id", component: PlateTemplateView},
+        {name: "newPlateTemplate", path: "/template/new", component: NewPlateTemplateView, props: true},
+        {name: "newPlateTemplateFromFile", path: "/template/new", component: ImportPlateTemplateFromFile},
 
-    { name: "calcFormulas", path: "/calc/formulas", component: BrowseFormulas },
-    { name: "calcFormula", path: "/calc/formula/:id", component: FormulaView },
+        {name: "calcFormulas", path: "/calc/formulas", component: BrowseFormulas},
+        {name: "calcFormula", path: "/calc/formula/:id", component: FormulaView},
 
-    {
-      name: "dataCaptureJobs",
-      path: "/datacapture/jobs",
-      component: BrowseCaptureJobs,
-    },
-    {
-      name: "dataCaptureScripts",
-      path: "/datacapture/scripts",
-      component: BrowseCaptureScripts,
-    },
-    {
-      name: "dataCaptureScript",
-      path: "/datacapture/script/:id",
-      component: CaptureScriptView,
-    },
-    {
-      name: "dataCaptureConfigs",
-      path: "/datacapture/configs",
-      component: BrowseCaptureConfigs,
-    },
-    {
-      name: "dataCaptureConfig",
-      path: "/datacapture/config/:id",
-      component: CaptureConfigView,
-    },
-    {
-      name: "measurements",
-      path: "/datacapture/meas",
-      component: BrowseMeasurements,
-    },
-    {
-      name: "measurementDetails",
-      path: "/datacapture/meas/:id",
-      component: MeasurementDetailsView,
-    },
-    {
-      name: "imageRenderConfigs",
-      path: "/datacapture/render-configs",
-      component: BrowseImageRenderConfigs,
-    },
-    {
-      name: "imageRenderConfigDetails",
-      path: "/datacapture/render-config/:id",
-      component: ImageRenderConfigDetails,
-    },
+        {name: "dataCaptureJobs", path: "/datacapture/jobs", component: BrowseCaptureJobs},
+        {name: "dataCaptureScripts", path: "/datacapture/scripts", component: BrowseCaptureScripts},
+        {name: "dataCaptureScript", path: "/datacapture/script/:id", component: CaptureScriptView},
+        {name: "dataCaptureConfigs", path: "/datacapture/configs", component: BrowseCaptureConfigs},
+        {name: "dataCaptureConfig", path: "/datacapture/config/:id", component: CaptureConfigView},
+        {name: "measurements", path: "/datacapture/meas", component: BrowseMeasurements},
+        {name: "measurementDetails", path: "/datacapture/meas/:id", component: MeasurementDetailsView},
+        {name: "imageRenderConfigs", path: "/datacapture/render-configs", component: BrowseImageRenderConfigs},
+        {
+            name: "imageRenderConfigDetails",
+            path: "/datacapture/render-config/:id",
+            component: ImageRenderConfigDetails
+        },
 
-    { name: "browsePipelines", path: "/pipelines", component: BrowsePipelines },
-    {
-      name: "pipelineDetails",
-      path: "/pipeline/:id",
-      component: PipelineDetails,
-    },
-    { name: "newPipeline", path: "/pipeline/new", component: NewPipeline },
-    {
-      name: "browsePipelineExecutions",
-      path: "/pipeline-executions",
-      component: BrowsePipelineExecutions,
-    },
-    {
-      name: "pipelineExecutionDetails",
-      path: "/pipeline-execution/:id",
-      component: PipelineExecutionDetails,
-    },
-    {
-      name: "pipelineAdmin",
-      path: "/pipeline-admin",
-      component: PipelineAdmin,
-    },
-  ],
-});
-app.use(routes);
+        {name: "browsePipelines", path: "/pipelines", component: BrowsePipelines},
+        {name: "pipelineDetails", path: "/pipeline/:id", component: PipelineDetails},
+        {name: "newPipeline", path: "/pipeline/new", component: NewPipeline},
+        {name: "browsePipelineExecutions", path: "/pipeline-executions", component: BrowsePipelineExecutions},
+        {
+            name: "pipelineExecutionDetails",
+            path: "/pipeline-execution/:id",
+            component: PipelineExecutionDetails
+        },
+        {name: "pipelineAdmin", path: "/pipeline-admin", component: PipelineAdmin},
+    ]
+})
+app.use(routes)
 
 app.mixin({
-  methods: {
-    /**
-     * Modifies the minHeight property of the q-page to take the breadcrumbs into account.
-     * See: https://quasar.dev/layout/page#style-fn
-     */
-    pageStyleFnForBreadcrumbs(offset) {
-      return {
-        minHeight: offset ? `calc(100vh - ${offset}px - 50px)` : "100vh",
-      };
+    methods: {
+        /**
+         * Modifies the minHeight property of the q-page to take the breadcrumbs into account.
+         * See: https://quasar.dev/layout/page#style-fn
+         */
+        pageStyleFnForBreadcrumbs(offset) {
+            return {minHeight: offset ? `calc(100vh - ${offset}px - 50px)` : '100vh'}
+        }
     },
-  },
-  computed: {
-    console: () => console,
-  },
-});
+    computed: {
+        console: () => console
+    }
+})
 
-app.mount("#app");
+app.mount("#app")

@@ -1,9 +1,13 @@
 import {provideApolloClient, useQuery} from '@vue/apollo-composable'
 import gql from 'graphql-tag'
-import {computed} from "vue";
-import { apolloChartsClient } from "@/graphql/apollo.clients";
+import {apolloChartsClient} from "@/graphql/apollo.clients";
 
 const defaultOptions = { fetchPolicy: 'no-cache', errorPolicy: 'ignore'}
+
+const executeQuery = (query, variables) => {
+    return provideApolloClient(apolloChartsClient)(
+        () => useQuery(gql`${query}`, variables, defaultOptions));
+}
 
 export default {
     basicPlot(type, plateId, protocolId, xFeatureId, yFeatureId, groupBy){
@@ -20,7 +24,7 @@ export default {
             return this.histogramPlot(plateId, protocolId, yFeatureId, groupBy)
     },
     scatterPlot(plateId, protocolId, xFeatureId, yFeatureId, groupBy){
-        const QUERY = gql`
+        const query = `
             query scatterPlot($plateId: ID, $protocolId:ID, $xFeatureId: ID, $yFeatureId: ID, $groupBy: String) {
                 scatterPlot(plateId: $plateId, protocolId: $protocolId xFeatureId: $xFeatureId, yFeatureId: $yFeatureId, groupBy: $groupBy) {
                     data{
@@ -38,14 +42,10 @@ export default {
                 }
             }
         `
-        const variables = {'plateId': plateId, 'protocolId': protocolId, 'xFeatureId': xFeatureId, 'yFeatureId': yFeatureId, 'groupBy': groupBy}
-        const query = provideApolloClient(apolloChartsClient)(() => useQuery(QUERY,
-            variables,
-            defaultOptions))
-        return computed(() => query.result.value?.scatterPlot ?? [])
+        return executeQuery(query, {plateId, protocolId, xFeatureId, yFeatureId, groupBy});
     },
     barPlot(plateId, protocolId, featureId, groupBy){
-        const QUERY = gql`
+        const query = `
             query barPlot($plateId: ID, $protocolId: ID, $featureId: ID, $groupBy: String) {
                 barPlot(plateId: $plateId, protocolId: $protocolId, featureId: $featureId, groupBy: $groupBy) {
                     data{
@@ -63,14 +63,10 @@ export default {
                 }
             }
         `
-        const variables = {'plateId': plateId, 'protocolId': protocolId, 'featureId': featureId, 'groupBy': groupBy}
-        const query = provideApolloClient(apolloChartsClient)(() => useQuery(QUERY,
-            variables,
-            defaultOptions))
-        return computed(() => query.result.value?.barPlot ?? [])
+        return executeQuery(query, {plateId, protocolId, featureId, groupBy});
     },
     histogramPlot(plateId, protocolId, featureId, groupBy){
-        const QUERY = gql`
+        const query = `
             query histogramPlot($plateId: ID, $protocolId: ID, $featureId: ID, $groupBy: String) {
                 histogramPlot(plateId: $plateId, protocolId: $protocolId, featureId: $featureId, groupBy: $groupBy) {
                     data{
@@ -86,14 +82,10 @@ export default {
                 }
             }
         `
-        const variables = {'plateId': plateId, 'protocolId': protocolId, 'featureId': featureId, 'groupBy': groupBy}
-        const query = provideApolloClient(apolloChartsClient)(() => useQuery(QUERY,
-            variables,
-            defaultOptions))
-        return computed(() => query.result.value?.histogramPlot ?? [])
+        executeQuery(query, {plateId, protocolId, featureId, groupBy});
     },
     basicBoxPlot(plateId, protocolId, featureId) {
-        const QUERY = gql`
+        const query = `
             query boxPlot($plateId: ID, $protocolId: ID, $featureId: ID) {
                 boxPlot(plateId: $plateId, protocolId: $protocolId, featureId: $featureId) {
                     data{
@@ -109,14 +101,10 @@ export default {
                 }
             }
         `
-        const variables = {'plateId': plateId, 'protocolId': protocolId, 'featureId': featureId}
-        const query = provideApolloClient(apolloChartsClient)(() => useQuery(QUERY,
-            variables,
-            defaultOptions))
-        return computed(() => query.result.value?.boxPlot ?? [])
+        executeQuery(query, {plateId, protocolId, featureId})
     },
     boxPlotWithGrouping(plateId, protocolId, featureId, groupBy) {
-        const QUERY = gql`
+        const query = `
             query boxPlotWithGrouping($plateId: ID, $protocolId: ID, $featureId: ID, $groupBy: String) {
                 boxPlot:boxPlotWithGrouping(plateId: $plateId, protocolId: $protocolId, featureId: $featureId, groupBy: $groupBy) {
                     data{
@@ -132,10 +120,6 @@ export default {
                 }
             }
         `
-        const variables = {'plateId': plateId, 'protocolId': protocolId, 'featureId': featureId, 'groupBy': groupBy}
-        const query = provideApolloClient(apolloChartsClient)(() => useQuery(QUERY,
-            variables,
-            defaultOptions))
-        return computed(() => query.result.value?.boxPlot ?? [])
+        executeQuery(query, {plateId, protocolId, featureId, groupBy})
     }
 }

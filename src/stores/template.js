@@ -1,7 +1,7 @@
 import { defineStore } from "pinia"
 import templateAPI from  "@/api/templates.js"
 import templatesGraphQlAPI from '@/api/graphql/templates'
-import metadataAPI from "@/api/metadata";
+import {addTag, deleteTag, addProperty, deleteProperty} from "@/lib/MetadataUtils";
 
 export const useTemplateStore = defineStore("template", {
     state: () => ({
@@ -51,30 +51,21 @@ export const useTemplateStore = defineStore("template", {
         async updateTemplateWells(wells, property, value) {
             wells.forEach(w => this.updateTemplateWell(w, property, value))
         },
-        async addTag(newTag) {
-            await metadataAPI.addTag({'objectId': this.template.id, 'objectClass': 'PLATE_TEMPLATE', 'tag': newTag})
-            await this.reloadTemplate()
+        async handleAddTag(newTag) {
+            await addTag(this.template.id, 'PLATE_TEMPLATE', newTag, this.reloadTemplate)
+            // await this.reloadTemplate()
         },
-        async deleteTag(tag) {
-            await metadataAPI.removeTag({'objectId': this.template.id, 'objectClass': 'PLATE_TEMPLATE', 'tag': tag })
-            await this.reloadTemplate()
+        async handleDeleteTag(tag) {
+            await deleteTag(this.template.id, 'PLATE_TEMPLATE', tag, this.reloadTemplate)
+            // await this.reloadTemplate()
         },
-        async addPropertty(newProperty) {
-            await metadataAPI.addProperty({
-                objectId: this.template.id,
-                objectClass: 'PLATE_TEMPLATE',
-                propertyName: newProperty.name,
-                propertyValue: newProperty.value
-            })
-            await this.reloadTemplate()
+        async handleAddProperty(newProperty) {
+            await addProperty(this.template.id,'PLATE_TEMPLATE', newProperty, this.reloadTemplate)
+            // await this.reloadTemplate()
         },
-        async deleteProperty(property) {
-            await metadataAPI.removeProperty({
-                objectId: this.template.id,
-                objectClass: 'PLATE_TEMPLATE',
-                propertyName: property.propertyName
-            })
-            await this.reloadTemplate()
+        async handleDeleteProperty(property) {
+            await deleteProperty(this.template.id,'PLATE_TEMPLATE', property, this.reloadTemplate)
+            // await this.reloadTemplate()
         },
         reset() {
             this.template = {}

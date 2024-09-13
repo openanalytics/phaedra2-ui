@@ -37,8 +37,8 @@ import { computed, ref, watch } from "vue";
 import { useStore } from "vuex";
 import { publicPath } from "../vue.config";
 
-import UserInfoButton from "@/components/widgets/UserInfoButton.vue";
-import Navigator from "@/components/navigator/Navigator.vue";
+  import Navigator from "@/components/navigator/Navigator.vue"
+  import UserInfoButton from "@/components/widgets/UserInfoButton.vue"
 
 const store = useStore();
 const drawer = ref(false);

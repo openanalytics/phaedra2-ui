@@ -7,7 +7,8 @@
     <div v-if="plate" style="width: 100%;" class="gridContainer"
         @mousedown="selectionBoxSupport.dragStart"
         @mousemove="selectionBoxSupport.dragMove"
-        @mouseup="selectionBoxSupport.dragEnd">
+        @mouseup="selectionBoxSupport.dragEnd"
+        @dblclick="gotoWellView">
 
       <div><!-- Corner slot --></div>
 
@@ -50,7 +51,7 @@
   <WellActionMenu touch-position context-menu
                   @reject-wells="handleRejectWells"
                   @accept-wells="handleAcceptWells"
-                  @show-dose-response-curve="handleShowDRCView"/>>
+                  @show-dose-response-curve="handleShowDRCView"/>
 </template>
 
 <script setup>
@@ -62,6 +63,7 @@ import SelectionBoxHelper from "@/lib/SelectionBoxHelper.js"
 import {publicPath} from "../../../vue.config";
 import {usePlateStore} from "@/stores/plate";
 import {useNotification} from "@/composable/notification";
+import {useRouter} from "vue-router";
 
 const props = defineProps(['plate', 'wells', 'loading', 'wellColorFunction', 'wellImageFunction', 'wellLabelFunctions'])
 const emit = defineEmits(['wellSelection', 'wellStatusChanged']);
@@ -70,12 +72,8 @@ const plateStore = usePlateStore()
 
 
 
-// const selectedWells = ref(uiStore.selectedWells);
 const plate = computed(() => props.plate)
 const wells = computed(() => props.wells ?? [])
-// const wellHighlights = computed(() => [...Array(props.wells?.length).keys()]
-//     .map(nr => nr + 1)
-//     .map(nr => uiStore.selectedWells?.find(w => nr == WellUtils.getWellNr(w.row, w.column, plate.value?.columns))));
 
 const wellHighlights = ref([])
 onMounted(() => {
@@ -99,6 +97,11 @@ const selectWells = (wells, append) => {
     }
   }
   return selectedWells;
+}
+
+const router = useRouter()
+const gotoWellView = (event, row) => {
+  router.push({name: "well", params: { wellId: uiStore.selectedWells[0].id }});
 }
 
 const wellImages = ref({})
