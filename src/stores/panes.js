@@ -66,6 +66,34 @@ export const usePanesStore = defineStore("panes", () => {
     return array;
   }
 
+  function insertItemIfElementIsOnTheFirstLevel(id, toId, array, position) {
+    if (array.length < 2) {
+      return false;
+    }
+    if (
+      (array[0] == "V" || array[0] == "H") &&
+      array[1].find(
+        (component) => component == toId && typeof component != "object"
+      )
+    ) {
+      if (position == "center") {
+        return [array[0], array[1], id];
+      }
+      if (position == "left" && array[0] == "V") {
+        return [array[0], [id], array[1]];
+      }
+      if (position == "right" && array[0] == "V") {
+        return [array[0], array[1], [id]];
+      }
+      if (position == "top" && array[0] == "H") {
+        return [array[0], [id], array[1]];
+      }
+      if (position == "bottom" && array[0] == "H") {
+        return [array[0], array[1], [id]];
+      }
+    }
+  }
+
   function insertItem(id, toId, array, position) {
     return array.map((pane) => {
       if (pane == "V" || pane == "H" || typeof pane == "string") {
@@ -140,7 +168,18 @@ export const usePanesStore = defineStore("panes", () => {
 
   function addItem(id, toId, position) {
     if (!activePanes.value.includes(id) && id != toId) {
-      dynamicPanes.value = insertItem(id, toId, dynamicPanes.value, position);
+      let checkPanes = insertItemIfElementIsOnTheFirstLevel(
+        id,
+        toId,
+        dynamicPanes.value,
+        position
+      );
+      console.log(checkPanes);
+      if (checkPanes) {
+        dynamicPanes.value = checkPanes;
+      } else {
+        dynamicPanes.value = insertItem(id, toId, dynamicPanes.value, position);
+      }
     }
   }
 
