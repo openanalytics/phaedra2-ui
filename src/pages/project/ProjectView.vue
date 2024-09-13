@@ -30,14 +30,8 @@
       >
         <div class="row oa-section-body">
           <oa-section title="Experiments" icon="science">
-<!--            <ExperimentList-->
-<!--              @createNewExperiment="onCreateNewExperiment"-->
-<!--              :experiments="projectStore.experiments"-->
-<!--              :projects="[projectStore.project]"-->
-<!--              @selected="(newVal) => (uiStore.selectedExperiments = newVal)"-->
-<!--            />-->
             <ExperimentList :experiments="projectStore.experiments"
-                            :project="projectStore.project"
+                            :projects="[projectStore.project]"
                             @createNewExperiment="onCreateNewExperiment"
                             @selection="handleSelection"/>
           </oa-section>

@@ -1,5 +1,5 @@
 <template>
-  <q-menu>
+  <q-menu context-menu>
     <q-list dense>
       <div v-if="isOpen">
         <menu-item icon="playlist_add" label="Set Plate Layout" @click="setPlateLayout"/>
@@ -86,14 +86,14 @@
         v-close-popup
       />
     </q-list>
-
-    <delete-dialog v-if="isOpen" :id="props.experiment.id" :name="props.experiment.name" :objectClass="'experiment'"
-                  v-model:show="showDeleteDialog" @onDeleted="onDeleted"/>
-    <link-plate-layout-dialog v-if="isOpen" v-model:show="showLinkPlateDialog" :plates="plates" @on-link-plate="updateProject"/>
-    <calculate-plate-dialog v-if="isOpen" v-model:show="showCalculatePlateDialog" :plates="plates" />
-    <export-plate-list-dialog v-model:show="showExportPlateListDialog" :experiment="props.experiment"/>
-    <export-well-data-dialog v-model:show="showExportWellDataDialog" :experiment="props.experiment"/>
   </q-menu>
+
+  <delete-dialog v-if="isOpen" :id="experiment.id" :name="experiment.name" :objectClass="'experiment'"
+                 v-model:show="showDeleteDialog" @onDeleted="onDeleted"/>
+  <link-plate-layout-dialog v-if="isOpen" v-model:show="showLinkPlateDialog" :plates="plates" @onLinkPlate="handleSetPlateLayout"/>
+  <calculate-plate-dialog v-if="isOpen" v-model:show="showCalculatePlateDialog" :plates="plates" />
+  <export-plate-list-dialog v-model:show="showExportPlateListDialog" :experiment="experiment"/>
+  <export-well-data-dialog v-model:show="showExportWellDataDialog" :experiment="experiment"/>
 </template>
 
 <script setup>
@@ -123,7 +123,8 @@ const notify = useNotification()
 const route = useRoute();
 const projectId = parseInt(route.params.id)
 
-const isOpen = computed(() => props.experiment.status === 'OPEN' ? true : false )
+const experiment = computed(() => props.experiment)
+const isOpen = computed(() => experiment.value && experiment.value.status === 'OPEN' ? true : false )
 const showDeleteDialog = ref(false);
 const showLinkPlateDialog = ref(false)
 const showCalculatePlateDialog = ref(false)
@@ -137,7 +138,7 @@ const openDeleteDialog = () => {
 };
 
 const getPlates = () => {
-  const {onResult, onError} = projectsGraphQlAPI.experimentById(props.experiment.id)
+  const {onResult, onError} = projectsGraphQlAPI.experimentById(experiment.value.id)
   onResult(({data}) => {
     plates.value = [...data.plates]
   })
@@ -167,19 +168,23 @@ const openExportWellDataDialog = () => {
 }
 
 const handleCloseExperiment = () => {
-  projectStore.closeExperiment(props.experiment.id);
+  projectStore.closeExperiment(experiment.value.id);
 };
 
 const handleOpenExperiment = () => {
-  projectStore.openExperiment(props.experiment.id);
+  projectStore.openExperiment(experiment.value.id);
 };
 
 const onDeleted = () => {
-  projectStore.deleteExperiment(props.experiment.id);
+  projectStore.deleteExperiment(experiment.value.id);
 };
 
-const updateProject = () => {
+const useNotify = useNotification()
+const handleSetPlateLayout = () => {
   projectStore.loadProject(projectId)
+  useNotify.showInfo("The plate layout has been updated! ",
+      () => { showCalculatePlateDialog.value = true },
+      () => { })
 }
 
 const uiStore = useUIStore()
@@ -199,10 +204,10 @@ const exportPlateSubWellData = () => notify.showWarning("Feature is under constr
 
 const handleExperimentSelection = (action, onFailureMessage) => {
   if (!uiStore.isExperimentSelected()) {
-    hideMenu.value = true
+    // hideMenu.value = true
     notify.showWarning(onFailureMessage)
   } else {
-    hideMenu.value = false
+    // hideMenu.value = false
     action();
   }
 }

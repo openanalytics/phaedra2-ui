@@ -86,15 +86,8 @@
       </div>
     </template>
   </oa-table>
-  <PlateActionMenu v-show="showPlateContextMenu" :plate="selectedPlate" touch-position context-menu />
+  <PlateActionMenu :plate="selectedPlate" touch-position />
 </template>
-
-<style scoped>
-.nav-link {
-  color: black;
-  text-decoration: none;
-}
-</style>
 
 <script setup>
 import {computed, onMounted, ref, watch} from "vue";
