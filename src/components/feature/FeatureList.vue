@@ -1,6 +1,11 @@
 <template>
   <oa-section title="Features" icon="functions" :collapsible="true">
-    <oa-table :rows="features" :columns="columns">
+    <oa-table
+      :rows="features"
+      :columns="columns"
+      :pagination="{ rowsPerPage: 10, sortBy: 'name' }"
+      @row-click="(event, row) => showFeatureView(row)"
+    >
       <template v-slot:top-left>
         <div class="col action-button on-left">
           <q-btn icon="add" class="oa-button" label="Add Feature" @click="showNewFeatureView" size="sm" dense/>
@@ -12,8 +17,22 @@
         <q-td :props="props">
           <div class="row items-center cursor-pointer" @click="showFormulaInfo(props.row.formulaId)">
             <q-chip square dense class="q-ma-none">
-              {{ getFormulaName(props.row.formulaId) }}
+              {{ getFormula(props.row.formulaId).name }}
             </q-chip>
+          </div>
+        </q-td>
+      </template>
+      <template v-slot:body-cell-formulaVersion="props">
+        <q-td :props="props">
+          <div class="row items-center cursor-pointer">
+            <q-chip square dense class="q-ma-none">
+              {{ getFormula(props.row.formulaId).versionNumber }}
+            </q-chip>
+            <span v-if="getHigherVersionFormula(props.row.formulaId)" class="on-right">
+              <q-icon name="warning" color="warning" size="xs" @click="updateFeatureFormula(props.row)">
+                <q-tooltip>A newer version is available for this formula: {{ getHigherVersionFormula(props.row.formulaId).versionNumber }}<br/>Click here to update this formula to the latest version.</q-tooltip>
+              </q-icon>
+            </span>
           </div>
         </q-td>
       </template>
@@ -53,6 +72,8 @@
       </q-card-actions>
     </q-card>
   </q-dialog>
+
+  <update-feature-formula-dialog v-model:show="showUpdateFormulaDialog" :feature="featureToUpdateFormula"/>
 </template>
 
 <script setup>
@@ -68,14 +89,16 @@ import EditFeature from "@/components/feature/EditFeature";
 import ViewFeature from "@/components/feature/ViewFeature";
 import NewFeature from "@/components/feature/NewFeature";
 import OaTable from "@/components/table/OaTable.vue";
+import UpdateFeatureFormulaDialog from "../protocol/UpdateFeatureFormulaDialog.vue";
 
 const columns = ref([
-  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
+  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true, style: 'width: 80px;'},
   {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
   {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
   {name: 'format', align: 'left', label: 'Format', field: 'format', sortable: true},
   {name: 'sequence', align: 'left', label: 'Sequence', field: 'sequence', sortable: true},
-  {name: 'formulaId', align: 'left', label: 'Formula', field: 'formula.id', sortable: true},
+  {name: 'formulaId', align: 'left', label: 'Formula', sortable: true},
+  {name: 'formulaVersion', align: 'left', label: 'Formula Version', field: 'formula.version', sortable: true},
   {name: 'menu', align: 'left', field: 'menu', sortable: false}
 ])
 
@@ -92,14 +115,23 @@ const confirmChanges = ref(false)
 
 const features = computed(() => { return protocolStore.getFeatures() })
 
-const getFormulaName = (id) => {
-  const formula = formulasStore.getFormulaById(parseInt(id))
-  return (formula || {}).name;
+const getFormula = (id) => {
+  return formulasStore.getFormulaById(parseInt(id)) || {};
+}
+const getHigherVersionFormula = (id) => {
+  return formulasStore.getHigherVersionFormula(parseInt(id));
 }
 
 const showEditFeatureSection = ref(false)
 const showFeatureDetails = ref(false)
 const showNewFeatureTab = ref(false)
+
+const featureToUpdateFormula = ref(null)
+const showUpdateFormulaDialog = ref(false)
+function updateFeatureFormula(feature) {
+  featureToUpdateFormula.value = feature;
+  showUpdateFormulaDialog.value = true;
+}
 
 const handleAddNewFeature = (feature) => {
   protocolStore.addFeature(feature)
