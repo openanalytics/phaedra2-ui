@@ -10,13 +10,9 @@
 </template>
 
 <script setup>
-import SplitPane from "./SplitPane.vue";
-import PanesDashboard from "./PanesDashboard.vue";
-import { usePanesStore } from "../../stores/panes";
-import { Splitpanes, Pane } from "splitpanes";
-import { useSelectionStore } from "../../stores/selection";
-
-const selectionStore = useSelectionStore();
+import SplitPane from "@/components/splitpanes/SplitPane.vue";
+import PanesDashboard from "@/components/splitpanes/PanesDashboard.vue";
+import { usePanesStore } from "@/stores/panes";
 
 defineProps(["dynamicPanes"]);
 

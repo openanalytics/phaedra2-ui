@@ -80,6 +80,7 @@ export function usePanesList() {
       closable: true,
       props: {
         plates: selectionStore.plates,
+        experiments: selectionStore.selectedExperiments,
       },
       selection: (e) => (selectionStore.selectedPanes = e),
     },

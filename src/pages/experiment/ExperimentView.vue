@@ -1,16 +1,28 @@
 <template>
   <q-breadcrumbs class="oa-breadcrumb" v-if="experimentStore.experiment">
-    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
-    <q-breadcrumbs-el :label="'Projects'" icon="list" :to="'/projects'"/>
-    <q-breadcrumbs-el :label="projectStore.project.name" icon="folder"
-                      :to="{ name: 'project', params: { id: projectStore.project.id } }"/>
-    <q-breadcrumbs-el :label="experimentStore.experiment.name" icon="science"/>
+    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard' }" />
+    <q-breadcrumbs-el :label="'Projects'" icon="list" :to="'/projects'" />
+    <q-breadcrumbs-el
+      :label="projectStore.project.name"
+      icon="folder"
+      :to="{ name: 'project', params: { id: projectStore.project.id } }"
+    />
+    <q-breadcrumbs-el :label="experimentStore.experiment.name" icon="science" />
   </q-breadcrumbs>
 
   <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
     <div class="q-pa-sm">
-      <oa-section v-if="!experimentStore.experiment" title="Loading experiment..." icon="science"/>
-      <oa-section v-else :title="experimentStore.experiment.name" icon="science" :collapsible="true">
+      <oa-section
+        v-if="!experimentStore.experiment"
+        title="Loading experiment..."
+        icon="science"
+      />
+      <oa-section
+        v-else
+        :title="experimentStore.experiment.name"
+        icon="science"
+        :collapsible="true"
+      >
         <div class="row q-pa-md">
           <div class="col-3">
             <q-field label="ID" stack-label dense borderless>
@@ -20,15 +32,23 @@
             </q-field>
             <q-field label="Description" stack-label dense borderless>
               <template v-slot:control>
-                <EditableField :object="experimentStore.experiment" fieldName="description"
-                               @valueChanged="onDescriptionChanged" :read-only="experimentStore.isClosed"/>
+                <EditableField
+                  :object="experimentStore.experiment"
+                  fieldName="description"
+                  @valueChanged="onDescriptionChanged"
+                  :read-only="experimentStore.isClosed"
+                />
               </template>
             </q-field>
             <q-field label="Tags" stack-label dense borderless>
               <template v-slot:control>
-                <tag-list :tags="experimentStore.experiment.tags" :read-only="experimentStore.isClosed"
-                          @addTag="onAddTag" @removeTag="onRemoveTag"
-                          class="q-pt-xs"/>
+                <tag-list
+                  :tags="experimentStore.experiment.tags"
+                  :read-only="experimentStore.isClosed"
+                  @addTag="onAddTag"
+                  @removeTag="onRemoveTag"
+                  class="q-pt-xs"
+                />
               </template>
             </q-field>
           </div>
@@ -36,20 +56,27 @@
           <div class="col-3">
             <q-field label="Created On" stack-label dense borderless>
               <template v-slot:control>
-                {{ FormatUtils.formatDate(experimentStore.experiment.createdOn) }}
+                {{
+                  FormatUtils.formatDate(experimentStore.experiment.createdOn)
+                }}
               </template>
             </q-field>
             <q-field label="Created By" stack-label dense borderless>
               <template v-slot:control>
-                <UserChip :id="experimentStore.experiment.createdBy"/>
+                <UserChip :id="experimentStore.experiment.createdBy" />
               </template>
             </q-field>
           </div>
 
           <div class="col-4">
-            <PropertyTable :objectInfo="experimentStore.experiment" :objectClass="'EXPERIMENT'"
-                           :properties="experimentStore.experiment.properties" :read-only="experimentStore.isClosed"
-                           @addProperty="onAddProperty" @removeProperty="onRemoveProperty"/>
+            <PropertyTable
+              :objectInfo="experimentStore.experiment"
+              :objectClass="'EXPERIMENT'"
+              :properties="experimentStore.experiment.properties"
+              :read-only="experimentStore.isClosed"
+              @addProperty="onAddProperty"
+              @removeProperty="onRemoveProperty"
+            />
           </div>
 
           <div class="col-2">
@@ -96,21 +123,34 @@
       </oa-section>
     </div>
 
-    <splitpanes class="default-theme" :horizontal="horizontal" >
-      <pane class="q-pa-sm" v-if="experimentStore.experiment" style="background-color: #E6E6E6">
-        <q-tabs v-model="activeTab" inline-label dense no-caps align="left" class="oa-section-title">
-          <q-tab name="overview" icon="table_rows" label="Overview"/>
-          <q-tab name="statistics" icon="functions" label="Statistics"/>
-          <q-tab name="heatmaps" icon="view_module" label="Heatmaps"/>
+    <splitpanes class="default-theme" :horizontal="horizontal">
+      <pane
+        class="q-pa-sm"
+        v-if="experimentStore.experiment"
+        style="background-color: #e6e6e6"
+      >
+        <q-tabs
+          v-model="activeTab"
+          inline-label
+          dense
+          no-caps
+          align="left"
+          class="oa-section-title"
+        >
+          <q-tab name="overview" icon="table_rows" label="Overview" />
+          <q-tab name="statistics" icon="functions" label="Statistics" />
+          <q-tab name="heatmaps" icon="view_module" label="Heatmaps" />
         </q-tabs>
         <div class="row oa-section-body">
           <q-tab-panels v-model="activeTab" animated class="full-width">
             <q-tab-panel name="overview" class="q-pa-none">
-              <PlateList :experiment="experimentStore.experiment"
-                         :plates="experimentStore.plates"
-                         v-model:newPlateTab="showNewPlateDialog"
-                         v-model:newPlateFromMeasurements="showNewPlateFromMeasDialog"
-                         @selection="handlePlateSelection"/>
+              <PlateList
+                :experiments="[experimentStore.experiment]"
+                :plates="experimentStore.plates"
+                v-model:newPlateTab="showNewPlateDialog"
+                v-model:newPlateFromMeasurements="showNewPlateFromMeasDialog"
+                @selection="handlePlateSelection"
+              />
             </q-tab-panel>
             <q-tab-panel name="statistics" class="q-pa-none">
               <PlateStatsList
@@ -127,20 +167,37 @@
           </q-tab-panels>
         </div>
       </pane>
-      <pane class="q-pa-sm" v-if="uiStore.showChartViewer"
-            style="background-color: #E6E6E6" ref="chartViewerPane">
-        <ChartViewer :update="Date.now()" @changeOrientation="horizontal = !horizontal"/>
+      <pane
+        class="q-pa-sm"
+        v-if="uiStore.showChartViewer"
+        style="background-color: #e6e6e6"
+        ref="chartViewerPane"
+      >
+        <ChartViewer
+          :update="Date.now()"
+          @changeOrientation="horizontal = !horizontal"
+        />
       </pane>
     </splitpanes>
 
     <div v-if="experimentStore.isOpen">
-      <rename-dialog v-model:show="showRenameDialog" objectClass="experiment" :object="experimentStore.experiment"
-                     @valueChanged="onNameChanged"/>
-      <delete-dialog v-model:show="showDeleteDialog" :id="experimentStore.experiment?.id"
-                     :name="experimentStore.experiment?.name" :objectClass="'experiment'"
-                     @onDeleted="onDeleteExperiment"/>
+      <rename-dialog
+        v-model:show="showRenameDialog"
+        objectClass="experiment"
+        :object="experimentStore.experiment"
+        @valueChanged="onNameChanged"
+      />
+      <delete-dialog
+        v-model:show="showDeleteDialog"
+        :id="experimentStore.experiment?.id"
+        :name="experimentStore.experiment?.name"
+        :objectClass="'experiment'"
+        @onDeleted="onDeleteExperiment"
+      />
       <new-plate-dialog v-model:show="showNewPlateDialog" />
-      <new-plate-from-measurement-dialog v-model:show="showNewPlateFromMeasDialog"/>
+      <new-plate-from-measurement-dialog
+        v-model:show="showNewPlateFromMeasDialog"
+      />
     </div>
   </q-page>
 </template>
@@ -162,10 +219,10 @@ import OaSection from "@/components/widgets/OaSection";
 import FormatUtils from "@/lib/FormatUtils.js";
 
 import ChartViewer from "@/components/chart/ChartViewer";
-import {useExperimentStore} from "@/stores/experiment";
-import {useProjectStore} from "@/stores/project";
-import {Pane, Splitpanes} from "splitpanes";
-import {useUIStore} from "@/stores/ui";
+import { useExperimentStore } from "@/stores/experiment";
+import { useProjectStore } from "@/stores/project";
+import { Pane, Splitpanes } from "splitpanes";
+import { useUIStore } from "@/stores/ui";
 import NewPlateDialog from "@/pages/experiment/NewPlateDialog.vue";
 import NewPlateFromMeasurementDialog from "@/pages/experiment/NewPlateFromMeasurementDialog.vue";
 
@@ -186,13 +243,12 @@ onMounted(() => {
 watchEffect(() => {
   if (experimentStore.isLoaded(experimentId)) {
     const projectId = experimentStore.experiment.projectId;
-    if (!projectStore.isLoaded(projectId))
-      projectStore.loadProject(projectId);
+    if (!projectStore.isLoaded(projectId)) projectStore.loadProject(projectId);
   }
 });
 
-const showNewPlateDialog = ref(false)
-const showNewPlateFromMeasDialog = ref(false)
+const showNewPlateDialog = ref(false);
+const showNewPlateFromMeasDialog = ref(false);
 const newPlate = ref({
   barcode: null,
   description: null,
@@ -240,25 +296,24 @@ const handleOpenExperiment = () => {
 };
 
 const onAddTag = async (newTag) => {
-  await experimentStore.handleAddTag(newTag)
-}
+  await experimentStore.handleAddTag(newTag);
+};
 
 const onRemoveTag = async (tag) => {
-  await experimentStore.handleDeleteTag(tag)
-}
+  await experimentStore.handleDeleteTag(tag);
+};
 
 const onAddProperty = async (newProperty) => {
-  await experimentStore.handleAddProperty(newProperty)
-}
+  await experimentStore.handleAddProperty(newProperty);
+};
 
 const onRemoveProperty = async (property) => {
-  await experimentStore.handleDeleteProperty(property)
-}
+  await experimentStore.handleDeleteProperty(property);
+};
 
 const handlePlateSelection = async (plates) => {
-  uiStore.selectedPlate = plates[0] ?? null
-  uiStore.selectedPlates = plates
-  if (uiStore.selectedPlate)
-    await uiStore.loadSelectedPlate(plates[0].id )
-}
+  uiStore.selectedPlate = plates[0] ?? null;
+  uiStore.selectedPlates = plates;
+  if (uiStore.selectedPlate) await uiStore.loadSelectedPlate(plates[0].id);
+};
 </script>
