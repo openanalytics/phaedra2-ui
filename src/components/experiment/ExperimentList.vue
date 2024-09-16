@@ -100,12 +100,7 @@
       </div>
     </template>
   </oa-table>
-  <ExperimentMenu
-    v-show="showExperimentContextMenu"
-    :experiment="selectedExperiment"
-    touch-position
-    context-menu
-  />
+  <ExperimentMenu :experiment="selectedExperiment" touch-position />
 
   <q-dialog v-model="showNewExperimentDialog">
     <q-card style="min-width: 30vw">
@@ -260,7 +255,7 @@ const columns = ref([
 
 const experiments = computed(() =>
   props.experiments ? props.experiments : []
-);
+)
 
 const projectsNames = computed(() =>
   selectedExperiments.value
@@ -290,7 +285,7 @@ const newExperimentName = ref("");
 
 const doCreateNewExperiment = () => {
   const newExperiment = {
-    projectId: props.project.id,
+    projectId: props.projects[0].id,
     name: newExperimentName.value,
     status: "OPEN",
     createdOn: new Date(),

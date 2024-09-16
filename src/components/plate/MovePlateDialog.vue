@@ -34,12 +34,12 @@
 
 <script setup>
 
-import {computed, onMounted, ref} from "vue";
+import {computed, ref} from "vue";
 
 const props = defineProps(['show', 'plates', 'experiment', 'experiments'])
 const emits = defineEmits(['update:show', 'movePlates']);
 
-const currentExperiment = ref(props.experiment)
+const currentExperiment = computed(() => props.experiment)
 const destinationExperiment = ref()
 
 const showDialog = computed({
