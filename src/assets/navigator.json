@@ -135,6 +135,11 @@
     "role": "admin",
     "children": [
       {
+        "label": "Manage Feature Stats",
+        "icon": "functions",
+        "route": "manageFeatureStats"
+      },
+      {
         "label": "New DRC Fitting Model",
         "icon": "add",
         "route": ""
