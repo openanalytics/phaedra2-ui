@@ -87,7 +87,6 @@
 import { ref, onMounted, watch } from "vue";
 import { usePanesStore } from "../../stores/panes";
 import DropArea from "./DropArea.vue";
-import { useUIStore } from "../../stores/ui";
 
 const props = defineProps(["panes"]);
 const activeTab = ref();
@@ -106,7 +105,7 @@ function dragStart(component) {
 }
 
 function drop(position) {
-  panesStore.addItem(panesStore.draggedElement, props.panes[0].id, position);
+  panesStore.moveItem(panesStore.draggedElement, props.panes[0].id, position);
   panesStore.draggedElement = undefined;
 }
 
