@@ -66,6 +66,8 @@ app.use(Quasar, {
 // --------------------------------------------------------------------
 import Dashboard from "@/pages/dashboard/Dashboard.vue";
 
+import ManageFeatureStats from "@/pages/admin/ManageFeatureStats.vue";
+
 import BrowseProjects from "@/pages/project/BrowseProjects.vue";
 import ProjectView from "@/pages/project/ProjectView.vue";
 import NewProjectView from "@/pages/project/NewProjectView.vue";
@@ -161,6 +163,8 @@ const routes = createRouter({
 
         {name: "calcFormulas", path: "/calc/formulas", component: BrowseFormulas},
         {name: "calcFormula", path: "/calc/formula/:id", component: FormulaView},
+
+        {name: "manageFeatureStats", path: "/admin/feature-stats", component: ManageFeatureStats},
 
         {name: "dataCaptureJobs", path: "/datacapture/jobs", component: BrowseCaptureJobs},
         {name: "dataCaptureScripts", path: "/datacapture/scripts", component: BrowseCaptureScripts},

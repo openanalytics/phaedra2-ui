@@ -17,7 +17,8 @@ export const useFormulasStore = defineStore("formulas",  {
         getHigherVersionFormula: state => {
             // If a higher version for this formula exists, return it (the highest one available). Otherwise return null.
             return (formulaId) => {
-                const formula = state.formulas.find(f => f.id === formulaId) || {};
+                const formula = state.formulas.find(f => f.id === formulaId);
+                if (!formula) return null;
                 const highestVersionFormula = state.formulas.filter(f => f.name == formula.name).sort((f1, f2) => VersionUtils.compareVersions(f1.versionNumber, f2.versionNumber)).reverse()[0];
                 if (VersionUtils.compareVersions(formula.versionNumber, highestVersionFormula.versionNumber) < 0) return highestVersionFormula;
                 else return null;
