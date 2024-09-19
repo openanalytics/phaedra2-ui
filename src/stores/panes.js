@@ -66,78 +66,112 @@ export const usePanesStore = defineStore("panes", () => {
     return array;
   }
 
+  function createArray(
+    array,
+    firstItem,
+    items,
+    toItemIdx,
+    itemsId,
+    secondItem,
+    direction
+  ) {
+    const itemsBefore = items.slice(0, toItemIdx);
+    const itemsAfter = items.slice(toItemIdx + 1);
+
+    const arrayBefore = array.slice(0, itemsId);
+    const arrayAfter = array.slice(itemsId + 1);
+
+    let tmpItem = [];
+    let tmpArray = [];
+
+    if (itemsBefore.length > 0) {
+      tmpItem.push(...itemsBefore);
+    }
+
+    if (secondItem) {
+      if (direction) {
+        tmpItem.push([direction, [firstItem], [secondItem]]);
+      } else {
+        tmpItem.push([firstItem]);
+        tmpItem.push([secondItem]);
+      }
+      if (itemsAfter.length > 0) {
+        tmpItem.push(...itemsAfter);
+      }
+    } else {
+      tmpItem.push([firstItem, ...itemsAfter]);
+    }
+
+    if (arrayBefore.length > 0) {
+      tmpArray.push(...arrayBefore);
+    }
+
+    if (tmpItem[0] == "V" || tmpItem[0] == "H") {
+      tmpArray.push(tmpItem);
+    } else {
+      tmpArray.push(...tmpItem);
+    }
+    if (arrayAfter.length > 0) {
+      tmpArray.push(...arrayAfter);
+    }
+    return tmpArray;
+  }
+
   function insertItem(id, toId, array, position = "center") {
     let ifFounds = false;
     let direction = array[0];
-    if (direction == "V" || direction == "H") {
-      array.forEach((items, idx) => {
-        console.log(items);
-        if (!ifFounds && Array.isArray(items)) {
-          ifFounds =
-            items.find((item) => item == toId) && typeof component != "object";
-          if (ifFounds) {
-            direction =
-              array[idx][0] == "H" || array[idx][0] == "H"
-                ? array[idx][0]
-                : direction;
-            if (position == "center") {
-              array[idx] = [...array[idx], id];
-            }
+    array.forEach((items, i) => {
+      direction =
+        array[i][0] == "H" || array[i][0] == "V" ? array[i][0] : direction;
+      console.log(ifFounds);
+      if (!ifFounds && Array.isArray(items)) {
+        items.forEach((item, j) => {
+          if (Array.isArray(item) && item.length == 1) {
+            item = item[0];
+          }
+          if (item == toId) {
+            ifFounds = true;
             if (direction == "V") {
               if (position == "top") {
-                array[idx] = ["H", [id], array[idx]];
+                array = createArray(array, id, items, j, i, item, "H");
               }
               if (position == "bottom") {
-                array[idx] = ["H", array[idx], [id]];
-              }
-            }
-            if (direction == "H") {
-              if (position == "left") {
-                array[idx] = ["V", [id], array[idx]];
+                array = createArray(array, item, items, j, i, id, "H");
               }
               if (position == "right") {
-                console.log("right");
-                console.log(items);
-                console.log(array[idx]);
-                array[idx] = ["V", array[idx], [id]];
+                array = createArray(array, item, items, j, i, id);
+              }
+              if (position == "left") {
+                array = createArray(array, id, items, j, i, item);
               }
             }
+
+            if (direction == "H") {
+              if (position == "left") {
+                array = createArray(array, id, items, j, i, item, "V");
+              }
+              if (position == "right") {
+                array = createArray(array, item, items, j, i, id, "V");
+              }
+              if (position == "top") {
+                array = createArray(array, id, items, j, item, i);
+              }
+              if (position == "bottom") {
+                array = createArray(array, item, items, j, i, id);
+              }
+            }
+
+            if (position == "center") {
+              array = createArray(array, item, [...items, id], j, i);
+            }
           }
-        }
-      });
-    }
+        });
+      }
+    });
     if (ifFounds) {
-      return insertItemIntoPosition(id, array, position);
+      return array;
     }
     return insertItem(id, toId, array.slice(1));
-  }
-
-  function insertItemIntoPosition(id, array, position) {
-    if (
-      (position == "left" && array[0] == "V") ||
-      (position == "top" && array[0] == "H")
-    ) {
-      return [array[0], [id], ...array.slice(1)];
-    }
-    if (
-      (position == "right" && array[0] == "V") ||
-      (position == "bottom" && array[0] == "H")
-    ) {
-      return [array[0], ...array.slice(1), [id]];
-    }
-    // if (position == "top" && array[0] == "V") {
-    //   return ["H", [[id], ...array]];
-    // }
-    // if (position == "bottom" && array[0] == "V") {
-    //   return ["H", [...array, [id]]];
-    // }
-    // if (position == "left" && array[0] == "H") {
-    //   return ["V", [[id], ...array]];
-    // }
-    // if (position == "right" && array[0] == "H") {
-    //   return ["V", [...array, [id]]];
-    // }
-    return array;
   }
 
   function insertMenuItem(id, array) {
