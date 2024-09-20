@@ -8,7 +8,6 @@ export const usePanesStore = defineStore("panes", () => {
   const panes = shallowRef(panesList);
 
   const draggedElement = ref();
-  const key = ref(0);
 
   const dynamicPanes = ref([
     "H",
@@ -49,34 +48,49 @@ export const usePanesStore = defineStore("panes", () => {
   }
 
   function removeEmptyArrays(array, nestedIdx = 0) {
+    if (array.length > 1) {
+      ++nestedIdx;
+      if (Array.isArray(array)) {
+        for (let i = 0; i < array.length; i++) {
+          array[i] = removeEmptyArrays(array[i], nestedIdx);
+        }
+      }
+    }
+
     if (Array.isArray(array)) {
-      if (array.length == 2 && nestedIdx > 0) {
+      array = array.filter((pane) => pane.length != 0);
+    }
+
+    if (Array.isArray(array)) {
+      if (array.length == 2 && nestedIdx > 1) {
         if (array[0] == "H" || array[0] == "V") {
           array = array[1];
         }
       }
-
-      for (let i = 0; i < array.length; i++) {
-        array[i] = removeEmptyArrays(array[i], ++nestedIdx);
-      }
-      if (Array.isArray(array)) {
-        return array.filter((pane) => pane.length != 0);
-      }
     }
+
     return array;
   }
 
   function createArray(
     array,
-    firstItem,
     items,
-    toItemIdx,
     itemsId,
+    arrayId,
+    firstItem,
     secondItem,
     direction
   ) {
-    const itemsBefore = items.slice(0, toItemIdx);
-    const itemsAfter = items.slice(toItemIdx + 1);
+    let itemsBefore = [];
+    let itemsAfter = [];
+
+    if (arrayId == -1) {
+      itemsBefore = items;
+      itemsAfter = [];
+    } else {
+      itemsBefore = items.slice(0, arrayId);
+      itemsAfter = items.slice(arrayId + 1);
+    }
 
     const arrayBefore = array.slice(0, itemsId);
     const arrayAfter = array.slice(itemsId + 1);
@@ -123,46 +137,77 @@ export const usePanesStore = defineStore("panes", () => {
     array.forEach((items, i) => {
       direction =
         array[i][0] == "H" || array[i][0] == "V" ? array[i][0] : direction;
-      console.log(ifFounds);
       if (!ifFounds && Array.isArray(items)) {
         items.forEach((item, j) => {
           if (Array.isArray(item) && item.length == 1) {
             item = item[0];
           }
-          if (item == toId) {
+
+          let condition = item == toId;
+
+          if (Array.isArray(items) && items.length > 1) {
+            condition = items.find((elem) => elem == toId);
+            // j = -1;
+          }
+
+          if (condition) {
             ifFounds = true;
-            if (direction == "V") {
-              if (position == "top") {
-                array = createArray(array, id, items, j, i, item, "H");
+            switch (direction) {
+              case "V": {
+                switch (position) {
+                  case "top": {
+                    array = createArray(array, items, i, j, id, item, "H");
+                    break;
+                  }
+                  case "bottom": {
+                    array = createArray(array, items, i, j, item, id, "H");
+                    break;
+                  }
+                  case "right": {
+                    array = createArray(array, items, i, j, item, id);
+                    break;
+                  }
+                  case "left": {
+                    array = createArray(array, items, i, j, id, item);
+                    break;
+                  }
+                  default: {
+                    break;
+                  }
+                }
+                break;
               }
-              if (position == "bottom") {
-                array = createArray(array, item, items, j, i, id, "H");
+
+              case "H": {
+                switch (position) {
+                  case "left": {
+                    array = createArray(array, items, i, j, id, item, "V");
+                    break;
+                  }
+                  case "right": {
+                    array = createArray(array, items, i, j, item, id, "V");
+                    break;
+                  }
+                  case "top": {
+                    array = createArray(array, items, i, j, id, item);
+                    break;
+                  }
+                  case "bottom": {
+                    array = createArray(array, items, i, j, item, id);
+                    break;
+                  }
+                  default: {
+                    break;
+                  }
+                }
+                break;
               }
-              if (position == "right") {
-                array = createArray(array, item, items, j, i, id);
-              }
-              if (position == "left") {
-                array = createArray(array, id, items, j, i, item);
+              default: {
+                break;
               }
             }
-
-            if (direction == "H") {
-              if (position == "left") {
-                array = createArray(array, id, items, j, i, item, "V");
-              }
-              if (position == "right") {
-                array = createArray(array, item, items, j, i, id, "V");
-              }
-              if (position == "top") {
-                array = createArray(array, id, items, j, item, i);
-              }
-              if (position == "bottom") {
-                array = createArray(array, item, items, j, i, id);
-              }
-            }
-
             if (position == "center") {
-              array = createArray(array, item, [...items, id], j, i);
+              array = createArray(array, [...items, id], i, j, item);
             }
           }
         });
@@ -171,7 +216,7 @@ export const usePanesStore = defineStore("panes", () => {
     if (ifFounds) {
       return array;
     }
-    return insertItem(id, toId, array.slice(1));
+    return insertItem(id, toId, array.slice(1)[0]);
   }
 
   function insertMenuItem(id, array) {
