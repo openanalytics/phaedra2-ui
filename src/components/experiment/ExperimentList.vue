@@ -100,8 +100,12 @@
       </div>
     </template>
   </oa-table>
-  <ExperimentMenu v-show="showExperimentContextMenu" :experiment="selectedExperiment"
-                  touch-position context-menu />
+  <ExperimentMenu
+    v-show="showExperimentContextMenu"
+    :experiment="selectedExperiment"
+    touch-position
+    context-menu
+  />
 
   <q-dialog v-model="showNewExperimentDialog">
     <q-card style="min-width: 30vw">
@@ -135,7 +139,14 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
+import {
+  ref,
+  computed,
+  watch,
+  onUnmounted,
+  onMounted,
+  onBeforeMount,
+} from "vue";
 
 import ProgressBarField from "@/components/widgets/ProgressBarField";
 import ExperimentMenu from "@/components/experiment/ExperimentMenu";
@@ -143,34 +154,127 @@ import ExperimentMenu from "@/components/experiment/ExperimentMenu";
 import FormatUtils from "@/lib/FormatUtils.js";
 import FilterUtils from "@/lib/FilterUtils";
 import { useExportTableData } from "@/composable/exportTableData";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import OaTable from "@/components/table/OaTable.vue";
 
 const props = defineProps({
   experiments: [Object],
   projects: [Object],
+  selected: [Object],
 });
 const emits = defineEmits(["createNewExperiment", "selection"]);
 
 const router = useRouter();
 
 const columns = ref([
-  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true, description: 'The experiment id'},
-  {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true, description: 'The experiment name'},
-  {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true, description: 'The experiment description'},
-  {name: 'nrPlates', align: 'left', label: 'Plates', field: row => row.summary?.nrPlates ?? 0, sortable: true, description: 'Total nr of plates'},
-  {name: 'nrPlatesLinkedLayout', align: 'left', label: 'Linked', field: row => row.summary?.nrPlatesLinkedLayout ?? 0, sortable: true, description: 'Nr of plates with layout'},
-  {name: 'nrPlatesCalculated', align: 'left', label: 'Calculated', field: row => row.summary?.nrPlatesCalculated ?? 0, sortable: true, description: 'Nr of calculated plates'},
-  {name: 'nrPlatesValidated', align: 'left', label: 'Validated', field: row => row.summary?.nrPlatesValidated ?? 0, sortable: true, description: 'Nr of validated plates'},
-  {name: 'nrPlatesApproved', align: 'left', label: 'Approved', field: row => row.summary?.nrPlatesApproved ?? 0, sortable: true, description: 'Nr of approved plates'},
-  {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true, description: 'The experiment tags'},
-  {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate, description: 'Created on date'},
-  {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true, description: 'Created by user'},
-  {name: 'status', align: 'center', label: 'Status', field: 'status', sortable: true, description: 'Open or closed'}
-])
+  {
+    name: "id",
+    align: "left",
+    label: "ID",
+    field: "id",
+    sortable: true,
+    description: "The experiment id",
+  },
+  {
+    name: "name",
+    align: "left",
+    label: "Name",
+    field: "name",
+    sortable: true,
+    description: "The experiment name",
+  },
+  {
+    name: "description",
+    align: "left",
+    label: "Description",
+    field: "description",
+    sortable: true,
+    description: "The experiment description",
+  },
+  {
+    name: "nrPlates",
+    align: "left",
+    label: "Plates",
+    field: (row) => row.summary?.nrPlates ?? 0,
+    sortable: true,
+    description: "Total nr of plates",
+  },
+  {
+    name: "nrPlatesLinkedLayout",
+    align: "left",
+    label: "Linked",
+    field: (row) => row.summary?.nrPlatesLinkedLayout ?? 0,
+    sortable: true,
+    description: "Nr of plates with layout",
+  },
+  {
+    name: "nrPlatesCalculated",
+    align: "left",
+    label: "Calculated",
+    field: (row) => row.summary?.nrPlatesCalculated ?? 0,
+    sortable: true,
+    description: "Nr of calculated plates",
+  },
+  {
+    name: "nrPlatesValidated",
+    align: "left",
+    label: "Validated",
+    field: (row) => row.summary?.nrPlatesValidated ?? 0,
+    sortable: true,
+    description: "Nr of validated plates",
+  },
+  {
+    name: "nrPlatesApproved",
+    align: "left",
+    label: "Approved",
+    field: (row) => row.summary?.nrPlatesApproved ?? 0,
+    sortable: true,
+    description: "Nr of approved plates",
+  },
+  {
+    name: "tags",
+    align: "left",
+    label: "Tags",
+    field: "tags",
+    sortable: true,
+    description: "The experiment tags",
+  },
+  {
+    name: "createdOn",
+    align: "left",
+    label: "Created On",
+    field: "createdOn",
+    sortable: true,
+    format: FormatUtils.formatDate,
+    description: "Created on date",
+  },
+  {
+    name: "createdBy",
+    align: "left",
+    label: "Created By",
+    field: "createdBy",
+    sortable: true,
+    description: "Created by user",
+  },
+  {
+    name: "status",
+    align: "center",
+    label: "Status",
+    field: "status",
+    sortable: true,
+    description: "Open or closed",
+  },
+]);
+
+const localExperiments = ref([]);
+const localProjects = ref([]);
 
 const experiments = computed(() =>
-  props.experiments ? props.experiments : []
+  props.experiments ? props.experiments : localExperiments.value
+);
+
+const projects = computed(() =>
+  props.projects ? props.projects : localProjects.value
 );
 
 const projectsNames = computed(() =>
@@ -219,9 +323,9 @@ watch(experiments, () => {
 const selectedExperiments = ref([]);
 const isSelected = (row) => selectedExperiments.value.includes(row);
 const updateSelectedExperiments = (condition, row) =>
-    condition
-        ? selectedExperiments.value.filter((experiment) => experiment.id !== row.id)
-        : [row];
+  condition
+    ? selectedExperiments.value.filter((experiment) => experiment.id !== row.id)
+    : [row];
 const selectExperiment = (event, row) => {
   selectedExperiment.value = row;
   if (event && (event.ctrlKey || event.metaKey)) {
@@ -238,13 +342,13 @@ watch(selectedExperiments, (newVal) => {
   emits("selection", newVal);
 });
 watch(
-    () => props.experiments,
-    (newVal) => {
-      const ids = newVal.map((item) => item.id);
-      selectedExperiments.value = selectedExperiments.value.filter((item) =>
-          ids.includes(item.id)
-      );
-    }
+  () => experiments,
+  (newVal) => {
+    const ids = newVal.map((item) => item.id);
+    selectedExperiments.value = selectedExperiments.value.filter((item) =>
+      ids.includes(item.id)
+    );
+  }
 );
 
 const showConfigDialog = ref(false);
@@ -281,6 +385,14 @@ const exportToXLSX = () => {
 function getUnique(value, index, array) {
   return array.indexOf(value) === index;
 }
+
+const route = useRoute();
+
+onBeforeMount(() => {
+  if (route.name == "workbench") {
+    selectedExperiments.value = props.selected;
+  }
+});
 </script>
 
 <style scoped>

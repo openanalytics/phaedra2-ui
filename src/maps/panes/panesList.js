@@ -50,6 +50,7 @@ export function usePanesList() {
       closable: true,
       props: {
         projects: selectionStore.projects,
+        selected: selectionStore.selectedProjects,
       },
       selection: (e) => (selectionStore.selectedProjects = e),
     },
@@ -72,6 +73,7 @@ export function usePanesList() {
       props: {
         experiments: selectionStore.experiments,
         projects: selectionStore.selectedProjects,
+        selected: selectionStore.selectedExperiments,
       },
       selection: (e) => (selectionStore.selectedExperiments = e),
     },
@@ -83,6 +85,7 @@ export function usePanesList() {
       closable: true,
       props: {
         plates: selectionStore.plates,
+        selected: selectionStore.selectedPlates,
       },
       selection: (e) => (selectionStore.selectedPanes = e),
     },

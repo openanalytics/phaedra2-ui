@@ -34,6 +34,7 @@ import { useRoute, useRouter } from "vue-router";
 
 const props = defineProps({
   projects: [Object],
+  selected: [Object],
 });
 const emits = defineEmits("selection");
 
@@ -87,5 +88,11 @@ watch(props.projects, () => {
 
 watch(selectedProjects, (newVal, oldVal) => {
   emits("selection", newVal);
+});
+
+onBeforeMount(() => {
+  if (route.name == "workbench") {
+    selectedProjects.value = props.selected;
+  }
 });
 </script>
