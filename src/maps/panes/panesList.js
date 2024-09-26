@@ -5,10 +5,11 @@ import RecentExperiments from "@/components/dashboard/panes/RecentExperiments";
 import ProjectDetails from "@/components/project/ProjectDetails.vue";
 import ExperimentList from "@/components/experiment/ExperimentList.vue";
 import PlateList from "@/components/plate/PlateList";
-import { useSelectionStore } from "@/stores/selection";
-import { computed } from "vue";
 import ProjectsList from "@/components/project/ProjectsList.vue";
 import WellList from "@/pages/plate/WellList.vue";
+import { computed } from "vue";
+import { useSelectionStore } from "@/stores/selection";
+import TrendChart from "@/components/chart/TrendChart.vue";
 
 export function usePanesList() {
   const selectionStore = useSelectionStore();
@@ -74,6 +75,19 @@ export function usePanesList() {
         experiments: selectionStore.experiments,
         projects: selectionStore.selectedProjects,
         selected: selectionStore.selectedExperiments,
+      },
+      selection: (e) => (selectionStore.selectedExperiments = e),
+    },
+    {
+      component: TrendChart,
+      id: "experiment-chart-pane",
+      title: "Experiment's Plate Trend",
+      icon: "view_stream",
+      closable: true,
+      props: {
+        update: Date.now(),
+        chartId: selectionStore.chart.id,
+        selectedExperiments: selectionStore.selectedExperiments,
       },
       selection: (e) => (selectionStore.selectedExperiments = e),
     },

@@ -14,6 +14,22 @@ export const useSelectionStore = defineStore("selection", () => {
   const selectedPlates = ref([]);
   const selectedWells = ref([]);
 
+  const chart = ref({
+    type: undefined,
+    id: undefined,
+    experimentId: undefined,
+    label: undefined,
+  });
+
+  function addChartView(updatedChart) {
+    console.log("updating chars");
+    console.log(updatedChart);
+    chart.value = {
+      id: new Date().getTime(),
+      ...updatedChart,
+    };
+  }
+
   const selectedProjectsIds = computed(() =>
     selectedProjects.value.map((item) => item.id)
   );
@@ -173,7 +189,17 @@ export const useSelectionStore = defineStore("selection", () => {
     }
   }
 
-  watch(selectedExperiments, () => {
+  watch(selectedExperiments, (newVal, oldVal) => {
+    // newVal.forEach((element) => {
+    //   if (!oldVal.find(element)) {
+    //     chart.value = {
+    //       experimentId: element.id,
+    //       label: "Experiment Trend Chart",
+    //       type: "trend",
+    //       id: new Date().getTime(),
+    //     };
+    //   }
+    // });
     loadExperiment(selectedExperimentsIds.value);
   });
 
@@ -194,5 +220,7 @@ export const useSelectionStore = defineStore("selection", () => {
     selectedPlates,
     selectedProjects,
     selectedWells,
+    addChartView,
+    chart,
   };
 });
