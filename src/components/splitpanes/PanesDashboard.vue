@@ -14,9 +14,6 @@ import SplitPane from "./SplitPane.vue";
 import PanesDashboard from "./PanesDashboard.vue";
 import { usePanesStore } from "../../stores/panes";
 import { Splitpanes, Pane } from "splitpanes";
-import { useSelectionStore } from "../../stores/selection";
-
-const selectionStore = useSelectionStore();
 
 defineProps(["dynamicPanes"]);
 
