@@ -151,8 +151,6 @@ export const useSelectionStore = defineStore("selection", () => {
       const { onResult, onError } =
         projectsGraphQlAPI.platesByExperimentIds(experimentsId);
       onResult(({ data }) => {
-        console.log("loaded plates!");
-        console.log(plates.value);
         if (replace) {
           plates.value = data.plate;
         } else {
