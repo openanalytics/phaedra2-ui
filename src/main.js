@@ -113,21 +113,12 @@ import BrowsePipelineExecutions from "@/pages/pipeline/BrowsePipelineExecutions.
 import PipelineExecutionDetails from "@/pages/pipeline/PipelineExecutionDetails.vue"
 import PipelineAdmin from "@/pages/pipeline/PipelineAdmin.vue"
 import WellView from "@/pages/well/WellView.vue";
-import Workbench from "@/pages/workbench/Workbench.vue";
 import { prepareWorkbench } from "@/composable/router/prepareViews";
 
 const routes = createRouter({
     history: createWebHistory(publicPath),
     routes: [
         {name: "dashboard", path: "/", component: Dashboard},
-        {
-          name: "workbench",
-          path: "/workbench",
-          component: Workbench,
-          beforeEnter: () => {
-            prepareWorkbench();
-          },
-        },
         {name: 'browseProjects', path: "/projects", component: BrowseProjects},
         {name: "project", path: "/project/:id", component: ProjectView},
         {name: "newProject", path: "/project/new", component: NewProjectView},
