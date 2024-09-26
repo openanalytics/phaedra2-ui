@@ -59,19 +59,11 @@
             max-width: 100%;
             height: 100%;
           "
-          v-for="(component, id) in panes"
-          :key="id"
+          v-for="component in panes"
+          :key="component.id"
           :name="component.title"
         >
-          <component
-            :is="component.component"
-            :key="id"
-            v-bind="{ ...component.props }"
-            @selection="
-              (e) => (component.selection ? component.selection(e) : null)
-            "
-          />
-
+          <PaneTab :component="component" />
           <DropArea position="left" @dropped="drop('left')" />
           <DropArea position="top" @dropped="drop('top')" />
           <DropArea position="right" @dropped="drop('right')" />
@@ -87,6 +79,7 @@
 import { ref, onMounted, watch } from "vue";
 import { usePanesStore } from "../../stores/panes";
 import DropArea from "./DropArea.vue";
+import PaneTab from "./PaneTab.vue";
 
 const props = defineProps(["panes"]);
 const activeTab = ref();
