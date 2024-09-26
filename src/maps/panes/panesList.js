@@ -8,7 +8,7 @@ import PlateList from "@/components/plate/PlateList";
 import { useSelectionStore } from "@/stores/selection";
 import { computed } from "vue";
 import ProjectsList from "@/components/project/ProjectsList.vue";
-import WellList from "../../pages/plate/WellList.vue";
+import WellList from "@/pages/plate/WellList.vue";
 
 export function usePanesList() {
   const selectionStore = useSelectionStore();
@@ -48,6 +48,9 @@ export function usePanesList() {
       title: "Browse projects",
       icon: "folder_open",
       closable: true,
+      props: {
+        projects: selectionStore.projects,
+      },
       selection: (e) => (selectionStore.selectedProjects = e),
     },
     {
