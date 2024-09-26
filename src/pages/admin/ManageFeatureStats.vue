@@ -7,7 +7,7 @@
   <q-page class="oa-root-div">
     <div class="q-pa-sm">
       <oa-section title="Default Feature Stats" icon="functions">
-        <feature-stat-table :featureStats="defaultFeatureStats" @onSaveStat="doSaveStat" @onDeleteStat="doDeleteStat" />
+        <feature-stat-table :editable="true" :featureStats="defaultFeatureStats" @onSaveStat="doSaveStat" @onDeleteStat="doDeleteStat" />
       </oa-section>
     </div>
   </q-page>
