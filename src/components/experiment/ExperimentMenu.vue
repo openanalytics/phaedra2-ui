@@ -154,7 +154,6 @@ import MenuItem from "@/components/widgets/MenuItem.vue";
 import CalculatePlateDialog from "@/components/plate/CalculatePlateDialog";
 import ExportPlateListDialog from "@/components/plate/ExportPlateListDialog";
 import ExportWellDataDialog from "@/components/plate/ExportWellDataDialog";
-import { useSelectionStore } from "../../stores/selection";
 
 const panesStore = usePanesStore();
 
@@ -231,15 +230,6 @@ const updateProject = () => {
 const uiStore = useUIStore();
 const addExperimentPlateTrendChart = (experimentId) => {
   if (route.name == "workbench") {
-    const selectionStore = useSelectionStore();
-    selectionStore.addChartView({
-      type: "trend",
-      experimentId:
-        selectionStore.selectedExperiments[
-          selectionStore.selectedExperiments.length - 1
-        ].id,
-      label: "Experiment Trend Chart",
-    });
     panesStore.addItem(
       "experiment-chart-pane",
       "experiment-list-pane",

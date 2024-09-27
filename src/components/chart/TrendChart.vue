@@ -23,7 +23,7 @@
 <script setup>
 import Plotly from "plotly.js-cartesian-dist-min";
 import usePlateTrendChartData from "@/composable/plateTrendChartData";
-import { ref, watch } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useExperimentStore } from "@/stores/experiment";
 
 const props = defineProps(["chartId", "update", "selectedExperiments"]);
@@ -45,39 +45,52 @@ const selectedStat = ref(null);
 
 const experimentStore = useExperimentStore();
 const plateTrendChartData = usePlateTrendChartData();
+
 watch(
   () => [props.selectedExperiments, props.update],
-  () => {
-    plateTrendChartData
-      .getChartData(
-        props.selectedExperiments[0]?.id ?? experimentStore.experiment?.id
-      )
-      .then((data) => {
-        chartData.value = data;
-        plates.value = chartData.value.map((cd) => "Plate" + cd.barcode);
-        featureOptions.value =
-          [
-            ...new Set(
-              chartData.value.flatMap((cd) =>
-                cd.featureStats?.map((fs) => fs.featureId)
-              )
-            ),
-          ] ?? [];
-        selectedFeature.value = featureOptions.value[0] ?? null;
-        statOptions.value =
-          [
-            ...new Set(
-              chartData.value.flatMap((cd) =>
-                cd.featureStats
-                  ?.filter((fs) => !fs.wellType)
-                  .map((fs) => fs.statName)
-              )
-            ),
-          ] ?? [];
-        selectedStat.value = statOptions.value[0] ?? null;
-      });
+  (newVal, oldVal) => {
+    const newValExp = newVal[0].length ? newVal[0][0]?.id : undefined;
+    const oldValExp = oldVal[0].length ? oldVal[0][0]?.id : undefined;
+    if (newValExp != oldValExp) {
+      loadTrendChart();
+    }
   }
 );
+
+onMounted(() => {
+  loadTrendChart();
+});
+
+function loadTrendChart() {
+  plateTrendChartData
+    .getChartData(
+      props.selectedExperiments[0]?.id ?? experimentStore.experiment?.id
+    )
+    .then((data) => {
+      chartData.value = data;
+      plates.value = chartData.value.map((cd) => "Plate" + cd.barcode);
+      featureOptions.value =
+        [
+          ...new Set(
+            chartData.value.flatMap((cd) =>
+              cd.featureStats?.map((fs) => fs.featureId)
+            )
+          ),
+        ] ?? [];
+      selectedFeature.value = featureOptions.value[0] ?? null;
+      statOptions.value =
+        [
+          ...new Set(
+            chartData.value.flatMap((cd) =>
+              cd.featureStats
+                ?.filter((fs) => !fs.wellType)
+                .map((fs) => fs.statName)
+            )
+          ),
+        ] ?? [];
+      selectedStat.value = statOptions.value[0] ?? null;
+    });
+}
 
 const handleFeatureSelection = () => {
   console.log("Update chart for selected feature " + selectedStat.value);

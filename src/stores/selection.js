@@ -17,13 +17,11 @@ export const useSelectionStore = defineStore("selection", () => {
   const chart = ref({
     type: undefined,
     id: undefined,
-    experimentId: undefined,
+    experiment: undefined,
     label: undefined,
   });
 
   function addChartView(updatedChart) {
-    console.log("updating chars");
-    console.log(updatedChart);
     chart.value = {
       id: new Date().getTime(),
       ...updatedChart,
@@ -190,16 +188,36 @@ export const useSelectionStore = defineStore("selection", () => {
   }
 
   watch(selectedExperiments, (newVal, oldVal) => {
-    // newVal.forEach((element) => {
-    //   if (!oldVal.find(element)) {
-    //     chart.value = {
-    //       experimentId: element.id,
-    //       label: "Experiment Trend Chart",
-    //       type: "trend",
-    //       id: new Date().getTime(),
-    //     };
-    //   }
-    // });
+    if (newVal.length > 0) {
+      let flag = false;
+      newVal.forEach((element) => {
+        if (!oldVal.find((el) => element == el)) {
+          flag = true;
+          if (chart.value.experiment?.id != element.id) {
+            chart.value = {
+              experiment: element,
+              label: "Experiment Trend Chart",
+              type: "trend",
+              id: new Date().getTime(),
+            };
+          }
+        }
+      });
+      if (
+        !flag &&
+        newVal.length > 0 &&
+        !newVal.find((el) => el.id == chart.value.experiment?.id)
+      ) {
+        chart.value = {
+          experiment: newVal[0],
+          label: "Experiment Trend Chart",
+          type: "trend",
+          id: new Date().getTime(),
+        };
+      }
+    } else {
+      chart.value.experiment = undefined;
+    }
     loadExperiment(selectedExperimentsIds.value);
   });
 
