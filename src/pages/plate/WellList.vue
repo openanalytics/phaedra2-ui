@@ -1,12 +1,14 @@
 <template>
-  <oa-table :columns="columns" :rows="wells"
-                 selection="multiple"
-                 v-model:selected="uiStore.selectedWells"
-                 @row-click="selectWell">
+  <oa-table :rows="wells" :columns="columns"
+            selection="multiple"
+            v-model:selected="uiStore.selectedWells"
+            :filter="filter"
+            :filter-method="filterMethod"
+            @row-click="selectWell">
     <template v-slot:top-right>
       <div class="row action-button">
         <q-btn-dropdown size="sm" class="oa-button q-mr-md" label="Export">
-          <q-list dense >
+          <q-list dense>
             <q-item clickable v-close-popup @click="exportToCSV">
               <q-item-section>
                 <q-item-label>Export to CSV</q-item-label>
@@ -26,22 +28,23 @@
       <q-tr :props="props">
         <q-th auto-width/>
         <q-th v-for="col in props.cols" :key="col.name" :props="props">
-          {{col.label}}
+          {{ col.label }}
         </q-th>
       </q-tr>
       <q-tr :props="props">
         <q-th auto-width>
-          <q-checkbox v-model="props.selected" dense />
+          <q-checkbox v-model="props.selected" dense/>
         </q-th>
         <column-filter v-for="col in props.cols" :key="col.name" v-model="filter[col.name]"/>
       </q-tr>
     </template>
     <template v-slot:body-cell="props">
-      <q-td v-if="props.col.isFeature" :props="props" :style="'background-color:' + props.col.lut.getColor(props.value)">
-        <div v-if="props.col.isFeature">{{props.value}}</div>
+      <q-td v-if="props.col.isFeature" :props="props"
+            :style="'background-color:' + props.col.lut.getColor(props.value)">
+        <div v-if="props.col.isFeature">{{ props.value }}</div>
       </q-td>
       <q-td v-else :props="props">
-        {{props.value}}
+        {{ props.value }}
       </q-td>
     </template>
     <template v-slot:body-cell-status="props">
@@ -76,21 +79,23 @@ import {usePlateStore} from "@/stores/plate"
 import {useUIStore} from "@/stores/ui";
 import OaTable from "@/components/table/OaTable.vue";
 
-const props = defineProps(['plate', 'wells']);
-const emits = defineEmits(['wellStatusChanged'])
+const props = defineProps(["plate", "wells"]);
+const emits = defineEmits(["wellStatusChanged"]);
 
-const plateStore = usePlateStore()
-const uiStore = useUIStore()
+const plateStore = usePlateStore();
+const uiStore = useUIStore();
 
 const loading = ref(true);
-const features = ref([])
-const resultData = ref([])
+const features = ref([]);
+const resultData = ref([]);
 
-const resultSet = plateStore.activeResultSet
-features.value = plateStore.featuresByProtocolId(resultSet?.protocolId)
+const resultSet = plateStore.activeResultSet;
+features.value = plateStore.featuresByProtocolId(resultSet?.protocolId);
 
-const {onResult, onError} = resultDataGraphQlAPI.resultDataByResultSetId(resultSet?.id)
-onResult(({data}) => resultData.value = data.resultData)
+const { onResult, onError } = resultDataGraphQlAPI.resultDataByResultSetId(
+  resultSet?.id
+);
+onResult(({ data }) => (resultData.value = data.resultData));
 
 const baseColumns = [
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
@@ -114,9 +119,9 @@ const wells = computed(() => props.wells.map(well => {
   }
 }))
 
-const visibleColumns = ref([])
+const visibleColumns = ref([]);
 
-let filter = FilterUtils.makeFilter(columns.value)
+let filter = FilterUtils.makeFilter(columns.value);
 const filterMethod = FilterUtils.defaultFilterMethod();
 
 let exportTableData = null
@@ -127,11 +132,17 @@ watch([features, resultData, wells], () => {
 }, {deep: true})
 
 const exportToCSV = () => {
-  exportTableData.exportToCSV(filterMethod(wells.value, filter.value), props.plate.barcode)
-}
+  exportTableData.exportToCSV(
+    filterMethod(wells.value, filter.value),
+    props.plate.barcode
+  );
+};
 const exportToXLSX = () => {
-  exportTableData.exportToXLSX(filterMethod(wells.value, filter.value), props.plate.barcode)
-}
+  exportTableData.exportToXLSX(
+    filterMethod(wells.value, filter.value),
+    props.plate.barcode
+  );
+};
 
 const selectedWell = ref(null)
 const isSelected = (row) => uiStore.selectedWells.findIndex(w => w.id === row.id) > -1
@@ -140,14 +151,14 @@ const selectWell = (event, row) => {
   selectedWell.value = row
   if (event && (event.ctrlKey || event.metaKey)) {
     if (isSelected(row)) {
-      uiStore.selectedWells = updateSelectedWells(true, row)
+      uiStore.selectedWells = updateSelectedWells(true, row);
     } else {
-      uiStore.selectedWells.push(row)
+      uiStore.selectedWells.push(row);
     }
   } else {
-    uiStore.selectedWells = updateSelectedWells(isSelected(row), row)
+    uiStore.selectedWells = updateSelectedWells(isSelected(row), row);
   }
-}
+};
 
 const handleRejectWells = () => {
   if (uiStore.selectedWells.length > 0) {
@@ -196,4 +207,3 @@ const updateTable = () => {
   visibleColumns.value = [...columns.value.map(a => a.name)];
 }
 </script>
-

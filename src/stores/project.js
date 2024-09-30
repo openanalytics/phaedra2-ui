@@ -1,100 +1,116 @@
-import { defineStore } from "pinia"
+import {defineStore} from "pinia"
 import projectsGraphQlAPI from "@/api/graphql/projects"
 import projectAPI from "@/api/projects";
 import experimentAPI from "@/api/experiments";
-import metadataAPI from "@/api/metadata";
+import {addTag, deleteTag, addProperty, deleteProperty} from "@/lib/MetadataUtils";
+import {ref} from "vue";
 
-export const useProjectStore = defineStore("project" , {
-    state: () => ({
-        project: {}
-    }),
-    getters: {
-        experiments: state => state.project.experiments,
-        projectAccess: state => state.project.projectAccess
-    },
-    actions: {
-        loadProject(projectId) {
-            const {onResult, onError} = projectsGraphQlAPI.projectById(projectId)
-            onResult(({data}) => {
-                this.project = data.project
-                this.project["experiments"] = data.experiments
-                this.project["projectAccess"] = data.projectAccess
-            })
-        },
-        isLoaded(projectId) {
-            return this.project.id === `${projectId}`
-        },
-        async createNewProject(newProject) {
-            const createdProject = await projectAPI.createNewProject(newProject)
-            this.project = createdProject
+export const useProjectStore = defineStore("project", () => {
+  const project = ref({})
+  const experiments = ref([])
+  const projectAccess = ref([])
 
-            await this.createProjectAccess({ projectId: createdProject.id, teamName: newProject.adminTeam, accessLevel: "Admin" })
-        },
-        async renameProject(newName) {
-            await projectAPI.editProject({ id: this.project.id, name: newName })
-            this.loadProject(this.project.id)
-        },
-        async editProjectDescription(newDescription) {
-            await projectAPI.editProject({id: this.project.id, description: newDescription})
-            this.loadProject(this.project.id)
-        },
-        async deleteProject() {
-            await projectAPI.deleteProject(this.project.id)
-            this.reset()
-        },
-        async addExperiment(experiment) {
-            experiment['projectId'] = this.project.id
-            await experimentAPI.createExperiment(experiment);
-            this.loadProject(this.project.id)
-        },
-        async openExperiment(experimentId) {
-            await experimentAPI.editExperiment({ id: experimentId, status: 'OPEN' })
-            this.loadProject(this.project.id)
-        },
-        async closeExperiment(experimentId) {
-            await experimentAPI.editExperiment({ id: experimentId, status: 'CLOSED' })
-            this.loadProject(this.project.id)
-        },
-        async deleteExperiment(experimentId) {
-            await experimentAPI.deleteExperiment(experimentId);
-            this.loadProject(this.project.id)
-        },
-        async createProjectAccess(newAccess) {
-            newAccess['projectId'] = this.project.id;
-            await projectAPI.createProjectAccess(newAccess)
-            this.loadProject(this.project.id)
-        },
-        async deleteProjectAccess(access) {
-            await projectAPI.deleteProjectAccess(access.id);
-            this.loadProject(this.project.id)
-        },
-        async addTag(newTag) {
-            await metadataAPI.addTag({'objectId': this.project.id, 'objectClass': 'PROJECT', 'tag': newTag })
-            this.loadProject(this.project.id)
-        },
-        async deleteTag(tag) {
-            await metadataAPI.removeTag({'objectId': this.project.id, 'objectClass': 'PROJECT', 'tag': tag })
-            this.loadProject(this.project.id)
-        },
-        async addPropertty(newProperty) {
-            await metadataAPI.addProperty({
-                objectId: this.project.id,
-                objectClass: 'PROJECT',
-                propertyName: newProperty.name,
-                propertyValue: newProperty.value
-            })
-            this.loadProject(this.project.id)
-        },
-        async deleteProperty(property) {
-            await metadataAPI.removeProperty({
-                objectId: this.project.id,
-                objectClass: 'PROJECT',
-                propertyName: property.propertyName
-            })
-            this.loadProject(this.project.id)
-        },
-        reset() {
-            this.project = {}
-        }
-    }
+  const loadProject = async (projectId) => {
+    const {onResult, onError} = projectsGraphQlAPI.projectById(projectId)
+    onResult(({data}) => {
+      project.value = data.project
+      experiments.value = data.experiments
+      projectAccess.value = data.projectAccess
+    })
+  }
+
+  const reloadProject = async () => {
+    await loadProject(project.value.id)
+  }
+
+  const isLoaded = (projectId) => {
+    return project.value.id === `${projectId}`
+  }
+
+  const createNewProject = async (newProject) => {
+    const createdProject = await projectAPI.createNewProject(newProject)
+    project.value = createdProject
+
+    await createProjectAccess({
+      projectId: createdProject.id,
+      teamName: newProject.adminTeam,
+      accessLevel: "Admin"
+    })
+  }
+  const renameProject = async (newName) => {
+    await projectAPI.editProject({id: project.value.id, name: newName})
+    await reloadProject()
+  }
+  const editProjectDescription = async (newDescription) => {
+    await projectAPI.editProject(
+        {id: project.value.id, description: newDescription})
+    await reloadProject()
+  }
+  const deleteProject = async () => {
+    await projectAPI.deleteProject(project.value.id)
+    await reset()
+  }
+  const addExperiment = async (experiment) => {
+    experiment['projectId'] = project.value.id
+    await experimentAPI.createExperiment(experiment);
+    await reloadProject()
+  }
+  const openExperiment = async (experimentId) => {
+    await experimentAPI.editExperiment({id: experimentId, status: 'OPEN'})
+    await reloadProject()
+  }
+  const closeExperiment = async (experimentId) => {
+    await experimentAPI.editExperiment({id: experimentId, status: 'CLOSED'})
+    await reloadProject()
+  }
+  const deleteExperiment = async (experimentId) => {
+    await experimentAPI.deleteExperiment(experimentId);
+    await reloadProject()
+  }
+  const createProjectAccess = async (newAccess) => {
+    newAccess['projectId'] = project.value.id;
+    await projectAPI.createProjectAccess(newAccess)
+    await reloadProject()
+  }
+  const deleteProjectAccess = async (access) => {
+    await projectAPI.deleteProjectAccess(access.id);
+    await reloadProject()
+  }
+  const handleAddTag = async (newTag) => {
+    await addTag(project.value.id, 'PROJECT', newTag, reloadProject)
+  }
+  const handleDeleteTag = async (tag) => {
+    await deleteTag(project.value.id, 'PROJECT', tag, reloadProject)
+  }
+  const handleAddProperty = async (newProperty) => {
+    await addProperty(project.value.id, 'PROJECT', newProperty, reloadProject)
+  }
+  const handleDeleteProperty = async (property) => {
+    await deleteProperty(project.value.id, 'PROJECT', property, reloadProject)
+  }
+  const reset = () => {
+    project.value = {}
+  }
+
+  return {
+    project,
+    experiments,
+    projectAccess,
+    loadProject,
+    isLoaded,
+    createNewProject,
+    renameProject,
+    editProjectDescription,
+    deleteProject,
+    addExperiment,
+    closeExperiment,
+    deleteExperiment,
+    createProjectAccess,
+    deleteProjectAccess,
+    handleAddTag,
+    handleDeleteTag,
+    handleAddProperty,
+    handleDeleteProperty,
+    reset
+  }
 })

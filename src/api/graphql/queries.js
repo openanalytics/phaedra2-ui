@@ -4,9 +4,14 @@ import {apolloQueriesClient} from "@/graphql/apollo.clients";
 
 const defaultOptions = {fetchPolicy: 'no-cache', errorPolicy: 'ignore'}
 
+const executeQuery = (query, variables) => {
+  return provideApolloClient(apolloQueriesClient)(
+      () => useQuery(gql`${query}`, variables, defaultOptions));
+}
+
 export default {
   exportPlateData(exportOptions) {
-    const QUERY = gql`
+    const query = `
         query exportPlateListData($exportPlateDataOptions: ExportPlateDataOptions) {
             plateData:exportPlateListData(exportPlateDataOptions: $exportPlateDataOptions) {
                 plateId
@@ -56,13 +61,10 @@ export default {
       includeFeatureStats: exportOptions.plateStats.featureStats,
       includeWellTypeFeatureStats: exportOptions.plateStats.featureStatsByWellType,
     }
-    const variables = {'exportPlateDataOptions': exportPlateDataOptions}
-    return provideApolloClient(apolloQueriesClient)(() => useQuery(QUERY,
-        variables,
-        defaultOptions))
+    return executeQuery(query, {exportPlateDataOptions})
   },
   exportWellData(exportOptions) {
-    const QUERY = gql`
+    const query = `
         query exportWellData($exportWellDataOptions: ExportWellDataOptions) {
             wellData:exportWellData(exportWellDataOptions: $exportWellDataOptions) {
                 plateId
@@ -112,9 +114,6 @@ export default {
       includeBasicCurveProperties: exportOptions.includeAllCurveProperties,
       includeAllCurveProperties: exportOptions.includeAllCurveProperties
     }
-    const variables = {'exportWellDataOptions': exportWellDataOptions}
-    return provideApolloClient(apolloQueriesClient)(() => useQuery(QUERY,
-        variables,
-        defaultOptions))
+    return executeQuery(query, {exportWellDataOptions})
   }
 }

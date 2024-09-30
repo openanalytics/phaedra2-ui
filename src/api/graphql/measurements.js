@@ -1,12 +1,17 @@
-import { apolloMeasurementsClient } from "@/graphql/apollo.clients";
+import {apolloMeasurementsClient} from "@/graphql/apollo.clients";
 import {provideApolloClient, useQuery} from '@vue/apollo-composable'
 import gql from 'graphql-tag'
 
 const defaultOptions = { fetchPolicy: 'no-cache', errorPolicy: 'ignore'}
 
+const executeQuery = (query, variables) => {
+    return provideApolloClient(apolloMeasurementsClient)(
+        () => useQuery(gql`${query}`, variables, defaultOptions));
+}
+
 export default {
     measurementsAll() {
-        const QUERY = gql`
+        const query = `
             query measurements {
                 measurements {
                     id
@@ -20,12 +25,12 @@ export default {
                 }
             }
         `
-        return provideApolloClient(apolloMeasurementsClient)(() => useQuery(QUERY, null, defaultOptions))
+        return executeQuery(query, {})
     },
     measurementById(measurementId) {
-        const QUERY = gql`
-            query measurementById {
-                measurement:measurementById(measurementId: ${measurementId}) {
+        const query = `
+            query measurementById($measurementId: ID) {
+                measurement:measurementById(measurementId: $measurementId) {
                     name
                     barcode
                     columns
@@ -33,31 +38,31 @@ export default {
                     wellColumns
                     subWellColumns
                 }
-                wellData:measurementDataById(measurementId: ${measurementId}) {
+                wellData:measurementDataById(measurementId: $measurementId) {
                     measurementId
                     column
                     data
                 }
             }
         `
-        return provideApolloClient(apolloMeasurementsClient)(() => useQuery(QUERY, null, defaultOptions))
+        return executeQuery(query, {measurementId})
     },
     measurementsColumnsById(measurementId) {
-      const QUERY = gql`
-          query measurementById {
-              wellColumns:measurementById(measurementId: ${measurementId}) {
+      const query = `
+          query measurementById($measurementId: ID) {
+              wellColumns:measurementById(measurementId: $measurementId) {
                   wellColumns
               }
           }
       `
-        return provideApolloClient(apolloMeasurementsClient)(() => useQuery(QUERY, null, defaultOptions))
+        return executeQuery(query, {measurementId})
     },
     measurementWellData(measurementId, wellColumn) {
-        const QUERY = gql`
-            query measurementWellData {
-                wellData: measurementDataByIdAndWellColumn(measurementId: ${measurementId}, wellColumn: "${wellColumn}")
+        const query = `
+            query measurementWellData($measurementId: ID, $wellColumn: String) {
+                wellData:measurementDataByIdAndWellColumn(measurementId: $measurementId, wellColumn: $wellColumn)
             }
         `
-        return provideApolloClient(apolloMeasurementsClient)(() => useQuery(QUERY, null, defaultOptions))
+        return executeQuery(query, {measurementId, wellColumn})
     }
 }

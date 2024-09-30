@@ -28,11 +28,8 @@
 <script setup>
 import {computed, ref} from 'vue';
 import {useStore} from 'vuex';
-import {useRoute, useRouter} from "vue-router";
 
 const store = useStore()
-const route = useRoute();
-const router = useRouter();
 
 const props = defineProps(['id', 'name', 'objectClass', 'show'])
 const emit = defineEmits(['onDeleted', 'update:show'])

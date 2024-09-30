@@ -1,15 +1,19 @@
 import {provideApolloClient, useQuery} from '@vue/apollo-composable'
 import gql from 'graphql-tag'
-import {computed} from "vue";
 import {apolloPlatesClient} from "@/graphql/apollo.clients";
 
 const defaultOptions = { fetchPolicy: 'no-cache', errorPolicy: 'ignore'}
 
+const executeQuery = (query, variables) => {
+  return provideApolloClient(apolloPlatesClient)(
+      () => useQuery(gql`${query}`, variables, defaultOptions));
+}
+
 export default {
-    experiments() {
-        const QUERY = gql`
-            query getExperiments {
-                experiments:getExperiments {
+  experiments(experimentIds) {
+    const query = `
+            query getExperiments($experimentIds: [ID]) {
+                experiments:getExperiments(experimentIds: $experimentIds) {
                     id
                     name
                     description
@@ -25,13 +29,12 @@ export default {
                 }
             }
         `
-        const query = provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY, null, defaultOptions))
-        return computed(() => query.result.value?.experiments ?? [])
-    },
-    nMostRecentExperiments(n) {
-        const QUERY = gql`
-            query nMostRecentExperiments {
-                experiments:getNMostRecentExperiments(n: ${n}) {
+    return executeQuery(query, {experimentIds});
+  },
+  nMostRecentExperiments(n) {
+    const query = `
+            query nMostRecentExperiments($n: Int) {
+                experiments:getNMostRecentExperiments(n: $n) {
                     id
                     name
                     description
@@ -45,10 +48,10 @@ export default {
                 }
             }
         `
-        return provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY, null, defaultOptions))
-    },
-    experimentById(experimentId) {
-        const QUERY = gql`
+    return executeQuery(query, {n});
+  },
+  experimentById(experimentId) {
+    const query = `
             query experimentById($experimentId: ID) {
                 experiment:getExperimentById(experimentId: $experimentId) {
                     id
@@ -66,14 +69,57 @@ export default {
                 }
             }
         `
-        const variables = {'experimentId': experimentId}
-        const query = provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY,
-            variables,
-            defaultOptions))
-        return computed(() => query.result.value?.experiment ?? {})
+    return executeQuery(query, {experimentId});
+  },
+  experimentsByProjectId(projectId) {
+    const query = `
+            query experimentsByProjectId($projectId: ID) {
+                experiment:getExperimentsByProjectId(projectId: $projectId) {
+                    id
+                    name
+                    description
+                    status
+                    projectId
+                    createdOn
+                    createdBy
+                    updatedOn
+                    updatedBy
+                    tags
+                }
+            }
+        `
+    return executeQuery(query, {projectId});
+  },
+  experimentsByProjectIds(projectIds) {
+    const query = `
+            query experimentsByProjectIds($projectIds: [ID]) {
+                experiments:getExperimentsByProjectIds(projectIds: $projectIds) {
+                    id
+                    name
+                    description
+                    status
+                    projectId
+                    multiploMethod
+                    multiploParameter
+                    createdOn
+                    createdBy
+                    updatedOn
+                    updatedBy
+                    tags
+                    summary {
+                      nrPlates
+                      nrPlatesLinkedLayout
+                      nrPlatesApproved
+                      nrPlatesCalculated
+                      nrPlatesValidated
+                    }
+                }
+            }
+        `
+    return executeQuery(query, {projectIds});
     },
     experimentSummaries() {
-        const QUERY = gql`
+    const query = `
             query getExperiments {
                 experimentSummaries:getExperimentSummaries {
                     experimentId
@@ -84,7 +130,7 @@ export default {
                 }
             }
         `
-        return provideApolloClient(apolloPlatesClient)(() => useQuery(QUERY, null, defaultOptions))
-    }
+    return executeQuery(query, {});
+  }
 }
 

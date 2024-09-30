@@ -15,7 +15,8 @@
         "label": "New Project...",
         "icon": "add",
         "route": "newProject"
-      }, {
+      },
+      {
         "label": "Projects",
         "icon": "folder_open",
         "route": "browseProjects"
@@ -50,7 +51,8 @@
         "label": "New Protocol...",
         "icon": "add",
         "route": "newProtocol"
-      }, {
+      },
+      {
         "label": "Protocols",
         "icon": "ballot",
         "route": "browseProtocols"
@@ -124,6 +126,11 @@
     "icon": "settings",
     "role": "admin",
     "children": [
+      {
+        "label": "Manage Feature Stats",
+        "icon": "functions",
+        "route": "manageFeatureStats"
+      },
       {
         "label": "New DRC Fitting Model",
         "icon": "add",

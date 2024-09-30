@@ -1,13 +1,15 @@
 <template>
-  <oa-table :columns="columns"
-                 :rows="plates"
-                 :visible-columns="visibleColumns"
-                 @row-click="selectPlate"
-                 @row-dblclick="gotoPlateView"
-                 @row-contextmenu="plateContextMenu"
-                 selection="multiple"
-                 v-model:selected="uiStore.selectedPlates">
-    <template v-slot:top-left v-if="experimentStore.isOpen">
+  <oa-table
+    :columns="columns"
+    :rows="plates"
+    :visible-columns="visibleColumns"
+    @row-click="selectPlate"
+    @row-dblclick="gotoPlateView"
+    @row-contextmenu="plateContextMenu"
+    selection="multiple"
+    v-model:selected="selectedPlates"
+  >
+    <template v-slot:top-left v-if="experiment && experiment.status === 'OPEN'">
       <q-btn size="sm" icon="add" label="New Plate" class="oa-button">
         <q-menu>
           <q-list size="sm" dense>
@@ -15,7 +17,9 @@
               <q-item-section no-wrap>
                 <div style="vertical-align: center">
                   <q-icon name="add" class="q-pr-md"/>
-                  <span style="text-transform: uppercase; font-size: 12px; text-align: right">New Plate</span>
+                  <span style="text-transform: uppercase; font-size: 12px; text-align: right">
+                    New Plate
+                  </span>
                 </div>
               </q-item-section>
             </q-item>
@@ -23,7 +27,9 @@
               <q-item-section no-wrap class="row">
                 <div>
                   <q-icon name="add" class="q-pr-md"/>
-                  <span style="text-transform: uppercase; font-size: 12px; text-align: right">New Plate(s) from Measurement(s)</span>
+                  <span style="text-transform: uppercase; font-size: 12px; text-align: right">
+                    New Plate(s) from Measurement(s)
+                  </span>
                 </div>
               </q-item-section>
             </q-item>
@@ -51,33 +57,35 @@
     <template v-slot:body-cell-link-status="props">
       <q-td :props="props">
         <q-tooltip transition-show="flip-right" transition-hide="flip-left">
-          {{ 'Linked with plate template ' + props.row.linkTemplateName }}
+          {{ "Linked with plate template " + props.row.linkTemplateName }}
         </q-tooltip>
-        <StatusFlag :object="props.row" :statusField="'linkStatus'"/>
+        <StatusFlag :object="props.row" :statusField="'linkStatus'" />
       </q-td>
     </template>
     <template v-slot:body-cell-status-calculation="props">
       <q-td :props="props">
         <q-tooltip transition-show="flip-right" transition-hide="flip-left">
-          {{ 'Calculated on: ' + FormatUtils.formatDate(props.row.calculatedOn) }}
+          {{
+            "Calculated on: " + FormatUtils.formatDate(props.row.calculatedOn)
+          }}
         </q-tooltip>
-        <StatusFlag :object="props.row" :statusField="'calculationStatus'"/>
+        <StatusFlag :object="props.row" :statusField="'calculationStatus'" />
       </q-td>
     </template>
     <template v-slot:body-cell-status-validated="props">
       <q-td :props="props">
         <q-tooltip transition-show="flip-right" transition-hide="flip-left">
-          {{ 'Validated on: ' + FormatUtils.formatDate(props.row.validatedOn) }}
+          {{ "Validated on: " + FormatUtils.formatDate(props.row.validatedOn) }}
         </q-tooltip>
-        <StatusFlag :object="props.row" :statusField="'validationStatus'"/>
+        <StatusFlag :object="props.row" :statusField="'validationStatus'" />
       </q-td>
     </template>
     <template v-slot:body-cell-status-approved="props">
       <q-td :props="props">
         <q-tooltip transition-show="flip-right" transition-hide="flip-left">
-          {{ 'Approved on: ' + FormatUtils.formatDate(props.row.approvedOn) }}
+          {{ "Approved on: " + FormatUtils.formatDate(props.row.approvedOn) }}
         </q-tooltip>
-        <StatusFlag :object="props.row" :statusField="'approvalStatus'"/>
+        <StatusFlag :object="props.row" :statusField="'approvalStatus'" />
       </q-td>
     </template>
     <template v-slot:no-data>
@@ -86,37 +94,24 @@
       </div>
     </template>
   </oa-table>
-  <PlateActionMenu v-show="showPlateContextMenu" :plate="selectedPlate" touch-position context-menu />
+  <PlateActionMenu :plate="selectedPlate" touch-position />
 </template>
 
-<style scoped>
-.nav-link {
-  color: black;
-  text-decoration: none;
-}
-</style>
-
 <script setup>
-import {computed, onMounted, ref, watch} from "vue";
-import {useRouter} from "vue-router";
+import { computed, onMounted, ref, watch } from "vue";
+import { useRouter } from "vue-router";
 
 import PlateActionMenu from "@/components/plate/PlateActionMenu";
 import StatusFlag from "@/components/widgets/StatusFlag";
 import FormatUtils from "@/lib/FormatUtils";
-import FilterUtils from "@/lib/FilterUtils.js"
-import {useExperimentStore} from "@/stores/experiment";
-import {useExportTableData} from "@/composable/exportTableData";
-import {useUIStore} from "@/stores/ui";
+import FilterUtils from "@/lib/FilterUtils.js";
+import { useExportTableData } from "@/composable/exportTableData";
 import OaTable from "@/components/table/OaTable.vue";
 
 const props = defineProps(['plates', 'experiment', 'newPlateTab', 'newPlateFromMeasurements'])
-const emit = defineEmits(['update:newPlateTab', 'showPlateInspector'])
+const emits = defineEmits(['update:newPlateTab', 'showPlateInspector', 'selection'])
 
-const router = useRouter()
-const uiStore = useUIStore()
-const experimentStore = useExperimentStore()
-
-const loading = ref()
+const router = useRouter();
 
 const columns = [
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
@@ -132,7 +127,8 @@ const columns = [
   {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true}
 ]
 
-const plates = computed(() => experimentStore.plates)
+const experiment = computed(() => props.experiment)
+const plates = computed(() => props.plates)
 
 const filter = FilterUtils.makeFilter(columns);
 const filterMethod = FilterUtils.defaultFilterMethod();
@@ -150,48 +146,87 @@ const gotoPlateView = (event, row) => {
   router.push({name: "plate", params: { plateId: selectedPlate.value.id }});
 }
 
-const isSelected = (row) => uiStore.selectedPlates.includes(row)
-const updateSelectedPlates = (condition, row) => condition ? uiStore.selectedPlates.filter(plate => plate.id !== row.id) : [row]
-const selectPlate = (event, row) => {
-  selectedPlate.value = row
-  uiStore.loadSelectedPlate(row.id)
-
-  if (event && (event.ctrlKey || event.metaKey)) {
-    if (isSelected(row)) {
-      uiStore.selectedPlates = updateSelectedPlates(true, row)
-    } else {
-      uiStore.selectedPlates.push(row)
-    }
-  } else {
-    uiStore.selectedPlates = updateSelectedPlates(isSelected(row), row)
-  }
-}
-
 const openNewPlateDialog = () => {
-  emit('update:newPlateTab', true)
-}
+  emits("update:newPlateTab", true);
+};
 
 const openNewPlateFromMeasurementsDialog = () => {
-  emit('update:newPlateFromMeasurements', true)
-}
+  emits("update:newPlateFromMeasurements", true);
+};
 
-const visibleColumns = ref([])
+const loading = ref();
+const visibleColumns = ref([]);
 onMounted(() => {
-  visibleColumns.value = [...columns.map(a => a.name)];
-  loading.value = false
+  visibleColumns.value = [...columns.map((a) => a.name)];
+  loading.value = false;
 })
 
 watch(plates, () => {
-  visibleColumns.value = [...columns.map(a => a.name)];
-  loading.value = false
+  visibleColumns.value = [...columns.map((a) => a.name)];
+  loading.value = false;
 })
 
-const exportTableData = useExportTableData(columns)
+const selectedPlates = ref();
+watch(selectedPlates, () => {
+  emits("selection", selectedPlates.value);
+});
 
+const isSelected = (row) => selectedPlates.value?.includes(row) ?? false;
+const updateSelectedPlates = (condition, row) =>
+  condition
+    ? selectedPlates.value.filter((plate) => plate.id !== row.id)
+    : [row];
+const selectPlate = (event, row) => {
+  selectedPlate.value = row;
+  if (event && (event.ctrlKey || event.metaKey)) {
+    if (isSelected(row)) {
+      selectedPlates.value = updateSelectedPlates(true, row);
+    } else {
+      selectedPlates.value.push(row);
+    }
+  } else {
+    selectedPlates.value = updateSelectedPlates(isSelected(row), row);
+  }
+};
+
+const experimentsNames = computed(() =>
+  selectedPlates.value
+    .map(
+      (plate) =>
+        props.experiments.find((item) => item.id == plate.experimentId).name
+    )
+    .filter(getUnique)
+);
+
+function getUnique(value, index, array) {
+  return array.indexOf(value) === index;
+}
+
+const exportTableData = useExportTableData(columns);
 const exportToCSV = () => {
-  exportTableData.exportToCSV(filterMethod(plates.value, filter.value), props.experiment.name)
-}
+  if (experimentsNames.value.length > 1) {
+    exportTableData.exportToCSV(
+      filterMethod(plates.value, filter.value),
+      "selectedPlatesExportList"
+    );
+  } else if (experimentsNames.value.length) {
+    exportTableData.exportToCSV(
+      filterMethod(plates.value, filter.value),
+      experimentsNames.value[0]
+    );
+  }
+};
 const exportToXLSX = () => {
-  exportTableData.exportToXLSX(filterMethod(plates.value, filter.value), props.experiment.name)
-}
+  if (experimentsNames.value.length > 1) {
+    exportTableData.exportToXLSX(
+      filterMethod(plates.value, filter.value),
+      "selectedPlatesExportList"
+    );
+  } else if (experimentsNames.value.length) {
+    exportTableData.exportToXLSX(
+      filterMethod(plates.value, filter.value),
+      experimentsNames.value[0]
+    );
+  }
+};
 </script>

@@ -4,9 +4,14 @@ import gql from 'graphql-tag'
 
 const defaultOptions = { fetchPolicy: 'no-cache', errorPolicy: 'ignore'}
 
+const executeQuery = (query, variables) => {
+    return provideApolloClient(apolloResultDataClient)(
+        () => useQuery(gql`${query}`, variables, defaultOptions));
+}
+
 export default {
     protocolsByPlateId(plateId) {
-        const PROTOCOLS_BY_PLATE_ID_QUERY = gql`
+        const query = `
             query protocolsByPlateId($plateId: ID) {
                 protocols:protocolsByPlateId (plateId: $plateId) {
                     id:protocolId
@@ -18,15 +23,10 @@ export default {
                 }
             }
         `
-        const variables = {'plateId': plateId}
-
-        return provideApolloClient(apolloResultDataClient)(()=> useQuery(PROTOCOLS_BY_PLATE_ID_QUERY,
-            variables,
-            defaultOptions
-        ))
+        return executeQuery(query, {plateId})
     },
     protocolsByExperimentId(experimentId) {
-        const QUERY = gql `
+        const query = `
             query protocolsByExperimentId($experimentId: ID) {
                 protocols:protocolsByExperimentId(experimentId: $experimentId) {
                     id:protocolId
@@ -38,25 +38,20 @@ export default {
                 }
             }
         `
-        const variables = {'experimentId': experimentId}
-
-        return provideApolloClient(apolloResultDataClient)(()=> useQuery(QUERY,
-            variables,
-            defaultOptions
-        ))
+        return executeQuery(query, {experimentId})
     },
     featureValuesByPlateIdAndFeatureIdAndProtocolId(plateId, featureId, protocolId) {
-        const QUERY = gql`
-            query featureValuesByPlateIdAndFeatureIdAndProtocolId {
-                featureValues:featureValuesByPlateIdAndFeatureIdAndProtocolId (plateId: ${plateId}, featureId: ${featureId}, protocolId: ${protocolId}) {
+        const query = `
+            query featureValuesByPlateIdAndFeatureIdAndProtocolId($plateId: ID, $featureId: ID, $protocolId: ID) {
+                featureValues:featureValuesByPlateIdAndFeatureIdAndProtocolId (plateId: $plateId, featureId: $featureId, protocolId: $protocolId) {
                     value
                 }
             }
         `
-        return provideApolloClient(apolloResultDataClient)(()=> useQuery(QUERY, null, defaultOptions))
+        return executeQuery(query, {plateId, featureId, protocolId})
     },
     resultSetsByPlateId(plateId) {
-        const QUERY = gql`
+        const query = `
             query resultSetsByPlateId($plateId: ID) {
                 resultSets: resultSetsByPlateId(plateId: $plateId) {
                     id
@@ -80,13 +75,10 @@ export default {
                 }
             }
         `
-        const variables = {'plateId': plateId}
-        return provideApolloClient(apolloResultDataClient)(()=> useQuery(QUERY,
-            variables,
-            defaultOptions))
+        return executeQuery(query, {plateId})
     },
     resultSetFeatureStats(resultSetId) {
-        const QUERY = gql`
+        const query = `
             query resultSetsByPlateId($resultSetId: ID) {
                 rsFeatureStats:resultSetFeatureStats(resultSetId: $resultSetId) {
                     featureId
@@ -98,13 +90,10 @@ export default {
                 }
             }
         `
-        const variables = {'resultSetId': resultSetId}
-        return provideApolloClient(apolloResultDataClient)(()=> useQuery(QUERY,
-            variables,
-            defaultOptions))
+        return executeQuery(query, {resultSetId})
     },
     resultDataByResultSetId(resultSetId) {
-        const QUERY = gql`
+        const query = `
             query resultDataByResultSetId($resultSetId: ID) {
                 resultData:resultDataByResultSetId(resultSetId: $resultSetId) {
                     id
@@ -118,25 +107,20 @@ export default {
                 }
             }
         `
-        const variables = {'resultSetId': resultSetId}
-        return provideApolloClient(apolloResultDataClient)(()=> useQuery(QUERY,
-            variables,
-            defaultOptions))
+        return executeQuery(query, {resultSetId})
     },
     resultDataByResultSetIdAndFeatureId(resultSetId, featureId) {
-        const QUERY = gql`
-            query resultData {
-                resultData:resultDataByResultSetIdAndFeatureId(resultSetId: ${resultSetId}, featureId: ${featureId}) {
+        const query = `
+            query resultData($resultSetId: ID, $featureId: ID) {
+                resultData:resultDataByResultSetIdAndFeatureId(resultSetId: $resultSetId, featureId: $featureId) {
                     values
                 }
             }
         `
-        return provideApolloClient(apolloResultDataClient)(() => useQuery(QUERY,
-            null,
-            defaultOptions))
+        return executeQuery(query, {resultSetId, featureId})
     },
     resultDataByPlateIdAndProtocolIdAndFeatureId(plateId, protocolId, featureId) {
-        const QUERY = gql`
+        const query = gql`
             query resultDataByPlateIdAndProtocolIdAndFeatureId($plateId: ID, $protocolId: ID, $featureId: ID) {
                 resultData: resultDataByPlateIdAndProtocolIdAndFeatureId(plateId: $plateId, protocolId: $protocolId, featureId: $featureId) {
                     id
@@ -150,13 +134,10 @@ export default {
                 }
             }
         `
-        const variables = {'plateId': plateId, 'protocolId': protocolId, 'featureId': featureId}
-        return provideApolloClient(apolloResultDataClient)(() => useQuery(QUERY,
-            variables,
-            defaultOptions))
+        return executeQuery(query, {plateId, protocolId, featureId})
     },
     latestResultSetByPlateId(plateId) {
-        const QUERY = gql`
+        const query = `
             query latestResultSetByPlateId($plateId: ID) {
                 resultSet:latestResultSetByPlateId(plateId: $plateId) {
                     id
@@ -167,13 +148,10 @@ export default {
                 }
             }
         `
-        const variables = {'plateId': plateId}
-        return provideApolloClient(apolloResultDataClient)(() => useQuery(QUERY,
-            variables,
-            defaultOptions))
+        return executeQuery(query, {plateId})
     },
     latestResultSetsByPlateIds(plateIds) {
-        const QUERY = gql`
+        const query = `
             query latestResultSetsByPlateIds($plateIds: [ID]) {
                 resultSets:latestResultSetsByPlateIds(plateIds: $plateIds) {
                     id
@@ -184,9 +162,6 @@ export default {
                 }
             }
         `
-        const variables = {'plateIds': plateIds}
-        return provideApolloClient(apolloResultDataClient)(() => useQuery(QUERY,
-            variables,
-            defaultOptions))
+        return executeQuery(query, {plateIds})
     }
 }

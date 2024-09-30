@@ -91,7 +91,6 @@ const initSelectedValues = () => {
     } else {
       isPlotlyClick = false
     }
-
   })
 }
 
@@ -135,14 +134,29 @@ const handleChartUpdate = () => {
   const chartView = computed(() => uiStore.getChartView(props.chartId))
   if (chartView.value.type === 'scatter') {
     const scatterChartData = useScatterChartData()
-    scatterChartData.getChartData(uiStore.selectedPlate.id, selectedProtocol.value?.id, selectedXAxisOption.value.value, selectedXAxisOption.value.type, selectedYAxisOption.value.value, selectedYAxisOption.value.type, groupBy.value.value).then((scatterData) => {
+    scatterChartData.getChartData(uiStore.selectedPlate?.id, selectedProtocol.value?.id,
+        selectedXAxisOption.value.value, selectedXAxisOption.value.type,
+        selectedYAxisOption.value.value, selectedYAxisOption.value.type, groupBy.value.value).then(
+        (scatterData) => {
       console.log("Scatter Chart Data: " + Object.keys(scatterData))
-      const traces = Object.keys(scatterData).map(groupByKey => {return {x: scatterData[groupByKey].xvalues, y: scatterData[groupByKey].yvalues, customdata: scatterData[groupByKey].customdata, mode: "markers", type: "scatter", name: groupByKey}})
+      const traces = Object.keys(scatterData).map(groupByKey => {
+        return {
+          type: "scatter",
+          x: scatterData[groupByKey].xvalues,
+          y: scatterData[groupByKey].yvalues,
+          customdata: scatterData[groupByKey].customdata,
+          mode: "markers",
+          marker: {
+            size: 12,
+            symbol: scatterData[groupByKey].markerSymbol
+          },
+          name: groupByKey
+        }
+      })
       traces.forEach(trace => {
-        trace['marker'] = {size: 12}
+        // trace['marker'] = {size: 12}
         if (trace.name === 'PC') trace.marker['color'] = 'rgb(33,186,69)'
         if (trace.name === 'NC') trace.marker['color'] = 'rgb(229,35,35)'
-
       })
       chartPlot.value = {
         data: traces,
@@ -155,7 +169,7 @@ const handleChartUpdate = () => {
     })
   } else if (chartView.value.type === 'box') {
     const boxPlotData = useBoxPlotData()
-    boxPlotData.getChartData(uiStore.selectedPlate.id, selectedProtocol.value?.id, selectedYAxisOption.value.value, selectedYAxisOption.value.type, groupBy.value.value).then(boxPlotData => {
+    boxPlotData.getChartData(uiStore.selectedPlate?.id, selectedProtocol.value?.id, selectedYAxisOption.value.value, selectedYAxisOption.value.type, groupBy.value.value).then(boxPlotData => {
       console.log("Box Plot Data: " + JSON.stringify(boxPlotData))
       const traces = Object.keys(boxPlotData).map(groupByKey => {return {y: boxPlotData[groupByKey].yvalues, type: "box", name: groupByKey}})
       chartPlot.value = {
@@ -168,7 +182,7 @@ const handleChartUpdate = () => {
     })
   } else if (chartView.value.type === 'histogram') {
     const histogramData = useHistogramData()
-    histogramData.getChartData(uiStore.selectedPlate.id, selectedProtocol.value?.id, selectedXAxisOption.value.value, selectedXAxisOption.value.type, groupBy.value.value).then(histogramData => {
+    histogramData.getChartData(uiStore.selectedPlate?.id, selectedProtocol.value?.id, selectedXAxisOption.value.value, selectedXAxisOption.value.type, groupBy.value.value).then(histogramData => {
       console.log("Histogram Data: " + JSON.stringify(histogramData))
       const traces = Object.keys(histogramData).map(groupByKey => {return {x: histogramData[groupByKey].xvalues, type: "histogram", name: groupByKey}})
       chartPlot.value = {
@@ -222,7 +236,8 @@ const layout = (chartView) => {
 
 watch(() => props.update, handlePlotUpdate)
 watch(() => chartPlot.value, handlePlotUpdate)
-watch(() => uiStore.selectedWells.value, handlePlotUpdate, {deep: true})
+watch(() => uiStore.selectedPlate, handleChartUpdate)
+watch(() => uiStore.selectedWells, handlePlotUpdate, {deep: true})
 
 const handleProtocolSelection = () => {
   updatePlotValueOptions()

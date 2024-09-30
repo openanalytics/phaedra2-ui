@@ -8,11 +8,12 @@
 
 .oa-root-div {
   background-color: $secondary;
-  height: 100%;
+  height: calc(100vh - 50px) !important;
 }
 
 .oa-section {
-  box-shadow: 0 1px 5px rgb(0 0 0 / 20%), 0 2px 2px rgb(0 0 0 / 14%), 0 3px 1px -2px rgb(0 0 0 / 12%);
+  box-shadow: 0 1px 5px rgb(0 0 0 / 20%), 0 2px 2px rgb(0 0 0 / 14%),
+    0 3px 1px -2px rgb(0 0 0 / 12%);
   overflow: auto;
 }
 
@@ -37,7 +38,8 @@
   width: 100%;
   min-height: 36px;
   height: fit-content;
-  box-shadow: 0 1px 5px rgb(0 0 0 / 20%), 0 2px 2px rgb(0 0 0 / 14%), 0 3px 1px -2px rgb(0 0 0 / 12%);
+  box-shadow: 0 1px 5px rgb(0 0 0 / 20%), 0 2px 2px rgb(0 0 0 / 14%),
+    0 3px 1px -2px rgb(0 0 0 / 12%);
 }
 
 .oa-action-button {
@@ -63,7 +65,9 @@
   border-radius: 0;
 }
 
-.oa-button-edit, .oa-button-delete, .oa-button-tag {
+.oa-button-edit,
+.oa-button-delete,
+.oa-button-tag {
   @extend .oa-button;
 }
 
@@ -92,8 +96,8 @@
 }
 
 .cursor-grab {
-  cursor: grab
+  cursor: grab;
 }
 .cursor-grabbing {
-  cursor: grabbing
+  cursor: grabbing;
 }
