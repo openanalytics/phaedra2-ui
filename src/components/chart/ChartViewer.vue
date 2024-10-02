@@ -59,6 +59,7 @@
             v-if="chart.type !== 'trend'"
             :chartId="chart.id"
             :update="update"
+            :chartView="getChartView(chart.id)"
           />
           <TrendChart
             v-if="chart.type === 'trend'"
@@ -141,6 +142,10 @@ const handleAcceptWells = () => {
     });
   }
 };
+
+function getChartView(id) {
+  return uiStore.getChartView(id);
+}
 </script>
 
 <style></style>
