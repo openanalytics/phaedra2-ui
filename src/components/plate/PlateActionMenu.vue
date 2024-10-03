@@ -152,7 +152,7 @@ const hideMenu = ref(false);
 
 const browseWells = () => {
   if (route.name == "workbench") {
-    panesStore.addItem("wells-list-pane", "panes-list-pane", "right");
+    panesStore.addItem("wells-list-pane", "plates-list-pane", "right");
   } else {
     handlePlateSelection(() => {
       router.push({

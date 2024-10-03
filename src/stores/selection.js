@@ -20,6 +20,9 @@ export const useSelectionStore = defineStore("selection", () => {
   const selectedExperimentsIds = computed(() =>
     selectedExperiments.value.map((item) => item.id)
   );
+  const selectedPlatesIds = computed(() =>
+    selectedPlates.value.map((item) => item.id)
+  );
 
   const projectsIds = computed(() => projects.value.map((item) => item.id));
   const experimentsIds = computed(() =>
@@ -162,18 +165,22 @@ export const useSelectionStore = defineStore("selection", () => {
     }
   }
 
-  function loadPlate(plateId, replace = true) {
-    if (plateId) {
-      const { onResult, onError } = projectsGraphQlAPI.plateById(plateId);
+  function loadPlate(platesIds, replace = true) {
+    if (platesIds) {
+      const { onResult, onError } = projectsGraphQlAPI.wellsByPlateIds(platesIds);
       onResult(({ data }) => {
         if (replace) {
-          this.wells = data.wells;
+          wells.value = data.wells;
         } else {
           wells.value = [...wells.value, ...data.wells];
         }
       });
     }
   }
+
+  watch(selectedPlates, () => {
+    loadPlate(selectedPlatesIds.value);
+  });
 
   watch(selectedExperiments, () => {
     loadExperiment(selectedExperimentsIds.value);

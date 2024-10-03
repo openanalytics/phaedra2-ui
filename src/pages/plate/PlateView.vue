@@ -31,7 +31,7 @@
                             :protocols="plateStore.protocols" @wellStatusChanged="onWellStatusChanged"/>
             </q-tab-panel>
             <q-tab-panel name="wells" class="q-px-none">
-              <WellList :plate="plateStore.plate" :wells="plateStore.wells" @wellStatusChanged="onWellStatusChanged"/>
+              <WellList :plates="plateStore.plate" :wells="plateStore.wells" @wellStatusChanged="onWellStatusChanged"/>
             </q-tab-panel>
             <q-tab-panel name="measurements" icon="view_module" label="Layout" class="q-px-none">
               <MeasList :plate="plateStore.plate" :read-only="readOnly"/>

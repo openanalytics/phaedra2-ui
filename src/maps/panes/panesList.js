@@ -82,7 +82,7 @@ export function usePanesList() {
         plates: selectionStore.plates,
         experiments: selectionStore.selectedExperiments,
       },
-      selection: (e) => (selectionStore.selectedPanes = e),
+      selection: (e) => (selectionStore.selectedPlates = e),
     },
     {
       component: WellList,
@@ -91,7 +91,7 @@ export function usePanesList() {
       icon: "science",
       closable: true,
       props: {
-        plate: selectionStore.plates ? selectionStore.plates[0] : [],
+        plates: selectionStore.plates,
         wells: selectionStore.wells,
       },
       selection: (e) => (selectionStore.selectedWells = e),

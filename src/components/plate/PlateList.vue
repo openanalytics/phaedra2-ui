@@ -108,7 +108,7 @@ import FilterUtils from "@/lib/FilterUtils.js";
 import { useExportTableData } from "@/composable/exportTableData";
 import OaTable from "@/components/table/OaTable.vue";
 
-const props = defineProps(['plates', 'experiment', 'newPlateTab', 'newPlateFromMeasurements'])
+const props = defineProps(['plates', 'experiments', 'newPlateTab', 'newPlateFromMeasurements'])
 const emits = defineEmits(['update:newPlateTab', 'showPlateInspector', 'selection'])
 
 const router = useRouter();
@@ -166,11 +166,7 @@ watch(plates, () => {
   loading.value = false;
 })
 
-const selectedPlates = ref();
-watch(selectedPlates, () => {
-  emits("selection", selectedPlates.value);
-});
-
+const selectedPlates = ref([]);
 const isSelected = (row) => selectedPlates.value?.includes(row) ?? false;
 const updateSelectedPlates = (condition, row) =>
   condition
@@ -188,6 +184,19 @@ const selectPlate = (event, row) => {
     selectedPlates.value = updateSelectedPlates(isSelected(row), row);
   }
 };
+
+watch(selectedPlates, (newVal) => {
+  emits("selection", newVal);
+});
+watch(
+  () => props.plates,
+  (newVal) => {
+    const ids = newVal.map((item) => item.id);
+    selectedPlates.value = selectedPlates.value.filter((item) =>
+      ids.includes(item.id)
+    );
+  }
+);
 
 const experimentsNames = computed(() =>
   selectedPlates.value
