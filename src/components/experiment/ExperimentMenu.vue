@@ -230,11 +230,7 @@ const updateProject = () => {
 const uiStore = useUIStore();
 const addExperimentPlateTrendChart = (experimentId) => {
   if (route.name == "workbench") {
-    panesStore.addItem(
-      "experiment-chart-pane",
-      "experiment-list-pane",
-      "right"
-    );
+    panesStore.openChartPane("experiment-chart-pane", "experiment-list-pane");
   } else if (uiStore.isExperimentSelected()) {
     uiStore.addChartView({
       type: "trend",

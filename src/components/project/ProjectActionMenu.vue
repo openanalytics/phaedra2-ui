@@ -81,7 +81,6 @@ const openProjectDetails = () => {
 };
 
 const openExperiments = () => {
-  // fetchProjectData();
   panesStore.addItem("experiment-list-pane", "project-list-pane", "right");
 };
 </script>

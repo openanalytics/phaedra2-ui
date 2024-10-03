@@ -47,15 +47,22 @@
 <script setup>
 import Plotly from "plotly.js-cartesian-dist-min";
 import { computed, onMounted, ref, watch } from "vue";
-import { useUIStore } from "@/stores/ui";
 import useScatterChartData from "@/composable/scatterChartData";
 import useBoxPlotData from "@/composable/boxPlotData";
 import useHistogramData from "@/composable/histogramData";
 
-const uiStore = useUIStore();
-const props = defineProps(["width", "chartId", "update", "chartView"]);
+const props = defineProps([
+  "width",
+  "chartId",
+  "update",
+  "chartView",
+  "protocols",
+  "selectedPlate", //plateId
+  "selectedWells",
+]);
 
-// const chartView = computed(() => uiStore.getChartView(props.chartId))
+const emit = defineEmits(["selection"]);
+
 const showXAxisSelector = computed(
   () =>
     props.chartView.type === "scatter" || props.chartView.type === "histogram"
@@ -73,7 +80,7 @@ const selectedYAxisOption = ref();
 
 onMounted(() => initSelectedValues());
 const initSelectedValues = () => {
-  plateProtocols.value = uiStore.protocols;
+  plateProtocols.value = props.protocols;
   if (
     !selectedProtocol.value ||
     !plateProtocols.value
@@ -95,12 +102,12 @@ const initSelectedValues = () => {
       data?.points
         ?.filter((p) => p.data?.type === "scatter")
         .map((p) => p.customdata) ?? [];
-    uiStore.selectedWells = selectedWells;
+    emit("selection", selectedWells);
   });
 
   chart.value.on("plotly_selected", (data) => {
     const selectedWells = data?.points?.map((p) => p.customdata) ?? [];
-    uiStore.selectedWells = selectedWells;
+    emit("selection", selectedWells);
   });
 
   chart.value.addEventListener("contextmenu", (ev) => {
@@ -108,7 +115,7 @@ const initSelectedValues = () => {
   });
   chart.value.addEventListener("click", (ev) => {
     if (!isPlotlyClick) {
-      uiStore.selectedWells = [];
+      emit("selection", []);
       Plotly.restyle(chart.value, "selectedpoints", null);
     } else {
       isPlotlyClick = false;
@@ -168,12 +175,11 @@ const groupBy = ref(groupByOptions.value[0]);
 const chartPlot = ref([]);
 
 const handleChartUpdate = () => {
-  // const chartView = computed(() => uiStore.getChartView(props.chartId))
   if (props.chartView.type === "scatter") {
     const scatterChartData = useScatterChartData();
     scatterChartData
       .getChartData(
-        uiStore.selectedPlate?.id,
+        props.selectedPlate?.id,
         selectedProtocol.value?.id,
         selectedXAxisOption.value.value,
         selectedXAxisOption.value.type,
@@ -215,7 +221,7 @@ const handleChartUpdate = () => {
     const boxPlotData = useBoxPlotData();
     boxPlotData
       .getChartData(
-        uiStore.selectedPlate?.id,
+        props.selectedPlate?.id,
         selectedProtocol.value?.id,
         selectedYAxisOption.value.value,
         selectedYAxisOption.value.type,
@@ -242,7 +248,7 @@ const handleChartUpdate = () => {
     const histogramData = useHistogramData();
     histogramData
       .getChartData(
-        uiStore.selectedPlate?.id,
+        props.selectedPlate?.id,
         selectedProtocol.value?.id,
         selectedXAxisOption.value.value,
         selectedXAxisOption.value.type,
@@ -275,7 +281,7 @@ const handlePlotUpdate = () => {
       displaylogo: false,
     });
 
-    const selectedWellIds = uiStore.selectedWells.map((well) =>
+    const selectedWellIds = props.selectedWells.map((well) =>
       Number.parseInt(well.id)
     );
     const selectedpoints = [];
@@ -315,8 +321,8 @@ const layout = (chartView) => {
 
 watch(() => props.update, handlePlotUpdate);
 watch(() => chartPlot.value, handlePlotUpdate);
-watch(() => uiStore.selectedPlate, handleChartUpdate);
-watch(() => uiStore.selectedWells, handlePlotUpdate, { deep: true });
+watch(() => props.selectedPlate, handleChartUpdate);
+watch(() => props.selectedWells, handlePlotUpdate, { deep: true });
 
 const handleProtocolSelection = () => {
   updatePlotValueOptions();

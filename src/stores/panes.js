@@ -169,6 +169,19 @@ export const usePanesStore = defineStore("panes", () => {
     dynamicPanes.value = value;
   }
 
+  function openChartPane(chartPaneId, fromId) {
+    const chartPanes = activePanes.value.filter((pane) => {
+      console.log(pane.includes("chart"));
+      return pane.includes("chart");
+    });
+    if (chartPanes.length > 0) {
+      console.log(chartPanes);
+      addItem(chartPaneId, chartPanes[0], "center");
+    } else {
+      addItem(chartPaneId, fromId, "bottom");
+    }
+  }
+
   return {
     dynamicPanes,
     draggedElement,
@@ -180,5 +193,6 @@ export const usePanesStore = defineStore("panes", () => {
     activePanes,
     setDynamicPanesStartValue,
     moveItem,
+    openChartPane,
   };
 });

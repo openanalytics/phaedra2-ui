@@ -10,6 +10,7 @@ import WellList from "@/pages/plate/WellList.vue";
 import { computed } from "vue";
 import { useSelectionStore } from "@/stores/selection";
 import TrendChart from "@/components/chart/TrendChart.vue";
+import Chart from "@/components/chart/Chart.vue";
 
 export function usePanesList() {
   const selectionStore = useSelectionStore();
@@ -62,7 +63,7 @@ export function usePanesList() {
       icon: "details",
       closable: true,
       props: {
-        project: selectionStore.projects[0],
+        project: selectionStore.selectedProjects[0],
       },
     },
     {
@@ -101,7 +102,55 @@ export function usePanesList() {
         plates: selectionStore.plates,
         selected: selectionStore.selectedPlates,
       },
-      selection: (e) => (selectionStore.selectedPanes = e),
+      selection: (e) => (selectionStore.selectedPlates = e),
+    },
+    {
+      component: Chart,
+      id: "scatterplot-chart-pane",
+      title: "Scatterplot 2D",
+      icon: "scatter_plot",
+      closable: true,
+      props: {
+        update: Date.now(),
+        chartView: { ...selectionStore.plateChart, type: "scatter" },
+        chartId: selectionStore.chart.id,
+        selectedPlate: selectionStore.plateChart.plate,
+        protocols: selectionStore.plateChart.protocols,
+        selectedWells: selectionStore.selectedWells,
+      },
+      selection: (e) => (selectionStore.selectedWells = e),
+    },
+    {
+      component: Chart,
+      id: "boxplot-chart-pane",
+      title: "Boxplot",
+      icon: "candlestick_chart",
+      closable: true,
+      props: {
+        update: Date.now(),
+        chartView: { ...selectionStore.plateChart, type: "box" },
+        chartId: selectionStore.chart.id,
+        selectedPlate: selectionStore.plateChart.plate,
+        protocols: selectionStore.plateChart.protocols,
+        selectedWells: selectionStore.selectedWells,
+      },
+      selection: (e) => (selectionStore.selectedWells = e),
+    },
+    {
+      component: Chart,
+      id: "histogram-chart-pane",
+      title: "1D Histogram",
+      icon: "bar_chart",
+      closable: true,
+      props: {
+        update: Date.now(),
+        chartView: { ...selectionStore.plateChart, type: "histogram" },
+        chartId: selectionStore.chart.id,
+        selectedPlate: selectionStore.plateChart.plate,
+        protocols: selectionStore.plateChart.protocols,
+        selectedWells: selectionStore.selectedWells,
+      },
+      selection: (e) => (selectionStore.selectedWells = e),
     },
     {
       component: WellList,

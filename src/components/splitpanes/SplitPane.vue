@@ -88,8 +88,9 @@ const panesStore = usePanesStore();
 
 watch(
   () => props.panes,
-  () => {
-    activeTab.value = props.panes[props.panes.length - 1].title;
+  (newVal, oldVal) => {
+    if (newVal[newVal.length - 1].title != oldVal[oldVal.length - 1].title)
+      activeTab.value = newVal[newVal.length - 1].title;
   }
 );
 

@@ -400,46 +400,62 @@ const onDisapprovePlate = async (reason) => {
 };
 
 const addScatterPlot = async (plateId) => {
-  handlePlateSelection(async () => {
-    await loadingHandler.handleLoadingDuring(
-      uiStore.loadSelectedPlate(plateId)
-    );
-    uiStore.addChartView({
-      type: "scatter",
-      plateId: plateId,
-      label: "Scatter Plot",
-    });
-  }, "No plate(s) have been selected!");
+  if (route.name == "workbench") {
+    panesStore.openChartPane("scatterplot-chart-pane", "plates-list-pane");
+  } else {
+    handlePlateSelection(async () => {
+      await loadingHandler.handleLoadingDuring(
+        uiStore.loadSelectedPlate(plateId)
+      );
+      uiStore.addChartView({
+        type: "scatter",
+        plateId: plateId,
+        label: "Scatter Plot",
+      });
+    }, "No plate(s) have been selected!");
+  }
   hideMenu.value = true;
 };
 
 const addBoxPlot = async (plateId) => {
-  handlePlateSelection(async () => {
-    await loadingHandler.handleLoadingDuring(
-      uiStore.loadSelectedPlate(plateId)
-    );
-    uiStore.addChartView({ type: "box", plateId: plateId, label: "Box Plot" });
-  }, "No plate(s) have been selected!");
+  if (route.name == "workbench") {
+    panesStore.openChartPane("boxplot-chart-pane", "plates-list-pane");
+  } else {
+    handlePlateSelection(async () => {
+      await loadingHandler.handleLoadingDuring(
+        uiStore.loadSelectedPlate(plateId)
+      );
+      uiStore.addChartView({
+        type: "box",
+        plateId: plateId,
+        label: "Box Plot",
+      });
+    }, "No plate(s) have been selected!");
+  }
   hideMenu.value = true;
 };
 
 const addHistogram = async (plateId) => {
-  handlePlateSelection(async () => {
-    await loadingHandler.handleLoadingDuring(
-      uiStore.loadSelectedPlate(plateId)
-    );
-    uiStore.addChartView({
-      type: "histogram",
-      plateId: plateId,
-      label: "Histogram",
-    });
-  }, "No plate(s) have been selected!");
+  if (route.name == "workbench") {
+    panesStore.openChartPane("histogram-chart-pane", "plates-list-pane");
+  } else {
+    handlePlateSelection(async () => {
+      await loadingHandler.handleLoadingDuring(
+        uiStore.loadSelectedPlate(plateId)
+      );
+      uiStore.addChartView({
+        type: "histogram",
+        plateId: plateId,
+        label: "Histogram",
+      });
+    }, "No plate(s) have been selected!");
+  }
   hideMenu.value = true;
 };
 
 const addExperimentPlateTrendChart = (experimentId) => {
   if (route.name == "workbench") {
-    panesStore.addItem("experiment-chart-pane", "plates-list-pane", "right");
+    panesStore.openChartPane("experiment-chart-pane", "plates-list-pane");
   } else if (uiStore.isExperimentSelected()) {
     uiStore.addChartView({
       type: "trend",

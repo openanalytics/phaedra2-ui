@@ -60,6 +60,10 @@
             :chartId="chart.id"
             :update="update"
             :chartView="getChartView(chart.id)"
+            :selectedPlate="uiStore.selectedPlate"
+            :selectedWells="uiStore.selectedWells"
+            :protocols="uiStore.protocols"
+            @selection="handleSelection"
           />
           <TrendChart
             v-if="chart.type === 'trend'"
@@ -145,6 +149,10 @@ const handleAcceptWells = () => {
 
 function getChartView(id) {
   return uiStore.getChartView(id);
+}
+
+function handleSelection(wells) {
+  uiStore.selectedWells = wells;
 }
 </script>
 
