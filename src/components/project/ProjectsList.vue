@@ -25,26 +25,23 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from "vue";
+import { onBeforeMount, ref, watch } from "vue";
 import FormatUtils from "@/lib/FormatUtils.js";
-import projectsGraphQlAPI from "@/api/graphql/projects";
-import projectAPI from "@/api/projects";
 
 import OaTable from "@/components/table/OaTable.vue";
 import ProjectActionMenu from "@/components/project/ProjectActionMenu";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
+const props = defineProps({
+  projects: [Object],
+  selected: [Object],
+});
 const emits = defineEmits("selection");
 
 const loading = ref(true);
-const projects = ref([]);
 
 const visibleColumns = ref([]);
 const selectedProjects = ref([]);
-
-onMounted(() => {
-  fetchAllProjects();
-});
 
 const columns = ref([
   { name: "id", align: "left", label: "ID", field: "id", sortable: true },
@@ -74,21 +71,8 @@ const columns = ref([
   },
 ]);
 
-const fetchAllProjects = () => {
-  const { onResult, onError } = projectsGraphQlAPI.projects();
-  onResult(({ data }) => {
-    projects.value = data.projects;
-    loading.value = false;
-  });
-  //TODO: implement onError event!
-};
-
-const handleDeleteProject = async (project) => {
-  await projectAPI.deleteProject(project.id)
-  fetchAllProjects()
-}
-
 const router = useRouter();
+const route = useRoute();
 const gotoProjectView = (event, row) => {
   router.push({ name: "project", params: { id: row.id } });
 };
@@ -97,13 +81,18 @@ function selectProject(event, row) {
   selectedProjects.value = [row];
 }
 
-watch(projects, () => {
+watch(props.projects, () => {
   visibleColumns.value = [...columns.value.map((a) => a.name)];
   loading.value = false;
 });
 
 watch(selectedProjects, (newVal, oldVal) => {
-  // const projectsId = newVal.map((item) => item.id);
   emits("selection", newVal);
+});
+
+onBeforeMount(() => {
+  if (route.name == "workbench") {
+    selectedProjects.value = props.selected;
+  }
 });
 </script>

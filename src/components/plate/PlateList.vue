@@ -13,7 +13,13 @@
       <q-btn size="sm" icon="add" label="New Plate" class="oa-button">
         <q-menu>
           <q-list size="sm" dense>
-            <q-item clickable v-close-popup v-ripple class="oa-button" @click="openNewPlateDialog">
+            <q-item
+              clickable
+              v-close-popup
+              v-ripple
+              class="oa-button"
+              @click="openNewPlateDialog"
+            >
               <q-item-section no-wrap>
                 <div style="vertical-align: center">
                   <q-icon name="add" class="q-pr-md"/>
@@ -23,7 +29,13 @@
                 </div>
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup v-ripple class="oa-button" @click="openNewPlateFromMeasurementsDialog">
+            <q-item
+              clickable
+              v-close-popup
+              v-ripple
+              class="oa-button"
+              @click="openNewPlateFromMeasurementsDialog"
+            >
               <q-item-section no-wrap class="row">
                 <div>
                   <q-icon name="add" class="q-pr-md"/>
@@ -39,7 +51,7 @@
     </template>
     <template v-slot:top-right>
       <q-btn-dropdown size="sm" class="oa-button q-mr-md" label="Export">
-        <q-list dense >
+        <q-list dense>
           <q-item clickable v-close-popup @click="exportToCSV">
             <q-item-section>
               <q-item-label>Export to CSV</q-item-label>
@@ -108,27 +120,83 @@ import FilterUtils from "@/lib/FilterUtils.js";
 import { useExportTableData } from "@/composable/exportTableData";
 import OaTable from "@/components/table/OaTable.vue";
 
-const props = defineProps(['plates', 'experiment', 'newPlateTab', 'newPlateFromMeasurements'])
-const emits = defineEmits(['update:newPlateTab', 'showPlateInspector', 'selection'])
+const props = defineProps([
+  "plates",
+  "experiment",
+  "newPlateTab",
+  "newPlateFromMeasurements",
+  "selected",
+]);
+const emits = defineEmits([
+  "update:newPlateTab",
+  "showPlateInspector",
+  "selection",
+]);
 
 const router = useRouter();
 
 const columns = [
-  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
-  {name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
-  {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-  {name: 'link-status', align: 'center', label: 'L', field: 'linkStatus'},
-  {name: 'status-calculation', align: 'center', label: 'C', field: 'calculationStatus'},
-  {name: 'status-validated', align: 'center', label: 'V', field: 'validationStatus'},
-  {name: 'status-approved', align: 'center', label: 'A', field: 'approvalStatus'},
-  {name: 'dimensions', align: 'left', label: 'Dimensions', field: t => `${t.rows} x ${t.columns}`, sortable: true},
-  {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
-  {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
-  {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true}
-]
+  { name: "id", align: "left", label: "ID", field: "id", sortable: true },
+  {
+    name: "barcode",
+    align: "left",
+    label: "Barcode",
+    field: "barcode",
+    sortable: true,
+  },
+  {
+    name: "description",
+    align: "left",
+    label: "Description",
+    field: "description",
+    sortable: true,
+  },
+  { name: "link-status", align: "center", label: "L", field: "linkStatus" },
+  {
+    name: "status-calculation",
+    align: "center",
+    label: "C",
+    field: "calculationStatus",
+  },
+  {
+    name: "status-validated",
+    align: "center",
+    label: "V",
+    field: "validationStatus",
+  },
+  {
+    name: "status-approved",
+    align: "center",
+    label: "A",
+    field: "approvalStatus",
+  },
+  {
+    name: "dimensions",
+    align: "left",
+    label: "Dimensions",
+    field: (t) => `${t.rows} x ${t.columns}`,
+    sortable: true,
+  },
+  { name: "tags", align: "left", label: "Tags", field: "tags", sortable: true },
+  {
+    name: "createdOn",
+    align: "left",
+    label: "Created On",
+    field: "createdOn",
+    sortable: true,
+    format: FormatUtils.formatDate,
+  },
+  {
+    name: "createdBy",
+    align: "left",
+    label: "Created By",
+    field: "createdBy",
+    sortable: true,
+  },
+];
 
-const experiment = computed(() => props.experiment)
-const plates = computed(() => props.plates)
+const experiment = computed(() => props.experiment);
+const plates = computed(() => props.plates);
 
 const filter = FilterUtils.makeFilter(columns);
 const filterMethod = FilterUtils.defaultFilterMethod();
@@ -139,12 +207,12 @@ const showPlateContextMenu = ref(false);
 const plateContextMenu = (event, row) => {
   selectedPlate.value = row;
   showPlateContextMenu.value = true;
-}
+};
 
 const gotoPlateView = (event, row) => {
   selectedPlate.value = row;
-  router.push({name: "plate", params: { plateId: selectedPlate.value.id }});
-}
+  router.push({ name: "plate", params: { plateId: selectedPlate.value.id } });
+};
 
 const openNewPlateDialog = () => {
   emits("update:newPlateTab", true);

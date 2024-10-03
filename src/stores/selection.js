@@ -2,6 +2,7 @@ import { computed, ref, watch } from "vue";
 import { defineStore } from "pinia";
 import projectsGraphQlAPI from "@/api/graphql/projects";
 import experimentsGraphQlAPI from "@/api/graphql/experiments";
+import resultdataGraphQlAPI from "@/api/graphql/resultdata";
 
 export const useSelectionStore = defineStore("selection", () => {
   const localProjects = ref([]);
@@ -13,6 +14,25 @@ export const useSelectionStore = defineStore("selection", () => {
   const selectedExperiments = ref([]);
   const selectedPlates = ref([]);
   const selectedWells = ref([]);
+
+  const chart = ref({
+    id: undefined,
+    experiment: undefined,
+    label: undefined,
+  });
+
+  const plateChart = ref({
+    id: undefined,
+    protocols: [],
+    plate: undefined,
+  });
+
+  function addChartView(updatedChart) {
+    chart.value = {
+      id: new Date().getTime(),
+      ...updatedChart,
+    };
+  }
 
   const selectedProjectsIds = computed(() =>
     selectedProjects.value.map((item) => item.id)
@@ -151,8 +171,6 @@ export const useSelectionStore = defineStore("selection", () => {
       const { onResult, onError } =
         projectsGraphQlAPI.platesByExperimentIds(experimentsId);
       onResult(({ data }) => {
-        console.log("loaded plates!");
-        console.log(plates.value);
         if (replace) {
           plates.value = data.plate;
         } else {
@@ -175,7 +193,78 @@ export const useSelectionStore = defineStore("selection", () => {
     }
   }
 
-  watch(selectedExperiments, () => {
+  watch(selectedPlates, (newVal, oldVal) => {
+    if (newVal.length > 0) {
+      let flag = false;
+      newVal.forEach((element) => {
+        if (!oldVal.find((el) => element == el)) {
+          flag = true;
+          if (plateChart.value.plate?.id != element.id) {
+            const { onResult } = resultdataGraphQlAPI.protocolsByPlateId(
+              element.id
+            );
+            onResult(({ data }) => {
+              plateChart.value = {
+                plate: element,
+                id: new Date().getTime(),
+                protocols: data.protocols,
+              };
+            });
+          }
+        }
+      });
+      if (
+        !flag &&
+        newVal.length > 0 &&
+        !newVal.find((el) => el.id == plateChart.value.plate?.id)
+      ) {
+        const { onResult } = resultdataGraphQlAPI.protocolsByPlateId(
+          newVal[0].id
+        );
+        onResult(({ data }) => {
+          plateChart.value = {
+            plate: newVal[0],
+            id: new Date().getTime(),
+            protocols: data.protocols,
+          };
+        });
+      }
+    } else {
+      plateChart.value.plate = undefined;
+    }
+  });
+
+  watch(selectedExperiments, (newVal, oldVal) => {
+    if (newVal.length > 0) {
+      let flag = false;
+      newVal.forEach((element) => {
+        if (!oldVal.find((el) => element == el)) {
+          flag = true;
+          if (chart.value.experiment?.id != element.id) {
+            chart.value = {
+              experiment: element,
+              label: "Experiment Trend Chart",
+              type: "trend",
+              id: new Date().getTime(),
+            };
+          }
+        }
+      });
+      if (
+        !flag &&
+        newVal.length > 0 &&
+        !newVal.find((el) => el.id == chart.value.experiment?.id)
+      ) {
+        chart.value = {
+          experiment: newVal[0],
+          label: "Experiment Trend Chart",
+          type: "trend",
+          id: new Date().getTime(),
+        };
+      }
+    } else {
+      chart.value.experiment = undefined;
+    }
     loadExperiment(selectedExperimentsIds.value);
   });
 
@@ -196,5 +285,8 @@ export const useSelectionStore = defineStore("selection", () => {
     selectedPlates,
     selectedProjects,
     selectedWells,
+    addChartView,
+    plateChart,
+    chart,
   };
 });

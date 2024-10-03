@@ -7,6 +7,14 @@
     "role": "user"
   },
   {
+    "label": "Workbench",
+    "header": "link",
+    "route": "workbench",
+    "icon": "handyman",
+    "role": "user",
+    "menu": "WorkbenchMenu"
+  },
+  {
     "label": "Project",
     "header": "category",
     "role": "user",

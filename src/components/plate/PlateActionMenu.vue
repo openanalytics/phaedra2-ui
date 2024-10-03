@@ -1,17 +1,21 @@
 <template>
   <q-menu context-menu>
     <q-list dense>
-      <menu-item icon="table_rows" label="Browse Wells" @click="browseWells"/>
-      <menu-item icon="show_chart" label="Browse Dose-Response Curves" @click="browseDoseResponseCurves"/>
+      <menu-item icon="table_rows" label="Browse Wells" @click="browseWells" />
+      <menu-item
+        icon="show_chart"
+        label="Browse Dose-Response Curves"
+        @click="browseDoseResponseCurves"
+      />
 
-      <q-separator/>
+      <q-separator />
 
       <menu-item icon="content_copy" label="Clone Plate(s)"
                  @click="clonePlates" v-close-popup/>
       <menu-item icon="drive_file_move" label="Move Plate(s)"
                  @click="movePlates" v-close-popup/>
 
-      <q-separator/>
+      <q-separator />
 
       <menu-item icon="text_snippet" label="Link Measurement"
                  @click="linkMeasurement" />
@@ -20,17 +24,26 @@
       <menu-item icon="calculate" label="(Re)Calculate Plate"
                  @click="calculatePlate" />
 
-      <q-separator/>
+      <q-separator />
 
-      <div v-if="props.plate.approvalStatus === 'APPROVAL_NOT_SET' && experimentStore.isOpen">
+      <div
+        v-if="
+          props.plate.approvalStatus === 'APPROVAL_NOT_SET' &&
+          experimentStore.isOpen
+        "
+      >
         <!-- Validation Menu -->
-        <q-item dense clickable v-if="props.plate.approvalStatus === 'APPROVAL_NOT_SET'">
+        <q-item
+          dense
+          clickable
+          v-if="props.plate.approvalStatus === 'APPROVAL_NOT_SET'"
+        >
           <q-item-section avatar>
-            <q-icon name="outlined_flag"/>
+            <q-icon name="outlined_flag" />
           </q-item-section>
           <q-item-section>Validation</q-item-section>
           <q-item-section side>
-            <q-icon name="keyboard_arrow_right"/>
+            <q-icon name="keyboard_arrow_right" />
           </q-item-section>
 
           <q-menu anchor="top end" self="top start">
@@ -49,14 +62,19 @@
         </q-item>
 
         <!-- Approval Menu -->
-        <q-item clickable
-                v-if="props.plate.approvalStatus === 'APPROVAL_NOT_SET' && props.plate.validationStatus === 'VALIDATED'">
+        <q-item
+          clickable
+          v-if="
+            props.plate.approvalStatus === 'APPROVAL_NOT_SET' &&
+            props.plate.validationStatus === 'VALIDATED'
+          "
+        >
           <q-item-section avatar>
-            <q-icon name="outlined_flag"/>
+            <q-icon name="outlined_flag" />
           </q-item-section>
           <q-item-section>Approval</q-item-section>
           <q-item-section side>
-            <q-icon name="keyboard_arrow_right"/>
+            <q-icon name="keyboard_arrow_right" />
           </q-item-section>
 
           <q-menu anchor="top end" self="top start">
@@ -73,16 +91,16 @@
         </q-item>
       </div>
 
-      <q-separator/>
+      <q-separator />
 
       <!-- Charts -->
       <q-item dense clickable>
         <q-item-section avatar>
-          <q-icon name="insert_chart"/>
+          <q-icon name="insert_chart" />
         </q-item-section>
         <q-item-section>Charts</q-item-section>
         <q-item-section side>
-          <q-icon name="keyboard_arrow_right"/>
+          <q-icon name="keyboard_arrow_right" />
         </q-item-section>
         <q-menu>
           <q-list>
@@ -135,7 +153,6 @@ import LinkMeasurementDialog from "@/components/measurement/LinkMeasurementDialo
 import MenuItem from "@/components/widgets/MenuItem.vue";
 import { useLoadingHandler } from "@/composable/loadingHandler";
 import { useNotification } from "@/composable/notification";
-import { usePanesList } from "@/maps/panes/panesList";
 import { usePanesStore } from "../../stores/panes";
 
 const props = defineProps(["plate", "plates"]);
@@ -278,45 +295,63 @@ const onDisapprovePlate = async (reason) => {
 };
 
 const addScatterPlot = async (plateId) => {
-  handlePlateSelection(async () => {
-    await loadingHandler.handleLoadingDuring(
-      uiStore.loadSelectedPlate(plateId)
-    );
-    uiStore.addChartView({
-      type: "scatter",
-      plateId: plateId,
-      label: "Scatter Plot",
-    });
-  }, "No plate(s) have been selected!");
+  if (route.name == "workbench") {
+    panesStore.openChartPane("scatterplot-chart-pane", "plates-list-pane");
+  } else {
+    handlePlateSelection(async () => {
+      await loadingHandler.handleLoadingDuring(
+        uiStore.loadSelectedPlate(plateId)
+      );
+      uiStore.addChartView({
+        type: "scatter",
+        plateId: plateId,
+        label: "Scatter Plot",
+      });
+    }, "No plate(s) have been selected!");
+  }
   hideMenu.value = true;
 };
 
 const addBoxPlot = async (plateId) => {
-  handlePlateSelection(async () => {
-    await loadingHandler.handleLoadingDuring(
-      uiStore.loadSelectedPlate(plateId)
-    );
-    uiStore.addChartView({ type: "box", plateId: plateId, label: "Box Plot" });
-  }, "No plate(s) have been selected!");
+  if (route.name == "workbench") {
+    panesStore.openChartPane("boxplot-chart-pane", "plates-list-pane");
+  } else {
+    handlePlateSelection(async () => {
+      await loadingHandler.handleLoadingDuring(
+        uiStore.loadSelectedPlate(plateId)
+      );
+      uiStore.addChartView({
+        type: "box",
+        plateId: plateId,
+        label: "Box Plot",
+      });
+    }, "No plate(s) have been selected!");
+  }
   hideMenu.value = true;
 };
 
 const addHistogram = async (plateId) => {
-  handlePlateSelection(async () => {
-    await loadingHandler.handleLoadingDuring(
-      uiStore.loadSelectedPlate(plateId)
-    );
-    uiStore.addChartView({
-      type: "histogram",
-      plateId: plateId,
-      label: "Histogram",
-    });
-  }, "No plate(s) have been selected!");
+  if (route.name == "workbench") {
+    panesStore.openChartPane("histogram-chart-pane", "plates-list-pane");
+  } else {
+    handlePlateSelection(async () => {
+      await loadingHandler.handleLoadingDuring(
+        uiStore.loadSelectedPlate(plateId)
+      );
+      uiStore.addChartView({
+        type: "histogram",
+        plateId: plateId,
+        label: "Histogram",
+      });
+    }, "No plate(s) have been selected!");
+  }
   hideMenu.value = true;
 };
 
 const addExperimentPlateTrendChart = (experimentId) => {
-  if (uiStore.isExperimentSelected()) {
+  if (route.name == "workbench") {
+    panesStore.openChartPane("experiment-chart-pane", "plates-list-pane");
+  } else if (uiStore.isExperimentSelected()) {
     uiStore.addChartView({
       type: "trend",
       experimentId: experimentId,

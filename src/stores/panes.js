@@ -8,7 +8,6 @@ export const usePanesStore = defineStore("panes", () => {
   const panes = shallowRef(panesList);
 
   const draggedElement = ref();
-  const key = ref(0);
 
   const dynamicPanes = ref([
     "H",
@@ -49,20 +48,27 @@ export const usePanesStore = defineStore("panes", () => {
   }
 
   function removeEmptyArrays(array, nestedIdx = 0) {
+    if (array.length > 1) {
+      ++nestedIdx;
+      if (Array.isArray(array)) {
+        for (let i = 0; i < array.length; i++) {
+          array[i] = removeEmptyArrays(array[i], nestedIdx);
+        }
+      }
+    }
+
     if (Array.isArray(array)) {
-      if (array.length == 2 && nestedIdx > 0) {
+      array = array.filter((pane) => pane.length != 0);
+    }
+
+    if (Array.isArray(array)) {
+      if (array.length == 2 && nestedIdx > 1) {
         if (array[0] == "H" || array[0] == "V") {
           array = array[1];
         }
       }
-
-      for (let i = 0; i < array.length; i++) {
-        array[i] = removeEmptyArrays(array[i], ++nestedIdx);
-      }
-      if (Array.isArray(array)) {
-        return array.filter((pane) => pane.length != 0);
-      }
     }
+
     return array;
   }
 
@@ -150,17 +156,33 @@ export const usePanesStore = defineStore("panes", () => {
     }
   }
 
-  function updateKey() {
-    key.value = ++key.value % 100;
+  function moveItem(id, toId, position) {
+    if (id != toId) {
+      if (activePanes.value.includes(id)) {
+        removeItem(id);
+      }
+      dynamicPanes.value = insertItem(id, toId, dynamicPanes.value, position);
+    }
   }
 
   function setDynamicPanesStartValue(value) {
     dynamicPanes.value = value;
-    updateKey();
+  }
+
+  function openChartPane(chartPaneId, fromId) {
+    const chartPanes = activePanes.value.filter((pane) => {
+      console.log(pane.includes("chart"));
+      return pane.includes("chart");
+    });
+    if (chartPanes.length > 0) {
+      console.log(chartPanes);
+      addItem(chartPaneId, chartPanes[0], "center");
+    } else {
+      addItem(chartPaneId, fromId, "bottom");
+    }
   }
 
   return {
-    key,
     dynamicPanes,
     draggedElement,
     removeItem,
@@ -170,5 +192,7 @@ export const usePanesStore = defineStore("panes", () => {
     panes,
     activePanes,
     setDynamicPanesStartValue,
+    moveItem,
+    openChartPane,
   };
 });
