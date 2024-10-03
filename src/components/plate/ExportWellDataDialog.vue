@@ -53,7 +53,7 @@
 </template>
 
 <script setup>
-import {computed, onMounted, ref} from "vue";
+import {computed, onUpdated, ref} from "vue";
 import resultDataGraphQlAPI from "@/api/graphql/resultdata";
 import {useNotification} from "@/composable/notification";
 import SelectFeaturesStep from "@/components/plate/SelectFeaturesStep.vue";
@@ -67,10 +67,12 @@ import exportToExcel from "@/service/exportToExcel";
 const props = defineProps(['show', "experiment"])
 const emits = defineEmits(['update:show']);
 
+const experiment = computed(() => props.experiment)
+
 const experimentProtocols = ref([])
 const experimentFeatures = ref([])
 const filterModel = ref({
-  experimentId: props.experiment.id,
+  experimentId: experiment.value.id,
   selectedFeatures: [],
   plateFilter: {
     filterOnValidation: false,
@@ -101,17 +103,19 @@ const filterModel = ref({
   includeBasicCurveProperties: false
 })
 
-onMounted(() => {
+onUpdated(() => {
   fetchProtocolsByExperiment()
   fetchUniqueWellSubstances()
 })
 
 const useNotify = useNotification()
 const fetchProtocolsByExperiment = () => {
-  const {onResult, onError} = resultDataGraphQlAPI.protocolsByExperimentId(props.experiment.id)
+  const {onResult, onError} = resultDataGraphQlAPI.protocolsByExperimentId(experiment.value.id)
   onResult(({data}) => {
-    experimentProtocols.value = data.protocols
-    experimentFeatures.value = data.protocols.map(extractFeatures).flat()
+    if (data.protocols) {
+      experimentProtocols.value = data.protocols
+      experimentFeatures.value = data.protocols.map(extractFeatures).flat()
+    }
   })
   onError((error) => useNotify.showError(error))
 }
@@ -154,7 +158,7 @@ const fetchPlateDataResults = async () => {
   console.log(JSON.stringify(filterModel.value))
   const {onResult, onError} = queriesGraphQlAPI.exportWellData(filterModel.value)
   onResult(({data}) => {
-    exportToExcel.exportWellDataToXLSX(data.wellData, props.experiment.name)
+    exportToExcel.exportWellDataToXLSX(data.wellData, experiment.value.name)
     console.log(JSON.stringify(data.wellData))
   })
 }

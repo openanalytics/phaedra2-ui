@@ -22,15 +22,10 @@
             >
               <q-item-section no-wrap>
                 <div style="vertical-align: center">
-                  <q-icon name="add" class="q-pr-md" />
-                  <span
-                    style="
-                      text-transform: uppercase;
-                      font-size: 12px;
-                      text-align: right;
-                    "
-                    >New Plate</span
-                  >
+                  <q-icon name="add" class="q-pr-md"/>
+                  <span style="text-transform: uppercase; font-size: 12px; text-align: right">
+                    New Plate
+                  </span>
                 </div>
               </q-item-section>
             </q-item>
@@ -43,15 +38,10 @@
             >
               <q-item-section no-wrap class="row">
                 <div>
-                  <q-icon name="add" class="q-pr-md" />
-                  <span
-                    style="
-                      text-transform: uppercase;
-                      font-size: 12px;
-                      text-align: right;
-                    "
-                    >New Plate(s) from Measurement(s)</span
-                  >
+                  <q-icon name="add" class="q-pr-md"/>
+                  <span style="text-transform: uppercase; font-size: 12px; text-align: right">
+                    New Plate(s) from Measurement(s)
+                  </span>
                 </div>
               </q-item-section>
             </q-item>
@@ -116,24 +106,12 @@
       </div>
     </template>
   </oa-table>
-  <PlateActionMenu
-    v-show="showPlateContextMenu"
-    :plate="selectedPlate"
-    touch-position
-    context-menu
-  />
+  <PlateActionMenu :plate="selectedPlate" touch-position />
 </template>
 
-<style scoped>
-.nav-link {
-  color: black;
-  text-decoration: none;
-}
-</style>
-
 <script setup>
-import { computed, onBeforeMount, onMounted, ref, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { computed, onMounted, ref, watch } from "vue";
+import { useRouter } from "vue-router";
 
 import PlateActionMenu from "@/components/plate/PlateActionMenu";
 import StatusFlag from "@/components/widgets/StatusFlag";
@@ -249,12 +227,12 @@ const visibleColumns = ref([]);
 onMounted(() => {
   visibleColumns.value = [...columns.map((a) => a.name)];
   loading.value = false;
-});
+})
 
 watch(plates, () => {
   visibleColumns.value = [...columns.map((a) => a.name)];
   loading.value = false;
-});
+})
 
 const selectedPlates = ref();
 watch(selectedPlates, () => {
@@ -279,25 +257,44 @@ const selectPlate = (event, row) => {
   }
 };
 
+const experimentsNames = computed(() =>
+  selectedPlates.value
+    .map(
+      (plate) =>
+        props.experiments.find((item) => item.id == plate.experimentId).name
+    )
+    .filter(getUnique)
+);
+
+function getUnique(value, index, array) {
+  return array.indexOf(value) === index;
+}
+
 const exportTableData = useExportTableData(columns);
 const exportToCSV = () => {
-  exportTableData.exportToCSV(
-    filterMethod(plates.value, filter.value),
-    props.experiment.name
-  );
+  if (experimentsNames.value.length > 1) {
+    exportTableData.exportToCSV(
+      filterMethod(plates.value, filter.value),
+      "selectedPlatesExportList"
+    );
+  } else if (experimentsNames.value.length) {
+    exportTableData.exportToCSV(
+      filterMethod(plates.value, filter.value),
+      experimentsNames.value[0]
+    );
+  }
 };
 const exportToXLSX = () => {
-  exportTableData.exportToXLSX(
-    filterMethod(plates.value, filter.value),
-    props.experiment.name
-  );
-};
-
-const route = useRoute();
-
-onBeforeMount(() => {
-  if (route.name == "workbench") {
-    selectedPlates.value = props.selected;
+  if (experimentsNames.value.length > 1) {
+    exportTableData.exportToXLSX(
+      filterMethod(plates.value, filter.value),
+      "selectedPlatesExportList"
+    );
+  } else if (experimentsNames.value.length) {
+    exportTableData.exportToXLSX(
+      filterMethod(plates.value, filter.value),
+      experimentsNames.value[0]
+    );
   }
-});
+};
 </script>

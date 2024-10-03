@@ -52,7 +52,7 @@
 </template>
 
 <script setup>
-import {computed, onMounted, ref} from "vue";
+import {computed, onUpdated, ref} from "vue";
 import resultDataGraphQlAPI from "@/api/graphql/resultdata";
 import queriesGraphQlAPI from "@/api/graphql/queries";
 import {useNotification} from "@/composable/notification";
@@ -64,11 +64,13 @@ import exportToExcel from "@/service/exportToExcel";
 const props = defineProps(['show', "experiment"])
 const emits = defineEmits(['update:show']);
 
+const experiment = computed(() => props.experiment)
+
 const experimentProtocols = ref([])
 const experimentFeatures = ref([])
 
 const filterModel = ref({
-  experimentId: props.experiment.id,
+  experimentId: experiment.value.id,
   selectedFeatures: [],
   plateFilter: {
     filterOnValidation: false,
@@ -97,16 +99,18 @@ const filterModel = ref({
   }
 })
 
-onMounted(() => {
+onUpdated(() => {
   fetchProtocolsByExperiment()
 })
 
 const useNotify = useNotification()
 const fetchProtocolsByExperiment = () => {
-  const {onResult, onError} = resultDataGraphQlAPI.protocolsByExperimentId(props.experiment.id)
+  const {onResult, onError} = resultDataGraphQlAPI.protocolsByExperimentId(experiment.value.id)
   onResult(({data}) => {
-    experimentProtocols.value = data.protocols
-    experimentFeatures.value = data.protocols.map(extractFeatures).flat()
+    if (data.protocols && data.protocols.length > 0) {
+      experimentProtocols.value = data.protocols
+      experimentFeatures.value = data.protocols.map(extractFeatures).flat()
+    }
   })
   onError((error) => useNotify.showError(error))
 }
@@ -146,7 +150,7 @@ const fetchPlateDataResults = async () => {
   console.log(JSON.stringify(filterModel.value))
   const {onResult, onError} = queriesGraphQlAPI.exportPlateData(filterModel.value)
   onResult(({data}) => {
-    exportToExcel.exportPlateDataToXLSX(data.plateData, props.experiment.name)
+    exportToExcel.exportPlateDataToXLSX(data.plateData, experiment.value.name)
     console.log(JSON.stringify(data.plateData))
   })
 }

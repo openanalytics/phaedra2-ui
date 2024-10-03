@@ -1,9 +1,12 @@
 <template>
   <div>
     <q-toolbar class="oa-section-title">
+      <q-icon name="functions" class="on-left"/>
+      <div class="text-h6 q-pr-xl">{{ featureStore.feature.name }}</div>
       <q-tabs v-model="activeTab" align="left" inline-label dense no-caps>
         <q-tab name="general" icon="info" label="General Info"/>
         <q-tab name="calculation" icon="functions" label="Calculation"/>
+        <q-tab name="statistics" icon="percent" label="Statistics"/>
         <q-tab name="curve_fitting" icon="show_chart" label="Dose-Response Curve"/>
       </q-tabs>
     </q-toolbar>
@@ -102,6 +105,10 @@
           </div>
         </q-tab-panel>
 
+        <q-tab-panel name="statistics" label="Statistics" class="col q-pa-md">
+          <feature-stat-table :featureStats="featureStore.feature.stats" />
+        </q-tab-panel>
+
         <q-tab-panel name="curve_fitting" class="q-pa-md">
           <div class="col">
             <q-field label="Model" stack-label dense>
@@ -146,7 +153,7 @@
 
       <div class="row col-12 justify-end">
         <div class="q-pa-md">
-          <q-btn flat class="on-left" label="Cancel" color="primary" @click="onCancel"/>
+          <q-btn flat class="on-left" label="Close" color="primary" @click="emit('cancel')"/>
         </div>
       </div>
     </div>
@@ -158,6 +165,7 @@ import {ref} from "vue";
 import {useProtocolStore} from "@/stores/protocol";
 import {useFeatureStore} from "@/stores/feature";
 import drcModelOptions from "@/resources/dose_response_curve_fit_models.json"
+import FeatureStatTable from '@/components/featurestat/FeatureStatTable.vue';
 
 defineProps(['show'])
 const emit = defineEmits(['cancel'])
@@ -168,8 +176,4 @@ const featureStore = useFeatureStore()
 const selectedDCRModel = drcModelOptions.find(drcModel => drcModel.name === featureStore.feature.drcModel?.name) ?? ''
 
 const activeTab = ref('general');
-
-const onCancel = () => {
-  emit('cancel')
-}
 </script>

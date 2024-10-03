@@ -100,12 +100,7 @@
       </div>
     </template>
   </oa-table>
-  <ExperimentMenu
-    v-show="showExperimentContextMenu"
-    :experiment="selectedExperiment"
-    touch-position
-    context-menu
-  />
+  <ExperimentMenu :experiment="selectedExperiment" touch-position />
 
   <q-dialog v-model="showNewExperimentDialog">
     <q-card style="min-width: 30vw">
@@ -266,16 +261,9 @@ const columns = ref([
   },
 ]);
 
-const localExperiments = ref([]);
-const localProjects = ref([]);
-
 const experiments = computed(() =>
-  props.experiments ? props.experiments : localExperiments.value
-);
-
-const projects = computed(() =>
-  props.projects ? props.projects : localProjects.value
-);
+  props.experiments ? props.experiments : []
+)
 
 const projectsNames = computed(() =>
   selectedExperiments.value
@@ -305,7 +293,7 @@ const newExperimentName = ref("");
 
 const doCreateNewExperiment = () => {
   const newExperiment = {
-    projectId: props.project.id,
+    projectId: props.projects[0].id,
     name: newExperimentName.value,
     status: "OPEN",
     createdOn: new Date(),
@@ -342,7 +330,7 @@ watch(selectedExperiments, (newVal) => {
   emits("selection", newVal);
 });
 watch(
-  () => experiments,
+  () => props.experiments,
   (newVal) => {
     const ids = newVal.map((item) => item.id);
     selectedExperiments.value = selectedExperiments.value.filter((item) =>

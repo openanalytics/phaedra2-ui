@@ -134,4 +134,34 @@ export default {
             });
         return result;
     },
+    async getAllDefaultFeatureStats() {
+        const response = await axios.get(apiURL + '/defaultfeaturestats');
+        return response.data;
+    },
+    async createDefaultFeatureStat(featureStat) {
+        const response = await axios.post(apiURL + '/defaultfeaturestats', featureStat);
+        return response.data;
+    },
+    async updateDefaultFeatureStat(featureStat) {
+        const response = await axios.put(apiURL + '/defaultfeaturestats/' + featureStat.id, featureStat);
+        return response.data;
+    },
+    async deleteDefaultFeatureStat(featureStatId) {
+        await axios.delete(apiURL + '/defaultfeaturestats/' + featureStatId);
+    },
+    async getFeatureStats(featureId) {
+        const response = await axios.get(`${apiURL}/features/${featureId}/featurestats`);
+        return response.data;
+    },
+    async createFeatureStat(featureId, featureStat) {
+        const response = await axios.post(`${apiURL}/features/${featureId}/featurestats`, featureStat);
+        return response.data;
+    },
+    async updateFeatureStat(featureStat) {
+        const response = await axios.put(`${apiURL}/features/${featureStat.featureId}/featurestats/${featureStat.id}`, featureStat);
+        return response.data;
+    },
+    async deleteFeatureStat(featureId, featureStatId) {
+        await axios.delete(`${apiURL}/features/${featureId}/featurestats/${featureStatId}`);
+    },
 }

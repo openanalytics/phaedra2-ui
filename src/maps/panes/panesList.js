@@ -101,6 +101,7 @@ export function usePanesList() {
       props: {
         plates: selectionStore.plates,
         selected: selectionStore.selectedPlates,
+        experiments: selectionStore.selectedExperiments,
       },
       selection: (e) => (selectionStore.selectedPlates = e),
     },
