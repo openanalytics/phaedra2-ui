@@ -263,10 +263,10 @@ const columns = ref([
 
 const experiments = computed(() =>
   props.experiments ? props.experiments : []
-)
+);
 
 const projectsNames = computed(() =>
-  selectedExperiments.value
+  experimentsToExport.value
     .map(
       (experiment) =>
         props.projects.find((item) => item.id == experiment.projectId).name
@@ -340,34 +340,30 @@ watch(
 );
 
 const showConfigDialog = ref(false);
+const experimentsToExport = computed(() =>
+  selectedExperiments.value.length > 0
+    ? selectedExperiments.value
+    : experiments.value
+);
+const exportFileName = computed(() =>
+  projectsNames.value.length > 1
+    ? "selectedExperimentExportList"
+    : projectsNames.value[0]
+);
 
 const exportTableData = useExportTableData(columns.value);
 const exportToCSV = () => {
-  if (projectsNames.value.length > 1) {
-    exportTableData.exportToCSV(
-      filterMethod(experiments.value, filter.value),
-      "selectedExperimentExportList"
-    );
-  } else if (projectsNames.value.length) {
-    exportTableData.exportToCSV(
-      filterMethod(experiments.value, filter.value),
-      projectsNames.value[0]
-    );
-  }
+  exportTableData.exportToCSV(
+    filterMethod(experimentsToExport.value, filter.value),
+    exportFileName.value
+  );
 };
 
 const exportToXLSX = () => {
-  if (projectsNames.value.length > 1) {
-    exportTableData.exportToXLSX(
-      filterMethod(experiments.value, filter.value),
-      "selectedExperimentExportList"
-    );
-  } else if (projectsNames.value.length) {
-    exportTableData.exportToXLSX(
-      filterMethod(experiments.value, filter.value),
-      projectsNames.value[0]
-    );
-  }
+  exportTableData.exportToXLSX(
+    filterMethod(experimentsToExport.value, filter.value),
+    exportFileName.value
+  );
 };
 
 function getUnique(value, index, array) {
