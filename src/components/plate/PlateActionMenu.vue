@@ -98,6 +98,26 @@
         </q-menu>
       </q-item>
 
+      <q-separator/>
+
+      <!-- Details -->
+      <q-item dense clickable>
+        <q-item-section avatar>
+          <q-icon name="details"/>
+        </q-item-section>
+        <q-item-section>Browse details</q-item-section>
+        <q-item-section side>
+          <q-icon name="keyboard_arrow_right"/>
+        </q-item-section>
+        <q-menu>
+          <q-list>
+            <menu-item v-if="route.name=='workbench'" icon="view_module" label="Heatmap"
+                 @click="addHeatmap" v-close-popup/>
+          </q-list>
+        </q-menu>
+      </q-item>
+
+
       <div v-if="props.plate.approvalStatus === 'APPROVAL_NOT_SET' && experimentStore.isOpen">
         <q-separator/>
         <menu-item icon="delete" color="negative" label="Delete Plate(s)"
@@ -313,6 +333,12 @@ const addHistogram = async (plateId) => {
     });
   }, "No plate(s) have been selected!");
   hideMenu.value = true;
+};
+
+const addHeatmap = () => {
+  if (route.name == "workbench") {
+    panesStore.addItem("heatmap-pane", "plates-list-pane", "right");
+  }
 };
 
 const addExperimentPlateTrendChart = (experimentId) => {

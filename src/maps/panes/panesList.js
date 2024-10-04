@@ -9,6 +9,7 @@ import { useSelectionStore } from "@/stores/selection";
 import { computed } from "vue";
 import ProjectsList from "@/components/project/ProjectsList.vue";
 import WellList from "../../pages/plate/WellList.vue";
+import PlateHeatmap from "@/pages/plate/PlateHeatmap.vue";
 
 export function usePanesList() {
   const selectionStore = useSelectionStore();
@@ -95,6 +96,20 @@ export function usePanesList() {
         wells: selectionStore.wells,
       },
       selection: (e) => (selectionStore.selectedWells = e),
+    },
+    {
+      component: PlateHeatmap,
+      id: "heatmap-pane",
+      title: "Heatmap",
+      icon: "view_module",
+      closable: true,
+      props: {
+        'plate': selectionStore.plateChart.plate,
+        'wells': selectionStore.wells,
+        'measurements': selectionStore.activeMeasurement !== undefined ? [selectionStore.activeMeasurement] : [],
+        'protocols': selectionStore.plateChart.protocols
+      },
+      // selection: (e) => (selectionStore.selectedWells = e),
     },
   ]);
 

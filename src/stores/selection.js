@@ -2,6 +2,7 @@ import { computed, ref, watch } from "vue";
 import { defineStore } from "pinia";
 import projectsGraphQlAPI from "@/api/graphql/projects";
 import experimentsGraphQlAPI from "@/api/graphql/experiments";
+import resultDataGraphQlAPI from "@/api/graphql/resultdata";
 
 export const useSelectionStore = defineStore("selection", () => {
   const localProjects = ref([]);
@@ -13,6 +14,10 @@ export const useSelectionStore = defineStore("selection", () => {
   const selectedExperiments = ref([]);
   const selectedPlates = ref([]);
   const selectedWells = ref([]);
+
+  const activeMeasurement = ref(null)
+  const protocols = ref([])
+
 
   const selectedProjectsIds = computed(() =>
     selectedProjects.value.map((item) => item.id)
@@ -178,8 +183,17 @@ export const useSelectionStore = defineStore("selection", () => {
     }
   }
 
+  async function loadPlateProtocols(plateId) {
+    const {onResult, onError} = resultDataGraphQlAPI.protocolsByPlateId(
+        plateId)
+    onResult(({data}) => {
+      protocols.value = data.protocols;
+    })
+  }
+
   watch(selectedPlates, () => {
     loadPlate(selectedPlatesIds.value);
+    loadPlateProtocols(selectedPlatesIds.value[0]);
   });
 
   watch(selectedExperiments, () => {

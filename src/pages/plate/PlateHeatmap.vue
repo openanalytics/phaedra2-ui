@@ -19,7 +19,7 @@
 </template>
 
 <script setup>
-import {ref, watch, defineProps} from 'vue'
+import {ref, watch, defineProps, onMounted} from 'vue'
 import WellGrid from "@/components/well/WellGrid"
 import FeatureSelector from "@/components/widgets/FeatureSelector"
 import ColorLegend from "@/components/widgets/ColorLegend"
@@ -93,8 +93,8 @@ const calcRangeValues = (values) => {
 const plateStore = usePlateStore()
 const uiStore = useUIStore()
 const handleWellSelection = () => {
-  if (uiStore.selectedWells.length > 0) {
-    const selectedSubstance = [... new Set(uiStore.selectedWells.map(well => well.wellSubstance?.name))]
+  if (selectedWells.value.length > 0) {
+    const selectedSubstance = [... new Set(selectedWells.value.map(well => well.wellSubstance?.name))]
     const selectedCurves = plateStore.curves.filter(curve => selectedSubstance.includes(curve.substanceName))
     uiStore.selectedDRCurves = selectedCurves
   }
