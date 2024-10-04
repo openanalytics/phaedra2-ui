@@ -171,19 +171,20 @@ export const usePanesStore = defineStore("panes", () => {
     dynamicPanes.value = value;
   }
 
-  function openChartPane(chartPaneId, fromId) {
-    const chartPanes = activePanes.value.filter((pane) => {
-      return pane.includes("chart");
+  function openTab(tabId, groupId, fromId) {
+    const panes = activePanes.value.filter((pane) => {
+      return pane.includes(groupId);
     });
-    if (chartPanes.length > 0) {
-      addItem(chartPaneId, chartPanes[0], "center");
+    if (panes.length > 0) {
+      addItem(tabId, panes[0], "center");
+    } else if (fromId) {
+      addItem(tabId, fromId, "right");
     } else {
-      addItem(chartPaneId, fromId, "bottom");
+      addMenuItem(tabId);
     }
   }
 
   function closeAllTabs() {
-    console.log("close");
     dynamicPanes.value = [];
   }
 
@@ -198,7 +199,7 @@ export const usePanesStore = defineStore("panes", () => {
     activePanes,
     setDynamicPanesStartValue,
     moveItem,
-    openChartPane,
+    openTab,
     closeAllTabs,
   };
 });

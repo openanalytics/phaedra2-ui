@@ -169,7 +169,7 @@ const hideMenu = ref(false);
 
 const browseWells = () => {
   if (route.name == "workbench") {
-    panesStore.addItem("wells-list-pane", "panes-list-pane", "right");
+    panesStore.openTab("wells-list-pane", "list", "panes-list-pane");
   } else {
     handlePlateSelection(() => {
       router.push({
@@ -296,7 +296,7 @@ const onDisapprovePlate = async (reason) => {
 
 const addScatterPlot = async (plateId) => {
   if (route.name == "workbench") {
-    panesStore.openChartPane("scatterplot-chart-pane", "plates-list-pane");
+    panesStore.openTab("scatterplot-chart-pane", "chart", "plates-list-pane");
   } else {
     handlePlateSelection(async () => {
       await loadingHandler.handleLoadingDuring(
@@ -314,7 +314,7 @@ const addScatterPlot = async (plateId) => {
 
 const addBoxPlot = async (plateId) => {
   if (route.name == "workbench") {
-    panesStore.openChartPane("boxplot-chart-pane", "plates-list-pane");
+    panesStore.openTab("boxplot-chart-pane", "chart", "plates-list-pane");
   } else {
     handlePlateSelection(async () => {
       await loadingHandler.handleLoadingDuring(
@@ -332,7 +332,7 @@ const addBoxPlot = async (plateId) => {
 
 const addHistogram = async (plateId) => {
   if (route.name == "workbench") {
-    panesStore.openChartPane("histogram-chart-pane", "plates-list-pane");
+    panesStore.openTab("histogram-chart-pane", "chart", "plates-list-pane");
   } else {
     handlePlateSelection(async () => {
       await loadingHandler.handleLoadingDuring(
@@ -350,7 +350,7 @@ const addHistogram = async (plateId) => {
 
 const addExperimentPlateTrendChart = (experimentId) => {
   if (route.name == "workbench") {
-    panesStore.openChartPane("experiment-chart-pane", "plates-list-pane");
+    panesStore.openTab("experiment-chart-pane", "chart", "plates-list-pane");
   } else if (uiStore.isExperimentSelected()) {
     uiStore.addChartView({
       type: "trend",

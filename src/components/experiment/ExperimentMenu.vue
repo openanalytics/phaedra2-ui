@@ -210,7 +210,11 @@ const handleSetPlateLayout = () => {
 const uiStore = useUIStore();
 const addExperimentPlateTrendChart = (experimentId) => {
   if (route.name == "workbench") {
-    panesStore.openChartPane("experiment-chart-pane", "experiment-list-pane");
+    panesStore.openTab(
+      "experiment-chart-pane",
+      "chart",
+      "experiment-list-pane"
+    );
   } else if (uiStore.isExperimentSelected()) {
     uiStore.addChartView({
       type: "trend",
@@ -228,7 +232,7 @@ const exportPlateSubWellData = () =>
 const handleExperimentSelection = (action, onFailureMessage) => {
   if (!uiStore.isExperimentSelected()) {
     // hideMenu.value = true
-    notify.showWarning(onFailureMessage)
+    notify.showWarning(onFailureMessage);
   } else {
     // hideMenu.value = false
     action();
@@ -236,6 +240,6 @@ const handleExperimentSelection = (action, onFailureMessage) => {
 };
 
 const openPlates = () => {
-  panesStore.addItem("plates-list-pane", "experiment-list-pane", "right");
+  panesStore.openTab("plates-list-pane", "list", "experiment-list-pane");
 };
 </script>
