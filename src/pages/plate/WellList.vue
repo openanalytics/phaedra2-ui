@@ -41,7 +41,7 @@
     <template v-slot:body-cell="props">
       <q-td v-if="props.col.isFeature" :props="props"
             :style="'background-color:' + props.col.lut.getColor(props.value)">
-        <div v-if="props.col.isFeature">{{ props.value }}</div>
+        <div v-if="props.col.isFeature" :style="'color:' + props.col.lut.getColor(props.value)" class="contrastText">{{ props.value }}</div>
       </q-td>
       <q-td v-else :props="props">
         {{ props.value }}
@@ -207,3 +207,10 @@ const updateTable = () => {
   visibleColumns.value = [...columns.value.map(a => a.name)];
 }
 </script>
+
+<style>
+.contrastText {
+  filter: invert(100%) contrast(999) grayscale(100%);
+  font-weight: 600;
+}
+</style>
