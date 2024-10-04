@@ -207,10 +207,3 @@ const updateTable = () => {
   visibleColumns.value = [...columns.value.map(a => a.name)];
 }
 </script>
-
-<style>
-.contrastText {
-  filter: invert(100%) contrast(999) grayscale(100%);
-  font-weight: 600;
-}
-</style>

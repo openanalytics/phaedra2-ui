@@ -188,11 +188,6 @@ const handleAcceptWells = () => {
 </script>
 
 <style scoped>
-.contrastText {
-  filter: invert(100%) contrast(999) grayscale(100%);
-  font-weight: 600;
-}
-
 .loadingAnimation {
   position: absolute;
   z-index: 10;
