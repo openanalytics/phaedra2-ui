@@ -14,10 +14,10 @@
 <script setup>
 import { usePanesStore } from "@/stores/panes";
 
-const props = defineProps(["id", "name"]);
+const props = defineProps(["id", "name", "group"]);
 const panesStore = usePanesStore();
 
 function openPane() {
-  panesStore.addMenuItem(props.id);
+  panesStore.openTab(props.id, props.group);
 }
 </script>
