@@ -134,7 +134,14 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
+import {
+  ref,
+  computed,
+  watch,
+  onUnmounted,
+  onMounted,
+  onBeforeMount,
+} from "vue";
 
 import ProgressBarField from "@/components/widgets/ProgressBarField";
 import ExperimentMenu from "@/components/experiment/ExperimentMenu";
@@ -142,12 +149,13 @@ import ExperimentMenu from "@/components/experiment/ExperimentMenu";
 import FormatUtils from "@/lib/FormatUtils.js";
 import FilterUtils from "@/lib/FilterUtils";
 import { useExportTableData } from "@/composable/exportTableData";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import OaTable from "@/components/table/OaTable.vue";
 
 const props = defineProps({
   experiments: [Object],
   projects: [Object],
+  selected: [Object],
 });
 const emits = defineEmits(["createNewExperiment", "selection"]);
 
@@ -365,6 +373,14 @@ const exportToXLSX = () => {
 function getUnique(value, index, array) {
   return array.indexOf(value) === index;
 }
+
+const route = useRoute();
+
+onBeforeMount(() => {
+  if (route.name == "workbench") {
+    selectedExperiments.value = props.selected;
+  }
+});
 </script>
 
 <style scoped>

@@ -3,7 +3,7 @@
         <q-card style="min-width: 20vw">
             <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
                 <q-avatar icon="functions" color="primary" text-color="white"/>
-                {{ statWorkingCopy.id ? 'Edit' : 'Create' }} Default Feature Stat
+                {{ statWorkingCopy.id ? 'Edit' : 'Create' }} Feature Stat
             </q-card-section>
             
             <q-card-section>
@@ -53,14 +53,11 @@
 
 import {computed, ref, watchEffect} from "vue";
 import {useFormulasStore} from "@/stores/formulas";
-import {useFeatureStore} from "@/stores/feature";
 import ArrayUtils from "@/lib/ArrayUtils";
 
 const formulasStore = useFormulasStore();
-const featureStore = useFeatureStore();
-
 const props = defineProps(['show', 'featureStat']);
-const emits = defineEmits(['update:show']);
+const emits = defineEmits(['update:show', 'onSaveStat']);
 
 const showDialog = computed({
     get: () => props.show,
@@ -78,15 +75,7 @@ const filterFormulas = (val, update) => update(() => formulaFilter.value = val);
 
 async function doUpdateFeatureStat() {
     if (statWorkingCopy.value.formula) statWorkingCopy.value.formulaId = statWorkingCopy.value.formula.id;
-    
-    if (statWorkingCopy.value.id) {
-        // Update existing stat
-        await featureStore.updateDefaultFeatureStat(statWorkingCopy.value);
-    } else {
-        // Create new stat
-        await featureStore.createDefaultFeatureStat(statWorkingCopy.value);
-    }
-
+    emits('onSaveStat', statWorkingCopy.value);
     statWorkingCopy.value = { formula: {} };
 }
 

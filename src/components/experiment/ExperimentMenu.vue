@@ -2,8 +2,16 @@
   <q-menu context-menu>
     <q-list dense>
       <div v-if="isOpen">
-        <menu-item icon="playlist_add" label="Set Plate Layout" @click="setPlateLayout"/>
-        <menu-item icon="calculate" label="(Re)Calculate Plate(s)" @click="openRecalculatePlatesDialog"/>
+        <menu-item
+          icon="playlist_add"
+          label="Set Plate Layout"
+          @click="setPlateLayout"
+        />
+        <menu-item
+          icon="calculate"
+          label="(Re)Calculate Plate(s)"
+          @click="openRecalculatePlatesDialog"
+        />
       </div>
 
       <q-separator />
@@ -41,9 +49,21 @@
         </q-item-section>
         <q-menu>
           <q-list>
-            <menu-item icon="save_alt" label="Export Plate List" @click="openExportPlateListDialog"/>
-            <menu-item icon="save_alt" label="Export Well Data" @click="openExportWellDataDialog"/>
-            <menu-item icon="save_alt" label="Export Sub-Well Data" @click="exportPlateSubWellData"/>
+            <menu-item
+              icon="save_alt"
+              label="Export Plate List"
+              @click="openExportPlateListDialog"
+            />
+            <menu-item
+              icon="save_alt"
+              label="Export Well Data"
+              @click="openExportWellDataDialog"
+            />
+            <menu-item
+              icon="save_alt"
+              label="Export Sub-Well Data"
+              @click="exportPlateSubWellData"
+            />
           </q-list>
         </q-menu>
       </q-item>
@@ -116,20 +136,20 @@ import ExportWellDataDialog from "@/components/plate/ExportWellDataDialog";
 
 const panesStore = usePanesStore();
 
-const props = defineProps(['experiment'])
-const projectStore = useProjectStore()
-const notify = useNotification()
+const props = defineProps(["experiment"]);
+const projectStore = useProjectStore();
+const notify = useNotification();
 
 const route = useRoute();
-const projectId = parseInt(route.params.id)
+const projectId = parseInt(route.params.id);
 
 const experiment = computed(() => props.experiment)
 const isOpen = computed(() => experiment.value && experiment.value.status === 'OPEN' ? true : false )
 const showDeleteDialog = ref(false);
-const showLinkPlateDialog = ref(false)
-const showCalculatePlateDialog = ref(false)
-const showExportPlateListDialog = ref(false)
-const showExportWellDataDialog = ref(false)
+const showLinkPlateDialog = ref(false);
+const showCalculatePlateDialog = ref(false);
+const showExportPlateListDialog = ref(false);
+const showExportWellDataDialog = ref(false);
 
 const plates = ref([]);
 
@@ -143,29 +163,29 @@ const getPlates = () => {
     plates.value = [...data.plates]
   })
   onError((error) => {
-    notify.showError("Error while updating plates: " + error.message)
-  })
-}
+    notify.showError("Error while updating plates: " + error.message);
+  });
+};
 
-const setPlateLayout = () =>  {
+const setPlateLayout = () => {
   handleExperimentSelection(() => {
-    getPlates()
-    showLinkPlateDialog.value = true
-  }, "No experiment is selected!")
-}
+    getPlates();
+    showLinkPlateDialog.value = true;
+  }, "No experiment is selected!");
+};
 
 const openRecalculatePlatesDialog = () => {
-  getPlates()
-  showCalculatePlateDialog.value = true
-}
+  getPlates();
+  showCalculatePlateDialog.value = true;
+};
 
 const openExportPlateListDialog = () => {
-  showExportPlateListDialog.value = true
-}
+  showExportPlateListDialog.value = true;
+};
 
 const openExportWellDataDialog = () => {
-  showExportWellDataDialog.value = true
-}
+  showExportWellDataDialog.value = true;
+};
 
 const handleCloseExperiment = () => {
   projectStore.closeExperiment(experiment.value.id);
@@ -187,20 +207,23 @@ const handleSetPlateLayout = () => {
       () => { })
 }
 
-const uiStore = useUIStore()
+const uiStore = useUIStore();
 const addExperimentPlateTrendChart = (experimentId) => {
-  if (uiStore.isExperimentSelected()) {
+  if (route.name == "workbench") {
+    panesStore.openChartPane("experiment-chart-pane", "experiment-list-pane");
+  } else if (uiStore.isExperimentSelected()) {
     uiStore.addChartView({
       type: "trend",
       experimentId: experimentId,
       label: "Experiment Trend Chart",
     });
   }
-}
+};
 
-const exportPlateList = openExportPlateListDialog
-const exportPlateWellData = openExportWellDataDialog
-const exportPlateSubWellData = () => notify.showWarning("Feature is under construction!")
+const exportPlateList = openExportPlateListDialog;
+const exportPlateWellData = openExportWellDataDialog;
+const exportPlateSubWellData = () =>
+  notify.showWarning("Feature is under construction!");
 
 const handleExperimentSelection = (action, onFailureMessage) => {
   if (!uiStore.isExperimentSelected()) {
@@ -210,7 +233,7 @@ const handleExperimentSelection = (action, onFailureMessage) => {
     // hideMenu.value = false
     action();
   }
-}
+};
 
 const openPlates = () => {
   panesStore.addItem("plates-list-pane", "experiment-list-pane", "right");

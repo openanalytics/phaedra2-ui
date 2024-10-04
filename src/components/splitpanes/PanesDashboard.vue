@@ -1,5 +1,9 @@
 <template>
-  <Splitpanes :horizontal="dynamicPanes[0] === 'H'" class="default-theme">
+  <Splitpanes
+    :horizontal="dynamicPanes[0] === 'H'"
+    :push-other-panes="false"
+    class="default-theme"
+  >
     <template v-for="(pane, k) in dynamicPanes.slice(1)" :key="k">
       <Pane v-if="pane[0] === 'V' || pane[0] === 'H'">
         <PanesDashboard :dynamicPanes="pane" />

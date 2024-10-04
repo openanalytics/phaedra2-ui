@@ -6,6 +6,7 @@
       <q-tabs v-model="activeTab" align="left" inline-label dense no-caps>
         <q-tab name="general" icon="info" label="General Info"/>
         <q-tab name="calculation" icon="functions" label="Calculation"/>
+        <q-tab name="statistics" icon="percent" label="Statistics"/>
         <q-tab name="curve_fitting" icon="show_chart" label="Dose-Response Curve"/>
       </q-tabs>
     </q-toolbar>
@@ -70,6 +71,10 @@
           </div>
         </q-tab-panel>
 
+        <q-tab-panel name="statistics" label="Statistics" class="col q-pa-md">
+          <feature-stat-table :editable="true" :featureStats="featureStore.feature.stats" @onSaveStat="onAddFeatureStat" @onDeleteStat="onRemoveFeatureStat" />
+        </q-tab-panel>
+
         <q-tab-panel name="curve_fitting" class="q-pa-md">
           <div class="col">
             <q-select label="Model" v-model="selectedDCRModel"
@@ -117,6 +122,7 @@ import {useFeatureStore} from "@/stores/feature";
 import drcModelOptions from "@/resources/dose_response_curve_fit_models.json"
 import ArrayUtils from "@/lib/ArrayUtils";
 import {useMeasurementStore} from "@/stores/measurement";
+import FeatureStatTable from '@/components/featurestat/FeatureStatTable.vue';
 
 const protocolStore = useProtocolStore()
 const formulasStore = useFormulasStore()
@@ -181,6 +187,14 @@ const onFormulaSelection = (args) => {
       }
     })
   })
+}
+
+const onAddFeatureStat = (stat) => {
+  featureStore.feature.stats = ArrayUtils.mergeBy(featureStore.feature.stats, [stat], "id");
+}
+
+const onRemoveFeatureStat = (statId) => {
+  featureStore.feature.stats = featureStore.feature.stats.filter(s => s.id != statId);
 }
 
 //Function to fire an edit event of a feature using the working copy

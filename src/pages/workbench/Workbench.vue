@@ -14,14 +14,14 @@
 import { usePanesStore } from "@/stores/panes";
 import PanesDashboard from "@/components/splitpanes/PanesDashboard.vue";
 import WorkbenchMenu from "@/components/workbench/WorkbenchMenu.vue";
-import { onMounted } from "vue";
+import { onBeforeMount } from "vue";
 import { useSelectionStore } from "../../stores/selection";
 import projectsGraphQlAPI from "@/api/graphql/projects";
 
 const panesStore = usePanesStore();
 const selectionStore = useSelectionStore();
 
-onMounted(() => {
+onBeforeMount(() => {
   const { onResult, onError } = projectsGraphQlAPI.projects();
   onResult(({ data }) => {
     selectionStore.projects = data.projects;

@@ -4,7 +4,6 @@
       :rows="features"
       :columns="columns"
       :pagination="{ rowsPerPage: 10, sortBy: 'name' }"
-      @row-click="(event, row) => showFeatureView(row)"
     >
       <template v-slot:top-left>
         <div class="col action-button on-left">
@@ -89,7 +88,7 @@ import EditFeature from "@/components/feature/EditFeature";
 import ViewFeature from "@/components/feature/ViewFeature";
 import NewFeature from "@/components/feature/NewFeature";
 import OaTable from "@/components/table/OaTable.vue";
-import UpdateFeatureFormulaDialog from "../protocol/UpdateFeatureFormulaDialog.vue";
+import UpdateFeatureFormulaDialog from "@/components/feature/UpdateFeatureFormulaDialog.vue";
 
 const columns = ref([
   {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true, style: 'width: 80px;'},
@@ -184,6 +183,9 @@ const showFormulaInfo = (formulaId) => {
 }
 
 const saveProtocol = async () => {
+  for (let f of protocolStore.protocol.features) {
+    await featureStore.saveFeatureStats(f);
+  }
   await protocolStore.saveProtocol()
 }
 

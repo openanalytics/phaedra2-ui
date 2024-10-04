@@ -1,7 +1,6 @@
 <template>
   <q-page class="oa-root-div">
     <PanesDashboard
-      :key="panesStore.key"
       style="height: calc(100vh - 50px)"
       :dynamicPanes="panesStore.dynamicPanes"
       class="dashboard"
