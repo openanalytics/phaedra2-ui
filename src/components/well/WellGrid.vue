@@ -25,7 +25,7 @@
         <!-- Plate row -->
         <template v-for="c in plate.columns" :key="c" >
           <template v-for="well in [wells[WellUtils.getWellNr(r, c, plate.columns) - 1]]" :key="well">
-            <div class="column well wellSlot" v-ripple
+            <div class="column well wellSlot align-center justify-center" v-ripple
                   :class="{ skipped: well?.skipped, highlight: wellHighlights[WellUtils.getWellNr(r, c, plate.columns) - 1] }"
                   :style="{ backgroundColor: wellColorFunction ? wellColorFunction(well || {}) : '#969696' }"
                   :ref="slot => addWellSlot(slot, r, c)">
@@ -36,8 +36,9 @@
               <div v-if="wellImageFunction" class="full-height row items-center justify-center">
                 <img :src="wellImages[well.nr]" />
               </div>
-              <div v-if="wellLabelFunctions">
-                <span v-for="wellLabelFunction in wellLabelFunctions" :key="wellLabelFunction" class="wellLabel" style="white-space: pre;">
+              <div v-if="wellLabelFunctions" class="contrastText">
+                <span v-for="wellLabelFunction in wellLabelFunctions" :key="wellLabelFunction" class="wellLabel" style="white-space: pre;"
+                :style="{ color: wellColorFunction ? wellColorFunction(well || {}) : '#969696' }">
                     {{ wellLabelFunction(well || {}) }}
                 </span>
               </div>

@@ -41,7 +41,7 @@
     <template v-slot:body-cell="props">
       <q-td v-if="props.col.isFeature" :props="props"
             :style="'background-color:' + props.col.lut.getColor(props.value)">
-        <div v-if="props.col.isFeature">{{ props.value }}</div>
+        <div v-if="props.col.isFeature" :style="'color:' + props.col.lut.getColor(props.value)" class="contrastText">{{ props.value }}</div>
       </q-td>
       <q-td v-else :props="props">
         {{ props.value }}

@@ -101,3 +101,8 @@
 .cursor-grabbing {
   cursor: grabbing;
 }
+
+.contrastText {
+  filter: invert(100%) contrast(999) grayscale(100%);
+  font-weight: 600;
+}
