@@ -151,7 +151,9 @@ export const usePanesStore = defineStore("panes", () => {
   }
 
   function addMenuItem(id) {
-    if (!activePanes.value.includes(id) && id != toId) {
+    if (dynamicPanes.value.length < 2) {
+      dynamicPanes.value = ["V", [id]];
+    } else if (!activePanes.value.includes(id)) {
       dynamicPanes.value = insertMenuItem(id, dynamicPanes.value);
     }
   }
@@ -171,15 +173,18 @@ export const usePanesStore = defineStore("panes", () => {
 
   function openChartPane(chartPaneId, fromId) {
     const chartPanes = activePanes.value.filter((pane) => {
-      console.log(pane.includes("chart"));
       return pane.includes("chart");
     });
     if (chartPanes.length > 0) {
-      console.log(chartPanes);
       addItem(chartPaneId, chartPanes[0], "center");
     } else {
       addItem(chartPaneId, fromId, "bottom");
     }
+  }
+
+  function closeAllTabs() {
+    console.log("close");
+    dynamicPanes.value = [];
   }
 
   return {
@@ -194,5 +199,6 @@ export const usePanesStore = defineStore("panes", () => {
     setDynamicPanesStartValue,
     moveItem,
     openChartPane,
+    closeAllTabs,
   };
 });
