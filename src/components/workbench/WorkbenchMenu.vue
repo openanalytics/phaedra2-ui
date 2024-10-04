@@ -1,7 +1,7 @@
 <template>
   <q-toolbar
     id="workbench-toolbar"
-    class="text-primary q-my-sm border-primary bg-white"
+    class="text-primary q-my-sm border-primary bg-white flex justify-between"
     style="border: solid 1px"
   >
     <q-btn-dropdown
@@ -22,6 +22,11 @@
         <q-separator inset spaced />
       </q-list>
     </q-btn-dropdown>
+    <q-btn @click="closeAllTabs" icon="close" round flat color="primary">
+      <q-tooltip anchor="center left" self="center end"
+        >Close all tabs</q-tooltip
+      >
+    </q-btn>
   </q-toolbar>
 </template>
 
@@ -34,6 +39,7 @@
 
 <script setup>
 import WorkbenchMenuItem from "./WorkbenchMenuItem.vue";
+import { usePanesStore } from "@/stores/panes";
 
 const items = [
   {
@@ -63,6 +69,11 @@ const items = [
     ],
   },
 ];
+
+const panesStore = usePanesStore();
+function closeAllTabs() {
+  panesStore.closeAllTabs();
+}
 </script>
 
 <style>
