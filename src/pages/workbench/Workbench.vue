@@ -17,6 +17,7 @@ import WorkbenchMenu from "@/components/workbench/WorkbenchMenu.vue";
 import { onBeforeMount } from "vue";
 import { useSelectionStore } from "../../stores/selection";
 import projectsGraphQlAPI from "@/api/graphql/projects";
+import { onBeforeRouteLeave } from "vue-router";
 
 const panesStore = usePanesStore();
 const selectionStore = useSelectionStore();
@@ -26,6 +27,11 @@ onBeforeMount(() => {
   onResult(({ data }) => {
     selectionStore.projects = data.projects;
   });
+});
+
+onBeforeRouteLeave(() => {
+  const panes = JSON.stringify(panesStore.dynamicPanes);
+  localStorage.setItem("dynamicPanes", panes);
 });
 </script>
 
