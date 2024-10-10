@@ -28,10 +28,9 @@
             "
           >
             <div>
-              <q-icon
-                :name="component.icon"
-                style="margin-right: 5px"
-              /><span>{{ component.title }}</span>
+              <q-icon :name="component.icon" style="margin-right: 5px" /><span>
+                {{ component.label || component.title }}</span
+              >
             </div>
             <q-icon
               name="close"

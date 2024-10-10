@@ -7,5 +7,10 @@ export function prepareDashboard() {
 }
 export function prepareWorkbench() {
   const panesStore = usePanesStore();
-  panesStore.setDynamicPanesStartValue(panesMap.get("workbench").value);
+  if (localStorage.getItem("dynamicPanes")) {
+    const panes = JSON.parse(localStorage.getItem("dynamicPanes"));
+    panesStore.setDynamicPanesStartValue(panes);
+  } else {
+    panesStore.setDynamicPanesStartValue(panesMap.get("workbench").value);
+  }
 }

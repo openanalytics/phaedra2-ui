@@ -77,11 +77,11 @@ const fetchProjectData = () => {
 
 const openProjectDetails = () => {
   fetchProjectData();
-  panesStore.addItem("project-details-pane", "project-list-pane", "right");
+  panesStore.openTab("project-details-pane", "details", "project-list-pane");
 };
 
 const openExperiments = () => {
-  panesStore.addItem("experiment-list-pane", "project-list-pane", "right");
+  panesStore.openTab("experiment-list-pane", "list", "project-list-pane");
 };
 </script>
 

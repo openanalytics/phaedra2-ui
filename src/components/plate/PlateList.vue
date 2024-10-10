@@ -22,8 +22,14 @@
             >
               <q-item-section no-wrap>
                 <div style="vertical-align: center">
-                  <q-icon name="add" class="q-pr-md"/>
-                  <span style="text-transform: uppercase; font-size: 12px; text-align: right">
+                  <q-icon name="add" class="q-pr-md" />
+                  <span
+                    style="
+                      text-transform: uppercase;
+                      font-size: 12px;
+                      text-align: right;
+                    "
+                  >
                     New Plate
                   </span>
                 </div>
@@ -38,8 +44,14 @@
             >
               <q-item-section no-wrap class="row">
                 <div>
-                  <q-icon name="add" class="q-pr-md"/>
-                  <span style="text-transform: uppercase; font-size: 12px; text-align: right">
+                  <q-icon name="add" class="q-pr-md" />
+                  <span
+                    style="
+                      text-transform: uppercase;
+                      font-size: 12px;
+                      text-align: right;
+                    "
+                  >
                     New Plate(s) from Measurement(s)
                   </span>
                 </div>
@@ -236,12 +248,12 @@ onBeforeMount(() => {
 onMounted(() => {
   visibleColumns.value = [...columns.map((a) => a.name)];
   loading.value = false;
-})
+});
 
 watch(plates, () => {
   visibleColumns.value = [...columns.map((a) => a.name)];
   loading.value = false;
-})
+});
 
 const selectedPlates = ref([]);
 const isSelected = (row) => selectedPlates.value?.includes(row) ?? false;
@@ -276,7 +288,7 @@ watch(
 );
 
 const experimentsNames = computed(() =>
-  selectedPlates.value
+  platesToExport.value
     .map(
       (plate) =>
         props.experiments.find((item) => item.id == plate.experimentId).name
@@ -288,31 +300,27 @@ function getUnique(value, index, array) {
   return array.indexOf(value) === index;
 }
 
+const platesToExport = computed(() =>
+  selectedPlates.value.length > 0 ? selectedPlates.value : plates.value
+);
+const exportFileName = computed(() =>
+  experimentsNames.value.length > 1
+    ? "selectedPlatesExportList"
+    : experimentsNames.value[0]
+);
+
 const exportTableData = useExportTableData(columns);
 const exportToCSV = () => {
-  if (experimentsNames.value.length > 1) {
-    exportTableData.exportToCSV(
-      filterMethod(plates.value, filter.value),
-      "selectedPlatesExportList"
-    );
-  } else if (experimentsNames.value.length) {
-    exportTableData.exportToCSV(
-      filterMethod(plates.value, filter.value),
-      experimentsNames.value[0]
-    );
-  }
+  exportTableData.exportToCSV(
+    filterMethod(platesToExport.value, filter.value),
+    exportFileName.value
+  );
 };
+
 const exportToXLSX = () => {
-  if (experimentsNames.value.length > 1) {
-    exportTableData.exportToXLSX(
-      filterMethod(plates.value, filter.value),
-      "selectedPlatesExportList"
-    );
-  } else if (experimentsNames.value.length) {
-    exportTableData.exportToXLSX(
-      filterMethod(plates.value, filter.value),
-      experimentsNames.value[0]
-    );
-  }
+  exportTableData.exportToXLSX(
+    filterMethod(platesToExport.value, filter.value),
+    exportFileName.value
+  );
 };
 </script>

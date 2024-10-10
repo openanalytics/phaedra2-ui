@@ -84,6 +84,7 @@ export function usePanesList() {
       component: TrendChart,
       id: "experiment-chart-pane",
       title: "Experiment's Plate Trend",
+      label: `Experiment's Plate Trend (${selectionStore.chart?.experiment?.name})`,
       icon: "view_stream",
       closable: true,
       props: {
@@ -110,6 +111,7 @@ export function usePanesList() {
       component: Chart,
       id: "scatterplot-chart-pane",
       title: "Scatterplot 2D",
+      label: `Scatterplot 2D (${selectionStore.plateChart?.plate?.barcode})`,
       icon: "scatter_plot",
       closable: true,
       props: {
@@ -126,6 +128,7 @@ export function usePanesList() {
       component: Chart,
       id: "boxplot-chart-pane",
       title: "Boxplot",
+      label: `Boxplot (${selectionStore.plateChart?.plate?.barcode})`,
       icon: "candlestick_chart",
       closable: true,
       props: {
@@ -142,6 +145,7 @@ export function usePanesList() {
       component: Chart,
       id: "histogram-chart-pane",
       title: "1D Histogram",
+      label: `1D Histogram (${selectionStore.plateChart?.plate?.barcode})`,
       icon: "bar_chart",
       closable: true,
       props: {

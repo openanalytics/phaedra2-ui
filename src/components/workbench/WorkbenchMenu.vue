@@ -48,14 +48,17 @@ const items = [
       {
         name: "Browser",
         id: "project-list-pane",
+        group: "list",
       },
       {
         name: "Details",
         id: "project-details-pane",
+        group: "details",
       },
       {
         name: "New Project",
         id: "create-project-form-pane",
+        group: "form",
       },
     ],
   },
@@ -65,6 +68,7 @@ const items = [
       {
         name: "Experiments",
         id: "experiments-list-pane",
+        group: "list",
       },
     ],
   },
