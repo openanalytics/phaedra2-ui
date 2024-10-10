@@ -2,7 +2,7 @@ import { computed, ref, watch } from "vue";
 import { defineStore } from "pinia";
 import projectsGraphQlAPI from "@/api/graphql/projects";
 import experimentsGraphQlAPI from "@/api/graphql/experiments";
-import resultdataGraphQlAPI from "@/api/graphql/resultdata";
+import resultDataGraphQlAPI from "@/api/graphql/resultdata";
 
 export const useSelectionStore = defineStore("selection", () => {
   const localProjects = ref([]);
@@ -14,6 +14,9 @@ export const useSelectionStore = defineStore("selection", () => {
   const selectedExperiments = ref([]);
   const selectedPlates = ref([]);
   const selectedWells = ref([]);
+
+  const activeMeasurement = ref(null)
+  const measurements = ref([])
 
   const chart = ref({
     id: undefined,
@@ -196,6 +199,27 @@ export const useSelectionStore = defineStore("selection", () => {
     }
   }
 
+  function loadPlateMeasurements(plateId) {
+    const {onResult, onError} = projectsGraphQlAPI.measurementsByPlateId(
+        plateId)
+    onResult(({data}) => {
+      measurements.value = data.plateMeasurements;
+      activeMeasurement.value = measurements.value.filter(m => m.active === true)[0]
+      console.log(activeMeasurement.value)
+    })
+  }
+
+  function loadPlateProtocols(plate) {
+    const {onResult, onError} = resultDataGraphQlAPI.protocolsByPlateId(
+        plate.id)
+    onResult(({data}) => {
+      plateChart.value = {
+        plate: plate,
+        id: new Date().getTime(),
+        protocols: data.protocols,
+      };    })
+  }
+
   watch(selectedPlates, (newVal, oldVal) => {
     if (newVal.length > 0) {
       let flag = false;
@@ -203,16 +227,8 @@ export const useSelectionStore = defineStore("selection", () => {
         if (!oldVal.find((el) => element == el)) {
           flag = true;
           if (plateChart.value.plate?.id != element.id) {
-            const { onResult } = resultdataGraphQlAPI.protocolsByPlateId(
-              element.id
-            );
-            onResult(({ data }) => {
-              plateChart.value = {
-                plate: element,
-                id: new Date().getTime(),
-                protocols: data.protocols,
-              };
-            });
+            loadPlateProtocols(element);
+            loadPlateMeasurements(element.id);
           }
         }
       });
@@ -221,16 +237,8 @@ export const useSelectionStore = defineStore("selection", () => {
         newVal.length > 0 &&
         !newVal.find((el) => el.id == plateChart.value.plate?.id)
       ) {
-        const { onResult } = resultdataGraphQlAPI.protocolsByPlateId(
-          newVal[0].id
-        );
-        onResult(({ data }) => {
-          plateChart.value = {
-            plate: newVal[0],
-            id: new Date().getTime(),
-            protocols: data.protocols,
-          };
-        });
+        loadPlateProtocols(newVal[0]);
+        loadPlateMeasurements(newVal[0].id);
       }
     } else {
       plateChart.value.plate = undefined;
@@ -292,6 +300,7 @@ export const useSelectionStore = defineStore("selection", () => {
     selectedPlates,
     selectedProjects,
     selectedWells,
+    activeMeasurement,
     addChartView,
     plateChart,
     chart,

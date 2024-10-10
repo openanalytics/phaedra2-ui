@@ -175,6 +175,7 @@ export function usePanesList() {
       props: {
         plate: selectionStore.plateChart.plate,
         wells: selectionStore.wells,
+        measurements: selectionStore.activeMeasurement !== null ? [selectionStore.activeMeasurement] : [],
         protocols: selectionStore.plateChart.protocols
       },
       // selection: (e) => (selectionStore.selectedWells = e),
