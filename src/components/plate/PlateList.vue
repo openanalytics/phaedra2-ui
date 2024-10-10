@@ -110,8 +110,8 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from "vue";
-import { useRouter } from "vue-router";
+import { computed, onMounted, ref, watch, onBeforeMount } from "vue";
+import { useRouter, useRoute } from "vue-router";
 
 import PlateActionMenu from "@/components/plate/PlateActionMenu";
 import StatusFlag from "@/components/widgets/StatusFlag";
@@ -224,6 +224,15 @@ const openNewPlateFromMeasurementsDialog = () => {
 
 const loading = ref();
 const visibleColumns = ref([]);
+
+const route = useRoute();
+
+onBeforeMount(() => {
+  if (route.name == "workbench") {
+    selectedPlates.value = props.selected;
+  }
+});
+
 onMounted(() => {
   visibleColumns.value = [...columns.map((a) => a.name)];
   loading.value = false;

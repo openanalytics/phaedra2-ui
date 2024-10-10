@@ -15,8 +15,6 @@ export const useSelectionStore = defineStore("selection", () => {
   const selectedPlates = ref([]);
   const selectedWells = ref([]);
 
-  const activeMeasurement = ref(null)
-
   const chart = ref({
     id: undefined,
     experiment: undefined,

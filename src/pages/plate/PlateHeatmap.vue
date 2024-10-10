@@ -2,7 +2,7 @@
     <div class="col" style="min-width: 75%">
       <FeatureSelector class="q-pb-xs"
                        :protocols=props.protocols
-                       :measurements=props.measurements
+                       :measurements=measurements
                        @featureOptionSelection="handleFeatureOptionSelection"
                        @rawFeatureSelection="handleRawFeatureSelection"
                        @calculatedFeatureSelection="handleCalculatedFeatureSelection"/>
@@ -19,21 +19,23 @@
 </template>
 
 <script setup>
-import {ref, watch, defineProps, onMounted} from 'vue'
+import {ref, watch, defineProps, onBeforeMount} from 'vue'
 import WellGrid from "@/components/well/WellGrid"
 import FeatureSelector from "@/components/widgets/FeatureSelector"
 import ColorLegend from "@/components/widgets/ColorLegend"
 import ColorUtils from "@/lib/ColorUtils.js"
 import WellUtils from "@/lib/WellUtils.js"
+import projectsGraphQlAPI from "@/api/graphql/projects";
 
 import resultDataGraphQlAPI from '@/api/graphql/resultdata'
 import measurementsGraphQlAPI from "@/api/graphql/measurements";
 import {usePlateStore} from "@/stores/plate";
 import {useUIStore} from "@/stores/ui";
 
-const props = defineProps(['plate', 'wells', 'measurements', 'protocols']);
+const props = defineProps(['plate', 'wells', 'protocols']);
 const emits = defineEmits(['wellStatusChanged'])
-
+const activeMeasurement = ref(null)
+const measurements = ref([])
 const wellData = ref([])
 const dataLoading = ref(false);
 const rangeValues = ref({min: 0, mean: 50, max: 100});
@@ -99,5 +101,18 @@ const handleWellSelection = () => {
     uiStore.selectedDRCurves = selectedCurves
   }
 }
+
+async function loadPlateMeasurements(plateId) {
+    const {onResult, onError} = projectsGraphQlAPI.measurementsByPlateId(
+        plateId)
+    onResult(({data}) => {
+      measurements.value = data.plateMeasurements;
+      activeMeasurement.value = measurements.value.filter(m => m.active === true)[0]
+    })
+  }
+
+onBeforeMount(async ()=> {
+  await loadPlateMeasurements(props.plate.id)
+})
 
 </script>

@@ -173,10 +173,9 @@ export function usePanesList() {
       icon: "view_module",
       closable: true,
       props: {
-        'plate': selectionStore.plateChart.plate,
-        'wells': selectionStore.wells,
-        'measurements': selectionStore.activeMeasurement !== undefined ? [selectionStore.activeMeasurement] : [],
-        'protocols': selectionStore.plateChart.protocols
+        plate: selectionStore.plateChart.plate,
+        wells: selectionStore.wells,
+        protocols: selectionStore.plateChart.protocols
       },
       // selection: (e) => (selectionStore.selectedWells = e),
     },
