@@ -395,6 +395,29 @@ export default {
     `
     return executeQuery(query, {plateId});
   },
+  wellsByPlateIds(plateIds) {
+    const query = `
+        query getWellsByPlateIds($plateIds: [ID]) {
+            wells:getWellsByPlateIds(plateIds: $plateIds) {
+                id
+                plateId
+                row
+                column
+                wellType
+                status
+                description
+                wellSubstance {
+                    id
+                    wellId
+                    type
+                    name
+                    concentration
+                }
+            }
+        }
+    `
+    return executeQuery(query, {plateIds});
+  },
   measurementsByPlateId(plateId) {
     const query = `
         query getMeasurementsByPlateId($plateId: ID) {

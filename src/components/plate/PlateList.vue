@@ -122,8 +122,8 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from "vue";
-import { useRouter } from "vue-router";
+import { computed, onMounted, ref, watch, onBeforeMount } from "vue";
+import { useRouter, useRoute } from "vue-router";
 
 import PlateActionMenu from "@/components/plate/PlateActionMenu";
 import StatusFlag from "@/components/widgets/StatusFlag";
@@ -207,7 +207,7 @@ const columns = [
   },
 ];
 
-const experiment = computed(() => props.experiment);
+const experiment = computed(() => props.experiments);
 const plates = computed(() => props.plates);
 
 const filter = FilterUtils.makeFilter(columns);
@@ -236,6 +236,15 @@ const openNewPlateFromMeasurementsDialog = () => {
 
 const loading = ref();
 const visibleColumns = ref([]);
+
+const route = useRoute();
+
+onBeforeMount(() => {
+  if (route.name == "workbench") {
+    selectedPlates.value = props.selected;
+  }
+});
+
 onMounted(() => {
   visibleColumns.value = [...columns.map((a) => a.name)];
   loading.value = false;
@@ -247,10 +256,6 @@ watch(plates, () => {
 });
 
 const selectedPlates = ref([]);
-watch(selectedPlates, () => {
-  emits("selection", selectedPlates.value);
-});
-
 const isSelected = (row) => selectedPlates.value?.includes(row) ?? false;
 const updateSelectedPlates = (condition, row) =>
   condition
@@ -268,6 +273,19 @@ const selectPlate = (event, row) => {
     selectedPlates.value = updateSelectedPlates(isSelected(row), row);
   }
 };
+
+watch(selectedPlates, (newVal) => {
+  emits("selection", newVal);
+});
+watch(
+  () => props.plates,
+  (newVal) => {
+    const ids = newVal.map((item) => item.id);
+    selectedPlates.value = selectedPlates.value.filter((item) =>
+      ids.includes(item.id)
+    );
+  }
+);
 
 const experimentsNames = computed(() =>
   platesToExport.value

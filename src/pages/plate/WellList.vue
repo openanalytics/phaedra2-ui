@@ -1,7 +1,7 @@
 <template>
   <oa-table :rows="wells" :columns="columns"
             selection="multiple"
-            v-model:selected="uiStore.selectedWells"
+            v-model:selected="selectedWells"
             :filter="filter"
             :filter-method="filterMethod"
             @row-click="selectWell">
@@ -76,14 +76,12 @@ import {useExportTableData} from "@/composable/exportTableData";
 import ColumnFilter from "@/components/table/ColumnFilter";
 import WellActionMenu from "@/components/well/WellActionMenu.vue";
 import {usePlateStore} from "@/stores/plate"
-import {useUIStore} from "@/stores/ui";
 import OaTable from "@/components/table/OaTable.vue";
 
-const props = defineProps(["plate", "wells"]);
-const emits = defineEmits(["wellStatusChanged"]);
+const props = defineProps(["plates", "wells"]);
+const emits = defineEmits(["wellStatusChanged", 'selection']);
 
 const plateStore = usePlateStore();
-const uiStore = useUIStore();
 
 const loading = ref(true);
 const features = ref([]);
@@ -111,8 +109,9 @@ const wells = computed(() => props.wells.map(well => {
   return {
     id: well.id,
     coordinate: WellUtils.getWellCoordinate(well?.row, well?.column) ?? "",
-    number: WellUtils.getWellNr(well?.row, well?.column, props.plate.columns) ?? "",
+    number: WellUtils.getWellNr(well?.row, well?.column, props.plates.columns) ?? "",
     status: well.status,
+    plateId: well.plateId,
     wellType: well.wellType,
     substance: well.wellSubstance?.name ?? "",
     concentration: FormatUtils.formatToScientificNotation(well.wellSubstance?.concentration)
@@ -125,52 +124,92 @@ let filter = FilterUtils.makeFilter(columns.value);
 const filterMethod = FilterUtils.defaultFilterMethod();
 
 let exportTableData = null
+const selectedWells = ref([]);
+
+watch(selectedWells, (newVal) => {
+  emits("selection", newVal);
+});
+watch(
+  () => props.wells,
+  (newVal) => {
+    const ids = newVal.map((item) => item.id);
+    selectedWells.value = selectedWells.value.filter((item) =>
+      ids.includes(item.id)
+    );
+  }
+);
 watch([features, resultData, wells], () => {
   updateTable()
   loading.value = false
   exportTableData = useExportTableData(columns.value)
 }, {deep: true})
 
+const plateNames = computed(() => 
+selectedWells.value
+    .map(
+      (well) =>
+        props.plates.find((item) => item.id == well.plateId).barcode
+    )
+    .filter(getUnique)
+);
+
 const exportToCSV = () => {
-  exportTableData.exportToCSV(
-    filterMethod(wells.value, filter.value),
-    props.plate.barcode
-  );
-};
-const exportToXLSX = () => {
-  exportTableData.exportToXLSX(
-    filterMethod(wells.value, filter.value),
-    props.plate.barcode
-  );
+  if (plateNames.value.length > 1) {
+    exportTableData.exportToCSV(
+      filterMethod(wells.value, filter.value),
+      "selectedWellsExportList"
+    );
+  } else if (plateNames.value.length) {
+    exportTableData.exportToCSV(
+      filterMethod(wells.value, filter.value),
+      plateNames.value[0]
+    );
+  }
 };
 
+const exportToXLSX = () => {
+  if (plateNames.value.length > 1) {
+    exportTableData.exportToXLSX(
+      filterMethod(wells.value, filter.value),
+      "selectedWellsExportList"
+    );
+  } else if (plateNames.value.length) {
+    exportTableData.exportToXLSX(
+      filterMethod(wells.value, filter.value),
+      plateNames.value[0]
+    );
+  }
+};
+function getUnique(value, index, array) {
+  return array.indexOf(value) === index;
+}
 const selectedWell = ref(null)
-const isSelected = (row) => uiStore.selectedWells.findIndex(w => w.id === row.id) > -1
-const updateSelectedWells = (condition, row) => condition ? uiStore.selectedWells.filter(well => well.id !== row.id) : [row]
+const isSelected = (row) => selectedWells.value.findIndex(w => w.id === row.id) > -1
+const updateSelectedWells = (condition, row) => condition ? selectedWells.value.filter(well => well.id !== row.id) : [row]
 const selectWell = (event, row) => {
   selectedWell.value = row
   if (event && (event.ctrlKey || event.metaKey)) {
     if (isSelected(row)) {
-      uiStore.selectedWells = updateSelectedWells(true, row);
+      selectedWells.value = updateSelectedWells(true, row);
     } else {
-      uiStore.selectedWells.push(row);
+      selectedWells.value.push(row);
     }
   } else {
-    uiStore.selectedWells = updateSelectedWells(isSelected(row), row);
+    selectedWells.value = updateSelectedWells(isSelected(row), row);
   }
 };
 
 const handleRejectWells = () => {
-  if (uiStore.selectedWells.length > 0) {
-    plateStore.rejectWells(uiStore.selectedWells, 'REJECTED_PHAEDRA', 'Test well rejection').then(() => {
+  if (selectedWells.value.length > 0) {
+    plateStore.rejectWells(selectedWells.value, 'REJECTED_PHAEDRA', 'Test well rejection').then(() => {
       emits('wellStatusChanged')
     })
   }
 }
 
 const handleAcceptWells = () => {
-  if (uiStore.selectedWells.length > 0) {
-    plateStore.acceptWells(uiStore.selectedWells).then(() => {
+  if (selectedWells.value.length > 0) {
+    plateStore.acceptWells(selectedWells.value).then(() => {
       emits('wellStatusChanged')
     })
   }
