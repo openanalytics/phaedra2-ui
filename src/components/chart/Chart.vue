@@ -1,5 +1,8 @@
 <template>
-  <div ref="chart" />
+  <div v-if="selectedPlate" ref="chart" />
+  <div class="absolute-center" v-else>
+    <q-badge color="negative">{{ errorMessage }}</q-badge>
+  </div>
   <div class="col oa-section-body">
     <q-select
       class="q-pa-xs"
@@ -62,6 +65,8 @@ const props = defineProps([
 ]);
 
 const emit = defineEmits(["selection"]);
+
+const errorMessage = "No plate selected";
 
 const showXAxisSelector = computed(
   () =>
