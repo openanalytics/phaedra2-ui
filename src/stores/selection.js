@@ -17,6 +17,7 @@ export const useSelectionStore = defineStore("selection", () => {
 
   const activeMeasurement = ref(null)
   const measurements = ref([])
+  const heatmapWells = ref([])
 
   const chart = ref({
     id: undefined,
@@ -199,13 +200,21 @@ export const useSelectionStore = defineStore("selection", () => {
     }
   }
 
+  function loadWells(platesId) {
+    if (platesId) {
+      const { onResult, onError } = projectsGraphQlAPI.wellsByPlateId(platesId);
+      onResult(({ data }) => {
+        heatmapWells.value = data.wells
+      });
+    }
+  }
+
   function loadPlateMeasurements(plateId) {
     const {onResult, onError} = projectsGraphQlAPI.measurementsByPlateId(
         plateId)
     onResult(({data}) => {
       measurements.value = data.plateMeasurements;
       activeMeasurement.value = measurements.value.filter(m => m.active === true)[0]
-      console.log(activeMeasurement.value)
     })
   }
 
@@ -229,6 +238,7 @@ export const useSelectionStore = defineStore("selection", () => {
           if (plateChart.value.plate?.id != element.id) {
             loadPlateProtocols(element);
             loadPlateMeasurements(element.id);
+            loadWells(element.id);
           }
         }
       });
@@ -239,6 +249,7 @@ export const useSelectionStore = defineStore("selection", () => {
       ) {
         loadPlateProtocols(newVal[0]);
         loadPlateMeasurements(newVal[0].id);
+        loadWells(newVal[0].id);
       }
     } else {
       plateChart.value.plate = undefined;
@@ -304,5 +315,6 @@ export const useSelectionStore = defineStore("selection", () => {
     addChartView,
     plateChart,
     chart,
+    heatmapWells
   };
 });

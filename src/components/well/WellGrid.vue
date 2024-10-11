@@ -65,11 +65,13 @@ import {publicPath} from "../../../vue.config";
 import {usePlateStore} from "@/stores/plate";
 import {useNotification} from "@/composable/notification";
 import {useRouter} from "vue-router";
+import { useSelectionStore } from "@/stores/selection";
 
 const props = defineProps(['plate', 'wells', 'loading', 'wellColorFunction', 'wellImageFunction', 'wellLabelFunctions'])
 const emit = defineEmits(['wellSelection', 'wellStatusChanged']);
 const uiStore = useUIStore()
 const plateStore = usePlateStore()
+const selectionStore = useSelectionStore();
 
 
 
@@ -78,6 +80,7 @@ const wells = computed(() => props.wells ?? [])
 
 const wellHighlights = ref([])
 onMounted(() => {
+  console.log('wells', selectionStore.selectedWells)
   wellHighlights.value = [...Array(props.wells?.length).keys()]
     .map(nr => nr + 1)
     .map(nr => uiStore.selectedWells?.find(w => nr == WellUtils.getWellNr(w.row, w.column, plate.value?.columns)))
