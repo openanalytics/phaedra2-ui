@@ -6,7 +6,8 @@ import ProjectDetails from "@/components/project/ProjectDetails.vue";
 import ExperimentList from "@/components/experiment/ExperimentList.vue";
 import PlateList from "@/components/plate/PlateList";
 import ProjectsList from "@/components/project/ProjectsList.vue";
-import WellList from "@/pages/plate/WellList.vue";
+import WellList from "../../pages/plate/WellList.vue";
+import PlateHeatmap from "@/pages/plate/PlateHeatmap.vue";
 import { computed } from "vue";
 import { useSelectionStore } from "@/stores/selection";
 import TrendChart from "@/components/chart/TrendChart.vue";
@@ -164,10 +165,28 @@ export function usePanesList() {
       icon: "science",
       closable: true,
       props: {
-        plate: selectionStore.plates ? selectionStore.plates[0] : [],
+        plates: selectionStore.plates,
         wells: selectionStore.wells,
       },
       selection: (e) => (selectionStore.selectedWells = e),
+    },
+    {
+      component: PlateHeatmap,
+      id: "heatmap-chart-pane",
+      title: "Heatmap",
+      label: `Heatmap (${selectionStore.plateChart?.plate?.barcode})`,
+      icon: "view_module",
+      closable: true,
+      props: {
+        plate: selectionStore.plateChart.plate,
+        wells: selectionStore.wells,
+        measurements:
+          selectionStore.activeMeasurement !== null
+            ? [selectionStore.activeMeasurement]
+            : [],
+        protocols: selectionStore.plateChart.protocols,
+      },
+      // selection: (e) => (selectionStore.selectedWells = e),
     },
   ]);
 
