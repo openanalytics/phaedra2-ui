@@ -93,8 +93,8 @@ const calcRangeValues = (values) => {
 const plateStore = usePlateStore()
 const uiStore = useUIStore()
 const handleWellSelection = (selectedWells) => {
-  if (uiStore.selectedWells.length > 0) {
-    const selectedSubstance = [... new Set(uiStore.selectedWells.map(well => well.wellSubstance?.name))]
+  if (selectedWells.length > 0) {
+    const selectedSubstance = [... new Set(selectedWells.map(well => well.wellSubstance?.name))]
     const selectedCurves = plateStore.curves.filter(curve => selectedSubstance.includes(curve.substanceName))
     uiStore.selectedDRCurves = selectedCurves
   }
