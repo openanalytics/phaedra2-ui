@@ -1,6 +1,9 @@
 <template>
   <div class="col oa-section-body">
-    <div id="chart" />
+    <div ref="chart" v-if="selectedExperiments.length > 0" />
+    <div class="absolute-center" v-else>
+      <q-badge color="negative">{{ errorMessage }}</q-badge>
+    </div>
     <q-select
       class="q-pa-xs"
       v-model="selectedFeature"
@@ -28,6 +31,7 @@ import { useExperimentStore } from "@/stores/experiment";
 
 const props = defineProps(["chartId", "update", "selectedExperiments"]);
 
+const chart = ref(null);
 const chartData = ref([]);
 const plates = ref([]);
 const featureStatValues = ref([]);
@@ -60,6 +64,8 @@ watch(
 onMounted(() => {
   loadTrendChart();
 });
+
+const errorMessage = "No experiment selected";
 
 function loadTrendChart() {
   plateTrendChartData
@@ -266,7 +272,7 @@ const updateChartTraces = () => {
     stDevSAMPLE,
   ];
 
-  Plotly.react("chart", data, layout, config);
+  Plotly.react(chart.value, data, layout, config);
 };
 
 watch(

@@ -90,7 +90,9 @@ export function usePanesList() {
       props: {
         update: Date.now(),
         chartId: selectionStore.chart.id,
-        selectedExperiments: [selectionStore.chart.experiment],
+        selectedExperiments: selectionStore.chart.experiment
+          ? [selectionStore.chart.experiment]
+          : [],
       },
       selection: (e) => (selectionStore.selectedExperiments = e),
     },
