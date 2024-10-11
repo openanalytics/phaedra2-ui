@@ -172,15 +172,19 @@ export function usePanesList() {
     },
     {
       component: PlateHeatmap,
-      id: "heatmap-pane",
+      id: "heatmap-chart-pane",
       title: "Heatmap",
+      label: `Heatmap (${selectionStore.plateChart?.plate?.barcode})`,
       icon: "view_module",
       closable: true,
       props: {
         plate: selectionStore.plateChart.plate,
         wells: selectionStore.wells,
-        measurements: selectionStore.activeMeasurement !== null ? [selectionStore.activeMeasurement] : [],
-        protocols: selectionStore.plateChart.protocols
+        measurements:
+          selectionStore.activeMeasurement !== null
+            ? [selectionStore.activeMeasurement]
+            : [],
+        protocols: selectionStore.plateChart.protocols,
       },
       // selection: (e) => (selectionStore.selectedWells = e),
     },
