@@ -1,6 +1,6 @@
 <template>
-  <div v-if="selectedPlate" ref="chart" />
-  <div class="absolute-center" v-else>
+  <div v-show="selectedPlate" ref="chart" />
+  <div v-show="!selectedPlate" class="absolute-center">
     <q-badge color="negative">{{ errorMessage }}</q-badge>
   </div>
   <div class="col oa-section-body">

@@ -176,7 +176,7 @@ export function usePanesList() {
       component: PlateHeatmap,
       id: "heatmap-chart-pane",
       title: "Heatmap",
-      label: `Heatmap (${selectionStore.plateChart?.plate?.barcode})`,
+      label: `Heatmap (${selectionStore.plateChart?.plate?.barcode || "none selected"})`,
       icon: "view_module",
       closable: true,
       props: {

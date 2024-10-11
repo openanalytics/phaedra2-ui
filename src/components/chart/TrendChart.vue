@@ -1,7 +1,7 @@
 <template>
   <div class="col oa-section-body">
-    <div ref="chart" v-if="selectedExperiments.length > 0" />
-    <div class="absolute-center" v-else>
+    <div ref="chart" v-show="selectedExperiments.length > 0" />
+    <div class="absolute-center" v-show="selectedExperiments.length == 0">
       <q-badge color="negative">{{ errorMessage }}</q-badge>
     </div>
     <q-select

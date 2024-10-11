@@ -15,8 +15,8 @@ export const useSelectionStore = defineStore("selection", () => {
   const selectedPlates = ref([]);
   const selectedWells = ref([]);
 
-  const activeMeasurement = ref(null)
-  const measurements = ref([])
+  const activeMeasurement = ref(null);
+  const measurements = ref([]);
 
   const chart = ref({
     id: undefined,
@@ -188,7 +188,8 @@ export const useSelectionStore = defineStore("selection", () => {
 
   function loadPlate(platesIds, replace = true) {
     if (platesIds) {
-      const { onResult, onError } = projectsGraphQlAPI.wellsByPlateIds(platesIds);
+      const { onResult, onError } =
+        projectsGraphQlAPI.wellsByPlateIds(platesIds);
       onResult(({ data }) => {
         if (replace) {
           wells.value = data.wells;
@@ -200,24 +201,27 @@ export const useSelectionStore = defineStore("selection", () => {
   }
 
   function loadPlateMeasurements(plateId) {
-    const {onResult, onError} = projectsGraphQlAPI.measurementsByPlateId(
-        plateId)
-    onResult(({data}) => {
+    const { onResult, onError } =
+      projectsGraphQlAPI.measurementsByPlateId(plateId);
+    onResult(({ data }) => {
       measurements.value = data.plateMeasurements;
-      activeMeasurement.value = measurements.value.filter(m => m.active === true)[0]
-      console.log(activeMeasurement.value)
-    })
+      activeMeasurement.value = measurements.value.filter(
+        (m) => m.active === true
+      )[0];
+    });
   }
 
   function loadPlateProtocols(plate) {
-    const {onResult, onError} = resultDataGraphQlAPI.protocolsByPlateId(
-        plate.id)
-    onResult(({data}) => {
+    const { onResult, onError } = resultDataGraphQlAPI.protocolsByPlateId(
+      plate.id
+    );
+    onResult(({ data }) => {
       plateChart.value = {
         plate: plate,
         id: new Date().getTime(),
         protocols: data.protocols,
-      };    })
+      };
+    });
   }
 
   watch(selectedPlates, (newVal, oldVal) => {
