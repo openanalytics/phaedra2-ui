@@ -119,7 +119,7 @@
       <q-separator/>
 
       <!-- Details -->
-      <q-item dense clickable>
+      <q-item v-if="route.name=='workbench'" dense clickable>
         <q-item-section avatar>
           <q-icon name="details"/>
         </q-item-section>
@@ -129,7 +129,7 @@
         </q-item-section>
         <q-menu>
           <q-list>
-            <menu-item v-if="route.name=='workbench'" icon="view_module" label="Heatmap"
+            <menu-item icon="view_module" label="Heatmap"
                  @click="addHeatmap" v-close-popup/>
           </q-list>
         </q-menu>

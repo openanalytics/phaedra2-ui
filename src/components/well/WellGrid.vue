@@ -73,7 +73,7 @@ const plateStore = usePlateStore()
 
 
 
-const plate = computed(() => props.plate)
+const plate = computed(() => props.plate ?? {})
 const wells = computed(() => props.wells ?? [])
 
 const wellHighlights = ref([])
