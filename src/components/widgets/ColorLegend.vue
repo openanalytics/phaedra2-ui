@@ -59,7 +59,7 @@ watchEffect(() => {
   }
 })
 
-const gridColumnStyle = computed(() => { return "repeat(" + (props.plate.columns + 1) + ", 1fr)" });
+const gridColumnStyle = computed(() => { return props.plate ? "repeat(" + (props.plate.columns + 1) + ", 1fr)" : 'none' });
 const legendStartColumn = ref(2);
 const legendCenterColumn = ref(Math.ceil((props.plate.columns + 1) / 2))
 const legendEndColumn = ref(props.plate.columns + 1)

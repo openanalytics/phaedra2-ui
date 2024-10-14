@@ -179,7 +179,7 @@ export function usePanesList() {
       closable: true,
       props: {
         plate: selectionStore.plateChart.plate,
-        wells: selectionStore.wells,
+        wells: selectionStore.heatmapWells,
         measurements:
           selectionStore.activeMeasurement !== null
             ? [selectionStore.activeMeasurement]

@@ -70,30 +70,34 @@ const props = defineProps(['plate', 'wells', 'loading', 'wellColorFunction', 'we
 const emit = defineEmits(['wellSelection', 'wellStatusChanged']);
 const uiStore = useUIStore()
 const plateStore = usePlateStore()
+const selWells = ref([])
 
 
 
-const plate = computed(() => props.plate)
+const plate = computed(() => props.plate ?? {})
 const wells = computed(() => props.wells ?? [])
 
 const wellHighlights = ref([])
 onMounted(() => {
+  if(router.name !== 'workbench') {
+    selWells.value = uiStore.selectedWells.value
+  }
   wellHighlights.value = [...Array(props.wells?.length).keys()]
     .map(nr => nr + 1)
-    .map(nr => uiStore.selectedWells?.find(w => nr == WellUtils.getWellNr(w.row, w.column, plate.value?.columns)))
+    .map(nr => selWells.value?.find(w => nr == WellUtils.getWellNr(w.row, w.column, plate.value?.columns)))
 })
 
-watch(() => uiStore.selectedWells, () => {
+watch(() => selWells.value, () => {
   wellHighlights.value = [...Array(props.wells?.length).keys()]
   .map(nr => nr + 1)
-  .map(nr => uiStore.selectedWells?.find(w => nr == WellUtils.getWellNr(w.row, w.column, plate.value?.columns)));
+  .map(nr => selWells.value?.find(w => nr == WellUtils.getWellNr(w.row, w.column, plate.value?.columns)));
 }, {deep: true})
 
 const selectWells = (wells, append) => {
   if (!append) return wells;
   const selectedWells = [];
   for (const well of wells) {
-    if (!uiStore.selectedWells.some(w => w.id === well.id)) {
+    if (!selWells.value.some(w => w.id === well.id)) {
       selectedWells.push(well);
     }
   }
@@ -102,7 +106,7 @@ const selectWells = (wells, append) => {
 
 const router = useRouter()
 const gotoWellView = (event, row) => {
-  router.push({name: "well", params: { wellId: uiStore.selectedWells[0].id }});
+  router.push({name: "well", params: { wellId: selWells.value[0].id }});
 }
 
 const wellImages = ref({})
@@ -116,12 +120,13 @@ watchEffect(async () => {
 
 const emitWellSelection = (wells, append) => {
   uiStore.selectedWells = selectWells(wells, append);
-  emit('wellSelection', uiStore.selectedWells);
+  selWells.value = uiStore.selectedWells
+  emit('wellSelection', selWells.value);
 };
 
 window.addEventListener('keyup', function (event) {
-  if (uiStore.selectedWells.length === 0) return;
-  let currentWell = uiStore.selectedWells[0];
+  if (selWells.value.length === 0) return;
+  let currentWell = selWells.value[0];
   let nextPosition = [];
   switch (event.key) {
     case "ArrowUp":
@@ -171,16 +176,16 @@ watchEffect(() => {
 });
 
 const handleRejectWells = () => {
-  if (uiStore.selectedWells.length > 0) {
-    plateStore.rejectWells(uiStore.selectedWells, 'REJECTED_PHAEDRA', 'Test well rejection').then(() => {
+  if (selWells.value.length > 0) {
+    plateStore.rejectWells(selWells.value, 'REJECTED_PHAEDRA', 'Test well rejection').then(() => {
       emit('wellStatusChanged')
     })
   }
 }
 
 const handleAcceptWells = () => {
-  if (uiStore.selectedWells.length > 0) {
-    plateStore.acceptWells(uiStore.selectedWells).then(() => {
+  if (selWells.value.length > 0) {
+    plateStore.acceptWells(selWells.value).then(() => {
       emit('wellStatusChanged')
     })
   }
