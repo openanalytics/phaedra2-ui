@@ -8,11 +8,23 @@
       <q-card-section>
         <div class="row">
           <div class="col-10">
-            <span>Are you sure you want to delete the {{objectClass}} <b>{{ name }}</b>?</span><br/>
-            <span>Type <span style="font-weight: bold">delete </span> and press the button to confirm:</span><br/>
-            <q-input dense v-model="confirmationValue" autofocus/>
-            <br>
-            <span class="text-accent">WARNING: The {{objectClass}} and associated data will be deleted!</span>
+            <span
+              >Are you sure you want to delete the {{ objectClass }}(s)
+              <b v-for="(project, i) in projects" :key="i"
+                ><br />
+                - {{ project.name }}</b
+              >?</span
+            ><br />
+            <span
+              >Type <span style="font-weight: bold">delete </span> and press the
+              button to confirm:</span
+            ><br />
+            <q-input dense v-model="confirmationValue" autofocus />
+            <br />
+            <span class="text-accent"
+              >WARNING: The {{ objectClass }} and associated data will be
+              deleted!</span
+            >
           </div>
         </div>
       </q-card-section>
