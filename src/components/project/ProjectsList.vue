@@ -21,7 +21,7 @@
       </q-td>
     </template>
   </oa-table>
-  <ProjectActionMenu :project="selectedProjects[0]" />
+  <ProjectActionMenu :projects="selectedProjects" />
 </template>
 
 <script setup>
