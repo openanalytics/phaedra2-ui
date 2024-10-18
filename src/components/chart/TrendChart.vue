@@ -5,7 +5,7 @@
     :selectFields="settingsFields"
   />
   <div class="col oa-section-body">
-    <div ref="chart" v-show="selectedExperiments.length > 0" />
+    <div v-show="selectedExperiments.length > 0" ref="chart" />
     <div class="absolute-center" v-show="selectedExperiments.length == 0">
       <q-badge color="negative">{{ errorMessage }}</q-badge>
     </div>
@@ -40,6 +40,7 @@ const settingsFields = computed(() => [
   },
 ]);
 
+const chart = ref(null);
 const chartData = ref([]);
 const plates = ref([]);
 const featureStatValues = ref([]);
