@@ -1,37 +1,45 @@
 <template>
+  <SettingsModal
+    :modal="settingsModal"
+    @update="handleFeatureSelection"
+    :selectFields="settingsFields"
+  />
   <div class="col oa-section-body">
     <div ref="chart" v-show="selectedExperiments.length > 0" />
     <div class="absolute-center" v-show="selectedExperiments.length == 0">
       <q-badge color="negative">{{ errorMessage }}</q-badge>
     </div>
-    <q-select
-      class="q-pa-xs"
-      v-model="selectedFeature"
-      :options="featureOptions"
-      label="Feature"
-      @update:model-value="handleFeatureSelection"
-      dense
-    />
-    <q-select
-      class="q-pa-xs"
-      v-model="selectedStat"
-      :options="statOptions"
-      label="Statistic"
-      @update:model-value="handleFeatureSelection"
-      dense
-    />
   </div>
 </template>
 
 <script setup>
 import Plotly from "plotly.js-cartesian-dist-min";
 import usePlateTrendChartData from "@/composable/plateTrendChartData";
-import { onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useExperimentStore } from "@/stores/experiment";
+import SettingsModal from "./SettingsModal.vue";
+import { useCustomChartIcon } from "@/composable/charts/customIcon";
 
 const props = defineProps(["chartId", "update", "selectedExperiments"]);
 
-const chart = ref(null);
+const settingsModal = ref(false);
+function openSettings(val) {
+  settingsModal.value = val;
+}
+
+const settingsFields = computed(() => [
+  {
+    initialValue: selectedFeature.value,
+    options: featureOptions.value,
+    label: "Feature",
+  },
+  {
+    initialValue: selectedStat.value,
+    options: statOptions.value,
+    label: "Statistic",
+  },
+]);
+
 const chartData = ref([]);
 const plates = ref([]);
 const featureStatValues = ref([]);
@@ -98,10 +106,13 @@ function loadTrendChart() {
     });
 }
 
-const handleFeatureSelection = () => {
+function handleFeatureSelection(val) {
+  selectedFeature.value = val["Feature"];
+  selectedStat.value = val["Statistic"];
+  openSettings(false);
   console.log("Update chart for selected feature " + selectedStat.value);
   updateChartTraces();
-};
+}
 
 const extractStats = (statName, wellType) => {
   return (
@@ -260,7 +271,23 @@ const updateChartTraces = () => {
     },
     legend: { orientation: "h" },
   };
-  const config = { autosize: true, displaylogo: false };
+
+  const { tuneIcon } = useCustomChartIcon();
+
+  const config = {
+    autosize: true,
+    displaylogo: false,
+    modeBarButtonsToAdd: [
+      {
+        name: "settings",
+        icon: tuneIcon,
+        direction: "up",
+        click: function (gd) {
+          openSettings(true);
+        },
+      },
+    ],
+  };
 
   const data = [
     plateStats,

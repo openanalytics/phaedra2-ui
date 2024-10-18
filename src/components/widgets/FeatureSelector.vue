@@ -59,6 +59,7 @@ const initFeatureOptions = () =>  {
                   el.column === obj.column
               ))
       )
+      .filter((obj, index, self) => obj.column !== "")
       .sort((f1, f2) => f1.column.localeCompare(f2.column))
   rawFeatureOptions.value = allRawFeatures.value
 
@@ -91,8 +92,7 @@ const initSelectedFeature = () => {
 watch(selectedFeatureOption, () => initSelectedFeature())
 
 const handleRawFeatureSelection = (feature) => {
-  console.log(JSON.stringify(selectedRawFeature.value))
-  if (selectedRawFeature.value === null) selectedRawFeature.value = feature
+  if (selectedRawFeature.value === null || selectedRawFeature.value.measurementId !== feature.measurementId) selectedRawFeature.value = feature
   emits('rawFeatureSelection', selectedRawFeature.value)
 }
 
