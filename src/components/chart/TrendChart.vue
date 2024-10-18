@@ -5,7 +5,12 @@
     :selectFields="settingsFields"
   />
   <div class="col oa-section-body">
-    <div id="chart" />
+    <div v-show="selectedExperiments.length > 0" ref="chart" />
+    <div class="absolute-center" v-show="selectedExperiments.length == 0">
+      <q-badge color="negative" class="q-pa-md text-weight-bold">{{
+        errorMessage
+      }}</q-badge>
+    </div>
   </div>
 </template>
 
@@ -37,6 +42,7 @@ const settingsFields = computed(() => [
   },
 ]);
 
+const chart = ref(null);
 const chartData = ref([]);
 const plates = ref([]);
 const featureStatValues = ref([]);
@@ -69,6 +75,8 @@ watch(
 onMounted(() => {
   loadTrendChart();
 });
+
+const errorMessage = "No experiment selected";
 
 function loadTrendChart() {
   plateTrendChartData
@@ -294,7 +302,7 @@ const updateChartTraces = () => {
     stDevSAMPLE,
   ];
 
-  Plotly.react("chart", data, layout, config);
+  Plotly.react(chart.value, data, layout, config);
 };
 
 watch(

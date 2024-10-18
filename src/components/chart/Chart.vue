@@ -4,7 +4,12 @@
     @update="handleFeatureSelection"
     :selectFields="settingsFieldsFiltered"
   />
-  <div ref="chart" />
+  <div v-show="selectedPlate" ref="chart" />
+  <div v-show="!selectedPlate" class="absolute-center">
+    <q-badge color="negative" class="q-pa-md text-weight-bold">{{
+      errorMessage
+    }}</q-badge>
+  </div>
 </template>
 
 <script setup>
@@ -79,6 +84,7 @@ const settingsFieldsFiltered = computed(() => {
     } else return value;
   });
 });
+const errorMessage = "No plate selected";
 
 const showXAxisSelector = computed(
   () =>

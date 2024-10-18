@@ -84,13 +84,15 @@ export function usePanesList() {
       component: TrendChart,
       id: "experiment-chart-pane",
       title: "Experiment's Plate Trend",
-      label: `Experiment's Plate Trend (${selectionStore.chart?.experiment?.name})`,
+      label: `Experiment's Plate Trend (${selectionStore.chart?.experiment?.name || "none selected"})`,
       icon: "view_stream",
       closable: true,
       props: {
         update: Date.now(),
         chartId: selectionStore.chart.id,
-        selectedExperiments: [selectionStore.chart.experiment],
+        selectedExperiments: selectionStore.chart.experiment
+          ? [selectionStore.chart.experiment]
+          : [],
       },
       selection: (e) => (selectionStore.selectedExperiments = e),
     },
@@ -111,7 +113,7 @@ export function usePanesList() {
       component: Chart,
       id: "scatterplot-chart-pane",
       title: "Scatterplot 2D",
-      label: `Scatterplot 2D (${selectionStore.plateChart?.plate?.barcode})`,
+      label: `Scatterplot 2D (${selectionStore.plateChart?.plate?.barcode || "none selected"})`,
       icon: "scatter_plot",
       closable: true,
       props: {
@@ -128,7 +130,7 @@ export function usePanesList() {
       component: Chart,
       id: "boxplot-chart-pane",
       title: "Boxplot",
-      label: `Boxplot (${selectionStore.plateChart?.plate?.barcode})`,
+      label: `Boxplot (${selectionStore.plateChart?.plate?.barcode || "none selected"})`,
       icon: "candlestick_chart",
       closable: true,
       props: {
@@ -145,7 +147,7 @@ export function usePanesList() {
       component: Chart,
       id: "histogram-chart-pane",
       title: "1D Histogram",
-      label: `1D Histogram (${selectionStore.plateChart?.plate?.barcode})`,
+      label: `1D Histogram (${selectionStore.plateChart?.plate?.barcode || "none selected"} )`,
       icon: "bar_chart",
       closable: true,
       props: {
@@ -174,7 +176,7 @@ export function usePanesList() {
       component: PlateHeatmap,
       id: "heatmap-chart-pane",
       title: "Heatmap",
-      label: `Heatmap (${selectionStore.plateChart?.plate?.barcode})`,
+      label: `Heatmap (${selectionStore.plateChart?.plate?.barcode || "none selected"})`,
       icon: "view_module",
       closable: true,
       props: {
