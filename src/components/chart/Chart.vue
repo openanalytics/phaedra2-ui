@@ -1,47 +1,10 @@
 <template>
+  <SettingsModal
+    :modal="settingsModal"
+    @update="handleFeatureSelection"
+    :selectFields="settingsFieldsFiltered"
+  />
   <div ref="chart" />
-  <div class="col oa-section-body">
-    <q-select
-      class="q-pa-xs"
-      v-model="selectedProtocol"
-      :options="plateProtocols"
-      :option-value="'id'"
-      :option-label="'name'"
-      label="Select protocol"
-      @update:model-value="handleProtocolSelection"
-      dense
-    />
-    <q-select
-      class="q-pa-xs"
-      v-if="showXAxisSelector"
-      v-model="selectedXAxisOption"
-      :options="plotValueOptions"
-      :option-label="'label'"
-      label="Select x values"
-      @update:model-value="selectionHandler"
-      dense
-    />
-    <q-select
-      class="q-pa-xs"
-      v-if="showYAxisSelector"
-      v-model="selectedYAxisOption"
-      :options="plotValueOptions"
-      :option-label="'label'"
-      label="Select y values"
-      @update:model-value="selectionHandler"
-      dense
-    />
-    <q-select
-      class="q-pa-xs"
-      v-model="groupBy"
-      :options="groupByOptions"
-      :option-value="'value'"
-      :option-label="'label'"
-      @update:model-value="selectionHandler"
-      label="Group by"
-      dense
-    />
-  </div>
 </template>
 
 <script setup>
@@ -50,6 +13,8 @@ import { computed, onMounted, ref, watch } from "vue";
 import useScatterChartData from "@/composable/scatterChartData";
 import useBoxPlotData from "@/composable/boxPlotData";
 import useHistogramData from "@/composable/histogramData";
+import SettingsModal from "./SettingsModal.vue";
+import { useCustomChartIcon } from "@/composable/charts/customIcon";
 
 const props = defineProps([
   "width",
@@ -62,6 +27,58 @@ const props = defineProps([
 ]);
 
 const emit = defineEmits(["selection"]);
+
+const settingsModal = ref(false);
+function openSettings(val) {
+  settingsModal.value = val;
+}
+
+const settingsFields = computed(() => [
+  {
+    initialValue: selectedProtocol.value,
+    options: plateProtocols.value,
+    label: "Protocol",
+    optionValue: "id",
+    optionLabel: "name",
+  },
+  {
+    initialValue: selectedXAxisOption.value,
+    options: plotValueOptions.value,
+    label: "x values",
+    optionLabel: "label",
+  },
+  {
+    initialValue: selectedYAxisOption.value,
+    options: plotValueOptions.value,
+    label: "y values",
+    optionLabel: "label",
+  },
+  {
+    initialValue: groupBy.value,
+    options: groupByOptions.value,
+    label: "Group by",
+    optionValue: "value",
+    optionLabel: "label",
+  },
+]);
+
+const settingsFieldsFiltered = computed(() => {
+  return settingsFields.value.filter((value) => {
+    if (value.label == "Select x values") {
+      if (showXAxisSelector.value) {
+        return value;
+      } else {
+        return;
+      }
+    } else if (value.label == "Select y values") {
+      if (showYAxisSelector.value) {
+        return value;
+      } else {
+        return;
+      }
+    } else return value;
+  });
+});
 
 const showXAxisSelector = computed(
   () =>
@@ -78,6 +95,33 @@ const selectedProtocol = ref({});
 const selectedXAxisOption = ref();
 const selectedYAxisOption = ref();
 
+function handleSelection(val) {
+  console.log(selectedXAxisOption.value);
+  console.log(val["xvalues"]);
+  if (selectedXAxisOption.value != val["xvalues"]) {
+    selectedXAxisOption.value = val["xvalues"];
+  }
+  if (selectedYAxisOption.value != val["yvalues"]) {
+    selectedYAxisOption.value = val["yvalues"];
+  }
+  if (groupBy.value != val["Groupby"]) {
+    groupBy.value = val["Groupby"];
+  }
+  selectionHandler();
+}
+
+function handleFeatureSelection(val) {
+  console.log(val);
+  if (selectedProtocol.value != val["Protocol"]) {
+    selectedProtocol.value = val["Protocol"];
+    handleProtocolSelection();
+  }
+  handleSelection(val);
+  openSettings(false);
+  console.log("Update chart for selected feature ");
+  // updateChartTraces();
+}
+
 onMounted(() => initSelectedValues());
 const initSelectedValues = () => {
   plateProtocols.value = props.protocols;
@@ -93,9 +137,12 @@ const initSelectedValues = () => {
   handleChartUpdate();
 
   let isPlotlyClick = false;
-  Plotly.react(chart.value, chartPlot.value?.data, layout(props.chartView), {
-    displaylogo: false,
-  });
+  Plotly.react(
+    chart.value,
+    chartPlot.value?.data,
+    layout(props.chartView),
+    config
+  );
   chart.value.on("plotly_click", (data) => {
     isPlotlyClick = true;
     const selectedWells =
@@ -116,7 +163,7 @@ const initSelectedValues = () => {
   chart.value.addEventListener("click", (ev) => {
     if (!isPlotlyClick) {
       emit("selection", []);
-      Plotly.restyle(chart.value, "selectedpoints", null);
+      Plotly.restyle(chart.value, "selectedpoints", null, config);
     } else {
       isPlotlyClick = false;
     }
@@ -274,12 +321,32 @@ const handleChartUpdate = () => {
   }
 };
 
+const { tuneIcon } = useCustomChartIcon();
+
+const config = {
+  autosize: true,
+  displaylogo: false,
+  modeBarButtonsToAdd: [
+    {
+      name: "settings",
+      icon: tuneIcon,
+      direction: "up",
+      click: function (gd) {
+        openSettings(true);
+      },
+    },
+  ],
+};
+
 const handlePlotUpdate = () => {
   console.log("handleUpdatePlot: chart has been updated!");
   if (chartPlot.value.data) {
-    Plotly.react(chart.value, chartPlot.value.data, layout(props.chartView), {
-      displaylogo: false,
-    });
+    Plotly.react(
+      chart.value,
+      chartPlot.value.data,
+      layout(props.chartView),
+      config
+    );
 
     const selectedWellIds = props.selectedWells.map((well) =>
       Number.parseInt(well.id)
@@ -297,7 +364,7 @@ const handlePlotUpdate = () => {
         selectedpoints.push(selectedWellIndices);
       });
     }
-    Plotly.restyle(chart.value, "selectedpoints", selectedpoints);
+    Plotly.restyle(chart.value, "selectedpoints", selectedpoints, config);
   }
 };
 
