@@ -7,7 +7,9 @@
   <div class="col oa-section-body">
     <div v-show="selectedExperiments.length > 0" ref="chart" />
     <div class="absolute-center" v-show="selectedExperiments.length == 0">
-      <q-badge color="negative">{{ errorMessage }}</q-badge>
+      <q-badge color="negative" class="q-pa-md text-weight-bold">{{
+        errorMessage
+      }}</q-badge>
     </div>
   </div>
 </template>

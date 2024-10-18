@@ -21,7 +21,9 @@
     <ColorLegend class="q-pt-sm" :rangeValues="rangeValues" :plate="plate" />
   </div>
   <div v-else class="absolute-center">
-    <q-badge color="negative">{{ errorMessage }}</q-badge>
+    <q-badge color="negative" class="q-pa-md text-weight-bold">{{
+      errorMessage
+    }}</q-badge>
   </div>
 </template>
 
@@ -121,15 +123,17 @@ const calcRangeValues = (values) => {
   return { min: min, mean: mean, max: max };
 };
 
-const plateStore = usePlateStore()
-const uiStore = useUIStore()
+const plateStore = usePlateStore();
+const uiStore = useUIStore();
 const handleWellSelection = (selectedWells) => {
   if (selectedWells.length > 0) {
-    const selectedSubstance = [... new Set(selectedWells.map(well => well.wellSubstance?.name))]
-    const selectedCurves = plateStore.curves.filter(curve => selectedSubstance.includes(curve.substanceName))
-    uiStore.selectedDRCurves = selectedCurves
+    const selectedSubstance = [
+      ...new Set(selectedWells.map((well) => well.wellSubstance?.name)),
+    ];
+    const selectedCurves = plateStore.curves.filter((curve) =>
+      selectedSubstance.includes(curve.substanceName)
+    );
+    uiStore.selectedDRCurves = selectedCurves;
   }
 };
-
-
 </script>

@@ -6,7 +6,9 @@
   />
   <div v-show="selectedPlate" ref="chart" />
   <div v-show="!selectedPlate" class="absolute-center">
-    <q-badge color="negative">{{ errorMessage }}</q-badge>
+    <q-badge color="negative" class="q-pa-md text-weight-bold">{{
+      errorMessage
+    }}</q-badge>
   </div>
 </template>
 
