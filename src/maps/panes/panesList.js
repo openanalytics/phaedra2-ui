@@ -16,6 +16,20 @@ import Chart from "@/components/chart/Chart.vue";
 export function usePanesList() {
   const selectionStore = useSelectionStore();
 
+  /**
+   * Configuration object for a Vue component tab in the workbench.
+   *
+   * @property {string} component - The name of the Vue component to be rendered in this tab.
+   * @property {string} id - A unique identifier for the tab, used to track open components.
+   * @property {string} title - The static title of the tab, displayed in the Add Pane menu.
+   * @property {string} label - A descriptive name for the tab that can depend on variable data (if declared, title is not used as a tab name).
+   * @property {string} icon - The icon displayed next to the tab name.
+   * @property {boolean} closable - Indicates if the tab can be closed by the user.
+   * @property {Object} props - Properties required by the Vue component to function.
+   * @property {function} selection - Callback function reacting to emitted 'selection' events.
+   * @property {string} [groupBy] - Optional property to group related tabs together.
+   */
+
   const panesList = computed(() => [
     {
       component: RecentCalculations,
