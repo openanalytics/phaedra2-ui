@@ -82,6 +82,7 @@ export const usePanesStore = defineStore("panes", () => {
   }
 
   function insertItem(id, toId, array, position) {
+    console.log("insert item");
     return array.map((pane) => {
       if (pane == "V" || pane == "H" || typeof pane == "string") {
         return pane;
@@ -141,18 +142,6 @@ export const usePanesStore = defineStore("panes", () => {
     });
   }
 
-  function insertMenuItem(id, array) {
-    return array.map((pane) => {
-      if (pane == "V" || pane == "H" || typeof pane == "string") {
-        return pane;
-      }
-      if (pane.find((component) => typeof component != "object")) {
-        return [...pane, id];
-      }
-      return insertItem(id, pane);
-    });
-  }
-
   function addItem(id, toId, position) {
     if (!activePanes.value.find((pane) => pane.id == id) && id != toId) {
       dynamicPanes.value = insertItem(id, toId, dynamicPanes.value, position);
@@ -162,8 +151,13 @@ export const usePanesStore = defineStore("panes", () => {
   function addMenuItem(id) {
     if (dynamicPanes.value.length < 2) {
       dynamicPanes.value = ["V", [id]];
-    } else if (!activePanes.value.find((pane) => pane.id == id)) {
-      dynamicPanes.value = insertMenuItem(id, dynamicPanes.value);
+    } else {
+      dynamicPanes.value = insertItem(
+        id,
+        activePanes.value[0].id,
+        dynamicPanes.value,
+        "right"
+      );
     }
   }
 
