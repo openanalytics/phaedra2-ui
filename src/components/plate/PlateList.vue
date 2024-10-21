@@ -118,7 +118,7 @@
       </div>
     </template>
   </oa-table>
-  <PlateActionMenu :plate="selectedPlate" touch-position />
+  <PlateActionMenu :plate="selectedPlate" touch-position @open="open" />
 </template>
 
 <script setup>
@@ -143,6 +143,7 @@ const emits = defineEmits([
   "update:newPlateTab",
   "showPlateInspector",
   "selection",
+  "opens"
 ]);
 
 const router = useRouter();
@@ -323,4 +324,8 @@ const exportToXLSX = () => {
     exportFileName.value
   );
 };
+
+const open = (resource) => {
+  emits("opens", resource);
+}
 </script>

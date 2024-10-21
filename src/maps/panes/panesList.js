@@ -10,11 +10,13 @@ import WellList from "../../pages/plate/WellList.vue";
 import PlateHeatmap from "@/pages/plate/PlateHeatmap.vue";
 import { computed } from "vue";
 import { useSelectionStore } from "@/stores/selection";
+import { usePanesStore } from "@/stores/panes";
 import TrendChart from "@/components/chart/TrendChart.vue";
 import Chart from "@/components/chart/Chart.vue";
 
 export function usePanesList() {
   const selectionStore = useSelectionStore();
+  const panesStore = usePanesStore();
 
   /**
    * Configuration object for a Vue component tab in the workbench.
@@ -132,6 +134,11 @@ export function usePanesList() {
         experiments: selectionStore.selectedExperiments,
       },
       selection: (e) => (selectionStore.selectedPlates = e),
+      opens: (e) => { 
+        if(e.resource === 'wells') {
+          panesStore.openTab(`${e.resource}-list-pane`, "panes-list-pane")
+      }
+      },
       groupBy: "list",
     },
     {

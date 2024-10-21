@@ -292,19 +292,10 @@ const loadingHandler = useLoadingHandler();
 const panesStore = usePanesStore();
 
 const hideMenu = ref(false);
+const emit = defineEmits(["open"]);
 
 const browseWells = () => {
-  if (route.name == "workbench") {
-    panesStore.openTab("wells-list-pane", "panes-list-pane");
-  } else {
-    handlePlateSelection(() => {
-      router.push({
-        name: "plate",
-        params: { plateId: props.plate.id },
-        query: { activeTab: "wells" },
-      });
-    }, "No plate(s) have been selected!");
-  }
+  emit("open", {resource: 'wells', parentId: props.plate.id});
 };
 
 const browseDoseResponseCurves = () => {

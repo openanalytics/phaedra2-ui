@@ -150,6 +150,7 @@
                 v-model:newPlateTab="showNewPlateDialog"
                 v-model:newPlateFromMeasurements="showNewPlateFromMeasDialog"
                 @selection="handlePlateSelection"
+                @opens="handleOpen"
               />
             </q-tab-panel>
             <q-tab-panel name="statistics" class="q-pa-none">
@@ -316,4 +317,14 @@ const handlePlateSelection = async (plates) => {
   uiStore.selectedPlates = plates;
   if (uiStore.selectedPlate) await uiStore.loadSelectedPlate(plates[0].id);
 };
+
+const handleOpen = (resource) => {
+  if (resource.resource === 'wells') {
+      router.push({
+        name: "plate",
+        params: { plateId: resource.parentId },
+        query: { activeTab: "wells" },
+  })
+}
+}
 </script>
