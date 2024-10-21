@@ -17,7 +17,16 @@ export const usePanesStore = defineStore("panes", () => {
   ]);
 
   const activePanes = computed(() => {
-    return dynamicPanes.value.flat(Infinity);
+    return dynamicPanes.value
+      .flat(Infinity)
+      .map((pane) => {
+        const result = panesList.value.find((item) => item.id == pane);
+        if (result) {
+          return { id: result.id, groupBy: result.groupBy | undefined };
+        }
+        return;
+      })
+      .filter((pane) => pane != null);
   });
   function mapComponents(idMap) {
     return idMap.map((id) => panes.value.filter((pane) => pane.id == id)[0]);
@@ -145,7 +154,7 @@ export const usePanesStore = defineStore("panes", () => {
   }
 
   function addItem(id, toId, position) {
-    if (!activePanes.value.includes(id) && id != toId) {
+    if (!activePanes.value.find((pane) => pane.id == id) && id != toId) {
       dynamicPanes.value = insertItem(id, toId, dynamicPanes.value, position);
     }
   }
@@ -153,14 +162,14 @@ export const usePanesStore = defineStore("panes", () => {
   function addMenuItem(id) {
     if (dynamicPanes.value.length < 2) {
       dynamicPanes.value = ["V", [id]];
-    } else if (!activePanes.value.includes(id)) {
+    } else if (!activePanes.value.find((pane) => pane.id == id)) {
       dynamicPanes.value = insertMenuItem(id, dynamicPanes.value);
     }
   }
 
   function moveItem(id, toId, position) {
     if (id != toId) {
-      if (activePanes.value.includes(id)) {
+      if (activePanes.value.find((pane) => pane.id == id)) {
         removeItem(id);
       }
       dynamicPanes.value = insertItem(id, toId, dynamicPanes.value, position);
@@ -171,12 +180,13 @@ export const usePanesStore = defineStore("panes", () => {
     dynamicPanes.value = value;
   }
 
-  function openTab(tabId, groupId, fromId) {
+  function openTab(tabId, fromId) {
+    const newTab = panesList.value.find((pane) => pane.id == tabId);
     const panes = activePanes.value.filter((pane) => {
-      return pane.includes(groupId);
+      return pane.groupBy && pane.groupBy == newTab.groupBy;
     });
     if (panes.length > 0) {
-      addItem(tabId, panes[0], "center");
+      addItem(tabId, panes[0].id, "center");
     } else if (fromId) {
       addItem(tabId, fromId, "right");
     } else {
