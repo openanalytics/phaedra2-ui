@@ -72,6 +72,18 @@ export function usePanesList() {
         selected: selectionStore.selectedProjects,
       },
       selection: (e) => (selectionStore.selectedProjects = e),
+      open: (e) => {
+        switch (e.resource) {
+          case "project":
+            panesStore.openTab("project-details-pane", "project-list-pane");
+            break
+          case "experiment":
+            panesStore.openTab("experiment-list-pane", "project-list-pane");
+            break
+          default:
+            break
+        }
+      },
       groupBy: "list",
     },
     {
@@ -102,6 +114,18 @@ export function usePanesList() {
         selected: selectionStore.selectedExperiments,
       },
       selection: (e) => (selectionStore.selectedExperiments = e),
+      open: (e) => {
+        switch (e.resource) {
+          case "plates":
+            panesStore.openTab("plates-list-pane", "experiment-list-pane");
+            break
+          case "experiment":
+            panesStore.openTab("experiment-chart-pane", "experiment-list-pane");
+            break
+          default:
+            break
+        }
+      },
       groupBy: "list",
     },
     {
@@ -134,12 +158,28 @@ export function usePanesList() {
         experiments: selectionStore.selectedExperiments,
       },
       selection: (e) => (selectionStore.selectedPlates = e),
-      opens: (e) => { 
-        if(e.resource === 'wells') {
-          panesStore.openTab(`${e.resource}-list-pane`, "panes-list-pane")
-        }
-        else if(e.resource === 'scatterplot') {
-          panesStore.openTab("scatterplot-chart-pane", "plates-list-pane");
+      open: (e) => { 
+        switch (e.resource) {
+          case 'wells':
+            panesStore.openTab(`${e.resource}-list-pane`, "panes-list-pane")
+            break
+          case 'scatterplot':
+            panesStore.openTab("scatterplot-chart-pane", "plates-list-pane");
+            break
+          case 'boxplot':
+            panesStore.openTab("boxplot-chart-pane", "plates-list-pane");
+            break
+          case 'histogram':
+            panesStore.openTab("histogram-chart-pane", "plates-list-pane");
+            break
+          case 'heatmap':
+            panesStore.openTab("heatmap-chart-pane", "plates-list-pane");
+            break
+          case 'experiment':
+            panesStore.openTab("experiment-chart-pane", "plates-list-pane");
+            break
+          default:
+            break
         }
       },
       groupBy: "list",

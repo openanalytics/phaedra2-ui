@@ -143,7 +143,7 @@ const emits = defineEmits([
   "update:newPlateTab",
   "showPlateInspector",
   "selection",
-  "opens"
+  "open"
 ]);
 
 const router = useRouter();
@@ -326,6 +326,6 @@ const exportToXLSX = () => {
 };
 
 const open = (resource) => {
-  emits("opens", resource);
+  emits("open", resource);
 }
 </script>

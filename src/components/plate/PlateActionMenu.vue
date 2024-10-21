@@ -417,57 +417,21 @@ const addScatterPlot = async (plateId) => {
 };
 
 const addBoxPlot = async (plateId) => {
-  if (route.name == "workbench") {
-    panesStore.openTab("boxplot-chart-pane", "plates-list-pane");
-  } else {
-    handlePlateSelection(async () => {
-      await loadingHandler.handleLoadingDuring(
-        uiStore.loadSelectedPlate(plateId)
-      );
-      uiStore.addChartView({
-        type: "box",
-        plateId: plateId,
-        label: "Box Plot",
-      });
-    }, "No plate(s) have been selected!");
-  }
+  emit("open", {resource: 'boxplot', parentId: plateId});
   hideMenu.value = true;
 };
 
 const addHistogram = async (plateId) => {
-  if (route.name == "workbench") {
-    panesStore.openTab("histogram-chart-pane", "plates-list-pane");
-  } else {
-    handlePlateSelection(async () => {
-      await loadingHandler.handleLoadingDuring(
-        uiStore.loadSelectedPlate(plateId)
-      );
-      uiStore.addChartView({
-        type: "histogram",
-        plateId: plateId,
-        label: "Histogram",
-      });
-    }, "No plate(s) have been selected!");
-  }
+  emit("open", {resource: 'histogram', parentId: plateId});
   hideMenu.value = true;
 };
 
 const addHeatmap = () => {
-  if (route.name == "workbench") {
-    panesStore.openTab("heatmap-chart-pane", "plates-list-pane");
-  }
+  emit("open", {resource: 'heatmap', parentId: props.plate.id});
 };
 
 const addExperimentPlateTrendChart = (experimentId) => {
-  if (route.name == "workbench") {
-    panesStore.openTab("experiment-chart-pane", "plates-list-pane");
-  } else if (uiStore.isExperimentSelected()) {
-    uiStore.addChartView({
-      type: "trend",
-      experimentId: experimentId,
-      label: "Experiment Trend Chart",
-    });
-  }
+  emit("open", {resource: 'experiment', parentId: experimentId});
 };
 
 const showDeleteDialog = ref(null);

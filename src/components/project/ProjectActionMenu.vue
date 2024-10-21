@@ -56,7 +56,7 @@ import { useExperimentStore } from "@/stores/experiment";
 import { useRoute } from "vue-router";
 import AddTagModal from "../tag/AddTagModal.vue";
 const props = defineProps(["projects"]);
-const emit = defineEmits(["onDeleteProject"]);
+const emit = defineEmits(["onDeleteProject", "open"]);
 
 const projectStore = useProjectStore();
 const experimentStore = useExperimentStore();
@@ -89,13 +89,13 @@ const fetchProjectsData = () => {
 const openProjectDetails = () => {
   if (firstProjectCondition.value) {
     fetchProjectsData();
-    panesStore.openTab("project-details-pane", "project-list-pane");
+    emit("open", {resource: 'project'})
   }
 };
 
 const openExperiments = () => {
   if (firstProjectCondition.value) {
-    panesStore.openTab("experiment-list-pane", "project-list-pane");
+    emit("open", {resource: 'experiment'})
   }
 };
 

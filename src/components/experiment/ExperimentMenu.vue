@@ -158,6 +158,7 @@ import ExportWellDataDialog from "@/components/plate/ExportWellDataDialog";
 const panesStore = usePanesStore();
 
 const props = defineProps(["experiment"]);
+const emit = defineEmits(["open"]);
 const projectStore = useProjectStore();
 const notify = useNotification();
 
@@ -238,15 +239,7 @@ const handleSetPlateLayout = () => {
 
 const uiStore = useUIStore();
 const addExperimentPlateTrendChart = (experimentId) => {
-  if (route.name == "workbench") {
-    panesStore.openTab("experiment-chart-pane", "experiment-list-pane");
-  } else if (uiStore.isExperimentSelected()) {
-    uiStore.addChartView({
-      type: "trend",
-      experimentId: experimentId,
-      label: "Experiment Trend Chart",
-    });
-  }
+  emit("open", {resource: 'experiment', parentId: experimentId})
 };
 
 const exportPlateList = openExportPlateListDialog;
@@ -265,6 +258,6 @@ const handleExperimentSelection = (action, onFailureMessage) => {
 };
 
 const openPlates = () => {
-  panesStore.openTab("plates-list-pane", "experiment-list-pane");
+  emit("open", {resource: 'plates'})
 };
 </script>

@@ -35,6 +35,7 @@
               :projects="[projectStore.project]"
               @createNewExperiment="onCreateNewExperiment"
               @selection="handleSelection"
+              @open="handleOpen"
             />
           </oa-section>
         </div>
@@ -142,4 +143,20 @@ const openDeleteDialog = () => {
 const handleSelection = (experiments) => {
   uiStore.selectedExperiments = experiments;
 };
+
+const handleOpen = async (resource) => {
+  switch (resource.resource) {
+    case 'experiment':
+      if (uiStore.isExperimentSelected()) {
+        uiStore.addChartView({
+          type: "trend",
+          experimentId: resource.parentId,
+          label: "Experiment Trend Chart",
+        });
+      }
+      break
+    default:
+      break
+  }
+}
 </script>

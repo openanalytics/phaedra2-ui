@@ -21,7 +21,7 @@
       </q-td>
     </template>
   </oa-table>
-  <ProjectActionMenu :projects="selectedProjects" />
+  <ProjectActionMenu :projects="selectedProjects" @open="open" />
 </template>
 
 <script setup>
@@ -36,7 +36,7 @@ const props = defineProps({
   projects: [Object],
   selected: [Object],
 });
-const emits = defineEmits("selection");
+const emits = defineEmits("selection", "open");
 
 const loading = ref(true);
 
@@ -95,4 +95,8 @@ onBeforeMount(() => {
     selectedProjects.value = props.selected;
   }
 });
+
+const open = (resource) => {
+  emits("open", resource);
+}
 </script>

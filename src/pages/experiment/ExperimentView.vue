@@ -150,7 +150,7 @@
                 v-model:newPlateTab="showNewPlateDialog"
                 v-model:newPlateFromMeasurements="showNewPlateFromMeasDialog"
                 @selection="handlePlateSelection"
-                @opens="handleOpen"
+                @open="handleOpen"
               />
             </q-tab-panel>
             <q-tab-panel name="statistics" class="q-pa-none">
@@ -321,13 +321,15 @@ const handlePlateSelection = async (plates) => {
 };
 
 const handleOpen = async (resource) => {
-  if (resource.resource === 'wells') {
+  switch (resource.resource) {
+    case 'wells':
       router.push({
         name: "plate",
         params: { plateId: resource.parentId },
         query: { activeTab: "wells" },
-  })
-} else if (resource.resource === 'scatterplot') {
+      })
+      break
+    case 'scatterplot':
       await loadingHandler.handleLoadingDuring(
         uiStore.loadSelectedPlate(resource.parentId)
       );
@@ -336,6 +338,38 @@ const handleOpen = async (resource) => {
         plateId: resource.parentId,
         label: "Scatter Plot",
       });
-}
+      break
+    case 'boxplot':
+      await loadingHandler.handleLoadingDuring(
+        uiStore.loadSelectedPlate(resource.parentId)
+      );
+      uiStore.addChartView({
+        type: "box",
+        plateId: resource.parentId,
+        label: "Box Plot",
+      });
+      break
+    case 'histogram':
+      await loadingHandler.handleLoadingDuring(
+        uiStore.loadSelectedPlate(resource.parentId)
+      );
+      uiStore.addChartView({
+        type: "histogram",
+        plateId: resource.parentId,
+        label: "Histogram",
+      });
+      break
+    case 'experiment':
+      if (uiStore.isExperimentSelected()) {
+        uiStore.addChartView({
+          type: "trend",
+          experimentId: resource.parentId,
+          label: "Experiment Trend Chart",
+        });
+      }
+      break
+    default:
+      break
+  }
 }
 </script>
