@@ -16,6 +16,20 @@ import Chart from "@/components/chart/Chart.vue";
 export function usePanesList() {
   const selectionStore = useSelectionStore();
 
+  /**
+   * Configuration object for a Vue component tab in the workbench.
+   *
+   * @property {string} component - The name of the Vue component to be rendered in this tab.
+   * @property {string} id - A unique identifier for the tab, used to track open components.
+   * @property {string} title - The static title of the tab, displayed in the Add Pane menu.
+   * @property {string} label - A descriptive name for the tab that can depend on variable data (if declared, title is not used as a tab name).
+   * @property {string} icon - The icon displayed next to the tab name.
+   * @property {boolean} closable - Indicates if the tab can be closed by the user.
+   * @property {Object} props - Properties required by the Vue component to function.
+   * @property {function} selection - Callback function reacting to emitted 'selection' events.
+   * @property {string} [groupBy] - Optional property to group related tabs together.
+   */
+
   const panesList = computed(() => [
     {
       component: RecentCalculations,
@@ -48,7 +62,7 @@ export function usePanesList() {
     {
       component: ProjectsList,
       id: "project-list-pane",
-      title: "Browse projects",
+      title: "Browse Projects",
       icon: "folder_open",
       closable: true,
       props: {
@@ -56,21 +70,28 @@ export function usePanesList() {
         selected: selectionStore.selectedProjects,
       },
       selection: (e) => (selectionStore.selectedProjects = e),
+      groupBy: "list",
     },
     {
       component: ProjectDetails,
       id: "project-details-pane",
       title: "Project Details",
+      label: `Project Details (${selectionStore.selectedProjects[0]?.name || "none selected"})`,
       icon: "details",
       closable: true,
       props: {
-        project: selectionStore.selectedProjects[0],
+        project:
+          selectionStore.selectedProjects.length > 0
+            ? selectionStore.selectedProjects[0]
+            : undefined,
       },
+      groupBy: "details",
     },
     {
       component: ExperimentList,
       id: "experiment-list-pane",
-      title: "Experiments",
+      title: "Browse Experiments",
+      label: "Experiments",
       icon: "science",
       closable: true,
       props: {
@@ -79,6 +100,7 @@ export function usePanesList() {
         selected: selectionStore.selectedExperiments,
       },
       selection: (e) => (selectionStore.selectedExperiments = e),
+      groupBy: "list",
     },
     {
       component: TrendChart,
@@ -95,11 +117,13 @@ export function usePanesList() {
           : [],
       },
       selection: (e) => (selectionStore.selectedExperiments = e),
+      groupBy: "chart",
     },
     {
       component: PlateList,
       id: "plates-list-pane",
-      title: "Plates",
+      title: "Browse Plates",
+      label: "Plates",
       icon: "science",
       closable: true,
       props: {
@@ -108,6 +132,7 @@ export function usePanesList() {
         experiments: selectionStore.selectedExperiments,
       },
       selection: (e) => (selectionStore.selectedPlates = e),
+      groupBy: "list",
     },
     {
       component: Chart,
@@ -125,6 +150,7 @@ export function usePanesList() {
         selectedWells: selectionStore.selectedWells,
       },
       selection: (e) => (selectionStore.selectedWells = e),
+      groupBy: "chart",
     },
     {
       component: Chart,
@@ -142,6 +168,7 @@ export function usePanesList() {
         selectedWells: selectionStore.selectedWells,
       },
       selection: (e) => (selectionStore.selectedWells = e),
+      groupBy: "chart",
     },
     {
       component: Chart,
@@ -159,6 +186,7 @@ export function usePanesList() {
         selectedWells: selectionStore.selectedWells,
       },
       selection: (e) => (selectionStore.selectedWells = e),
+      groupBy: "chart",
     },
     {
       component: WellList,
@@ -171,6 +199,7 @@ export function usePanesList() {
         wells: selectionStore.wells,
       },
       selection: (e) => (selectionStore.selectedWells = e),
+      groupBy: "list",
     },
     {
       component: PlateHeatmap,
@@ -189,6 +218,7 @@ export function usePanesList() {
         protocols: selectionStore.plateChart.protocols,
       },
       // selection: (e) => (selectionStore.selectedWells = e),
+      groupBy: "chart",
     },
   ]);
 

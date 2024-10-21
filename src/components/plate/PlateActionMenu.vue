@@ -179,7 +179,7 @@
       <q-separator />
 
       <!-- Details -->
-      <q-item v-if="route.name=='workbench'" dense clickable>
+      <q-item v-if="route.name == 'workbench'" dense clickable>
         <q-item-section avatar>
           <q-icon name="details" />
         </q-item-section>
@@ -295,7 +295,7 @@ const hideMenu = ref(false);
 
 const browseWells = () => {
   if (route.name == "workbench") {
-    panesStore.openTab("wells-list-pane", "list", "panes-list-pane");
+    panesStore.openTab("wells-list-pane", "panes-list-pane");
   } else {
     handlePlateSelection(() => {
       router.push({
@@ -422,7 +422,7 @@ const onDisapprovePlate = async (reason) => {
 
 const addScatterPlot = async (plateId) => {
   if (route.name == "workbench") {
-    panesStore.openTab("scatterplot-chart-pane", "chart", "plates-list-pane");
+    panesStore.openTab("scatterplot-chart-pane", "plates-list-pane");
   } else {
     handlePlateSelection(async () => {
       await loadingHandler.handleLoadingDuring(
@@ -440,7 +440,7 @@ const addScatterPlot = async (plateId) => {
 
 const addBoxPlot = async (plateId) => {
   if (route.name == "workbench") {
-    panesStore.openTab("boxplot-chart-pane", "chart", "plates-list-pane");
+    panesStore.openTab("boxplot-chart-pane", "plates-list-pane");
   } else {
     handlePlateSelection(async () => {
       await loadingHandler.handleLoadingDuring(
@@ -458,7 +458,7 @@ const addBoxPlot = async (plateId) => {
 
 const addHistogram = async (plateId) => {
   if (route.name == "workbench") {
-    panesStore.openTab("histogram-chart-pane", "chart", "plates-list-pane");
+    panesStore.openTab("histogram-chart-pane", "plates-list-pane");
   } else {
     handlePlateSelection(async () => {
       await loadingHandler.handleLoadingDuring(
@@ -476,13 +476,13 @@ const addHistogram = async (plateId) => {
 
 const addHeatmap = () => {
   if (route.name == "workbench") {
-    panesStore.openTab("heatmap-chart-pane", "chart", "plates-list-pane");
+    panesStore.openTab("heatmap-chart-pane", "plates-list-pane");
   }
 };
 
 const addExperimentPlateTrendChart = (experimentId) => {
   if (route.name == "workbench") {
-    panesStore.openTab("experiment-chart-pane", "chart", "plates-list-pane");
+    panesStore.openTab("experiment-chart-pane", "plates-list-pane");
   } else if (uiStore.isExperimentSelected()) {
     uiStore.addChartView({
       type: "trend",

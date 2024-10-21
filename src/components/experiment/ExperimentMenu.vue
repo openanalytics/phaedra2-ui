@@ -108,12 +108,33 @@
     </q-list>
   </q-menu>
 
-  <delete-dialog v-if="isOpen" :id="experiment.id" :name="experiment.name" :objectClass="'experiment'"
-                 v-model:show="showDeleteDialog" @onDeleted="onDeleted"/>
-  <link-plate-layout-dialog v-if="isOpen" v-model:show="showLinkPlateDialog" :plates="plates" @onLinkPlate="handleSetPlateLayout"/>
-  <calculate-plate-dialog v-if="isOpen" v-model:show="showCalculatePlateDialog" :plates="plates" />
-  <export-plate-list-dialog v-model:show="showExportPlateListDialog" :experiment="experiment"/>
-  <export-well-data-dialog v-model:show="showExportWellDataDialog" :experiment="experiment"/>
+  <delete-dialog
+    v-if="isOpen"
+    :id="experiment.id"
+    :name="experiment.name"
+    :objectClass="'experiment'"
+    v-model:show="showDeleteDialog"
+    @onDeleted="onDeleted"
+  />
+  <link-plate-layout-dialog
+    v-if="isOpen"
+    v-model:show="showLinkPlateDialog"
+    :plates="plates"
+    @onLinkPlate="handleSetPlateLayout"
+  />
+  <calculate-plate-dialog
+    v-if="isOpen"
+    v-model:show="showCalculatePlateDialog"
+    :plates="plates"
+  />
+  <export-plate-list-dialog
+    v-model:show="showExportPlateListDialog"
+    :experiment="experiment"
+  />
+  <export-well-data-dialog
+    v-model:show="showExportWellDataDialog"
+    :experiment="experiment"
+  />
 </template>
 
 <script setup>
@@ -143,8 +164,10 @@ const notify = useNotification();
 const route = useRoute();
 const projectId = parseInt(route.params.id);
 
-const experiment = computed(() => props.experiment)
-const isOpen = computed(() => experiment.value && experiment.value.status === 'OPEN' ? true : false )
+const experiment = computed(() => props.experiment);
+const isOpen = computed(() =>
+  experiment.value && experiment.value.status === "OPEN" ? true : false
+);
 const showDeleteDialog = ref(false);
 const showLinkPlateDialog = ref(false);
 const showCalculatePlateDialog = ref(false);
@@ -158,10 +181,12 @@ const openDeleteDialog = () => {
 };
 
 const getPlates = () => {
-  const {onResult, onError} = projectsGraphQlAPI.experimentById(experiment.value.id)
-  onResult(({data}) => {
-    plates.value = [...data.plates]
-  })
+  const { onResult, onError } = projectsGraphQlAPI.experimentById(
+    experiment.value.id
+  );
+  onResult(({ data }) => {
+    plates.value = [...data.plates];
+  });
   onError((error) => {
     notify.showError("Error while updating plates: " + error.message);
   });
@@ -199,22 +224,22 @@ const onDeleted = () => {
   projectStore.deleteExperiment(experiment.value.id);
 };
 
-const useNotify = useNotification()
+const useNotify = useNotification();
 const handleSetPlateLayout = () => {
-  projectStore.loadProject(projectId)
-  useNotify.showInfo("The plate layout has been updated! ",
-      () => { showCalculatePlateDialog.value = true },
-      () => { })
-}
+  projectStore.loadProject(projectId);
+  useNotify.showInfo(
+    "The plate layout has been updated! ",
+    () => {
+      showCalculatePlateDialog.value = true;
+    },
+    () => {}
+  );
+};
 
 const uiStore = useUIStore();
 const addExperimentPlateTrendChart = (experimentId) => {
   if (route.name == "workbench") {
-    panesStore.openTab(
-      "experiment-chart-pane",
-      "chart",
-      "experiment-list-pane"
-    );
+    panesStore.openTab("experiment-chart-pane", "experiment-list-pane");
   } else if (uiStore.isExperimentSelected()) {
     uiStore.addChartView({
       type: "trend",
@@ -240,6 +265,6 @@ const handleExperimentSelection = (action, onFailureMessage) => {
 };
 
 const openPlates = () => {
-  panesStore.openTab("plates-list-pane", "list", "experiment-list-pane");
+  panesStore.openTab("plates-list-pane", "experiment-list-pane");
 };
 </script>
