@@ -89,13 +89,13 @@ const fetchProjectsData = () => {
 const openProjectDetails = () => {
   if (firstProjectCondition.value) {
     fetchProjectsData();
-    panesStore.openTab("project-details-pane", "details", "project-list-pane");
+    panesStore.openTab("project-details-pane", "project-list-pane");
   }
 };
 
 const openExperiments = () => {
   if (firstProjectCondition.value) {
-    panesStore.openTab("experiment-list-pane", "list", "project-list-pane");
+    panesStore.openTab("experiment-list-pane", "project-list-pane");
   }
 };
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="row q-pa-md" v-show="project">
+  <div class="row q-pa-md" v-if="project">
     <div class="col-3">
       <q-field label="ID" stack-label dense borderless>
         <template v-slot:control>
@@ -80,6 +80,12 @@
     </div>
   </div>
 
+  <div v-else class="absolute-center">
+    <q-badge color="negative" class="q-pa-md text-weight-bold">{{
+      errorMessage
+    }}</q-badge>
+  </div>
+
   <rename-dialog
     v-model:show="showRenameDialog"
     objectClass="project"
@@ -125,6 +131,7 @@ const projectStore = useProjectStore();
 
 const showDeleteDialog = ref(false);
 const showRenameDialog = ref(false);
+const errorMessage = "No project selected";
 
 const onNameChanged = async (newName) => {
   await projectStore.renameProject(newName);
