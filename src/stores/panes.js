@@ -22,7 +22,7 @@ export const usePanesStore = defineStore("panes", () => {
       .map((pane) => {
         const result = panesList.value.find((item) => item.id == pane);
         if (result) {
-          return { id: result.id, groupBy: result.groupBy | undefined };
+          return result;
         }
         return;
       })
@@ -82,7 +82,6 @@ export const usePanesStore = defineStore("panes", () => {
   }
 
   function insertItem(id, toId, array, position) {
-    console.log("insert item");
     return array.map((pane) => {
       if (pane == "V" || pane == "H" || typeof pane == "string") {
         return pane;
