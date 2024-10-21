@@ -226,12 +226,14 @@ import { Pane, Splitpanes } from "splitpanes";
 import { useUIStore } from "@/stores/ui";
 import NewPlateDialog from "@/pages/experiment/NewPlateDialog.vue";
 import NewPlateFromMeasurementDialog from "@/pages/experiment/NewPlateFromMeasurementDialog.vue";
+import { useLoadingHandler } from "@/composable/loadingHandler";
 
 const uiStore = useUIStore();
 const projectStore = useProjectStore();
 const experimentStore = useExperimentStore();
 const route = useRoute();
 const router = useRouter();
+const loadingHandler = useLoadingHandler();
 
 const activeTab = ref("overview");
 const horizontal = ref(false);
@@ -318,13 +320,22 @@ const handlePlateSelection = async (plates) => {
   if (uiStore.selectedPlate) await uiStore.loadSelectedPlate(plates[0].id);
 };
 
-const handleOpen = (resource) => {
+const handleOpen = async (resource) => {
   if (resource.resource === 'wells') {
       router.push({
         name: "plate",
         params: { plateId: resource.parentId },
         query: { activeTab: "wells" },
   })
+} else if (resource.resource === 'scatterplot') {
+      await loadingHandler.handleLoadingDuring(
+        uiStore.loadSelectedPlate(resource.parentId)
+      );
+      uiStore.addChartView({
+        type: "scatter",
+        plateId: resource.parentId,
+        label: "Scatter Plot",
+      });
 }
 }
 </script>

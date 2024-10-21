@@ -412,20 +412,7 @@ const onDisapprovePlate = async (reason) => {
 };
 
 const addScatterPlot = async (plateId) => {
-  if (route.name == "workbench") {
-    panesStore.openTab("scatterplot-chart-pane", "plates-list-pane");
-  } else {
-    handlePlateSelection(async () => {
-      await loadingHandler.handleLoadingDuring(
-        uiStore.loadSelectedPlate(plateId)
-      );
-      uiStore.addChartView({
-        type: "scatter",
-        plateId: plateId,
-        label: "Scatter Plot",
-      });
-    }, "No plate(s) have been selected!");
-  }
+  emit("open", {resource: 'scatterplot', parentId: plateId});
   hideMenu.value = true;
 };
 

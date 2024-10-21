@@ -137,7 +137,10 @@ export function usePanesList() {
       opens: (e) => { 
         if(e.resource === 'wells') {
           panesStore.openTab(`${e.resource}-list-pane`, "panes-list-pane")
-      }
+        }
+        else if(e.resource === 'scatterplot') {
+          panesStore.openTab("scatterplot-chart-pane", "plates-list-pane");
+        }
       },
       groupBy: "list",
     },
