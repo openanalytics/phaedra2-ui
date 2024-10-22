@@ -191,6 +191,35 @@ export const usePanesStore = defineStore("panes", () => {
     dynamicPanes.value = [];
   }
 
+  function openWorkbenchTab(resource, from) {
+    if (from === 'plates') {
+      if (resource.resource === 'wells') {
+        openTab(`${resource.resource}-list-pane`, "plates-list-pane")
+      } else {
+        openTab(`${resource.resource}-chart-pane`, "plates-list-pane");
+
+      }
+    } else {
+      switch (resource.resource) {
+        case "project":
+          openTab(`${resource.resource}-details-pane`, "project-list-pane");
+          break
+        case "experiment":
+          if (from === 'project') {
+            openTab(`${resource.resource}-list-pane`, "project-list-pane");
+          } else if (from === 'experiment') {
+            openTab(`${resource.resource}-chart-pane`, "experiment-list-pane");
+          }
+          break
+        case "plates":
+          openTab(`${resource.resource}-list-pane`, "experiment-list-pane");
+          break
+        default:
+          break
+      }
+    }
+  }
+
   return {
     dynamicPanes,
     draggedElement,
@@ -204,5 +233,6 @@ export const usePanesStore = defineStore("panes", () => {
     moveItem,
     openTab,
     closeAllTabs,
+    openWorkbenchTab,
   };
 });
