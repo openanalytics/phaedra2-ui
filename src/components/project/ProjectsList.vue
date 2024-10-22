@@ -21,6 +21,10 @@
       </q-td>
     </template>
   </oa-table>
+  <ProjectActionMenu
+    :projects="selectedProjects"
+    @onDeleteProject="deleteProjects"
+  />
   <ProjectActionMenu :projects="selectedProjects" @open="open" />
 </template>
 
@@ -31,12 +35,13 @@ import FormatUtils from "@/lib/FormatUtils.js";
 import OaTable from "@/components/table/OaTable.vue";
 import ProjectActionMenu from "@/components/project/ProjectActionMenu";
 import { useRoute, useRouter } from "vue-router";
+import { useProjectStore } from "@/stores/project";
 
 const props = defineProps({
   projects: [Object],
   selected: [Object],
 });
-const emits = defineEmits("selection", "open");
+const emits = defineEmits(["selection", "updated", "open"]);
 
 const loading = ref(true);
 
@@ -81,6 +86,16 @@ function selectProject(event, row) {
   selectedProjects.value = [row];
 }
 
+const projectStore = useProjectStore();
+function deleteProjects() {
+  projectStore
+    .deleteProjects(selectedProjects.value.map((project) => project.id))
+    .then(() => {
+      emits("updated");
+    });
+  selectedProjects.value = [];
+}
+
 watch(props.projects, () => {
   visibleColumns.value = [...columns.value.map((a) => a.name)];
   loading.value = false;
@@ -98,5 +113,5 @@ onBeforeMount(() => {
 
 const open = (resource) => {
   emits("open", resource);
-}
+};
 </script>

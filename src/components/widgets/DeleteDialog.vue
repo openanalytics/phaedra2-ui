@@ -1,18 +1,20 @@
 <template>
   <q-dialog v-model="showDialog" persistent>
     <q-card style="min-width: 30vw">
-      <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
-        <q-avatar icon="delete" color="primary" text-color="white"/>
-        Delete {{objectClass}}
+      <q-card-section
+        class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary"
+      >
+        <q-avatar icon="delete" color="primary" text-color="white" />
+        Delete {{ objectClass }}
       </q-card-section>
       <q-card-section>
         <div class="row">
           <div class="col-10">
             <span
               >Are you sure you want to delete the {{ objectClass }}(s)
-              <b v-for="(project, i) in projects" :key="i"
+              <b v-for="(item, i) in items" :key="i"
                 ><br />
-                - {{ project.name }}</b
+                - {{ item.name || item.barcode }}</b
               >?</span
             ><br />
             <span
@@ -29,47 +31,56 @@
         </div>
       </q-card-section>
       <q-card-actions align="right" class="text-primary">
-        <q-btn flat label="Cancel" v-close-popup/>
-          <q-btn :label="'Delete '+objectClass" color="accent" v-if="'delete'===confirmationValue" v-close-popup
-                 @click="confirmDelete"/>
+        <q-btn flat label="Cancel" v-close-popup />
+        <q-btn
+          :label="'Delete ' + objectClass"
+          color="accent"
+          v-if="'delete' === confirmationValue"
+          v-close-popup
+          @click="confirmDelete"
+        />
       </q-card-actions>
     </q-card>
   </q-dialog>
 </template>
 
 <script setup>
-import {computed, ref} from 'vue';
-import {useStore} from 'vuex';
+import { computed, onMounted, ref } from "vue";
+import { useStore } from "vuex";
 
-const store = useStore()
+const store = useStore();
 
-const props = defineProps(['id', 'name', 'objectClass', 'show'])
-const emit = defineEmits(['onDeleted', 'update:show'])
+const props = defineProps(["id", "name", "objectClass", "show", "items"]);
+const emit = defineEmits(["onDeleted", "update:show"]);
+
+onMounted(() => {
+  confirmationValue.value = null;
+});
 
 const showDialog = computed({
   get: () => props.show,
-  set: (v) => emit('update:show', v)
+  set: (v) => emit("update:show", v),
 });
-const confirmationValue = ref(null)
+const confirmationValue = ref(null);
 
 const confirmDelete = () => {
   switch (props.objectClass) {
-    case 'project':
+    case "project":
       break;
-    case 'experiment':
+    case "experiment":
       break;
-    case 'plate':
+    case "plate":
       break;
-    case 'protocol':
+    case "protocol":
       break;
-    case 'template':
+    case "template":
       break;
-    case 'feature':
+    case "feature":
       break;
-    case 'formula':
-      store.dispatch('calculations/deleteFormula', props.id);
+    case "formula":
+      store.dispatch("calculations/deleteFormula", props.id);
       break;
   }
-  emit('onDeleted');
-}
+  emit("onDeleted");
+};
 </script>

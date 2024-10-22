@@ -100,7 +100,12 @@
       </div>
     </template>
   </oa-table>
-  <ExperimentMenu :experiment="selectedExperiment" touch-position @open="open" />
+  <ExperimentMenu
+    touch-position
+    @onDeleteExperiment="deleteExperiments"
+    @open="open"
+    :experiments="selectedExperiments"
+  />
 
   <q-dialog v-model="showNewExperimentDialog">
     <q-card style="min-width: 30vw">
@@ -134,14 +139,7 @@
 </template>
 
 <script setup>
-import {
-  ref,
-  computed,
-  watch,
-  onUnmounted,
-  onMounted,
-  onBeforeMount,
-} from "vue";
+import { ref, computed, watch, onBeforeMount } from "vue";
 
 import ProgressBarField from "@/components/widgets/ProgressBarField";
 import ExperimentMenu from "@/components/experiment/ExperimentMenu";
@@ -151,13 +149,19 @@ import FilterUtils from "@/lib/FilterUtils";
 import { useExportTableData } from "@/composable/exportTableData";
 import { useRoute, useRouter } from "vue-router";
 import OaTable from "@/components/table/OaTable.vue";
+import { useExperimentStore } from "@/stores/experiment";
 
 const props = defineProps({
   experiments: [Object],
   projects: [Object],
   selected: [Object],
 });
-const emits = defineEmits(["createNewExperiment", "selection", "open"]);
+const emits = defineEmits([
+  "createNewExperiment",
+  "selection",
+  "updated",
+  "open",
+]);
 
 const router = useRouter();
 
@@ -369,6 +373,15 @@ const exportToXLSX = () => {
 function getUnique(value, index, array) {
   return array.indexOf(value) === index;
 }
+const experimentStore = useExperimentStore();
+function deleteExperiments() {
+  experimentStore
+    .deleteExperiments(selectedExperiments.value.map((exp) => exp.id))
+    .then(() => {
+      emits("updated");
+    });
+  selectedExperiments.value = [];
+}
 
 const route = useRoute();
 
@@ -380,7 +393,7 @@ onBeforeMount(() => {
 
 const open = (resource) => {
   emits("open", resource);
-}
+};
 </script>
 
 <style scoped>

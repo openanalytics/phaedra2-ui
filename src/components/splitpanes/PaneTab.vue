@@ -3,6 +3,7 @@
     :is="component.component"
     v-bind="{ ...componentProps }"
     @selection="(e) => (component.selection ? component.selection(e) : null)"
+    @updated="() => (component.updated ? component.updated(e) : null)"
     @open="(e) => (component.open ? component.open(e) : null)"
   />
 </template>

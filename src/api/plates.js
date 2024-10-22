@@ -45,6 +45,14 @@ export default {
       console.log(error);
     }
   },
+  async deletePlates(ids) {
+    try {
+      const response = await axios.delete(apiURL + "/plates", ids);
+      if (response.status === 200) return response.data;
+    } catch (error) {
+      console.log(error);
+    }
+  },
   async deletePlates(plateIds) {
     try {
       const response = await axios.post(apiURL + "/plates/delete", plateIds);

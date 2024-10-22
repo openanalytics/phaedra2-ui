@@ -1,5 +1,5 @@
 <template>
-  <q-menu context-menu v-if="projects" persistent>
+  <q-menu context-menu v-if="projects.length > 0" persistent>
     <q-list>
       <q-item dense clickable @click="deleteProject">
         <q-item-section avatar>
@@ -40,7 +40,7 @@
     <AddTagModal v-model:show="addTagModal" :projects="projects" />
     <DeleteDialog
       v-model:show="showDeleteDialog"
-      :projects="projects"
+      :items="projects"
       objectClass="project"
       @onDeleted="handleDeleteProject"
     />
@@ -71,8 +71,8 @@ const deleteProject = () => {
 };
 
 const handleDeleteProject = () => {
-  emit("onDeleteProject");
   showDeleteDialog.value = false;
+  emit("onDeleteProject");
 };
 
 const firstProjectCondition = computed(

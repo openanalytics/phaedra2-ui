@@ -6,7 +6,7 @@
 
   <q-page class="oa-root-div">
     <oa-section title="Projects" icon="folder" class="q-pa-sm">
-      <ProjectsList :projects="projects" />
+      <ProjectsList :projects="projects" @updated="fetchAllProjects" />
     </oa-section>
   </q-page>
 </template>

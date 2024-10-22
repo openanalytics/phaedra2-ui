@@ -112,9 +112,10 @@
     v-if="isOpen"
     :id="experiment.id"
     :name="experiment.name"
-    :objectClass="'experiment'"
+    :objectClass="'experiments'"
     v-model:show="showDeleteDialog"
     @onDeleted="onDeleted"
+    :items="experiments"
   />
   <link-plate-layout-dialog
     v-if="isOpen"
@@ -127,14 +128,14 @@
     v-model:show="showCalculatePlateDialog"
     :plates="plates"
   />
-  <export-plate-list-dialog
+  <!-- <export-plate-list-dialog
     v-model:show="showExportPlateListDialog"
-    :experiment="experiment"
+    :experiment="experiments"
   />
   <export-well-data-dialog
     v-model:show="showExportWellDataDialog"
     :experiment="experiment"
-  />
+  /> -->
 </template>
 
 <script setup>
@@ -146,8 +147,6 @@ import { usePanesStore } from "@/stores/panes";
 import { useProjectStore } from "@/stores/project";
 import { useUIStore } from "@/stores/ui";
 
-import projectsGraphQlAPI from "@/api/graphql/projects";
-
 import DeleteDialog from "@/components/widgets/DeleteDialog";
 import LinkPlateLayoutDialog from "@/components/plate/LinkPlateLayoutDialog";
 import MenuItem from "@/components/widgets/MenuItem.vue";
@@ -157,15 +156,15 @@ import ExportWellDataDialog from "@/components/plate/ExportWellDataDialog";
 
 const panesStore = usePanesStore();
 
-const props = defineProps(["experiment"]);
-const emit = defineEmits(["open"]);
+const props = defineProps(["experiments"]);
+const emit = defineEmits(["onDeleteExperiment", "open"]);
 const projectStore = useProjectStore();
 const notify = useNotification();
 
 const route = useRoute();
 const projectId = parseInt(route.params.id);
 
-const experiment = computed(() => props.experiment);
+const experiment = computed(() => props.experiments[0]);
 const isOpen = computed(() =>
   experiment.value && experiment.value.status === "OPEN" ? true : false
 );
@@ -222,7 +221,8 @@ const handleOpenExperiment = () => {
 };
 
 const onDeleted = () => {
-  projectStore.deleteExperiment(experiment.value.id);
+  showDeleteDialog.value = false;
+  emit("onDeleteExperiment");
 };
 
 const useNotify = useNotification();
@@ -239,7 +239,7 @@ const handleSetPlateLayout = () => {
 
 const uiStore = useUIStore();
 const addExperimentPlateTrendChart = (experimentId) => {
-  emit("open", {resource: 'experiment', parentId: experimentId})
+  emit("open", { resource: "experiment", parentId: experimentId });
 };
 
 const exportPlateList = openExportPlateListDialog;
@@ -258,6 +258,6 @@ const handleExperimentSelection = (action, onFailureMessage) => {
 };
 
 const openPlates = () => {
-  emit("open", {resource: 'plates'})
+  emit("open", { resource: "plates" });
 };
 </script>

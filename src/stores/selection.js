@@ -15,9 +15,9 @@ export const useSelectionStore = defineStore("selection", () => {
   const selectedPlates = ref([]);
   const selectedWells = ref([]);
 
-  const activeMeasurement = ref(null)
-  const measurements = ref([])
-  const heatmapWells = ref([])
+  const activeMeasurement = ref(null);
+  const measurements = ref([]);
+  const heatmapWells = ref([]);
 
   const chart = ref({
     id: undefined,
@@ -158,6 +158,9 @@ export const useSelectionStore = defineStore("selection", () => {
   }
 
   function loadProjects(projectIds, replace = true) {
+    if (!projectIds) {
+      projectIds = selectedProjectsIds.value;
+    }
     const { onResult, onError } =
       experimentsGraphQlAPI.experimentsByProjectIds(projectIds);
     onResult(({ data }) => {
@@ -174,17 +177,18 @@ export const useSelectionStore = defineStore("selection", () => {
   }
 
   function loadExperiment(experimentsId, replace = true) {
-    if (experimentsId) {
-      const { onResult, onError } =
-        projectsGraphQlAPI.platesByExperimentIds(experimentsId);
-      onResult(({ data }) => {
-        if (replace) {
-          plates.value = data.plate;
-        } else {
-          plates.value = [...plates.value, ...data.plate];
-        }
-      });
+    if (!experimentsId) {
+      experimentsId = selectedExperimentsIds.value;
     }
+    const { onResult, onError } =
+      projectsGraphQlAPI.platesByExperimentIds(experimentsId);
+    onResult(({ data }) => {
+      if (replace) {
+        plates.value = data.plate;
+      } else {
+        plates.value = [...plates.value, ...data.plate];
+      }
+    });
   }
 
   function loadPlate(platesIds, replace = true) {
@@ -205,7 +209,7 @@ export const useSelectionStore = defineStore("selection", () => {
     if (platesId) {
       const { onResult, onError } = projectsGraphQlAPI.wellsByPlateId(platesId);
       onResult(({ data }) => {
-        heatmapWells.value = data.wells
+        heatmapWells.value = data.wells;
       });
     }
   }
@@ -215,8 +219,10 @@ export const useSelectionStore = defineStore("selection", () => {
       projectsGraphQlAPI.measurementsByPlateId(plateId);
     onResult(({ data }) => {
       measurements.value = data.plateMeasurements;
-      activeMeasurement.value = measurements.value.filter(m => m.active === true)[0]
-    })
+      activeMeasurement.value = measurements.value.filter(
+        (m) => m.active === true
+      )[0];
+    });
   }
 
   function loadPlateProtocols(plate) {
@@ -301,6 +307,13 @@ export const useSelectionStore = defineStore("selection", () => {
     loadProjects(selectedProjectsIds.value);
   });
 
+  function fetchProjects() {
+    const { onResult, onError } = projectsGraphQlAPI.projects();
+    onResult(({ data }) => {
+      projects.value = data.projects;
+    });
+  }
+
   return {
     projects,
     experiments,
@@ -318,6 +331,7 @@ export const useSelectionStore = defineStore("selection", () => {
     addChartView,
     plateChart,
     chart,
-    heatmapWells
+    heatmapWells,
+    fetchProjects,
   };
 });

@@ -243,9 +243,8 @@
   />
   <delete-dialog
     v-model:show="showDeleteDialog"
-    :id="props.plate.id"
-    :name="props.plate.barcode"
     :objectClass="'plate'"
+    :items="plates"
     @onDeleted="onDeletePlate"
   />
   <move-plate-dialog
@@ -279,9 +278,9 @@ import LinkMeasurementDialog from "@/components/measurement/LinkMeasurementDialo
 import MenuItem from "@/components/widgets/MenuItem.vue";
 import { useLoadingHandler } from "@/composable/loadingHandler";
 import { useNotification } from "@/composable/notification";
-import { usePanesStore } from "../../stores/panes";
 
 const props = defineProps(["plate", "plates"]);
+const emit = defineEmits(["onDeletePlates", "open"]);
 
 const uiStore = useUIStore();
 const router = useRouter();
@@ -289,13 +288,11 @@ const route = useRoute();
 const experimentStore = useExperimentStore();
 const projectStore = useProjectStore();
 const loadingHandler = useLoadingHandler();
-const panesStore = usePanesStore();
 
 const hideMenu = ref(false);
-const emit = defineEmits(["open"]);
 
 const browseWells = () => {
-  emit("open", {resource: 'wells', parentId: props.plate.id});
+  emit("open", { resource: "wells", parentId: props.plate.id });
 };
 
 const browseDoseResponseCurves = () => {
@@ -412,26 +409,26 @@ const onDisapprovePlate = async (reason) => {
 };
 
 const addScatterPlot = async (plateId) => {
-  emit("open", {resource: 'scatterplot', parentId: plateId});
+  emit("open", { resource: "scatterplot", parentId: plateId });
   hideMenu.value = true;
 };
 
 const addBoxPlot = async (plateId) => {
-  emit("open", {resource: 'boxplot', parentId: plateId});
+  emit("open", { resource: "boxplot", parentId: plateId });
   hideMenu.value = true;
 };
 
 const addHistogram = async (plateId) => {
-  emit("open", {resource: 'histogram', parentId: plateId});
+  emit("open", { resource: "histogram", parentId: plateId });
   hideMenu.value = true;
 };
 
 const addHeatmap = () => {
-  emit("open", {resource: 'heatmap', parentId: props.plate.id});
+  emit("open", { resource: "heatmap", parentId: props.plate.id });
 };
 
 const addExperimentPlateTrendChart = (experimentId) => {
-  emit("open", {resource: 'experiment', parentId: experimentId});
+  emit("open", { resource: "experiment", parentId: experimentId });
 };
 
 const showDeleteDialog = ref(null);
@@ -442,15 +439,15 @@ const deletePlate = () => {
   );
 };
 const onDeletePlate = async () => {
-  await loadingHandler.handleLoadingDuring(
-    experimentStore.deletePlates(uiStore.selectedPlates)
-  );
+  // await loadingHandler.handleLoadingDuring(
+  // );
+  emit("onDeletePlates");
   showDeleteDialog.value = false;
 };
 
 const notify = useNotification();
 const handlePlateSelection = (action, onFailureMessage) => {
-  if (!uiStore.isPlateSelected()) {
+  if (!props.plates.length > 0) {
     notify.showWarning(onFailureMessage);
   } else {
     action();

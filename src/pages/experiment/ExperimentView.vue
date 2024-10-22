@@ -150,6 +150,9 @@
                 v-model:newPlateTab="showNewPlateDialog"
                 v-model:newPlateFromMeasurements="showNewPlateFromMeasDialog"
                 @selection="handlePlateSelection"
+                @updated="
+                  experimentStore.loadExperiment(experimentStore.experiment.id)
+                "
                 @open="handleOpen"
               />
             </q-tab-panel>

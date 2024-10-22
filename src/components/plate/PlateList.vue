@@ -9,7 +9,10 @@
     selection="multiple"
     v-model:selected="selectedPlates"
   >
-    <template v-slot:top-left v-if="experiment && experiment.status === 'OPEN'">
+    <template
+      v-slot:top-left
+      v-if="experiments.length > 0 && experiments[0].status === 'OPEN'"
+    >
       <q-btn size="sm" icon="add" label="New Plate" class="oa-button">
         <q-menu>
           <q-list size="sm" dense>
@@ -118,7 +121,13 @@
       </div>
     </template>
   </oa-table>
-  <PlateActionMenu :plate="selectedPlate" touch-position @open="open" />
+  <PlateActionMenu
+    :plate="selectedPlate"
+    :plates="selectedPlates"
+    @onDeletePlates="deletePlates"
+    @open="open"
+    touch-position
+  />
 </template>
 
 <script setup>
@@ -131,6 +140,7 @@ import FormatUtils from "@/lib/FormatUtils";
 import FilterUtils from "@/lib/FilterUtils.js";
 import { useExportTableData } from "@/composable/exportTableData";
 import OaTable from "@/components/table/OaTable.vue";
+import { usePlateStore } from "../../stores/plate";
 
 const props = defineProps([
   "plates",
@@ -143,7 +153,8 @@ const emits = defineEmits([
   "update:newPlateTab",
   "showPlateInspector",
   "selection",
-  "open"
+  "updated",
+  "open",
 ]);
 
 const router = useRouter();
@@ -208,7 +219,6 @@ const columns = [
   },
 ];
 
-const experiment = computed(() => props.experiments);
 const plates = computed(() => props.plates);
 
 const filter = FilterUtils.makeFilter(columns);
@@ -301,6 +311,16 @@ function getUnique(value, index, array) {
   return array.indexOf(value) === index;
 }
 
+const plateStore = usePlateStore();
+function deletePlates() {
+  plateStore
+    .deletePlates(selectedPlates.value.map((plate) => plate.id))
+    .then(() => {
+      emits("updated");
+    });
+  selectedPlates.value = [];
+}
+
 const platesToExport = computed(() =>
   selectedPlates.value.length > 0 ? selectedPlates.value : plates.value
 );
@@ -327,5 +347,5 @@ const exportToXLSX = () => {
 
 const open = (resource) => {
   emits("open", resource);
-}
+};
 </script>
