@@ -100,7 +100,7 @@
       </div>
     </template>
   </oa-table>
-  <ExperimentMenu :experiment="selectedExperiment" touch-position />
+  <ExperimentMenu :experiment="selectedExperiment" touch-position @open="open" />
 
   <q-dialog v-model="showNewExperimentDialog">
     <q-card style="min-width: 30vw">
@@ -157,7 +157,7 @@ const props = defineProps({
   projects: [Object],
   selected: [Object],
 });
-const emits = defineEmits(["createNewExperiment", "selection"]);
+const emits = defineEmits(["createNewExperiment", "selection", "open"]);
 
 const router = useRouter();
 
@@ -377,6 +377,10 @@ onBeforeMount(() => {
     selectedExperiments.value = props.selected;
   }
 });
+
+const open = (resource) => {
+  emits("open", resource);
+}
 </script>
 
 <style scoped>

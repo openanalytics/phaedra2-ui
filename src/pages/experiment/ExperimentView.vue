@@ -150,6 +150,7 @@
                 v-model:newPlateTab="showNewPlateDialog"
                 v-model:newPlateFromMeasurements="showNewPlateFromMeasDialog"
                 @selection="handlePlateSelection"
+                @open="handleOpen"
               />
             </q-tab-panel>
             <q-tab-panel name="statistics" class="q-pa-none">
@@ -225,12 +226,14 @@ import { Pane, Splitpanes } from "splitpanes";
 import { useUIStore } from "@/stores/ui";
 import NewPlateDialog from "@/pages/experiment/NewPlateDialog.vue";
 import NewPlateFromMeasurementDialog from "@/pages/experiment/NewPlateFromMeasurementDialog.vue";
+import { useLoadingHandler } from "@/composable/loadingHandler";
 
 const uiStore = useUIStore();
 const projectStore = useProjectStore();
 const experimentStore = useExperimentStore();
 const route = useRoute();
 const router = useRouter();
+const loadingHandler = useLoadingHandler();
 
 const activeTab = ref("overview");
 const horizontal = ref(false);
@@ -316,4 +319,57 @@ const handlePlateSelection = async (plates) => {
   uiStore.selectedPlates = plates;
   if (uiStore.selectedPlate) await uiStore.loadSelectedPlate(plates[0].id);
 };
+
+const handleOpen = async (resource) => {
+  switch (resource.resource) {
+    case 'wells':
+      router.push({
+        name: "plate",
+        params: { plateId: resource.parentId },
+        query: { activeTab: "wells" },
+      })
+      break
+    case 'scatterplot':
+      await loadingHandler.handleLoadingDuring(
+        uiStore.loadSelectedPlate(resource.parentId)
+      );
+      uiStore.addChartView({
+        type: "scatter",
+        plateId: resource.parentId,
+        label: "Scatter Plot",
+      });
+      break
+    case 'boxplot':
+      await loadingHandler.handleLoadingDuring(
+        uiStore.loadSelectedPlate(resource.parentId)
+      );
+      uiStore.addChartView({
+        type: "box",
+        plateId: resource.parentId,
+        label: "Box Plot",
+      });
+      break
+    case 'histogram':
+      await loadingHandler.handleLoadingDuring(
+        uiStore.loadSelectedPlate(resource.parentId)
+      );
+      uiStore.addChartView({
+        type: "histogram",
+        plateId: resource.parentId,
+        label: "Histogram",
+      });
+      break
+    case 'experiment':
+      if (uiStore.isExperimentSelected()) {
+        uiStore.addChartView({
+          type: "trend",
+          experimentId: resource.parentId,
+          label: "Experiment Trend Chart",
+        });
+      }
+      break
+    default:
+      break
+  }
+}
 </script>
