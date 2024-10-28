@@ -133,10 +133,11 @@
     v-model:show="showExportPlateListDialog"
     :experiment="experiments"
   />
-  <!-- <export-well-data-dialog
+  <export-well-data-dialog
+    v-if="experiments.length > 0"
     v-model:show="showExportWellDataDialog"
-    :experiment="experiment"
-  /> -->
+    :experiment="experiments"
+  />
 </template>
 
 <script setup>
@@ -243,8 +244,6 @@ const addExperimentPlateTrendChart = (experimentId) => {
   emit("open", { resource: "experiment", parentId: experimentId });
 };
 
-const exportPlateList = openExportPlateListDialog;
-const exportPlateWellData = openExportWellDataDialog;
 const exportPlateSubWellData = () =>
   notify.showWarning("Feature is under construction!");
 
