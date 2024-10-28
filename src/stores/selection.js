@@ -3,6 +3,8 @@ import { defineStore } from "pinia";
 import projectsGraphQlAPI from "@/api/graphql/projects";
 import experimentsGraphQlAPI from "@/api/graphql/experiments";
 import resultDataGraphQlAPI from "@/api/graphql/resultdata";
+import platesApi from "@/api/plates";
+import WellUtils from "@/lib/WellUtils.js";
 
 export const useSelectionStore = defineStore("selection", () => {
   const localProjects = ref([]);
@@ -14,6 +16,11 @@ export const useSelectionStore = defineStore("selection", () => {
   const selectedExperiments = ref([]);
   const selectedPlates = ref([]);
   const selectedWells = ref([]);
+
+  const selectedProjectDetails = ref({});
+  const selectedExperimentDetails = ref({});
+  const selectedPlateDetails = ref({});
+  const selectedWellDetails = ref({});
 
   const activeMeasurement = ref(null);
   const measurements = ref([]);
@@ -238,13 +245,37 @@ export const useSelectionStore = defineStore("selection", () => {
     });
   }
 
+  watch(selectedWells, (newVal, oldVal) => {
+    if (newVal.length > 0) {
+      let flag = false;
+      newVal.forEach((element) => {
+        if (!oldVal.find((el) => element == el)) {
+          flag = true;
+          if (selectedWellDetails.value.id != element.id) {
+            fetchWell(element.id);
+          }
+        }
+      });
+      if (
+        !flag &&
+        newVal.length > 0 &&
+        !newVal.find((el) => el.id == selectedWellDetails.value.id)
+      ) {
+        fetchWell(newVal[0].id);
+      }
+    } else {
+      selectedWellDetails.value = {};
+    }
+  });
+
   watch(selectedPlates, (newVal, oldVal) => {
     if (newVal.length > 0) {
       let flag = false;
       newVal.forEach((element) => {
         if (!oldVal.find((el) => element == el)) {
           flag = true;
-          if (plateChart.value.plate?.id != element.id) {
+          if (selectedPlateDetails.value.id != element.id) {
+            fetchPlate(element.id);
             loadPlateProtocols(element);
             loadPlateMeasurements(element.id);
             loadWells(element.id);
@@ -254,13 +285,15 @@ export const useSelectionStore = defineStore("selection", () => {
       if (
         !flag &&
         newVal.length > 0 &&
-        !newVal.find((el) => el.id == plateChart.value.plate?.id)
+        !newVal.find((el) => el.id == selectedPlateDetails.value.id)
       ) {
+        fetchPlate(newVal[0].id);
         loadPlateProtocols(newVal[0]);
         loadPlateMeasurements(newVal[0].id);
         loadWells(newVal[0].id);
       }
     } else {
+      selectedPlateDetails.value = {};
       plateChart.value.plate = undefined;
     }
   });
@@ -271,7 +304,8 @@ export const useSelectionStore = defineStore("selection", () => {
       newVal.forEach((element) => {
         if (!oldVal.find((el) => element == el)) {
           flag = true;
-          if (chart.value.experiment?.id != element.id) {
+          if (selectedExperimentDetails.value.id != element.id) {
+            selectedExperimentDetails.value = fetchExperiment(element.id);
             chart.value = {
               experiment: element,
               label: "Experiment Trend Chart",
@@ -284,8 +318,9 @@ export const useSelectionStore = defineStore("selection", () => {
       if (
         !flag &&
         newVal.length > 0 &&
-        !newVal.find((el) => el.id == chart.value.experiment?.id)
+        !newVal.find((el) => el.id == selectedExperimentDetails.value?.id)
       ) {
+        selectedExperimentDetails.value = fetchExperiment(newVal[0].id);
         chart.value = {
           experiment: newVal[0],
           label: "Experiment Trend Chart",
@@ -294,6 +329,7 @@ export const useSelectionStore = defineStore("selection", () => {
         };
       }
     } else {
+      selectedExperimentDetails.value = {};
       chart.value.experiment = undefined;
     }
     loadExperiment(selectedExperimentsIds.value);
@@ -303,7 +339,56 @@ export const useSelectionStore = defineStore("selection", () => {
     loadPlate(selectedPlatesIds.value);
   });
 
-  watch(selectedProjects, () => {
+  const fetchProject = async (id) => {
+    const { onResult } = projectsGraphQlAPI.projectById(id);
+    onResult(({ data }) => {
+      selectedProjectDetails.value = data.project;
+    });
+  };
+
+  const fetchExperiment = async (id) => {
+    const { onResult } = projectsGraphQlAPI.experimentById(id);
+    onResult(({ data }) => {
+      selectedExperimentDetails.value = data.experiment;
+    });
+  };
+
+  const fetchPlate = async (id) => {
+    selectedPlateDetails.value = await platesApi.getPlateById(id);
+  };
+
+  const fetchWell = async (wellId) => {
+    const { onResult, onError } = projectsGraphQlAPI.wellById(wellId);
+    onResult(({ data }) => {
+      selectedWellDetails.value = data.well;
+      selectedWellDetails.value["pos"] = WellUtils.getWellCoordinate(
+        selectedWellDetails.value.row,
+        selectedWellDetails.value.column
+      );
+    });
+  };
+
+  watch(selectedProjects, (newVal, oldVal) => {
+    if (newVal.length > 0) {
+      let flag = false;
+      newVal.forEach((element) => {
+        if (!oldVal.find((el) => element == el)) {
+          flag = true;
+          if (selectedProjectDetails.value.id != element.id) {
+            fetchProject(element.id);
+          }
+        }
+      });
+      if (
+        !flag &&
+        newVal.length > 0 &&
+        !newVal.find((el) => el.id == selectedProjectDetails.value.id)
+      ) {
+        fetchProject(newVal[0]);
+      }
+    } else {
+      selectedProjectDetails.value = {};
+    }
     loadProjects(selectedProjectsIds.value);
   });
 
@@ -320,6 +405,10 @@ export const useSelectionStore = defineStore("selection", () => {
     plates,
     wells,
     loadPlate,
+    fetchProject,
+    fetchExperiment,
+    fetchPlate,
+    fetchWell,
     loadProjects,
     loadExperiment,
     detectChanges,
@@ -332,6 +421,10 @@ export const useSelectionStore = defineStore("selection", () => {
     plateChart,
     chart,
     heatmapWells,
+    selectedProjectDetails,
+    selectedExperimentDetails,
+    selectedPlateDetails,
+    selectedWellDetails,
     fetchProjects,
   };
 });

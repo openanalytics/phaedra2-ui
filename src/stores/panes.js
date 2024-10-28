@@ -173,15 +173,13 @@ export const usePanesStore = defineStore("panes", () => {
     dynamicPanes.value = value;
   }
 
-  function openTab(tabId, fromId) {
+  function openTab(tabId) {
     const newTab = panesList.value.find((pane) => pane.id == tabId);
     const panes = activePanes.value.filter((pane) => {
       return pane.groupBy && pane.groupBy == newTab.groupBy;
     });
     if (panes.length > 0) {
       addItem(tabId, panes[0].id, "center");
-    } else if (fromId) {
-      addItem(tabId, fromId, "right");
     } else {
       addMenuItem(tabId);
     }
@@ -189,37 +187,6 @@ export const usePanesStore = defineStore("panes", () => {
 
   function closeAllTabs() {
     dynamicPanes.value = [];
-  }
-
-  function openWorkbenchTab(resource, from) {
-    switch (resource.resource) {
-      case "project":
-        openTab(`${resource.resource}-details-pane`, "project-list-pane");
-        break
-      case "experiment":
-        if (from === 'project') {
-          openTab(`${resource.resource}-list-pane`, "project-list-pane");
-        } else if (from === 'experiment') {
-          openTab(`${resource.resource}-chart-pane`, "experiment-list-pane");
-        } else if (from === 'plates') {
-          openTab(`${resource.resource}-chart-pane`, "plates-list-pane");
-        }
-        break
-      case "plates":
-        openTab(`${resource.resource}-list-pane`, "experiment-list-pane");
-        break
-      case 'wells':
-        openTab(`${resource.resource}-list-pane`, "plates-list-pane")
-        break
-      case 'scatterplot':
-      case 'boxplot':
-      case 'histogram':
-      case 'heatmap':
-          openTab(`${resource.resource}-chart-pane`, "plates-list-pane");
-        break
-      default:
-        break
-    }
   }
 
   return {
@@ -235,6 +202,5 @@ export const usePanesStore = defineStore("panes", () => {
     moveItem,
     openTab,
     closeAllTabs,
-    openWorkbenchTab,
   };
 });

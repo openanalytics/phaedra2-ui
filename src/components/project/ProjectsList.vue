@@ -23,9 +23,10 @@
   </oa-table>
   <ProjectActionMenu
     :projects="selectedProjects"
+    @open="open"
     @onDeleteProject="deleteProjects"
+    @addTag="doAddTag"
   />
-  <ProjectActionMenu :projects="selectedProjects" @open="open" />
 </template>
 
 <script setup>

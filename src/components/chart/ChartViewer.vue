@@ -77,6 +77,7 @@
   </div>
 
   <WellActionMenu
+    :well="uiStore.selectedWells[0]"
     touch-position
     context-menu
     @acceptWells="handleAcceptWells"

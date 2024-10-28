@@ -291,10 +291,12 @@ watch(selectedPlates, (newVal) => {
 watch(
   () => props.plates,
   (newVal) => {
-    const ids = newVal.map((item) => item.id);
-    selectedPlates.value = selectedPlates.value.filter((item) =>
-      ids.includes(item.id)
-    );
+    if (newVal) {
+      const ids = newVal.map((item) => item.id);
+      selectedPlates.value = selectedPlates.value.filter((item) =>
+        ids.includes(item.id)
+      );
+    }
   }
 );
 

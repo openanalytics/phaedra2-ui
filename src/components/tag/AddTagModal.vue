@@ -44,7 +44,6 @@
 
 <script setup>
 import { computed, ref } from "vue";
-import {addTag, addTags} from "../../lib/MetadataUtils";
 
 const props = defineProps(["show", "projects"]);
 const emit = defineEmits(["addTag", "update:show"]);
@@ -61,18 +60,6 @@ const showAddTagDialog = ref(false);
 const newTag = ref("");
 
 function doAddTag() {
-  const projectsArray = Array.from(props.projects);
-  const newTagLocal = newTag.value;
-  addTags(projectsArray.map(prj => prj.id), "PROJECT", newTagLocal, () => {
-    projectsArray.forEach((project) => {
-      project.tags = [...project.tags, newTagLocal];
-    });
-  });
-  // projectsArray.forEach((project) => {
-  //   addTag(project.id, "PROJECT", newTagLocal, () => {}).then(() => {
-  //     project.tags = [...project.tags, newTagLocal];
-  //   });
-  // });
-  emit("addTag");
+  emit("addTag", newTag.value);
 }
 </script>
