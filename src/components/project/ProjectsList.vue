@@ -21,11 +21,9 @@
       </q-td>
     </template>
   </oa-table>
-  <ProjectActionMenu
-    :projects="selectedProjects"
-    @onDeleteProject="deleteProjects"
-  />
-  <ProjectActionMenu :projects="selectedProjects" @open="open" />
+  <ProjectActionMenu :projects="selectedProjects"
+  @onDeleteProject="deleteProjects"
+   @open="open" />
 </template>
 
 <script setup>

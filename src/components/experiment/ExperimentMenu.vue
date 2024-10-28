@@ -128,11 +128,12 @@
     v-model:show="showCalculatePlateDialog"
     :plates="plates"
   />
-  <!-- <export-plate-list-dialog
+  <export-plate-list-dialog
+    v-if="experiments.length > 0"
     v-model:show="showExportPlateListDialog"
     :experiment="experiments"
   />
-  <export-well-data-dialog
+  <!-- <export-well-data-dialog
     v-model:show="showExportWellDataDialog"
     :experiment="experiment"
   /> -->
