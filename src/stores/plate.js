@@ -54,8 +54,10 @@ export const usePlateStore = defineStore("plate", () => {
     });
   }
 
-  async function reloadPlate() {
-    await loadPlate(plate.value.id);
+  async function reloadPlate(id) {
+    if (id) {
+      await loadPlate(id);
+    }
   }
 
   async function reloadPlateWells() {
@@ -105,21 +107,12 @@ export const usePlateStore = defineStore("plate", () => {
     });
   }
 
-  async function renamePlate(newBarcode) {
-    await plateAPI.editPlate({ id: plate.value.id, barcode: newBarcode });
-    await reloadPlate();
+  async function editPlate(id, newVal) {
+    await plateAPI.editPlate({ id: id, ...newVal });
   }
 
-  async function editPlateDescription(newDescription) {
-    await plateAPI.editPlate({
-      id: plate.value.id,
-      description: newDescription,
-    });
-    await reloadPlate();
-  }
-
-  async function deletePlate() {
-    await plateAPI.deletePlateById(plate.value.id);
+  async function deletePlate(id) {
+    await plateAPI.deletePlateById(id);
     reset();
   }
 
@@ -140,24 +133,24 @@ export const usePlateStore = defineStore("plate", () => {
     await calculationsAPI.fitDoseResponseCurves();
   }
 
-  async function handleAddTag(newTag) {
+  async function handleAddTag(id, newTag) {
     isMetadataUpdate.value = true;
-    await addTag(plate.value.id, "PLATE", newTag, reloadPlate);
+    await addTag(id, "PLATE", newTag, reloadPlate);
   }
 
-  async function handleDeleteTag(tag) {
+  async function handleDeleteTag(id, tag) {
     isMetadataUpdate.value = true;
-    await deleteTag(plate.value.id, "PLATE", tag, reloadPlate);
+    await deleteTag(id, "PLATE", tag, reloadPlate);
   }
 
-  async function handleAddProperty(newProperty) {
+  async function handleAddProperty(id, newProperty) {
     isMetadataUpdate.value = true;
-    await addProperty(plate.value.id, "PLATE", newProperty, reloadPlate);
+    await addProperty(id, "PLATE", newProperty, reloadPlate);
   }
 
-  async function handleDeleteProperty(property) {
+  async function handleDeleteProperty(id, property) {
     isMetadataUpdate.value = true;
-    await deleteProperty(plate.value.id, "PLATE", property, reloadPlate);
+    await deleteProperty(id, "PLATE", property, reloadPlate);
   }
 
   async function acceptWells(wells) {
@@ -207,8 +200,6 @@ export const usePlateStore = defineStore("plate", () => {
     loadPlateCalculations,
     loadPlateProtocols,
     loadPlateCurves,
-    renamePlate,
-    editPlateDescription,
     deletePlate,
     deletePlates,
     isLoaded,
@@ -219,6 +210,7 @@ export const usePlateStore = defineStore("plate", () => {
     handleAddProperty,
     handleDeleteProperty,
     acceptWells,
+    editPlate,
     rejectWells,
   };
 });

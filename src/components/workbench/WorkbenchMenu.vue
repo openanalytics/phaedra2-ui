@@ -67,7 +67,7 @@ const items = [
     category: "EXPERIMENTS",
     panes: [
       panesList.value.find((pane) => pane.id == "experiment-list-pane"),
-      // panesList.value.find((pane) => pane.id == "experiment-details-pane")
+      panesList.value.find((pane) => pane.id == "experiment-details-pane"),
       panesList.value.find((pane) => pane.id == "experiment-chart-pane"),
     ],
   },
@@ -75,7 +75,7 @@ const items = [
     category: "PLATES",
     panes: [
       panesList.value.find((pane) => pane.id == "plates-list-pane"),
-      // panesList.value.find((pane) => pane.id == "experiment-details-pane")
+      panesList.value.find((pane) => pane.id == "plate-details-pane"),
       panesList.value.find((pane) => pane.id == "scatterplot-chart-pane"),
       panesList.value.find((pane) => pane.id == "boxplot-chart-pane"),
       panesList.value.find((pane) => pane.id == "histogram-chart-pane"),
@@ -85,6 +85,7 @@ const items = [
     category: "WELLS",
     panes: [
       panesList.value.find((pane) => pane.id == "wells-list-pane"),
+      panesList.value.find((pane) => pane.id == "well-details-pane"),
       panesList.value.find((pane) => pane.id == "heatmap-chart-pane"),
     ],
   },

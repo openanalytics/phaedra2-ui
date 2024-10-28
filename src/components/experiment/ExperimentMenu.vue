@@ -1,5 +1,16 @@
 <template>
   <q-menu context-menu>
+    <q-item
+      v-show="route.name == 'workbench'"
+      dense
+      clickable
+      @click="openExperimentDetails"
+    >
+      <q-item-section avatar>
+        <q-icon name="details" />
+      </q-item-section>
+      <q-item-section>Open Experiment Details</q-item-section>
+    </q-item>
     <q-list dense>
       <div v-if="isOpen">
         <menu-item
@@ -91,13 +102,13 @@
         @click="openDeleteDialog"
         v-close-popup
       />
-      <!-- <menu-item
-        v-if="isOpen"
+      <menu-item
+        v-if="isOpen && route.name == 'workbench'"
         icon="details"
         label="Open Experiment Details"
         @click="openExperimentDetails"
         v-close-popup
-      /> -->
+      />
       <menu-item
         v-if="isOpen && route.name == 'workbench'"
         icon="science"
@@ -240,8 +251,8 @@ const handleSetPlateLayout = () => {
 };
 
 const uiStore = useUIStore();
-const addExperimentPlateTrendChart = (experimentId) => {
-  emit("open", { resource: "experiment", parentId: experimentId });
+const addExperimentPlateTrendChart = () => {
+  emit("open", "experiment-chart-pane");
 };
 
 const exportPlateSubWellData = () =>
@@ -258,6 +269,10 @@ const handleExperimentSelection = (action, onFailureMessage) => {
 };
 
 const openPlates = () => {
-  emit("open", { resource: "plates" });
+  emit("open", "plates-list-pane");
+};
+
+const openExperimentDetails = () => {
+  emit("open", "experiment-details-pane");
 };
 </script>

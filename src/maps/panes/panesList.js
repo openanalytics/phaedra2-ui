@@ -13,6 +13,9 @@ import { useSelectionStore } from "@/stores/selection";
 import { usePanesStore } from "@/stores/panes";
 import TrendChart from "@/components/chart/TrendChart.vue";
 import Chart from "@/components/chart/Chart.vue";
+import ExperimentDetails from "@/components/experiment/ExperimentDetails.vue";
+import PlateDetails from "@/pages/plate/PlateDetails.vue";
+import WellDetails from "@/pages/well/WellDetails.vue";
 
 export function usePanesList() {
   const selectionStore = useSelectionStore();
@@ -73,23 +76,23 @@ export function usePanesList() {
       },
       selection: (e) => (selectionStore.selectedProjects = e),
       updated: () => selectionStore.fetchProjects(),
-      open: (e) => (panesStore.openWorkbenchTab(e, 'project')),
+      open: (e) => panesStore.openTab(e),
       groupBy: "list",
     },
     {
       component: ProjectDetails,
       id: "project-details-pane",
       title: "Project Details",
-      label: `Project Details (${selectionStore.selectedProjects[0]?.name || "none selected"})`,
+      label: `Project Details (${selectionStore.selectedProjectDetails?.name || "none selected"})`,
       icon: "details",
       closable: true,
       props: {
-        project:
-          selectionStore.selectedProjects.length > 0
-            ? selectionStore.selectedProjects[0]
-            : undefined,
+        project: selectionStore.selectedProjectDetails,
       },
       groupBy: "details",
+      open: (e) => panesStore.openTab(e),
+      updated: () =>
+        selectionStore.fetchProject(selectionStore.selectedProjectDetails.id),
     },
     {
       component: ExperimentList,
@@ -105,8 +108,25 @@ export function usePanesList() {
       },
       selection: (e) => (selectionStore.selectedExperiments = e),
       updated: () => selectionStore.loadProjects(),
-      open: (e) => (panesStore.openWorkbenchTab(e, "experiment")),
+      open: (e) => panesStore.openTab(e),
       groupBy: "list",
+    },
+    {
+      component: ExperimentDetails,
+      id: "experiment-details-pane",
+      title: "Experiment Details",
+      label: `Experiment Details (${selectionStore.selectedExperimentDetails?.name || "none selected"})`,
+      icon: "details",
+      closable: true,
+      props: {
+        experiment: selectionStore.selectedExperimentDetails,
+      },
+      groupBy: "details",
+      open: (e) => panesStore.openTab(e),
+      updated: () =>
+        selectionStore.fetchExperiment(
+          selectionStore.selectedExperimentDetails.id
+        ),
     },
     {
       component: TrendChart,
@@ -139,8 +159,23 @@ export function usePanesList() {
       },
       selection: (e) => (selectionStore.selectedPlates = e),
       updated: () => selectionStore.loadExperiment(),
-      open: (e) => (panesStore.openWorkbenchTab(e, "plates")),
+      open: (e) => panesStore.openTab(e),
       groupBy: "list",
+    },
+    {
+      component: PlateDetails,
+      id: "plate-details-pane",
+      title: "Plate Details",
+      label: `Plate Details (${selectionStore.selectedPlateDetails?.barcode || "none selected"})`,
+      icon: "details",
+      closable: true,
+      props: {
+        plate: selectionStore.selectedPlateDetails,
+        activeMeasurement: selectionStore.activeMeasurement,
+      },
+      groupBy: "details",
+      updated: () =>
+        selectionStore.fetchPlate(selectionStore.selectedPlateDetails.id),
     },
     {
       component: Chart,
@@ -208,6 +243,20 @@ export function usePanesList() {
       },
       selection: (e) => (selectionStore.selectedWells = e),
       groupBy: "list",
+    },
+    {
+      component: WellDetails,
+      id: "well-details-pane",
+      title: "Well Details",
+      label: `Well Details (${selectionStore.selectedWellDetails?.pos || "none selected"})`,
+      icon: "details",
+      closable: true,
+      props: {
+        well: selectionStore.selectedWellDetails,
+      },
+      groupBy: "details",
+      updated: () =>
+        selectionStore.fetchWell(selectionStore.selectedWellDetails.id),
     },
     {
       component: PlateHeatmap,

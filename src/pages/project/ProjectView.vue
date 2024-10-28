@@ -12,14 +12,11 @@
         title="Loading project..."
         icon="folder"
       />
-      <oa-section
+      <ProjectDetails
         v-else
-        :title="projectStore.project.name"
-        icon="folder"
-        :collapsible="true"
-      >
-        <ProjectDetails :project="projectStore.project" />
-      </oa-section>
+        :project="projectStore.project"
+        @updated="projectStore.reloadProject(projectStore.projectId)"
+      />
     </div>
 
     <splitpanes class="default-theme" :horizontal="horizontal">
@@ -52,19 +49,6 @@
         />
       </pane>
     </splitpanes>
-    <rename-dialog
-      v-model:show="showRenameDialog"
-      objectClass="project"
-      :object="projectStore.project"
-      @valueChanged="onNameChanged"
-    />
-    <delete-dialog
-      v-model:show="showDeleteDialog"
-      :id="projectStore.project?.id"
-      :name="projectStore.project?.name"
-      :objectClass="'project'"
-      @onDeleted="onDeleted"
-    />
   </q-page>
 </template>
 
@@ -107,56 +91,23 @@ const onCreateNewExperiment = async (newExperiment) => {
   await projectStore.addExperiment(newExperiment);
 };
 
-const onDeleted = async () => {
-  await projectStore.deleteProject();
-  await router.push({ name: "browseProjects" });
-};
-
-const onAddAccess = async (newAccess) => {
-  await projectStore.createProjectAccess(newAccess);
-};
-
-const onRemoveAccess = async (access) => {
-  await projectStore.deleteProjectAccess(access);
-};
-
-const onAddTag = async (newTag) => {
-  await projectStore.handleAddTag(newTag);
-};
-
-const onRemoveTag = async (tag) => {
-  await projectStore.handleDeleteTag(tag);
-};
-
-const onAddProperty = async (newProperty) => {
-  await projectStore.handleAddProperty(newProperty);
-};
-
-const onRemoveProperty = async (property) => {
-  await projectStore.handleDeleteProperty(property);
-};
-
-const openDeleteDialog = () => {
-  showDeleteDialog.value = true;
-};
-
 const handleSelection = (experiments) => {
   uiStore.selectedExperiments = experiments;
 };
 
-const handleOpen = async (resource) => {
-  switch (resource.resource) {
-    case 'experiment':
+const handleOpen = async (id) => {
+  switch (id) {
+    case "experiment-chart-pane":
       if (uiStore.isExperimentSelected()) {
         uiStore.addChartView({
           type: "trend",
-          experimentId: resource.parentId,
+          experimentId: uiStore.selectedExperiment.id,
           label: "Experiment Trend Chart",
         });
       }
-      break
+      break;
     default:
-      break
+      break;
   }
-}
+};
 </script>

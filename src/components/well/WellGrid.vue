@@ -1,19 +1,27 @@
 <template>
   <div class="row relative-position" ref="rootElement">
     <div class="loadingAnimation" v-if="loading">
-      <q-spinner-pie color="info" size="10em"/>
+      <q-spinner-pie color="info" size="10em" />
     </div>
 
-    <div v-if="plate" style="width: 100%;" class="gridContainer"
-        @mousedown="selectionBoxSupport.dragStart"
-        @mousemove="selectionBoxSupport.dragMove"
-        @mouseup="selectionBoxSupport.dragEnd"
-        @dblclick="gotoWellView">
-
+    <div
+      v-if="plate"
+      style="width: 100%"
+      class="gridContainer"
+      @mousedown="selectionBoxSupport.dragStart"
+      @mousemove="selectionBoxSupport.dragMove"
+      @mouseup="selectionBoxSupport.dragEnd"
+      @dblclick="gotoWellView"
+    >
       <div><!-- Corner slot --></div>
 
       <!-- Column headers -->
-      <div class="gridHeaderSlot" v-for="n in plate.columns" :key="n" @click="selectColumn(n, $event.ctrlKey)">
+      <div
+        class="gridHeaderSlot"
+        v-for="n in plate.columns"
+        :key="n"
+        @click="selectColumn(n, $event.ctrlKey)"
+      >
         {{ n }}
       </div>
 
@@ -23,23 +31,54 @@
           {{ WellUtils.getWellRowLabel(r) }}
         </div>
         <!-- Plate row -->
-        <template v-for="c in plate.columns" :key="c" >
-          <template v-for="well in [wells[WellUtils.getWellNr(r, c, plate.columns) - 1]]" :key="well">
-            <div class="column well wellSlot align-center justify-center" v-ripple
-                  :class="{ skipped: well?.skipped, highlight: wellHighlights[WellUtils.getWellNr(r, c, plate.columns) - 1] }"
-                  :style="{ backgroundColor: wellColorFunction ? wellColorFunction(well || {}) : '#969696' }"
-                  :ref="slot => addWellSlot(slot, r, c)">
-
+        <template v-for="c in plate.columns" :key="c">
+          <template
+            v-for="well in [
+              wells[WellUtils.getWellNr(r, c, plate.columns) - 1],
+            ]"
+            :key="well"
+          >
+            <div
+              class="column well wellSlot align-center justify-center"
+              v-ripple
+              :class="{
+                skipped: well?.skipped,
+                highlight:
+                  wellHighlights[WellUtils.getWellNr(r, c, plate.columns) - 1],
+              }"
+              :style="{
+                backgroundColor: wellColorFunction
+                  ? wellColorFunction(well || {})
+                  : '#969696',
+              }"
+              :ref="(slot) => addWellSlot(slot, r, c)"
+            >
               <div v-if="WellUtils.isRejected(well)" class="absolute-center">
-                  <img :src="publicPath + 'rejected_cross.svg'" class="vertical-middle" style="width: 100%; height: 100%;"/>
+                <img
+                  :src="publicPath + 'rejected_cross.svg'"
+                  class="vertical-middle"
+                  style="width: 100%; height: 100%"
+                />
               </div>
-              <div v-if="wellImageFunction" class="full-height row items-center justify-center">
+              <div
+                v-if="wellImageFunction"
+                class="full-height row items-center justify-center"
+              >
                 <img :src="wellImages[well.nr]" />
               </div>
               <div v-if="wellLabelFunctions" class="contrastText">
-                <span v-for="wellLabelFunction in wellLabelFunctions" :key="wellLabelFunction" class="wellLabel" style="white-space: pre;"
-                :style="{ color: wellColorFunction ? wellColorFunction(well || {}) : '#969696' }">
-                    {{ wellLabelFunction(well || {}) }}
+                <span
+                  v-for="wellLabelFunction in wellLabelFunctions"
+                  :key="wellLabelFunction"
+                  class="wellLabel"
+                  style="white-space: pre"
+                  :style="{
+                    color: wellColorFunction
+                      ? wellColorFunction(well || {})
+                      : '#969696',
+                  }"
+                >
+                  {{ wellLabelFunction(well || {}) }}
                 </span>
               </div>
             </div>
@@ -49,67 +88,89 @@
     </div>
   </div>
 
-  <WellActionMenu touch-position context-menu
-                  @reject-wells="handleRejectWells"
-                  @accept-wells="handleAcceptWells"
-                  @show-dose-response-curve="handleShowDRCView"/>
+  <WellActionMenu
+    :well="uiStore.selectedWells[0]"
+    touch-position
+    context-menu
+    @reject-wells="handleRejectWells"
+    @accept-wells="handleAcceptWells"
+    @show-dose-response-curve="handleShowDRCView"
+  />
 </template>
 
 <script setup>
-import {ref, computed, watchEffect, onMounted, watch} from 'vue'
-import {useUIStore} from "@/stores/ui";
-import WellActionMenu from "@/components/well/WellActionMenu.vue"
-import WellUtils from "@/lib/WellUtils.js"
-import SelectionBoxHelper from "@/lib/SelectionBoxHelper.js"
-import {publicPath} from "../../../vue.config";
-import {usePlateStore} from "@/stores/plate";
-import {useNotification} from "@/composable/notification";
-import {useRouter} from "vue-router";
+import { ref, computed, watchEffect, onMounted, watch } from "vue";
+import { useUIStore } from "@/stores/ui";
+import WellActionMenu from "@/components/well/WellActionMenu.vue";
+import WellUtils from "@/lib/WellUtils.js";
+import SelectionBoxHelper from "@/lib/SelectionBoxHelper.js";
+import { publicPath } from "../../../vue.config";
+import { usePlateStore } from "@/stores/plate";
+import { useNotification } from "@/composable/notification";
+import { useRouter } from "vue-router";
 
-const props = defineProps(['plate', 'wells', 'loading', 'wellColorFunction', 'wellImageFunction', 'wellLabelFunctions'])
-const emit = defineEmits(['wellSelection', 'wellStatusChanged']);
-const uiStore = useUIStore()
-const plateStore = usePlateStore()
-const selWells = ref([])
+const props = defineProps([
+  "plate",
+  "wells",
+  "loading",
+  "wellColorFunction",
+  "wellImageFunction",
+  "wellLabelFunctions",
+]);
+const emit = defineEmits(["wellSelection", "wellStatusChanged"]);
+const uiStore = useUIStore();
+const plateStore = usePlateStore();
+const selWells = ref([]);
 
+const plate = computed(() => props.plate ?? {});
+const wells = computed(() => props.wells ?? []);
 
-
-const plate = computed(() => props.plate ?? {})
-const wells = computed(() => props.wells ?? [])
-
-const wellHighlights = ref([])
+const wellHighlights = ref([]);
 onMounted(() => {
-  if(router.name !== 'workbench') {
-    selWells.value = uiStore.selectedWells.value
+  if (router.name !== "workbench") {
+    selWells.value = uiStore.selectedWells.value;
   }
   wellHighlights.value = [...Array(props.wells?.length).keys()]
-    .map(nr => nr + 1)
-    .map(nr => selWells.value?.find(w => nr == WellUtils.getWellNr(w.row, w.column, plate.value?.columns)))
-})
+    .map((nr) => nr + 1)
+    .map((nr) =>
+      selWells.value?.find(
+        (w) => nr == WellUtils.getWellNr(w.row, w.column, plate.value?.columns)
+      )
+    );
+});
 
-watch(() => selWells.value, () => {
-  wellHighlights.value = [...Array(props.wells?.length).keys()]
-  .map(nr => nr + 1)
-  .map(nr => selWells.value?.find(w => nr == WellUtils.getWellNr(w.row, w.column, plate.value?.columns)));
-}, {deep: true})
+watch(
+  () => selWells.value,
+  () => {
+    wellHighlights.value = [...Array(props.wells?.length).keys()]
+      .map((nr) => nr + 1)
+      .map((nr) =>
+        selWells.value?.find(
+          (w) =>
+            nr == WellUtils.getWellNr(w.row, w.column, plate.value?.columns)
+        )
+      );
+  },
+  { deep: true }
+);
 
 const selectWells = (wells, append) => {
   if (!append) return wells;
   const selectedWells = [];
   for (const well of wells) {
-    if (!selWells.value.some(w => w.id === well.id)) {
+    if (!selWells.value.some((w) => w.id === well.id)) {
       selectedWells.push(well);
     }
   }
   return selectedWells;
-}
+};
 
-const router = useRouter()
+const router = useRouter();
 const gotoWellView = (event, row) => {
-  router.push({name: "well", params: { wellId: selWells.value[0].id }});
-}
+  router.push({ name: "well", params: { wellId: selWells.value[0].id } });
+};
 
-const wellImages = ref({})
+const wellImages = ref({});
 watchEffect(async () => {
   if (props.wellImageFunction) {
     for (const well of wells.value) {
@@ -120,12 +181,12 @@ watchEffect(async () => {
 
 const emitWellSelection = (wells, append) => {
   uiStore.selectedWells = selectWells(wells, append);
-  selWells.value = uiStore.selectedWells
-  emit('wellSelection', selWells.value);
+  selWells.value = uiStore.selectedWells;
+  emit("wellSelection", selWells.value);
 };
 
-window.addEventListener('keyup', function (event) {
-  if (selWells.value.length === 0) return;
+window.addEventListener("keyup", function (event) {
+  if (!selWells.value || selWells.value.length === 0) return;
   let currentWell = selWells.value[0];
   let nextPosition = [];
   switch (event.key) {
@@ -142,7 +203,11 @@ window.addEventListener('keyup', function (event) {
       nextPosition = [currentWell.row, currentWell.column + 1];
       break;
   }
-  const nextWell = WellUtils.getWell(wells.value, nextPosition[0], nextPosition[1]);
+  const nextWell = WellUtils.getWell(
+    wells.value,
+    nextPosition[0],
+    nextPosition[1]
+  );
   if (nextWell) emitWellSelection([nextWell]);
 });
 
@@ -154,42 +219,57 @@ const addWellSlot = (slot, row, col) => {
   const wellNr = WellUtils.getWellNr(row, col, plate.value.columns);
   wellSlots.value[wellNr - 1] = slot;
 };
-const selectionBoxSupport = SelectionBoxHelper.addSelectionBoxSupport(rootElement, wellSlots, (wellNrs, append) => {
-  emitWellSelection(wells.value.filter((well, i) => wellNrs.find(nr => nr === i + 1)), append);
-});
+const selectionBoxSupport = SelectionBoxHelper.addSelectionBoxSupport(
+  rootElement,
+  wellSlots,
+  (wellNrs, append) => {
+    emitWellSelection(
+      wells.value.filter((well, i) => wellNrs.find((nr) => nr === i + 1)),
+      append
+    );
+  }
+);
 
 const selectRow = (n, append) => {
-  emitWellSelection(wells.value.filter(w => w.row === n), append);
+  emitWellSelection(
+    wells.value.filter((w) => w.row === n),
+    append
+  );
 };
 const selectColumn = (n, append) => {
-  emitWellSelection(wells.value.filter(w => w.column === n), append);
+  emitWellSelection(
+    wells.value.filter((w) => w.column === n),
+    append
+  );
 };
 
 const gridColumnStyle = computed(() => {
-  return "repeat(" + (plate.value.columns + 1) + ", 1fr)"
+  return "repeat(" + (plate.value.columns + 1) + ", 1fr)";
 });
-const wellSlotMinHeight = ((props.wellLabelFunctions?.length || 1) * 15) + "px";
+const wellSlotMinHeight = (props.wellLabelFunctions?.length || 1) * 15 + "px";
 
 const wellSlotFontSize = ref(null);
 watchEffect(() => {
-  wellSlotFontSize.value = (props?.plate?.columns > 24) ? "0.4vw" : "65%";
+  wellSlotFontSize.value = props?.plate?.columns > 24 ? "0.4vw" : "65%";
 });
 
 const handleRejectWells = () => {
   if (selWells.value.length > 0) {
-    plateStore.rejectWells(selWells.value, 'REJECTED_PHAEDRA', 'Test well rejection').then(() => {
-      emit('wellStatusChanged')
-    })
+    plateStore
+      .rejectWells(selWells.value, "REJECTED_PHAEDRA", "Test well rejection")
+      .then(() => {
+        emit("wellStatusChanged");
+      });
   }
-}
+};
 
 const handleAcceptWells = () => {
   if (selWells.value.length > 0) {
     plateStore.acceptWells(selWells.value).then(() => {
-      emit('wellStatusChanged')
-    })
+      emit("wellStatusChanged");
+    });
   }
-}
+};
 </script>
 
 <style scoped>
@@ -222,15 +302,21 @@ const handleAcceptWells = () => {
 }
 
 .highlight {
-    border-color: #9ecaed;
-    box-shadow: 0 0 5px #9ecaed;
-    animation: blink-animation 1s linear infinite;
+  border-color: #9ecaed;
+  box-shadow: 0 0 5px #9ecaed;
+  animation: blink-animation 1s linear infinite;
 }
 
 @keyframes blink-animation {
-    0% { opacity: 1; }
-    50% { opacity: 0.5; }
-    100% { opacity: 1; }
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 .well {
@@ -246,12 +332,12 @@ const handleAcceptWells = () => {
 }
 
 .skipped {
-    background: repeating-linear-gradient(
-        -45deg,
-        #E5E5E5,
-        #E5E5E5 10px,
-        #0F0F0F 11px,
-        #0F0F0F 12px
+  background: repeating-linear-gradient(
+    -45deg,
+    #e5e5e5,
+    #e5e5e5 10px,
+    #0f0f0f 11px,
+    #0f0f0f 12px
   );
 }
 </style>

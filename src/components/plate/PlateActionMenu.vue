@@ -1,5 +1,16 @@
 <template>
   <q-menu context-menu>
+    <q-item
+      v-show="route.name == 'workbench'"
+      dense
+      clickable
+      @click="openPlateDetails"
+    >
+      <q-item-section avatar>
+        <q-icon name="details" />
+      </q-item-section>
+      <q-item-section>Open Plate Details</q-item-section>
+    </q-item>
     <q-list dense>
       <menu-item icon="table_rows" label="Browse Wells" @click="browseWells" />
       <menu-item
@@ -278,6 +289,7 @@ import LinkMeasurementDialog from "@/components/measurement/LinkMeasurementDialo
 import MenuItem from "@/components/widgets/MenuItem.vue";
 import { useLoadingHandler } from "@/composable/loadingHandler";
 import { useNotification } from "@/composable/notification";
+import { usePanesStore } from "@/stores/panes";
 
 const props = defineProps(["plate", "plates"]);
 const emit = defineEmits(["onDeletePlates", "open"]);
@@ -288,11 +300,12 @@ const route = useRoute();
 const experimentStore = useExperimentStore();
 const projectStore = useProjectStore();
 const loadingHandler = useLoadingHandler();
+const panesStore = usePanesStore();
 
 const hideMenu = ref(false);
 
 const browseWells = () => {
-  emit("open", { resource: "wells", parentId: props.plate.id });
+  emit("open", "wells-list-pane");
 };
 
 const browseDoseResponseCurves = () => {
@@ -408,27 +421,27 @@ const onDisapprovePlate = async (reason) => {
   showDisapproveDialog.value = false;
 };
 
-const addScatterPlot = async (plateId) => {
-  emit("open", { resource: "scatterplot", parentId: plateId });
+const addScatterPlot = async () => {
+  emit("open", "scatterplot-chart-pane");
   hideMenu.value = true;
 };
 
-const addBoxPlot = async (plateId) => {
-  emit("open", { resource: "boxplot", parentId: plateId });
+const addBoxPlot = async () => {
+  emit("open", "boxplot-chart-pane");
   hideMenu.value = true;
 };
 
-const addHistogram = async (plateId) => {
-  emit("open", { resource: "histogram", parentId: plateId });
+const addHistogram = async () => {
+  emit("open", "histogram-chart-pane");
   hideMenu.value = true;
 };
 
 const addHeatmap = () => {
-  emit("open", { resource: "heatmap", parentId: props.plate.id });
+  emit("open", "heatmap-chart-pane");
 };
 
-const addExperimentPlateTrendChart = (experimentId) => {
-  emit("open", { resource: "experiment", parentId: experimentId });
+const addExperimentPlateTrendChart = () => {
+  emit("open", "experiment-chart-pane");
 };
 
 const showDeleteDialog = ref(null);
@@ -461,5 +474,9 @@ const handleSetPlateLayout = () => {
     },
     () => {}
   );
+};
+
+const openPlateDetails = () => {
+  emit("open", { resource: "plate" });
 };
 </script>

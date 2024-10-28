@@ -37,7 +37,7 @@
       </q-item>
     </q-list>
 
-    <AddTagModal v-model:show="addTagModal" :projects="projects" />
+    <AddTagModal v-model:show="addTagModal" @addTag="(e) => doAddTag(e)" />
     <DeleteDialog
       v-model:show="showDeleteDialog"
       :items="projects"
@@ -55,6 +55,8 @@ import { usePanesStore } from "@/stores/panes";
 import { useExperimentStore } from "@/stores/experiment";
 import { useRoute } from "vue-router";
 import AddTagModal from "../tag/AddTagModal.vue";
+import { addTags } from "../../lib/MetadataUtils";
+
 const props = defineProps(["projects"]);
 const emit = defineEmits(["onDeleteProject", "open"]);
 
@@ -75,6 +77,22 @@ const handleDeleteProject = () => {
   emit("onDeleteProject");
 };
 
+function doAddTag(val) {
+  const projectsArray = Array.from(props.projects);
+  addTags(
+    projectsArray.map(
+      (prj) => prj.id,
+      "PROJECT",
+      val,
+      () => {
+        projectsArray.forEach((project) => {
+          project.tags = [...project.tags, val];
+        });
+      }
+    )
+  );
+}
+
 const firstProjectCondition = computed(
   () => props.projects && props.projects.length > 0
 );
@@ -89,13 +107,13 @@ const fetchProjectsData = () => {
 const openProjectDetails = () => {
   if (firstProjectCondition.value) {
     fetchProjectsData();
-    emit("open", {resource: 'project'})
+    emit("open", "project-details-pane");
   }
 };
 
 const openExperiments = () => {
   if (firstProjectCondition.value) {
-    emit("open", {resource: 'experiment'})
+    emit("open", "experiment-list-pane");
   }
 };
 

@@ -1,84 +1,88 @@
 <template>
-  <div class="row q-pa-md" v-if="project">
-    <div class="col-3">
-      <q-field label="ID" stack-label dense borderless>
-        <template v-slot:control>
-          {{ project.id }}
-        </template>
-      </q-field>
-      <q-field label="Description" stack-label dense borderless>
-        <template v-slot:control>
-          <EditableField
-            :object="project"
-            fieldName="description"
-            @valueChanged="onDescriptionChanged"
-          />
-        </template>
-      </q-field>
-      <q-field label="Tags" stack-label dense borderless>
-        <template v-slot:control>
-          <tag-list
-            :tags="project.tags"
-            @addTag="onAddTag"
-            @removeTag="onRemoveTag"
-            class="q-pt-xs"
-          />
-        </template>
-      </q-field>
-    </div>
+  <q-card
+    v-if="project && project.name"
+    flat
+    bordered
+    class="row justify-between"
+    style="width: 100%"
+  >
+    <q-card-section horizontal class="col-7">
+      <q-card-section class="q-pt-xs">
+        <div
+          style="width: 100%"
+          class="row align-center text-h5 q-mt-sm q-mb-xs"
+        >
+          <div>
+            <span>
+              {{ project.name }}
+            </span>
 
-    <div class="col-3 q-pl-md">
-      <q-field label="Created On" stack-label dense borderless>
-        <template v-slot:control>
-          {{ FormatUtils.formatDate(project.createdOn) }}
-        </template>
-      </q-field>
-      <q-field label="Created By" stack-label dense borderless>
-        <template v-slot:control>
-          <UserChip :id="project.createdBy" />
-        </template>
-      </q-field>
-      <q-field label="Access" stack-label dense borderless>
-        <template v-slot:control>
-          <AccessControlList
-            :projectAccess="project.access"
-            @addAccess="onAddAccess"
-            @removeAccess="onRemoveAccess"
-            class="q-mt-xs"
-          />
-        </template>
-      </q-field>
-    </div>
+            <span class="q-mx-sm" style="font-size: 0.7em"
+              >({{ project.id }}) <q-tooltip>ID</q-tooltip></span
+            >
+          </div>
+          <span>
+            <q-btn
+              round
+              dense
+              icon="edit"
+              size="xs"
+              color="positive"
+              @click="showEditDialog = true"
+              ><q-tooltip>Edit Project</q-tooltip></q-btn
+            >
+          </span>
+          <span class="q-ml-sm">
+            <q-btn
+              round
+              dense
+              icon="delete"
+              size="xs"
+              color="negative"
+              @click="showDeleteDialog = true"
+              ><q-tooltip>Delete Project</q-tooltip></q-btn
+            >
+          </span>
+        </div>
 
-    <div class="col-4">
+        <div class="row col-sm">
+          <div class="text-overline">
+            <UserChip :id="project.createdBy" onHoverMessage="Created By" />
+          </div>
+          <div class="text-overline">
+            <DateChip
+              :dateTime="project.createdOn"
+              onHoverMessage="Created On"
+            />
+          </div>
+        </div>
+
+        <div class="text-caption text-grey q-my-sm">
+          <EditableField readOnly :object="project" fieldName="description" />
+        </div>
+        <TagListEditable
+          :tags="project.tags"
+          @addTag="onAddTag"
+          @removeTag="onRemoveTag"
+          class="q-pt-xs"
+        />
+        <AccessControlListEditable
+          :projectAccess="project.access"
+          @addAccess="onAddAccess"
+          @removeAccess="onRemoveAccess"
+          class="q-mt-xs"
+        />
+      </q-card-section>
+    </q-card-section>
+
+    <q-card-section class="col-grow row justify-center">
       <PropertyTable
         :properties="project.properties"
         @addProperty="onAddProperty"
         @removeProperty="onRemoveProperty"
       />
-    </div>
-
-    <div class="col-2">
-      <div class="row justify-end">
-        <q-btn
-          size="sm"
-          icon="edit"
-          label="Rename"
-          class="oa-action-button"
-          @click="showRenameDialog = true"
-        />
-      </div>
-      <div class="row justify-end">
-        <q-btn
-          size="sm"
-          icon="delete"
-          label="Delete"
-          class="oa-action-button"
-          @click="openDeleteDialog"
-        />
-      </div>
-    </div>
-  </div>
+    </q-card-section>
+  </q-card>
 
   <div v-else class="absolute-center">
     <q-badge color="negative" class="q-pa-md text-weight-bold">{{
@@ -86,16 +90,14 @@
     }}</q-badge>
   </div>
 
-  <rename-dialog
-    v-model:show="showRenameDialog"
-    objectClass="project"
-    :object="project"
-    @valueChanged="onNameChanged"
+  <EditResourceDialog
+    v-model:show="showEditDialog"
+    :project="project"
+    @valueChanged="onEdited"
   />
   <delete-dialog
     v-model:show="showDeleteDialog"
-    :id="project?.id"
-    :name="project?.name"
+    :projects="[project]"
     :objectClass="'project'"
     @onDeleted="onDeleted"
   />
@@ -111,66 +113,81 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 
-import TagList from "@/components/tag/TagList";
 import PropertyTable from "@/components/property/PropertyTable";
 import EditableField from "@/components/widgets/EditableField";
 import UserChip from "@/components/widgets/UserChip";
-import AccessControlList from "@/components/widgets/AccessControlList";
 import DeleteDialog from "@/components/widgets/DeleteDialog";
-import RenameDialog from "@/components/widgets/RenameDialog";
+import EditResourceDialog from "@/components/widgets/EditResourceDialog";
 
-import FormatUtils from "@/lib/FormatUtils.js";
 import { useProjectStore } from "@/stores/project";
+import DateChip from "@/components/widgets/DateChip.vue";
+import TagListEditable from "@/components/tag/TagListEditable.vue";
+import AccessControlListEditable from "@/components//widgets/AccessControlListEditable.vue";
 
 const props = defineProps({
   project: Object,
 });
+const emits = defineEmits(["updated"]);
 
 const router = useRouter();
 const projectStore = useProjectStore();
 
 const showDeleteDialog = ref(false);
-const showRenameDialog = ref(false);
+const showEditDialog = ref(false);
 const errorMessage = "No project selected";
 
-const onNameChanged = async (newName) => {
-  await projectStore.renameProject(newName);
-};
-
-const onDescriptionChanged = async (newDescription) => {
-  await projectStore.editProjectDescription(newDescription);
+const onEdited = async (newVal) => {
+  await projectStore.editProject(props.project.id, newVal).then(() => {
+    emits("updated");
+  });
 };
 
 const onDeleted = async () => {
-  await projectStore.deleteProject();
+  await projectStore.deleteProject(props.project.id).then(() => {
+    emits("updated");
+  });
   await router.push({ name: "browseProjects" });
 };
 
 const onAddAccess = async (newAccess) => {
-  await projectStore.createProjectAccess(newAccess);
+  await projectStore
+    .createProjectAccess(props.project.id, newAccess)
+    .then(() => {
+      emits("updated");
+    });
 };
 
 const onRemoveAccess = async (access) => {
-  await projectStore.deleteProjectAccess(access);
+  await projectStore.deleteProjectAccess(access).then(() => {
+    emits("updated");
+  });
 };
 
 const onAddTag = async (newTag) => {
-  await projectStore.handleAddTag(newTag);
+  await projectStore.handleAddTag(props.project.id, newTag).then(() => {
+    emits("updated");
+  });
 };
 
 const onRemoveTag = async (tag) => {
-  await projectStore.handleDeleteTag(tag);
+  await projectStore.handleDeleteTag(props.project.id, tag).then(() => {
+    emits("updated");
+  });
 };
 
 const onAddProperty = async (newProperty) => {
-  await projectStore.handleAddProperty(newProperty);
+  await projectStore
+    .handleAddProperty(props.project.id, newProperty)
+    .then(() => {
+      emits("updated");
+    });
 };
 
 const onRemoveProperty = async (property) => {
-  await projectStore.handleDeleteProperty(property);
-};
-
-const openDeleteDialog = () => {
-  showDeleteDialog.value = true;
+  await projectStore
+    .handleDeleteProperty(props.project.id, property)
+    .then(() => {
+      emits("updated");
+    });
 };
 </script>

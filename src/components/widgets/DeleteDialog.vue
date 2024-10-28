@@ -50,7 +50,7 @@ import { useStore } from "vuex";
 
 const store = useStore();
 
-const props = defineProps(["id", "name", "objectClass", "show", "items"]);
+const props = defineProps(["objectClass", "show", "items"]);
 const emit = defineEmits(["onDeleted", "update:show"]);
 
 onMounted(() => {
@@ -78,7 +78,7 @@ const confirmDelete = () => {
     case "feature":
       break;
     case "formula":
-      store.dispatch("calculations/deleteFormula", props.id);
+      store.dispatch("calculations/deleteFormula", props.items[0].id);
       break;
   }
   emit("onDeleted");

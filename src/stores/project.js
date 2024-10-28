@@ -53,12 +53,17 @@ export const useProjectStore = defineStore("project", () => {
     });
     await reloadProject();
   };
-  const deleteProject = async () => {
-    await projectAPI.deleteProject(project.value.id);
+  const editProject = async (id, newVal) => {
+    await projectAPI.editProject({ id: id, ...newVal });
+  };
+
+  const deleteProject = async (id) => {
+    await projectAPI.deleteProject(id);
     await reset();
   };
-  const deleteProjects = async (projectsId) => {
-    await projectAPI.deleteProjects(projectsId);
+
+  const deleteProjects = async (ids) => {
+    await projectAPI.deleteProjects(ids);
     await reset();
   };
   const addExperiment = async (experiment) => {
@@ -78,26 +83,24 @@ export const useProjectStore = defineStore("project", () => {
     await experimentAPI.deleteExperiment(experimentId);
     await reloadProject();
   };
-  const createProjectAccess = async (newAccess) => {
-    newAccess["projectId"] = project.value.id;
+  const createProjectAccess = async (id, newAccess) => {
+    newAccess["projectId"] = id;
     await projectAPI.createProjectAccess(newAccess);
-    await reloadProject();
   };
   const deleteProjectAccess = async (access) => {
     await projectAPI.deleteProjectAccess(access.id);
-    await reloadProject();
   };
-  const handleAddTag = async (newTag) => {
-    await addTag(project.value.id, "PROJECT", newTag, reloadProject);
+  const handleAddTag = async (id, newTag) => {
+    await addTag(id, "PROJECT", newTag, null);
   };
-  const handleDeleteTag = async (tag) => {
-    await deleteTag(project.value.id, "PROJECT", tag, reloadProject);
+  const handleDeleteTag = async (id, tag) => {
+    await deleteTag(id, "PROJECT", tag, null);
   };
-  const handleAddProperty = async (newProperty) => {
-    await addProperty(project.value.id, "PROJECT", newProperty, reloadProject);
+  const handleAddProperty = async (id, newProperty) => {
+    await addProperty(id, "PROJECT", newProperty, null);
   };
-  const handleDeleteProperty = async (property) => {
-    await deleteProperty(project.value.id, "PROJECT", property, reloadProject);
+  const handleDeleteProperty = async (id, property) => {
+    await deleteProperty(id, "PROJECT", property, null);
   };
   const reset = () => {
     project.value = {};
@@ -124,5 +127,7 @@ export const useProjectStore = defineStore("project", () => {
     handleAddProperty,
     handleDeleteProperty,
     reset,
+    editProject,
+    reloadProject,
   };
 });
