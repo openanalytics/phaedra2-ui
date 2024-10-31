@@ -221,14 +221,15 @@ export const useSelectionStore = defineStore("selection", () => {
     }
   }
 
-  function loadPlateMeasurements(plateId) {
+  function loadPlateMeasurements(plate) {
     const { onResult, onError } =
-      projectsGraphQlAPI.measurementsByPlateId(plateId);
+      projectsGraphQlAPI.measurementsByPlateId(plate.id);
     onResult(({ data }) => {
       measurements.value = data.plateMeasurements;
       activeMeasurement.value = measurements.value.filter(
         (m) => m.active === true
       )[0];
+      loadWells(plate.id);
     });
   }
 
@@ -242,6 +243,7 @@ export const useSelectionStore = defineStore("selection", () => {
         id: new Date().getTime(),
         protocols: data.protocols,
       };
+      loadPlateMeasurements(plate);
     });
   }
 
@@ -277,8 +279,6 @@ export const useSelectionStore = defineStore("selection", () => {
           if (selectedPlateDetails.value.id != element.id) {
             fetchPlate(element.id);
             loadPlateProtocols(element);
-            loadPlateMeasurements(element.id);
-            loadWells(element.id);
           }
         }
       });
@@ -289,8 +289,6 @@ export const useSelectionStore = defineStore("selection", () => {
       ) {
         fetchPlate(newVal[0].id);
         loadPlateProtocols(newVal[0]);
-        loadPlateMeasurements(newVal[0].id);
-        loadWells(newVal[0].id);
       }
     } else {
       selectedPlateDetails.value = {};
