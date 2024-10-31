@@ -26,11 +26,13 @@ const panesStore = usePanesStore();
 <style>
 .splitpanes--vertical > .splitpanes__splitter {
   min-width: 6px;
-  background: linear-gradient(90deg, #ccc, #32a6d3);
+  background: linear-gradient(0deg, #ccc, #32a6d3);
+  margin: auto 2px auto 2px;
 }
 
 .splitpanes--horizontal > .splitpanes__splitter {
-  min-height: 6px;
+  min-width: 6px;
   background: linear-gradient(0deg, #ccc, #32a6d3);
+  margin: 2px auto 2px auto;
 }
 </style>

@@ -372,7 +372,10 @@ export const useSelectionStore = defineStore("selection", () => {
       newVal.forEach((element) => {
         if (!oldVal.find((el) => element == el)) {
           flag = true;
-          if (selectedProjectDetails.value.id != element.id) {
+          if (
+            selectedProjectDetails.value &&
+            selectedProjectDetails.value.id != element.id
+          ) {
             fetchProject(element.id);
           }
         }
@@ -380,7 +383,11 @@ export const useSelectionStore = defineStore("selection", () => {
       if (
         !flag &&
         newVal.length > 0 &&
-        !newVal.find((el) => el.id == selectedProjectDetails.value.id)
+        !newVal.find(
+          (el) =>
+            selectedProjectDetails.value &&
+            el.id == selectedProjectDetails.value.id
+        )
       ) {
         fetchProject(newVal[0]);
       }

@@ -234,7 +234,9 @@ const plateContextMenu = (event, row) => {
 
 const gotoPlateView = (event, row) => {
   selectedPlate.value = row;
-  router.push({ name: "plate", params: { plateId: selectedPlate.value.id } });
+  if (router.currentRoute.value.name != "workbench") {
+    router.push({ name: "plate", params: { plateId: selectedPlate.value.id } });
+  }
 };
 
 const openNewPlateDialog = () => {

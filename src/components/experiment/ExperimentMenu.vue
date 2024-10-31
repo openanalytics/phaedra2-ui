@@ -1,18 +1,16 @@
 <template>
-  <q-menu context-menu>
-    <q-item
-      v-show="route.name == 'workbench'"
-      dense
-      clickable
-      @click="openExperimentDetails"
-    >
-      <q-item-section avatar>
-        <q-icon name="details" />
-      </q-item-section>
-      <q-item-section>Open Experiment Details</q-item-section>
-    </q-item>
+  <q-menu context-menu v-if="experiments.length > 0">
     <q-list dense>
       <div v-if="isOpen">
+        <menu-item
+          v-if="isOpen && route.name == 'workbench'"
+          icon="info"
+          color="primary"
+          label="Experiment Details"
+          v-close-popup
+          @click="openExperimentDetails"
+        />
+
         <menu-item
           icon="playlist_add"
           label="Set Plate Layout"
@@ -102,13 +100,7 @@
         @click="openDeleteDialog"
         v-close-popup
       />
-      <menu-item
-        v-if="isOpen && route.name == 'workbench'"
-        icon="details"
-        label="Open Experiment Details"
-        @click="openExperimentDetails"
-        v-close-popup
-      />
+
       <menu-item
         v-if="isOpen && route.name == 'workbench'"
         icon="science"
@@ -121,12 +113,10 @@
 
   <delete-dialog
     v-if="isOpen"
-    :id="experiment.id"
-    :name="experiment.name"
+    :items="experiments"
     :objectClass="'experiments'"
     v-model:show="showDeleteDialog"
     @onDeleted="onDeleted"
-    :items="experiments"
   />
   <link-plate-layout-dialog
     v-if="isOpen"
@@ -166,11 +156,13 @@ import MenuItem from "@/components/widgets/MenuItem.vue";
 import CalculatePlateDialog from "@/components/plate/CalculatePlateDialog";
 import ExportPlateListDialog from "@/components/plate/ExportPlateListDialog";
 import ExportWellDataDialog from "@/components/plate/ExportWellDataDialog";
+import projectsGraphQlAPI from "@/api/graphql/projects";
+import { useExperimentStore } from "@/stores/experiment";
 
-const panesStore = usePanesStore();
+const experimentStore = useExperimentStore();
 
 const props = defineProps(["experiments"]);
-const emit = defineEmits(["onDeleteExperiment", "open"]);
+const emit = defineEmits(["onDeleteExperiment", "open", "updated"]);
 const projectStore = useProjectStore();
 const notify = useNotification();
 
@@ -194,11 +186,11 @@ const openDeleteDialog = () => {
 };
 
 const getPlates = () => {
-  const { onResult, onError } = projectsGraphQlAPI.experimentById(
-    experiment.value.id
+  const { onResult, onError } = projectsGraphQlAPI.platesByExperimentIds(
+    props.experiments?.map((exp) => exp.id)
   );
   onResult(({ data }) => {
-    plates.value = [...data.plates];
+    plates.value = [...data.plate];
   });
   onError((error) => {
     notify.showError("Error while updating plates: " + error.message);
@@ -226,11 +218,17 @@ const openExportWellDataDialog = () => {
 };
 
 const handleCloseExperiment = () => {
-  projectStore.closeExperiment(experiment.value.id);
+  const ids = props.experiments.map((exp) => exp.id);
+  experimentStore.closeExperiments(ids).then(() => {
+    emit("updated");
+  });
 };
 
 const handleOpenExperiment = () => {
-  projectStore.openExperiment(experiment.value.id);
+  const ids = props.experiments.map((exp) => exp.id);
+  experimentStore.openExperiments(ids).then(() => {
+    emit("updated");
+  });
 };
 
 const onDeleted = () => {

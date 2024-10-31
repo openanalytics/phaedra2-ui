@@ -80,7 +80,9 @@ const columns = ref([
 const router = useRouter();
 const route = useRoute();
 const gotoProjectView = (event, row) => {
-  router.push({ name: "project", params: { id: row.id } });
+  if (router.currentRoute.value.name != "workbench") {
+    router.push({ name: "project", params: { id: row.id } });
+  }
 };
 
 function selectProject(event, row) {

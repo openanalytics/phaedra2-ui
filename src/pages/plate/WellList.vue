@@ -85,6 +85,7 @@
     context-menu
     @rejectWells="handleRejectWells"
     @acceptWells="handleAcceptWells"
+    @open="open"
   />
 </template>
 
@@ -104,7 +105,7 @@ import { usePlateStore } from "@/stores/plate";
 import OaTable from "@/components/table/OaTable.vue";
 
 const props = defineProps(["plates", "wells"]);
-const emits = defineEmits(["wellStatusChanged", "selection"]);
+const emits = defineEmits(["wellStatusChanged", "selection", "open"]);
 
 const plateStore = usePlateStore();
 
@@ -327,5 +328,9 @@ const updateTable = () => {
 
   filter = FilterUtils.makeFilter(columns.value);
   visibleColumns.value = [...columns.value.map((a) => a.name)];
+};
+
+const open = (resource) => {
+  emits("open", resource);
 };
 </script>

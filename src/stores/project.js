@@ -24,8 +24,8 @@ export const useProjectStore = defineStore("project", () => {
     });
   };
 
-  const reloadProject = async () => {
-    await loadProject(project.value.id);
+  const reloadProject = async (id) => {
+    await loadProject(id);
   };
 
   const isLoaded = (projectId) => {
@@ -42,17 +42,6 @@ export const useProjectStore = defineStore("project", () => {
       accessLevel: "Admin",
     });
   };
-  const renameProject = async (newName) => {
-    await projectAPI.editProject({ id: project.value.id, name: newName });
-    await reloadProject();
-  };
-  const editProjectDescription = async (newDescription) => {
-    await projectAPI.editProject({
-      id: project.value.id,
-      description: newDescription,
-    });
-    await reloadProject();
-  };
   const editProject = async (id, newVal) => {
     await projectAPI.editProject({ id: id, ...newVal });
   };
@@ -67,21 +56,17 @@ export const useProjectStore = defineStore("project", () => {
     await reset();
   };
   const addExperiment = async (experiment) => {
-    experiment["projectId"] = project.value.id;
+    // experiment["projectId"] = project.value.id;
     await experimentAPI.createExperiment(experiment);
-    await reloadProject();
   };
   const openExperiment = async (experimentId) => {
     await experimentAPI.editExperiment({ id: experimentId, status: "OPEN" });
-    await reloadProject();
   };
   const closeExperiment = async (experimentId) => {
     await experimentAPI.editExperiment({ id: experimentId, status: "CLOSED" });
-    await reloadProject();
   };
   const deleteExperiment = async (experimentId) => {
     await experimentAPI.deleteExperiment(experimentId);
-    await reloadProject();
   };
   const createProjectAccess = async (id, newAccess) => {
     newAccess["projectId"] = id;
@@ -113,11 +98,10 @@ export const useProjectStore = defineStore("project", () => {
     loadProject,
     isLoaded,
     createNewProject,
-    renameProject,
-    editProjectDescription,
     deleteProject,
     deleteProjects,
     addExperiment,
+    openExperiment,
     closeExperiment,
     deleteExperiment,
     createProjectAccess,

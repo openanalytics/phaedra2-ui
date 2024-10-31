@@ -104,6 +104,7 @@
     touch-position
     @onDeleteExperiment="deleteExperiments"
     @open="open"
+    @updated="updated"
     :experiments="selectedExperiments"
   />
 
@@ -289,7 +290,9 @@ const experimentContextMenu = (event, row) => {
 
 const gotoExperimentView = (event, row) => {
   selectedExperiment.value = row;
-  router.push({ name: "experiment", params: { experimentId: row.id } });
+  if (router.currentRoute.value.name != "workbench") {
+    router.push({ name: "experiment", params: { experimentId: row.id } });
+  }
 };
 
 const showNewExperimentDialog = ref(false);
@@ -378,9 +381,13 @@ function deleteExperiments() {
   experimentStore
     .deleteExperiments(selectedExperiments.value.map((exp) => exp.id))
     .then(() => {
-      emits("updated");
+      updated();
     });
   selectedExperiments.value = [];
+}
+
+function updated() {
+  emits("updated");
 }
 
 const route = useRoute();

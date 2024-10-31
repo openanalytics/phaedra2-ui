@@ -204,13 +204,13 @@ const onDeleteExperiment = () => {
 };
 
 const handleCloseExperiment = () => {
-  experimentStore.closeExperiment(props.experiment?.id).then(() => {
+  experimentStore.closeExperiments([props.experiment?.id]).then(() => {
     emits("updated");
   });
 };
 
 const handleOpenExperiment = () => {
-  experimentStore.openExperiment(props.experiment?.id).then(() => {
+  experimentStore.openExperiments([props.experiment?.id]).then(() => {
     emits("updated");
   });
 };

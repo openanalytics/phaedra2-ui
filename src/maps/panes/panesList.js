@@ -10,7 +10,6 @@ import WellList from "../../pages/plate/WellList.vue";
 import PlateHeatmap from "@/pages/plate/PlateHeatmap.vue";
 import { computed } from "vue";
 import { useSelectionStore } from "@/stores/selection";
-import { usePanesStore } from "@/stores/panes";
 import TrendChart from "@/components/chart/TrendChart.vue";
 import Chart from "@/components/chart/Chart.vue";
 import ExperimentDetails from "@/components/experiment/ExperimentDetails.vue";
@@ -19,7 +18,6 @@ import WellDetails from "@/pages/well/WellDetails.vue";
 
 export function usePanesList() {
   const selectionStore = useSelectionStore();
-  const panesStore = usePanesStore();
 
   /**
    * Configuration object for a Vue component tab in the workbench.
@@ -76,7 +74,6 @@ export function usePanesList() {
       },
       selection: (e) => (selectionStore.selectedProjects = e),
       updated: () => selectionStore.fetchProjects(),
-      open: (e) => panesStore.openTab(e),
       groupBy: "list",
     },
     {
@@ -90,7 +87,6 @@ export function usePanesList() {
         project: selectionStore.selectedProjectDetails,
       },
       groupBy: "details",
-      open: (e) => panesStore.openTab(e),
       updated: () =>
         selectionStore.fetchProject(selectionStore.selectedProjectDetails.id),
     },
@@ -108,7 +104,6 @@ export function usePanesList() {
       },
       selection: (e) => (selectionStore.selectedExperiments = e),
       updated: () => selectionStore.loadProjects(),
-      open: (e) => panesStore.openTab(e),
       groupBy: "list",
     },
     {
@@ -122,7 +117,6 @@ export function usePanesList() {
         experiment: selectionStore.selectedExperimentDetails,
       },
       groupBy: "details",
-      open: (e) => panesStore.openTab(e),
       updated: () =>
         selectionStore.fetchExperiment(
           selectionStore.selectedExperimentDetails.id
@@ -159,7 +153,6 @@ export function usePanesList() {
       },
       selection: (e) => (selectionStore.selectedPlates = e),
       updated: () => selectionStore.loadExperiment(),
-      open: (e) => panesStore.openTab(e),
       groupBy: "list",
     },
     {

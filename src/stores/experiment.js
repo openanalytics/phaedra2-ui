@@ -49,18 +49,30 @@ export const useExperimentStore = defineStore("experiment", () => {
     await experimentAPI.editExperiment({ id: id, ...newVal });
   }
 
-  async function openExperiment(id) {
-    await experimentAPI.editExperiment({
-      id: id,
-      status: "OPEN",
-    });
+  async function openExperiments(ids) {
+    for (const id of ids) {
+      await experimentAPI
+        .editExperiment({
+          id: id,
+          status: "OPEN",
+        })
+        .then(() => {
+          console.log("exp closed");
+        });
+    }
   }
 
-  async function closeExperiment(id) {
-    await experimentAPI.editExperiment({
-      id: id,
-      status: "CLOSED",
-    });
+  async function closeExperiments(ids) {
+    for (const id of ids) {
+      await experimentAPI
+        .editExperiment({
+          id: id,
+          status: "CLOSED",
+        })
+        .then(() => {
+          console.log("exp closed");
+        });
+    }
   }
 
   async function deleteExperiment(id) {
@@ -172,8 +184,8 @@ export const useExperimentStore = defineStore("experiment", () => {
     plates,
     loadExperiment,
     isLoaded,
-    openExperiment,
-    closeExperiment,
+    closeExperiments,
+    openExperiments,
     deleteExperiment,
     addPlate,
     addPlates,

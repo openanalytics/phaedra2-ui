@@ -1,22 +1,11 @@
 <template>
-  <q-menu>
-    <q-item
-      v-show="route.name == 'workbench'"
-      dense
-      clickable
-      @click="openWellDetails"
-    >
-      <q-item-section avatar>
-        <q-icon name="details" />
-      </q-item-section>
-      <q-item-section>Open Well Details</q-item-section>
-    </q-item>
+  <q-menu v-if="well && well != undefined">
     <q-list dense>
       <menu-item
         icon="info"
         color="primary"
-        label="Well Details View"
-        @click="showWellDetails"
+        label="Well Details"
+        @click="openWellDetails"
       />
       <q-separator />
       <menu-item
@@ -56,25 +45,19 @@
 import MenuItem from "@/components/widgets/MenuItem.vue";
 import { useUIStore } from "@/stores/ui";
 import { useRoute, useRouter } from "vue-router";
-import { usePanesStore } from "@/stores/panes";
 
 const props = defineProps(["well"]);
 const emits = defineEmits([
   "acceptWells",
   "rejectWells",
   "showDoseResponseCurve",
-  ,
   "open",
 ]);
 
 const uiStore = useUIStore();
-const panesStore = usePanesStore();
 
 const router = useRouter();
 const route = useRoute();
-const showWellDetails = () => {
-  router.push({ name: "well", params: { wellId: props.well.id } });
-};
 
 const showWellImage = () => {
   uiStore.showImageView = true;

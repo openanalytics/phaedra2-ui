@@ -1,52 +1,55 @@
 <template>
-  <q-menu context-menu>
-    <q-item
+  <q-menu context-menu v-if="plates.length > 0">
+    <menu-item
       v-show="route.name == 'workbench'"
-      dense
-      clickable
+      icon="info"
+      color="primary"
+      label="Plate Details"
       @click="openPlateDetails"
-    >
-      <q-item-section avatar>
-        <q-icon name="details" />
-      </q-item-section>
-      <q-item-section>Open Plate Details</q-item-section>
-    </q-item>
+    />
+
     <q-list dense>
       <menu-item icon="table_rows" label="Browse Wells" @click="browseWells" />
       <menu-item
+        v-if="route.name != 'workbench'"
         icon="show_chart"
         label="Browse Dose-Response Curves"
         @click="browseDoseResponseCurves"
       />
 
-      <q-separator />
+      <q-separator v-if="route.name != 'workbench'" />
 
       <menu-item
+        v-if="route.name != 'workbench'"
         icon="content_copy"
         label="Clone Plate(s)"
         @click="clonePlates"
         v-close-popup
       />
       <menu-item
+        v-if="route.name != 'workbench'"
         icon="drive_file_move"
         label="Move Plate(s)"
         @click="movePlates"
         v-close-popup
       />
 
-      <q-separator />
+      <q-separator v-if="route.name != 'workbench'" />
 
       <menu-item
+        v-if="route.name != 'workbench'"
         icon="text_snippet"
         label="Link Measurement"
         @click="linkMeasurement"
       />
       <menu-item
+        v-if="route.name != 'workbench'"
         icon="playlist_add"
         label="Set Plate Layout"
         @click="setPlateLayout"
       />
       <menu-item
+        v-if="route.name != 'workbench'"
         icon="calculate"
         label="(Re)Calculate Plate"
         @click="calculatePlate"
@@ -477,6 +480,6 @@ const handleSetPlateLayout = () => {
 };
 
 const openPlateDetails = () => {
-  emit("open", { resource: "plate" });
+  emit("open", "plate-details-pane");
 };
 </script>

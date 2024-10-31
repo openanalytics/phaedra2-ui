@@ -39,6 +39,7 @@
       @wellStatusChanged="onWellStatusChanged"
       :well="wellStore.well"
       @updated="wellStore.reloadWell()"
+      @open="handleOpen"
     />
     <splitpanes class="default-theme">
       <pane style="background-color: #e6e6e6">

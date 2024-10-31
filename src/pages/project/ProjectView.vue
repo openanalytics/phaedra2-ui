@@ -33,6 +33,7 @@
               @createNewExperiment="onCreateNewExperiment"
               @selection="handleSelection"
               @open="handleOpen"
+              @updated="projectStore.reloadProject(projectStore.project.id)"
             />
           </oa-section>
         </div>
@@ -88,7 +89,9 @@ onMounted(() => {
 });
 
 const onCreateNewExperiment = async (newExperiment) => {
-  await projectStore.addExperiment(newExperiment);
+  await projectStore.addExperiment(newExperiment).then(() => {
+    projectStore.reloadProject(newExperiment.projectId);
+  });
 };
 
 const handleSelection = (experiments) => {

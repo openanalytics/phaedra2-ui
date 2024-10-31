@@ -118,7 +118,9 @@
               <WellList
                 :plates="plateStore.plate"
                 :wells="plateStore.wells"
+                @open="handleOpen"
                 @wellStatusChanged="onWellStatusChanged"
+                @selection="handleSelection"
               />
             </q-tab-panel>
             <q-tab-panel
@@ -261,5 +263,24 @@ const onWellStatusChanged = () => {
 
 const closeImageView = () => {
   uiStore.showImageView = false;
+};
+
+const handleOpen = async (id) => {
+  switch (id) {
+    case "well-details-pane":
+      if (uiStore.selectedWell)
+        router.push({
+          name: "well",
+          params: { wellId: uiStore.selectedWell.id },
+        });
+      break;
+    default:
+      break;
+  }
+};
+
+const handleSelection = async (wells) => {
+  uiStore.selectedWell = wells[0] ?? null;
+  uiStore.selectedWells = wells;
 };
 </script>
