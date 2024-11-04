@@ -18,6 +18,6 @@ const props = defineProps(["id", "name"]);
 const panesStore = usePanesStore();
 
 function openPane() {
-  panesStore.addMenuItem(props.id);
+  panesStore.openTab(props.id);
 }
 </script>

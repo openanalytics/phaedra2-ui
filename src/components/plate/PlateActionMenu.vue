@@ -1,120 +1,277 @@
 <template>
-  <q-menu context-menu>
+  <q-menu context-menu v-if="plates.length > 0">
+    <menu-item
+      v-show="route.name == 'workbench'"
+      icon="info"
+      color="primary"
+      label="Plate Details"
+      @click="openPlateDetails"
+    />
+
     <q-list dense>
-      <menu-item icon="table_rows" label="Browse Wells" @click="browseWells"/>
-      <menu-item icon="show_chart" label="Browse Dose-Response Curves" @click="browseDoseResponseCurves"/>
+      <menu-item icon="table_rows" label="Browse Wells" @click="browseWells" />
+      <menu-item
+        v-if="route.name != 'workbench'"
+        icon="show_chart"
+        label="Browse Dose-Response Curves"
+        @click="browseDoseResponseCurves"
+      />
 
-      <q-separator/>
+      <q-separator v-if="route.name != 'workbench'" />
 
-      <menu-item icon="content_copy" label="Clone Plate(s)"
-                 @click="clonePlates" v-close-popup/>
-      <menu-item icon="drive_file_move" label="Move Plate(s)"
-                 @click="movePlates" v-close-popup/>
+      <menu-item
+        v-if="route.name != 'workbench'"
+        icon="content_copy"
+        label="Clone Plate(s)"
+        @click="clonePlates"
+        v-close-popup
+      />
+      <menu-item
+        v-if="route.name != 'workbench'"
+        icon="drive_file_move"
+        label="Move Plate(s)"
+        @click="movePlates"
+        v-close-popup
+      />
 
-      <q-separator/>
+      <q-separator v-if="route.name != 'workbench'" />
 
-      <menu-item icon="text_snippet" label="Link Measurement"
-                 @click="linkMeasurement" />
-      <menu-item icon="playlist_add" label="Set Plate Layout"
-                 @click="setPlateLayout" />
-      <menu-item icon="calculate" label="(Re)Calculate Plate"
-                 @click="calculatePlate" />
+      <menu-item
+        v-if="route.name != 'workbench'"
+        icon="text_snippet"
+        label="Link Measurement"
+        @click="linkMeasurement"
+      />
+      <menu-item
+        v-if="route.name != 'workbench'"
+        icon="playlist_add"
+        label="Set Plate Layout"
+        @click="setPlateLayout"
+      />
+      <menu-item
+        v-if="route.name != 'workbench'"
+        icon="calculate"
+        label="(Re)Calculate Plate"
+        @click="calculatePlate"
+      />
 
-      <q-separator/>
+      <q-separator />
 
-      <div v-if="props.plate.approvalStatus === 'APPROVAL_NOT_SET' && experimentStore.isOpen">
+      <div
+        v-if="
+          props.plate.approvalStatus === 'APPROVAL_NOT_SET' &&
+          experimentStore.isOpen
+        "
+      >
         <!-- Validation Menu -->
-        <q-item dense clickable v-if="props.plate.approvalStatus === 'APPROVAL_NOT_SET'">
+        <q-item
+          dense
+          clickable
+          v-if="props.plate.approvalStatus === 'APPROVAL_NOT_SET'"
+        >
           <q-item-section avatar>
-            <q-icon name="outlined_flag"/>
+            <q-icon name="outlined_flag" />
           </q-item-section>
           <q-item-section>Validation</q-item-section>
           <q-item-section side>
-            <q-icon name="keyboard_arrow_right"/>
+            <q-icon name="keyboard_arrow_right" />
           </q-item-section>
 
           <q-menu anchor="top end" self="top start">
             <q-list dense>
-              <menu-item v-if="props.plate.validationStatus === 'VALIDATION_NOT_SET'"
-                         icon="check_circle" color="positive" label="Validate Plate"
-                         @click="validate" v-close-popup/>
-              <menu-item v-if="props.plate.validationStatus !== 'VALIDATION_NOT_SET'"
-                         icon="remove_circle_outline" label="Reset Validation"
-                         @click="resetValidation" v-close-popup/>
-              <menu-item v-if="props.plate.validationStatus === 'VALIDATION_NOT_SET'"
-                         icon="cancel" color="negative" label="Invalidate Plate"
-                         @click="invalidate" v-close-popup/>
+              <menu-item
+                v-if="props.plate.validationStatus === 'VALIDATION_NOT_SET'"
+                icon="check_circle"
+                color="positive"
+                label="Validate Plate"
+                @click="validate"
+                v-close-popup
+              />
+              <menu-item
+                v-if="props.plate.validationStatus !== 'VALIDATION_NOT_SET'"
+                icon="remove_circle_outline"
+                label="Reset Validation"
+                @click="resetValidation"
+                v-close-popup
+              />
+              <menu-item
+                v-if="props.plate.validationStatus === 'VALIDATION_NOT_SET'"
+                icon="cancel"
+                color="negative"
+                label="Invalidate Plate"
+                @click="invalidate"
+                v-close-popup
+              />
             </q-list>
           </q-menu>
         </q-item>
 
         <!-- Approval Menu -->
-        <q-item clickable
-                v-if="props.plate.approvalStatus === 'APPROVAL_NOT_SET' && props.plate.validationStatus === 'VALIDATED'">
+        <q-item
+          clickable
+          v-if="
+            props.plate.approvalStatus === 'APPROVAL_NOT_SET' &&
+            props.plate.validationStatus === 'VALIDATED'
+          "
+        >
           <q-item-section avatar>
-            <q-icon name="outlined_flag"/>
+            <q-icon name="outlined_flag" />
           </q-item-section>
           <q-item-section>Approval</q-item-section>
           <q-item-section side>
-            <q-icon name="keyboard_arrow_right"/>
+            <q-icon name="keyboard_arrow_right" />
           </q-item-section>
 
           <q-menu anchor="top end" self="top start">
             <q-list dense>
-              <menu-item icon="check_circle" color="positive" label="Approve Plate"
-                         @click="approve" v-close-popup/>
-              <menu-item v-if="props.plate.approvalStatus !== 'APPROVAL_NOT_SET'"
-                         icon="remove_circle_outline" label="Reset Approval"
-                         @click="resetValidation"/>
-              <menu-item icon="cancel" color="negative" label="Disapprove Plate"
-                         @click="disapprove" v-close-popup/>
+              <menu-item
+                icon="check_circle"
+                color="positive"
+                label="Approve Plate"
+                @click="approve"
+                v-close-popup
+              />
+              <menu-item
+                v-if="props.plate.approvalStatus !== 'APPROVAL_NOT_SET'"
+                icon="remove_circle_outline"
+                label="Reset Approval"
+                @click="resetValidation"
+              />
+              <menu-item
+                icon="cancel"
+                color="negative"
+                label="Disapprove Plate"
+                @click="disapprove"
+                v-close-popup
+              />
             </q-list>
           </q-menu>
         </q-item>
       </div>
 
-      <q-separator/>
+      <q-separator />
 
       <!-- Charts -->
       <q-item dense clickable>
         <q-item-section avatar>
-          <q-icon name="insert_chart"/>
+          <q-icon name="insert_chart" />
         </q-item-section>
         <q-item-section>Charts</q-item-section>
         <q-item-section side>
-          <q-icon name="keyboard_arrow_right"/>
+          <q-icon name="keyboard_arrow_right" />
         </q-item-section>
         <q-menu>
           <q-list>
-            <menu-item icon="timeline" label="Plate Trend"
-                       @click="addExperimentPlateTrendChart" v-close-popup/>
-            <menu-item icon="scatter_plot" label="Scatterplot 2D"
-                       @click="addScatterPlot(props.plate.id)" v-close-popup/>
-            <menu-item icon="candlestick_chart" label="Boxplot"
-                       @click="addBoxPlot(props.plate.id)" v-close-popup/>
-            <menu-item icon="bar_chart" label="1D Histogram"
-                       @click="addHistogram(props.plate.id)" v-close-popup/>
+            <menu-item
+              icon="timeline"
+              label="Plate Trend"
+              @click="addExperimentPlateTrendChart"
+              v-close-popup
+            />
+            <menu-item
+              icon="scatter_plot"
+              label="Scatterplot 2D"
+              @click="addScatterPlot(props.plate.id)"
+              v-close-popup
+            />
+            <menu-item
+              icon="candlestick_chart"
+              label="Boxplot"
+              @click="addBoxPlot(props.plate.id)"
+              v-close-popup
+            />
+            <menu-item
+              icon="bar_chart"
+              label="1D Histogram"
+              @click="addHistogram(props.plate.id)"
+              v-close-popup
+            />
           </q-list>
         </q-menu>
       </q-item>
 
-      <div v-if="props.plate.approvalStatus === 'APPROVAL_NOT_SET' && experimentStore.isOpen">
-        <q-separator/>
-        <menu-item icon="delete" color="negative" label="Delete Plate(s)"
-                   @click="deletePlate" v-close-popup/>
+      <q-separator />
+
+      <!-- Details -->
+      <q-item v-if="route.name == 'workbench'" dense clickable>
+        <q-item-section avatar>
+          <q-icon name="details" />
+        </q-item-section>
+        <q-item-section>Browse details</q-item-section>
+        <q-item-section side>
+          <q-icon name="keyboard_arrow_right" />
+        </q-item-section>
+        <q-menu>
+          <q-list>
+            <menu-item
+              icon="view_module"
+              label="Heatmap"
+              @click="addHeatmap"
+              v-close-popup
+            />
+          </q-list>
+        </q-menu>
+      </q-item>
+
+      <div
+        v-if="
+          props.plate.approvalStatus === 'APPROVAL_NOT_SET' &&
+          experimentStore.isOpen
+        "
+      >
+        <q-separator />
+        <menu-item
+          icon="delete"
+          color="negative"
+          label="Delete Plate(s)"
+          @click="deletePlate"
+          v-close-popup
+        />
       </div>
     </q-list>
   </q-menu>
 
-  <invalidate-dialog v-model:show="showInvalidateDialog" :plates="uiStore.selectedPlates" @onInvalidate="onInvalidatePlate"/>
-  <approve-dialog v-model:show="showApproveDialog" :plates="uiStore.selectedPlates" @onApprove="onApprovePlate"/>
-  <disapprove-dialog v-model:show="showDisapproveDialog" :plates="uiStore.selectedPlates" @onDisapprove="onDisapprovePlate"/>
-  <calculate-plate-dialog v-model:show="showCalculateDialog" :plates="uiStore.selectedPlates" />
-  <link-plate-layout-dialog v-model:show="showLinkDialog" :plates="uiStore.selectedPlates" @onLinkPlate="handleSetPlateLayout"/>
-  <delete-dialog v-model:show="showDeleteDialog" :id="props.plate.id" :name="props.plate.barcode" :objectClass="'plate'" @onDeleted="onDeletePlate"/>
-  <move-plate-dialog v-model:show="showMovePlatesDialog" :plates="uiStore.selectedPlates" :experiment="experimentStore.experiment"
-                     :experiments="projectStore.experiments" @movePlates="onMovePlates"/>
-  <link-measurement-dialog v-model:show="showLinkMeasDialog" :plates="uiStore.selectedPlates" />
+  <invalidate-dialog
+    v-model:show="showInvalidateDialog"
+    :plates="uiStore.selectedPlates"
+    @onInvalidate="onInvalidatePlate"
+  />
+  <approve-dialog
+    v-model:show="showApproveDialog"
+    :plates="uiStore.selectedPlates"
+    @onApprove="onApprovePlate"
+  />
+  <disapprove-dialog
+    v-model:show="showDisapproveDialog"
+    :plates="uiStore.selectedPlates"
+    @onDisapprove="onDisapprovePlate"
+  />
+  <calculate-plate-dialog
+    v-model:show="showCalculateDialog"
+    :plates="uiStore.selectedPlates"
+  />
+  <link-plate-layout-dialog
+    v-model:show="showLinkDialog"
+    :plates="uiStore.selectedPlates"
+    @onLinkPlate="handleSetPlateLayout"
+  />
+  <delete-dialog
+    v-model:show="showDeleteDialog"
+    :objectClass="'plate'"
+    :items="plates"
+    @onDeleted="onDeletePlate"
+  />
+  <move-plate-dialog
+    v-model:show="showMovePlatesDialog"
+    :plates="uiStore.selectedPlates"
+    :experiment="experimentStore.experiment"
+    :experiments="projectStore.experiments"
+    @movePlates="onMovePlates"
+  />
+  <link-measurement-dialog
+    v-model:show="showLinkMeasDialog"
+    :plates="uiStore.selectedPlates"
+  />
 </template>
 
 <script setup>
@@ -135,10 +292,10 @@ import LinkMeasurementDialog from "@/components/measurement/LinkMeasurementDialo
 import MenuItem from "@/components/widgets/MenuItem.vue";
 import { useLoadingHandler } from "@/composable/loadingHandler";
 import { useNotification } from "@/composable/notification";
-import { usePanesList } from "@/maps/panes/panesList";
-import { usePanesStore } from "../../stores/panes";
+import { usePanesStore } from "@/stores/panes";
 
 const props = defineProps(["plate", "plates"]);
+const emit = defineEmits(["onDeletePlates", "open"]);
 
 const uiStore = useUIStore();
 const router = useRouter();
@@ -151,17 +308,7 @@ const panesStore = usePanesStore();
 const hideMenu = ref(false);
 
 const browseWells = () => {
-  if (route.name == "workbench") {
-    panesStore.addItem("wells-list-pane", "panes-list-pane", "right");
-  } else {
-    handlePlateSelection(() => {
-      router.push({
-        name: "plate",
-        params: { plateId: props.plate.id },
-        query: { activeTab: "wells" },
-      });
-    }, "No plate(s) have been selected!");
-  }
+  emit("open", "wells-list-pane");
 };
 
 const browseDoseResponseCurves = () => {
@@ -277,52 +424,27 @@ const onDisapprovePlate = async (reason) => {
   showDisapproveDialog.value = false;
 };
 
-const addScatterPlot = async (plateId) => {
-  handlePlateSelection(async () => {
-    await loadingHandler.handleLoadingDuring(
-      uiStore.loadSelectedPlate(plateId)
-    );
-    uiStore.addChartView({
-      type: "scatter",
-      plateId: plateId,
-      label: "Scatter Plot",
-    });
-  }, "No plate(s) have been selected!");
+const addScatterPlot = async () => {
+  emit("open", "scatterplot-chart-pane");
   hideMenu.value = true;
 };
 
-const addBoxPlot = async (plateId) => {
-  handlePlateSelection(async () => {
-    await loadingHandler.handleLoadingDuring(
-      uiStore.loadSelectedPlate(plateId)
-    );
-    uiStore.addChartView({ type: "box", plateId: plateId, label: "Box Plot" });
-  }, "No plate(s) have been selected!");
+const addBoxPlot = async () => {
+  emit("open", "boxplot-chart-pane");
   hideMenu.value = true;
 };
 
-const addHistogram = async (plateId) => {
-  handlePlateSelection(async () => {
-    await loadingHandler.handleLoadingDuring(
-      uiStore.loadSelectedPlate(plateId)
-    );
-    uiStore.addChartView({
-      type: "histogram",
-      plateId: plateId,
-      label: "Histogram",
-    });
-  }, "No plate(s) have been selected!");
+const addHistogram = async () => {
+  emit("open", "histogram-chart-pane");
   hideMenu.value = true;
 };
 
-const addExperimentPlateTrendChart = (experimentId) => {
-  if (uiStore.isExperimentSelected()) {
-    uiStore.addChartView({
-      type: "trend",
-      experimentId: experimentId,
-      label: "Experiment Trend Chart",
-    });
-  }
+const addHeatmap = () => {
+  emit("open", "heatmap-chart-pane");
+};
+
+const addExperimentPlateTrendChart = () => {
+  emit("open", "experiment-chart-pane");
 };
 
 const showDeleteDialog = ref(null);
@@ -333,23 +455,31 @@ const deletePlate = () => {
   );
 };
 const onDeletePlate = async () => {
-  await loadingHandler.handleLoadingDuring(
-    experimentStore.deletePlates(uiStore.selectedPlates)
-  );
+  // await loadingHandler.handleLoadingDuring(
+  // );
+  emit("onDeletePlates");
   showDeleteDialog.value = false;
 };
 
 const notify = useNotification();
 const handlePlateSelection = (action, onFailureMessage) => {
-  if (!uiStore.isPlateSelected()) {
+  if (!props.plates.length > 0) {
     notify.showWarning(onFailureMessage);
   } else {
     action();
   }
-}
+};
 const handleSetPlateLayout = () => {
-  notify.showInfo("The plate layout has been updated! ",
-      () => { showCalculateDialog.value = true },
-      () => { })
-}
+  notify.showInfo(
+    "The plate layout has been updated! ",
+    () => {
+      showCalculateDialog.value = true;
+    },
+    () => {}
+  );
+};
+
+const openPlateDetails = () => {
+  emit("open", "plate-details-pane");
+};
 </script>

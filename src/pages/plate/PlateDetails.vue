@@ -1,122 +1,199 @@
 <template>
   <div class="q-pa-sm">
-    <oa-section v-if="!plateStore.plate" title="Loading plate..." icon="view_module"/>
-    <oa-section v-else :title="plateStore.plate.barcode" icon="view_module" :collapsible="true">
-      <div class="row q-pa-sm">
-        <div class="col-3">
-          <q-field label="ID" stack-label borderless dense>
-            <template v-slot:control>
-              {{ plateStore.plate.id }}
-            </template>
-          </q-field>
-          <q-field label="Description" stack-label borderless dense>
-            <template v-slot:control>
-              <EditableField :object="plateStore.plate" fieldName="description" :read-only="readOnly"
-                             @valueChanged="onDescriptionChanged"/>
-            </template>
-          </q-field>
-          <q-field label="Tags" stack-label dense borderless>
-            <template v-slot:control>
-              <tag-list :tags="plateStore.plate.tags" :read-only="readOnly"
-                        @addTag="onAddTag" @removeTag="onRemoveTag"
-                        class="q-pt-xs"/>
-            </template>
-          </q-field>
-        </div>
+    <q-card
+      v-if="plate && plate.barcode"
+      flat
+      bordered
+      class="row justify-between"
+      style="width: 100%"
+    >
+      <q-card-section horizontal class="col-7">
+        <q-card-section class="q-pt-xs">
+          <div
+            style="width: 100%"
+            class="row align-center text-h5 q-mt-sm q-mb-xs"
+          >
+            <div>
+              <span>
+                {{ plate.barcode }}
+              </span>
 
-        <div class="col-3">
-          <q-field label="Dimensions" stack-label borderless dense>
-            <template v-slot:control>
-              {{ plateStore.plate.rows }} x {{ plateStore.plate.columns }} ({{ plateStore.plate.rows * plateStore.plate.columns }} wells)
-            </template>
-          </q-field>
-          <q-field label="Created On" stack-label dense borderless>
-            <template v-slot:control>
-              {{ FormatUtils.formatDate(plateStore.plate.createdOn) }}
-            </template>
-          </q-field>
-          <q-field label="Created By" stack-label dense borderless>
-            <template v-slot:control>
-              <UserChip :id="plateStore.plate.createdBy"/>
-            </template>
-          </q-field>
-        </div>
+              <span class="q-mx-sm" style="font-size: 0.7em"
+                >({{ plate.id }}) <q-tooltip>ID</q-tooltip></span
+              >
+            </div>
+            <span v-if="!readOnly">
+              <span>
+                <q-btn
+                  round
+                  dense
+                  icon="edit"
+                  size="xs"
+                  color="positive"
+                  @click="showEditDialog = true"
+                  ><q-tooltip>Edit Experiment</q-tooltip></q-btn
+                >
+              </span>
+              <span class="q-ml-sm">
+                <q-btn
+                  round
+                  dense
+                  size="xs"
+                  icon="calculate"
+                  color="warning"
+                  @click="showCalculateDialog = true"
+                  ><q-tooltip>Recalculate</q-tooltip></q-btn
+                >
+              </span>
+              <span class="q-ml-sm">
+                <q-btn
+                  round
+                  dense
+                  icon="delete"
+                  size="xs"
+                  color="negative"
+                  @click="showDeleteDialog = true"
+                  ><q-tooltip>Delete Experiment</q-tooltip></q-btn
+                >
+              </span>
+            </span>
+          </div>
 
-        <div class="col-4">
-          <PropertyTable :properties="plateStore.plate.properties" :read-only="readOnly"
-                         @addProperty="onAddProperty" @removeProperty="onRemoveProperty"/>
-        </div>
+          <div class="row col-sm">
+            <div class="text-overline">
+              <UserChip :id="plate.createdBy" onHoverMessage="Created By" />
+            </div>
+            <div class="text-overline">
+              <DateChip
+                :dateTime="plate.createdOn"
+                onHoverMessage="Created On"
+              />
+            </div>
+            <div class="text-overline">
+              <DimensionsChip
+                :rows="plate.rows"
+                :columns="plate.columns"
+                onHoverMessage="Dimensions"
+                calculate
+              />
+            </div>
 
-        <div class="col-2" v-if="!readOnly">
-          <div class="row justify-end">
-            <q-btn size="sm" icon="edit" label="Rename" class="oa-action-button" @click="showRenameDialog = true"/>
+            <div class="text-overline">
+              <DateChip
+                :dateTime="plate.dimensions"
+                onHoverMessage="Dimensions"
+              />
+            </div>
           </div>
-          <div class="row justify-end">
-            <q-btn size="sm" icon="delete" class="oa-action-button" label="Delete" @click="showDeleteDialog = true"/>
+          <div class="text-caption text-grey q-my-sm">
+            <EditableField readOnly :object="plate" fieldName="description" />
           </div>
-          <div class="row justify-end">
-            <q-btn size="sm" icon="calculate" class="oa-action-button" label="Recalculate" @click="showCalculateDialog = true"/>
-          </div>
-        </div>
-      </div>
-    </oa-section>
+          <TagListEditable
+            :tags="plate.tags"
+            :read-only="readOnly"
+            @addTag="onAddTag"
+            @removeTag="onRemoveTag"
+            class="q-pt-xs"
+          />
+        </q-card-section>
+      </q-card-section>
+      <q-card-section class="col-grow row justify-center">
+        <PropertyTable
+          :properties="plate.properties"
+          :read-only="readOnly"
+          @addProperty="onAddProperty"
+          @removeProperty="onRemoveProperty"
+        />
+      </q-card-section>
+    </q-card>
   </div>
 
-  <rename-dialog v-model:show="showRenameDialog" objectClass="plate" fieldName="barcode" :object="plateStore.plate" @valueChanged="onNameChanged"/>
-  <delete-dialog v-model:show="showDeleteDialog" :id="plateStore.plate.id" :name="plateStore.plate.barcode" :objectClass="'plate'" @onDeleted="onDeleted"/>
+  <EditResourceDialog
+    v-model:show="showEditDialog"
+    :project="plate"
+    @valueChanged="onEdited"
+  />
+
+  <delete-dialog
+    v-model:show="showDeleteDialog"
+    :id="plate.id"
+    :name="plate.barcode"
+    :objectClass="'plate'"
+    @onDeleted="onDeleted"
+  />
+
+  <CalculatePlateDialog
+    v-model:show="showCalculateDialog"
+    :plates="[plate]"
+    :protocol-id="plateStore.activeResultSet?.protocolId"
+  />
 </template>
 
 <script setup>
-import FormatUtils from "@/lib/FormatUtils";
-import {usePlateStore} from "@/stores/plate";
-import {ref} from "vue";
-import TagList from "@/components/tag/TagList"
+import { usePlateStore } from "@/stores/plate";
+import { ref } from "vue";
 import UserChip from "@/components/widgets/UserChip";
 import EditableField from "@/components/widgets/EditableField";
-import PropertyTable from "@/components/property/PropertyTable"
-import OaSection from "@/components/widgets/OaSection";
-import RenameDialog from "@/components/widgets/RenameDialog.vue";
+import DateChip from "@/components/widgets/DateChip.vue";
+import PropertyTable from "@/components/property/PropertyTable";
 import DeleteDialog from "@/components/widgets/DeleteDialog.vue";
-import {useExperimentStore} from "@/stores/experiment";
+import { useExperimentStore } from "@/stores/experiment";
+import TagListEditable from "@/components/tag/TagListEditable.vue";
+import EditResourceDialog from "@/components/widgets/EditResourceDialog";
+import DimensionsChip from "@/components/plate/DimensionsChip.vue";
+import CalculatePlateDialog from "@/components/plate/CalculatePlateDialog.vue";
 
-const experimentStore = useExperimentStore()
-const plateStore = usePlateStore()
+const props = defineProps(["plate", "activeMeasurement"]);
+const emits = defineEmits(["updated"]);
+
+const experimentStore = useExperimentStore();
+const plateStore = usePlateStore();
 
 const showDeleteDialog = ref(false);
-const showRenameDialog = ref(false);
+const showCalculateDialog = ref(false);
 
-const readOnly = ref(plateStore.isApproved || experimentStore.isClosed)
+const readOnly = ref(
+  props.plate?.approvalStatus === "APPROVED" || experimentStore.isClosed
+);
+const showEditDialog = ref(false);
 
-const onNameChanged = async (newBarcode) => {
-  await plateStore.renamePlate(newBarcode)
-};
-
-const onDescriptionChanged = async (newDescription) => {
-  await plateStore.editPlateDescription(newDescription)
+const onEdited = async (newVal) => {
+  await plateStore.editPlate(props.plate.id, newVal).then(() => {
+    emits("updated");
+  });
 };
 
 const onDeleted = async () => {
-  await plateStore.deletePlate()
-  await router.push({name: 'experiment', params: {id: experimentStore.experiment.id}})
-}
+  await plateStore.deletePlate(props.plate?.id);
+  await router.push({
+    name: "experiment",
+    params: { id: experimentStore.experiment.id },
+  });
+};
 
 const onAddTag = async (newTag) => {
-  await plateStore.handleAddTag(newTag)
-}
+  await plateStore.handleAddTag(props.plate?.id, newTag).then(() => {
+    emits("updated");
+  });
+};
 
 const onRemoveTag = async (tag) => {
-  await plateStore.handleDeleteTag(tag)
-}
+  await plateStore.handleDeleteTag(props.plate?.id, tag).then(() => {
+    emits("updated");
+  });
+};
 
 const onAddProperty = async (newProperty) => {
-  await plateStore.handleAddProperty(newProperty)
-}
+  await plateStore.handleAddProperty(props.plate?.id, newProperty).then(() => {
+    emits("updated");
+  });
+};
 
 const onRemoveProperty = async (property) => {
-  await plateStore.handleDeleteProperty(property)
-}
+  await plateStore.handleDeleteProperty(props.plate?.id, property).then(() => {
+    emits("updated");
+  });
+};
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

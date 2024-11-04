@@ -21,30 +21,33 @@
       </q-td>
     </template>
   </oa-table>
-  <ProjectActionMenu :project="selectedProjects[0]" />
+  <ProjectActionMenu
+    :projects="selectedProjects"
+    @open="open"
+    @onDeleteProject="deleteProjects"
+    @addTag="doAddTag"
+  />
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from "vue";
+import { onBeforeMount, ref, watch } from "vue";
 import FormatUtils from "@/lib/FormatUtils.js";
-import projectsGraphQlAPI from "@/api/graphql/projects";
-import projectAPI from "@/api/projects";
 
 import OaTable from "@/components/table/OaTable.vue";
 import ProjectActionMenu from "@/components/project/ProjectActionMenu";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
+import { useProjectStore } from "@/stores/project";
 
-const emits = defineEmits("selection");
+const props = defineProps({
+  projects: [Object],
+  selected: [Object],
+});
+const emits = defineEmits(["selection", "updated", "open"]);
 
 const loading = ref(true);
-const projects = ref([]);
 
 const visibleColumns = ref([]);
 const selectedProjects = ref([]);
-
-onMounted(() => {
-  fetchAllProjects();
-});
 
 const columns = ref([
   { name: "id", align: "left", label: "ID", field: "id", sortable: true },
@@ -74,36 +77,44 @@ const columns = ref([
   },
 ]);
 
-const fetchAllProjects = () => {
-  const { onResult, onError } = projectsGraphQlAPI.projects();
-  onResult(({ data }) => {
-    projects.value = data.projects;
-    loading.value = false;
-  });
-  //TODO: implement onError event!
-};
-
-const handleDeleteProject = async (project) => {
-  await projectAPI.deleteProject(project.id)
-  fetchAllProjects()
-}
-
 const router = useRouter();
+const route = useRoute();
 const gotoProjectView = (event, row) => {
-  router.push({ name: "project", params: { id: row.id } });
+  if (router.currentRoute.value.name != "workbench") {
+    router.push({ name: "project", params: { id: row.id } });
+  }
 };
 
 function selectProject(event, row) {
   selectedProjects.value = [row];
 }
 
-watch(projects, () => {
+const projectStore = useProjectStore();
+function deleteProjects() {
+  projectStore
+    .deleteProjects(selectedProjects.value.map((project) => project.id))
+    .then(() => {
+      emits("updated");
+    });
+  selectedProjects.value = [];
+}
+
+watch(props.projects, () => {
   visibleColumns.value = [...columns.value.map((a) => a.name)];
   loading.value = false;
 });
 
 watch(selectedProjects, (newVal, oldVal) => {
-  // const projectsId = newVal.map((item) => item.id);
   emits("selection", newVal);
 });
+
+onBeforeMount(() => {
+  if (route.name == "workbench") {
+    selectedProjects.value = props.selected;
+  }
+});
+
+const open = (resource) => {
+  emits("open", resource);
+};
 </script>

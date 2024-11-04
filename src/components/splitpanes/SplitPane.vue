@@ -28,10 +28,9 @@
             "
           >
             <div>
-              <q-icon
-                :name="component.icon"
-                style="margin-right: 5px"
-              /><span>{{ component.title }}</span>
+              <q-icon :name="component.icon" style="margin-right: 5px" /><span>
+                {{ component.label || component.title }}</span
+              >
             </div>
             <q-icon
               name="close"
@@ -59,19 +58,11 @@
             max-width: 100%;
             height: 100%;
           "
-          v-for="(component, id) in panes"
-          :key="id"
+          v-for="component in panes"
+          :key="component.id"
           :name="component.title"
         >
-          <component
-            :is="component.component"
-            :key="id"
-            v-bind="{ ...component.props }"
-            @selection="
-              (e) => (component.selection ? component.selection(e) : null)
-            "
-          />
-
+          <PaneTab :component="component" />
           <DropArea position="left" @dropped="drop('left')" />
           <DropArea position="top" @dropped="drop('top')" />
           <DropArea position="right" @dropped="drop('right')" />
@@ -87,7 +78,7 @@
 import { ref, onMounted, watch } from "vue";
 import { usePanesStore } from "../../stores/panes";
 import DropArea from "./DropArea.vue";
-import { useUIStore } from "../../stores/ui";
+import PaneTab from "./PaneTab.vue";
 
 const props = defineProps(["panes"]);
 const activeTab = ref();
@@ -96,8 +87,9 @@ const panesStore = usePanesStore();
 
 watch(
   () => props.panes,
-  () => {
-    activeTab.value = props.panes[props.panes.length - 1].title;
+  (newVal, oldVal) => {
+    if (newVal[newVal.length - 1].title != oldVal[oldVal.length - 1].title)
+      activeTab.value = newVal[newVal.length - 1].title;
   }
 );
 
@@ -106,7 +98,7 @@ function dragStart(component) {
 }
 
 function drop(position) {
-  panesStore.addItem(panesStore.draggedElement, props.panes[0].id, position);
+  panesStore.moveItem(panesStore.draggedElement, props.panes[0].id, position);
   panesStore.draggedElement = undefined;
 }
 

@@ -60,6 +60,7 @@ import SelectFeaturesStep from "@/components/plate/SelectFeaturesStep";
 import FilterPlatesStep from "@/components/plate/FilterPlatesStep.vue";
 import {useLoadingHandler} from "@/composable/loadingHandler";
 import exportToExcel from "@/service/exportToExcel";
+import { groupBy, map, last } from 'underscore';
 
 const props = defineProps(['show', "experiment"])
 const emits = defineEmits(['update:show']);
@@ -70,7 +71,7 @@ const experimentProtocols = ref([])
 const experimentFeatures = ref([])
 
 const filterModel = ref({
-  experimentId: experiment.value.id,
+  experimentId: experiment.value.map(e => e.id),
   selectedFeatures: [],
   plateFilter: {
     filterOnValidation: false,
@@ -105,14 +106,18 @@ onUpdated(() => {
 
 const useNotify = useNotification()
 const fetchProtocolsByExperiment = () => {
-  const {onResult, onError} = resultDataGraphQlAPI.protocolsByExperimentId(experiment.value.id)
-  onResult(({data}) => {
-    if (data.protocols && data.protocols.length > 0) {
-      experimentProtocols.value = data.protocols
-      experimentFeatures.value = data.protocols.map(extractFeatures).flat()
-    }
-  })
-  onError((error) => useNotify.showError(error))
+  experimentProtocols.value = []
+  experimentFeatures.value = []
+  for (let e = 0; e < experiment.value.length; e++) {
+    const {onResult, onError} = resultDataGraphQlAPI.protocolsByExperimentId(experiment.value[e].id)
+    onResult(({data}) => {
+      if (data.protocols && data.protocols.length > 0) {
+        experimentProtocols.value = map(groupBy(experimentProtocols.value.concat(data.protocols), 'id'), last);
+        experimentFeatures.value = experimentProtocols.value.map(extractFeatures).flat()
+      }
+    })
+    onError((error) => useNotify.showError(error))
+  }
 }
 
 const extractFeatures = (protocol) => {
@@ -147,12 +152,20 @@ const finish = async () => {
 }
 
 const fetchPlateDataResults = async () => {
-  console.log(JSON.stringify(filterModel.value))
-  const {onResult, onError} = queriesGraphQlAPI.exportPlateData(filterModel.value)
-  onResult(({data}) => {
-    exportToExcel.exportPlateDataToXLSX(data.plateData, experiment.value.name)
-    console.log(JSON.stringify(data.plateData))
-  })
+  const fileName = experiment.value.length === 1 ? experiment.value[0].name : 'selectedPlatesList'
+  var collectiveData = []
+  var callbacks = experiment.value.length
+  for (let e = 0; e < experiment.value.length; e++) {
+    filterModel.value.experimentId = experiment.value[e].id
+    const {onResult, onError} = queriesGraphQlAPI.exportPlateData(filterModel.value)
+    onResult(({data}) => {
+      collectiveData = collectiveData.concat(data.plateData)
+      callbacks -= 1
+      if (callbacks === 0) {
+        exportToExcel.exportPlateDataToXLSX(collectiveData, fileName)
+      }
+    })
+  }
 }
 
 const isValid = () => {

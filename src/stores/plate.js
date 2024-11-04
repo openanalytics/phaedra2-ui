@@ -1,170 +1,184 @@
-import {defineStore} from "pinia"
-import calculationsAPI from "@/api/calculations"
-import projectsGraphQlAPI from "@/api/graphql/projects"
+import { defineStore } from "pinia";
+import calculationsAPI from "@/api/calculations";
+import projectsGraphQlAPI from "@/api/graphql/projects";
 import resultdataGraphQlAPI from "@/api/graphql/resultdata";
 import plateAPI from "@/api/plates";
 import resultDataGraphQlAPI from "@/api/graphql/resultdata";
 import curvesGraphQlAPI from "@/api/graphql/curvedata";
 import ColorUtils from "@/lib/ColorUtils";
-import {computed, ref, watch} from "vue";
-import {useExperimentStore} from "@/stores/experiment";
-import {addTag, deleteTag, addProperty, deleteProperty} from "@/lib/MetadataUtils";
+import { computed, ref, watch } from "vue";
+import { useExperimentStore } from "@/stores/experiment";
+import {
+  addTag,
+  deleteTag,
+  addProperty,
+  deleteProperty,
+} from "@/lib/MetadataUtils";
 
 export const usePlateStore = defineStore("plate", () => {
-  const experimentStore = useExperimentStore()
+  const experimentStore = useExperimentStore();
 
-  const plate = ref(null)
-  const wells = ref([])
-  const measurements = ref([])
-  const resultSets = ref([])
-  const protocols = ref([])
-  const curves = ref([])
-  const activeMeasurement = ref(null)
-  const isMetadataUpdate = ref(false)
+  const plate = ref(null);
+  const wells = ref([]);
+  const measurements = ref([]);
+  const resultSets = ref([]);
+  const protocols = ref([]);
+  const curves = ref([]);
+  const activeMeasurement = ref(null);
+  const isMetadataUpdate = ref(false);
   const activeResultSet = computed(() => {
-    const activeMeasId = activeMeasurement.value?.measurementId ?? null
-    return resultSets.value.filter(
-            rs => rs.measId === activeMeasId && rs.outcome === 'SUCCESS')[0]
-        ?? null
-  })
+    const activeMeasId = activeMeasurement.value?.measurementId ?? null;
+    return (
+      resultSets.value.filter(
+        (rs) => rs.measId === activeMeasId && rs.outcome === "SUCCESS"
+      )[0] ?? null
+    );
+  });
 
-  const featureById = computed(
-      () => protocols.value.map(p => p.features))
-  const isApproved = computed(() => plate.value?.approvalStatus === 'APPROVED')
+  const featureById = computed(() => protocols.value.map((p) => p.features));
+  const isApproved = computed(() => plate.value?.approvalStatus === "APPROVED");
 
   function featuresByProtocolId(protocolId) {
-    return protocols.value.find(p => p.id === protocolId)?.features
+    return protocols.value.find((p) => p.id === protocolId)?.features;
   }
 
   function protocolById(protocolId) {
-    return protocols.value.find(p => p.id === protocolId) ?? null
+    return protocols.value.find((p) => p.id === protocolId) ?? null;
   }
 
   async function loadPlate(plateId) {
-    const {onResult, onError} = projectsGraphQlAPI.plateById(plateId)
-    onResult(({data}) => {
+    const { onResult, onError } = projectsGraphQlAPI.plateById(plateId);
+    onResult(({ data }) => {
       plate.value = data.plate;
-      wells.value = data.wells
-    })
+      wells.value = data.wells;
+    });
   }
 
-  async function reloadPlate() {
-    await loadPlate(plate.value.id)
+  async function reloadPlate(id) {
+    if (id) {
+      await loadPlate(id);
+    }
   }
 
   async function reloadPlateWells() {
-    const {onResult, onError} = projectsGraphQlAPI.wellsByPlateId(
-        plate.value.id)
-    onResult(({data}) => {
+    const { onResult, onError } = projectsGraphQlAPI.wellsByPlateId(
+      plate.value.id
+    );
+    onResult(({ data }) => {
       wells.value = data.wells;
-    })
+    });
   }
 
   async function loadPlateMeasurements(plateId) {
-    const {onResult, onError} = projectsGraphQlAPI.measurementsByPlateId(
-        plateId)
-    onResult(({data}) => {
+    const { onResult, onError } =
+      projectsGraphQlAPI.measurementsByPlateId(plateId);
+    onResult(({ data }) => {
       measurements.value = data.plateMeasurements;
-      activeMeasurement.value = measurements.value.filter(m => m.active === true)[0]
-    })
+      activeMeasurement.value = measurements.value.filter(
+        (m) => m.active === true
+      )[0];
+    });
   }
 
   async function loadPlateCalculations(plateId) {
-    const {onResult, onError} = resultdataGraphQlAPI.resultSetsByPlateId(
-        plateId)
-    onResult(({data}) => {
+    const { onResult, onError } =
+      resultdataGraphQlAPI.resultSetsByPlateId(plateId);
+    onResult(({ data }) => {
       resultSets.value = data.resultSets;
-    })
+    });
   }
 
   async function loadPlateProtocols(plateId) {
-    const {onResult, onError} = resultDataGraphQlAPI.protocolsByPlateId(
-        plateId)
-    onResult(({data}) => {
+    const { onResult, onError } =
+      resultDataGraphQlAPI.protocolsByPlateId(plateId);
+    onResult(({ data }) => {
       protocols.value = data.protocols;
-    })
+    });
   }
 
   async function loadPlateCurves(plateId) {
-    const {onResult, onError} = curvesGraphQlAPI.curvesByPlateId(plateId)
-    onResult(({data}) => {
-      const colorList = ColorUtils.getColorList(data.curves?.length)
+    const { onResult, onError } = curvesGraphQlAPI.curvesByPlateId(plateId);
+    onResult(({ data }) => {
+      const colorList = ColorUtils.getColorList(data.curves?.length);
       curves.value = data.curves?.map((curve, index) => {
-        curve['color'] = colorList[index]
-        return curve
-      })
-    })
+        curve["color"] = colorList[index];
+        return curve;
+      });
+    });
   }
 
-  async function renamePlate(newBarcode) {
-    await plateAPI.editPlate({id: plate.value.id, barcode: newBarcode})
-    await reloadPlate()
+  async function editPlate(id, newVal) {
+    await plateAPI.editPlate({ id: id, ...newVal });
   }
 
-  async function editPlateDescription(newDescription) {
-    await plateAPI.editPlate({id: plate.value.id, description: newDescription})
-    await reloadPlate()
+  async function deletePlate(id) {
+    await plateAPI.deletePlateById(id);
+    reset();
   }
 
-  async function deletePlate() {
-    await plateAPI.deletePlateById(plate.value.id)
-    reset()
+  async function deletePlates(ids) {
+    await plateAPI.deletePlates(ids);
+    reset();
   }
 
   function isLoaded(plateId) {
-    return plate.value?.id === `${plateId}`
+    return plate.value?.id === `${plateId}`;
   }
 
   function reset() {
-    plate.value = null
+    plate.value = null;
   }
 
   async function fitDoseResponseCurves(plate) {
-    await calculationsAPI.fitDoseResponseCurves()
+    await calculationsAPI.fitDoseResponseCurves();
   }
 
-  async function handleAddTag(newTag) {
-    isMetadataUpdate.value = true
-    await addTag(plate.value.id, 'PLATE', newTag, reloadPlate)
+  async function handleAddTag(id, newTag) {
+    isMetadataUpdate.value = true;
+    await addTag(id, "PLATE", newTag, reloadPlate);
   }
 
-  async function handleDeleteTag(tag) {
-    isMetadataUpdate.value = true
-    await deleteTag(plate.value.id, 'PLATE', tag, reloadPlate)
+  async function handleDeleteTag(id, tag) {
+    isMetadataUpdate.value = true;
+    await deleteTag(id, "PLATE", tag, reloadPlate);
   }
 
-  async function handleAddProperty(newProperty) {
-    isMetadataUpdate.value = true
-    await addProperty(plate.value.id, 'PLATE', newProperty, reloadPlate)
+  async function handleAddProperty(id, newProperty) {
+    isMetadataUpdate.value = true;
+    await addProperty(id, "PLATE", newProperty, reloadPlate);
   }
 
-  async function handleDeleteProperty(property) {
-    isMetadataUpdate.value = true
-    await deleteProperty(plate.value.id, 'PLATE', property, reloadPlate)
+  async function handleDeleteProperty(id, property) {
+    isMetadataUpdate.value = true;
+    await deleteProperty(id, "PLATE", property, reloadPlate);
   }
 
   async function acceptWells(wells) {
-    await plateAPI.acceptWells(plate.value.id, wells)
-    await reloadPlateWells()
+    await plateAPI.acceptWells(plate.value.id, wells);
+    await reloadPlateWells();
   }
 
   async function rejectWells(wells, rejectionType, description) {
-    await plateAPI.rejectWells(plate.value.id, wells, rejectionType,
-        description)
-    await reloadPlateWells()
+    await plateAPI.rejectWells(
+      plate.value.id,
+      wells,
+      rejectionType,
+      description
+    );
+    await reloadPlateWells();
   }
 
   watch(plate, async () => {
     if (!isMetadataUpdate.value) {
-      await experimentStore.loadExperiment(plate.value.experimentId)
-      await loadPlateMeasurements(plate.value.id)
-      await loadPlateCalculations(plate.value.id)
-      await loadPlateProtocols(plate.value.id)
-      await loadPlateCurves(plate.value.id)
+      await experimentStore.loadExperiment(plate.value.experimentId);
+      await loadPlateMeasurements(plate.value.id);
+      await loadPlateCalculations(plate.value.id);
+      await loadPlateProtocols(plate.value.id);
+      await loadPlateCurves(plate.value.id);
     }
 
-    isMetadataUpdate.value = false
-  })
+    isMetadataUpdate.value = false;
+  });
 
   return {
     plate,
@@ -186,9 +200,8 @@ export const usePlateStore = defineStore("plate", () => {
     loadPlateCalculations,
     loadPlateProtocols,
     loadPlateCurves,
-    renamePlate,
-    editPlateDescription,
     deletePlate,
+    deletePlates,
     isLoaded,
     reset,
     fitDoseResponseCurves,
@@ -197,6 +210,7 @@ export const usePlateStore = defineStore("plate", () => {
     handleAddProperty,
     handleDeleteProperty,
     acceptWells,
-    rejectWells
-  }
-})
+    editPlate,
+    rejectWells,
+  };
+});

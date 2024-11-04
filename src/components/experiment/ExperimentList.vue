@@ -100,7 +100,13 @@
       </div>
     </template>
   </oa-table>
-  <ExperimentMenu :experiment="selectedExperiment" touch-position />
+  <ExperimentMenu
+    touch-position
+    @onDeleteExperiment="deleteExperiments"
+    @open="open"
+    @updated="updated"
+    :experiments="selectedExperiments"
+  />
 
   <q-dialog v-model="showNewExperimentDialog">
     <q-card style="min-width: 30vw">
@@ -134,7 +140,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onBeforeMount } from "vue";
 
 import ProgressBarField from "@/components/widgets/ProgressBarField";
 import ExperimentMenu from "@/components/experiment/ExperimentMenu";
@@ -142,14 +148,21 @@ import ExperimentMenu from "@/components/experiment/ExperimentMenu";
 import FormatUtils from "@/lib/FormatUtils.js";
 import FilterUtils from "@/lib/FilterUtils";
 import { useExportTableData } from "@/composable/exportTableData";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import OaTable from "@/components/table/OaTable.vue";
+import { useExperimentStore } from "@/stores/experiment";
 
 const props = defineProps({
   experiments: [Object],
   projects: [Object],
+  selected: [Object],
 });
-const emits = defineEmits(["createNewExperiment", "selection"]);
+const emits = defineEmits([
+  "createNewExperiment",
+  "selection",
+  "updated",
+  "open",
+]);
 
 const router = useRouter();
 
@@ -255,10 +268,10 @@ const columns = ref([
 
 const experiments = computed(() =>
   props.experiments ? props.experiments : []
-)
+);
 
 const projectsNames = computed(() =>
-  selectedExperiments.value
+  experimentsToExport.value
     .map(
       (experiment) =>
         props.projects.find((item) => item.id == experiment.projectId).name
@@ -277,7 +290,9 @@ const experimentContextMenu = (event, row) => {
 
 const gotoExperimentView = (event, row) => {
   selectedExperiment.value = row;
-  router.push({ name: "experiment", params: { experimentId: row.id } });
+  if (router.currentRoute.value.name != "workbench") {
+    router.push({ name: "experiment", params: { experimentId: row.id } });
+  }
 };
 
 const showNewExperimentDialog = ref(false);
@@ -332,39 +347,60 @@ watch(
 );
 
 const showConfigDialog = ref(false);
+const experimentsToExport = computed(() =>
+  selectedExperiments.value.length > 0
+    ? selectedExperiments.value
+    : experiments.value
+);
+const exportFileName = computed(() =>
+  projectsNames.value.length > 1
+    ? "selectedExperimentExportList"
+    : projectsNames.value[0]
+);
 
 const exportTableData = useExportTableData(columns.value);
 const exportToCSV = () => {
-  if (projectsNames.value.length > 1) {
-    exportTableData.exportToCSV(
-      filterMethod(experiments.value, filter.value),
-      "selectedExperimentExportList"
-    );
-  } else if (projectsNames.value.length) {
-    exportTableData.exportToCSV(
-      filterMethod(experiments.value, filter.value),
-      projectsNames.value[0]
-    );
-  }
+  exportTableData.exportToCSV(
+    filterMethod(experimentsToExport.value, filter.value),
+    exportFileName.value
+  );
 };
 
 const exportToXLSX = () => {
-  if (projectsNames.value.length > 1) {
-    exportTableData.exportToXLSX(
-      filterMethod(experiments.value, filter.value),
-      "selectedExperimentExportList"
-    );
-  } else if (projectsNames.value.length) {
-    exportTableData.exportToXLSX(
-      filterMethod(experiments.value, filter.value),
-      projectsNames.value[0]
-    );
-  }
+  exportTableData.exportToXLSX(
+    filterMethod(experimentsToExport.value, filter.value),
+    exportFileName.value
+  );
 };
 
 function getUnique(value, index, array) {
   return array.indexOf(value) === index;
 }
+const experimentStore = useExperimentStore();
+function deleteExperiments() {
+  experimentStore
+    .deleteExperiments(selectedExperiments.value.map((exp) => exp.id))
+    .then(() => {
+      updated();
+    });
+  selectedExperiments.value = [];
+}
+
+function updated() {
+  emits("updated");
+}
+
+const route = useRoute();
+
+onBeforeMount(() => {
+  if (route.name == "workbench") {
+    selectedExperiments.value = props.selected;
+  }
+});
+
+const open = (resource) => {
+  emits("open", resource);
+};
 </script>
 
 <style scoped>

@@ -1,5 +1,5 @@
 <template>
-  <q-menu context-menu v-if="project" auto-close>
+  <q-menu context-menu v-if="projects.length > 0" persistent>
     <q-list>
       <q-item dense clickable @click="deleteProject">
         <q-item-section avatar>
@@ -7,7 +7,12 @@
         </q-item-section>
         <q-item-section>Delete Project </q-item-section>
       </q-item>
-      <!-- v-if="router.currentRoute.name == 'workbench'" -->
+      <q-item dense clickable @click="openAddTagModal(true)">
+        <q-item-section avatar>
+          <q-icon name="sell" />
+        </q-item-section>
+        <q-item-section>Add a New Tag </q-item-section>
+      </q-item>
       <q-item
         v-show="route.name == 'workbench'"
         dense
@@ -32,26 +37,28 @@
       </q-item>
     </q-list>
 
+    <AddTagModal v-model:show="addTagModal" @addTag="(e) => doAddTag(e)" />
     <DeleteDialog
       v-model:show="showDeleteDialog"
-      :id="project?.id"
-      :name="project?.name"
-      :objectClass="'project'"
+      :items="projects"
+      objectClass="project"
       @onDeleted="handleDeleteProject"
     />
   </q-menu>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import DeleteDialog from "@/components/widgets/DeleteDialog.vue";
 import { useProjectStore } from "@/stores/project";
 import { usePanesStore } from "@/stores/panes";
 import { useExperimentStore } from "@/stores/experiment";
 import { useRoute } from "vue-router";
+import AddTagModal from "../tag/AddTagModal.vue";
+import { addTags } from "../../lib/MetadataUtils";
 
-const props = defineProps(["project"]);
-const emit = defineEmits(["onDeleteProject"]);
+const props = defineProps(["projects"]);
+const emit = defineEmits(["onDeleteProject", "open"]);
 
 const projectStore = useProjectStore();
 const experimentStore = useExperimentStore();
@@ -66,24 +73,54 @@ const deleteProject = () => {
 };
 
 const handleDeleteProject = () => {
-  emit("onDeleteProject");
   showDeleteDialog.value = false;
+  emit("onDeleteProject");
 };
 
-const fetchProjectData = () => {
+function doAddTag(val) {
+  const projectsArray = Array.from(props.projects);
+  addTags(
+    projectsArray.map(
+      (prj) => prj.id,
+      "PROJECT",
+      val,
+      () => {
+        projectsArray.forEach((project) => {
+          project.tags = [...project.tags, val];
+        });
+      }
+    )
+  );
+}
+
+const firstProjectCondition = computed(
+  () => props.projects && props.projects.length > 0
+);
+
+const fetchProjectsData = () => {
   experimentStore.reset();
-  projectStore.loadProject(props.project.id);
+  if (firstProjectCondition.value) {
+    props.projects.forEach((project) => projectStore.loadProject(project.id));
+  }
 };
 
 const openProjectDetails = () => {
-  fetchProjectData();
-  panesStore.addItem("project-details-pane", "project-list-pane", "right");
+  if (firstProjectCondition.value) {
+    fetchProjectsData();
+    emit("open", "project-details-pane");
+  }
 };
 
 const openExperiments = () => {
-  // fetchProjectData();
-  panesStore.addItem("experiment-list-pane", "project-list-pane", "right");
+  if (firstProjectCondition.value) {
+    emit("open", "experiment-list-pane");
+  }
 };
+
+const addTagModal = ref(false);
+function openAddTagModal(val) {
+  addTagModal.value = val;
+}
 </script>
 
 <style scoped></style>

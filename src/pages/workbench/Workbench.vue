@@ -14,18 +14,20 @@
 import { usePanesStore } from "@/stores/panes";
 import PanesDashboard from "@/components/splitpanes/PanesDashboard.vue";
 import WorkbenchMenu from "@/components/workbench/WorkbenchMenu.vue";
-import { onMounted } from "vue";
-import { useSelectionStore } from "../../stores/selection";
-import projectsGraphQlAPI from "@/api/graphql/projects";
+import { onBeforeMount } from "vue";
+import { useSelectionStore } from "@/stores/selection";
+import { onBeforeRouteLeave } from "vue-router";
 
 const panesStore = usePanesStore();
 const selectionStore = useSelectionStore();
 
-onMounted(() => {
-  const { onResult, onError } = projectsGraphQlAPI.projects();
-  onResult(({ data }) => {
-    selectionStore.projects = data.projects;
-  });
+onBeforeMount(() => {
+  selectionStore.fetchProjects();
+});
+
+onBeforeRouteLeave(() => {
+  const panes = JSON.stringify(panesStore.dynamicPanes);
+  localStorage.setItem("dynamicPanes", panes);
 });
 </script>
 

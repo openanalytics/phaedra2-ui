@@ -63,6 +63,7 @@ import platesAPI from "@/api/plates";
 import {useLoadingHandler} from "@/composable/loadingHandler";
 import queriesGraphQlAPI from "@/api/graphql/queries";
 import exportToExcel from "@/service/exportToExcel";
+import { groupBy, map, last } from 'underscore';
 
 const props = defineProps(['show', "experiment"])
 const emits = defineEmits(['update:show']);
@@ -72,7 +73,7 @@ const experiment = computed(() => props.experiment)
 const experimentProtocols = ref([])
 const experimentFeatures = ref([])
 const filterModel = ref({
-  experimentId: experiment.value.id,
+  experimentId: experiment.value[0].id,
   selectedFeatures: [],
   plateFilter: {
     filterOnValidation: false,
@@ -110,14 +111,18 @@ onUpdated(() => {
 
 const useNotify = useNotification()
 const fetchProtocolsByExperiment = () => {
-  const {onResult, onError} = resultDataGraphQlAPI.protocolsByExperimentId(experiment.value.id)
-  onResult(({data}) => {
-    if (data.protocols) {
-      experimentProtocols.value = data.protocols
-      experimentFeatures.value = data.protocols.map(extractFeatures).flat()
-    }
-  })
-  onError((error) => useNotify.showError(error))
+  experimentProtocols.value = []
+  experimentFeatures.value = []
+  for (let e = 0; e < experiment.value.length; e++) {
+    const {onResult, onError} = resultDataGraphQlAPI.protocolsByExperimentId(experiment.value[e].id)
+    onResult(({data}) => {
+      if (data.protocols && data.protocols.length > 0) {
+        experimentProtocols.value = map(groupBy(experimentProtocols.value.concat(data.protocols), 'id'), last);
+        experimentFeatures.value = experimentProtocols.value.map(extractFeatures).flat()
+      }
+    })
+    onError((error) => useNotify.showError(error))
+  }
 }
 
 const fetchUniqueWellSubstances = () => {
@@ -155,12 +160,20 @@ const finish = async () => {
 }
 
 const fetchPlateDataResults = async () => {
-  console.log(JSON.stringify(filterModel.value))
-  const {onResult, onError} = queriesGraphQlAPI.exportWellData(filterModel.value)
-  onResult(({data}) => {
-    exportToExcel.exportWellDataToXLSX(data.wellData, experiment.value.name)
-    console.log(JSON.stringify(data.wellData))
-  })
+  const fileName = experiment.value.length === 1 ? experiment.value[0].name : 'selectedPlatesList'
+  var collectiveData = []
+  var callbacks = experiment.value.length
+  for (let e = 0; e < experiment.value.length; e++) {
+    filterModel.value.experimentId = experiment.value[e].id
+    const {onResult, onError} = queriesGraphQlAPI.exportWellData(filterModel.value)
+    onResult(({data}) => {
+      collectiveData = collectiveData.concat(data.wellData)
+      callbacks -= 1
+      if (callbacks === 0) {
+        exportToExcel.exportWellDataToXLSX(collectiveData, fileName)
+      }
+    })
+  }
 }
 
 const isValid = () => {

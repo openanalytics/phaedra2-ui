@@ -8,7 +8,6 @@ export const usePanesStore = defineStore("panes", () => {
   const panes = shallowRef(panesList);
 
   const draggedElement = ref();
-  const key = ref(0);
 
   const dynamicPanes = ref([
     "H",
@@ -18,7 +17,16 @@ export const usePanesStore = defineStore("panes", () => {
   ]);
 
   const activePanes = computed(() => {
-    return dynamicPanes.value.flat(Infinity);
+    return dynamicPanes.value
+      .flat(Infinity)
+      .map((pane) => {
+        const result = panesList.value.find((item) => item.id == pane);
+        if (result) {
+          return result;
+        }
+        return;
+      })
+      .filter((pane) => pane != null);
   });
   function mapComponents(idMap) {
     return idMap.map((id) => panes.value.filter((pane) => pane.id == id)[0]);
@@ -49,20 +57,27 @@ export const usePanesStore = defineStore("panes", () => {
   }
 
   function removeEmptyArrays(array, nestedIdx = 0) {
+    if (array.length > 1) {
+      ++nestedIdx;
+      if (Array.isArray(array)) {
+        for (let i = 0; i < array.length; i++) {
+          array[i] = removeEmptyArrays(array[i], nestedIdx);
+        }
+      }
+    }
+
     if (Array.isArray(array)) {
-      if (array.length == 2 && nestedIdx > 0) {
+      array = array.filter((pane) => pane.length != 0);
+    }
+
+    if (Array.isArray(array)) {
+      if (array.length == 2 && nestedIdx > 1) {
         if (array[0] == "H" || array[0] == "V") {
           array = array[1];
         }
       }
-
-      for (let i = 0; i < array.length; i++) {
-        array[i] = removeEmptyArrays(array[i], ++nestedIdx);
-      }
-      if (Array.isArray(array)) {
-        return array.filter((pane) => pane.length != 0);
-      }
     }
+
     return array;
   }
 
@@ -126,41 +141,55 @@ export const usePanesStore = defineStore("panes", () => {
     });
   }
 
-  function insertMenuItem(id, array) {
-    return array.map((pane) => {
-      if (pane == "V" || pane == "H" || typeof pane == "string") {
-        return pane;
-      }
-      if (pane.find((component) => typeof component != "object")) {
-        return [...pane, id];
-      }
-      return insertItem(id, pane);
-    });
-  }
-
   function addItem(id, toId, position) {
-    if (!activePanes.value.includes(id) && id != toId) {
+    if (!activePanes.value.find((pane) => pane.id == id) && id != toId) {
       dynamicPanes.value = insertItem(id, toId, dynamicPanes.value, position);
     }
   }
 
   function addMenuItem(id) {
-    if (!activePanes.value.includes(id) && id != toId) {
-      dynamicPanes.value = insertMenuItem(id, dynamicPanes.value);
+    if (dynamicPanes.value.length < 2) {
+      dynamicPanes.value = ["V", [id]];
+    } else {
+      dynamicPanes.value = insertItem(
+        id,
+        activePanes.value[0].id,
+        dynamicPanes.value,
+        "right"
+      );
     }
   }
 
-  function updateKey() {
-    key.value = ++key.value % 100;
+  function moveItem(id, toId, position) {
+    if (id != toId) {
+      if (activePanes.value.find((pane) => pane.id == id)) {
+        removeItem(id);
+      }
+      dynamicPanes.value = insertItem(id, toId, dynamicPanes.value, position);
+    }
   }
 
   function setDynamicPanesStartValue(value) {
     dynamicPanes.value = value;
-    updateKey();
+  }
+
+  function openTab(tabId) {
+    const newTab = panesList.value.find((pane) => pane.id == tabId);
+    const panes = activePanes.value.filter((pane) => {
+      return pane.groupBy && pane.groupBy == newTab.groupBy;
+    });
+    if (panes.length > 0) {
+      addItem(tabId, panes[0].id, "center");
+    } else {
+      addMenuItem(tabId);
+    }
+  }
+
+  function closeAllTabs() {
+    dynamicPanes.value = [];
   }
 
   return {
-    key,
     dynamicPanes,
     draggedElement,
     removeItem,
@@ -170,5 +199,8 @@ export const usePanesStore = defineStore("panes", () => {
     panes,
     activePanes,
     setDynamicPanesStartValue,
+    moveItem,
+    openTab,
+    closeAllTabs,
   };
 });

@@ -12,14 +12,11 @@
         title="Loading project..."
         icon="folder"
       />
-      <oa-section
+      <ProjectDetails
         v-else
-        :title="projectStore.project.name"
-        icon="folder"
-        :collapsible="true"
-      >
-        <ProjectDetails :project="projectStore.project" />
-      </oa-section>
+        :project="projectStore.project"
+        @updated="projectStore.reloadProject(projectStore.projectId)"
+      />
     </div>
 
     <splitpanes class="default-theme" :horizontal="horizontal">
@@ -30,12 +27,16 @@
       >
         <div class="row oa-section-body">
           <oa-section title="Experiments" icon="science">
-            <ExperimentList :experiments="projectStore.experiments"
-                            :projects="[projectStore.project]"
-                            @createNewExperiment="onCreateNewExperiment"
-                            @selection="handleSelection"/>
+            <ExperimentList
+              :experiments="projectStore.experiments"
+              :projects="[projectStore.project]"
+              @createNewExperiment="onCreateNewExperiment"
+              @selection="handleSelection"
+              @open="handleOpen"
+              @updated="projectStore.reloadProject(projectStore.project.id)"
+            />
           </oa-section>
-            </div>
+        </div>
       </pane>
       <pane
         class="q-pa-sm"
@@ -49,9 +50,7 @@
         />
       </pane>
     </splitpanes>
-        <rename-dialog v-model:show="showRenameDialog" objectClass="project" :object="projectStore.project" @valueChanged="onNameChanged" />
-        <delete-dialog v-model:show="showDeleteDialog" :id="projectStore.project?.id" :name="projectStore.project?.name" :objectClass="'project'" @onDeleted="onDeleted" />
-    </q-page>
+  </q-page>
 </template>
 
 <style scoped lang="scss">
@@ -61,17 +60,17 @@
 </style>
 
 <script setup>
-import {onBeforeMount, onMounted, ref} from "vue";
-import {useRoute} from "vue-router";
+import { onBeforeMount, onMounted, ref } from "vue";
+import { useRoute } from "vue-router";
 
 import ExperimentList from "@/components/experiment/ExperimentList.vue";
 import OaSection from "@/components/widgets/OaSection";
 
-import {useProjectStore} from "@/stores/project";
-import {Pane, Splitpanes} from "splitpanes";
+import { useProjectStore } from "@/stores/project";
+import { Pane, Splitpanes } from "splitpanes";
 import ChartViewer from "@/components/chart/ChartViewer.vue";
-import {useUIStore} from "@/stores/ui";
-import {useExperimentStore} from "@/stores/experiment";
+import { useUIStore } from "@/stores/ui";
+import { useExperimentStore } from "@/stores/experiment";
 import ProjectDetails from "@/components/project/ProjectDetails.vue";
 
 const uiStore = useUIStore();
@@ -90,43 +89,28 @@ onMounted(() => {
 });
 
 const onCreateNewExperiment = async (newExperiment) => {
-  await projectStore.addExperiment(newExperiment)
-}
-
-const onDeleted = async () => {
-  await projectStore.deleteProject()
-  await router.push({name: 'browseProjects'})
-}
-
-const onAddAccess = async (newAccess) => {
-  await projectStore.createProjectAccess(newAccess)
-}
-
-const onRemoveAccess = async (access) => {
-  await projectStore.deleteProjectAccess(access)
-}
-
-const onAddTag = async (newTag) => {
-  await projectStore.handleAddTag(newTag)
-}
-
-const onRemoveTag = async (tag) => {
-  await projectStore.handleDeleteTag(tag)
-}
-
-const onAddProperty = async (newProperty) => {
-  await projectStore.handleAddProperty(newProperty)
-}
-
-const onRemoveProperty = async (property) => {
-  await projectStore.handleDeleteProperty(property)
-}
-
-const openDeleteDialog = () => {
-    showDeleteDialog.value = true
-}
+  await projectStore.addExperiment(newExperiment).then(() => {
+    projectStore.reloadProject(newExperiment.projectId);
+  });
+};
 
 const handleSelection = (experiments) => {
-  uiStore.selectedExperiments = experiments
-}
+  uiStore.selectedExperiments = experiments;
+};
+
+const handleOpen = async (id) => {
+  switch (id) {
+    case "experiment-chart-pane":
+      if (uiStore.isExperimentSelected()) {
+        uiStore.addChartView({
+          type: "trend",
+          experimentId: uiStore.selectedExperiment.id,
+          label: "Experiment Trend Chart",
+        });
+      }
+      break;
+    default:
+      break;
+  }
+};
 </script>

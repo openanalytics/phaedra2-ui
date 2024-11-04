@@ -9,25 +9,52 @@
     selection="multiple"
     v-model:selected="selectedPlates"
   >
-    <template v-slot:top-left v-if="experiment && experiment.status === 'OPEN'">
+    <template
+      v-slot:top-left
+      v-if="experiments.length > 0 && experiments[0].status === 'OPEN'"
+    >
       <q-btn size="sm" icon="add" label="New Plate" class="oa-button">
         <q-menu>
           <q-list size="sm" dense>
-            <q-item clickable v-close-popup v-ripple class="oa-button" @click="openNewPlateDialog">
+            <q-item
+              clickable
+              v-close-popup
+              v-ripple
+              class="oa-button"
+              @click="openNewPlateDialog"
+            >
               <q-item-section no-wrap>
                 <div style="vertical-align: center">
-                  <q-icon name="add" class="q-pr-md"/>
-                  <span style="text-transform: uppercase; font-size: 12px; text-align: right">
+                  <q-icon name="add" class="q-pr-md" />
+                  <span
+                    style="
+                      text-transform: uppercase;
+                      font-size: 12px;
+                      text-align: right;
+                    "
+                  >
                     New Plate
                   </span>
                 </div>
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup v-ripple class="oa-button" @click="openNewPlateFromMeasurementsDialog">
+            <q-item
+              clickable
+              v-close-popup
+              v-ripple
+              class="oa-button"
+              @click="openNewPlateFromMeasurementsDialog"
+            >
               <q-item-section no-wrap class="row">
                 <div>
-                  <q-icon name="add" class="q-pr-md"/>
-                  <span style="text-transform: uppercase; font-size: 12px; text-align: right">
+                  <q-icon name="add" class="q-pr-md" />
+                  <span
+                    style="
+                      text-transform: uppercase;
+                      font-size: 12px;
+                      text-align: right;
+                    "
+                  >
                     New Plate(s) from Measurement(s)
                   </span>
                 </div>
@@ -39,7 +66,7 @@
     </template>
     <template v-slot:top-right>
       <q-btn-dropdown size="sm" class="oa-button q-mr-md" label="Export">
-        <q-list dense >
+        <q-list dense>
           <q-item clickable v-close-popup @click="exportToCSV">
             <q-item-section>
               <q-item-label>Export to CSV</q-item-label>
@@ -94,12 +121,18 @@
       </div>
     </template>
   </oa-table>
-  <PlateActionMenu :plate="selectedPlate" touch-position />
+  <PlateActionMenu
+    :plate="selectedPlate"
+    :plates="selectedPlates"
+    @onDeletePlates="deletePlates"
+    @open="open"
+    touch-position
+  />
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from "vue";
-import { useRouter } from "vue-router";
+import { computed, onMounted, ref, watch, onBeforeMount } from "vue";
+import { useRouter, useRoute } from "vue-router";
 
 import PlateActionMenu from "@/components/plate/PlateActionMenu";
 import StatusFlag from "@/components/widgets/StatusFlag";
@@ -107,28 +140,86 @@ import FormatUtils from "@/lib/FormatUtils";
 import FilterUtils from "@/lib/FilterUtils.js";
 import { useExportTableData } from "@/composable/exportTableData";
 import OaTable from "@/components/table/OaTable.vue";
+import { usePlateStore } from "../../stores/plate";
 
-const props = defineProps(['plates', 'experiment', 'newPlateTab', 'newPlateFromMeasurements'])
-const emits = defineEmits(['update:newPlateTab', 'showPlateInspector', 'selection'])
+const props = defineProps([
+  "plates",
+  "experiments",
+  "newPlateTab",
+  "newPlateFromMeasurements",
+  "selected",
+]);
+const emits = defineEmits([
+  "update:newPlateTab",
+  "showPlateInspector",
+  "selection",
+  "updated",
+  "open",
+]);
 
 const router = useRouter();
 
 const columns = [
-  {name: 'id', align: 'left', label: 'ID', field: 'id', sortable: true},
-  {name: 'barcode', align: 'left', label: 'Barcode', field: 'barcode', sortable: true},
-  {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-  {name: 'link-status', align: 'center', label: 'L', field: 'linkStatus'},
-  {name: 'status-calculation', align: 'center', label: 'C', field: 'calculationStatus'},
-  {name: 'status-validated', align: 'center', label: 'V', field: 'validationStatus'},
-  {name: 'status-approved', align: 'center', label: 'A', field: 'approvalStatus'},
-  {name: 'dimensions', align: 'left', label: 'Dimensions', field: t => `${t.rows} x ${t.columns}`, sortable: true},
-  {name: 'tags', align: 'left', label: 'Tags', field: 'tags', sortable: true},
-  {name: 'createdOn', align: 'left', label: 'Created On', field: 'createdOn', sortable: true, format: FormatUtils.formatDate},
-  {name: 'createdBy', align: 'left', label: 'Created By', field: 'createdBy', sortable: true}
-]
+  { name: "id", align: "left", label: "ID", field: "id", sortable: true },
+  {
+    name: "barcode",
+    align: "left",
+    label: "Barcode",
+    field: "barcode",
+    sortable: true,
+  },
+  {
+    name: "description",
+    align: "left",
+    label: "Description",
+    field: "description",
+    sortable: true,
+  },
+  { name: "link-status", align: "center", label: "L", field: "linkStatus" },
+  {
+    name: "status-calculation",
+    align: "center",
+    label: "C",
+    field: "calculationStatus",
+  },
+  {
+    name: "status-validated",
+    align: "center",
+    label: "V",
+    field: "validationStatus",
+  },
+  {
+    name: "status-approved",
+    align: "center",
+    label: "A",
+    field: "approvalStatus",
+  },
+  {
+    name: "dimensions",
+    align: "left",
+    label: "Dimensions",
+    field: (t) => `${t.rows} x ${t.columns}`,
+    sortable: true,
+  },
+  { name: "tags", align: "left", label: "Tags", field: "tags", sortable: true },
+  {
+    name: "createdOn",
+    align: "left",
+    label: "Created On",
+    field: "createdOn",
+    sortable: true,
+    format: FormatUtils.formatDate,
+  },
+  {
+    name: "createdBy",
+    align: "left",
+    label: "Created By",
+    field: "createdBy",
+    sortable: true,
+  },
+];
 
-const experiment = computed(() => props.experiment)
-const plates = computed(() => props.plates)
+const plates = computed(() => props.plates);
 
 const filter = FilterUtils.makeFilter(columns);
 const filterMethod = FilterUtils.defaultFilterMethod();
@@ -139,12 +230,14 @@ const showPlateContextMenu = ref(false);
 const plateContextMenu = (event, row) => {
   selectedPlate.value = row;
   showPlateContextMenu.value = true;
-}
+};
 
 const gotoPlateView = (event, row) => {
   selectedPlate.value = row;
-  router.push({name: "plate", params: { plateId: selectedPlate.value.id }});
-}
+  if (router.currentRoute.value.name != "workbench") {
+    router.push({ name: "plate", params: { plateId: selectedPlate.value.id } });
+  }
+};
 
 const openNewPlateDialog = () => {
   emits("update:newPlateTab", true);
@@ -156,21 +249,26 @@ const openNewPlateFromMeasurementsDialog = () => {
 
 const loading = ref();
 const visibleColumns = ref([]);
+
+const route = useRoute();
+
+onBeforeMount(() => {
+  if (route.name == "workbench") {
+    selectedPlates.value = props.selected;
+  }
+});
+
 onMounted(() => {
   visibleColumns.value = [...columns.map((a) => a.name)];
   loading.value = false;
-})
+});
 
 watch(plates, () => {
   visibleColumns.value = [...columns.map((a) => a.name)];
   loading.value = false;
-})
-
-const selectedPlates = ref();
-watch(selectedPlates, () => {
-  emits("selection", selectedPlates.value);
 });
 
+const selectedPlates = ref([]);
 const isSelected = (row) => selectedPlates.value?.includes(row) ?? false;
 const updateSelectedPlates = (condition, row) =>
   condition
@@ -189,8 +287,23 @@ const selectPlate = (event, row) => {
   }
 };
 
+watch(selectedPlates, (newVal) => {
+  emits("selection", newVal);
+});
+watch(
+  () => props.plates,
+  (newVal) => {
+    if (newVal) {
+      const ids = newVal.map((item) => item.id);
+      selectedPlates.value = selectedPlates.value.filter((item) =>
+        ids.includes(item.id)
+      );
+    }
+  }
+);
+
 const experimentsNames = computed(() =>
-  selectedPlates.value
+  platesToExport.value
     .map(
       (plate) =>
         props.experiments.find((item) => item.id == plate.experimentId).name
@@ -202,31 +315,41 @@ function getUnique(value, index, array) {
   return array.indexOf(value) === index;
 }
 
+const plateStore = usePlateStore();
+function deletePlates() {
+  plateStore
+    .deletePlates(selectedPlates.value.map((plate) => plate.id))
+    .then(() => {
+      emits("updated");
+    });
+  selectedPlates.value = [];
+}
+
+const platesToExport = computed(() =>
+  selectedPlates.value.length > 0 ? selectedPlates.value : plates.value
+);
+const exportFileName = computed(() =>
+  experimentsNames.value.length > 1
+    ? "selectedPlatesExportList"
+    : experimentsNames.value[0]
+);
+
 const exportTableData = useExportTableData(columns);
 const exportToCSV = () => {
-  if (experimentsNames.value.length > 1) {
-    exportTableData.exportToCSV(
-      filterMethod(plates.value, filter.value),
-      "selectedPlatesExportList"
-    );
-  } else if (experimentsNames.value.length) {
-    exportTableData.exportToCSV(
-      filterMethod(plates.value, filter.value),
-      experimentsNames.value[0]
-    );
-  }
+  exportTableData.exportToCSV(
+    filterMethod(platesToExport.value, filter.value),
+    exportFileName.value
+  );
 };
+
 const exportToXLSX = () => {
-  if (experimentsNames.value.length > 1) {
-    exportTableData.exportToXLSX(
-      filterMethod(plates.value, filter.value),
-      "selectedPlatesExportList"
-    );
-  } else if (experimentsNames.value.length) {
-    exportTableData.exportToXLSX(
-      filterMethod(plates.value, filter.value),
-      experimentsNames.value[0]
-    );
-  }
+  exportTableData.exportToXLSX(
+    filterMethod(platesToExport.value, filter.value),
+    exportFileName.value
+  );
+};
+
+const open = (resource) => {
+  emits("open", resource);
 };
 </script>

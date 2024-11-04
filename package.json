@@ -1,6 +1,6 @@
 {
   "name": "phaedra2-ui",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -26,12 +26,13 @@
     "kafkajs": "^2.2.4",
     "keycloak-js": "23.0.4",
     "material-icons": "^1.2.0",
-    "pinia": "^2.0.27",
+    "pinia": "2.2.4",
     "plotly.js-cartesian-dist-min": "^2.33.0",
     "quasar": "2.15.4",
     "react": "^18.2.0",
     "roboto-fontface": "*",
     "splitpanes": "^3.1.1",
+    "underscore": "^1.13.7",
     "uuid": "10.0.0",
     "vue": "3.4.35",
     "vue-codemirror": "^6.1.1",
