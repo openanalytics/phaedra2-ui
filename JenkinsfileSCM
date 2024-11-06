@@ -16,7 +16,6 @@ pipeline {
             steps {
                 script {
                     def packageJson = readJSON file: './package.json'
-                    echo packageJson.toString()
                     env.ARTIFACT_ID = packageJson.name
                     env.VERSION = packageJson.version
                     env.REGISTRY = "registry.openanalytics.eu"
