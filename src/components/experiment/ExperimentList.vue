@@ -162,7 +162,7 @@ const emits = defineEmits([
 
 const router = useRouter();
 
-const columns = ref([
+const baseColumns = ref([
   {
     name: "id",
     align: "left",
@@ -170,6 +170,14 @@ const columns = ref([
     field: "id",
     sortable: true,
     description: "The experiment id",
+  },
+  {
+    name: "project",
+    align: "left",
+    label: "Project",
+    field: (row) => row.project.name,
+    sortable: true,
+    description: "The project name",
   },
   {
     name: "name",
@@ -261,6 +269,14 @@ const columns = ref([
     description: "Open or closed",
   },
 ]);
+const route = useRoute();
+
+const columns = computed(() => {
+  if (route.name != "workbench") {
+    return baseColumns.value.filter((col) => col.name != "project");
+  }
+  return baseColumns.value;
+});
 
 const experiments = computed(() =>
   props.experiments ? props.experiments : []
@@ -305,9 +321,7 @@ const doCreateNewExperiment = () => {
 };
 
 const loading = ref();
-const visibleColumns = ref([]);
 watch(experiments, () => {
-  visibleColumns.value = [...columns.value.map((a) => a.name)];
   loading.value = false;
 });
 
@@ -385,8 +399,6 @@ function deleteExperiments() {
 function updated() {
   emits("updated");
 }
-
-const route = useRoute();
 
 onBeforeMount(() => {
   if (route.name == "workbench") {

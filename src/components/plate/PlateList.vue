@@ -2,7 +2,6 @@
   <oa-table
     :columns="columns"
     :rows="plates"
-    :visible-columns="visibleColumns"
     @row-click="selectPlate"
     @row-dblclick="gotoPlateView"
     @row-contextmenu="plateContextMenu"
@@ -153,8 +152,16 @@ const emits = defineEmits([
 
 const router = useRouter();
 
-const columns = [
+const baseColumns = ref([
   { name: "id", align: "left", label: "ID", field: "id", sortable: true },
+  {
+    name: "experiment",
+    align: "left",
+    label: "Experiment",
+    field: (row) => row.experiment.name,
+    sortable: true,
+    description: "The experiment name",
+  },
   {
     name: "barcode",
     align: "left",
@@ -211,11 +218,20 @@ const columns = [
     field: "createdBy",
     sortable: true,
   },
-];
+]);
+
+const route = useRoute();
+
+const columns = computed(() => {
+  if (route.name != "workbench") {
+    return baseColumns.value.filter((col) => col.name != "experiment");
+  }
+  return baseColumns.value;
+});
 
 const plates = computed(() => props.plates);
 
-const filter = FilterUtils.makeFilter(columns);
+const filter = FilterUtils.makeFilter(columns.value);
 const filterMethod = FilterUtils.defaultFilterMethod();
 
 const selectedPlate = ref({});
@@ -242,9 +258,6 @@ const openNewPlateFromMeasurementsDialog = () => {
 };
 
 const loading = ref();
-const visibleColumns = ref([]);
-
-const route = useRoute();
 
 onBeforeMount(() => {
   if (route.name == "workbench") {
@@ -253,12 +266,10 @@ onBeforeMount(() => {
 });
 
 onMounted(() => {
-  visibleColumns.value = [...columns.map((a) => a.name)];
   loading.value = false;
 });
 
 watch(plates, () => {
-  visibleColumns.value = [...columns.map((a) => a.name)];
   loading.value = false;
 });
 
@@ -328,7 +339,7 @@ const exportFileName = computed(() =>
     : experimentsNames.value[0]
 );
 
-const exportTableData = useExportTableData(columns);
+const exportTableData = useExportTableData(columns.value);
 const exportToCSV = () => {
   exportTableData.exportToCSV(
     filterMethod(platesToExport.value, filter.value),

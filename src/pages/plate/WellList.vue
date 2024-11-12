@@ -99,6 +99,7 @@ import ColumnFilter from "@/components/table/ColumnFilter";
 import WellActionMenu from "@/components/well/WellActionMenu.vue";
 import { usePlateStore } from "@/stores/plate";
 import OaTable from "@/components/table/OaTable.vue";
+import { useRoute } from "vue-router";
 
 const props = defineProps(["plates", "wells"]);
 const emits = defineEmits(["wellStatusChanged", "selection", "open"]);
@@ -117,8 +118,16 @@ const { onResult, onError } = resultDataGraphQlAPI.resultDataByResultSetId(
 );
 onResult(({ data }) => (resultData.value = data.resultData));
 
-const baseColumns = [
+const baseColumns = ref([
   { name: "id", align: "left", label: "ID", field: "id", sortable: true },
+  {
+    name: "plate",
+    align: "left",
+    label: "Plate",
+    field: (row) => row.plate.barcode,
+    sortable: true,
+    description: "The plate barcode",
+  },
   {
     name: "coordinate",
     align: "left",
@@ -161,7 +170,17 @@ const baseColumns = [
     field: "concentration",
     sortable: true,
   },
-];
+]);
+
+const route = useRoute();
+
+const baseColumnsFiltered = computed(() => {
+  if (route.name != "workbench") {
+    return baseColumns.value.filter((col) => col.name != "plate");
+  }
+  return baseColumns.value;
+});
+
 const columns = ref([]);
 const wells = computed(() =>
   props.wells.map((well) => {
@@ -173,6 +192,7 @@ const wells = computed(() =>
         "",
       status: well.status,
       plateId: well.plateId,
+      plate: well.plate,
       wellType: well.wellType,
       substance: well.wellSubstance?.name ?? "",
       concentration: FormatUtils.formatToScientificNotation(
@@ -289,7 +309,7 @@ const handleAcceptWells = () => {
 };
 
 const updateTable = () => {
-  columns.value = [...baseColumns];
+  columns.value = [...baseColumnsFiltered.value];
 
   if (features.value && resultData.value) {
     const featureCols = computed(() =>
