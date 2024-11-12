@@ -4,13 +4,13 @@ import gql from 'graphql-tag'
 
 const defaultOptions = { fetchPolicy: 'no-cache', errorPolicy: 'ignore'}
 
-const executeQuery = (query, variables) => {
+const executeQuery = async (query, variables) => {
     return provideApolloClient(apolloResultDataClient)(
         () => useQuery(gql`${query}`, variables, defaultOptions));
 }
 
 export default {
-    protocolsByPlateId(plateId) {
+    async protocolsByPlateId(plateId) {
         const query = `
             query protocolsByPlateId($plateId: ID) {
                 protocols:protocolsByPlateId (plateId: $plateId) {
@@ -23,9 +23,9 @@ export default {
                 }
             }
         `
-        return executeQuery(query, {plateId})
+        return await executeQuery(query, {plateId})
     },
-    protocolsByExperimentId(experimentId) {
+    async protocolsByExperimentId(experimentId) {
         const query = `
             query protocolsByExperimentId($experimentId: ID) {
                 protocols:protocolsByExperimentId(experimentId: $experimentId) {
@@ -38,9 +38,9 @@ export default {
                 }
             }
         `
-        return executeQuery(query, {experimentId})
+        return await executeQuery(query, {experimentId})
     },
-    featureValuesByPlateIdAndFeatureIdAndProtocolId(plateId, featureId, protocolId) {
+    async featureValuesByPlateIdAndFeatureIdAndProtocolId(plateId, featureId, protocolId) {
         const query = `
             query featureValuesByPlateIdAndFeatureIdAndProtocolId($plateId: ID, $featureId: ID, $protocolId: ID) {
                 featureValues:featureValuesByPlateIdAndFeatureIdAndProtocolId (plateId: $plateId, featureId: $featureId, protocolId: $protocolId) {
@@ -48,9 +48,9 @@ export default {
                 }
             }
         `
-        return executeQuery(query, {plateId, featureId, protocolId})
+        return await executeQuery(query, {plateId, featureId, protocolId})
     },
-    resultSetsByPlateId(plateId) {
+    async resultSetsByPlateId(plateId) {
         const query = `
             query resultSetsByPlateId($plateId: ID) {
                 resultSets: resultSetsByPlateId(plateId: $plateId) {
@@ -75,9 +75,9 @@ export default {
                 }
             }
         `
-        return executeQuery(query, {plateId})
+        return await executeQuery(query, {plateId})
     },
-    resultSetFeatureStats(resultSetId) {
+    async resultSetFeatureStats(resultSetId) {
         const query = `
             query resultSetsByPlateId($resultSetId: ID) {
                 rsFeatureStats:resultSetFeatureStats(resultSetId: $resultSetId) {
@@ -90,9 +90,9 @@ export default {
                 }
             }
         `
-        return executeQuery(query, {resultSetId})
+        return await executeQuery(query, {resultSetId})
     },
-    resultDataByResultSetId(resultSetId) {
+    async resultDataByResultSetId(resultSetId) {
         const query = `
             query resultDataByResultSetId($resultSetId: ID) {
                 resultData:resultDataByResultSetId(resultSetId: $resultSetId) {
@@ -107,9 +107,9 @@ export default {
                 }
             }
         `
-        return executeQuery(query, {resultSetId})
+        return await executeQuery(query, {resultSetId})
     },
-    resultDataByResultSetIdAndFeatureId(resultSetId, featureId) {
+    async resultDataByResultSetIdAndFeatureId(resultSetId, featureId) {
         const query = `
             query resultData($resultSetId: ID, $featureId: ID) {
                 resultData:resultDataByResultSetIdAndFeatureId(resultSetId: $resultSetId, featureId: $featureId) {
@@ -117,9 +117,9 @@ export default {
                 }
             }
         `
-        return executeQuery(query, {resultSetId, featureId})
+        return await executeQuery(query, {resultSetId, featureId})
     },
-    resultDataByPlateIdAndProtocolIdAndFeatureId(plateId, protocolId, featureId) {
+    async resultDataByPlateIdAndProtocolIdAndFeatureId(plateId, protocolId, featureId) {
         const query = gql`
             query resultDataByPlateIdAndProtocolIdAndFeatureId($plateId: ID, $protocolId: ID, $featureId: ID) {
                 resultData: resultDataByPlateIdAndProtocolIdAndFeatureId(plateId: $plateId, protocolId: $protocolId, featureId: $featureId) {
@@ -134,9 +134,9 @@ export default {
                 }
             }
         `
-        return executeQuery(query, {plateId, protocolId, featureId})
+        return await executeQuery(query, {plateId, protocolId, featureId})
     },
-    latestResultSetByPlateId(plateId) {
+    async latestResultSetByPlateId(plateId) {
         const query = `
             query latestResultSetByPlateId($plateId: ID) {
                 resultSet:latestResultSetByPlateId(plateId: $plateId) {
@@ -148,9 +148,9 @@ export default {
                 }
             }
         `
-        return executeQuery(query, {plateId})
+        return await executeQuery(query, {plateId})
     },
-    latestResultSetsByPlateIds(plateIds) {
+    async latestResultSetsByPlateIds(plateIds) {
         const query = `
             query latestResultSetsByPlateIds($plateIds: [ID]) {
                 resultSets:latestResultSetsByPlateIds(plateIds: $plateIds) {
@@ -162,6 +162,6 @@ export default {
                 }
             }
         `
-        return executeQuery(query, {plateIds})
+        return await executeQuery(query, {plateIds})
     }
 }

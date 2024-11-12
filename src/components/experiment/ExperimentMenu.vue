@@ -185,8 +185,8 @@ const openDeleteDialog = () => {
   showDeleteDialog.value = true;
 };
 
-const getPlates = () => {
-  const { onResult, onError } = projectsGraphQlAPI.platesByExperimentIds(
+const getPlates = async () => {
+  const { onResult, onError } = await projectsGraphQlAPI.platesByExperimentIds(
     props.experiments?.map((exp) => exp.id)
   );
   onResult(({ data }) => {

@@ -67,7 +67,7 @@ export const useUIStore = defineStore("ui", {
   },
   actions: {
     async loadSelectedPlate(plateId) {
-      const { onResult, onError } = projectsGraphQlAPI.plateById(plateId);
+      const { onResult, onError } = await projectsGraphQlAPI.plateById(plateId);
       onResult(({ data }) => {
         this.selectedPlate = data.plate;
         this.selectedPlate["wells"] = data.wells;
@@ -77,8 +77,7 @@ export const useUIStore = defineStore("ui", {
       });
     },
     async loadPlateMeasurements(plateId) {
-      const { onResult, onError } =
-        projectsGraphQlAPI.measurementsByPlateId(plateId);
+      const { onResult, onError } = await projectsGraphQlAPI.measurementsByPlateId(plateId);
       onResult(({ data }) => {
         this.selectedPlate["measurements"] = data.plateMeasurements;
       });
@@ -91,8 +90,7 @@ export const useUIStore = defineStore("ui", {
       });
     },
     async loadPlateProtocols(plateId) {
-      const { onResult, onError } =
-        resultDataGraphQlAPI.protocolsByPlateId(plateId);
+      const { onResult, onError } = await resultDataGraphQlAPI.protocolsByPlateId(plateId);
       onResult(({ data }) => {
         this.selectedPlate["protocols"] = data.protocols;
       });

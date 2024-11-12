@@ -1,20 +1,46 @@
-import {
-  provideApolloClient,
-  useMutation,
-  useQuery
-} from '@vue/apollo-composable'
+// import {
+//   provideApolloClient,
+//   useMutation,
+//   useQuery
+// } from '@vue/apollo-composable'
+import { createClient } from 'graphql-http';
 import gql from 'graphql-tag'
 import {apolloPlatesClient} from "@/graphql/apollo.clients";
 
-const defaultOptions = {fetchPolicy: 'no-cache', errorPolicy: 'ignore'}
+const defaultOptions = {
+  fetchOptions: {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  },
+};
 
-const executeQuery = (query, variables) => {
-  return provideApolloClient(apolloPlatesClient)(
-      () => useQuery(gql`${query}`, variables, defaultOptions));
-}
+const executeQuery = async (query, variables) => {
+  let cancel = () => {
+    /* abort the request if it is in-flight */
+  };
+
+  const result = await new Promise((resolve, reject) => {
+    let result;
+    cancel = apolloPlatesClient.subscribe(
+        {
+          query: query,
+          variables: variables
+        },
+        {
+          next: (data) => (result = data),
+          error: reject,
+          complete: () => resolve(result),
+        },
+    );
+  });
+
+  return result;
+};
 
 export default {
-  projects(projectIds) {
+  async projects(projectIds) {
     const query = `
         query getProjects($projectIds: [ID]) {
             projects:getProjects(projectIds: $projectIds) {
@@ -27,9 +53,10 @@ export default {
             }
         }
     `
-    return executeQuery(query, {projectIds});
+    const result = await executeQuery(query, {projectIds});
+    return result.data;
   },
-  projectById(projectId) {
+  async projectById(projectId) {
     const query = `
         query projectById($projectId: ID) {
             project:getProjectById(projectId: $projectId) {
@@ -73,9 +100,9 @@ export default {
             }
         }
     `
-    return executeQuery(query, {projectId});
+    return await executeQuery(query, {projectId});
   },
-  nMostRecentlyUpdatedProjects(n) {
+  async nMostRecentlyUpdatedProjects(n) {
     const query = `
         query getNMostRecentlyUpdatedProjects($n: Int) {
             projects:getNMostRecentlyUpdatedProjects(n: $n) {
@@ -88,9 +115,9 @@ export default {
             }
         }
     `
-    return executeQuery(query, {n});
+    return await executeQuery(query, {n});
   },
-  experiments(experimentIds) {
+  async experiments(experimentIds) {
     const query = `
         query experimentById($experimentIds: [ID]) {
             experiment:getExperimentById(experimentIds: $experimentIds) {
@@ -107,9 +134,9 @@ export default {
             }
         }
     `
-    return executeQuery(query, {experimentIds});
+    return await executeQuery(query, {experimentIds});
   },
-  experimentById(experimentId) {
+  async experimentById(experimentId) {
     const query = `
         query experimentById($experimentId: ID) {
             experiment:getExperimentById(experimentId: $experimentId) {
@@ -153,9 +180,9 @@ export default {
             }
         }
     `
-    return executeQuery(query, {experimentId});
+    return await executeQuery(query, {experimentId});
   },
-  experimentsByProjectId(projectId) {
+  async experimentsByProjectId(projectId) {
     const query = `
         query getExperimentsByProjectId {
             experiments:getExperimentsByProjectId(projectId: ${projectId}) {
@@ -172,9 +199,9 @@ export default {
             }
         }
     `
-    return executeQuery(query, {projectId});
+    return await executeQuery(query, {projectId});
   },
-  plates(plateIds) {
+  async plates(plateIds) {
     const query = `
         query getPlateById($plateIds: [ID]) {
             plate:getPlateById(plateIds: $plateIds) {
@@ -213,9 +240,9 @@ export default {
             }
         }
     `
-    return executeQuery(query, {plateIds});
+    return await executeQuery(query, {plateIds});
   },
-  plateById(plateId) {
+  async plateById(plateId) {
     const query = `
         query getPlateById($plateId: ID) {
             plate:getPlateById(plateId: $plateId) {
@@ -278,7 +305,7 @@ export default {
     `
     return executeQuery(query, {plateId});
   },
-  platesByExperimentIds(experimentIds){
+  async platesByExperimentIds(experimentIds){
     const query = `
         query getPlatesByExperimentIds($experimentIds: [ID]) {
             plate:getPlatesByExperimentIds(experimentIds: $experimentIds) {
@@ -317,9 +344,9 @@ export default {
             }
         }
     `
-    return executeQuery(query, {experimentIds});
+    return await executeQuery(query, {experimentIds});
   },
-  wells(wellIds) {
+  async wells(wellIds) {
     const query = `
         query wells($wellIds: [ID]) {
             wells:getWells(wellIds: $wellIds) {
@@ -343,9 +370,9 @@ export default {
             }
         }
     `
-    return executeQuery(query, {wellIds});
+    return await executeQuery(query, {wellIds});
   },
-  wellById(wellId) {
+  async wellById(wellId) {
     const query = `
         query getWellById($wellId: ID) {
             well:getWellById(wellId: $wellId) {
@@ -370,9 +397,9 @@ export default {
             }
         }
     `
-    return executeQuery(query, {wellId});
+    return await executeQuery(query, {wellId});
   },
-  wellsByPlateId(plateId) {
+  async wellsByPlateId(plateId) {
     const query = `
         query getPlateWells($plateId: ID) {
             wells:getPlateWells(plateId: $plateId) {
@@ -393,9 +420,9 @@ export default {
             }
         }
     `
-    return executeQuery(query, {plateId});
+    return await executeQuery(query, {plateId});
   },
-  wellsByPlateIds(plateIds) {
+  async wellsByPlateIds(plateIds) {
     const query = `
         query getWellsByPlateIds($plateIds: [ID]) {
             wells:getWellsByPlateIds(plateIds: $plateIds) {
@@ -416,9 +443,9 @@ export default {
             }
         }
     `
-    return executeQuery(query, {plateIds});
+    return await executeQuery(query, {plateIds});
   },
-  measurementsByPlateId(plateId) {
+  async measurementsByPlateId(plateId) {
     const query = `
         query getMeasurementsByPlateId($plateId: ID) {
             plateMeasurements:getMeasurementsByPlateId(plateId: $plateId) {
@@ -441,9 +468,9 @@ export default {
             }
         }
     `
-    return executeQuery(query, {plateId});
+    return await executeQuery(query, {plateId});
   },
-  activeMeasurementByPlateIds(plateIds) {
+  async activeMeasurementByPlateIds(plateIds) {
     const query = `
         query getActiveMeasurementByPlateIds($plateIds: [ID]) {
             plateMeasurements:getActiveMeasurementByPlateIds(plateIds: $plateIds) {
@@ -456,9 +483,9 @@ export default {
             }
         }
     `
-    return executeQuery(query, {plateIds});
+    return await executeQuery(query, {plateIds});
   },
-  activeMeasurementsByExperimentId(experimentId) {
+  async activeMeasurementsByExperimentId(experimentId) {
     const query = `
         query getActiveMeasurementsByExperimentId {
             plateMeasurements:getActiveMeasurementsByExperimentId(experimentId: ${experimentId}) {
@@ -471,7 +498,7 @@ export default {
             }
         }
     `
-    return executeQuery(query, {experimentId});
+    return await executeQuery(query, {experimentId});
   },
   linkPlateMeasurement(plateId, measurementId) {
     const mutation = gql`

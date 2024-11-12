@@ -43,8 +43,8 @@ onMounted(() => {
   fetchProjectExperiments();
 });
 
-const fetchProjectExperiments = () => {
-  const { onResult, onError } = projectsGraphQlAPI.experimentsByProjectId(
+const fetchProjectExperiments = async () => {
+  const { onResult, onError } = await projectsGraphQlAPI.experimentsByProjectId(
     props.project.id
   );
   onResult(({ data }) => {

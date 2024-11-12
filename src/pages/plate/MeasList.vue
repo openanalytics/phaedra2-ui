@@ -74,8 +74,8 @@ const columns = [
 const plateMeasurements = ref([])
 const plateStore = usePlateStore()
 
-const fetchPlateMeasurements = () => {
-  const {onResult, onError} = projectsGraphQlAPI.measurementsByPlateId(props.plate.id)
+const fetchPlateMeasurements = async () => {
+  const {onResult, onError} = await projectsGraphQlAPI.measurementsByPlateId(props.plate.id)
   onResult(({data}) => {
     plateMeasurements.value = data.plateMeasurements
     plateStore.reloadPlate()

@@ -19,8 +19,8 @@ onMounted(() => {
   fetchNRecentProject(3);
 });
 
-const fetchNRecentProject = (n) => {
-  const { onResult } = projectsGraphQlAPI.nMostRecentlyUpdatedProjects(n);
+const fetchNRecentProject = async (n) => {
+  const { onResult } = await projectsGraphQlAPI.nMostRecentlyUpdatedProjects(n);
   onResult(({ data }) => (recentProjects.value = data.projects));
 };
 </script>

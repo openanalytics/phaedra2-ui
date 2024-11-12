@@ -183,12 +183,11 @@ export const useSelectionStore = defineStore("selection", () => {
     });
   }
 
-  function loadExperiment(experimentsId, replace = true) {
+  async function loadExperiment(experimentsId, replace = true) {
     if (!experimentsId) {
       experimentsId = selectedExperimentsIds.value;
     }
-    const { onResult, onError } =
-      projectsGraphQlAPI.platesByExperimentIds(experimentsId);
+    const { onResult, onError } = await projectsGraphQlAPI.platesByExperimentIds(experimentsId);
     onResult(({ data }) => {
       if (replace) {
         plates.value = data.plate;
@@ -198,10 +197,9 @@ export const useSelectionStore = defineStore("selection", () => {
     });
   }
 
-  function loadPlate(platesIds, replace = true) {
+  async function loadPlate(platesIds, replace = true) {
     if (platesIds) {
-      const { onResult, onError } =
-        projectsGraphQlAPI.wellsByPlateIds(platesIds);
+      const { onResult, onError } = await projectsGraphQlAPI.wellsByPlateIds(platesIds);
       onResult(({ data }) => {
         if (replace) {
           wells.value = data.wells;
@@ -212,29 +210,28 @@ export const useSelectionStore = defineStore("selection", () => {
     }
   }
 
-  function loadWells(platesId) {
+  async function loadWells(platesId) {
     if (platesId) {
-      const { onResult, onError } = projectsGraphQlAPI.wellsByPlateId(platesId);
+      const { onResult, onError } = await projectsGraphQlAPI.wellsByPlateId(platesId);
       onResult(({ data }) => {
         heatmapWells.value = data.wells;
       });
     }
   }
 
-  function loadPlateMeasurements(plate) {
-    const { onResult, onError } =
-      projectsGraphQlAPI.measurementsByPlateId(plate.id);
-    onResult(({ data }) => {
+  async function loadPlateMeasurements(plate) {
+    const { onResult, onError } = await projectsGraphQlAPI.measurementsByPlateId(plate.id);
+    onResult(async ({ data }) => {
       measurements.value = data.plateMeasurements;
       activeMeasurement.value = measurements.value.filter(
         (m) => m.active === true
       )[0];
-      loadWells(plate.id);
+      await loadWells(plate.id);
     });
   }
 
-  function loadPlateProtocols(plate) {
-    const { onResult, onError } = resultDataGraphQlAPI.protocolsByPlateId(
+  async function loadPlateProtocols(plate) {
+    const { onResult, onError } = await resultDataGraphQlAPI.protocolsByPlateId(
       plate.id
     );
     onResult(({ data }) => {
@@ -338,14 +335,14 @@ export const useSelectionStore = defineStore("selection", () => {
   });
 
   const fetchProject = async (id) => {
-    const { onResult } = projectsGraphQlAPI.projectById(id);
+    const { onResult } = await projectsGraphQlAPI.projectById(id);
     onResult(({ data }) => {
       selectedProjectDetails.value = data.project;
     });
   };
 
   const fetchExperiment = async (id) => {
-    const { onResult } = projectsGraphQlAPI.experimentById(id);
+    const { onResult } = await projectsGraphQlAPI.experimentById(id);
     onResult(({ data }) => {
       selectedExperimentDetails.value = data.experiment;
     });
@@ -356,7 +353,7 @@ export const useSelectionStore = defineStore("selection", () => {
   };
 
   const fetchWell = async (wellId) => {
-    const { onResult, onError } = projectsGraphQlAPI.wellById(wellId);
+    const { onResult, onError } = await projectsGraphQlAPI.wellById(wellId);
     onResult(({ data }) => {
       selectedWellDetails.value = data.well;
       selectedWellDetails.value["pos"] = WellUtils.getWellCoordinate(
@@ -397,11 +394,13 @@ export const useSelectionStore = defineStore("selection", () => {
     loadProjects(selectedProjectsIds.value);
   });
 
-  function fetchProjects() {
-    const { onResult, onError } = projectsGraphQlAPI.projects();
-    onResult(({ data }) => {
-      projects.value = data.projects;
-    });
+  const fetchProjects = async () => {
+    const data = await projectsGraphQlAPI.projects();
+    projects.value = data.projects;
+    // const { onResult, onError } = await projectsGraphQlAPI.projects();
+    // onResult(({ data }) => {
+    //   projects.value = data.projects;
+    // });
   }
 
   return {

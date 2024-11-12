@@ -68,10 +68,10 @@ const handleRawFeatureSelection = (measurementColumn) => {
   }
 };
 
-const handleCalculatedFeatureSelection = (calculatedFeature) => {
+const handleCalculatedFeatureSelection = async (calculatedFeature) => {
   if (calculatedFeature) {
     const { onResult } =
-      resultDataGraphQlAPI.featureValuesByPlateIdAndFeatureIdAndProtocolId(
+      await resultDataGraphQlAPI.featureValuesByPlateIdAndFeatureIdAndProtocolId(
         props.plate.id,
         calculatedFeature.featureId,
         calculatedFeature.protocolId

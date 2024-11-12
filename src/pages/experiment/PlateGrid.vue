@@ -30,14 +30,14 @@ const props = defineProps(['plates', 'experiment']);
 const protocols = ref([])
 const measurements = ref([])
 
-const fetchMeasurementsByExperiment = () => {
-  const {onResult} = projectsGraphQlAPI.activeMeasurementsByExperimentId(props.experiment.id)
+const fetchMeasurementsByExperiment = async () => {
+  const {onResult} = await projectsGraphQlAPI.activeMeasurementsByExperimentId(props.experiment.id)
   onResult(({data}) => measurements.value = data.plateMeasurements.filter(m => m !== null))
 }
 fetchMeasurementsByExperiment()
 
-const fetchProtocolsByExperiment = () => {
-  const {onResult, onError} = resultDataGraphQlAPI.protocolsByExperimentId(props.experiment.id)
+const fetchProtocolsByExperiment = async () => {
+  const {onResult, onError} = await resultDataGraphQlAPI.protocolsByExperimentId(props.experiment.id)
   onResult(({data}) => protocols.value = data.protocols)
 }
 fetchProtocolsByExperiment()
@@ -61,13 +61,13 @@ const handleRawFeatureSelection = (rawFeature) => {
   }
 }
 
-const handleCalculatedFeatureSelection = (calculatedFeature) => {
+const handleCalculatedFeatureSelection = async (calculatedFeature) => {
   if (calculatedFeature) {
     for (let i = 0; i < plateDataPerPlate.value.length; i++) {
       const plateId = plateDataPerPlate.value[i].plate.id
 
       // TODO: Implement onError handler
-      const {onResult, onError} = resultDataGraphQlAPI.featureValuesByPlateIdAndFeatureIdAndProtocolId(plateId, calculatedFeature.featureId, calculatedFeature.protocolId)
+      const {onResult, onError} = await resultDataGraphQlAPI.featureValuesByPlateIdAndFeatureIdAndProtocolId(plateId, calculatedFeature.featureId, calculatedFeature.protocolId)
       onResult(({data}) => {
         plateDataPerPlate.value[i].resultData = { values: data?.featureValues ? data.featureValues.map(fv => fv.value) : [] }
       })

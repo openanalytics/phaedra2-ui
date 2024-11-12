@@ -19,12 +19,9 @@ import projectsGraphQlAPI from "@/api/graphql/projects";
 
 const projects = ref([]);
 
-const fetchAllProjects = () => {
-  const { onResult, onError } = projectsGraphQlAPI.projects();
-  onResult(({ data }) => {
-    projects.value = data.projects;
-  });
-  //TODO: implement onError event!
+const fetchAllProjects = async () => {
+  const data = await projectsGraphQlAPI.projects()
+  projects.value = data.projects;
 };
 
 onMounted(() => {

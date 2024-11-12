@@ -26,7 +26,7 @@ export const useWellStore = defineStore("well", () => {
   const isMetadataUpdate = ref(false);
 
   const loadWell = async (wellId) => {
-    const { onResult, onError } = projectsGraphQlAPI.wellById(wellId);
+    const { onResult, onError } = await projectsGraphQlAPI.wellById(wellId);
     onResult(({ data }) => {
       well.value = data.well;
       well.value["pos"] = WellUtils.getWellCoordinate(

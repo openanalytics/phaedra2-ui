@@ -105,11 +105,11 @@ onUpdated(() => {
 })
 
 const useNotify = useNotification()
-const fetchProtocolsByExperiment = () => {
+const fetchProtocolsByExperiment = async () => {
   experimentProtocols.value = []
   experimentFeatures.value = []
   for (let e = 0; e < experiment.value.length; e++) {
-    const {onResult, onError} = resultDataGraphQlAPI.protocolsByExperimentId(experiment.value[e].id)
+    const {onResult, onError} = await resultDataGraphQlAPI.protocolsByExperimentId(experiment.value[e].id)
     onResult(({data}) => {
       if (data.protocols && data.protocols.length > 0) {
         experimentProtocols.value = map(groupBy(experimentProtocols.value.concat(data.protocols), 'id'), last);

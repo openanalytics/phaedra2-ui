@@ -100,8 +100,8 @@
     const protocols = ref([])
     const features = ref([])
 
-    const fetchProtocols = () => {
-      const {onResult, onError} = resultDataGraphQlAPI.protocolsByExperimentId(props.experiment.id)
+    const fetchProtocols = async () => {
+      const {onResult, onError} = await resultDataGraphQlAPI.protocolsByExperimentId(props.experiment.id)
       onResult(({data}) => {
         protocols.value = data.protocols
         features.value = protocols.value.flatMap(protocol => protocol.features)
@@ -116,11 +116,11 @@
     }
 
     // Phase 2: fetch plate stats
-    const fetchResultSets = () => {
+    const fetchResultSets = async () => {
       const plateIds = plates.value.map(plate => plate.id)
 
-      const {onResult, onError} = resultDataGraphQlAPI.latestResultSetsByPlateIds(plateIds)
-      onResult(({data}) => {
+      const {onResult, onError} = await resultDataGraphQlAPI.latestResultSetsByPlateIds(plateIds)
+      onResult(async ({data}) => {
         for (let i in data.resultSets) {
           const plateStatRow = {
             'id': data.resultSets[i].plateId,
@@ -128,7 +128,7 @@
           }
 
           // TODO: implement onError
-          const {onResult, onError} = resultDataGraphQlAPI.resultSetFeatureStats(data.resultSets[i].id)
+          const {onResult, onError} = await resultDataGraphQlAPI.resultSetFeatureStats(data.resultSets[i].id)
           onResult(({data}) => {
             features.value.forEach(feature => {
               statsToShow.forEach(stat => {

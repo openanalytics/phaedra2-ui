@@ -24,8 +24,7 @@ export const useExperimentStore = defineStore("experiment", () => {
 
   async function loadExperiment(experimentId) {
     if (experimentId) {
-      const { onResult, onError } =
-        projectsGraphQlAPI.experimentById(experimentId);
+      const { onResult, onError } = await projectsGraphQlAPI.experimentById(experimentId);
       onResult(({ data }) => {
         experiment.value = data.experiment;
         plates.value = data.plates;

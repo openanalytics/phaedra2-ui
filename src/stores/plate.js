@@ -47,7 +47,7 @@ export const usePlateStore = defineStore("plate", () => {
   }
 
   async function loadPlate(plateId) {
-    const { onResult, onError } = projectsGraphQlAPI.plateById(plateId);
+    const { onResult, onError } = await projectsGraphQlAPI.plateById(plateId);
     onResult(({ data }) => {
       plate.value = data.plate;
       wells.value = data.wells;
@@ -61,7 +61,7 @@ export const usePlateStore = defineStore("plate", () => {
   }
 
   async function reloadPlateWells() {
-    const { onResult, onError } = projectsGraphQlAPI.wellsByPlateId(
+    const { onResult, onError } = await projectsGraphQlAPI.wellsByPlateId(
       plate.value.id
     );
     onResult(({ data }) => {
@@ -70,8 +70,7 @@ export const usePlateStore = defineStore("plate", () => {
   }
 
   async function loadPlateMeasurements(plateId) {
-    const { onResult, onError } =
-      projectsGraphQlAPI.measurementsByPlateId(plateId);
+    const { onResult, onError } = await projectsGraphQlAPI.measurementsByPlateId(plateId);
     onResult(({ data }) => {
       measurements.value = data.plateMeasurements;
       activeMeasurement.value = measurements.value.filter(
@@ -89,8 +88,7 @@ export const usePlateStore = defineStore("plate", () => {
   }
 
   async function loadPlateProtocols(plateId) {
-    const { onResult, onError } =
-      resultDataGraphQlAPI.protocolsByPlateId(plateId);
+    const { onResult, onError } = await resultDataGraphQlAPI.protocolsByPlateId(plateId);
     onResult(({ data }) => {
       protocols.value = data.protocols;
     });

@@ -70,10 +70,10 @@ const showDialog = computed({
 const selected = ref([]);
 const activeMeasurements = ref({});
 
-onUpdated(() => {
+onUpdated(async () => {
   const plateIds = props.plates.map((plate) => Number.parseInt(plate.id));
   const { onResult, onError } =
-    projectsGraphQlAPI.activeMeasurementByPlateIds(plateIds);
+    await projectsGraphQlAPI.activeMeasurementByPlateIds(plateIds);
   onResult(({ data }) => {
     if (data.plateMeasurements) {
       for (let plateMeas of data.plateMeasurements) {

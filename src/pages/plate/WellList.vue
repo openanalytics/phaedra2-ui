@@ -116,7 +116,7 @@ const resultData = ref([]);
 const resultSet = plateStore.activeResultSet;
 features.value = plateStore.featuresByProtocolId(resultSet?.protocolId);
 
-const { onResult, onError } = resultDataGraphQlAPI.resultDataByResultSetId(
+const { onResult, onError } = await resultDataGraphQlAPI.resultDataByResultSetId(
   resultSet?.id
 );
 onResult(({ data }) => (resultData.value = data.resultData));
