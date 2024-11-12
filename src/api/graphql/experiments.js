@@ -106,7 +106,7 @@ export default {
             }
         `
     const result = await executeQuery(query, { projectId })
-    return result
+    return result.data
   },
   async experimentsByProjectIds(projectIds) {
     const query = `
@@ -139,7 +139,7 @@ export default {
             }
         `
     const result = await executeQuery(query, { projectIds })
-    return result
+    return result.data
   },
   async experimentSummaries() {
     const query = `

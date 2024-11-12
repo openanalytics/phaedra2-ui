@@ -70,7 +70,7 @@ export const useSelectionStore = defineStore("selection", () => {
 
   const experiments = computed({
     get: () => localExperiments.value,
-    set: async (newVal) => {
+    set: (newVal) => {
       const changes = detectChanges(
         localExperiments.value,
         newVal,
