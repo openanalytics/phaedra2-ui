@@ -1,23 +1,30 @@
-import { provideApolloClient, useQuery } from "@vue/apollo-composable";
-import gql from "graphql-tag";
-import { apolloPlatesClient } from "@/graphql/apollo.clients";
+import { platesGraphQLClient } from "@/graphql/apollo.clients";
 
-const defaultOptions = { fetchPolicy: "no-cache", errorPolicy: "ignore" };
+const executeQuery = async (query, variables) => {
+  let cancel = () => {
+    /* abort the request if it is in-flight */
+  };
 
-const executeQuery = (query, variables) => {
-  return provideApolloClient(apolloPlatesClient)(() =>
-    useQuery(
-      gql`
-        ${query}
-      `,
-      variables,
-      defaultOptions
-    )
-  );
+  const result = await new Promise((resolve, reject) => {
+    let result;
+    cancel = platesGraphQLClient.subscribe(
+        {
+          query: query,
+          variables: variables
+        },
+        {
+          next: (data) => (result = data),
+          error: reject,
+          complete: () => resolve(result),
+        },
+    );
+  });
+
+  return result;
 };
 
 export default {
-  experiments(experimentIds) {
+  async experiments(experimentIds) {
     const query = `
             query getExperiments($experimentIds: [ID]) {
                 experiments:getExperiments(experimentIds: $experimentIds) {
@@ -35,10 +42,11 @@ export default {
                     tags
                 }
             }
-        `;
-    return executeQuery(query, { experimentIds });
+        `
+    const result = await executeQuery(query, { experimentIds })
+    return result.data
   },
-  nMostRecentExperiments(n) {
+  async nMostRecentExperiments(n) {
     const query = `
             query nMostRecentExperiments($n: Int) {
                 experiments:getNMostRecentExperiments(n: $n) {
@@ -54,10 +62,11 @@ export default {
                     tags
                 }
             }
-        `;
-    return executeQuery(query, { n });
+        `
+    const result = await executeQuery(query, { n })
+    return result.data
   },
-  experimentById(experimentId) {
+  async experimentById(experimentId) {
     const query = `
             query experimentById($experimentId: ID) {
                 experiment:getExperimentById(experimentId: $experimentId) {
@@ -75,10 +84,11 @@ export default {
                     tags
                 }
             }
-        `;
-    return executeQuery(query, { experimentId });
+        `
+    const result = await executeQuery(query, { experimentId })
+    return result.data
   },
-  experimentsByProjectId(projectId) {
+  async experimentsByProjectId(projectId) {
     const query = `
             query experimentsByProjectId($projectId: ID) {
                 experiment:getExperimentsByProjectId(projectId: $projectId) {
@@ -94,10 +104,11 @@ export default {
                     tags
                 }
             }
-        `;
-    return executeQuery(query, { projectId });
+        `
+    const result = await executeQuery(query, { projectId })
+    return result
   },
-  experimentsByProjectIds(projectIds) {
+  async experimentsByProjectIds(projectIds) {
     const query = `
             query experimentsByProjectIds($projectIds: [ID]) {
                 experiments:getExperimentsByProjectIds(projectIds: $projectIds) {
@@ -126,10 +137,11 @@ export default {
                     }
                 }
             }
-        `;
-    return executeQuery(query, { projectIds });
+        `
+    const result = await executeQuery(query, { projectIds })
+    return result
   },
-  experimentSummaries() {
+  async experimentSummaries() {
     const query = `
             query getExperiments {
                 experimentSummaries:getExperimentSummaries {
@@ -140,7 +152,8 @@ export default {
                     nrPlatesApproved
                 }
             }
-        `;
-    return executeQuery(query, {});
+        `
+    const result = await executeQuery(query, {})
+    return result.data
   },
 };

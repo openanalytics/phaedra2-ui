@@ -164,70 +164,88 @@ export const useSelectionStore = defineStore("selection", () => {
     return array.indexOf(value) === index;
   }
 
-  function loadProjects(projectIds, replace = true) {
+  async function loadProjects(projectIds, replace = true) {
     if (!projectIds) {
       projectIds = selectedProjectsIds.value;
     }
-    const { onResult, onError } =
-      experimentsGraphQlAPI.experimentsByProjectIds(projectIds);
-    onResult(({ data }) => {
-      // let fetchedExperiments = data
-      // .map((item) => item.experiments)
-      // .reduce((item1, item2) => item1.concat(item2));
-      if (replace) {
-        experiments.value = data.experiments;
-      } else {
-        experiments.value = [...experiments.value, ...data.experiments];
-      }
-      // projects.value = [data.project];
-    });
+    const data = await experimentsGraphQlAPI.experimentsByProjectIds(projectIds);
+    if (replace) {
+      experiments.value = data.experiments;
+    } else {
+      experiments.value = [...experiments.value, ...data.experiments];
+    }
+    // const { onResult, onError } =
+    //   experimentsGraphQlAPI.experimentsByProjectIds(projectIds);
+    // onResult(({ data }) => {
+    //   // let fetchedExperiments = data
+    //   // .map((item) => item.experiments)
+    //   // .reduce((item1, item2) => item1.concat(item2));
+    //   if (replace) {
+    //     experiments.value = data.experiments;
+    //   } else {
+    //     experiments.value = [...experiments.value, ...data.experiments];
+    //   }
+    //   // projects.value = [data.project];
+    // });
   }
 
   async function loadExperiment(experimentsId, replace = true) {
     if (!experimentsId) {
       experimentsId = selectedExperimentsIds.value;
     }
-    const { onResult, onError } = await projectsGraphQlAPI.platesByExperimentIds(experimentsId);
-    onResult(({ data }) => {
-      if (replace) {
-        plates.value = data.plate;
-      } else {
-        plates.value = [...plates.value, ...data.plate];
-      }
-    });
+    const data = await projectsGraphQlAPI.platesByExperimentIds(experimentsId);
+    if (replace) {
+      plates.value = data.plate;
+    } else {
+      plates.value = [...plates.value, ...data.plate];
+    }
+    // const { onResult, onError } = await projectsGraphQlAPI.platesByExperimentIds(experimentsId);
+    // onResult(({ data }) => {
+    //   if (replace) {
+    //     plates.value = data.plate;
+    //   } else {
+    //     plates.value = [...plates.value, ...data.plate];
+    //   }
+    // });
   }
 
   async function loadPlate(platesIds, replace = true) {
     if (platesIds) {
-      const { onResult, onError } = await projectsGraphQlAPI.wellsByPlateIds(platesIds);
-      onResult(({ data }) => {
-        if (replace) {
-          wells.value = data.wells;
-        } else {
-          wells.value = [...wells.value, ...data.wells];
-        }
-      });
+      const data = await projectsGraphQlAPI.wellsByPlateIds(platesIds);
+      if (replace) {
+        wells.value = data.wells;
+      } else {
+        wells.value = [...wells.value, ...data.wells];
+      }
+      // const { onResult, onError } = await projectsGraphQlAPI.wellsByPlateIds(platesIds);
+      // onResult(({ data }) => {
+      //   if (replace) {
+      //     wells.value = data.wells;
+      //   } else {
+      //     wells.value = [...wells.value, ...data.wells];
+      //   }
+      // });
     }
   }
 
   async function loadWells(platesId) {
     if (platesId) {
-      const { onResult, onError } = await projectsGraphQlAPI.wellsByPlateId(platesId);
-      onResult(({ data }) => {
-        heatmapWells.value = data.wells;
-      });
+      const data = await projectsGraphQlAPI.wellsByPlateId(platesId);
+      heatmapWells.value = data.wells;
+      // const { onResult, onError } = await projectsGraphQlAPI.wellsByPlateId(platesId);
+      // onResult(({ data }) => {
+      //   heatmapWells.value = data.wells;
+      // });
     }
   }
 
   async function loadPlateMeasurements(plate) {
-    const { onResult, onError } = await projectsGraphQlAPI.measurementsByPlateId(plate.id);
-    onResult(async ({ data }) => {
-      measurements.value = data.plateMeasurements;
-      activeMeasurement.value = measurements.value.filter(
+    const data = await projectsGraphQlAPI.measurementsByPlateId(plate.id);
+    measurements.value = data.plateMeasurements;
+    activeMeasurement.value = measurements.value.filter(
         (m) => m.active === true
-      )[0];
-      await loadWells(plate.id);
-    });
+    )[0];
+    await loadWells(plate.id);
   }
 
   async function loadPlateProtocols(plate) {
@@ -293,10 +311,10 @@ export const useSelectionStore = defineStore("selection", () => {
     }
   });
 
-  watch(selectedExperiments, (newVal, oldVal) => {
+  watch(selectedExperiments, async (newVal, oldVal) => {
     if (newVal.length > 0) {
       let flag = false;
-      newVal.forEach((element) => {
+      await newVal.forEach((element) => {
         if (!oldVal.find((el) => element == el)) {
           flag = true;
           if (selectedExperimentDetails.value.id != element.id) {
@@ -327,25 +345,25 @@ export const useSelectionStore = defineStore("selection", () => {
       selectedExperimentDetails.value = {};
       chart.value.experiment = undefined;
     }
-    loadExperiment(selectedExperimentsIds.value);
+    await loadExperiment(selectedExperimentsIds.value);
   });
 
-  watch(selectedPlates, () => {
-    loadPlate(selectedPlatesIds.value);
+  watch(selectedPlates, async () => {
+    await loadPlate(selectedPlatesIds.value);
   });
 
   const fetchProject = async (id) => {
-    const { onResult } = await projectsGraphQlAPI.projectById(id);
-    onResult(({ data }) => {
-      selectedProjectDetails.value = data.project;
-    });
+    const results = await projectsGraphQlAPI.projectById(id);
+    selectedProjectDetails.value = results.project;
   };
 
   const fetchExperiment = async (id) => {
-    const { onResult } = await projectsGraphQlAPI.experimentById(id);
-    onResult(({ data }) => {
-      selectedExperimentDetails.value = data.experiment;
-    });
+    const data =  await projectsGraphQlAPI.experimentById(id);
+    selectedExperimentDetails.value = data.experiment;
+    // const { onResult } = await projectsGraphQlAPI.experimentById(id);
+    // onResult(({ data }) => {
+    //   selectedExperimentDetails.value = data.experiment;
+    // });
   };
 
   const fetchPlate = async (id) => {
@@ -353,30 +371,36 @@ export const useSelectionStore = defineStore("selection", () => {
   };
 
   const fetchWell = async (wellId) => {
-    const { onResult, onError } = await projectsGraphQlAPI.wellById(wellId);
-    onResult(({ data }) => {
-      selectedWellDetails.value = data.well;
-      selectedWellDetails.value["pos"] = WellUtils.getWellCoordinate(
+    const data = await projectsGraphQlAPI.wellById(wellId);
+    selectedWellDetails.value = data.well;
+    selectedWellDetails.value["pos"] = WellUtils.getWellCoordinate(
         selectedWellDetails.value.row,
         selectedWellDetails.value.column
-      );
-    });
+    );
+    // const { onResult, onError } = await projectsGraphQlAPI.wellById(wellId);
+    // onResult(({ data }) => {
+    //   selectedWellDetails.value = data.well;
+    //   selectedWellDetails.value["pos"] = WellUtils.getWellCoordinate(
+    //     selectedWellDetails.value.row,
+    //     selectedWellDetails.value.column
+    //   );
+    // });
   };
 
-  watch(selectedProjects, (newVal, oldVal) => {
+  watch(selectedProjects, async (newVal, oldVal) => {
     if (newVal.length > 0) {
       let flag = false;
-      newVal.forEach((element) => {
+      for (const element of newVal) {
         if (!oldVal.find((el) => element == el)) {
           flag = true;
           if (
             selectedProjectDetails.value &&
             selectedProjectDetails.value.id != element.id
           ) {
-            fetchProject(element.id);
+            await fetchProject(element.id);
           }
         }
-      });
+      }
       if (
         !flag &&
         newVal.length > 0 &&
@@ -386,12 +410,12 @@ export const useSelectionStore = defineStore("selection", () => {
             el.id == selectedProjectDetails.value.id
         )
       ) {
-        fetchProject(newVal[0]);
+        await fetchProject(newVal[0]);
       }
     } else {
       selectedProjectDetails.value = {};
     }
-    loadProjects(selectedProjectsIds.value);
+    await loadProjects(selectedProjectsIds.value);
   });
 
   const fetchProjects = async () => {

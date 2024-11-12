@@ -44,16 +44,20 @@ onMounted(() => {
 });
 
 const fetchProjectExperiments = async () => {
-  const { onResult, onError } = await projectsGraphQlAPI.experimentsByProjectId(
-    props.project.id
-  );
-  onResult(({ data }) => {
-    total.value = data.experiments?.length ?? 0;
-    open.value =
-      data.experiments?.filter((exp) => exp.status === "OPEN").length ?? 0;
-    closed.value =
-      data.experiments?.filter((exp) => exp.status === "CLOSED").length ?? 0;
-  });
+  const data = await projectsGraphQlAPI.experimentsByProjectId(props.project.id);
+  total.value = data.experiments?.length ?? 0;
+  open.value = data.experiments?.filter((exp) => exp.status === "OPEN").length ?? 0;
+  closed.value = data.experiments?.filter((exp) => exp.status === "CLOSED").length ?? 0;
+  // const { onResult, onError } = await projectsGraphQlAPI.experimentsByProjectId(
+  //   props.project.id
+  // );
+  // onResult(({ data }) => {
+  //   total.value = data.experiments?.length ?? 0;
+  //   open.value =
+  //     data.experiments?.filter((exp) => exp.status === "OPEN").length ?? 0;
+  //   closed.value =
+  //     data.experiments?.filter((exp) => exp.status === "CLOSED").length ?? 0;
+  // });
 
   // onError((error) => {
   //   displayErrorNotification("Error while updating plates: " + error.message)

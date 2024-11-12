@@ -15,7 +15,7 @@
       <ProjectDetails
         v-else
         :project="projectStore.project"
-        @updated="projectStore.reloadProject(projectStore.projectId)"
+        @updated="projectStore.reloadProject(projectStore.project.id)"
       />
     </div>
 

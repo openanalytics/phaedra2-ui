@@ -1,16 +1,30 @@
-import {provideApolloClient, useQuery} from '@vue/apollo-composable'
-import gql from 'graphql-tag'
-import {apolloPlatesClient} from "@/graphql/apollo.clients";
+import {platesGraphQLClient} from "@/graphql/apollo.clients";
 
-const defaultOptions = {fetchPolicy: 'no-cache', errorPolicy: 'ignore'}
+const executeQuery = async (query, variables) => {
+  let cancel = () => {
+    /* abort the request if it is in-flight */
+  };
 
-const executeQuery = (query, variables) => {
-  return provideApolloClient(apolloPlatesClient)(
-      () => useQuery(gql`${query}`, variables, defaultOptions));
-}
+  const result = await new Promise((resolve, reject) => {
+    let result;
+    cancel = platesGraphQLClient.subscribe(
+        {
+          query: query,
+          variables: variables
+        },
+        {
+          next: (data) => (result = data),
+          error: reject,
+          complete: () => resolve(result),
+        },
+    );
+  });
+
+  return result;
+};
 
 export default {
-  templates() {
+  async templates() {
     const query = `
             query getPlateTemplates {
                 plateTemplates:getPlateTemplates {
@@ -27,9 +41,10 @@ export default {
                 }
             }
         `
-    return executeQuery(query, {})
+    const result = await executeQuery(query, {})
+    return result.data
   },
-  templateById(plateTemplateId) {
+  async templateById(plateTemplateId) {
     const query = `
             query getPlateTemplateById($plateTemplateId: ID) {
                 plateTemplate:getPlateTemplateById(plateTemplateId: $plateTemplateId) {
@@ -62,6 +77,7 @@ export default {
                 }
             }
         `
-    return executeQuery(query, {plateTemplateId})
+    const result = await executeQuery(query, {plateTemplateId})
+    return result.data
   }
 }

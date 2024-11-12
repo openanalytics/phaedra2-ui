@@ -181,15 +181,17 @@ const openDeleteDialog = () => {
 };
 
 const getPlates = async () => {
-  const { onResult, onError } = await projectsGraphQlAPI.platesByExperimentIds(
-    props.experiments?.map((exp) => exp.id)
-  );
-  onResult(({ data }) => {
-    plates.value = [...data.plate];
-  });
-  onError((error) => {
-    notify.showError("Error while updating plates: " + error.message);
-  });
+  const data = await projectsGraphQlAPI.platesByExperimentIds(props.experiments?.map((exp) => exp.id));
+  plates.value = [...data.plate];
+  // const { onResult, onError } = await projectsGraphQlAPI.platesByExperimentIds(
+  //   props.experiments?.map((exp) => exp.id)
+  // );
+  // onResult(({ data }) => {
+  //   plates.value = [...data.plate];
+  // });
+  // onError((error) => {
+  //   notify.showError("Error while updating plates: " + error.message);
+  // });
 };
 
 const setPlateLayout = () => {

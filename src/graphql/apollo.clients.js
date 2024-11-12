@@ -10,7 +10,7 @@ const apolloResultDataClient = createClient({
     url: `${apiURL}/resultdata-service/graphql`
 })
 
-const apolloPlatesClient = createClient({
+const platesGraphQLClient = createClient({
     headers: {
         Authorization: `Bearer ${token}`
     },
@@ -54,7 +54,7 @@ const apolloQueriesClient = createClient({
 
 export {
     apolloResultDataClient,
-    apolloPlatesClient,
+    platesGraphQLClient,
     apolloChartsClient,
     apolloCurvesClient,
     apolloProtocolsClient,

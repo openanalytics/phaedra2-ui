@@ -1,16 +1,30 @@
-import {apolloMeasurementsClient} from "@/graphql/apollo.clients";
-import {provideApolloClient, useQuery} from '@vue/apollo-composable'
-import gql from 'graphql-tag'
+import { apolloMeasurementsClient } from "@/graphql/apollo.clients";
 
-const defaultOptions = { fetchPolicy: 'no-cache', errorPolicy: 'ignore'}
+const executeQuery = async (query, variables) => {
+    let cancel = () => {
+        /* abort the request if it is in-flight */
+    };
 
-const executeQuery = (query, variables) => {
-    return provideApolloClient(apolloMeasurementsClient)(
-        () => useQuery(gql`${query}`, variables, defaultOptions));
-}
+    const result = await new Promise((resolve, reject) => {
+        let result;
+        cancel = apolloMeasurementsClient.subscribe(
+            {
+                query: query,
+                variables: variables
+            },
+            {
+                next: (data) => (result = data),
+                error: reject,
+                complete: () => resolve(result),
+            },
+        );
+    });
+
+    return result;
+};
 
 export default {
-    measurementsAll() {
+    async measurementsAll() {
         const query = `
             query measurements {
                 measurements {
@@ -25,9 +39,10 @@ export default {
                 }
             }
         `
-        return executeQuery(query, {})
+        const result = await executeQuery(query, {})
+        return result.data
     },
-    measurementById(measurementId) {
+    async measurementById(measurementId) {
         const query = `
             query measurementById($measurementId: ID) {
                 measurement:measurementById(measurementId: $measurementId) {
@@ -45,9 +60,10 @@ export default {
                 }
             }
         `
-        return executeQuery(query, {measurementId})
+        const result = await executeQuery(query, {measurementId})
+        return result.data
     },
-    measurementsColumnsById(measurementId) {
+    async measurementsColumnsById(measurementId) {
       const query = `
           query measurementById($measurementId: ID) {
               wellColumns:measurementById(measurementId: $measurementId) {
@@ -55,14 +71,16 @@ export default {
               }
           }
       `
-        return executeQuery(query, {measurementId})
+        const result = await executeQuery(query, {measurementId})
+        return result.data
     },
-    measurementWellData(measurementId, wellColumn) {
+    async measurementWellData(measurementId, wellColumn) {
         const query = `
             query measurementWellData($measurementId: ID, $wellColumn: String) {
                 wellData:measurementDataByIdAndWellColumn(measurementId: $measurementId, wellColumn: $wellColumn)
             }
         `
-        return executeQuery(query, {measurementId, wellColumn})
+        const result = await executeQuery(query, {measurementId, wellColumn})
+        return result.data
     }
 }

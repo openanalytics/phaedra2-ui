@@ -56,13 +56,17 @@ const handleFeatureOptionSelection = () => {
 
 const handleRawFeatureSelection = (measurementColumn) => {
   if (measurementColumn) {
-    const { onResult } = measurementsGraphQlAPI.measurementWellData(
-      measurementColumn.measurementId,
-      measurementColumn.column
-    );
-    onResult(({ data }) => {
-      wellData.value = data?.wellData ? data.wellData : [];
-    });
+    const data = measurementsGraphQlAPI.measurementWellData(
+        measurementColumn.measurementId,
+        measurementColumn.column)
+    wellData.value = data?.wellData ? data.wellData : [];
+    // const { onResult } = measurementsGraphQlAPI.measurementWellData(
+    //   measurementColumn.measurementId,
+    //   measurementColumn.column
+    // );
+    // onResult(({ data }) => {
+    //   wellData.value = data?.wellData ? data.wellData : [];
+    // });
   } else {
     wellData.value = [];
   }

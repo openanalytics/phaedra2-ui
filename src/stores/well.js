@@ -26,14 +26,20 @@ export const useWellStore = defineStore("well", () => {
   const isMetadataUpdate = ref(false);
 
   const loadWell = async (wellId) => {
-    const { onResult, onError } = await projectsGraphQlAPI.wellById(wellId);
-    onResult(({ data }) => {
-      well.value = data.well;
-      well.value["pos"] = WellUtils.getWellCoordinate(
+    const data = await projectsGraphQlAPI.wellById(wellId);
+    well.value = data.well;
+    well.value["pos"] = WellUtils.getWellCoordinate(
         well.value.row,
         well.value.column
-      );
-    });
+    );
+    // const { onResult, onError } = await projectsGraphQlAPI.wellById(wellId);
+    // onResult(({ data }) => {
+    //   well.value = data.well;
+    //   well.value["pos"] = WellUtils.getWellCoordinate(
+    //     well.value.row,
+    //     well.value.column
+    //   );
+    // });
   };
 
   const reloadWell = async () => {

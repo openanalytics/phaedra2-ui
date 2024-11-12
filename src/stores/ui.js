@@ -67,20 +67,29 @@ export const useUIStore = defineStore("ui", {
   },
   actions: {
     async loadSelectedPlate(plateId) {
-      const { onResult, onError } = await projectsGraphQlAPI.plateById(plateId);
-      onResult(({ data }) => {
-        this.selectedPlate = data.plate;
-        this.selectedPlate["wells"] = data.wells;
+      const data = await projectsGraphQlAPI.plateById(plateId);
+      this.selectedPlate = data.plate;
+      this.selectedPlate["wells"] = data.wells;
 
-        this.loadPlateCalculations(plateId);
-        this.loadPlateProtocols(plateId);
-      });
+      await this.loadPlateCalculations(plateId);
+      await this.loadPlateProtocols(plateId);
+
+      // const { onResult, onError } = await projectsGraphQlAPI.plateById(plateId);
+      // onResult(({ data }) => {
+      //   this.selectedPlate = data.plate;
+      //   this.selectedPlate["wells"] = data.wells;
+      //
+      //   this.loadPlateCalculations(plateId);
+      //   this.loadPlateProtocols(plateId);
+      // });
     },
     async loadPlateMeasurements(plateId) {
-      const { onResult, onError } = await projectsGraphQlAPI.measurementsByPlateId(plateId);
-      onResult(({ data }) => {
-        this.selectedPlate["measurements"] = data.plateMeasurements;
-      });
+      const data = await projectsGraphQlAPI.measurementsByPlateId(plateId);
+      this.selectedPlate["measurements"] = data.plateMeasurements;
+      // const { onResult, onError } = await projectsGraphQlAPI.measurementsByPlateId(plateId);
+      // onResult(({ data }) => {
+      //   this.selectedPlate["measurements"] = data.plateMeasurements;
+      // });
     },
     async loadPlateCalculations(plateId) {
       const { onResult, onError } =

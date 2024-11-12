@@ -62,8 +62,10 @@ const showDialog = computed({
 const allMeasurements = ref([])
 const selectedMeasurement = ref([]);
 
-const {onResult, onError} = measurementsGraphQlAPI.measurementsAll()
-onResult(({data}) => allMeasurements.value = data.measurements)
+const data = await measurementsGraphQlAPI.measurementsAll()
+allMeasurements.value = data.measurements
+// const {onResult, onError} = measurementsGraphQlAPI.measurementsAll()
+// onResult(({data}) => allMeasurements.value = data.measurements)
 // TODO: Implement onError
 
 const filteredMeasurements = computed(() => preFilterMeasurements(allMeasurements.value))

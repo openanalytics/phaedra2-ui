@@ -24,15 +24,18 @@ export const useExperimentStore = defineStore("experiment", () => {
 
   async function loadExperiment(experimentId) {
     if (experimentId) {
-      const { onResult, onError } = await projectsGraphQlAPI.experimentById(experimentId);
-      onResult(({ data }) => {
-        experiment.value = data.experiment;
-        plates.value = data.plates;
-      });
-
-      onError((error) => {
-        console.error(error);
-      });
+      const data = await projectsGraphQlAPI.experimentById(experimentId);
+      experiment.value = data.experiment;
+      plates.value = data.plates;
+      // const { onResult, onError } = await projectsGraphQlAPI.experimentById(experimentId);
+      // onResult(({ data }) => {
+      //   experiment.value = data.experiment;
+      //   plates.value = data.plates;
+      // });
+      //
+      // onError((error) => {
+      //   console.error(error);
+      // });
     }
   }
 
@@ -169,9 +172,9 @@ export const useExperimentStore = defineStore("experiment", () => {
     experiment.value = {};
   }
 
-  watch(experiment, () => {
+  watch(experiment, async () => {
     if (!isMetadataUpdate.value) {
-      projectStore.loadProject(experiment.value.projectId);
+      await projectStore.loadProject(experiment.value.projectId);
     }
     isMetadataUpdate.value = false;
   });

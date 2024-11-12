@@ -47,11 +47,14 @@ export const usePlateStore = defineStore("plate", () => {
   }
 
   async function loadPlate(plateId) {
-    const { onResult, onError } = await projectsGraphQlAPI.plateById(plateId);
-    onResult(({ data }) => {
-      plate.value = data.plate;
-      wells.value = data.wells;
-    });
+    const data = await projectsGraphQlAPI.plateById(plateId);
+    plate.value = data.plate;
+    wells.value = data.wells;
+    // const { onResult, onError } = await projectsGraphQlAPI.plateById(plateId);
+    // onResult(({ data }) => {
+    //   plate.value = data.plate;
+    //   wells.value = data.wells;
+    // });
   }
 
   async function reloadPlate(id) {
@@ -61,22 +64,29 @@ export const usePlateStore = defineStore("plate", () => {
   }
 
   async function reloadPlateWells() {
-    const { onResult, onError } = await projectsGraphQlAPI.wellsByPlateId(
-      plate.value.id
-    );
-    onResult(({ data }) => {
-      wells.value = data.wells;
-    });
+    const data = await projectsGraphQlAPI.wellsByPlateId(plate.value.id);
+    wells.value = data.wells;
+    // const { onResult, onError } = await projectsGraphQlAPI.wellsByPlateId(
+    //   plate.value.id
+    // );
+    // onResult(({ data }) => {
+    //   wells.value = data.wells;
+    // });
   }
 
   async function loadPlateMeasurements(plateId) {
-    const { onResult, onError } = await projectsGraphQlAPI.measurementsByPlateId(plateId);
-    onResult(({ data }) => {
-      measurements.value = data.plateMeasurements;
-      activeMeasurement.value = measurements.value.filter(
+    const data = await projectsGraphQlAPI.measurementsByPlateId(plateId);
+    measurements.value = data.plateMeasurements;
+    activeMeasurement.value = measurements.value.filter(
         (m) => m.active === true
-      )[0];
-    });
+    )[0];
+    // const { onResult, onError } = await projectsGraphQlAPI.measurementsByPlateId(plateId);
+    // onResult(({ data }) => {
+    //   measurements.value = data.plateMeasurements;
+    //   activeMeasurement.value = measurements.value.filter(
+    //     (m) => m.active === true
+    //   )[0];
+    // });
   }
 
   async function loadPlateCalculations(plateId) {

@@ -75,11 +75,14 @@ const plateMeasurements = ref([])
 const plateStore = usePlateStore()
 
 const fetchPlateMeasurements = async () => {
-  const {onResult, onError} = await projectsGraphQlAPI.measurementsByPlateId(props.plate.id)
-  onResult(({data}) => {
-    plateMeasurements.value = data.plateMeasurements
-    plateStore.reloadPlate()
-  })
+  const data = await projectsGraphQlAPI.measurementsByPlateId(props.plate.id)
+  plateMeasurements.value = data.plateMeasurements
+  await plateStore.reloadPlate()
+  // const {onResult, onError} = await projectsGraphQlAPI.measurementsByPlateId(props.plate.id)
+  // onResult(({data}) => {
+  //   plateMeasurements.value = data.plateMeasurements
+  //   plateStore.reloadPlate()
+  // })
 }
 
 const showLinkMeasDialog = ref(false);

@@ -150,21 +150,27 @@ const columns = [
   { name: "createdBy", label: "Created By", align: "left", field: "createdBy" },
 ];
 
-const fetchNRecentExperiments = (n) => {
-  const { onResult } = experimentsGraphQlAPI.nMostRecentExperiments(n);
-  onResult(({ data }) => (recentExperiments.value = data.experiments));
+const fetchNRecentExperiments = async (n) => {
+  const data = await experimentsGraphQlAPI.nMostRecentExperiments(n)
+  recentExperiments.value = data.experiments
+  // const { onResult } = experimentsGraphQlAPI.nMostRecentExperiments(n);
+  // onResult(({ data }) => (recentExperiments.value = data.experiments));
 };
 
-const fetchExperimentSummaries = () => {
-  const { onResult, onError } = experimentsGraphQlAPI.experimentSummaries();
-  onResult(
-    ({ data }) => (recentExperimentSummaries.value = data.experimentSummaries)
-  );
+const fetchExperimentSummaries = async () => {
+  const data = await experimentsGraphQlAPI.experimentSummaries()
+  recentExperimentSummaries.value = data.experimentSummaries
+  // const { onResult, onError } = experimentsGraphQlAPI.experimentSummaries();
+  // onResult(
+  //   ({ data }) => (recentExperimentSummaries.value = data.experimentSummaries)
+  // );
 };
 
 const fetchNRecentProject = async (n) => {
-  const { onResult } = await projectsGraphQlAPI.nMostRecentlyUpdatedProjects(n);
-  onResult(({ data }) => (recentProjects.value = data.projects));
+  const data = await projectsGraphQlAPI.nMostRecentlyUpdatedProjects(n);
+  recentProjects.value = data.projects
+  // const { onResult } = await projectsGraphQlAPI.nMostRecentlyUpdatedProjects(n);
+  // onResult(({ data }) => (recentProjects.value = data.projects));
 };
 
 const getProjectName = (projectId) => {

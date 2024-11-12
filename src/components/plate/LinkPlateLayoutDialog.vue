@@ -84,9 +84,12 @@ const selectedTemplates = ref([])
 const selectedTemplate = ref(null)
 const quickView = ref(false)
 
-const {onResult, onError} = templatesGraphQlAPI.templates()
-onResult(({data}) => allTemplates.value = data.plateTemplates)
-onError((error) => useNotify.showError(error))
+const data = await templatesGraphQlAPI.templates()
+allTemplates.value = data.plateTemplates
+
+// const {onResult, onError} = templatesGraphQlAPI.templates()
+// onResult(({data}) => allTemplates.value = data.plateTemplates)
+// onError((error) => useNotify.showError(error))
 
 const filteredTemplates = computed(() => preFilterTemplates(allTemplates.value))
 

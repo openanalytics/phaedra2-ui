@@ -16,12 +16,10 @@ export const useProjectStore = defineStore("project", () => {
   const projectAccess = ref([]);
 
   const loadProject = async (projectId) => {
-    const { onResult, onError } = await projectsGraphQlAPI.projectById(projectId);
-    onResult(({ data }) => {
-      project.value = data.project;
-      experiments.value = data.experiments;
-      projectAccess.value = data.projectAccess;
-    });
+    const data = await projectsGraphQlAPI.projectById(projectId);
+    project.value = data.project;
+    experiments.value = data.experiments;
+    projectAccess.value = data.projectAccess;
   };
 
   const reloadProject = async (id) => {

@@ -1,20 +1,5 @@
-// import {
-//   provideApolloClient,
-//   useMutation,
-//   useQuery
-// } from '@vue/apollo-composable'
-import { createClient } from 'graphql-http';
 import gql from 'graphql-tag'
-import { apolloPlatesClient } from "@/graphql/apollo.clients";
-
-const defaultOptions = {
-  fetchOptions: {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  },
-};
+import { platesGraphQLClient } from "@/graphql/apollo.clients";
 
 const executeQuery = async (query, variables) => {
   let cancel = () => {
@@ -23,7 +8,7 @@ const executeQuery = async (query, variables) => {
 
   const result = await new Promise((resolve, reject) => {
     let result;
-    cancel = apolloPlatesClient.subscribe(
+    cancel = platesGraphQLClient.subscribe(
         {
           query: query,
           variables: variables
@@ -100,7 +85,8 @@ export default {
             }
         }
     `
-    return await executeQuery(query, {projectId});
+    const result =  await executeQuery(query, {projectId});
+    return result.data;
   },
   async nMostRecentlyUpdatedProjects(n) {
     const query = `
@@ -115,7 +101,8 @@ export default {
             }
         }
     `
-    return await executeQuery(query, {n});
+    const result = await executeQuery(query, {n});
+    return result.data
   },
   async experiments(experimentIds) {
     const query = `
@@ -134,7 +121,8 @@ export default {
             }
         }
     `
-    return await executeQuery(query, {experimentIds});
+    const result =  await executeQuery(query, {experimentIds})
+    return result.data
   },
   async experimentById(experimentId) {
     const query = `
@@ -180,7 +168,8 @@ export default {
             }
         }
     `
-    return await executeQuery(query, {experimentId});
+    const result = await executeQuery(query, {experimentId})
+    return result.data
   },
   async experimentsByProjectId(projectId) {
     const query = `
@@ -199,7 +188,8 @@ export default {
             }
         }
     `
-    return await executeQuery(query, {projectId});
+    const result = await executeQuery(query, {projectId});
+    return result.data
   },
   async plates(plateIds) {
     const query = `
@@ -240,7 +230,8 @@ export default {
             }
         }
     `
-    return await executeQuery(query, {plateIds});
+    const result = await executeQuery(query, {plateIds})
+    return result.data
   },
   async plateById(plateId) {
     const query = `
@@ -303,7 +294,8 @@ export default {
             }
         }
     `
-    return executeQuery(query, {plateId});
+    const result = await executeQuery(query, {plateId});
+    return result.data
   },
   async platesByExperimentIds(experimentIds){
     const query = `
@@ -348,7 +340,8 @@ export default {
             }
         }
     `
-    return await executeQuery(query, {experimentIds});
+    const result = await executeQuery(query, {experimentIds});
+    return result.data
   },
   async wells(wellIds) {
     const query = `
@@ -374,7 +367,8 @@ export default {
             }
         }
     `
-    return await executeQuery(query, {wellIds});
+    const result = await executeQuery(query, {wellIds})
+    return result.data
   },
   async wellById(wellId) {
     const query = `
@@ -401,7 +395,8 @@ export default {
             }
         }
     `
-    return await executeQuery(query, {wellId});
+    const result = await executeQuery(query, {wellId});
+    return result.data
   },
   async wellsByPlateId(plateId) {
     const query = `
@@ -424,7 +419,8 @@ export default {
             }
         }
     `
-    return await executeQuery(query, {plateId});
+    const result = await executeQuery(query, {plateId});
+    return result.data
   },
   async wellsByPlateIds(plateIds) {
     const query = `
@@ -451,7 +447,8 @@ export default {
             }
         }
     `
-    return await executeQuery(query, {plateIds});
+    const result = await executeQuery(query, {plateIds})
+    return result.data
   },
   async measurementsByPlateId(plateId) {
     const query = `
@@ -476,7 +473,8 @@ export default {
             }
         }
     `
-    return await executeQuery(query, {plateId});
+    const result = await executeQuery(query, {plateId})
+    return result.data
   },
   async activeMeasurementByPlateIds(plateIds) {
     const query = `
@@ -491,7 +489,8 @@ export default {
             }
         }
     `
-    return await executeQuery(query, {plateIds});
+    const result = await executeQuery(query, {plateIds})
+    return result.data
   },
   async activeMeasurementsByExperimentId(experimentId) {
     const query = `
@@ -506,7 +505,8 @@ export default {
             }
         }
     `
-    return await executeQuery(query, {experimentId});
+    const result = await executeQuery(query, {experimentId})
+    return result.data
   },
   linkPlateMeasurement(plateId, measurementId) {
     const mutation = gql`
@@ -521,6 +521,6 @@ export default {
             }
         }
     `
-    return provideApolloClient(apolloPlatesClient)(() => useMutation(mutation))
+    return provideApolloClient(platesGraphQLClient)(() => useMutation(mutation))
   }
 }
