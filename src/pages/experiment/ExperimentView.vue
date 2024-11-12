@@ -92,6 +92,8 @@
       <new-plate-from-measurement-dialog
         v-model:show="showNewPlateFromMeasDialog"
       />
+
+      <new-plate-dialog v-model:show="showNewPlateDialog" />
     </div>
   </q-page>
 </template>
@@ -110,6 +112,7 @@ import { useProjectStore } from "@/stores/project";
 import { Pane, Splitpanes } from "splitpanes";
 import { useUIStore } from "@/stores/ui";
 import NewPlateFromMeasurementDialog from "@/pages/experiment/NewPlateFromMeasurementDialog.vue";
+import NewPlateDialog from "@/pages/experiment/NewPlateDialog.vue";
 import ExperimentDetails from "../../components/experiment/ExperimentDetails.vue";
 import { useLoadingHandler } from "@/composable/loadingHandler";
 

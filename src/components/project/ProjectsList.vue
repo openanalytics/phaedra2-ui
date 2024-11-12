@@ -8,9 +8,16 @@
     v-model:selected="selectedProjects"
     @update:selected="(newVal) => emits('selected', newVal)"
   >
-    <template v-slot:top-left>
+    <template v-slot:top-right>
       <router-link :to="{ name: 'newProject' }" class="nav-link">
-        <q-btn size="sm" icon="add" class="oa-button" label="New Project" />
+        <q-btn
+          round
+          size="sm"
+          color="primary"
+          icon="add"
+          @click="showNewExperimentDialog = true"
+          ><q-tooltip>Create New Project</q-tooltip></q-btn
+        >
       </router-link>
     </template>
     <template v-slot:body-cell-name="props">

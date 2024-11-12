@@ -9,23 +9,19 @@
     @row-click="selectWell"
   >
     <template v-slot:top-right>
-      <div class="row action-button">
-        <q-btn-dropdown size="sm" class="oa-button q-mr-md" label="Export">
-          <q-list dense>
+      <q-btn round icon="download" size="sm" class="q-mx-sm">
+        <q-tooltip>Download wells list</q-tooltip>
+        <q-menu anchor="bottom middle" self="top left">
+          <q-list style="min-width: 100px">
             <q-item clickable v-close-popup @click="exportToCSV">
-              <q-item-section>
-                <q-item-label>Export to CSV</q-item-label>
-              </q-item-section>
+              <q-item-section>Export to CSV</q-item-section>
             </q-item>
-
             <q-item clickable v-close-popup @click="exportToXLSX">
-              <q-item-section>
-                <q-item-label>Export to Excel</q-item-label>
-              </q-item-section>
+              <q-item-section>Export to Excel</q-item-section>
             </q-item>
           </q-list>
-        </q-btn-dropdown>
-      </div>
+        </q-menu>
+      </q-btn>
     </template>
     <template v-slot:header="props">
       <q-tr :props="props">

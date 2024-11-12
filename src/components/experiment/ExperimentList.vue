@@ -8,34 +8,30 @@
     selection="multiple"
     v-model:selected="selectedExperiments"
   >
-    <template v-slot:top-left>
+    <template v-slot:top-right>
       <div class="row action-button on-left">
         <q-btn
+          round
           size="sm"
+          color="primary"
           icon="add"
-          class="oa-button"
-          label="New Experiment"
           @click="showNewExperimentDialog = true"
-        />
-      </div>
-    </template>
-    <template v-slot:top-right>
-      <div class="row action-button">
-        <q-btn-dropdown size="sm" class="oa-button q-mr-md" label="Export">
-          <q-list dense>
-            <q-item clickable v-close-popup @click="exportToCSV">
-              <q-item-section>
-                <q-item-label>Export to CSV</q-item-label>
-              </q-item-section>
-            </q-item>
+          ><q-tooltip>Create New Experiment</q-tooltip></q-btn
+        >
 
-            <q-item clickable v-close-popup @click="exportToXLSX">
-              <q-item-section>
-                <q-item-label>Export to Excel</q-item-label>
-              </q-item-section>
-            </q-item>
-          </q-list>
-        </q-btn-dropdown>
+        <q-btn round icon="download" size="sm" class="q-mx-sm">
+          <q-tooltip>Download experiments list</q-tooltip>
+          <q-menu anchor="bottom middle" self="top left">
+            <q-list style="min-width: 100px">
+              <q-item clickable v-close-popup @click="exportToCSV">
+                <q-item-section>Export to CSV</q-item-section>
+              </q-item>
+              <q-item clickable v-close-popup @click="exportToXLSX">
+                <q-item-section>Export to Excel</q-item-section>
+              </q-item>
+            </q-list>
+          </q-menu>
+        </q-btn>
       </div>
     </template>
     <template v-slot:body-cell-name="props">
