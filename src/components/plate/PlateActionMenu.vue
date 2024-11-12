@@ -160,7 +160,7 @@
         <q-item-section side>
           <q-icon name="keyboard_arrow_right" />
         </q-item-section>
-        <q-menu>
+        <q-menu anchor="top right">
           <q-list>
             <menu-item
               icon="timeline"
@@ -201,7 +201,7 @@
         <q-item-section side>
           <q-icon name="keyboard_arrow_right" />
         </q-item-section>
-        <q-menu>
+        <q-menu anchor="top right">
           <q-list>
             <menu-item
               icon="view_module"
