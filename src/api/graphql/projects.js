@@ -5,7 +5,7 @@
 // } from '@vue/apollo-composable'
 import { createClient } from 'graphql-http';
 import gql from 'graphql-tag'
-import {apolloPlatesClient} from "@/graphql/apollo.clients";
+import { apolloPlatesClient } from "@/graphql/apollo.clients";
 
 const defaultOptions = {
   fetchOptions: {
@@ -313,6 +313,10 @@ export default {
                 barcode
                 description
                 experimentId
+                experiment {
+                    id
+                    name
+                }
                 rows
                 columns
                 sequence
@@ -428,6 +432,10 @@ export default {
             wells:getWellsByPlateIds(plateIds: $plateIds) {
                 id
                 plateId
+                plate {
+                    id
+                    barcode
+                }
                 row
                 column
                 wellType

@@ -34,7 +34,7 @@
         <q-item-section side>
           <q-icon name="keyboard_arrow_right" />
         </q-item-section>
-        <q-menu>
+        <q-menu anchor="top right">
           <q-list>
             <menu-item
               icon="timeline"
@@ -56,20 +56,17 @@
         <q-item-section side>
           <q-icon name="keyboard_arrow_right" />
         </q-item-section>
-        <q-menu>
+        <q-menu anchor="top right">
           <q-list>
             <menu-item
-              icon="save_alt"
               label="Export Plate List"
               @click="openExportPlateListDialog"
             />
             <menu-item
-              icon="save_alt"
               label="Export Well Data"
               @click="openExportWellDataDialog"
             />
             <menu-item
-              icon="save_alt"
               label="Export Sub-Well Data"
               @click="exportPlateSubWellData"
             />
@@ -145,8 +142,6 @@
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 import { useNotification } from "@/composable/notification";
-
-import { usePanesStore } from "@/stores/panes";
 import { useProjectStore } from "@/stores/project";
 import { useUIStore } from "@/stores/ui";
 
