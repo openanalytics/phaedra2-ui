@@ -27,15 +27,6 @@ export const useExperimentStore = defineStore("experiment", () => {
       const data = await projectsGraphQlAPI.experimentById(experimentId);
       experiment.value = data.experiment;
       plates.value = data.plates;
-      // const { onResult, onError } = await projectsGraphQlAPI.experimentById(experimentId);
-      // onResult(({ data }) => {
-      //   experiment.value = data.experiment;
-      //   plates.value = data.plates;
-      // });
-      //
-      // onError((error) => {
-      //   console.error(error);
-      // });
     }
   }
 

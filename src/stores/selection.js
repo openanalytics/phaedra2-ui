@@ -174,19 +174,6 @@ export const useSelectionStore = defineStore("selection", () => {
     } else {
       experiments.value = [...experiments.value, ...data.experiments];
     }
-    // const { onResult, onError } =
-    //   experimentsGraphQlAPI.experimentsByProjectIds(projectIds);
-    // onResult(({ data }) => {
-    //   // let fetchedExperiments = data
-    //   // .map((item) => item.experiments)
-    //   // .reduce((item1, item2) => item1.concat(item2));
-    //   if (replace) {
-    //     experiments.value = data.experiments;
-    //   } else {
-    //     experiments.value = [...experiments.value, ...data.experiments];
-    //   }
-    //   // projects.value = [data.project];
-    // });
   }
 
   async function loadExperiment(experimentsId, replace = true) {
@@ -199,14 +186,6 @@ export const useSelectionStore = defineStore("selection", () => {
     } else {
       plates.value = [...plates.value, ...data.plate];
     }
-    // const { onResult, onError } = await projectsGraphQlAPI.platesByExperimentIds(experimentsId);
-    // onResult(({ data }) => {
-    //   if (replace) {
-    //     plates.value = data.plate;
-    //   } else {
-    //     plates.value = [...plates.value, ...data.plate];
-    //   }
-    // });
   }
 
   async function loadPlate(platesIds, replace = true) {
@@ -217,14 +196,6 @@ export const useSelectionStore = defineStore("selection", () => {
       } else {
         wells.value = [...wells.value, ...data.wells];
       }
-      // const { onResult, onError } = await projectsGraphQlAPI.wellsByPlateIds(platesIds);
-      // onResult(({ data }) => {
-      //   if (replace) {
-      //     wells.value = data.wells;
-      //   } else {
-      //     wells.value = [...wells.value, ...data.wells];
-      //   }
-      // });
     }
   }
 
@@ -232,10 +203,6 @@ export const useSelectionStore = defineStore("selection", () => {
     if (platesId) {
       const data = await projectsGraphQlAPI.wellsByPlateId(platesId);
       heatmapWells.value = data.wells;
-      // const { onResult, onError } = await projectsGraphQlAPI.wellsByPlateId(platesId);
-      // onResult(({ data }) => {
-      //   heatmapWells.value = data.wells;
-      // });
     }
   }
 
@@ -360,10 +327,6 @@ export const useSelectionStore = defineStore("selection", () => {
   const fetchExperiment = async (id) => {
     const data =  await projectsGraphQlAPI.experimentById(id);
     selectedExperimentDetails.value = data.experiment;
-    // const { onResult } = await projectsGraphQlAPI.experimentById(id);
-    // onResult(({ data }) => {
-    //   selectedExperimentDetails.value = data.experiment;
-    // });
   };
 
   const fetchPlate = async (id) => {
@@ -377,14 +340,6 @@ export const useSelectionStore = defineStore("selection", () => {
         selectedWellDetails.value.row,
         selectedWellDetails.value.column
     );
-    // const { onResult, onError } = await projectsGraphQlAPI.wellById(wellId);
-    // onResult(({ data }) => {
-    //   selectedWellDetails.value = data.well;
-    //   selectedWellDetails.value["pos"] = WellUtils.getWellCoordinate(
-    //     selectedWellDetails.value.row,
-    //     selectedWellDetails.value.column
-    //   );
-    // });
   };
 
   watch(selectedProjects, async (newVal, oldVal) => {
@@ -421,10 +376,6 @@ export const useSelectionStore = defineStore("selection", () => {
   const fetchProjects = async () => {
     const data = await projectsGraphQlAPI.projects();
     projects.value = data.projects;
-    // const { onResult, onError } = await projectsGraphQlAPI.projects();
-    // onResult(({ data }) => {
-    //   projects.value = data.projects;
-    // });
   }
 
   return {
