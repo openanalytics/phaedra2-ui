@@ -1,4 +1,5 @@
 import {platesGraphQLClient} from "@/graphql/apollo.clients";
+import {templatesQueries} from "@/graphql/graphql.queries";
 
 const executeQuery = async (query, variables) => {
   let cancel = () => {
@@ -25,59 +26,11 @@ const executeQuery = async (query, variables) => {
 
 export default {
   async templates() {
-    const query = `
-            query getPlateTemplates {
-                plateTemplates:getPlateTemplates {
-                    id
-                    name
-                    rows
-                    columns
-                    description
-                    tags
-                    createdOn
-                    createdBy
-                    updatedOn
-                    updatedBy
-                }
-            }
-        `
-    const result = await executeQuery(query, {})
+    const result = await executeQuery(templatesQueries.templates, {})
     return result.data
   },
   async templateById(plateTemplateId) {
-    const query = `
-            query getPlateTemplateById($plateTemplateId: ID) {
-                plateTemplate:getPlateTemplateById(plateTemplateId: $plateTemplateId) {
-                    id
-                    name
-                    rows
-                    columns
-                    description
-                    createdOn
-                    createdBy
-                    updatedOn
-                    updatedBy
-                    tags
-                    properties {
-                        propertyName
-                        propertyValue
-                    }
-                    wells {
-                        id
-                        plateTemplateId
-                        description
-                        skipped
-                        row
-                        column
-                        wellType
-                        substanceType
-                        substanceName
-                        concentration
-                    }
-                }
-            }
-        `
-    const result = await executeQuery(query, {plateTemplateId})
+    const result = await executeQuery(templatesQueries.templateById, {plateTemplateId})
     return result.data
   }
 }

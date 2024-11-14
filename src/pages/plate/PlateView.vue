@@ -134,7 +134,7 @@
             <q-tab-panel name="results" class="q-px-none">
               <ResultSetList :plate="plateStore.plate" />
             </q-tab-panel>
-            <q-tab-panel name="curves" icon="show_chart">
+            <q-tab-panel name="curves" icon="show_chart" class="q-px-none">
               <DRCList
                 :plate="plateStore.plate"
                 :curves="plateStore.curves"
@@ -245,8 +245,8 @@ const imageViewPane = ref();
 
 const plateId = parseInt(route.params.plateId);
 const loadingHandler = useLoadingHandler();
-onMounted(() => {
-  plateStore.loadPlate(plateId);
+onMounted(async () => {
+  await plateStore.loadPlate(plateId);
 });
 const showCalculateDialog = ref(false);
 

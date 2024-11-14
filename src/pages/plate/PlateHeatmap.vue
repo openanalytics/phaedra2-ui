@@ -54,9 +54,9 @@ const handleFeatureOptionSelection = () => {
   wellData.value = [];
 };
 
-const handleRawFeatureSelection = (measurementColumn) => {
+const handleRawFeatureSelection = async (measurementColumn) => {
   if (measurementColumn) {
-    const data = measurementsGraphQlAPI.measurementWellData(
+    const data = await measurementsGraphQlAPI.measurementWellData(
         measurementColumn.measurementId,
         measurementColumn.column)
     wellData.value = data?.wellData ? data.wellData : [];
@@ -74,17 +74,23 @@ const handleRawFeatureSelection = (measurementColumn) => {
 
 const handleCalculatedFeatureSelection = async (calculatedFeature) => {
   if (calculatedFeature) {
-    const { onResult } =
-      await resultDataGraphQlAPI.featureValuesByPlateIdAndFeatureIdAndProtocolId(
+    const data = await resultDataGraphQlAPI.featureValuesByPlateIdAndFeatureIdAndProtocolId(
         props.plate.id,
         calculatedFeature.featureId,
         calculatedFeature.protocolId
-      );
-    onResult(({ data }) => {
-      wellData.value = data?.featureValues
-        ? data.featureValues.map((fv) => fv.value)
-        : [];
-    });
+    )
+    wellData.value = data?.featureValues ? data.featureValues.map((fv) => fv.value) : []
+    // const { onResult } =
+    //   await resultDataGraphQlAPI.featureValuesByPlateIdAndFeatureIdAndProtocolId(
+    //     props.plate.id,
+    //     calculatedFeature.featureId,
+    //     calculatedFeature.protocolId
+    //   );
+    // onResult(({ data }) => {
+    //   wellData.value = data?.featureValues
+    //     ? data.featureValues.map((fv) => fv.value)
+    //     : [];
+    // });
   } else {
     wellData.value = [];
   }

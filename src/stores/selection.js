@@ -216,61 +216,68 @@ export const useSelectionStore = defineStore("selection", () => {
   }
 
   async function loadPlateProtocols(plate) {
-    const { onResult, onError } = await resultDataGraphQlAPI.protocolsByPlateId(
-      plate.id
-    );
-    onResult(({ data }) => {
-      plateChart.value = {
-        plate: plate,
-        id: new Date().getTime(),
-        protocols: data.protocols,
-      };
-      loadPlateMeasurements(plate);
-    });
+    const data = await resultDataGraphQlAPI.protocolsByPlateId(plate.id);
+    plateChart.value = {
+      plate: plate,
+      id: new Date().getTime(),
+      protocols: data.protocols,
+    };
+    await loadPlateMeasurements(plate);
+    // const { onResult, onError } = await resultDataGraphQlAPI.protocolsByPlateId(
+    //   plate.id
+    // );
+    // onResult(({ data }) => {
+    //   plateChart.value = {
+    //     plate: plate,
+    //     id: new Date().getTime(),
+    //     protocols: data.protocols,
+    //   };
+    //   loadPlateMeasurements(plate);
+    // });
   }
 
-  watch(selectedWells, (newVal, oldVal) => {
+  watch(selectedWells, async (newVal, oldVal) => {
     if (newVal.length > 0) {
       let flag = false;
-      newVal.forEach((element) => {
+      for (const element of newVal) {
         if (!oldVal.find((el) => element == el)) {
           flag = true;
           if (selectedWellDetails.value.id != element.id) {
-            fetchWell(element.id);
+            await fetchWell(element.id);
           }
         }
-      });
+      }
       if (
         !flag &&
         newVal.length > 0 &&
         !newVal.find((el) => el.id == selectedWellDetails.value.id)
       ) {
-        fetchWell(newVal[0].id);
+        await fetchWell(newVal[0].id);
       }
     } else {
       selectedWellDetails.value = {};
     }
   });
 
-  watch(selectedPlates, (newVal, oldVal) => {
+  watch(selectedPlates, async (newVal, oldVal) => {
     if (newVal.length > 0) {
       let flag = false;
-      newVal.forEach((element) => {
+      for (const element of newVal) {
         if (!oldVal.find((el) => element == el)) {
           flag = true;
           if (selectedPlateDetails.value.id != element.id) {
-            fetchPlate(element.id);
-            loadPlateProtocols(element);
+            await fetchPlate(element.id);
+            await loadPlateProtocols(element);
           }
         }
-      });
+      }
       if (
         !flag &&
         newVal.length > 0 &&
         !newVal.find((el) => el.id == selectedPlateDetails.value.id)
       ) {
-        fetchPlate(newVal[0].id);
-        loadPlateProtocols(newVal[0]);
+        await fetchPlate(newVal[0].id);
+        await loadPlateProtocols(newVal[0]);
       }
     } else {
       selectedPlateDetails.value = {};
@@ -281,11 +288,11 @@ export const useSelectionStore = defineStore("selection", () => {
   watch(selectedExperiments, async (newVal, oldVal) => {
     if (newVal.length > 0) {
       let flag = false;
-      await newVal.forEach((element) => {
+      for (const element of newVal) {
         if (!oldVal.find((el) => element == el)) {
           flag = true;
           if (selectedExperimentDetails.value.id != element.id) {
-            selectedExperimentDetails.value = fetchExperiment(element.id);
+            selectedExperimentDetails.value = await fetchExperiment(element.id);
             chart.value = {
               experiment: element,
               label: "Experiment Trend Chart",
@@ -294,13 +301,13 @@ export const useSelectionStore = defineStore("selection", () => {
             };
           }
         }
-      });
+      }
       if (
         !flag &&
         newVal.length > 0 &&
         !newVal.find((el) => el.id == selectedExperimentDetails.value?.id)
       ) {
-        selectedExperimentDetails.value = fetchExperiment(newVal[0].id);
+        selectedExperimentDetails.value = await fetchExperiment(newVal[0].id);
         chart.value = {
           experiment: newVal[0],
           label: "Experiment Trend Chart",

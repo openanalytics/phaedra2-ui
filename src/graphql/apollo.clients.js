@@ -3,7 +3,7 @@ import { createClient } from 'graphql-http';
 const apiURL = (config.VUE_APP_API_BASE_URL || process.env.VUE_APP_API_BASE_URL);
 const token = process.env.VUE_APP_API_BEARER_TOKEN;
 
-const apolloResultDataClient = createClient({
+const resultDataGraphQLClient = createClient({
     headers: {
         Authorization: `Bearer ${token}`
     },
@@ -24,7 +24,7 @@ const apolloChartsClient = createClient({
     url: `${apiURL}/charting-service/graphql`
 })
 
-const apolloCurvesClient = createClient({
+const curvesGraphQLClient = createClient({
     headers: {
         Authorization: `Bearer ${token}`
     },
@@ -53,10 +53,10 @@ const apolloQueriesClient = createClient({
 })
 
 export {
-    apolloResultDataClient,
+    resultDataGraphQLClient,
     platesGraphQLClient,
     apolloChartsClient,
-    apolloCurvesClient,
+    curvesGraphQLClient,
     apolloProtocolsClient,
     apolloMeasurementsClient,
     apolloQueriesClient

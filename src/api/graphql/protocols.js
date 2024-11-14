@@ -1,132 +1,45 @@
-import {provideApolloClient, useQuery} from '@vue/apollo-composable'
-import gql from 'graphql-tag'
-import {apolloProtocolsClient} from "@/graphql/apollo.clients";
+import { apolloProtocolsClient } from "@/graphql/apollo.clients";
+import {protocolsQueries} from "@/graphql/graphql.queries";
 
-const defaultOptions = {fetchPolicy: 'no-cache', errorPolicy: 'ignore'}
+const executeQuery = async (query, variables) => {
+  let cancel = () => {
+    /* abort the request if it is in-flight */
+  };
 
-const executeQuery = (query, variables) => {
-  return provideApolloClient(apolloProtocolsClient)(
-      () => useQuery(gql`${query}`, variables, defaultOptions));
-}
+  const result = await new Promise((resolve, reject) => {
+    let result;
+    cancel = apolloProtocolsClient.subscribe(
+        {
+          query: query,
+          variables: variables
+        },
+        {
+          next: (data) => (result = data),
+          error: reject,
+          complete: () => resolve(result),
+        },
+    );
+  });
+
+  return result;
+};
 
 export default {
-  protocols() {
-    const query = `
-            query getProtocols {
-                protocols:getProtocols {
-                    id
-                    name
-                    description
-                    createdOn
-                    createdBy
-                    tags
-                }
-            }
-        `
-    return executeQuery(query, {});
+  async protocols() {
+    const result = await executeQuery(protocolsQueries.protocols, {})
+    return result.data
   },
-  protocolById(protocolId) {
-    const query = `
-            query getProtocolById {
-                protocol:getProtocolById(protocolId: ${protocolId}) {
-                    id
-                    name
-                    description
-                    lowWelltype
-                    highWelltype
-                    versionNumber
-                    createdOn
-                    createdBy
-                    updatedOn
-                    updatedBy
-                    tags
-                    properties {
-                        propertyName
-                        propertyValue
-                    }
-                    features {
-                        id
-                        name
-                        description
-                        formulaId
-                        format
-                        sequence
-                        alias
-                        drcModel {
-                            featureId
-                            name
-                            description
-                            inputParameters {
-                                name
-                                value
-                            }
-                        }
-                        civs {
-                            id
-                            featureId
-                            formulaId
-                            variableName
-                            sourceMeasColName
-                            sourceFeatureId
-                            inputSource
-                        }
-                    }
-                }
-            }
-        `
-    return executeQuery(query, {protocolId});
+  async protocolById(protocolId) {
+    const result = await executeQuery(protocolsQueries.protocolById, {protocolId})
+    return result.data
   },
-  featureById(featureId) {
-    const query = `
-            query getProtocolById($featureId: ID) {
-                feature:getFeatureById(featureId: $featureId) {
-                    id
-                    name
-                    alias
-                    description
-                    format
-                    type
-                    sequence
-                    protocolId
-                    formulaId
-                    civs {
-                        id
-                        featureId
-                        formulaId
-                        variableName
-                        sourceMeasColName
-                        sourceFeatureId
-                        inputSource
-                    }
-                    drcModel {
-                        featureId
-                        name
-                        description
-                        method
-                        slope
-                        script
-                    }
-                    trigger
-                    status
-                    deleted
-                }
-            }
-        `
-    return executeQuery(query, {featureId});
+  async featureById(featureId) {
+    const result = await executeQuery(protocolsQueries.featureById, {featureId})
+    return result.data
   },
-  featuresByProtocolId(protocolId) {
-    const query = `
-            query getFeaturesByProtocolId($protocolId: ID) {
-                features:getFeaturesByProtocolId(protocolId: $protocolId) {
-                    id
-                    name
-                    status
-                    sequence
-                    alias
-                    description
-                }
-            }
-        `
-    return executeQuery(query, {protocolId});
+  async featuresByProtocolId(protocolId) {
+    const result = await executeQuery(protocolsQueries.featuresByProtocolId,
+        {protocolId})
+    return result.data
   }
 }

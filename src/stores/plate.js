@@ -90,29 +90,39 @@ export const usePlateStore = defineStore("plate", () => {
   }
 
   async function loadPlateCalculations(plateId) {
-    const { onResult, onError } =
-      resultdataGraphQlAPI.resultSetsByPlateId(plateId);
-    onResult(({ data }) => {
-      resultSets.value = data.resultSets;
-    });
+    const data = resultdataGraphQlAPI.resultSetsByPlateId(plateId)
+    resultSets.value = data.resultSets;
+    // const { onResult, onError } =
+    //   resultdataGraphQlAPI.resultSetsByPlateId(plateId);
+    // onResult(({ data }) => {
+    //   resultSets.value = data.resultSets;
+    // });
   }
 
   async function loadPlateProtocols(plateId) {
-    const { onResult, onError } = await resultDataGraphQlAPI.protocolsByPlateId(plateId);
-    onResult(({ data }) => {
-      protocols.value = data.protocols;
-    });
+    const data = await resultDataGraphQlAPI.protocolsByPlateId(plateId)
+    protocols.value = data.protocols
+    // const { onResult, onError } = await resultDataGraphQlAPI.protocolsByPlateId(plateId);
+    // onResult(({ data }) => {
+    //   protocols.value = data.protocols;
+    // });
   }
 
   async function loadPlateCurves(plateId) {
-    const { onResult, onError } = curvesGraphQlAPI.curvesByPlateId(plateId);
-    onResult(({ data }) => {
-      const colorList = ColorUtils.getColorList(data.curves?.length);
-      curves.value = data.curves?.map((curve, index) => {
-        curve["color"] = colorList[index];
-        return curve;
-      });
+    const data = await curvesGraphQlAPI.curvesByPlateId(plateId)
+    const colorList = ColorUtils.getColorList(data.curves?.length);
+    curves.value = data.curves?.map((curve, index) => {
+      curve["color"] = colorList[index];
+      return curve;
     });
+    // const { onResult, onError } = curvesGraphQlAPI.curvesByPlateId(plateId);
+    // onResult(({ data }) => {
+    //   const colorList = ColorUtils.getColorList(data.curves?.length);
+    //   curves.value = data.curves?.map((curve, index) => {
+    //     curve["color"] = colorList[index];
+    //     return curve;
+    //   });
+    // });
   }
 
   async function editPlate(id, newVal) {

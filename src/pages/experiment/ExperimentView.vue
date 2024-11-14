@@ -21,9 +21,7 @@
         v-else
         :experiment="experimentStore.experiment"
         icon="science"
-        @updated="
-          experimentStore.reloadExperiment(experimentStore.experiment.id)
-        "
+        @updated="handleUpdateExperimentDetails"
       />
     </div>
 
@@ -54,9 +52,7 @@
                 v-model:newPlateTab="showNewPlateDialog"
                 v-model:newPlateFromMeasurements="showNewPlateFromMeasDialog"
                 @selection="handlePlateSelection"
-                @updated="
-                  experimentStore.loadExperiment(experimentStore.experiment.id)
-                "
+                @updated="handleUpdatePlateList"
                 @open="handleOpen"
               />
             </q-tab-panel>
@@ -127,14 +123,15 @@ const activeTab = ref("overview");
 const horizontal = ref(false);
 
 const experimentId = parseInt(route.params.experimentId);
-onMounted(() => {
-  experimentStore.loadExperiment(experimentId);
+onMounted(async () => {
+  await experimentStore.loadExperiment(experimentId);
 });
 
-watchEffect(() => {
+watchEffect(async () => {
   if (experimentStore.isLoaded(experimentId)) {
     const projectId = experimentStore.experiment.projectId;
-    if (!projectStore.isLoaded(projectId)) projectStore.loadProject(projectId);
+    if (!projectStore.isLoaded(projectId))
+      await projectStore.loadProject(projectId);
   }
 });
 
@@ -210,4 +207,12 @@ const handleOpen = async (id) => {
       break;
   }
 };
+
+const handleUpdatePlateList = async () => {
+  await experimentStore.loadExperiment(experimentStore.experiment.id)
+}
+
+const handleUpdateExperimentDetails = async () => {
+  await experimentStore.reloadExperiment(experimentStore.experiment.id)
+}
 </script>

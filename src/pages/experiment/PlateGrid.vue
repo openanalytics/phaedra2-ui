@@ -39,8 +39,10 @@ const fetchMeasurementsByExperiment = async () => {
 fetchMeasurementsByExperiment()
 
 const fetchProtocolsByExperiment = async () => {
-  const {onResult, onError} = await resultDataGraphQlAPI.protocolsByExperimentId(props.experiment.id)
-  onResult(({data}) => protocols.value = data.protocols)
+  const data = await resultDataGraphQlAPI.protocolsByExperimentId(props.experiment.id)
+  protocols.value = data.protocols
+  // const {onResult, onError} = await resultDataGraphQlAPI.protocolsByExperimentId(props.experiment.id)
+  // onResult(({data}) => protocols.value = data.protocols)
 }
 fetchProtocolsByExperiment()
 
@@ -70,11 +72,13 @@ const handleCalculatedFeatureSelection = async (calculatedFeature) => {
     for (let i = 0; i < plateDataPerPlate.value.length; i++) {
       const plateId = plateDataPerPlate.value[i].plate.id
 
+      const data = await resultDataGraphQlAPI.featureValuesByPlateIdAndFeatureIdAndProtocolId(plateId, calculatedFeature.featureId, calculatedFeature.protocolId)
+      plateDataPerPlate.value[i].resultData = { values: data?.featureValues ? data.featureValues.map(fv => fv.value) : [] }
       // TODO: Implement onError handler
-      const {onResult, onError} = await resultDataGraphQlAPI.featureValuesByPlateIdAndFeatureIdAndProtocolId(plateId, calculatedFeature.featureId, calculatedFeature.protocolId)
-      onResult(({data}) => {
-        plateDataPerPlate.value[i].resultData = { values: data?.featureValues ? data.featureValues.map(fv => fv.value) : [] }
-      })
+      // const {onResult, onError} = await resultDataGraphQlAPI.featureValuesByPlateIdAndFeatureIdAndProtocolId(plateId, calculatedFeature.featureId, calculatedFeature.protocolId)
+      // onResult(({data}) => {
+      //   plateDataPerPlate.value[i].resultData = { values: data?.featureValues ? data.featureValues.map(fv => fv.value) : [] }
+      // })
     }
   }
 }

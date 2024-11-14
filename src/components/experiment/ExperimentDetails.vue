@@ -155,8 +155,8 @@ const route = useRoute();
 const router = useRouter();
 
 const experimentId = parseInt(route.params.experimentId);
-onMounted(() => {
-  experimentStore.loadExperiment(experimentId);
+onMounted(async () => {
+  await experimentStore.loadExperiment(experimentId);
 });
 
 watchEffect(() => {

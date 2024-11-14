@@ -17,17 +17,25 @@
     const protocols = ref([])
     const loading = ref(true)
 
-    //TODO: Implement onError
-    const {onResult, onError} = protocolsGraphQlAPI.protocols()
-    onResult(({data}) => {
-      protocols.value = data.protocols
-      loading.value = false
-    })
-
     const selected = ref([]);
     const columns = [
-        {name: 'id', align: 'left',label: 'ID', field: 'id', sortable: true},
-        {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
-        {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
+      {name: 'id', align: 'left',label: 'ID', field: 'id', sortable: true},
+      {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
+      {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
     ]
+
+    const fetchProtocols = async () => {
+      const data = await protocolsGraphQlAPI.protocols()
+      protocols.value = data.protocols
+      loading.value = false
+    }
+
+    //TODO: Implement onError
+    // const {onResult, onError} = protocolsGraphQlAPI.protocols()
+    // onResult(({data}) => {
+    //   protocols.value = data.protocols
+    //   loading.value = false
+    // })
+
+    fetchProtocols()
 </script>

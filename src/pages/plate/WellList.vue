@@ -113,10 +113,12 @@ const resultData = ref([]);
 const resultSet = plateStore.activeResultSet;
 features.value = plateStore.featuresByProtocolId(resultSet?.protocolId);
 
-const { onResult, onError } = await resultDataGraphQlAPI.resultDataByResultSetId(
-  resultSet?.id
-);
-onResult(({ data }) => (resultData.value = data.resultData));
+const data = await resultDataGraphQlAPI.resultDataByResultSetId(resultSet?.id)
+resultData.value = data.resultData
+// const { onResult, onError } = await resultDataGraphQlAPI.resultDataByResultSetId(
+//   resultSet?.id
+// );
+// onResult(({ data }) => (resultData.value = data.resultData));
 
 const baseColumns = ref([
   { name: "id", align: "left", label: "ID", field: "id", sortable: true },

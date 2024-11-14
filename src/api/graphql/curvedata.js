@@ -1,73 +1,36 @@
-import {provideApolloClient, useQuery} from '@vue/apollo-composable'
-import gql from 'graphql-tag'
-import {apolloCurvesClient} from "@/graphql/apollo.clients";
+import {curvesGraphQLClient} from "@/graphql/apollo.clients";
+import {curvesQueries} from "@/graphql/graphql.queries";
 
-const defaultOptions = {fetchPolicy: 'no-cache', errorPolicy: 'ignore'}
+const executeQuery = async (query, variables) => {
+  let cancel = () => {
+    /* abort the request if it is in-flight */
+  };
 
-const executeQuery = (query, variables) => {
-  return provideApolloClient(apolloCurvesClient)(
-      () => useQuery(gql`${query}`, variables, defaultOptions));
-}
+  const result = await new Promise((resolve, reject) => {
+    let result;
+    cancel = curvesGraphQLClient.subscribe(
+        {
+          query: query,
+          variables: variables
+        },
+        {
+          next: (data) => (result = data),
+          error: reject,
+          complete: () => resolve(result),
+        },
+    );
+  });
+
+  return result;
+};
 
 export default {
-  curvesByPlateId(plateId) {
-    const query = `
-            query getCurvesByPlateId($plateId: ID) {
-                curves:getCurvesByPlateId(plateId: $plateId) {
-                    id
-                    plateId
-                    protocolId
-                    featureId
-                    resultSetId
-                    substanceName
-                    substanceType
-                    fitDate
-                    version
-                    wells
-                    wellConcentrations
-                    featureValues
-                    xAxisLabels
-                    plotDoseData
-                    plotPredictionData
-                    weights
-                    curveProperties {
-                        name
-                        numericValue
-                        stringValue
-                    }
-                }
-            }
-        `
-    return executeQuery(query, {plateId})
+  async curvesByPlateId(plateId) {
+    const result = await executeQuery(curvesQueries.curvesByPlateId, {plateId})
+    return result.data
   },
-  curvesThatIncludesWellId(wellId) {
-    const query = `
-            query getCurvesThatIncludesWellId($wellId: ID) {
-                curves:getCurvesThatIncludesWellId(wellId: $wellId) {
-                    id
-                    plateId
-                    protocolId
-                    featureId
-                    resultSetId
-                    substanceName
-                    substanceType
-                    fitDate
-                    version
-                    wells
-                    wellConcentrations
-                    featureValues
-                    xAxisLabels
-                    plotDoseData
-                    plotPredictionData
-                    weights
-                    curveProperties {
-                        name
-                        numericValue
-                        stringValue
-                    }
-                }
-            }
-        `
-    return executeQuery(query, {wellId})
+  async curvesThatIncludesWellId(wellId) {
+    const result = await executeQuery(curvesQueries.curvesThatIncludesWellId, {wellId})
+    return result.data
   }
 }

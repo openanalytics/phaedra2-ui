@@ -73,7 +73,7 @@ export function usePanesList() {
         selected: selectionStore.selectedProjects,
       },
       selection: (e) => (selectionStore.selectedProjects = e),
-      updated: () => selectionStore.fetchProjects(),
+      updated: async () => selectionStore.fetchProjects(),
       groupBy: "list",
     },
     {
@@ -87,8 +87,8 @@ export function usePanesList() {
         project: selectionStore.selectedProjectDetails,
       },
       groupBy: "details",
-      updated: () =>
-        selectionStore.fetchProject(selectionStore.selectedProjectDetails.id),
+      updated: async () =>
+        await selectionStore.fetchProject(selectionStore.selectedProjectDetails.id),
     },
     {
       component: ExperimentList,
@@ -103,7 +103,7 @@ export function usePanesList() {
         selected: selectionStore.selectedExperiments,
       },
       selection: (e) => (selectionStore.selectedExperiments = e),
-      updated: () => selectionStore.loadProjects(),
+      updated: async () => await selectionStore.loadProjects(),
       groupBy: "list",
     },
     {
@@ -117,10 +117,8 @@ export function usePanesList() {
         experiment: selectionStore.selectedExperimentDetails,
       },
       groupBy: "details",
-      updated: () =>
-        selectionStore.fetchExperiment(
-          selectionStore.selectedExperimentDetails.id
-        ),
+      updated: async () =>
+        await selectionStore.fetchExperiment(selectionStore.selectedExperimentDetails.id),
     },
     {
       component: TrendChart,
@@ -152,7 +150,7 @@ export function usePanesList() {
         experiments: selectionStore.selectedExperiments,
       },
       selection: (e) => (selectionStore.selectedPlates = e),
-      updated: () => selectionStore.loadExperiment(),
+      updated: async () => await selectionStore.loadExperiment(),
       groupBy: "list",
     },
     {
@@ -167,8 +165,8 @@ export function usePanesList() {
         activeMeasurement: selectionStore.activeMeasurement,
       },
       groupBy: "details",
-      updated: () =>
-        selectionStore.fetchPlate(selectionStore.selectedPlateDetails.id),
+      updated: async () =>
+        await selectionStore.fetchPlate(selectionStore.selectedPlateDetails.id),
     },
     {
       component: Chart,
@@ -248,8 +246,8 @@ export function usePanesList() {
         well: selectionStore.selectedWellDetails,
       },
       groupBy: "details",
-      updated: () =>
-        selectionStore.fetchWell(selectionStore.selectedWellDetails.id),
+      updated: async () =>
+        await selectionStore.fetchWell(selectionStore.selectedWellDetails.id),
     },
     {
       component: PlateHeatmap,

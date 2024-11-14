@@ -57,14 +57,16 @@ const resultSets = ref([])
 
 const loadingHandler = useLoadingHandler()
 onMounted(async () => {
-  await loadingHandler.handleLoadingDuring(fetchResultSets())
+  await loadingHandler.handleLoadingDuring(await fetchResultSets())
 })
 
 const fetchResultSets = async () => {
-  const {onResult, onError} = resultdataGraphQlAPI.resultSetsByPlateId(props.plate.id)
-  onResult(({data}) => {
-    resultSets.value = data.resultSets;
-  })
+  const data = await resultdataGraphQlAPI.resultSetsByPlateId(props.plate.id)
+  resultSets.value = data.resultSets
+  // const {onResult, onError} = resultdataGraphQlAPI.resultSetsByPlateId(props.plate.id)
+  // onResult(({data}) => {
+  //   resultSets.value = data.resultSets;
+  // })
 }
 
 const columns = ref([

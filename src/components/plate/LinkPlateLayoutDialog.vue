@@ -99,11 +99,13 @@ const showDialog = computed({
 });
 
 const handleTemplateSelection = (selected) => {
-  const {onResult, onError} = templatesGraphQlAPI.templateById(selected.rows[0].id)
-  onResult(({data}) => {
-    selectedTemplate.value = data.plateTemplate
-  })
-  onError((error) => useNotify.showError(error))
+  const data = templatesGraphQlAPI.templateById(selected.rows[0].id)
+  selectedTemplate.value = data.plateTemplate
+  // const {onResult, onError} = templatesGraphQlAPI.templateById(selected.rows[0].id)
+  // onResult(({data}) => {
+  //   selectedTemplate.value = data.plateTemplate
+  // })
+  // onError((error) => useNotify.showError(error))
 }
 
 const handleShowQuickView = () => {

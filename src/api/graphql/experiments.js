@@ -1,4 +1,5 @@
 import { platesGraphQLClient } from "@/graphql/apollo.clients";
+import { experimentsQueries } from "@/graphql/graphql.queries";
 
 const executeQuery = async (query, variables) => {
   let cancel = () => {
@@ -25,135 +26,27 @@ const executeQuery = async (query, variables) => {
 
 export default {
   async experiments(experimentIds) {
-    const query = `
-            query getExperiments($experimentIds: [ID]) {
-                experiments:getExperiments(experimentIds: $experimentIds) {
-                    id
-                    name
-                    description
-                    status
-                    projectId
-                    multiploMethod
-                    multiploParameter
-                    createdOn
-                    createdBy
-                    updatedOn
-                    updatedBy
-                    tags
-                }
-            }
-        `
-    const result = await executeQuery(query, { experimentIds })
+    const result = await executeQuery(experimentsQueries.experiments, { experimentIds })
     return result.data
   },
   async nMostRecentExperiments(n) {
-    const query = `
-            query nMostRecentExperiments($n: Int) {
-                experiments:getNMostRecentExperiments(n: $n) {
-                    id
-                    name
-                    description
-                    status
-                    projectId
-                    createdOn
-                    createdBy
-                    updatedOn
-                    updatedBy
-                    tags
-                }
-            }
-        `
-    const result = await executeQuery(query, { n })
+    const result = await executeQuery(experimentsQueries.nMostRecentExperiments, { n })
     return result.data
   },
   async experimentById(experimentId) {
-    const query = `
-            query experimentById($experimentId: ID) {
-                experiment:getExperimentById(experimentId: $experimentId) {
-                    id
-                    name
-                    description
-                    status
-                    projectId
-                    multiploMethod
-                    multiploParameter
-                    createdOn
-                    createdBy
-                    updatedOn
-                    updatedBy
-                    tags
-                }
-            }
-        `
-    const result = await executeQuery(query, { experimentId })
+    const result = await executeQuery(experimentsQueries.experimentById, { experimentId })
     return result.data
   },
   async experimentsByProjectId(projectId) {
-    const query = `
-            query experimentsByProjectId($projectId: ID) {
-                experiment:getExperimentsByProjectId(projectId: $projectId) {
-                    id
-                    name
-                    description
-                    status
-                    projectId,
-                    createdOn
-                    createdBy
-                    updatedOn
-                    updatedBy
-                    tags
-                }
-            }
-        `
-    const result = await executeQuery(query, { projectId })
+    const result = await executeQuery(experimentsQueries.experimentsByProjectId, { projectId })
     return result.data
   },
   async experimentsByProjectIds(projectIds) {
-    const query = `
-            query experimentsByProjectIds($projectIds: [ID]) {
-                experiments:getExperimentsByProjectIds(projectIds: $projectIds) {
-                    id
-                    name
-                    description
-                    status
-                    projectId
-                    project {
-                        id
-                        name
-                    }
-                    multiploMethod
-                    multiploParameter
-                    createdOn
-                    createdBy
-                    updatedOn
-                    updatedBy
-                    tags
-                    summary {
-                      nrPlates
-                      nrPlatesLinkedLayout
-                      nrPlatesApproved
-                      nrPlatesCalculated
-                      nrPlatesValidated
-                    }
-                }
-            }
-        `
-    const result = await executeQuery(query, { projectIds })
+    const result = await executeQuery(experimentsQueries.experimentsByProjectIds, { projectIds })
     return result.data
   },
   async experimentSummaries() {
-    const query = `
-            query getExperiments {
-                experimentSummaries:getExperimentSummaries {
-                    experimentId
-                    nrPlates
-                    nrPlatesCalculated
-                    nrPlatesValidated
-                    nrPlatesApproved
-                }
-            }
-        `
-    const result = await executeQuery(query, {})
+    const result = await executeQuery(experimentsQueries.experimentSummaries, {})
     return result.data
   },
 };

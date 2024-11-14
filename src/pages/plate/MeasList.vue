@@ -1,6 +1,5 @@
 <template>
-  <oa-table :rows="plateMeasurements" :columns="columns"
-                 @row-dblclick="onSelectMeasurement">
+  <oa-table :rows="plateMeasurements" :columns="columns" @row-dblclick="onSelectMeasurement">
     <template v-slot:top-left>
       <q-btn size="sm" icon="add" class="oa-button q-mb-md" label="Link Measurement"
              @click="showLinkMeasDialog = true" v-if="!readOnly"/>

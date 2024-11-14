@@ -1,4 +1,5 @@
 import { apolloMeasurementsClient } from "@/graphql/apollo.clients";
+import {measurementsQueries} from "@/graphql/graphql.queries";
 
 const executeQuery = async (query, variables) => {
     let cancel = () => {
@@ -25,62 +26,19 @@ const executeQuery = async (query, variables) => {
 
 export default {
     async measurementsAll() {
-        const query = `
-            query measurements {
-                measurements {
-                    id
-                    name
-                    barcode
-                    description
-                    rows
-                    columns
-                    createdOn
-                    createdBy
-                }
-            }
-        `
-        const result = await executeQuery(query, {})
+        const result = await executeQuery(measurementsQueries.measurementsAll, {})
         return result.data
     },
     async measurementById(measurementId) {
-        const query = `
-            query measurementById($measurementId: ID) {
-                measurement:measurementById(measurementId: $measurementId) {
-                    name
-                    barcode
-                    columns
-                    rows
-                    wellColumns
-                    subWellColumns
-                }
-                wellData:measurementDataById(measurementId: $measurementId) {
-                    measurementId
-                    column
-                    data
-                }
-            }
-        `
-        const result = await executeQuery(query, {measurementId})
+        const result = await executeQuery(measurementsQueries.measurementById, {measurementId})
         return result.data
     },
     async measurementsColumnsById(measurementId) {
-      const query = `
-          query measurementById($measurementId: ID) {
-              wellColumns:measurementById(measurementId: $measurementId) {
-                  wellColumns
-              }
-          }
-      `
-        const result = await executeQuery(query, {measurementId})
+        const result = await executeQuery(measurementsQueries.measurementsColumnsById, {measurementId})
         return result.data
     },
     async measurementWellData(measurementId, wellColumn) {
-        const query = `
-            query measurementWellData($measurementId: ID, $wellColumn: String) {
-                wellData:measurementDataByIdAndWellColumn(measurementId: $measurementId, wellColumn: $wellColumn)
-            }
-        `
-        const result = await executeQuery(query, {measurementId, wellColumn})
+        const result = await executeQuery(measurementsQueries.measurementWellData, {measurementId, wellColumn})
         return result.data
     }
 }

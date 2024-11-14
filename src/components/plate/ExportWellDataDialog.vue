@@ -114,14 +114,20 @@ const fetchProtocolsByExperiment = async () => {
   experimentProtocols.value = []
   experimentFeatures.value = []
   for (let e = 0; e < experiment.value.length; e++) {
-    const {onResult, onError} = await resultDataGraphQlAPI.protocolsByExperimentId(experiment.value[e].id)
-    onResult(({data}) => {
-      if (data.protocols && data.protocols.length > 0) {
-        experimentProtocols.value = map(groupBy(experimentProtocols.value.concat(data.protocols), 'id'), last);
-        experimentFeatures.value = experimentProtocols.value.map(extractFeatures).flat()
-      }
-    })
-    onError((error) => useNotify.showError(error))
+    const data = await resultDataGraphQlAPI.protocolsByExperimentId(experiment.value[e].id)
+    if (data.protocols && data.protocols.length > 0) {
+      experimentProtocols.value = map(
+          groupBy(experimentProtocols.value.concat(data.protocols), 'id'), last);
+      experimentFeatures.value = experimentProtocols.value.map(extractFeatures).flat()
+    }
+    // const {onResult, onError} = await resultDataGraphQlAPI.protocolsByExperimentId(experiment.value[e].id)
+    // onResult(({data}) => {
+    //   if (data.protocols && data.protocols.length > 0) {
+    //     experimentProtocols.value = map(groupBy(experimentProtocols.value.concat(data.protocols), 'id'), last);
+    //     experimentFeatures.value = experimentProtocols.value.map(extractFeatures).flat()
+    //   }
+    // })
+    // onError((error) => useNotify.showError(error))
   }
 }
 
