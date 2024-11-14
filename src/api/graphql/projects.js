@@ -1,17 +1,24 @@
 import {
   provideApolloClient,
   useMutation,
-  useQuery
-} from '@vue/apollo-composable'
-import gql from 'graphql-tag'
-import {apolloPlatesClient} from "@/graphql/apollo.clients";
+  useQuery,
+} from "@vue/apollo-composable";
+import gql from "graphql-tag";
+import { apolloPlatesClient } from "@/graphql/apollo.clients";
 
-const defaultOptions = {fetchPolicy: 'no-cache', errorPolicy: 'ignore'}
+const defaultOptions = { fetchPolicy: "no-cache", errorPolicy: "ignore" };
 
 const executeQuery = (query, variables) => {
-  return provideApolloClient(apolloPlatesClient)(
-      () => useQuery(gql`${query}`, variables, defaultOptions));
-}
+  return provideApolloClient(apolloPlatesClient)(() =>
+    useQuery(
+      gql`
+        ${query}
+      `,
+      variables,
+      defaultOptions
+    )
+  );
+};
 
 export default {
   projects(projectIds) {
@@ -26,8 +33,8 @@ export default {
                 tags
             }
         }
-    `
-    return executeQuery(query, {projectIds});
+    `;
+    return executeQuery(query, { projectIds });
   },
   projectById(projectId) {
     const query = `
@@ -72,8 +79,8 @@ export default {
                 updatedBy
             }
         }
-    `
-    return executeQuery(query, {projectId});
+    `;
+    return executeQuery(query, { projectId });
   },
   nMostRecentlyUpdatedProjects(n) {
     const query = `
@@ -87,8 +94,8 @@ export default {
                 tags
             }
         }
-    `
-    return executeQuery(query, {n});
+    `;
+    return executeQuery(query, { n });
   },
   experiments(experimentIds) {
     const query = `
@@ -106,8 +113,8 @@ export default {
                 updatedBy
             }
         }
-    `
-    return executeQuery(query, {experimentIds});
+    `;
+    return executeQuery(query, { experimentIds });
   },
   experimentById(experimentId) {
     const query = `
@@ -152,8 +159,8 @@ export default {
                 updatedBy
             }
         }
-    `
-    return executeQuery(query, {experimentId});
+    `;
+    return executeQuery(query, { experimentId });
   },
   experimentsByProjectId(projectId) {
     const query = `
@@ -171,8 +178,8 @@ export default {
                 updatedBy
             }
         }
-    `
-    return executeQuery(query, {projectId});
+    `;
+    return executeQuery(query, { projectId });
   },
   plates(plateIds) {
     const query = `
@@ -212,8 +219,8 @@ export default {
                 tags
             }
         }
-    `
-    return executeQuery(query, {plateIds});
+    `;
+    return executeQuery(query, { plateIds });
   },
   plateById(plateId) {
     const query = `
@@ -275,10 +282,10 @@ export default {
                 }
             }
         }
-    `
-    return executeQuery(query, {plateId});
+    `;
+    return executeQuery(query, { plateId });
   },
-  platesByExperimentIds(experimentIds){
+  platesByExperimentIds(experimentIds) {
     const query = `
         query getPlatesByExperimentIds($experimentIds: [ID]) {
             plate:getPlatesByExperimentIds(experimentIds: $experimentIds) {
@@ -286,6 +293,10 @@ export default {
                 barcode
                 description
                 experimentId
+                experiment {
+                    id
+                    name
+                }
                 rows
                 columns
                 sequence
@@ -316,8 +327,8 @@ export default {
                 tags
             }
         }
-    `
-    return executeQuery(query, {experimentIds});
+    `;
+    return executeQuery(query, { experimentIds });
   },
   wells(wellIds) {
     const query = `
@@ -342,8 +353,8 @@ export default {
                 }
             }
         }
-    `
-    return executeQuery(query, {wellIds});
+    `;
+    return executeQuery(query, { wellIds });
   },
   wellById(wellId) {
     const query = `
@@ -369,8 +380,8 @@ export default {
                 }
             }
         }
-    `
-    return executeQuery(query, {wellId});
+    `;
+    return executeQuery(query, { wellId });
   },
   wellsByPlateId(plateId) {
     const query = `
@@ -392,8 +403,8 @@ export default {
                 }
             }
         }
-    `
-    return executeQuery(query, {plateId});
+    `;
+    return executeQuery(query, { plateId });
   },
   wellsByPlateIds(plateIds) {
     const query = `
@@ -401,6 +412,10 @@ export default {
             wells:getWellsByPlateIds(plateIds: $plateIds) {
                 id
                 plateId
+                plate {
+                    id
+                    barcode
+                }
                 row
                 column
                 wellType
@@ -415,8 +430,8 @@ export default {
                 }
             }
         }
-    `
-    return executeQuery(query, {plateIds});
+    `;
+    return executeQuery(query, { plateIds });
   },
   measurementsByPlateId(plateId) {
     const query = `
@@ -440,8 +455,8 @@ export default {
                 imageChannels
             }
         }
-    `
-    return executeQuery(query, {plateId});
+    `;
+    return executeQuery(query, { plateId });
   },
   activeMeasurementByPlateIds(plateIds) {
     const query = `
@@ -455,8 +470,8 @@ export default {
                 active
             }
         }
-    `
-    return executeQuery(query, {plateIds});
+    `;
+    return executeQuery(query, { plateIds });
   },
   activeMeasurementsByExperimentId(experimentId) {
     const query = `
@@ -470,8 +485,8 @@ export default {
                 wellColumns
             }
         }
-    `
-    return executeQuery(query, {experimentId});
+    `;
+    return executeQuery(query, { experimentId });
   },
   linkPlateMeasurement(plateId, measurementId) {
     const mutation = gql`
@@ -485,7 +500,7 @@ export default {
                 active
             }
         }
-    `
-    return provideApolloClient(apolloPlatesClient)(() => useMutation(mutation))
-  }
-}
+    `;
+    return provideApolloClient(apolloPlatesClient)(() => useMutation(mutation));
+  },
+};

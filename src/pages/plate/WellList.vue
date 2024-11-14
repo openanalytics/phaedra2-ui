@@ -9,23 +9,19 @@
     @row-click="selectWell"
   >
     <template v-slot:top-right>
-      <div class="row action-button">
-        <q-btn-dropdown size="sm" class="oa-button q-mr-md" label="Export">
-          <q-list dense>
+      <q-btn round icon="download" size="sm" class="q-mx-sm">
+        <q-tooltip>Download wells list</q-tooltip>
+        <q-menu anchor="bottom middle" self="top left">
+          <q-list style="min-width: 100px">
             <q-item clickable v-close-popup @click="exportToCSV">
-              <q-item-section>
-                <q-item-label>Export to CSV</q-item-label>
-              </q-item-section>
+              <q-item-section>Export to CSV</q-item-section>
             </q-item>
-
             <q-item clickable v-close-popup @click="exportToXLSX">
-              <q-item-section>
-                <q-item-label>Export to Excel</q-item-label>
-              </q-item-section>
+              <q-item-section>Export to Excel</q-item-section>
             </q-item>
           </q-list>
-        </q-btn-dropdown>
-      </div>
+        </q-menu>
+      </q-btn>
     </template>
     <template v-slot:header="props">
       <q-tr :props="props">
@@ -103,6 +99,7 @@ import ColumnFilter from "@/components/table/ColumnFilter";
 import WellActionMenu from "@/components/well/WellActionMenu.vue";
 import { usePlateStore } from "@/stores/plate";
 import OaTable from "@/components/table/OaTable.vue";
+import { useRoute } from "vue-router";
 
 const props = defineProps(["plates", "wells"]);
 const emits = defineEmits(["wellStatusChanged", "selection", "open"]);
@@ -121,8 +118,16 @@ const { onResult, onError } = resultDataGraphQlAPI.resultDataByResultSetId(
 );
 onResult(({ data }) => (resultData.value = data.resultData));
 
-const baseColumns = [
+const baseColumns = ref([
   { name: "id", align: "left", label: "ID", field: "id", sortable: true },
+  {
+    name: "plate",
+    align: "left",
+    label: "Plate",
+    field: (row) => row.plate.barcode,
+    sortable: true,
+    description: "The plate barcode",
+  },
   {
     name: "coordinate",
     align: "left",
@@ -165,7 +170,17 @@ const baseColumns = [
     field: "concentration",
     sortable: true,
   },
-];
+]);
+
+const route = useRoute();
+
+const baseColumnsFiltered = computed(() => {
+  if (route.name != "workbench") {
+    return baseColumns.value.filter((col) => col.name != "plate");
+  }
+  return baseColumns.value;
+});
+
 const columns = ref([]);
 const wells = computed(() =>
   props.wells.map((well) => {
@@ -177,6 +192,7 @@ const wells = computed(() =>
         "",
       status: well.status,
       plateId: well.plateId,
+      plate: well.plate,
       wellType: well.wellType,
       substance: well.wellSubstance?.name ?? "",
       concentration: FormatUtils.formatToScientificNotation(
@@ -293,7 +309,7 @@ const handleAcceptWells = () => {
 };
 
 const updateTable = () => {
-  columns.value = [...baseColumns];
+  columns.value = [...baseColumnsFiltered.value];
 
   if (features.value && resultData.value) {
     const featureCols = computed(() =>

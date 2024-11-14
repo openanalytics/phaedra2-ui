@@ -2,7 +2,6 @@
   <oa-table
     :columns="columns"
     :rows="plates"
-    :visible-columns="visibleColumns"
     @row-click="selectPlate"
     @row-dblclick="gotoPlateView"
     @row-contextmenu="plateContextMenu"
@@ -10,22 +9,21 @@
     v-model:selected="selectedPlates"
   >
     <template
-      v-slot:top-left
+      v-slot:top-right
       v-if="experiments.length > 0 && experiments[0].status === 'OPEN'"
     >
-      <q-btn size="sm" icon="add" label="New Plate" class="oa-button">
+      <q-btn size="sm" icon="add" round color="primary"
+        ><q-tooltip>Create New Plate</q-tooltip>
         <q-menu>
           <q-list size="sm" dense>
             <q-item
               clickable
               v-close-popup
               v-ripple
-              class="oa-button"
               @click="openNewPlateDialog"
             >
               <q-item-section no-wrap>
                 <div style="vertical-align: center">
-                  <q-icon name="add" class="q-pr-md" />
                   <span
                     style="
                       text-transform: uppercase;
@@ -42,12 +40,10 @@
               clickable
               v-close-popup
               v-ripple
-              class="oa-button"
               @click="openNewPlateFromMeasurementsDialog"
             >
               <q-item-section no-wrap class="row">
                 <div>
-                  <q-icon name="add" class="q-pr-md" />
                   <span
                     style="
                       text-transform: uppercase;
@@ -63,23 +59,20 @@
           </q-list>
         </q-menu>
       </q-btn>
-    </template>
-    <template v-slot:top-right>
-      <q-btn-dropdown size="sm" class="oa-button q-mr-md" label="Export">
-        <q-list dense>
-          <q-item clickable v-close-popup @click="exportToCSV">
-            <q-item-section>
-              <q-item-label>Export to CSV</q-item-label>
-            </q-item-section>
-          </q-item>
 
-          <q-item clickable v-close-popup @click="exportToXLSX">
-            <q-item-section>
-              <q-item-label>Export to Excel</q-item-label>
-            </q-item-section>
-          </q-item>
-        </q-list>
-      </q-btn-dropdown>
+      <q-btn round icon="download" size="sm" class="q-mx-sm">
+        <q-tooltip>Download plates list</q-tooltip>
+        <q-menu anchor="bottom middle" self="top left">
+          <q-list style="min-width: 100px">
+            <q-item clickable v-close-popup @click="exportToCSV">
+              <q-item-section>Export to CSV</q-item-section>
+            </q-item>
+            <q-item clickable v-close-popup @click="exportToXLSX">
+              <q-item-section>Export to Excel</q-item-section>
+            </q-item>
+          </q-list>
+        </q-menu>
+      </q-btn>
     </template>
     <template v-slot:body-cell-link-status="props">
       <q-td :props="props">
@@ -159,8 +152,16 @@ const emits = defineEmits([
 
 const router = useRouter();
 
-const columns = [
+const baseColumns = ref([
   { name: "id", align: "left", label: "ID", field: "id", sortable: true },
+  {
+    name: "experiment",
+    align: "left",
+    label: "Experiment",
+    field: (row) => row.experiment.name,
+    sortable: true,
+    description: "The experiment name",
+  },
   {
     name: "barcode",
     align: "left",
@@ -217,11 +218,20 @@ const columns = [
     field: "createdBy",
     sortable: true,
   },
-];
+]);
+
+const route = useRoute();
+
+const columns = computed(() => {
+  if (route.name != "workbench") {
+    return baseColumns.value.filter((col) => col.name != "experiment");
+  }
+  return baseColumns.value;
+});
 
 const plates = computed(() => props.plates);
 
-const filter = FilterUtils.makeFilter(columns);
+const filter = FilterUtils.makeFilter(columns.value);
 const filterMethod = FilterUtils.defaultFilterMethod();
 
 const selectedPlate = ref({});
@@ -248,9 +258,6 @@ const openNewPlateFromMeasurementsDialog = () => {
 };
 
 const loading = ref();
-const visibleColumns = ref([]);
-
-const route = useRoute();
 
 onBeforeMount(() => {
   if (route.name == "workbench") {
@@ -259,12 +266,10 @@ onBeforeMount(() => {
 });
 
 onMounted(() => {
-  visibleColumns.value = [...columns.map((a) => a.name)];
   loading.value = false;
 });
 
 watch(plates, () => {
-  visibleColumns.value = [...columns.map((a) => a.name)];
   loading.value = false;
 });
 
@@ -334,7 +339,7 @@ const exportFileName = computed(() =>
     : experimentsNames.value[0]
 );
 
-const exportTableData = useExportTableData(columns);
+const exportTableData = useExportTableData(columns.value);
 const exportToCSV = () => {
   exportTableData.exportToCSV(
     filterMethod(platesToExport.value, filter.value),

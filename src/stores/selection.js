@@ -222,8 +222,9 @@ export const useSelectionStore = defineStore("selection", () => {
   }
 
   function loadPlateMeasurements(plate) {
-    const { onResult, onError } =
-      projectsGraphQlAPI.measurementsByPlateId(plate.id);
+    const { onResult, onError } = projectsGraphQlAPI.measurementsByPlateId(
+      plate.id
+    );
     onResult(({ data }) => {
       measurements.value = data.plateMeasurements;
       activeMeasurement.value = measurements.value.filter(

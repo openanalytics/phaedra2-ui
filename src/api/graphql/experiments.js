@@ -1,13 +1,20 @@
-import {provideApolloClient, useQuery} from '@vue/apollo-composable'
-import gql from 'graphql-tag'
-import {apolloPlatesClient} from "@/graphql/apollo.clients";
+import { provideApolloClient, useQuery } from "@vue/apollo-composable";
+import gql from "graphql-tag";
+import { apolloPlatesClient } from "@/graphql/apollo.clients";
 
-const defaultOptions = { fetchPolicy: 'no-cache', errorPolicy: 'ignore'}
+const defaultOptions = { fetchPolicy: "no-cache", errorPolicy: "ignore" };
 
 const executeQuery = (query, variables) => {
-  return provideApolloClient(apolloPlatesClient)(
-      () => useQuery(gql`${query}`, variables, defaultOptions));
-}
+  return provideApolloClient(apolloPlatesClient)(() =>
+    useQuery(
+      gql`
+        ${query}
+      `,
+      variables,
+      defaultOptions
+    )
+  );
+};
 
 export default {
   experiments(experimentIds) {
@@ -28,8 +35,8 @@ export default {
                     tags
                 }
             }
-        `
-    return executeQuery(query, {experimentIds});
+        `;
+    return executeQuery(query, { experimentIds });
   },
   nMostRecentExperiments(n) {
     const query = `
@@ -47,8 +54,8 @@ export default {
                     tags
                 }
             }
-        `
-    return executeQuery(query, {n});
+        `;
+    return executeQuery(query, { n });
   },
   experimentById(experimentId) {
     const query = `
@@ -68,8 +75,8 @@ export default {
                     tags
                 }
             }
-        `
-    return executeQuery(query, {experimentId});
+        `;
+    return executeQuery(query, { experimentId });
   },
   experimentsByProjectId(projectId) {
     const query = `
@@ -79,7 +86,7 @@ export default {
                     name
                     description
                     status
-                    projectId
+                    projectId,
                     createdOn
                     createdBy
                     updatedOn
@@ -87,8 +94,8 @@ export default {
                     tags
                 }
             }
-        `
-    return executeQuery(query, {projectId});
+        `;
+    return executeQuery(query, { projectId });
   },
   experimentsByProjectIds(projectIds) {
     const query = `
@@ -99,6 +106,10 @@ export default {
                     description
                     status
                     projectId
+                    project {
+                        id
+                        name
+                    }
                     multiploMethod
                     multiploParameter
                     createdOn
@@ -115,10 +126,10 @@ export default {
                     }
                 }
             }
-        `
-    return executeQuery(query, {projectIds});
-    },
-    experimentSummaries() {
+        `;
+    return executeQuery(query, { projectIds });
+  },
+  experimentSummaries() {
     const query = `
             query getExperiments {
                 experimentSummaries:getExperimentSummaries {
@@ -129,8 +140,7 @@ export default {
                     nrPlatesApproved
                 }
             }
-        `
+        `;
     return executeQuery(query, {});
-  }
-}
-
+  },
+};
