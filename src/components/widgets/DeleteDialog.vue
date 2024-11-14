@@ -31,7 +31,7 @@
         </div>
       </q-card-section>
       <q-card-actions align="right" class="text-primary">
-        <q-btn flat label="Cancel" v-close-popup />
+        <q-btn flat label="Cancel" @click="cancelDelete" v-close-popup />
         <q-btn
           :label="'Delete ' + objectClass"
           color="accent"
@@ -82,5 +82,9 @@ const confirmDelete = () => {
       break;
   }
   emit("onDeleted");
+};
+
+const cancelDelete = () => {
+  confirmationValue.value = null;
 };
 </script>
