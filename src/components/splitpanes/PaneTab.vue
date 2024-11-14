@@ -2,8 +2,7 @@
   <component
     :is="component.component"
     v-bind="{ ...componentProps }"
-    @updated="() => (component.updated ? component.updated(e) : null)"
-    @selection="(e) => (component.selection ? component.selection(e) : null)"
+    v-on="componentEvents"
     @open="(e) => panesStore.openTab(e)"
   />
 </template>
@@ -16,4 +15,5 @@ const panesStore = usePanesStore();
 
 const props = defineProps(["component"]);
 const componentProps = computed(() => props.component.props);
+const componentEvents = computed(() => props.component.events);
 </script>
