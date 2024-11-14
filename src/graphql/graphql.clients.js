@@ -17,7 +17,7 @@ const platesGraphQLClient = createClient({
     url: `${apiURL}/plate-service/graphql`
 })
 
-const apolloChartsClient = createClient({
+const chartsGraphQLClient = createClient({
     headers: {
         Authorization: `Bearer ${token}`
     },
@@ -31,21 +31,21 @@ const curvesGraphQLClient = createClient({
     url: `${apiURL}/curvedata-service/graphql`
 })
 
-const apolloProtocolsClient = createClient({
+const protocolsGraphQLClient = createClient({
     headers: {
         Authorization: `Bearer ${token}`
     },
     url: `${apiURL}/protocol-service/graphql`
 })
 
-const apolloMeasurementsClient = createClient({
+const measurementsGraphQLClient = createClient({
     headers: {
         Authorization: `Bearer ${token}`
     },
     url: `${apiURL}/measurement-service/graphql`
 })
 
-const apolloQueriesClient = createClient({
+const queriesGraphQLClient = createClient({
     headers: {
         Authorization: `Bearer ${token}`
     },
@@ -55,9 +55,9 @@ const apolloQueriesClient = createClient({
 export {
     resultDataGraphQLClient,
     platesGraphQLClient,
-    apolloChartsClient,
+    chartsGraphQLClient,
     curvesGraphQLClient,
-    apolloProtocolsClient,
-    apolloMeasurementsClient,
-    apolloQueriesClient
+    protocolsGraphQLClient,
+    measurementsGraphQLClient,
+    queriesGraphQLClient
 }

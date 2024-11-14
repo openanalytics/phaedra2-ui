@@ -73,7 +73,7 @@ export function usePanesList() {
         selected: selectionStore.selectedProjects,
       },
       selection: (e) => (selectionStore.selectedProjects = e),
-      updated: async () => selectionStore.fetchProjects(),
+      updated: async () => await selectionStore.fetchProject(),
       groupBy: "list",
     },
     {

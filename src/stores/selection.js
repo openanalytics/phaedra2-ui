@@ -223,17 +223,6 @@ export const useSelectionStore = defineStore("selection", () => {
       protocols: data.protocols,
     };
     await loadPlateMeasurements(plate);
-    // const { onResult, onError } = await resultDataGraphQlAPI.protocolsByPlateId(
-    //   plate.id
-    // );
-    // onResult(({ data }) => {
-    //   plateChart.value = {
-    //     plate: plate,
-    //     id: new Date().getTime(),
-    //     protocols: data.protocols,
-    //   };
-    //   loadPlateMeasurements(plate);
-    // });
   }
 
   watch(selectedWells, async (newVal, oldVal) => {

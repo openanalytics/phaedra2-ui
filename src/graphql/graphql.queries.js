@@ -235,6 +235,12 @@ export const projectsQueries = {
                     name
                     concentration
                 }
+                plate {
+                  id
+                  barcode
+                  rows
+                  columns
+                }
             }
         }
     `,
@@ -919,6 +925,60 @@ export const protocolsQueries = {
                 }
             }
         `
+}
+
+export const queryServiceQueries = {
+  exportPlateData: `
+        query exportPlateListData($exportPlateDataOptions: ExportPlateDataOptions) {
+            plateData:exportPlateListData(exportPlateDataOptions: $exportPlateDataOptions) {
+                plateId
+                barcode
+                experimentId
+                experimentName
+                comment
+                plateTemplateId
+                validationStatus
+                approvalStatus
+                features {
+                    featureId
+                    featureName
+                    protocolId
+                    protocolName
+                    resultSetId
+                    wellType
+                    stats {
+                        name
+                        value
+                    }
+                }
+            }
+        }
+    `,
+  exportWellData: `
+        query exportWellData($exportWellDataOptions: ExportWellDataOptions) {
+            wellData:exportWellData(exportWellDataOptions: $exportWellDataOptions) {
+                plateId
+                barcode
+                experimentName
+                validationStatus
+                approvalStatus
+                wellId
+                rowNr
+                columnNr
+                wellType
+                substanceName
+                substanceType
+                concentration
+                features {
+                    featureId
+                    featureName
+                    protocolId
+                    protocolName
+                    value
+                }
+            }
+        }
+    `
 }
 
 export const chartsQueries = {

@@ -113,12 +113,10 @@ const resultData = ref([]);
 const resultSet = plateStore.activeResultSet;
 features.value = plateStore.featuresByProtocolId(resultSet?.protocolId);
 
-const data = await resultDataGraphQlAPI.resultDataByResultSetId(resultSet?.id)
-resultData.value = data.resultData
-// const { onResult, onError } = await resultDataGraphQlAPI.resultDataByResultSetId(
-//   resultSet?.id
-// );
-// onResult(({ data }) => (resultData.value = data.resultData));
+if (resultSet) {
+  const data = await resultDataGraphQlAPI.resultDataByResultSetId(resultSet?.id)
+  resultData.value = data.resultData
+}
 
 const baseColumns = ref([
   { name: "id", align: "left", label: "ID", field: "id", sortable: true },
@@ -346,7 +344,8 @@ const updateTable = () => {
 
   filter = FilterUtils.makeFilter(columns.value);
   visibleColumns.value = [...columns.value.map((a) => a.name)];
-};
+}
+updateTable()
 
 const open = (resource) => {
   emits("open", resource);
