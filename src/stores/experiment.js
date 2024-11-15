@@ -163,12 +163,12 @@ export const useExperimentStore = defineStore("experiment", () => {
     experiment.value = {};
   }
 
-  watch(experiment, async () => {
-    if (!isMetadataUpdate.value) {
-      await projectStore.loadProject(experiment.value.projectId);
-    }
-    isMetadataUpdate.value = false;
-  });
+  // watch(experiment, async () => {
+  //   if (!isMetadataUpdate.value) {
+  //     await projectStore.loadProject(experiment.value.projectId);
+  //   }
+  //   isMetadataUpdate.value = false;
+  // });
 
   return {
     experiment,
