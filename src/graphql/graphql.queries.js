@@ -125,7 +125,7 @@ export const projectsQueries = {
       }
     `,
   experimentsByProjectId: `
-      query getExperimentsByProjectId {
+      query getExperimentsByProjectId($projectId: ID) {
         experiments:getExperimentsByProjectId(projectId: $projectId) {
           id
           projectId
