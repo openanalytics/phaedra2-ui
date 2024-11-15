@@ -154,6 +154,7 @@ import { useRoute, useRouter } from "vue-router";
 import { useProjectStore } from "@/stores/project";
 import OaTable from "@/components/table/OaTable.vue";
 import { useExperimentStore } from "@/stores/experiment";
+import {useLoadingHandler} from "@/composable/loadingHandler";
 
 const props = defineProps({
   experiments: [Object],
@@ -395,12 +396,11 @@ function getUnique(value, index, array) {
   return array.indexOf(value) === index;
 }
 const experimentStore = useExperimentStore();
-function deleteExperiments() {
-  experimentStore
-    .deleteExperiments(selectedExperiments.value.map((exp) => exp.id))
-    .then(() => {
-      updated();
-    });
+const loadingHandler = useLoadingHandler();
+const deleteExperiments = async () => {
+  await loadingHandler.handleLoadingDuring(
+      experimentStore.deleteExperiments(selectedExperiments.value.map((exp) => exp.id))
+  )
   selectedExperiments.value = [];
 }
 

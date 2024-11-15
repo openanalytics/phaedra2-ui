@@ -186,10 +186,8 @@ const getPlates = async () => {
 };
 
 const setPlateLayout = () => {
-  handleExperimentSelection(() => {
-    getPlates();
-    showLinkPlateDialog.value = true;
-  }, "No experiment is selected!");
+  getPlates();
+  showLinkPlateDialog.value = true;
 };
 
 const openRecalculatePlatesDialog = () => {

@@ -141,8 +141,9 @@ const createPlates = async () => {
     measurementId: m.id,
   }));
   await loadingHandler.handleLoadingDuring(
-    experimentStore.addPlates(experimentStore.experiment.id, newPlates)
+    experimentStore.addPlates(newPlates)
   );
+  await experimentStore.reloadExperiment()
 };
 </script>
 
