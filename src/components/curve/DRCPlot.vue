@@ -33,7 +33,7 @@ const updateDRCPlotView = () => {
     height: props.height,
   }
 
-  if (props.curves.length === 1) {
+  if (props.curves?.length === 1) {
     const top = props.curves[0].curveProperties.find(cProp => cProp.name == "Top").numericValue
     const bottom = props.curves[0].curveProperties.find(cProp => cProp.name == "Bottom").numericValue
     const minX = ArrayUtils.firstElement(props.curves[0].plotDoseData)

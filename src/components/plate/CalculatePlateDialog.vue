@@ -80,17 +80,6 @@ onUpdated(async () => {
       );
     }
   }
-  // const { onResult, onError } =
-  //   await projectsGraphQlAPI.activeMeasurementByPlateIds(plateIds);
-  // onResult(({ data }) => {
-  //   if (data.plateMeasurements) {
-  //     for (let plateMeas of data.plateMeasurements) {
-  //       activeMeasurements.value[plateMeas.plateId] = Number.parseInt(
-  //         plateMeas.measurementId
-  //       );
-  //     }
-  //   }
-  // });
   console.log("On update Calculate plate dialog!! ");
 });
 

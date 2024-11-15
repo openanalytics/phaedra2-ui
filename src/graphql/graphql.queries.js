@@ -98,6 +98,10 @@ export const projectsQueries = {
           createdBy
           updatedOn
           updatedBy
+          project {
+            id
+            name
+          }
         }
 
         plates:getPlatesByExperimentId(experimentId: $experimentId) {
@@ -217,6 +221,14 @@ export const projectsQueries = {
                     propertyName
                     propertyValue
                 }
+                experiment {
+                  id
+                  name
+                }
+                project { 
+                  id
+                  name
+                }
             }
 
             wells:getPlateWells(plateId: $plateId) {
@@ -329,6 +341,18 @@ export const projectsQueries = {
                 properties {
                     propertyName,
                     propertyValue
+                }
+                plate {
+                  id
+                  barcode
+                }
+                experiment {
+                  id
+                  name
+                }
+                project {
+                  id
+                  name
                 }
             }
         }

@@ -2,20 +2,20 @@
   <q-breadcrumbs
     class="oa-breadcrumb"
     v-if="
-      plateStore.plate && experimentStore.experiment && projectStore.project
+      plateStore.plate && plateStore.plate.experiment && plateStore.plate.project
     "
   >
     <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard' }" />
     <q-breadcrumbs-el label="Projects" icon="list" :to="'/projects'" />
     <q-breadcrumbs-el
-      :label="projectStore.project.name"
+      :label="plateStore.plate.project.name"
       icon="folder"
-      :to="'/project/' + projectStore.project.id"
+      :to="'/project/' + plateStore.plate.project.id"
     />
     <q-breadcrumbs-el
-      :label="experimentStore.experiment.name"
+      :label="plateStore.plate.experiment.name"
       icon="science"
-      :to="'/experiment/' + experimentStore.experiment.id"
+      :to="'/experiment/' + plateStore.plate.experiment.id"
     />
     <q-breadcrumbs-el :label="plateStore.plate.barcode" icon="view_module" />
   </q-breadcrumbs>
@@ -243,11 +243,16 @@ const drcViewPane = ref();
 const chartViewerPane = ref();
 const imageViewPane = ref();
 
-const plateId = parseInt(route.params.plateId);
+
 const loadingHandler = useLoadingHandler();
-onMounted(async () => {
+const fetchPlate = async () => {
+  const plateId = parseInt(route.params.plateId);
   await plateStore.loadPlate(plateId);
-});
+}
+fetchPlate()
+// onMounted(async () => {
+//   await plateStore.loadPlate(plateId);
+// });
 const showCalculateDialog = ref(false);
 
 const wellStatusNotification = useNotification();

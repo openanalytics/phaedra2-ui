@@ -160,10 +160,6 @@ const fetchNRecentExperiments = async (n) => {
 const fetchExperimentSummaries = async () => {
   const data = await experimentsGraphQlAPI.experimentSummaries()
   recentExperimentSummaries.value = data.experimentSummaries
-  // const { onResult, onError } = experimentsGraphQlAPI.experimentSummaries();
-  // onResult(
-  //   ({ data }) => (recentExperimentSummaries.value = data.experimentSummaries)
-  // );
 };
 
 const fetchNRecentProject = async (n) => {
