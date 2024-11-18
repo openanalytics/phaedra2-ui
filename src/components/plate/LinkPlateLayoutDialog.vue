@@ -50,7 +50,7 @@
 
       <q-card-actions align="right" class="text-primary">
         <q-btn flat label="Cancel" v-close-popup/>
-        <q-btn label="Link" :disable="!isTemplateSelected() || !arePlatesSelected() || !checkAllDimensions()" @click="linkPlate" color="primary" v-close-popup/>
+        <q-btn label="Link" :disable="!isTemplateSelected() || !arePlatesSelected() || !checkPlateDimensions()" @click="linkPlate" color="primary" v-close-popup/>
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -98,14 +98,9 @@ const showDialog = computed({
   set: (v) => emits('update:show', v)
 });
 
-const handleTemplateSelection = (selected) => {
-  const data = templatesGraphQlAPI.templateById(selected.rows[0].id)
+const handleTemplateSelection = async (selected) => {
+  const data = await templatesGraphQlAPI.templateById(selected.rows[0].id)
   selectedTemplate.value = data.plateTemplate
-  // const {onResult, onError} = templatesGraphQlAPI.templateById(selected.rows[0].id)
-  // onResult(({data}) => {
-  //   selectedTemplate.value = data.plateTemplate
-  // })
-  // onError((error) => useNotify.showError(error))
 }
 
 const handleShowQuickView = () => {

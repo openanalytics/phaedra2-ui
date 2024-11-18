@@ -153,8 +153,6 @@ const columns = [
 const fetchNRecentExperiments = async (n) => {
   const data = await experimentsGraphQlAPI.nMostRecentExperiments(n)
   recentExperiments.value = data.experiments
-  // const { onResult } = experimentsGraphQlAPI.nMostRecentExperiments(n);
-  // onResult(({ data }) => (recentExperiments.value = data.experiments));
 };
 
 const fetchExperimentSummaries = async () => {
@@ -165,8 +163,6 @@ const fetchExperimentSummaries = async () => {
 const fetchNRecentProject = async (n) => {
   const data = await projectsGraphQlAPI.nMostRecentlyUpdatedProjects(n);
   recentProjects.value = data.projects
-  // const { onResult } = await projectsGraphQlAPI.nMostRecentlyUpdatedProjects(n);
-  // onResult(({ data }) => (recentProjects.value = data.projects));
 };
 
 const getProjectName = (projectId) => {

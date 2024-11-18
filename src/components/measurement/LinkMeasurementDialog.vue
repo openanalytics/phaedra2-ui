@@ -34,7 +34,7 @@
 
       <q-card-actions class="text-primary" align="right">
         <q-btn flat label="Cancel" v-close-popup/>
-        <q-btn label="Link" color="primary" @click="doLink" :disable="selectedMeasurement.length == 0" v-close-popup/>
+        <q-btn label="Link" color="primary" @click="doLink" :disable="selectedMeasurement.length > 0" v-close-popup/>
       </q-card-actions>
     </q-card>
   </q-dialog>

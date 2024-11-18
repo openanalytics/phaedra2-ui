@@ -223,10 +223,10 @@ const onDeleted = () => {
 };
 
 const useNotify = useNotification();
-const handleSetPlateLayout = () => {
-  projectStore.loadProject(projectId);
+const handleSetPlateLayout = async () => {
+  await projectStore.loadProject(projectId);
   useNotify.showInfo(
-    "The plate layout has been updated! ",
+    "The plate layout has been updated! Recalculate plate(s)?",
     () => {
       showCalculatePlateDialog.value = true;
     },
