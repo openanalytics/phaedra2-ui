@@ -8,10 +8,8 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "@apollo/client": "^3.11.10",
     "@codemirror/lang-javascript": "^6.2.2",
     "@codemirror/lang-json": "^6.0.1",
-    "@vue/apollo-composable": "^4.2.1",
     "axios": "^1.7.7",
     "bootstrap": "^5.3.3",
     "codemirror": "^6.0.1",
@@ -21,6 +19,7 @@
     "form-data": "^4.0.1",
     "formidable": "^3.5.2",
     "graphql": "^16.9.0",
+    "graphql-http": "^1.22.2",
     "graphql-tag": "^2.12.6",
     "kafka-client": "^3.0.0",
     "kafkajs": "^2.2.4",

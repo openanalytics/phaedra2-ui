@@ -469,9 +469,10 @@ const handlePlateSelection = (action, onFailureMessage) => {
     action();
   }
 };
-const handleSetPlateLayout = () => {
+const handleSetPlateLayout = async () => {
+  await experimentStore.reloadExperiment()
   notify.showInfo(
-    "The plate layout has been updated! ",
+    "The plate layout has been updated! Recalculate plate(s)?",
     () => {
       showCalculateDialog.value = true;
     },

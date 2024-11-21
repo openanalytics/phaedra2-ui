@@ -79,7 +79,8 @@ export function usePanesList() {
       },
       events: {
         selection: (e) => (selectionStore.selectedProjects = e),
-        updated: () => selectionStore.fetchProjects(),
+        updated: async () =>
+            await selectionStore.fetchProjects(),
       },
     },
     {
@@ -96,8 +97,8 @@ export function usePanesList() {
         project: selectionStore.selectedProjectDetails,
       },
       events: {
-        updated: () =>
-          selectionStore.fetchProject(selectionStore.selectedProjectDetails.id),
+        updated: async () =>
+          await selectionStore.fetchProject(selectionStore.selectedProjectDetails.id),
       },
     },
     {
@@ -115,7 +116,7 @@ export function usePanesList() {
       },
       events: {
         selection: (e) => (selectionStore.selectedExperiments = e),
-        updated: () => selectionStore.loadProjects(),
+        updated: async () => await selectionStore.loadProjects(),
       },
     },
     {
@@ -132,8 +133,8 @@ export function usePanesList() {
         experiment: selectionStore.selectedExperimentDetails,
       },
       events: {
-        updated: () =>
-          selectionStore.fetchExperiment(
+        updated: async () =>
+          await selectionStore.fetchExperiment(
             selectionStore.selectedExperimentDetails.id
           ),
       },
@@ -174,7 +175,7 @@ export function usePanesList() {
       },
       events: {
         selection: (e) => (selectionStore.selectedPlates = e),
-        updated: () => selectionStore.loadExperiment(),
+        updated: async () => await selectionStore.loadExperiment(),
       },
     },
     {
@@ -192,8 +193,8 @@ export function usePanesList() {
         activeMeasurement: selectionStore.activeMeasurement,
       },
       events: {
-        updated: () =>
-          selectionStore.fetchPlate(selectionStore.selectedPlateDetails.id),
+        updated: async () =>
+          await selectionStore.fetchPlate(selectionStore.selectedPlateDetails.id),
       },
     },
     {
@@ -291,8 +292,8 @@ export function usePanesList() {
         well: selectionStore.selectedWellDetails,
       },
       events: {
-        updated: () =>
-          selectionStore.fetchWell(selectionStore.selectedWellDetails.id),
+        updated: async () =>
+            await selectionStore.fetchWell(selectionStore.selectedWellDetails.id),
       },
     },
     {

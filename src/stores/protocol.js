@@ -16,10 +16,12 @@ export const useProtocolStore = defineStore("protocol",  {
     },
     actions: {
         async loadProtocol(protocolId) {
-            const {onResult, onError} = protocolGraphQLAPI.protocolById(protocolId)
-            onResult(({data}) => {
-                this.protocol = data.protocol
-            })
+            const data = await protocolGraphQLAPI.protocolById(protocolId)
+            this.protocol = data.protocol
+            // const {onResult, onError} = protocolGraphQLAPI.protocolById(protocolId)
+            // onResult(({data}) => {
+            //     this.protocol = data.protocol
+            // })
         },
         async reloadProtocol() {
             await this.loadProtocol(this.protocol.id)
@@ -47,10 +49,12 @@ export const useProtocolStore = defineStore("protocol",  {
             this.reset()
         },
         async loadAllProtocols() {
-            const {onResult, onError} = protocolGraphQLAPI.protocols()
-            onResult(({data}) => {
-                this.protocols = data.protocols
-            })
+            const data = await protocolGraphQLAPI.protocols()
+            this.protocols = data.protocols
+            // const {onResult, onError} = protocolGraphQLAPI.protocols()
+            // onResult(({data}) => {
+            //     this.protocols = data.protocols
+            // })
             //TODO: implement onError event!
         },
         addFeature(feature) {

@@ -1,6 +1,5 @@
 <template>
-  <oa-table :rows="plateMeasurements" :columns="columns"
-                 @row-dblclick="onSelectMeasurement">
+  <oa-table :rows="plateMeasurements" :columns="columns" @row-dblclick="onSelectMeasurement">
     <template v-slot:top-left>
       <q-btn size="sm" icon="add" class="oa-button q-mb-md" label="Link Measurement"
              @click="showLinkMeasDialog = true" v-if="!readOnly"/>
@@ -74,12 +73,15 @@ const columns = [
 const plateMeasurements = ref([])
 const plateStore = usePlateStore()
 
-const fetchPlateMeasurements = () => {
-  const {onResult, onError} = projectsGraphQlAPI.measurementsByPlateId(props.plate.id)
-  onResult(({data}) => {
-    plateMeasurements.value = data.plateMeasurements
-    plateStore.reloadPlate()
-  })
+const fetchPlateMeasurements = async () => {
+  const data = await projectsGraphQlAPI.measurementsByPlateId(props.plate.id)
+  plateMeasurements.value = data.plateMeasurements
+  await plateStore.reloadPlate()
+  // const {onResult, onError} = await projectsGraphQlAPI.measurementsByPlateId(props.plate.id)
+  // onResult(({data}) => {
+  //   plateMeasurements.value = data.plateMeasurements
+  //   plateStore.reloadPlate()
+  // })
 }
 
 const showLinkMeasDialog = ref(false);

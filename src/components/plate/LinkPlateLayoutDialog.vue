@@ -50,7 +50,7 @@
 
       <q-card-actions align="right" class="text-primary">
         <q-btn flat label="Cancel" v-close-popup/>
-        <q-btn label="Link" :disable="!isTemplateSelected() || !arePlatesSelected() || !checkAllDimensions()" @click="linkPlate" color="primary" v-close-popup/>
+        <q-btn label="Link" :disable="!isTemplateSelected() || !arePlatesSelected() || !checkPlateDimensions()" @click="linkPlate" color="primary" v-close-popup/>
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -84,9 +84,12 @@ const selectedTemplates = ref([])
 const selectedTemplate = ref(null)
 const quickView = ref(false)
 
-const {onResult, onError} = templatesGraphQlAPI.templates()
-onResult(({data}) => allTemplates.value = data.plateTemplates)
-onError((error) => useNotify.showError(error))
+
+const fetchTemplates = async () => {
+  const data = await templatesGraphQlAPI.templates()
+  allTemplates.value = data.plateTemplates
+}
+fetchTemplates()
 
 const filteredTemplates = computed(() => preFilterTemplates(allTemplates.value))
 
@@ -95,12 +98,9 @@ const showDialog = computed({
   set: (v) => emits('update:show', v)
 });
 
-const handleTemplateSelection = (selected) => {
-  const {onResult, onError} = templatesGraphQlAPI.templateById(selected.rows[0].id)
-  onResult(({data}) => {
-    selectedTemplate.value = data.plateTemplate
-  })
-  onError((error) => useNotify.showError(error))
+const handleTemplateSelection = async (selected) => {
+  const data = await templatesGraphQlAPI.templateById(selected.rows[0].id)
+  selectedTemplate.value = data.plateTemplate
 }
 
 const handleShowQuickView = () => {

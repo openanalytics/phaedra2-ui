@@ -34,7 +34,7 @@
 
       <q-card-actions class="text-primary" align="right">
         <q-btn flat label="Cancel" v-close-popup/>
-        <q-btn label="Link" color="primary" @click="doLink" :disable="selectedMeasurement.length == 0" v-close-popup/>
+        <q-btn label="Link" color="primary" @click="doLink" :disable="selectedMeasurement.length > 0" v-close-popup/>
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -62,9 +62,11 @@ const showDialog = computed({
 const allMeasurements = ref([])
 const selectedMeasurement = ref([]);
 
-const {onResult, onError} = measurementsGraphQlAPI.measurementsAll()
-onResult(({data}) => allMeasurements.value = data.measurements)
-// TODO: Implement onError
+const fetchMeasurements = async () => {
+  const data = await measurementsGraphQlAPI.measurementsAll()
+  allMeasurements.value = data.measurements
+}
+fetchMeasurements()
 
 const filteredMeasurements = computed(() => preFilterMeasurements(allMeasurements.value))
 

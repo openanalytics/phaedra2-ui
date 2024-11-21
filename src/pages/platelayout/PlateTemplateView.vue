@@ -133,8 +133,11 @@ const activeTab = ref('overview')
 const editdialog = ref(false)
 const showDeleteDialog = ref(false)
 
-const templateId = parseInt(route.params.id);
-templateStore.loadTemplate(templateId)
+const fetchTemplate = async () => {
+  const templateId = parseInt(route.params.id);
+  await templateStore.loadTemplate(templateId)
+}
+fetchTemplate()
 
 const showRenameDialog = ref(false)
 const onNameChanged = async (newTemplateName) => {
