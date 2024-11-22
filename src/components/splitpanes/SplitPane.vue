@@ -93,6 +93,18 @@ watch(
   }
 );
 
+watch(
+  () => panesStore.newestOpenPaneKey,
+  () => {
+    const newPane = props.panes.find(
+      (pane) => pane.id == panesStore.newestOpenPane
+    );
+    if (newPane) {
+      activeTab.value = newPane.title;
+    }
+  }
+);
+
 function dragStart(component) {
   panesStore.draggedElement = component.id;
 }

@@ -16,6 +16,14 @@ export const usePanesStore = defineStore("panes", () => {
     ["recent-experiments-pane"],
   ]);
 
+  const newestOpenPane = ref("");
+  const newestOpenPaneKey = ref(0);
+
+  function setNewestOpenPane(id) {
+    newestOpenPane.value = id;
+    newestOpenPaneKey.value = ++newestOpenPaneKey.value % 10;
+  }
+
   const activePanes = computed(() => {
     return dynamicPanes.value
       .flat(Infinity)
@@ -142,12 +150,14 @@ export const usePanesStore = defineStore("panes", () => {
   }
 
   function addItem(id, toId, position) {
+    setNewestOpenPane(id);
     if (!activePanes.value.find((pane) => pane.id == id) && id != toId) {
       dynamicPanes.value = insertItem(id, toId, dynamicPanes.value, position);
     }
   }
 
   function addMenuItem(id) {
+    setNewestOpenPane(id);
     if (dynamicPanes.value.length < 2) {
       dynamicPanes.value = ["V", [id]];
     } else {
@@ -161,6 +171,7 @@ export const usePanesStore = defineStore("panes", () => {
   }
 
   function moveItem(id, toId, position) {
+    setNewestOpenPane(id);
     if (id != toId) {
       if (activePanes.value.find((pane) => pane.id == id)) {
         removeItem(id);
@@ -202,5 +213,7 @@ export const usePanesStore = defineStore("panes", () => {
     moveItem,
     openTab,
     closeAllTabs,
+    newestOpenPane,
+    newestOpenPaneKey,
   };
 });
