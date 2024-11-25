@@ -1,6 +1,6 @@
 <template>
   <div
-    class="row items-center q-mt-sm"
+    class="row items-center q-mt-xs"
     style="font-size: 10px; color: rgba(0, 0, 0, 0.6)"
   >
     <div>Access</div>

@@ -1,77 +1,59 @@
 <template>
-  <q-card
-    v-if="project && project.name"
-    flat
-    bordered
-    class="row justify-between"
-    style="width: 100%"
-  >
+  <q-card v-if="project && project.name" flat bordered
+          class="row justify-between" style="width: 100%">
     <q-card-section horizontal class="col-7">
-      <q-card-section class="q-pt-xs">
-        <div
-          style="width: 100%"
-          class="row align-center text-h5 q-mt-sm q-mb-xs"
-        >
+      <q-card-section class="q-pt-xs justify-between" style="width: 100%">
+        <div class="row align-center text-h5 q-mt-sm q-mb-xs">
           <div>
-            <span>
-              {{ project.name }}
+            <span>{{ project.name }}</span>
+            <span class="q-mx-sm" style="font-size: 0.7em">
+              ({{ project.id }})
+              <q-tooltip>ID</q-tooltip>
             </span>
-
-            <span class="q-mx-sm" style="font-size: 0.7em"
-              >({{ project.id }}) <q-tooltip>ID</q-tooltip></span
-            >
           </div>
           <span>
-            <q-btn
-              round
-              dense
-              icon="edit"
-              size="xs"
-              color="positive"
-              @click="showEditDialog = true"
-              ><q-tooltip>Edit Project</q-tooltip></q-btn
-            >
+            <q-btn icon="edit" size="xs" color="positive"
+                   @click="showEditDialog = true" round dense>
+              <q-tooltip>Edit Project</q-tooltip>
+            </q-btn>
           </span>
           <span class="q-ml-sm">
-            <q-btn
-              round
-              dense
-              icon="delete"
-              size="xs"
-              color="negative"
-              @click="showDeleteDialog = true"
-              ><q-tooltip>Delete Project</q-tooltip></q-btn
-            >
+            <q-btn icon="delete" size="xs" color="negative"
+                   @click="showDeleteDialog = true" round dense>
+              <q-tooltip>Delete Project</q-tooltip>
+            </q-btn>
           </span>
         </div>
 
-        <div class="row col-sm">
-          <div class="text-overline">
-            <UserChip :id="project.createdBy" onHoverMessage="Created By" />
+        <div class="row text-caption q-mt-sm">
+          <div class="col">
+            <div>
+              <UserChip :id="project.createdBy"
+                        onHoverMessage="Created By" label="Created By"/>
+            </div>
+            <div>
+              <UserChip :id="project.updatedBy"
+                        onHoverMessage="Updated By" label="Updated By"/>
+            </div>
           </div>
-          <div class="text-overline">
-            <DateChip
-              :dateTime="project.createdOn"
-              onHoverMessage="Created On"
-            />
+          <div class="col">
+            <div>
+              <DateChip :dateTime="project.createdOn"
+                        onHoverMessage="Created On" label="Created On"/>
+            </div>
+            <div>
+              <DateChip :dateTime="project.updatedOn"
+                        onHoverMessage="Updated On" label="Updated On"/>
+            </div>
           </div>
         </div>
 
-        <div class="text-caption text-grey q-my-sm">
+        <div class="text-caption text-grey q-mt-sm">
           <EditableField readOnly :object="project" fieldName="description" />
+          <TagListEditable :tags="project.tags" @addTag="onAddTag" @removeTag="onRemoveTag" />
+          <AccessControlListEditable :projectAccess="project.access"
+                                     @addAccess="onAddAccess" @removeAccess="onRemoveAccess"/>
         </div>
-        <TagListEditable
-          :tags="project.tags"
-          @addTag="onAddTag"
-          @removeTag="onRemoveTag"
-          class="q-pt-xs"
-        />
-        <AccessControlListEditable
-          :projectAccess="project.access"
-          @addAccess="onAddAccess"
-          @removeAccess="onRemoveAccess"
-          class="q-mt-xs"
-        />
       </q-card-section>
     </q-card-section>
 
