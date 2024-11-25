@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="showDialog" persistent>
+  <q-dialog v-model="showDialog" persistent @hide="clearData">
     <q-card style="min-width: 30vw">
       <q-card-section
         class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary"
@@ -31,7 +31,7 @@
         </div>
       </q-card-section>
       <q-card-actions align="right" class="text-primary">
-        <q-btn flat label="Cancel" v-close-popup />
+        <q-btn flat label="Cancel" @click="clearData" v-close-popup />
         <q-btn
           :label="'Delete ' + objectClass"
           color="accent"
@@ -82,5 +82,9 @@ const confirmDelete = () => {
       break;
   }
   emit("onDeleted");
+};
+
+const clearData = () => {
+  confirmationValue.value = null;
 };
 </script>

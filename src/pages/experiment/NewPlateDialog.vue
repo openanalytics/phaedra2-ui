@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="showDialog">
+  <q-dialog @hide="clearValues" v-model="showDialog">
     <q-card style="min-width: 50vw">
       <q-card-section
         class="text-h6 items-center full-width q-pa-sm bg-primary text-secondary"

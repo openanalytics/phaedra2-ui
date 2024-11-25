@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="showDialog">
+  <q-dialog @hide="clearData" v-model="showDialog">
     <q-card style="min-width: 60vw">
 
       <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
@@ -153,5 +153,11 @@ const isTemplateSelected = () => {
 
 const arePlatesSelected = () => {
   return props.plates.length !== 0;
+}
+
+const clearData = () => {
+  selectedTemplates.value = []
+  selectedTemplate.value = null
+  quickView.value = false
 }
 </script>

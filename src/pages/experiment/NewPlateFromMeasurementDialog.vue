@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="showDialog">
+  <q-dialog @hide="resetDates" v-model="showDialog">
     <q-card style="min-width: 50vw">
       <q-card-section
         class="text-h6 items-center full-width q-pa-sm bg-primary text-secondary"
@@ -60,7 +60,7 @@
 import DateRangeSelector from "@/components/widgets/DateRangeSelector";
 import OaTable from "@/components/table/OaTable.vue";
 import { useMeasurementStore } from "@/stores/measurement";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, onUpdated, ref } from "vue";
 import FormatUtils from "@/lib/FormatUtils";
 import { date } from "quasar";
 import { useLoadingHandler } from "@/composable/loadingHandler";
@@ -81,6 +81,9 @@ onMounted(() => {
   refreshList();
 });
 
+onUpdated(() => {
+  measurementStore.measurements = []
+})
 const newPlateMeasurementExperiment = ref(props.experiments[0]);
 
 const now = new Date();
@@ -158,6 +161,13 @@ const createPlates = async () => {
     experimentStore.addPlates(newPlateMeasurementExperiment.value.id, newPlates)
   );
   emits("updated");
+};
+
+const resetDates = () => {
+  fromDate.value = date.subtractFromDate(now, { days: 7 });
+  toDate.value = date.addToDate(now, { days: 1 });
+  measurementStore.measurements = []
+  selectedMeasurements.value = []
 };
 </script>
 

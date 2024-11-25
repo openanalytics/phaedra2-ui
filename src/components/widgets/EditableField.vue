@@ -15,7 +15,7 @@
       {{ object[fieldName] || "No " + fieldName + " available" }}
     </div>
   </div>
-  <q-dialog v-model="showEditDialog">
+  <q-dialog @hide="cancelChanges" v-model="showEditDialog">
     <q-card style="min-width: 30vw">
       <q-card-section class="text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
         <q-icon name="edit" class="q-pr-sm" />

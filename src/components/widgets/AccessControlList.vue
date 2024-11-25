@@ -16,7 +16,7 @@
       </div>
     </div>
 
-    <q-dialog v-model="confirmRemoveAccess">
+    <q-dialog @hide="clearData" v-model="confirmRemoveAccess">
       <q-card>
         <q-card-section
           class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary"
@@ -52,8 +52,6 @@ const emits = defineEmits(["addAccess", "removeAccess"]);
 
 const projectAccess = computed(() => props.projectAccess ?? []);
 
-const showAddAccessDialog = ref(false);
-
 const confirmRemoveAccess = ref(false);
 const accessToRemove = ref(null);
 const askRemoveAccess = (projectAccess) => {
@@ -63,5 +61,10 @@ const askRemoveAccess = (projectAccess) => {
 
 const removeAccess = () => {
   emits("removeAccess", accessToRemove.value);
+};
+
+const clearData = () => {
+  confirmRemoveAccess.value = false;
+  accessToRemove.value = null;
 };
 </script>

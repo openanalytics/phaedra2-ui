@@ -233,17 +233,17 @@
 
   <invalidate-dialog
     v-model:show="showInvalidateDialog"
-    :plates="uiStore.selectedPlates"
+    :plates="plates"
     @onInvalidate="onInvalidatePlate"
   />
   <approve-dialog
     v-model:show="showApproveDialog"
-    :plates="uiStore.selectedPlates"
+    :plates="plates"
     @onApprove="onApprovePlate"
   />
   <disapprove-dialog
     v-model:show="showDisapproveDialog"
-    :plates="uiStore.selectedPlates"
+    :plates="plates"
     @onDisapprove="onDisapprovePlate"
   />
   <calculate-plate-dialog

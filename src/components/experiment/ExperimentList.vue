@@ -109,7 +109,7 @@
     :experiments="selectedExperiments"
   />
 
-  <q-dialog v-model="showNewExperimentDialog">
+  <q-dialog @hide="cancelCreateNewExperiment" v-model="showNewExperimentDialog">
     <q-card style="min-width: 30vw">
       <q-card-section
         class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary"
@@ -134,7 +134,7 @@
         />
       </q-card-section>
       <q-card-actions align="right">
-        <q-btn flat label="Cancel" color="primary" v-close-popup />
+        <q-btn flat label="Cancel" @click="cancelCreateNewExperiment" color="primary" v-close-popup />
         <q-btn
           label="Create"
           color="primary"
@@ -342,7 +342,12 @@ const doCreateNewExperiment = async () => {
     createdOn: new Date(),
   };
   await loadingHandler.handleLoadingDuring(createNewExperiment(newExperiment));
+  newExperimentName.value = ""
 };
+
+const cancelCreateNewExperiment = () => {
+  newExperimentName.value = ""
+}
 
 const loading = ref();
 watch(experiments, () => {
