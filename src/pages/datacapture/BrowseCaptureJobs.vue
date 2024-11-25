@@ -38,7 +38,7 @@
         <CaptureJobDetailsPanel :job="jobDetails"></CaptureJobDetailsPanel>
       </q-dialog>
 
-      <q-dialog v-model="showSubmitJobDialog">
+      <q-dialog @hide="clearData" v-model="showSubmitJobDialog">
         <q-card style="width: 700px; max-width: 80vw;">
           <q-card-section class="bg-primary text-white">
             <div class="text-h6">
@@ -176,6 +176,7 @@ const selectedSource = ref({
   folderName: '',
   files: null
 });
+const showConfig = ref(false);
 
 const handleFolderSelection = (files) => {
   selectedSource.value.files = files;
@@ -225,5 +226,17 @@ const submitJobAction = async () => {
     store.dispatch('datacapture/submitJob', job);
   })
   refreshList();
+}
+
+const clearData = () => {
+  sourceType.value = "folder";
+  selectedSource.value = {
+    url: null,
+    folderName: '',
+    files: null
+  };
+  captureJobConfig.captureConfigName = null
+  selectedConfig.value = {};
+  showConfig.value = false;
 }
 </script>

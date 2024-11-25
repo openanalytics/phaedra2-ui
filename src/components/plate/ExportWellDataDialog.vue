@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="showDialog">
+  <q-dialog v-model="showDialog" @hide="clearData">
     <q-card style="min-width: 60vw">
       <q-card-section class="row text-h6 no-wrap q-pa-sm bg-primary text-secondary">
         <div class="col"> Export Well Data </div>
@@ -180,6 +180,38 @@ const isValid = () => {
   if (step.value == 1)
     return filterModel.value.selectedFeatures.length > 0
   return true
+}
+
+const clearData = () => { 
+  filterModel.value.selectedFeatures = []
+  filterModel.value.plateFilter = {
+    filterOnValidation: false,
+    validationFilter: {
+      username: null,
+      validationDate: {
+        start: null,
+        end: null
+      }
+    },
+    filterOnApproval: false,
+    approvalFilter: {
+      username: null,
+      approvalDate: {
+        start: null,
+        end: null
+      }
+    },
+    includeInvalidatedPlates: false,
+    includeDisapprovedPlates: false,
+  }
+  filterModel.value.wellFilter = {
+    substances: [],
+    includeRejectedWells: false,
+    wellTypes: [],
+  }
+  filterModel.value.includeAllCurveProperties = false
+  filterModel.value.includeBasicCurveProperties = false
+  step.value = 1
 }
 
 </script>

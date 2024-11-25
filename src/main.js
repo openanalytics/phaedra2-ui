@@ -174,11 +174,6 @@ const routes = createRouter({
       component: NewPlateTemplateView,
       props: true,
     },
-    {
-      name: "newPlateTemplateFromFile",
-      path: "/template/new",
-      component: ImportPlateTemplateFromFile,
-    },
 
     { name: "calcFormulas", path: "/calc/formulas", component: BrowseFormulas },
     { name: "calcFormula", path: "/calc/formula/:id", component: FormulaView },

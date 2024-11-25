@@ -1,5 +1,5 @@
 <template>
-    <q-dialog>
+    <q-dialog @hide="clearData">
         <q-card style="min-width: 30vw">
             <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
             Create New Render Config
@@ -40,5 +40,10 @@
     const saveNewConfig = () => {
         store.dispatch('measurements/createRenderConfig', newConfig.value)
             .then(cfg => router.push('/datacapture/render-config/' + cfg.id));
+    };
+
+    const clearData = () => {
+        newConfig.value.name = "";
+        newConfig.value.config.channelConfigs = [];
     };
 </script>
