@@ -53,8 +53,10 @@ const selectTemplate = (event, row) => {
 }
 
 const fetchPlateTemplates = async () => {
-  const {onResult, onError} = templatesGraphQlAPI.templates()
-  onResult(({data}) => templates.value = data.plateTemplates)
+  const data = await templatesGraphQlAPI.templates()
+  templates.value = data.plateTemplates
+  // const {onResult, onError} = templatesGraphQlAPI.templates()
+  // onResult(({data}) => templates.value = data.plateTemplates)
   //TODO: implement onError event handling
 }
 </script>

@@ -4,10 +4,15 @@
     @update="handleFeatureSelection"
     :selectFields="settingsFieldsFiltered"
   />
-  <div v-show="selectedPlate" ref="chart" />
-  <div v-show="!selectedPlate" class="absolute-center">
+  <div v-show="displayChartCondition" ref="chart" />
+  <div v-show="displayErrorCondition" class="absolute-center">
     <q-badge color="negative" class="q-pa-md text-weight-bold">{{
       errorMessage
+    }}</q-badge>
+  </div>
+  <div v-show="displayWarningCondition" class="absolute-center">
+    <q-badge color="warning" class="q-pa-md text-weight-bold">{{
+      warningMessage
     }}</q-badge>
   </div>
 </template>
@@ -84,6 +89,21 @@ const settingsFieldsFiltered = computed(() => {
     } else return value;
   });
 });
+const displayChartCondition = computed(
+  () =>
+    JSON.stringify(props.selectedPlate) !== "{}" &&
+    JSON.stringify(chartPlot.value.data) !== "[]"
+);
+const displayWarningCondition = computed(
+  () =>
+    JSON.stringify(props.selectedPlate) !== "{}" &&
+    JSON.stringify(chartPlot.value.data) === "[]"
+);
+
+const displayErrorCondition = computed(
+  () => JSON.stringify(props.selectedPlate) === "{}"
+);
+const warningMessage = "No feature data available";
 const errorMessage = "No plate selected";
 
 const showXAxisSelector = computed(
@@ -102,8 +122,6 @@ const selectedXAxisOption = ref();
 const selectedYAxisOption = ref();
 
 function handleSelection(val) {
-  console.log(selectedXAxisOption.value);
-  console.log(val["xvalues"]);
   if (selectedXAxisOption.value != val["xvalues"]) {
     selectedXAxisOption.value = val["xvalues"];
   }
@@ -117,7 +135,6 @@ function handleSelection(val) {
 }
 
 function handleFeatureSelection(val) {
-  console.log(val);
   if (selectedProtocol.value != val["Protocol"]) {
     selectedProtocol.value = val["Protocol"];
     handleProtocolSelection();

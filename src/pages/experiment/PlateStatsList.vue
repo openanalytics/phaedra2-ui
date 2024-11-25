@@ -100,51 +100,104 @@
     const protocols = ref([])
     const features = ref([])
 
-    const fetchProtocols = () => {
-      const {onResult, onError} = resultDataGraphQlAPI.protocolsByExperimentId(props.experiment.id)
-      onResult(({data}) => {
-        protocols.value = data.protocols
-        features.value = protocols.value.flatMap(protocol => protocol.features)
-        features.value.forEach(feature => {
-          for (let i in statsToShow) {
-            const stat = statsToShow[i]
-            columns.value.push({ name: `stat-${feature.id}-${stat}`, type: 'stat', label: stat, align: 'left', field: `stat-${feature.id}-${stat}`, sortable: true });
-          }
-        })
-        fetchResultSets()
+    const fetchProtocols = async () => {
+      const data = await resultDataGraphQlAPI.protocolsByExperimentId(props.experiment.id)
+      protocols.value = data.protocols
+      features.value = protocols.value.flatMap(protocol => protocol.features)
+      features.value.forEach(feature => {
+        for (let i in statsToShow) {
+          const stat = statsToShow[i]
+          columns.value.push({
+            name: `stat-${feature.id}-${stat}`,
+            type: 'stat',
+            label: stat,
+            align: 'left',
+            field: `stat-${feature.id}-${stat}`,
+            sortable: true
+          });
+        }
       })
+      await fetchResultSets()
+      // const {onResult, onError} = await resultDataGraphQlAPI.protocolsByExperimentId(props.experiment.id)
+      // onResult(({data}) => {
+      //   protocols.value = data.protocols
+      //   features.value = protocols.value.flatMap(protocol => protocol.features)
+      //   features.value.forEach(feature => {
+      //     for (let i in statsToShow) {
+      //       const stat = statsToShow[i]
+      //       columns.value.push({ name: `stat-${feature.id}-${stat}`, type: 'stat', label: stat, align: 'left', field: `stat-${feature.id}-${stat}`, sortable: true });
+      //     }
+      //   })
+      //   fetchResultSets()
+      // })
     }
 
     // Phase 2: fetch plate stats
-    const fetchResultSets = () => {
+    const fetchResultSets = async () => {
       const plateIds = plates.value.map(plate => plate.id)
 
-      const {onResult, onError} = resultDataGraphQlAPI.latestResultSetsByPlateIds(plateIds)
-      onResult(({data}) => {
-        for (let i in data.resultSets) {
-          const plateStatRow = {
-            'id': data.resultSets[i].plateId,
-            'barcode': plates.value.find(plate => plate.id === data.resultSets[i].plateId).barcode
-          }
-
-          // TODO: implement onError
-          const {onResult, onError} = resultDataGraphQlAPI.resultSetFeatureStats(data.resultSets[i].id)
-          onResult(({data}) => {
-            features.value.forEach(feature => {
-              statsToShow.forEach(stat => {
-                const rsStat = data.rsFeatureStats.find(rss => rss.statisticName === stat && rss.featureId === feature.id)
-                if (rsStat)
-                plateStatRow[`stat-${rsStat.featureId}-${rsStat.statisticName}`] = Math.round(rsStat.value * 100) / 100
-                else
-                plateStatRow[`stat-${feature.id}-${stat}`] = NaN
-              })
-            })
-
-            plateStatRows.value.push(plateStatRow)
-          })
+      const data = await resultDataGraphQlAPI.latestResultSetsByPlateIds(plateIds)
+      for (let i in data.resultSets) {
+        const plateStatRow = {
+          'id': data.resultSets[i].plateId,
+          'barcode': plates.value.find(plate => plate.id === data.resultSets[i].plateId).barcode
         }
-      })
-    }
 
-    fetchProtocols()
+        const rsFStats = await resultDataGraphQlAPI.resultSetFeatureStats(data.resultSets[i].id)
+        features.value.forEach(feature => {
+          statsToShow.forEach(stat => {
+            const rsStat = rsFStats.rsFeatureStats.find(
+                rss => rss.statisticName === stat && rss.featureId === feature.id)
+            if (rsStat) {
+              plateStatRow[`stat-${rsStat.featureId}-${rsStat.statisticName}`] = Math.round(
+                  rsStat.value * 100) / 100
+            } else {
+              plateStatRow[`stat-${feature.id}-${stat}`] = NaN
+            }
+          })
+        })
+        plateStatRows.value.push(plateStatRow)
+      }
+      // const {onResult, onError} = await resultDataGraphQlAPI.latestResultSetsByPlateIds(plateIds)
+      // onResult(async ({data}) => {
+      //   for (let i in data.resultSets) {
+      //     const plateStatRow = {
+      //       'id': data.resultSets[i].plateId,
+      //       'barcode': plates.value.find(plate => plate.id === data.resultSets[i].plateId).barcode
+      //     }
+      //
+      //     const rsFStats = await resultDataGraphQlAPI.resultSetFeatureStats(data.resultSets[i].id)
+      //     features.value.forEach(feature => {
+      //       statsToShow.forEach(stat => {
+      //         const rsStat = rsFStats.rsFeatureStats.find(
+      //             rss => rss.statisticName === stat && rss.featureId === feature.id)
+      //         if (rsStat) {
+      //           plateStatRow[`stat-${rsStat.featureId}-${rsStat.statisticName}`] = Math.round(
+      //               rsStat.value * 100) / 100
+      //         } else {
+      //           plateStatRow[`stat-${feature.id}-${stat}`] = NaN
+      //         }
+      //       })
+      //     })
+      //     plateStatRows.value.push(plateStatRow)
+      //
+      //     // TODO: implement onError
+      //     // const {onResult, onError} = await resultDataGraphQlAPI.resultSetFeatureStats(data.resultSets[i].id)
+      //     // onResult(({data}) => {
+      //     //   features.value.forEach(feature => {
+      //     //     statsToShow.forEach(stat => {
+      //     //       const rsStat = data.rsFeatureStats.find(rss => rss.statisticName === stat && rss.featureId === feature.id)
+      //     //       if (rsStat)
+      //     //       plateStatRow[`stat-${rsStat.featureId}-${rsStat.statisticName}`] = Math.round(rsStat.value * 100) / 100
+      //     //       else
+      //     //       plateStatRow[`stat-${feature.id}-${stat}`] = NaN
+      //     //     })
+      //     //   })
+      //     //
+      //     //   plateStatRows.value.push(plateStatRow)
+      //     // })
+      //   }
+      // })
+    }
+    await fetchProtocols()
 </script>

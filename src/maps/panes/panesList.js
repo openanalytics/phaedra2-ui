@@ -40,6 +40,7 @@ export function usePanesList() {
       title: "Recent Calculations",
       icon: "calculate",
       closable: false,
+      events: {},
     },
     {
       component: RecentProjects,
@@ -47,6 +48,7 @@ export function usePanesList() {
       title: "Recent Projects",
       icon: "folder",
       closable: false,
+      events: {},
     },
     {
       component: RecentExperiments,
@@ -54,6 +56,7 @@ export function usePanesList() {
       title: "Recent Experiments",
       icon: "science",
       closable: true,
+      events: {},
     },
     {
       component: CreateProjectForm,
@@ -61,34 +64,42 @@ export function usePanesList() {
       title: "New Project",
       icon: "add",
       closable: true,
+      events: {},
     },
     {
       component: ProjectsList,
       id: "project-list-pane",
       title: "Browse Projects",
       icon: "folder_open",
+      groupBy: "list",
       closable: true,
       props: {
         projects: selectionStore.projects,
         selected: selectionStore.selectedProjects,
       },
-      selection: (e) => (selectionStore.selectedProjects = e),
-      updated: () => selectionStore.fetchProjects(),
-      groupBy: "list",
+      events: {
+        selection: (e) => (selectionStore.selectedProjects = e),
+        updated: async () =>
+            await selectionStore.fetchProjects(),
+      },
     },
     {
       component: ProjectDetails,
       id: "project-details-pane",
       title: "Project Details",
-      label: `Project Details (${selectionStore.selectedProjectDetails?.name || "none selected"})`,
+      groupBy: "details",
+      label: `Project Details (${
+        selectionStore.selectedProjectDetails?.name || "none selected"
+      })`,
       icon: "details",
       closable: true,
       props: {
         project: selectionStore.selectedProjectDetails,
       },
-      groupBy: "details",
-      updated: () =>
-        selectionStore.fetchProject(selectionStore.selectedProjectDetails.id),
+      events: {
+        updated: async () =>
+          await selectionStore.fetchProject(selectionStore.selectedProjectDetails.id),
+      },
     },
     {
       component: ExperimentList,
@@ -96,37 +107,46 @@ export function usePanesList() {
       title: "Browse Experiments",
       label: "Experiments",
       icon: "science",
+      groupBy: "list",
       closable: true,
       props: {
         experiments: selectionStore.experiments,
         projects: selectionStore.selectedProjects,
         selected: selectionStore.selectedExperiments,
       },
-      selection: (e) => (selectionStore.selectedExperiments = e),
-      updated: () => selectionStore.loadProjects(),
-      groupBy: "list",
+      events: {
+        selection: (e) => (selectionStore.selectedExperiments = e),
+        updated: async () => await selectionStore.loadProjects(),
+      },
     },
     {
       component: ExperimentDetails,
       id: "experiment-details-pane",
       title: "Experiment Details",
-      label: `Experiment Details (${selectionStore.selectedExperimentDetails?.name || "none selected"})`,
+      groupBy: "details",
+      label: `Experiment Details (${
+        selectionStore.selectedExperimentDetails?.name || "none selected"
+      })`,
       icon: "details",
       closable: true,
       props: {
         experiment: selectionStore.selectedExperimentDetails,
       },
-      groupBy: "details",
-      updated: () =>
-        selectionStore.fetchExperiment(
-          selectionStore.selectedExperimentDetails.id
-        ),
+      events: {
+        updated: async () =>
+          await selectionStore.fetchExperiment(
+            selectionStore.selectedExperimentDetails.id
+          ),
+      },
     },
     {
       component: TrendChart,
       id: "experiment-chart-pane",
+      groupBy: "chart",
       title: "Experiment's Plate Trend",
-      label: `Experiment's Plate Trend (${selectionStore.chart?.experiment?.name || "none selected"})`,
+      label: `Experiment's Plate Trend (${
+        selectionStore.chart?.experiment?.name || "none selected"
+      })`,
       icon: "view_stream",
       closable: true,
       props: {
@@ -136,8 +156,9 @@ export function usePanesList() {
           ? [selectionStore.chart.experiment]
           : [],
       },
-      selection: (e) => (selectionStore.selectedExperiments = e),
-      groupBy: "chart",
+      events: {
+        selection: (e) => (selectionStore.selectedExperiments = e),
+      },
     },
     {
       component: PlateList,
@@ -145,36 +166,45 @@ export function usePanesList() {
       title: "Browse Plates",
       label: "Plates",
       icon: "science",
+      groupBy: "list",
       closable: true,
       props: {
         plates: selectionStore.plates,
         selected: selectionStore.selectedPlates,
         experiments: selectionStore.selectedExperiments,
       },
-      selection: (e) => (selectionStore.selectedPlates = e),
-      updated: () => selectionStore.loadExperiment(),
-      groupBy: "list",
+      events: {
+        selection: (e) => (selectionStore.selectedPlates = e),
+        updated: async () => await selectionStore.loadExperiment(),
+      },
     },
     {
       component: PlateDetails,
       id: "plate-details-pane",
       title: "Plate Details",
-      label: `Plate Details (${selectionStore.selectedPlateDetails?.barcode || "none selected"})`,
+      label: `Plate Details (${
+        selectionStore.selectedPlateDetails?.barcode || "none selected"
+      })`,
       icon: "details",
+      groupBy: "details",
       closable: true,
       props: {
         plate: selectionStore.selectedPlateDetails,
         activeMeasurement: selectionStore.activeMeasurement,
       },
-      groupBy: "details",
-      updated: () =>
-        selectionStore.fetchPlate(selectionStore.selectedPlateDetails.id),
+      events: {
+        updated: async () =>
+          await selectionStore.fetchPlate(selectionStore.selectedPlateDetails.id),
+      },
     },
     {
       component: Chart,
       id: "scatterplot-chart-pane",
       title: "Scatterplot 2D",
-      label: `Scatterplot 2D (${selectionStore.plateChart?.plate?.barcode || "none selected"})`,
+      groupBy: "chart",
+      label: `Scatterplot 2D (${
+        selectionStore.plateChart?.plate?.barcode || "none selected"
+      })`,
       icon: "scatter_plot",
       closable: true,
       props: {
@@ -185,14 +215,18 @@ export function usePanesList() {
         protocols: selectionStore.plateChart.protocols,
         selectedWells: selectionStore.selectedWells,
       },
-      selection: (e) => (selectionStore.selectedWells = e),
-      groupBy: "chart",
+      events: {
+        selection: (e) => (selectionStore.selectedWells = e),
+      },
     },
     {
       component: Chart,
       id: "boxplot-chart-pane",
       title: "Boxplot",
-      label: `Boxplot (${selectionStore.plateChart?.plate?.barcode || "none selected"})`,
+      groupBy: "chart",
+      label: `Boxplot (${
+        selectionStore.plateChart?.plate?.barcode || "none selected"
+      })`,
       icon: "candlestick_chart",
       closable: true,
       props: {
@@ -203,15 +237,19 @@ export function usePanesList() {
         protocols: selectionStore.plateChart.protocols,
         selectedWells: selectionStore.selectedWells,
       },
-      selection: (e) => (selectionStore.selectedWells = e),
-      groupBy: "chart",
+      events: {
+        selection: (e) => (selectionStore.selectedWells = e),
+      },
     },
     {
       component: Chart,
       id: "histogram-chart-pane",
       title: "1D Histogram",
-      label: `1D Histogram (${selectionStore.plateChart?.plate?.barcode || "none selected"} )`,
+      label: `1D Histogram (${
+        selectionStore.plateChart?.plate?.barcode || "none selected"
+      } )`,
       icon: "bar_chart",
+      groupBy: "chart",
       closable: true,
       props: {
         update: Date.now(),
@@ -221,41 +259,51 @@ export function usePanesList() {
         protocols: selectionStore.plateChart.protocols,
         selectedWells: selectionStore.selectedWells,
       },
-      selection: (e) => (selectionStore.selectedWells = e),
-      groupBy: "chart",
+      events: {
+        selection: (e) => (selectionStore.selectedWells = e),
+      },
     },
     {
       component: WellList,
       id: "wells-list-pane",
       title: "Wells",
       icon: "science",
+      groupBy: "list",
       closable: true,
       props: {
         plates: selectionStore.plates,
         wells: selectionStore.wells,
       },
-      selection: (e) => (selectionStore.selectedWells = e),
-      groupBy: "list",
+      events: {
+        selection: (e) => (selectionStore.selectedWells = e),
+      },
     },
     {
       component: WellDetails,
       id: "well-details-pane",
       title: "Well Details",
-      label: `Well Details (${selectionStore.selectedWellDetails?.pos || "none selected"})`,
+      groupBy: "details",
+      label: `Well Details (${
+        selectionStore.selectedWellDetails?.pos || "none selected"
+      })`,
       icon: "details",
       closable: true,
       props: {
         well: selectionStore.selectedWellDetails,
       },
-      groupBy: "details",
-      updated: () =>
-        selectionStore.fetchWell(selectionStore.selectedWellDetails.id),
+      events: {
+        updated: async () =>
+            await selectionStore.fetchWell(selectionStore.selectedWellDetails.id),
+      },
     },
     {
       component: PlateHeatmap,
       id: "heatmap-chart-pane",
       title: "Heatmap",
-      label: `Heatmap (${selectionStore.plateChart?.plate?.barcode || "none selected"})`,
+      label: `Heatmap (${
+        selectionStore.plateChart?.plate?.barcode || "none selected"
+      })`,
+      groupBy: "chart",
       icon: "view_module",
       closable: true,
       props: {
@@ -267,8 +315,9 @@ export function usePanesList() {
             : [],
         protocols: selectionStore.plateChart.protocols,
       },
-      // selection: (e) => (selectionStore.selectedWells = e),
-      groupBy: "chart",
+      events: {
+        // selection: (e) => (selectionStore.selectedWells = e),
+      },
     },
   ]);
 

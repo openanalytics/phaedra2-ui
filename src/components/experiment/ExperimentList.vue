@@ -112,15 +112,21 @@
         Create New Experiment
       </q-card-section>
       <q-card-section>
-        <div class="row">
-          <div class="col-2 row items-center">
-            <q-avatar icon="edit" color="primary" text-color="white" />
-          </div>
-          <div class="col-10">
-            <span>New Experiment Name:</span><br />
-            <q-input dense v-model="newExperimentName" autofocus />
-          </div>
-        </div>
+        <q-select
+          class="q-pa-xs"
+          v-model="newExperimentProject"
+          :options="projects"
+          label="project"
+          option-value="id"
+          option-label="name"
+          dense
+        />
+        <q-input
+          dense
+          v-model="newExperimentName"
+          autofocus
+          label="experiment name"
+        />
       </q-card-section>
       <q-card-actions align="right">
         <q-btn flat label="Cancel" @click="cancelCreateNewExperiment" color="primary" v-close-popup />
@@ -145,8 +151,10 @@ import FormatUtils from "@/lib/FormatUtils.js";
 import FilterUtils from "@/lib/FilterUtils";
 import { useExportTableData } from "@/composable/exportTableData";
 import { useRoute, useRouter } from "vue-router";
+import { useProjectStore } from "@/stores/project";
 import OaTable from "@/components/table/OaTable.vue";
 import { useExperimentStore } from "@/stores/experiment";
+import {useLoadingHandler} from "@/composable/loadingHandler";
 
 const props = defineProps({
   experiments: [Object],
@@ -309,15 +317,16 @@ const gotoExperimentView = (event, row) => {
 
 const showNewExperimentDialog = ref(false);
 const newExperimentName = ref("");
+const newExperimentProject = ref(props.projects[0]);
 
 const doCreateNewExperiment = () => {
   const newExperiment = {
-    projectId: props.projects[0].id,
+    projectId: newExperimentProject.value.id,
     name: newExperimentName.value,
     status: "OPEN",
     createdOn: new Date(),
   };
-  emits("createNewExperiment", newExperiment);
+  createNewExperiment(newExperiment);
   newExperimentName.value = ""
 };
 
@@ -392,14 +401,20 @@ function getUnique(value, index, array) {
   return array.indexOf(value) === index;
 }
 const experimentStore = useExperimentStore();
-function deleteExperiments() {
-  experimentStore
-    .deleteExperiments(selectedExperiments.value.map((exp) => exp.id))
-    .then(() => {
-      updated();
-    });
+const loadingHandler = useLoadingHandler();
+const deleteExperiments = async () => {
+  await loadingHandler.handleLoadingDuring(
+      experimentStore.deleteExperiments(selectedExperiments.value.map((exp) => exp.id))
+  )
   selectedExperiments.value = [];
 }
+
+const projectStore = useProjectStore();
+const createNewExperiment = async (newExperiment) => {
+  await projectStore.addExperiment(newExperiment).then(() => {
+    updated();
+  });
+};
 
 function updated() {
   emits("updated");

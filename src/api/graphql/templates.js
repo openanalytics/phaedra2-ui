@@ -1,67 +1,18 @@
-import {provideApolloClient, useQuery} from '@vue/apollo-composable'
-import gql from 'graphql-tag'
-import {apolloPlatesClient} from "@/graphql/apollo.clients";
-
-const defaultOptions = {fetchPolicy: 'no-cache', errorPolicy: 'ignore'}
-
-const executeQuery = (query, variables) => {
-  return provideApolloClient(apolloPlatesClient)(
-      () => useQuery(gql`${query}`, variables, defaultOptions));
-}
+import {platesGraphQLClient} from "@/graphql/graphql.clients";
+import {templatesQueries} from "@/graphql/graphql.queries";
+import {useGraphQL} from "@/composable/useGraphQL";
 
 export default {
-  templates() {
-    const query = `
-            query getPlateTemplates {
-                plateTemplates:getPlateTemplates {
-                    id
-                    name
-                    rows
-                    columns
-                    description
-                    tags
-                    createdOn
-                    createdBy
-                    updatedOn
-                    updatedBy
-                }
-            }
-        `
-    return executeQuery(query, {})
+  async templates() {
+    const platesClient = useGraphQL(platesGraphQLClient)
+    const result = await platesClient.executeQuery(templatesQueries.templates,
+        {})
+    return result.data
   },
-  templateById(plateTemplateId) {
-    const query = `
-            query getPlateTemplateById($plateTemplateId: ID) {
-                plateTemplate:getPlateTemplateById(plateTemplateId: $plateTemplateId) {
-                    id
-                    name
-                    rows
-                    columns
-                    description
-                    createdOn
-                    createdBy
-                    updatedOn
-                    updatedBy
-                    tags
-                    properties {
-                        propertyName
-                        propertyValue
-                    }
-                    wells {
-                        id
-                        plateTemplateId
-                        description
-                        skipped
-                        row
-                        column
-                        wellType
-                        substanceType
-                        substanceName
-                        concentration
-                    }
-                }
-            }
-        `
-    return executeQuery(query, {plateTemplateId})
+  async templateById(plateTemplateId) {
+    const platesClient = useGraphQL(platesGraphQLClient)
+    const result = await platesClient.executeQuery(
+        templatesQueries.templateById, {plateTemplateId})
+    return result.data
   }
 }

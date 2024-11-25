@@ -24,21 +24,14 @@ export const useExperimentStore = defineStore("experiment", () => {
 
   async function loadExperiment(experimentId) {
     if (experimentId) {
-      const { onResult, onError } =
-        projectsGraphQlAPI.experimentById(experimentId);
-      onResult(({ data }) => {
-        experiment.value = data.experiment;
-        plates.value = data.plates;
-      });
-
-      onError((error) => {
-        console.error(error);
-      });
+      const data = await projectsGraphQlAPI.experimentById(experimentId);
+      experiment.value = data.experiment;
+      plates.value = data.plates;
     }
   }
 
   async function reloadExperiment(id) {
-    await loadExperiment(id);
+    id ? await loadExperiment(id) : await loadExperiment(experiment.value.id)
   }
 
   function isLoaded(experimentId) {
@@ -138,7 +131,7 @@ export const useExperimentStore = defineStore("experiment", () => {
 
   async function movePlates(plates, experimentId) {
     await plateAPI.movePlates(plates, experimentId);
-    await reloadExperiment();
+    await reloadExperiment(e);
   }
 
   async function linkMeasurement(plates, measurementId) {
@@ -170,12 +163,12 @@ export const useExperimentStore = defineStore("experiment", () => {
     experiment.value = {};
   }
 
-  watch(experiment, () => {
-    if (!isMetadataUpdate.value) {
-      projectStore.loadProject(experiment.value.projectId);
-    }
-    isMetadataUpdate.value = false;
-  });
+  // watch(experiment, async () => {
+  //   if (!isMetadataUpdate.value) {
+  //     await projectStore.loadProject(experiment.value.projectId);
+  //   }
+  //   isMetadataUpdate.value = false;
+  // });
 
   return {
     experiment,

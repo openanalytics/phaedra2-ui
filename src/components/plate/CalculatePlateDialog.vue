@@ -70,19 +70,16 @@ const showDialog = computed({
 const selected = ref([]);
 const activeMeasurements = ref({});
 
-onUpdated(() => {
+onUpdated(async () => {
   const plateIds = props.plates.map((plate) => Number.parseInt(plate.id));
-  const { onResult, onError } =
-    projectsGraphQlAPI.activeMeasurementByPlateIds(plateIds);
-  onResult(({ data }) => {
-    if (data.plateMeasurements) {
-      for (let plateMeas of data.plateMeasurements) {
-        activeMeasurements.value[plateMeas.plateId] = Number.parseInt(
+  const data = await projectsGraphQlAPI.activeMeasurementByPlateIds(plateIds);
+  if (data.plateMeasurements) {
+    for (let plateMeas of data.plateMeasurements) {
+      activeMeasurements.value[plateMeas.plateId] = Number.parseInt(
           plateMeas.measurementId
-        );
-      }
+      );
     }
-  });
+  }
   console.log("On update Calculate plate dialog!! ");
 });
 

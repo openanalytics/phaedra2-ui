@@ -1,5 +1,6 @@
 <template>
-  <q-card
+  <div class="q-pa-sm">
+    <q-card
     v-if="well && well.pos"
     flat
     bordered
@@ -103,6 +104,7 @@
       />
     </q-card-section>
   </q-card>
+  </div>
 </template>
 
 <script setup>

@@ -54,33 +54,43 @@ const handleFeatureOptionSelection = () => {
   wellData.value = [];
 };
 
-const handleRawFeatureSelection = (measurementColumn) => {
+const handleRawFeatureSelection = async (measurementColumn) => {
   if (measurementColumn) {
-    const { onResult } = measurementsGraphQlAPI.measurementWellData(
-      measurementColumn.measurementId,
-      measurementColumn.column
-    );
-    onResult(({ data }) => {
-      wellData.value = data?.wellData ? data.wellData : [];
-    });
+    const data = await measurementsGraphQlAPI.measurementWellData(
+        measurementColumn.measurementId,
+        measurementColumn.column)
+    wellData.value = data?.wellData ? data.wellData : [];
+    // const { onResult } = measurementsGraphQlAPI.measurementWellData(
+    //   measurementColumn.measurementId,
+    //   measurementColumn.column
+    // );
+    // onResult(({ data }) => {
+    //   wellData.value = data?.wellData ? data.wellData : [];
+    // });
   } else {
     wellData.value = [];
   }
 };
 
-const handleCalculatedFeatureSelection = (calculatedFeature) => {
+const handleCalculatedFeatureSelection = async (calculatedFeature) => {
   if (calculatedFeature) {
-    const { onResult } =
-      resultDataGraphQlAPI.featureValuesByPlateIdAndFeatureIdAndProtocolId(
+    const data = await resultDataGraphQlAPI.featureValuesByPlateIdAndFeatureIdAndProtocolId(
         props.plate.id,
         calculatedFeature.featureId,
         calculatedFeature.protocolId
-      );
-    onResult(({ data }) => {
-      wellData.value = data?.featureValues
-        ? data.featureValues.map((fv) => fv.value)
-        : [];
-    });
+    )
+    wellData.value = data?.featureValues ? data.featureValues.map((fv) => fv.value) : []
+    // const { onResult } =
+    //   await resultDataGraphQlAPI.featureValuesByPlateIdAndFeatureIdAndProtocolId(
+    //     props.plate.id,
+    //     calculatedFeature.featureId,
+    //     calculatedFeature.protocolId
+    //   );
+    // onResult(({ data }) => {
+    //   wellData.value = data?.featureValues
+    //     ? data.featureValues.map((fv) => fv.value)
+    //     : [];
+    // });
   } else {
     wellData.value = [];
   }

@@ -1,11 +1,11 @@
-import { defineStore } from "pinia";
-import { ref, watch } from "vue";
+import {defineStore} from "pinia";
+import {ref, watch} from "vue";
 import measAPI from "@/api/measurements";
 import projectsGraphQlAPI from "@/api/graphql/projects";
-import { usePlateStore } from "@/stores/plate";
+import {usePlateStore} from "@/stores/plate";
 import WellUtils from "@/lib/WellUtils";
 import curvesGraphQlAPI from "@/api/graphql/curvedata";
-import { useUIStore } from "@/stores/ui";
+import {useUIStore} from "@/stores/ui";
 import {
   addProperty,
   addTag,
@@ -26,14 +26,12 @@ export const useWellStore = defineStore("well", () => {
   const isMetadataUpdate = ref(false);
 
   const loadWell = async (wellId) => {
-    const { onResult, onError } = projectsGraphQlAPI.wellById(wellId);
-    onResult(({ data }) => {
-      well.value = data.well;
-      well.value["pos"] = WellUtils.getWellCoordinate(
+    const data = await projectsGraphQlAPI.wellById(wellId);
+    well.value = data.well;
+    well.value["pos"] = WellUtils.getWellCoordinate(
         well.value.row,
         well.value.column
-      );
-    });
+    );
   };
 
   const reloadWell = async () => {
@@ -44,20 +42,20 @@ export const useWellStore = defineStore("well", () => {
     loadingImage.value = true;
     const measurementId = plateStore.activeMeasurement.measurementId;
     const renderConfigId =
-      uiStore.imageRenderSettings.baseRenderConfigId ?? null;
+        uiStore.imageRenderSettings.baseRenderConfigId ?? null;
     const channels =
-      uiStore.imageRenderSettings.channels.filter(
-        (channel) => channel.enabled
-      ) ?? [];
+        uiStore.imageRenderSettings.channels.filter(
+            (channel) => channel.enabled
+        ) ?? [];
     const scale = uiStore.imageRenderSettings.scale ?? 0.25;
 
     try {
       wellImage.value = await measAPI.getMeasImage(
-        measurementId,
-        well.value.wellNr,
-        renderConfigId,
-        channels,
-        scale
+          measurementId,
+          well.value.wellNr,
+          renderConfigId,
+          channels,
+          scale
       );
     } catch (error) {
       wellImage.value = null;
@@ -66,32 +64,32 @@ export const useWellStore = defineStore("well", () => {
   };
 
   const loadWellCurve = async () => {
-    const { onResult, onError } = curvesGraphQlAPI.curvesThatIncludesWellId(
-      well.value.id
-    );
-    onResult(({ data }) => {
-      wellDRCurve.value = data.curves;
-    });
+    const data = await curvesGraphQlAPI.curvesThatIncludesWellId(well.value.id);
+    wellDRCurve.value = data.curves;
   };
 
   async function handleAddTag(id, newTag) {
     isMetadataUpdate.value = true;
-    await addTag(id, "WELL", newTag, () => {});
+    await addTag(id, "WELL", newTag, () => {
+    });
   }
 
   async function handleDeleteTag(id, tag) {
     isMetadataUpdate.value = true;
-    await deleteTag(id, "WELL", tag, () => {});
+    await deleteTag(id, "WELL", tag, () => {
+    });
   }
 
   async function handleAddProperty(id, newProperty) {
     isMetadataUpdate.value = true;
-    await addProperty(id, "WELL", newProperty, () => {});
+    await addProperty(id, "WELL", newProperty, () => {
+    });
   }
 
   async function handleDeleteProperty(id, property) {
     isMetadataUpdate.value = true;
-    await deleteProperty(id, "WELL", property, () => {});
+    await deleteProperty(id, "WELL", property, () => {
+    });
   }
 
   async function rejectWell(id, rejectionType, description) {
@@ -111,17 +109,17 @@ export const useWellStore = defineStore("well", () => {
   });
 
   watch(
-    () => plateStore.activeMeasurement,
-    async () => {
-      await loadWellImage();
-    }
+      () => plateStore.activeMeasurement,
+      async () => {
+        await loadWellImage();
+      }
   );
 
   watch(
-    () => uiStore.imageRenderSettings,
-    async () => {
-      await loadWellImage();
-    }
+      () => uiStore.imageRenderSettings,
+      async () => {
+        await loadWellImage();
+      }
   );
 
   return {
@@ -131,6 +129,7 @@ export const useWellStore = defineStore("well", () => {
     wellDRCurve,
     wellFeatureValues,
     loadWell,
+    reloadWell,
     handleAddTag,
     handleDeleteTag,
     handleAddProperty,

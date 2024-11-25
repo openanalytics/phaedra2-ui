@@ -67,46 +67,33 @@ export const useUIStore = defineStore("ui", {
   },
   actions: {
     async loadSelectedPlate(plateId) {
-      const { onResult, onError } = projectsGraphQlAPI.plateById(plateId);
-      onResult(({ data }) => {
-        this.selectedPlate = data.plate;
-        this.selectedPlate["wells"] = data.wells;
+      const data = await projectsGraphQlAPI.plateById(plateId);
+      this.selectedPlate = data.plate;
+      this.selectedPlate["wells"] = data.wells;
 
-        this.loadPlateCalculations(plateId);
-        this.loadPlateProtocols(plateId);
-      });
+      await this.loadPlateCalculations(plateId);
+      await this.loadPlateProtocols(plateId);
     },
     async loadPlateMeasurements(plateId) {
-      const { onResult, onError } =
-        projectsGraphQlAPI.measurementsByPlateId(plateId);
-      onResult(({ data }) => {
-        this.selectedPlate["measurements"] = data.plateMeasurements;
-      });
+      const data = await projectsGraphQlAPI.measurementsByPlateId(plateId);
+      this.selectedPlate["measurements"] = data.plateMeasurements;
     },
     async loadPlateCalculations(plateId) {
-      const { onResult, onError } =
-        resultdataGraphQlAPI.resultSetsByPlateId(plateId);
-      onResult(({ data }) => {
-        this.selectedPlate["resultSets"] = data.resultSets;
-      });
+      const data = resultdataGraphQlAPI.resultSetsByPlateId(plateId)
+      this.selectedPlate["resultSets"] = data.resultSets
     },
     async loadPlateProtocols(plateId) {
-      const { onResult, onError } =
-        resultDataGraphQlAPI.protocolsByPlateId(plateId);
-      onResult(({ data }) => {
-        this.selectedPlate["protocols"] = data.protocols;
-      });
+      const data = await resultDataGraphQlAPI.protocolsByPlateId(plateId)
+      this.selectedPlate["protocols"] = data.protocols;
     },
     async loadPlateCurves(plateId) {
-      const { onResult, onError } = curvesGraphQlAPI.curvesByPlateId(plateId);
-      onResult(({ data }) => {
-        const colorList = ColorUtils.getColorList(data.curves?.length);
-        const curves = data.curves?.map((curve, index) => {
-          curve["color"] = colorList[index];
-          return curve;
-        });
-        this.selectedPlate["curves"] = curves;
+      const data = await curvesGraphQlAPI.curvesByPlateId(plateId)
+      const colorList = ColorUtils.getColorList(data.curves?.length);
+      const curves = data.curves?.map((curve, index) => {
+        curve["color"] = colorList[index];
+        return curve;
       });
+      this.selectedPlate["curves"] = curves;
     },
     addDRCure(curve, event) {
       if (event && (event.ctrlKey || event.metaKey)) {

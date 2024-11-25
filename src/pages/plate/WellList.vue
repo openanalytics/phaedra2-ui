@@ -110,13 +110,14 @@ const loading = ref(true);
 const features = ref([]);
 const resultData = ref([]);
 
-const resultSet = plateStore.activeResultSet;
-features.value = plateStore.featuresByProtocolId(resultSet?.protocolId);
+const fetchWellData = async () => {
+  const resultSet = plateStore.activeResultSet;
+  features.value = plateStore.featuresByProtocolId(resultSet?.protocolId);
 
-const { onResult, onError } = resultDataGraphQlAPI.resultDataByResultSetId(
-  resultSet?.id
-);
-onResult(({ data }) => (resultData.value = data.resultData));
+  const data = await resultDataGraphQlAPI.resultDataByResultSetId(resultSet?.id)
+  resultData.value = data.resultData
+}
+fetchWellData()
 
 const baseColumns = ref([
   { name: "id", align: "left", label: "ID", field: "id", sortable: true },
@@ -344,7 +345,7 @@ const updateTable = () => {
 
   filter = FilterUtils.makeFilter(columns.value);
   visibleColumns.value = [...columns.value.map((a) => a.name)];
-};
+}
 
 const open = (resource) => {
   emits("open", resource);

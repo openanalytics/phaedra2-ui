@@ -21,8 +21,8 @@ import { onBeforeRouteLeave } from "vue-router";
 const panesStore = usePanesStore();
 const selectionStore = useSelectionStore();
 
-onBeforeMount(() => {
-  selectionStore.fetchProjects();
+onBeforeMount(async () => {
+  await selectionStore.fetchProjects();
 });
 
 onBeforeRouteLeave(() => {

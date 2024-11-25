@@ -14,17 +14,21 @@ export const useTemplateStore = defineStore("template", {
         }
     },
     actions: {
-        loadTemplate(templateId) {
-            const {onResult, onError} = templatesGraphQlAPI.templateById(templateId)
-            onResult(({data}) => {
-                this.template = data.plateTemplate
-            })
+        async loadTemplate(templateId) {
+            const data = await templatesGraphQlAPI.templateById(templateId)
+            this.template = data.plateTemplate
+            // const {onResult, onError} = templatesGraphQlAPI.templateById(templateId)
+            // onResult(({data}) => {
+            //     this.template = data.plateTemplate
+            // })
         },
         async reloadTemplate() {
-            const {onResult, onError} = templatesGraphQlAPI.templateById(this.template.id)
-            onResult(({data}) => {
-                this.template = data.plateTemplate
-            })
+            const data = await templatesGraphQlAPI.templateById(this.template.id)
+            this.template = data.plateTemplate
+            // const {onResult, onError} = templatesGraphQlAPI.templateById(this.template.id)
+            // onResult(({data}) => {
+            //     this.template = data.plateTemplate
+            // })
         },
         async saveTemplate()  {
             await templateAPI.editPlateTemplate(this.template)

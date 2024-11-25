@@ -79,18 +79,12 @@ const handleDeleteProject = () => {
 
 function doAddTag(val) {
   const projectsArray = Array.from(props.projects);
-  addTags(
-    projectsArray.map(
-      (prj) => prj.id,
-      "PROJECT",
-      val,
-      () => {
-        projectsArray.forEach((project) => {
-          project.tags = [...project.tags, val];
-        });
-      }
-    )
-  );
+  const projectIds = projectsArray.map(prj => prj.id)
+  addTags(projectIds, "PROJECT", val, () => {
+      projectsArray.forEach((project) => {
+        project.tags = [...project.tags, val]
+      })
+    })
 }
 
 const firstProjectCondition = computed(
