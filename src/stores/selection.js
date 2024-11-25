@@ -168,7 +168,9 @@ export const useSelectionStore = defineStore("selection", () => {
     if (!projectIds) {
       projectIds = selectedProjectsIds.value;
     }
-    const data = await experimentsGraphQlAPI.experimentsByProjectIds(projectIds);
+    const data = await experimentsGraphQlAPI.experimentsByProjectIds(
+      projectIds
+    );
     if (replace) {
       experiments.value = data.experiments;
     } else {
@@ -210,7 +212,7 @@ export const useSelectionStore = defineStore("selection", () => {
     const data = await projectsGraphQlAPI.measurementsByPlateId(plate.id);
     measurements.value = data.plateMeasurements;
     activeMeasurement.value = measurements.value.filter(
-        (m) => m.active === true
+      (m) => m.active === true
     )[0];
     await loadWells(plate.id);
   }
@@ -281,7 +283,7 @@ export const useSelectionStore = defineStore("selection", () => {
         if (!oldVal.find((el) => element == el)) {
           flag = true;
           if (selectedExperimentDetails.value.id != element.id) {
-            selectedExperimentDetails.value = await fetchExperiment(element.id);
+            await fetchExperiment(element.id);
             chart.value = {
               experiment: element,
               label: "Experiment Trend Chart",
@@ -321,7 +323,7 @@ export const useSelectionStore = defineStore("selection", () => {
   };
 
   const fetchExperiment = async (id) => {
-    const data =  await projectsGraphQlAPI.experimentById(id);
+    const data = await projectsGraphQlAPI.experimentById(id);
     selectedExperimentDetails.value = data.experiment;
   };
 
@@ -333,8 +335,8 @@ export const useSelectionStore = defineStore("selection", () => {
     const data = await projectsGraphQlAPI.wellById(wellId);
     selectedWellDetails.value = data.well;
     selectedWellDetails.value["pos"] = WellUtils.getWellCoordinate(
-        selectedWellDetails.value.row,
-        selectedWellDetails.value.column
+      selectedWellDetails.value.row,
+      selectedWellDetails.value.column
     );
   };
 
@@ -372,7 +374,7 @@ export const useSelectionStore = defineStore("selection", () => {
   const fetchProjects = async () => {
     const data = await projectsGraphQlAPI.projects();
     projects.value = data.projects;
-  }
+  };
 
   return {
     projects,

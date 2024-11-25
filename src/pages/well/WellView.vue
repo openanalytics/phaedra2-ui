@@ -2,11 +2,10 @@
   <q-breadcrumbs
     class="oa-breadcrumb"
     v-if="
-      wellStore.well
-      && wellStore.well.plate
-      && wellStore.well.experiment
-      && wellStore.well.project
-
+      wellStore.well &&
+      wellStore.well.plate &&
+      wellStore.well.experiment &&
+      wellStore.well.project
     "
   >
     <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard' }" />
@@ -64,11 +63,11 @@
     </splitpanes>
   </q-page>
 
-<!--  <calculate-plate-dialog-->
-<!--    v-model:show="showCalculateDialog"-->
-<!--    :plates="[plateStore.plate]"-->
-<!--    :protocol-id="plateStore.activeResultSet?.protocolId"-->
-<!--  />-->
+  <!--  <calculate-plate-dialog-->
+  <!--    v-model:show="showCalculateDialog"-->
+  <!--    :plates="[plateStore.plate]"-->
+  <!--    :protocol-id="plateStore.activeResultSet?.protocolId"-->
+  <!--  />-->
 </template>
 
 <script setup>
@@ -82,6 +81,7 @@ import DRCView from "@/components/curve/DRCView.vue";
 import WellImageViewer2 from "@/components/image/WellImageViewer2.vue";
 import { useNotification } from "@/composable/notification";
 import CalculatePlateDialog from "@/components/plate/CalculatePlateDialog.vue";
+import { useLoadingHandler } from "../../composable/loadingHandler";
 
 const plateStore = usePlateStore();
 const wellStore = useWellStore();
@@ -91,11 +91,13 @@ const route = useRoute();
 const height = ref(500);
 const width = ref(500);
 
+const loadingHandler = useLoadingHandler();
+
 const fetchWell = async () => {
   const wellId = parseInt(route.params.wellId);
-  await wellStore.loadWell(wellId);
-}
-fetchWell()
+  await loadingHandler.handleLoadingDuring(wellStore.loadWell(wellId));
+};
+fetchWell();
 
 const showCalculateDialog = ref(false);
 const wellStatusNotification = useNotification();

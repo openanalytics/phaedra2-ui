@@ -142,42 +142,54 @@ import DimensionsChip from "@/components/plate/DimensionsChip.vue";
 import TagListEditable from "@/components/tag/TagListEditable.vue";
 import EditableField from "@/components/widgets/EditableField";
 import { computed, readonly } from "vue";
+import { useLoadingHandler } from "../../composable/loadingHandler";
 
 const props = defineProps(["well"]);
 const emit = defineEmits(["wellStatusChanged", "updated"]);
 
 const wellStore = useWellStore();
 
+const loadingHandler = useLoadingHandler();
 const onAddTag = async (newTag) => {
-  await wellStore.handleAddTag(props.well.id, newTag).then(() => {
-    emit("updated");
-  });
+  await loadingHandler.handleLoadingDuring(
+    wellStore.handleAddTag(props.well.id, newTag).then(() => {
+      emit("updated");
+    })
+  );
 };
 
 const onRemoveTag = async (tag) => {
-  await wellStore.handleDeleteTag(props.well.id, tag).then(() => {
-    emit("updated");
-  });
+  await loadingHandler.handleLoadingDuring(
+    wellStore.handleDeleteTag(props.well.id, tag).then(() => {
+      emit("updated");
+    })
+  );
 };
 
 const onAddProperty = async (newProperty) => {
-  await wellStore.handleAddProperty(props.well.id, newProperty).then(() => {
-    emit("updated");
-  });
+  await loadingHandler.handleLoadingDuring(
+    wellStore.handleAddProperty(props.well.id, newProperty).then(() => {
+      emit("updated");
+    })
+  );
 };
 
 const onRemoveProperty = async (property) => {
-  await wellStore.handleDeleteProperty(props.well.id, property).then(() => {
-    emit("updated");
-  });
+  await loadingHandler.handleLoadingDuring(
+    wellStore.handleDeleteProperty(props.well.id, property).then(() => {
+      emit("updated");
+    })
+  );
 };
 
 const handleRejectWells = async () => {
   if (props.well) {
-    await wellStore.rejectWell(
-      props.well.plateId,
-      "REJECTED_PHAEDRA",
-      "Well rejection from chart!"
+    await loadingHandler.handleLoadingDuring(
+      wellStore.rejectWell(
+        props.well.plateId,
+        "REJECTED_PHAEDRA",
+        "Well rejection from chart!"
+      )
     );
     emit("updated");
     emit("wellStatusChanged");
@@ -186,7 +198,9 @@ const handleRejectWells = async () => {
 
 const handleAcceptWells = async () => {
   if (props.well) {
-    await wellStore.acceptWell(props.well.plateId);
+    await loadingHandler.handleLoadingDuring(
+      wellStore.acceptWell(props.well.plateId)
+    );
     emit("updated");
     emit("wellStatusChanged");
   }

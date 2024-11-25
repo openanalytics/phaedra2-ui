@@ -1,7 +1,12 @@
 <template>
   <div class="q-pa-sm">
-    <q-card v-if="plate && plate.barcode" flat bordered
-            class="row justify-between" style="width: 100%">
+    <q-card
+      v-if="plate && plate.barcode"
+      flat
+      bordered
+      class="row justify-between"
+      style="width: 100%"
+    >
       <q-card-section horizontal class="col-7">
         <q-card-section class="q-pt-xs" style="width: 100%">
           <div
@@ -20,22 +25,39 @@
             </div>
             <span v-if="!readOnly">
               <span>
-                <q-btn icon="edit" size="xs" color="positive" round dense
-                       @click="showEditDialog = true">
+                <q-btn
+                  icon="edit"
+                  size="xs"
+                  color="positive"
+                  round
+                  dense
+                  @click="showEditDialog = true"
+                >
                   <q-tooltip>Edit Experiment</q-tooltip>
                 </q-btn>
               </span>
               <span class="q-ml-sm">
-                <q-btn size="xs" icon="calculate" color="warning" round dense
-                       @click="showCalculateDialog = true">
+                <q-btn
+                  size="xs"
+                  icon="calculate"
+                  color="warning"
+                  round
+                  dense
+                  @click="showCalculateDialog = true"
+                >
                   <q-tooltip>Recalculate</q-tooltip>
                 </q-btn>
               </span>
               <span class="q-ml-sm">
-                <q-btn icon="delete" size="xs" color="negative" round dense
-                       @click="showDeleteDialog = true">
-                  <q-tooltip>Delete Experiment</q-tooltip>
-                </q-btn>
+                <q-btn
+                  round
+                  dense
+                  icon="delete"
+                  size="xs"
+                  color="negative"
+                  @click="showDeleteDialog = true"
+                  ><q-tooltip>Delete Plate</q-tooltip></q-btn
+                >
               </span>
             </span>
           </div>
@@ -44,32 +66,55 @@
             <div class="row">
               <div class="col-6">
                 <div class="text-caption">
-                  <DimensionsChip :rows="plate.rows" :columns="plate.columns"
-                                  onHoverMessage="Dimensions" calculate/>
+                  <DimensionsChip
+                    :rows="plate.rows"
+                    :columns="plate.columns"
+                    onHoverMessage="Dimensions"
+                    calculate
+                  />
                 </div>
                 <div class="text-caption">
-                  <UserChip :id="plate.createdBy" onHoverMessage="Created By" label="Created By"/>
+                  <UserChip
+                    :id="plate.createdBy"
+                    onHoverMessage="Created By"
+                    label="Created By"
+                  />
                 </div>
                 <div class="text-caption">
-                  <DateChip :dateTime="plate.createdOn" onHoverMessage="Created On" label="Created On"/>
+                  <DateChip
+                    :dateTime="plate.createdOn"
+                    onHoverMessage="Created On"
+                    label="Created On"
+                  />
                 </div>
               </div>
               <div class="col-6">
                 <div class="text-caption">
-                  <UserChip :id="plate.updatedBy" onHoverMessage="Updated By" label="Updated By"/>
+                  <UserChip
+                    :id="plate.updatedBy"
+                    onHoverMessage="Updated By"
+                    label="Updated By"
+                  />
                 </div>
                 <div class="text-caption">
-                  <DateChip :dateTime="plate.updatedOn" onHoverMessage="Updated On" label="Updated On"/>
+                  <DateChip
+                    :dateTime="plate.updatedOn"
+                    onHoverMessage="Updated On"
+                    label="Updated On"
+                  />
                 </div>
               </div>
             </div>
           </div>
           <div class="text-caption text-grey q-mt-sm">
             <EditableField read-only :object="plate" fieldName="description" />
-            <TagListEditable :tags="plate.tags" :read-only="readOnly"
-                             @addTag="onAddTag" @removeTag="onRemoveTag"/>
+            <TagListEditable
+              :tags="plate.tags"
+              :read-only="readOnly"
+              @addTag="onAddTag"
+              @removeTag="onRemoveTag"
+            />
           </div>
-
         </q-card-section>
       </q-card-section>
       <q-card-section class="col-grow row justify-center">
@@ -117,9 +162,10 @@ import TagListEditable from "@/components/tag/TagListEditable.vue";
 import EditResourceDialog from "@/components/widgets/EditResourceDialog";
 import DimensionsChip from "@/components/plate/DimensionsChip.vue";
 import CalculatePlateDialog from "@/components/plate/CalculatePlateDialog.vue";
+import { useLoadingHandler } from "@/composable/loadingHandler";
 
 const props = defineProps(["plate", "activeMeasurement"]);
-const emits = defineEmits(["updated"]);
+const emits = defineEmits(["updated", "deleted"]);
 
 const experimentStore = useExperimentStore();
 const plateStore = usePlateStore();
@@ -132,42 +178,51 @@ const readOnly = ref(
 );
 const showEditDialog = ref(false);
 
+const loadingHandler = useLoadingHandler();
 const onEdited = async (newVal) => {
-  await plateStore.editPlate(props.plate.id, newVal).then(() => {
-    emits("updated");
-  });
+  await loadingHandler.handleLoadingDuring(
+    plateStore.editPlate(props.plate.id, newVal).then(() => {
+      emits("updated");
+    })
+  );
 };
 
 const onDeleted = async () => {
-  await plateStore.deletePlate(props.plate?.id);
-  await router.push({
-    name: "experiment",
-    params: { id: experimentStore.experiment.id },
-  });
+  const experimentId = props.plate?.experimentId;
+  const promise = plateStore.deletePlate(props.plate?.id);
+  emits("deleted", promise, experimentId);
 };
 
 const onAddTag = async (newTag) => {
-  await plateStore.handleAddTag(props.plate?.id, newTag).then(() => {
-    emits("updated");
-  });
+  await loadingHandler.handleLoadingDuring(
+    plateStore.handleAddTag(props.plate?.id, newTag).then(() => {
+      emits("updated");
+    })
+  );
 };
 
 const onRemoveTag = async (tag) => {
-  await plateStore.handleDeleteTag(props.plate?.id, tag).then(() => {
-    emits("updated");
-  });
+  await loadingHandler.handleLoadingDuring(
+    plateStore.handleDeleteTag(props.plate?.id, tag).then(() => {
+      emits("updated");
+    })
+  );
 };
 
 const onAddProperty = async (newProperty) => {
-  await plateStore.handleAddProperty(props.plate?.id, newProperty).then(() => {
-    emits("updated");
-  });
+  await loadingHandler.handleLoadingDuring(
+    plateStore.handleAddProperty(props.plate?.id, newProperty).then(() => {
+      emits("updated");
+    })
+  );
 };
 
 const onRemoveProperty = async (property) => {
-  await plateStore.handleDeleteProperty(props.plate?.id, property).then(() => {
-    emits("updated");
-  });
+  await loadingHandler.handleLoadingDuring(
+    plateStore.handleDeleteProperty(props.plate?.id, property).then(() => {
+      emits("updated");
+    })
+  );
 };
 </script>
 

@@ -16,12 +16,18 @@ import OaSection from "@/components/widgets/OaSection";
 import ProjectsList from "@/components/project/ProjectsList.vue";
 import { onMounted, ref } from "vue";
 import projectsGraphQlAPI from "@/api/graphql/projects";
+import { useLoadingHandler } from "../../composable/loadingHandler";
 
 const projects = ref([]);
 
+const loadingHandler = useLoadingHandler();
+
 const fetchAllProjects = async () => {
-  const data = await projectsGraphQlAPI.projects()
-  projects.value = data.projects;
+  await loadingHandler.handleLoadingDuring(
+    projectsGraphQlAPI.projects().then((data) => {
+      projects.value = data.projects;
+    })
+  );
 };
 
 onMounted(() => {

@@ -11,6 +11,16 @@
       <q-card-section class="q-pa-sm">
         <div class="row">
           <div class="col q-ma-md">
+            <q-select
+              class="q-pa-xs"
+              v-model="newPlateExperiment"
+              :options="experiments"
+              label="experiment"
+              option-value="id"
+              option-label="name"
+              dense
+            />
+
             <q-input
               v-model="newPlate.barcode"
               square
@@ -68,12 +78,15 @@ const newPlate = ref({
 
 const props = defineProps({
   show: Boolean,
+  experiments: [Object],
 });
-const emits = defineEmits(["update:show"]);
+const emits = defineEmits(["update:show", "updated"]);
 const showDialog = computed({
   get: () => props.show,
   set: (v) => emits("update:show", v),
 });
+
+const newPlateExperiment = ref(props.experiments[0]);
 
 const clearValues = () => {
   newPlate.value = {
@@ -93,10 +106,11 @@ const experimentStore = useExperimentStore();
 const loadingHandler = useLoadingHandler();
 const createNewPlate = async () => {
   newPlate.value.sequence = "1";
-  newPlate.value.experimentId = experimentStore.experiment.id;
+  newPlate.value.experimentId = newPlateExperiment.value.id;
   await loadingHandler.handleLoadingDuring(
-    experimentStore.addPlate(experimentStore.experiment.id, newPlate.value)
+    experimentStore.addPlate(newPlateExperiment.value.id, newPlate.value)
   );
+  emits("updated");
   clearValues();
 };
 </script>

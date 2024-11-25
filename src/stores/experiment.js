@@ -83,7 +83,8 @@ export const useExperimentStore = defineStore("experiment", () => {
     await plateAPI.addPlate(plate);
   }
 
-  async function addPlates(plates) {
+  async function addPlates(id, plates) {
+    plates = plates.map((plate) => (plate = { ...plate, experimentId: id }));
     await Promise.all(plates.map((plate) => plateAPI.addPlate(plate)));
   }
 

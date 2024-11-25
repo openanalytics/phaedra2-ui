@@ -16,9 +16,14 @@
           color="primary"
           icon="add"
           @click="showNewExperimentDialog = true"
-          ><q-tooltip>Create New Experiment</q-tooltip></q-btn
-        >
-
+          :disable="!createExperimentCondition"
+          ><q-tooltip
+            >Create New Experiment
+            <span v-if="!createExperimentCondition"
+              >(You need to select at least 1 project)</span
+            ></q-tooltip
+          >
+        </q-btn>
         <q-btn round icon="download" size="sm" class="q-mx-sm">
           <q-tooltip>Download experiments list</q-tooltip>
           <q-menu anchor="bottom middle" self="top left">
@@ -154,7 +159,7 @@ import { useRoute, useRouter } from "vue-router";
 import { useProjectStore } from "@/stores/project";
 import OaTable from "@/components/table/OaTable.vue";
 import { useExperimentStore } from "@/stores/experiment";
-import {useLoadingHandler} from "@/composable/loadingHandler";
+import { useLoadingHandler } from "@/composable/loadingHandler";
 
 const props = defineProps({
   experiments: [Object],
@@ -290,6 +295,8 @@ const experiments = computed(() =>
   props.experiments ? props.experiments : []
 );
 
+const createExperimentCondition = computed(() => props.projects.length > 0);
+
 const projectsNames = computed(() =>
   experimentsToExport.value
     .map(
@@ -318,15 +325,23 @@ const gotoExperimentView = (event, row) => {
 const showNewExperimentDialog = ref(false);
 const newExperimentName = ref("");
 const newExperimentProject = ref(props.projects[0]);
+watch(
+  () => props.projects,
+  (newVal) => {
+    if (newVal.length > 0) {
+      newExperimentProject.value = newVal[0];
+    }
+  }
+);
 
-const doCreateNewExperiment = () => {
+const doCreateNewExperiment = async () => {
   const newExperiment = {
     projectId: newExperimentProject.value.id,
     name: newExperimentName.value,
     status: "OPEN",
     createdOn: new Date(),
   };
-  createNewExperiment(newExperiment);
+  await loadingHandler.handleLoadingDuring(createNewExperiment(newExperiment));
   newExperimentName.value = ""
 };
 
@@ -404,16 +419,21 @@ const experimentStore = useExperimentStore();
 const loadingHandler = useLoadingHandler();
 const deleteExperiments = async () => {
   await loadingHandler.handleLoadingDuring(
-      experimentStore.deleteExperiments(selectedExperiments.value.map((exp) => exp.id))
-  )
-  selectedExperiments.value = [];
-}
+    experimentStore
+      .deleteExperiments(selectedExperiments.value.map((exp) => exp.id))
+      .then(() => {
+        selectedExperiments.value = [];
+      })
+  );
+};
 
 const projectStore = useProjectStore();
 const createNewExperiment = async (newExperiment) => {
-  await projectStore.addExperiment(newExperiment).then(() => {
-    updated();
-  });
+  await loadingHandler.handleLoadingDuring(
+    projectStore.addExperiment(newExperiment).then(() => {
+      updated();
+    })
+  );
 };
 
 function updated() {

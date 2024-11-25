@@ -100,6 +100,7 @@ import WellActionMenu from "@/components/well/WellActionMenu.vue";
 import { usePlateStore } from "@/stores/plate";
 import OaTable from "@/components/table/OaTable.vue";
 import { useRoute } from "vue-router";
+import { useLoadingHandler } from "@/composable/loadingHandler";
 
 const props = defineProps(["plates", "wells"]);
 const emits = defineEmits(["wellStatusChanged", "selection", "open"]);
@@ -110,14 +111,19 @@ const loading = ref(true);
 const features = ref([]);
 const resultData = ref([]);
 
+const loadingHandler = useLoadingHandler();
+
 const fetchWellData = async () => {
   const resultSet = plateStore.activeResultSet;
-  features.value = plateStore.featuresByProtocolId(resultSet?.protocolId);
 
-  const data = await resultDataGraphQlAPI.resultDataByResultSetId(resultSet?.id)
-  resultData.value = data.resultData
-}
-fetchWellData()
+  features.value = plateStore.featuresByProtocolId(resultSet?.protocolId);
+  await loadingHandler.handleLoadingDuring(
+    resultDataGraphQlAPI.resultDataByResultSetId(resultSet?.id).then((data) => {
+      resultData.value = data.resultData;
+    })
+  );
+};
+fetchWellData();
 
 const baseColumns = ref([
   { name: "id", align: "left", label: "ID", field: "id", sortable: true },
@@ -287,25 +293,29 @@ const selectWell = (event, row) => {
   }
 };
 
-const handleRejectWells = () => {
+const handleRejectWells = async () => {
   if (selectedWells.value.length > 0) {
-    plateStore
-      .rejectWells(
-        selectedWells.value,
-        "REJECTED_PHAEDRA",
-        "Test well rejection"
-      )
-      .then(() => {
-        emits("wellStatusChanged");
-      });
+    await loadingHandler.handleLoadingDuring(
+      plateStore
+        .rejectWells(
+          selectedWells.value,
+          "REJECTED_PHAEDRA",
+          "Test well rejection"
+        )
+        .then(() => {
+          emits("wellStatusChanged");
+        })
+    );
   }
 };
 
-const handleAcceptWells = () => {
+const handleAcceptWells = async () => {
   if (selectedWells.value.length > 0) {
-    plateStore.acceptWells(selectedWells.value).then(() => {
-      emits("wellStatusChanged");
-    });
+    await loadingHandler.handleLoadingDuring(
+      plateStore.acceptWells(selectedWells.value).then(() => {
+        emits("wellStatusChanged");
+      })
+    );
   }
 };
 
@@ -345,7 +355,7 @@ const updateTable = () => {
 
   filter = FilterUtils.makeFilter(columns.value);
   visibleColumns.value = [...columns.value.map((a) => a.name)];
-}
+};
 
 const open = (resource) => {
   emits("open", resource);

@@ -105,6 +105,7 @@ import { useProjectStore } from "@/stores/project";
 import DateChip from "@/components/widgets/DateChip.vue";
 import TagListEditable from "@/components/tag/TagListEditable.vue";
 import AccessControlListEditable from "@/components//widgets/AccessControlListEditable.vue";
+import { useLoadingHandler } from "@/composable/loadingHandler";
 
 const props = defineProps({
   project: Object,
@@ -118,58 +119,70 @@ const showDeleteDialog = ref(false);
 const showEditDialog = ref(false);
 const errorMessage = "No project selected";
 
+const loadingHandler = useLoadingHandler();
+
 const onEdited = async (newVal) => {
-  await projectStore.editProject(props.project.id, newVal).then(() => {
-    emits("updated");
-  });
+  await loadingHandler.handleLoadingDuring(
+    projectStore.editProject(props.project.id, newVal).then(() => {
+      emits("updated");
+    })
+  );
 };
 
 const onDeleted = async () => {
-  await projectStore.deleteProject(props.project.id).then(() => {
-    emits("updated");
-  });
+  await loadingHandler.handleLoadingDuring(
+    projectStore.deleteProject(props.project.id).then(() => {
+      emits("updated");
+    })
+  );
   await router.push({ name: "browseProjects" });
 };
 
 const onAddAccess = async (newAccess) => {
-  await projectStore
-    .createProjectAccess(props.project.id, newAccess)
-    .then(() => {
+  await loadingHandler.handleLoadingDuring(
+    projectStore.createProjectAccess(props.project.id, newAccess).then(() => {
       emits("updated");
-    });
+    })
+  );
 };
 
 const onRemoveAccess = async (access) => {
-  await projectStore.deleteProjectAccess(access).then(() => {
-    emits("updated");
-  });
+  await loadingHandler.handleLoadingDuring(
+    projectStore.deleteProjectAccess(access).then(() => {
+      emits("updated");
+    })
+  );
 };
 
 const onAddTag = async (newTag) => {
-  await projectStore.handleAddTag(props.project.id, newTag).then(() => {
-    emits("updated");
-  });
+  await loadingHandler.handleLoadingDuring(
+    projectStore.handleAddTag(props.project.id, newTag).then(() => {
+      emits("updated");
+    })
+  );
 };
 
 const onRemoveTag = async (tag) => {
-  await projectStore.handleDeleteTag(props.project.id, tag).then(() => {
-    emits("updated");
-  });
+  await loadingHandler.handleLoadingDuring(
+    projectStore.handleDeleteTag(props.project.id, tag).then(() => {
+      emits("updated");
+    })
+  );
 };
 
 const onAddProperty = async (newProperty) => {
-  await projectStore
-    .handleAddProperty(props.project.id, newProperty)
-    .then(() => {
+  await loadingHandler.handleLoadingDuring(
+    projectStore.handleAddProperty(props.project.id, newProperty).then(() => {
       emits("updated");
-    });
+    })
+  );
 };
 
 const onRemoveProperty = async (property) => {
-  await projectStore
-    .handleDeleteProperty(props.project.id, property)
-    .then(() => {
+  await loadingHandler.handleLoadingDuring(
+    projectStore.handleDeleteProperty(props.project.id, property).then(() => {
       emits("updated");
-    });
+    })
+  );
 };
 </script>

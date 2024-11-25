@@ -79,8 +79,7 @@ export function usePanesList() {
       },
       events: {
         selection: (e) => (selectionStore.selectedProjects = e),
-        updated: async () =>
-            await selectionStore.fetchProjects(),
+        updated: async () => await selectionStore.fetchProjects(),
       },
     },
     {
@@ -98,7 +97,9 @@ export function usePanesList() {
       },
       events: {
         updated: async () =>
-          await selectionStore.fetchProject(selectionStore.selectedProjectDetails.id),
+          await selectionStore.fetchProject(
+            selectionStore.selectedProjectDetails.id
+          ),
       },
     },
     {
@@ -193,8 +194,12 @@ export function usePanesList() {
         activeMeasurement: selectionStore.activeMeasurement,
       },
       events: {
-        updated: async () =>
-          await selectionStore.fetchPlate(selectionStore.selectedPlateDetails.id),
+        updated: async () => {
+          await selectionStore.fetchPlate(
+            selectionStore.selectedPlateDetails.id
+          );
+        },
+        deleted: async () => await selectionStore.loadExperiment(),
       },
     },
     {
@@ -293,7 +298,7 @@ export function usePanesList() {
       },
       events: {
         updated: async () =>
-            await selectionStore.fetchWell(selectionStore.selectedWellDetails.id),
+          await selectionStore.fetchWell(selectionStore.selectedWellDetails.id),
       },
     },
     {

@@ -2,7 +2,9 @@
   <q-breadcrumbs
     class="oa-breadcrumb"
     v-if="
-      plateStore.plate && plateStore.plate.experiment && plateStore.plate.project
+      plateStore.plate &&
+      plateStore.plate.experiment &&
+      plateStore.plate.project
     "
   >
     <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard' }" />
@@ -35,6 +37,7 @@
       :plate="plateStore.plate"
       :activeMeasurement="plateStore.activeMeasurement"
       @updated="plateStore.reloadPlate(plateStore.plate.id)"
+      @deleted="onDelete"
     />
 
     <splitpanes class="default-theme" :horizontal="horizontal">
@@ -201,7 +204,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { Splitpanes, Pane } from "splitpanes";
 
@@ -212,7 +215,6 @@ import WellList from "@/pages/plate/WellList";
 import ResultSetList from "./ResultSetList";
 
 import CalculatePlateDialog from "@/components/plate/CalculatePlateDialog";
-import { useProjectStore } from "@/stores/project";
 import { useExperimentStore } from "@/stores/experiment";
 import { usePlateStore } from "@/stores/plate";
 import DRCList from "@/components/curve/DRCList.vue";
@@ -220,13 +222,12 @@ import DRCView from "@/components/curve/DRCView.vue";
 import ChartViewer from "@/components/chart/ChartViewer.vue";
 import { useUIStore } from "@/stores/ui";
 import { useNotification } from "@/composable/notification";
-import { useLoadingHandler } from "@/composable/loadingHandler";
 import WellImageViewer from "@/components/image/WellImageViewer.vue";
 import PlateDetails from "@/pages/plate/PlateDetails.vue";
 import OaSection from "@/components/widgets/OaSection";
+import { useLoadingHandler } from "../../composable/loadingHandler";
 
 const route = useRoute();
-const projectStore = useProjectStore();
 const experimentStore = useExperimentStore();
 const plateStore = usePlateStore();
 const uiStore = useUIStore();
@@ -242,14 +243,21 @@ const readOnly = ref(plateStore.isApproved || experimentStore.isClosed);
 const drcViewPane = ref();
 const chartViewerPane = ref();
 const imageViewPane = ref();
-
-
 const loadingHandler = useLoadingHandler();
+
+async function onDelete(promise, experimentId) {
+  await loadingHandler.handleLoadingDuring(promise);
+  await router.push({
+    name: "experiment",
+    params: { experimentId: experimentId },
+  });
+}
+
 const fetchPlate = async () => {
   const plateId = parseInt(route.params.plateId);
-  await plateStore.loadPlate(plateId);
-}
-fetchPlate()
+  await loadingHandler.handleLoadingDuring(plateStore.loadPlate(plateId));
+};
+fetchPlate();
 // onMounted(async () => {
 //   await plateStore.loadPlate(plateId);
 // });

@@ -1,12 +1,17 @@
 <template>
-  <q-breadcrumbs class="oa-breadcrumb"
-                 v-if="experimentStore.experiment && experimentStore.experiment.project">
+  <q-breadcrumbs
+    class="oa-breadcrumb"
+    v-if="experimentStore.experiment && experimentStore.experiment.project"
+  >
     <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard' }" />
     <q-breadcrumbs-el :label="'Projects'" icon="list" :to="'/projects'" />
     <q-breadcrumbs-el
       :label="experimentStore.experiment.project.name"
       icon="folder"
-      :to="{ name: 'project', params: { id: experimentStore.experiment.project.id } }"
+      :to="{
+        name: 'project',
+        params: { id: experimentStore.experiment.project.id },
+      }"
     />
     <q-breadcrumbs-el :label="experimentStore.experiment.name" icon="science" />
   </q-breadcrumbs>
@@ -50,8 +55,6 @@
               <PlateList
                 :experiments="[experimentStore.experiment]"
                 :plates="experimentStore.plates"
-                v-model:newPlateTab="showNewPlateDialog"
-                v-model:newPlateFromMeasurements="showNewPlateFromMeasDialog"
                 @selection="handlePlateSelection"
                 @updated="handleUpdatePlateList"
                 @open="handleOpen"
@@ -84,14 +87,6 @@
         />
       </pane>
     </splitpanes>
-
-    <div v-if="experimentStore.isOpen">
-      <new-plate-from-measurement-dialog
-        v-model:show="showNewPlateFromMeasDialog"
-      />
-
-      <new-plate-dialog v-model:show="showNewPlateDialog" />
-    </div>
   </q-page>
 </template>
 
@@ -102,13 +97,11 @@ import PlateList from "@/components/plate/PlateList";
 import PlateStatsList from "@/pages/experiment/PlateStatsList";
 import PlateGrid from "@/pages/experiment/PlateGrid";
 import OaSection from "@/components/widgets/OaSection";
-
 import ChartViewer from "@/components/chart/ChartViewer";
 import { useExperimentStore } from "@/stores/experiment";
 import { Pane, Splitpanes } from "splitpanes";
 import { useUIStore } from "@/stores/ui";
-import NewPlateFromMeasurementDialog from "@/pages/experiment/NewPlateFromMeasurementDialog.vue";
-import NewPlateDialog from "@/pages/experiment/NewPlateDialog.vue";
+
 import ExperimentDetails from "../../components/experiment/ExperimentDetails.vue";
 import { useLoadingHandler } from "@/composable/loadingHandler";
 
@@ -123,28 +116,16 @@ const horizontal = ref(false);
 
 const fetchExperiment = async () => {
   const experimentId = parseInt(route.params.experimentId);
-  await experimentStore.loadExperiment(experimentId);
-}
-fetchExperiment()
-
-const showNewPlateDialog = ref(false);
-const showNewPlateFromMeasDialog = ref(false);
-const newPlate = ref({
-  barcode: null,
-  description: null,
-  rows: null,
-  columns: null,
-  sequence: null,
-  linkStatus: "NOT_LINKED",
-  calculationStatus: "CALCULATION_NEEDED",
-  validationStatus: "VALIDATION_NOT_SET",
-  approvalStatus: "APPROVAL_NOT_SET",
-});
+  await loadingHandler.handleLoadingDuring(
+    experimentStore.loadExperiment(experimentId)
+  );
+};
+fetchExperiment();
 
 const handlePlateSelection = async (plates) => {
   uiStore.selectedPlate = plates[0] ?? null;
   uiStore.selectedPlates = plates;
-  if (uiStore.selectedPlate) await uiStore.loadSelectedPlate(plates[0].id);
+  if (uiStore.selectedPlate) uiStore.loadSelectedPlate(plates[0].id);
 };
 
 const handleOpen = async (id) => {
@@ -201,10 +182,14 @@ const handleOpen = async (id) => {
 };
 
 const handleUpdatePlateList = async () => {
-  await experimentStore.loadExperiment(experimentStore.experiment.id)
-}
+  await loadingHandler.handleLoadingDuring(
+    experimentStore.loadExperiment(experimentStore.experiment.id)
+  );
+};
 
 const handleUpdateExperimentDetails = async () => {
-  await experimentStore.reloadExperiment(experimentStore.experiment.id)
-}
+  await loadingHandler.handleLoadingDuring(
+    experimentStore.reloadExperiment(experimentStore.experiment.id)
+  );
+};
 </script>

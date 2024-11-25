@@ -44,6 +44,7 @@ import OaTable from "@/components/table/OaTable.vue";
 import ProjectActionMenu from "@/components/project/ProjectActionMenu";
 import { useRoute, useRouter } from "vue-router";
 import { useProjectStore } from "@/stores/project";
+import { useLoadingHandler } from "@/composable/loadingHandler";
 
 const props = defineProps({
   projects: [Object],
@@ -97,13 +98,17 @@ function selectProject(event, row) {
 }
 
 const projectStore = useProjectStore();
-function deleteProjects() {
-  projectStore
-    .deleteProjects(selectedProjects.value.map((project) => project.id))
-    .then(() => {
-      emits("updated");
-    });
-  selectedProjects.value = [];
+const loadingHandler = useLoadingHandler();
+
+async function deleteProjects() {
+  await loadingHandler.handleLoadingDuring(
+    projectStore
+      .deleteProjects(selectedProjects.value.map((project) => project.id))
+      .then(() => {
+        emits("updated");
+        selectedProjects.value = [];
+      })
+  );
 }
 
 watch(props.projects, () => {

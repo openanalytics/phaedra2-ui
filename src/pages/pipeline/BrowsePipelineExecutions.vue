@@ -47,6 +47,7 @@ import OaSection from "@/components/widgets/OaSection";
 import DateRangeSelector from "@/components/widgets/DateRangeSelector";
 import { usePipelineStore } from "@/stores/pipeline";
 import OaTable from "@/components/table/OaTable.vue";
+import { useLoadingHandler } from "../../composable/loadingHandler";
 
 const router = useRouter();
 const loading = ref(true);
@@ -60,15 +61,21 @@ onMounted(() => {
   refreshList();
 });
 
+const loadingHandler = useLoadingHandler();
+
 const refreshList = async () => {
   loading.value = true;
   const dateRange = {
     from: fromDate.value.getTime(),
     to: toDate.value.getTime(),
   };
-  await pipelineStore.loadPipelineExecutions(dateRange);
-  await pipelineStore.loadPipelines(
-    pipelineStore.executions.map((e) => e.pipelineId)
+  await loadingHandler.handleLoadingDuring(
+    pipelineStore.loadPipelineExecutions(dateRange)
+  );
+  await loadingHandler.handleLoadingDuring(
+    pipelineStore.loadPipelines(
+      pipelineStore.executions.map((e) => e.pipelineId)
+    )
   );
   loading.value = false;
 };
