@@ -1,4 +1,7 @@
 <template>
+  <span v-if="label" style="font-size: 10px; color: rgba(0, 0, 0, 0.6)">
+    {{ label }}:
+  </span>
   <q-chip dense size="12px" v-if="id">
     <q-avatar font-size="1em" icon="perm_identity" />
     {{ userName }}
@@ -14,6 +17,7 @@ import { useUserInfoStore } from "@/stores/userinfo";
 
 const props = defineProps({
   id: String,
+  label: String,
   onHoverMessage: String,
 });
 

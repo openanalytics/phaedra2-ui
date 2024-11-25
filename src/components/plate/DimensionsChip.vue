@@ -1,4 +1,10 @@
 <template>
+  <span v-if="label" style="font-size: 10px; color: rgba(0, 0, 0, 0.6)">
+    {{ label }}:
+  </span>
+  <span v-else style="font-size: 10px; color: rgba(0, 0, 0, 0.6)">
+    Dimensions:
+  </span>
   <q-chip dense size="12px">
     <q-avatar font-size="1em" icon="calculate" />
     {{ rows }} x {{ columns }}
@@ -15,5 +21,6 @@ const props = defineProps({
   columns: String,
   onHoverMessage: String,
   calculate: Boolean,
+  label: String,
 });
 </script>
