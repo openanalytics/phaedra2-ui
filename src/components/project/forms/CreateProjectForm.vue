@@ -40,6 +40,7 @@ import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useProjectStore } from "@/stores/project";
 import { useUserInfoStore } from "@/stores/userinfo";
+import { useLoadingHandler } from "@/composable/loadingHandler";
 
 const userInfo = computed(() => userInfoStore.userInfo);
 const teamNames = computed(() => userInfo.value.teams);
@@ -53,10 +54,13 @@ const newProject = ref({
   description: null,
 });
 
-const onSubmit = () => {
-  projectStore.createNewProject(newProject.value).then(() => {
-    router.push({ path: "/project/" + projectStore.project.id });
-  });
+const loadingHandler = useLoadingHandler();
+const onSubmit = async () => {
+  await loadingHandler.handleLoadingDuring(
+    projectStore.createNewProject(newProject.value).then(() => {
+      router.push({ path: "/project/" + projectStore.project.id });
+    })
+  );
 };
 
 const onReset = () => {

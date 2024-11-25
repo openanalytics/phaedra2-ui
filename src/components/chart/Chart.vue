@@ -141,7 +141,6 @@ function handleFeatureSelection(val) {
   }
   handleSelection(val);
   openSettings(false);
-  console.log("Update chart for selected feature ");
   // updateChartTraces();
 }
 
@@ -258,7 +257,6 @@ const handleChartUpdate = () => {
         groupBy.value.value
       )
       .then((scatterData) => {
-        console.log("Scatter Chart Data: " + Object.keys(scatterData));
         const traces = Object.keys(scatterData).map((groupByKey) => {
           return {
             type: "scatter",
@@ -298,7 +296,6 @@ const handleChartUpdate = () => {
         groupBy.value.value
       )
       .then((boxPlotData) => {
-        console.log("Box Plot Data: " + JSON.stringify(boxPlotData));
         const traces = Object.keys(boxPlotData).map((groupByKey) => {
           return {
             y: boxPlotData[groupByKey].yvalues,
@@ -325,7 +322,6 @@ const handleChartUpdate = () => {
         groupBy.value.value
       )
       .then((histogramData) => {
-        console.log("Histogram Data: " + JSON.stringify(histogramData));
         const traces = Object.keys(histogramData).map((groupByKey) => {
           return {
             x: histogramData[groupByKey].xvalues,
@@ -362,7 +358,6 @@ const config = {
 };
 
 const handlePlotUpdate = () => {
-  console.log("handleUpdatePlot: chart has been updated!");
   if (chartPlot.value.data) {
     Plotly.react(
       chart.value,

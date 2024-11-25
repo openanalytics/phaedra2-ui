@@ -76,7 +76,7 @@ onUpdated(async () => {
   if (data.plateMeasurements) {
     for (let plateMeas of data.plateMeasurements) {
       activeMeasurements.value[plateMeas.plateId] = Number.parseInt(
-          plateMeas.measurementId
+        plateMeas.measurementId
       );
     }
   }

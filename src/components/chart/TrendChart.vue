@@ -131,7 +131,6 @@ function handleFeatureSelection(val) {
   selectedFeature.value = val["Feature"];
   selectedStat.value = val["Statistic"];
   openSettings(false);
-  console.log("Update chart for selected feature " + selectedStat.value);
   updateChartTraces();
 }
 

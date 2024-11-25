@@ -72,6 +72,7 @@ import ChartViewer from "@/components/chart/ChartViewer.vue";
 import { useUIStore } from "@/stores/ui";
 import { useExperimentStore } from "@/stores/experiment";
 import ProjectDetails from "@/components/project/ProjectDetails.vue";
+import { useLoadingHandler } from "../../composable/loadingHandler";
 
 const uiStore = useUIStore();
 const projectStore = useProjectStore();
@@ -84,14 +85,20 @@ onBeforeMount(() => {
   experimentStore.reset();
 });
 
-onMounted(() => {
-  projectStore.loadProject(route.params.id);
+const loadingHandler = useLoadingHandler();
+
+onMounted(async () => {
+  await loadingHandler.handleLoadingDuring(
+    projectStore.loadProject(route.params.id)
+  );
 });
 
 const onCreateNewExperiment = async (newExperiment) => {
-  await projectStore.addExperiment(newExperiment).then(() => {
-    projectStore.reloadProject(newExperiment.projectId);
-  });
+  await loadingHandler.handleLoadingDuring(
+    projectStore.addExperiment(newExperiment).then(() => {
+      projectStore.reloadProject(newExperiment.projectId);
+    })
+  );
 };
 
 const handleSelection = (experiments) => {

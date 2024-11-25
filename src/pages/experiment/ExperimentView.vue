@@ -1,12 +1,17 @@
 <template>
-  <q-breadcrumbs class="oa-breadcrumb"
-                 v-if="experimentStore.experiment && experimentStore.experiment.project">
+  <q-breadcrumbs
+    class="oa-breadcrumb"
+    v-if="experimentStore.experiment && experimentStore.experiment.project"
+  >
     <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard' }" />
     <q-breadcrumbs-el :label="'Projects'" icon="list" :to="'/projects'" />
     <q-breadcrumbs-el
       :label="experimentStore.experiment.project.name"
       icon="folder"
-      :to="{ name: 'project', params: { id: experimentStore.experiment.project.id } }"
+      :to="{
+        name: 'project',
+        params: { id: experimentStore.experiment.project.id },
+      }"
     />
     <q-breadcrumbs-el :label="experimentStore.experiment.name" icon="science" />
   </q-breadcrumbs>
@@ -111,14 +116,16 @@ const horizontal = ref(false);
 
 const fetchExperiment = async () => {
   const experimentId = parseInt(route.params.experimentId);
-  await experimentStore.loadExperiment(experimentId);
-}
-fetchExperiment()
+  await loadingHandler.handleLoadingDuring(
+    experimentStore.loadExperiment(experimentId)
+  );
+};
+fetchExperiment();
 
 const handlePlateSelection = async (plates) => {
   uiStore.selectedPlate = plates[0] ?? null;
   uiStore.selectedPlates = plates;
-  if (uiStore.selectedPlate) await uiStore.loadSelectedPlate(plates[0].id);
+  if (uiStore.selectedPlate) uiStore.loadSelectedPlate(plates[0].id);
 };
 
 const handleOpen = async (id) => {
@@ -175,10 +182,14 @@ const handleOpen = async (id) => {
 };
 
 const handleUpdatePlateList = async () => {
-  await experimentStore.loadExperiment(experimentStore.experiment.id)
-}
+  await loadingHandler.handleLoadingDuring(
+    experimentStore.loadExperiment(experimentStore.experiment.id)
+  );
+};
 
 const handleUpdateExperimentDetails = async () => {
-  await experimentStore.reloadExperiment(experimentStore.experiment.id)
-}
+  await loadingHandler.handleLoadingDuring(
+    experimentStore.reloadExperiment(experimentStore.experiment.id)
+  );
+};
 </script>

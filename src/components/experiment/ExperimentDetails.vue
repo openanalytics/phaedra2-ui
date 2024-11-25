@@ -108,6 +108,7 @@ import EditResourceDialog from "@/components/widgets/EditResourceDialog";
 import { useExperimentStore } from "@/stores/experiment";
 import { useProjectStore } from "@/stores/project";
 import TagListEditable from "../tag/TagListEditable.vue";
+import { useLoadingHandler } from "@/composable/loadingHandler";
 
 const props = defineProps(["experiment"]);
 const emits = defineEmits(["updated"]);
@@ -132,55 +133,72 @@ watchEffect(() => {
 const showEditDialog = ref(false);
 const errorMessage = "No experiment selected";
 
+const loadingHandler = useLoadingHandler();
 const onEdited = async (newVal) => {
-  await experimentStore.editExperiment(props.experiment.id, newVal).then(() => {
-    emits("updated");
-  });
+  await loadingHandler.handleLoadingDuring(
+    experimentStore.editExperiment(props.experiment.id, newVal).then(() => {
+      emits("updated");
+    })
+  );
 };
 
 const showDeleteDialog = ref(false);
-const onDeleteExperiment = () => {
-  experimentStore.deleteExperiment(props.experiment?.id);
+const onDeleteExperiment = async () => {
+  await loadingHandler.handleLoadingDuring(
+    experimentStore.deleteExperiment(props.experiment?.id)
+  );
   router.push({ name: "project", params: { id: projectStore.project.id } });
 };
 
-const handleCloseExperiment = () => {
-  experimentStore.closeExperiments([props.experiment?.id]).then(() => {
-    emits("updated");
-  });
+const handleCloseExperiment = async () => {
+  await loadingHandler.handleLoadingDuring(
+    experimentStore.closeExperiments([props.experiment?.id]).then(() => {
+      emits("updated");
+    })
+  );
 };
 
-const handleOpenExperiment = () => {
-  experimentStore.openExperiments([props.experiment?.id]).then(() => {
-    emits("updated");
-  });
+const handleOpenExperiment = async () => {
+  await loadingHandler.handleLoadingDuring(
+    experimentStore.openExperiments([props.experiment?.id]).then(() => {
+      emits("updated");
+    })
+  );
 };
 
 const onAddTag = async (newTag) => {
-  await experimentStore.handleAddTag(props.experiment.id, newTag).then(() => {
-    emits("updated");
-  });
+  await loadingHandler.handleLoadingDuring(
+    experimentStore.handleAddTag(props.experiment.id, newTag).then(() => {
+      emits("updated");
+    })
+  );
 };
 
 const onRemoveTag = async (tag) => {
-  await experimentStore.handleDeleteTag(props.experiment.id, tag).then(() => {
-    emits("updated");
-  });
+  await loadingHandler.handleLoadingDuring(
+    experimentStore.handleDeleteTag(props.experiment.id, tag).then(() => {
+      emits("updated");
+    })
+  );
 };
 
 const onAddProperty = async (newProperty) => {
-  await experimentStore
-    .handleAddProperty(props.experiment.id, newProperty)
-    .then(() => {
-      emits("updated");
-    });
+  await loadingHandler.handleLoadingDuring(
+    experimentStore
+      .handleAddProperty(props.experiment.id, newProperty)
+      .then(() => {
+        emits("updated");
+      })
+  );
 };
 
 const onRemoveProperty = async (property) => {
-  await experimentStore
-    .handleDeleteProperty(props.experiment.id, property)
-    .then(() => {
-      emits("updated");
-    });
+  await loadingHandler.handleLoadingDuring(
+    experimentStore
+      .handleDeleteProperty(props.experiment.id, property)
+      .then(() => {
+        emits("updated");
+      })
+  );
 };
 </script>

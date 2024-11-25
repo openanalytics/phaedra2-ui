@@ -225,6 +225,7 @@ import { useNotification } from "@/composable/notification";
 import WellImageViewer from "@/components/image/WellImageViewer.vue";
 import PlateDetails from "@/pages/plate/PlateDetails.vue";
 import OaSection from "@/components/widgets/OaSection";
+import { useLoadingHandler } from "../../composable/loadingHandler";
 
 const route = useRoute();
 const experimentStore = useExperimentStore();
@@ -242,9 +243,10 @@ const readOnly = ref(plateStore.isApproved || experimentStore.isClosed);
 const drcViewPane = ref();
 const chartViewerPane = ref();
 const imageViewPane = ref();
+const loadingHandler = useLoadingHandler();
 
 async function onDelete(promise, experimentId) {
-  await promise;
+  await loadingHandler.handleLoadingDuring(promise);
   await router.push({
     name: "experiment",
     params: { experimentId: experimentId },
@@ -253,7 +255,7 @@ async function onDelete(promise, experimentId) {
 
 const fetchPlate = async () => {
   const plateId = parseInt(route.params.plateId);
-  await plateStore.loadPlate(plateId);
+  await loadingHandler.handleLoadingDuring(plateStore.loadPlate(plateId));
 };
 fetchPlate();
 // onMounted(async () => {

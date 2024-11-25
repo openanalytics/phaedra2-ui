@@ -98,9 +98,13 @@ const selectTemplate = (event, row) => {
   router.push("/template/" + row.id);
 };
 
+const loadingHandler = useLoadingHandler();
 const fetchPlateTemplates = async () => {
-  const data = await templatesGraphQlAPI.templates();
-  templates.value = data.plateTemplates;
+  await loadingHandler.handleLoadingDuring(
+    templatesGraphQlAPI.templates().then((data) => {
+      templates.value = data.plateTemplates;
+    })
+  );
   // const {onResult, onError} = templatesGraphQlAPI.templates()
   // onResult(({data}) => templates.value = data.plateTemplates)
   //TODO: implement onError event handling

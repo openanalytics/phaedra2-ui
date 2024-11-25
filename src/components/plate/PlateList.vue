@@ -155,6 +155,7 @@ import FilterUtils from "@/lib/FilterUtils.js";
 import { useExportTableData } from "@/composable/exportTableData";
 import OaTable from "@/components/table/OaTable.vue";
 import { usePlateStore } from "../../stores/plate";
+import { useLoadingHandler } from "@/composable/loadingHandler";
 import NewPlateFromMeasurementDialog from "@/pages/experiment/NewPlateFromMeasurementDialog.vue";
 import NewPlateDialog from "@/pages/experiment/NewPlateDialog.vue";
 
@@ -275,6 +276,7 @@ const plateContextMenu = (event, row) => {
 };
 
 const gotoPlateView = (event, row) => {
+  console.log(row);
   selectedPlate.value = row;
   if (router.currentRoute.value.name != "workbench") {
     router.push({ name: "plate", params: { plateId: selectedPlate.value.id } });
@@ -352,13 +354,16 @@ function getUnique(value, index, array) {
   return array.indexOf(value) === index;
 }
 
+const loadingHandler = useLoadingHandler();
 const plateStore = usePlateStore();
-function deletePlates() {
-  plateStore
-    .deletePlates(selectedPlates.value.map((plate) => plate.id))
-    .then(() => {
-      emits("updated");
-    });
+async function deletePlates() {
+  await loadingHandler.handleLoadingDuring(
+    plateStore
+      .deletePlates(selectedPlates.value.map((plate) => plate.id))
+      .then(() => {
+        emits("updated");
+      })
+  );
   selectedPlates.value = [];
 }
 

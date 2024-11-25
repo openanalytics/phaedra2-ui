@@ -39,6 +39,7 @@ import resultDataGraphQlAPI from "@/api/graphql/resultdata";
 import measurementsGraphQlAPI from "@/api/graphql/measurements";
 import { usePlateStore } from "@/stores/plate";
 import { useUIStore } from "@/stores/ui";
+import { useLoadingHandler } from "../../composable/loadingHandler";
 
 const props = defineProps(["plate", "wells", "measurements", "protocols"]);
 const emits = defineEmits(["wellStatusChanged"]);
@@ -54,12 +55,19 @@ const handleFeatureOptionSelection = () => {
   wellData.value = [];
 };
 
+const loadingHandler = useLoadingHandler();
 const handleRawFeatureSelection = async (measurementColumn) => {
   if (measurementColumn) {
-    const data = await measurementsGraphQlAPI.measurementWellData(
-        measurementColumn.measurementId,
-        measurementColumn.column)
-    wellData.value = data?.wellData ? data.wellData : [];
+    await loadingHandler.handleLoadingDuring(
+      measurementsGraphQlAPI
+        .measurementWellData(
+          measurementColumn.measurementId,
+          measurementColumn.column
+        )
+        .then((data) => {
+          wellData.value = data?.wellData ? data.wellData : [];
+        })
+    );
     // const { onResult } = measurementsGraphQlAPI.measurementWellData(
     //   measurementColumn.measurementId,
     //   measurementColumn.column
@@ -74,12 +82,20 @@ const handleRawFeatureSelection = async (measurementColumn) => {
 
 const handleCalculatedFeatureSelection = async (calculatedFeature) => {
   if (calculatedFeature) {
-    const data = await resultDataGraphQlAPI.featureValuesByPlateIdAndFeatureIdAndProtocolId(
-        props.plate.id,
-        calculatedFeature.featureId,
-        calculatedFeature.protocolId
-    )
-    wellData.value = data?.featureValues ? data.featureValues.map((fv) => fv.value) : []
+    await loadingHandler.handleLoadingDuring(
+      resultDataGraphQlAPI
+        .featureValuesByPlateIdAndFeatureIdAndProtocolId(
+          props.plate.id,
+          calculatedFeature.featureId,
+          calculatedFeature.protocolId
+        )
+        .then((data) => {
+          wellData.value = data?.featureValues
+            ? data.featureValues.map((fv) => fv.value)
+            : [];
+        })
+    );
+
     // const { onResult } =
     //   await resultDataGraphQlAPI.featureValuesByPlateIdAndFeatureIdAndProtocolId(
     //     props.plate.id,

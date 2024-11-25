@@ -1,62 +1,92 @@
 <template>
-    <div style="width: 100%">
-        <div class="row q-pa-sm">
-            <FeatureSelector :protocols=protocols
-                             :measurements=measurements
-                             @featureOptionSelection="handleFeatureOptionSelection"
-                             @rawFeatureSelection="handleRawFeatureSelection"
-                             @calculatedFeatureSelection="handleCalculatedFeatureSelection"/>
-        </div>
-        <div class="row gridContainer">
-            <div v-for="(pd, index) in plateDataPerPlate" :key="index" class="q-pa-sm">
-                <MiniHeatmap :plate="pd.plate" :plateData="pd.resultData" />
-            </div>
-        </div>
+  <div style="width: 100%">
+    <div class="row q-pa-sm">
+      <FeatureSelector
+        :protocols="protocols"
+        :measurements="measurements"
+        @featureOptionSelection="handleFeatureOptionSelection"
+        @rawFeatureSelection="handleRawFeatureSelection"
+        @calculatedFeatureSelection="handleCalculatedFeatureSelection"
+      />
     </div>
+    <div class="row gridContainer">
+      <div
+        v-for="(pd, index) in plateDataPerPlate"
+        :key="index"
+        class="q-pa-sm"
+      >
+        <MiniHeatmap :plate="pd.plate" :plateData="pd.resultData" />
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
-import {ref} from 'vue'
-import MiniHeatmap from "@/components/widgets/MiniHeatmap.vue"
-import FeatureSelector from "@/components/widgets/FeatureSelector.vue"
+import { ref } from "vue";
+import MiniHeatmap from "@/components/widgets/MiniHeatmap.vue";
+import FeatureSelector from "@/components/widgets/FeatureSelector.vue";
 import resultDataGraphQlAPI from "@/api/graphql/resultdata";
 import measurementsGraphQlAPI from "@/api/graphql/measurements";
 import projectsGraphQlAPI from "@/api/graphql/projects";
+import { useLoadingHandler } from "../../composable/loadingHandler";
 
 const gridColumnStyle = "repeat(3, 1fr)";
 
-const props = defineProps(['plates', 'experiment']);
+const props = defineProps(["plates", "experiment"]);
 
-const protocols = ref([])
-const measurements = ref([])
+const protocols = ref([]);
+const measurements = ref([]);
+const loadingHandler = useLoadingHandler();
 
 const fetchMeasurementsByExperiment = async () => {
-  const data = await projectsGraphQlAPI.activeMeasurementsByExperimentId(props.experiment.id)
-  measurements.value = data.plateMeasurements.filter(m => m !== null)
+  await loadingHandler.handleLoadingDuring(
+    projectsGraphQlAPI
+      .activeMeasurementsByExperimentId(props.experiment.id)
+      .then((data) => {
+        measurements.value = data.plateMeasurements.filter((m) => m !== null);
+      })
+  );
   // const {onResult} = await projectsGraphQlAPI.activeMeasurementsByExperimentId(props.experiment.id)
   // onResult(({data}) => measurements.value = data.plateMeasurements.filter(m => m !== null))
-}
-fetchMeasurementsByExperiment()
+};
+fetchMeasurementsByExperiment();
 
 const fetchProtocolsByExperiment = async () => {
-  const data = await resultDataGraphQlAPI.protocolsByExperimentId(props.experiment.id)
-  protocols.value = data.protocols
+  await loadingHandler.handleLoadingDuring(
+    resultDataGraphQlAPI
+      .protocolsByExperimentId(props.experiment.id)
+      .then((data) => {
+        protocols.value = data.protocols;
+      })
+  );
   // const {onResult, onError} = await resultDataGraphQlAPI.protocolsByExperimentId(props.experiment.id)
   // onResult(({data}) => protocols.value = data.protocols)
-}
-fetchProtocolsByExperiment()
+};
+fetchProtocolsByExperiment();
 
-const plateDataPerPlate = ref(props.plates.map(p => ({"plate": p, "resultData": {}})))
+const plateDataPerPlate = ref(
+  props.plates.map((p) => ({ plate: p, resultData: {} }))
+);
 
 const handleFeatureOptionSelection = () => {
-  plateDataPerPlate.value = props.plates.map(p => ({"plate": p, "resultData": {}}))
-}
+  plateDataPerPlate.value = props.plates.map((p) => ({
+    plate: p,
+    resultData: {},
+  }));
+};
 
 const handleRawFeatureSelection = async (rawFeature) => {
   if (rawFeature) {
     for (let i = 0; i < plateDataPerPlate.value.length; i++) {
-      const data = await measurementsGraphQlAPI.measurementWellData(rawFeature.measurementId, rawFeature.column)
-      plateDataPerPlate.value[i].resultData = {values: data?.wellData ? data.wellData : []}
+      await loadingHandler.handleLoadingDuring(
+        measurementsGraphQlAPI
+          .measurementWellData(rawFeature.measurementId, rawFeature.column)
+          .then((data) => {
+            plateDataPerPlate.value[i].resultData = {
+              values: data?.wellData ? data.wellData : [],
+            };
+          })
+      );
       // TODO: Implement onError handler
       // const {onResult} = measurementsGraphQlAPI.measurementWellData(rawFeature.measurementId,
       //     rawFeature.column)
@@ -65,15 +95,28 @@ const handleRawFeatureSelection = async (rawFeature) => {
       // })
     }
   }
-}
+};
 
 const handleCalculatedFeatureSelection = async (calculatedFeature) => {
   if (calculatedFeature) {
     for (let i = 0; i < plateDataPerPlate.value.length; i++) {
-      const plateId = plateDataPerPlate.value[i].plate.id
+      const plateId = plateDataPerPlate.value[i].plate.id;
 
-      const data = await resultDataGraphQlAPI.featureValuesByPlateIdAndFeatureIdAndProtocolId(plateId, calculatedFeature.featureId, calculatedFeature.protocolId)
-      plateDataPerPlate.value[i].resultData = { values: data?.featureValues ? data.featureValues.map(fv => fv.value) : [] }
+      await loadingHandler.handleLoadingDuring(
+        resultDataGraphQlAPI
+          .featureValuesByPlateIdAndFeatureIdAndProtocolId(
+            plateId,
+            calculatedFeature.featureId,
+            calculatedFeature.protocolId
+          )
+          .then((data) => {
+            plateDataPerPlate.value[i].resultData = {
+              values: data?.featureValues
+                ? data.featureValues.map((fv) => fv.value)
+                : [],
+            };
+          })
+      );
       // TODO: Implement onError handler
       // const {onResult, onError} = await resultDataGraphQlAPI.featureValuesByPlateIdAndFeatureIdAndProtocolId(plateId, calculatedFeature.featureId, calculatedFeature.protocolId)
       // onResult(({data}) => {
@@ -81,7 +124,7 @@ const handleCalculatedFeatureSelection = async (calculatedFeature) => {
       // })
     }
   }
-}
+};
 </script>
 
 <style scoped>
