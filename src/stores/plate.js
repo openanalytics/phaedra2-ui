@@ -67,22 +67,22 @@ export const usePlateStore = defineStore("plate", () => {
     const data = await projectsGraphQlAPI.measurementsByPlateId(plateId);
     measurements.value = data.plateMeasurements;
     activeMeasurement.value = measurements.value.filter(
-        (m) => m.active === true
+      (m) => m.active === true
     )[0];
   }
 
   async function loadPlateCalculations(plateId) {
-    const data = await resultdataGraphQlAPI.resultSetsByPlateId(plateId)
+    const data = await resultdataGraphQlAPI.resultSetsByPlateId(plateId);
     resultSets.value = data.resultSets;
   }
 
   async function loadPlateProtocols(plateId) {
-    const data = await resultDataGraphQlAPI.protocolsByPlateId(plateId)
-    protocols.value = data.protocols
+    const data = await resultDataGraphQlAPI.protocolsByPlateId(plateId);
+    protocols.value = data.protocols;
   }
 
   async function loadPlateCurves(plateId) {
-    const data = await curvesGraphQlAPI.curvesByPlateId(plateId)
+    const data = await curvesGraphQlAPI.curvesByPlateId(plateId);
     const colorList = ColorUtils.getColorList(data.curves?.length);
     curves.value = data.curves?.map((curve, index) => {
       curve["color"] = colorList[index];
@@ -152,7 +152,7 @@ export const usePlateStore = defineStore("plate", () => {
   }
 
   watch(plate, async () => {
-    if (!isMetadataUpdate.value) {
+    if (!isMetadataUpdate.value && plate.value) {
       await experimentStore.loadExperiment(plate.value.experimentId);
       await loadPlateMeasurements(plate.value.id);
       await loadPlateCalculations(plate.value.id);

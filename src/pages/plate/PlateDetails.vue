@@ -32,10 +32,15 @@
                 </q-btn>
               </span>
               <span class="q-ml-sm">
-                <q-btn icon="delete" size="xs" color="negative" round dense
-                       @click="showDeleteDialog = true">
-                  <q-tooltip>Delete Experiment</q-tooltip>
-                </q-btn>
+                <q-btn
+                  round
+                  dense
+                  icon="delete"
+                  size="xs"
+                  color="negative"
+                  @click="showDeleteDialog = true"
+                  ><q-tooltip>Delete Plate</q-tooltip></q-btn
+                >
               </span>
             </span>
           </div>
@@ -119,7 +124,7 @@ import DimensionsChip from "@/components/plate/DimensionsChip.vue";
 import CalculatePlateDialog from "@/components/plate/CalculatePlateDialog.vue";
 
 const props = defineProps(["plate", "activeMeasurement"]);
-const emits = defineEmits(["updated"]);
+const emits = defineEmits(["updated", "deleted"]);
 
 const experimentStore = useExperimentStore();
 const plateStore = usePlateStore();
@@ -139,11 +144,9 @@ const onEdited = async (newVal) => {
 };
 
 const onDeleted = async () => {
-  await plateStore.deletePlate(props.plate?.id);
-  await router.push({
-    name: "experiment",
-    params: { id: experimentStore.experiment.id },
-  });
+  const experimentId = props.plate?.experimentId;
+  const promise = plateStore.deletePlate(props.plate?.id);
+  emits("deleted", promise, experimentId);
 };
 
 const onAddTag = async (newTag) => {
