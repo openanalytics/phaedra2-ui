@@ -153,6 +153,7 @@ const resetDates = () => {
   fromDate.value = date.subtractFromDate(now, { days: 7 });
   toDate.value = date.addToDate(now, { days: 1 });
   measurementStore.measurements = []
+  selectedMeasurements.value = []
 };
 </script>
 

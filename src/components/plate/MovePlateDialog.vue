@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="showDialog" persistent>
+  <q-dialog @hide="clearData" v-model="showDialog" persistent>
     <q-card style="min-width: 30vw">
       <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
         <q-avatar icon="drive_file_move" color="primary" text-color="white"/>
@@ -49,6 +49,10 @@ const showDialog = computed({
 
 const movePlates = () => {
   emits("movePlates", destinationExperiment.value)
+}
+
+const clearData = () => {
+  destinationExperiment.value = null
 }
 
 </script>

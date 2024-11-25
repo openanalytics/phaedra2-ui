@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="showDialog">
+  <q-dialog @hide="clearData" v-model="showDialog">
     <q-card style="min-width: 50vw">
 
       <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
@@ -98,6 +98,11 @@ const onlyUnique = (value, index, self) => {
 const preFilterMeasurements = (allMeasurements) => {
   if (!checkPlateDimensions()) return [];
   return allMeasurements.filter(row => row.rows === props.plates[0].rows && row.columns === props.plates[0].columns);
+}
+
+const clearData = () => {
+  filter.value = '';
+  selectedMeasurement.value = [];
 }
 
 </script>

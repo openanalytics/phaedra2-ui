@@ -59,7 +59,7 @@
     </q-table>
   </div>
 
-  <q-dialog v-model="showNewPropertyDialog">
+  <q-dialog @hide="clearData" v-model="showNewPropertyDialog">
     <q-card style="min-width: 30vw">
       <q-card-section
         class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary"
@@ -141,4 +141,8 @@ const doRemoveProperty = (property) => {
 };
 
 const pagination = ref({ rowsPerPage: 5 });
+
+const clearData = () => {
+  newProperty.value = { name: "", value: "" };
+}
 </script>
