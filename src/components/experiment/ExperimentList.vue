@@ -16,9 +16,14 @@
           color="primary"
           icon="add"
           @click="showNewExperimentDialog = true"
-          ><q-tooltip>Create New Experiment</q-tooltip></q-btn
-        >
-
+          :disable="!createExperimentCondition"
+          ><q-tooltip
+            >Create New Experiment
+            <span v-if="!createExperimentCondition"
+              >(You need to select at least 1 project)</span
+            ></q-tooltip
+          >
+        </q-btn>
         <q-btn round icon="download" size="sm" class="q-mx-sm">
           <q-tooltip>Download experiments list</q-tooltip>
           <q-menu anchor="bottom middle" self="top left">
@@ -289,6 +294,8 @@ const columns = computed(() => {
 const experiments = computed(() =>
   props.experiments ? props.experiments : []
 );
+
+const createExperimentCondition = computed(() => props.projects.length > 0);
 
 const projectsNames = computed(() =>
   experimentsToExport.value

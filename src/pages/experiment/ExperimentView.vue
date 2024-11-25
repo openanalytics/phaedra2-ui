@@ -50,8 +50,6 @@
               <PlateList
                 :experiments="[experimentStore.experiment]"
                 :plates="experimentStore.plates"
-                v-model:newPlateTab="showNewPlateDialog"
-                v-model:newPlateFromMeasurements="showNewPlateFromMeasDialog"
                 @selection="handlePlateSelection"
                 @updated="handleUpdatePlateList"
                 @open="handleOpen"
@@ -84,14 +82,6 @@
         />
       </pane>
     </splitpanes>
-
-    <div v-if="experimentStore.isOpen">
-      <new-plate-from-measurement-dialog
-        v-model:show="showNewPlateFromMeasDialog"
-      />
-
-      <new-plate-dialog v-model:show="showNewPlateDialog" />
-    </div>
   </q-page>
 </template>
 
@@ -102,13 +92,11 @@ import PlateList from "@/components/plate/PlateList";
 import PlateStatsList from "@/pages/experiment/PlateStatsList";
 import PlateGrid from "@/pages/experiment/PlateGrid";
 import OaSection from "@/components/widgets/OaSection";
-
 import ChartViewer from "@/components/chart/ChartViewer";
 import { useExperimentStore } from "@/stores/experiment";
 import { Pane, Splitpanes } from "splitpanes";
 import { useUIStore } from "@/stores/ui";
-import NewPlateFromMeasurementDialog from "@/pages/experiment/NewPlateFromMeasurementDialog.vue";
-import NewPlateDialog from "@/pages/experiment/NewPlateDialog.vue";
+
 import ExperimentDetails from "../../components/experiment/ExperimentDetails.vue";
 import { useLoadingHandler } from "@/composable/loadingHandler";
 
@@ -126,20 +114,6 @@ const fetchExperiment = async () => {
   await experimentStore.loadExperiment(experimentId);
 }
 fetchExperiment()
-
-const showNewPlateDialog = ref(false);
-const showNewPlateFromMeasDialog = ref(false);
-const newPlate = ref({
-  barcode: null,
-  description: null,
-  rows: null,
-  columns: null,
-  sequence: null,
-  linkStatus: "NOT_LINKED",
-  calculationStatus: "CALCULATION_NEEDED",
-  validationStatus: "VALIDATION_NOT_SET",
-  approvalStatus: "APPROVAL_NOT_SET",
-});
 
 const handlePlateSelection = async (plates) => {
   uiStore.selectedPlate = plates[0] ?? null;

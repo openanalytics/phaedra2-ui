@@ -9,6 +9,17 @@
       </q-card-section>
 
       <q-card-section>
+        <q-select
+          class="q-pa-xs"
+          v-model="newPlateMeasurementExperiment"
+          :options="experiments"
+          label="experiment"
+          option-value="id"
+          option-label="name"
+          dense
+        />
+      </q-card-section>
+      <q-card-section>
         <div>
           <span>Select measurement(s): </span>
         </div>
@@ -57,8 +68,9 @@ import { useExperimentStore } from "@/stores/experiment";
 
 const props = defineProps({
   show: Boolean,
+  experiments: [Object],
 });
-const emits = defineEmits(["update:show"]);
+const emits = defineEmits(["update:show", "updated"]);
 const showDialog = computed({
   get: () => props.show,
   set: (v) => emits("update:show", v),
@@ -68,6 +80,8 @@ const measurementStore = useMeasurementStore();
 onMounted(() => {
   refreshList();
 });
+
+const newPlateMeasurementExperiment = ref(props.experiments[0]);
 
 const now = new Date();
 const fromDate = ref(date.subtractFromDate(now, { days: 7 }));
@@ -137,13 +151,13 @@ const createPlates = async () => {
     calculationStatus: "CALCULATION_NEEDED",
     validationStatus: "VALIDATION_NOT_SET",
     approvalStatus: "APPROVAL_NOT_SET",
-    experimentId: experimentStore.experiment.id,
+    experimentId: newPlateMeasurementExperiment.value.id,
     measurementId: m.id,
   }));
   await loadingHandler.handleLoadingDuring(
-    experimentStore.addPlates(newPlates)
+    experimentStore.addPlates(newPlateMeasurementExperiment.value.id, newPlates)
   );
-  await experimentStore.reloadExperiment()
+  emits("updated");
 };
 </script>
 

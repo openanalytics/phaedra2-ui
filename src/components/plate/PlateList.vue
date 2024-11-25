@@ -8,12 +8,19 @@
     selection="multiple"
     v-model:selected="selectedPlates"
   >
-    <template
-      v-slot:top-right
-      v-if="experiments.length > 0 && experiments[0].status === 'OPEN'"
-    >
-      <q-btn size="sm" icon="add" round color="primary"
-        ><q-tooltip>Create New Plate</q-tooltip>
+    <template v-slot:top-right>
+      <q-btn
+        size="sm"
+        icon="add"
+        round
+        color="primary"
+        :disable="!createPlateCondition"
+        ><q-tooltip
+          >Create New Plate
+          <span v-if="!createPlateCondition"
+            >(You need to select at least 1 'OPEN' experiment)</span
+          ></q-tooltip
+        >
         <q-menu>
           <q-list size="sm" dense>
             <q-item
@@ -121,6 +128,20 @@
     @open="open"
     touch-position
   />
+
+  <div v-if="createPlateCondition">
+    <new-plate-from-measurement-dialog
+      v-model:show="showNewPlateFromMeasDialog"
+      :experiments="experiments"
+      @updated="emits('updated')"
+    />
+
+    <new-plate-dialog
+      v-model:show="showNewPlateDialog"
+      :experiments="experiments"
+      @updated="emits('updated')"
+    />
+  </div>
 </template>
 
 <script setup>
@@ -134,6 +155,8 @@ import FilterUtils from "@/lib/FilterUtils.js";
 import { useExportTableData } from "@/composable/exportTableData";
 import OaTable from "@/components/table/OaTable.vue";
 import { usePlateStore } from "../../stores/plate";
+import NewPlateFromMeasurementDialog from "@/pages/experiment/NewPlateFromMeasurementDialog.vue";
+import NewPlateDialog from "@/pages/experiment/NewPlateDialog.vue";
 
 const props = defineProps([
   "plates",
@@ -151,6 +174,15 @@ const emits = defineEmits([
 ]);
 
 const router = useRouter();
+
+const showNewPlateDialog = ref(false);
+const showNewPlateFromMeasDialog = ref(false);
+
+const createPlateCondition = computed(
+  () =>
+    props.experiments.length > 0 &&
+    props.experiments.find((exp) => exp.status === "OPEN")
+);
 
 const baseColumns = ref([
   { name: "id", align: "left", label: "ID", field: "id", sortable: true },
@@ -250,11 +282,11 @@ const gotoPlateView = (event, row) => {
 };
 
 const openNewPlateDialog = () => {
-  emits("update:newPlateTab", true);
+  showNewPlateDialog.value = true;
 };
 
 const openNewPlateFromMeasurementsDialog = () => {
-  emits("update:newPlateFromMeasurements", true);
+  showNewPlateFromMeasDialog.value = true;
 };
 
 const loading = ref();

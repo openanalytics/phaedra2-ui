@@ -92,10 +92,6 @@
     :objectClass="'experiment'"
     @onDeleted="onDeleteExperiment"
   />
-  <new-plate-dialog v-model:show="showNewPlateDialog" />
-  <new-plate-from-measurement-dialog
-    v-model:show="showNewPlateFromMeasDialog"
-  />
 </template>
 
 <script setup>
@@ -111,15 +107,11 @@ import EditResourceDialog from "@/components/widgets/EditResourceDialog";
 
 import { useExperimentStore } from "@/stores/experiment";
 import { useProjectStore } from "@/stores/project";
-import { useUIStore } from "@/stores/ui";
-import NewPlateDialog from "@/pages/experiment/NewPlateDialog.vue";
-import NewPlateFromMeasurementDialog from "@/pages/experiment/NewPlateFromMeasurementDialog.vue";
 import TagListEditable from "../tag/TagListEditable.vue";
 
 const props = defineProps(["experiment"]);
 const emits = defineEmits(["updated"]);
 
-const uiStore = useUIStore();
 const projectStore = useProjectStore();
 const experimentStore = useExperimentStore();
 const route = useRoute();
@@ -137,19 +129,6 @@ watchEffect(() => {
   }
 });
 
-const showNewPlateDialog = ref(false);
-const showNewPlateFromMeasDialog = ref(false);
-const newPlate = ref({
-  barcode: null,
-  description: null,
-  rows: null,
-  columns: null,
-  sequence: null,
-  linkStatus: "NOT_LINKED",
-  calculationStatus: "CALCULATION_NEEDED",
-  validationStatus: "VALIDATION_NOT_SET",
-  approvalStatus: "APPROVAL_NOT_SET",
-});
 const showEditDialog = ref(false);
 const errorMessage = "No experiment selected";
 
@@ -157,15 +136,6 @@ const onEdited = async (newVal) => {
   await experimentStore.editExperiment(props.experiment.id, newVal).then(() => {
     emits("updated");
   });
-};
-
-const createNewPlate = () => {
-  newPlate.value.sequence = "1";
-  newPlate.value.experimentId = experimentId;
-  experimentStore.addPlate(props.experiment.id, newPlate.value).then(() => {
-    emits("updated");
-  });
-  newPlateTab.value = false;
 };
 
 const showDeleteDialog = ref(false);
