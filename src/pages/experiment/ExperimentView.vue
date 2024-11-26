@@ -125,7 +125,7 @@ fetchExperiment();
 const handlePlateSelection = async (plates) => {
   uiStore.selectedPlate = plates[0] ?? null;
   uiStore.selectedPlates = plates;
-  if (uiStore.selectedPlate) uiStore.loadSelectedPlate(plates[0].id);
+  if (uiStore.selectedPlate) await uiStore.loadSelectedPlate(plates[0].id);
 };
 
 const handleOpen = async (id) => {

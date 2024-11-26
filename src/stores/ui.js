@@ -71,8 +71,10 @@ export const useUIStore = defineStore("ui", {
       this.selectedPlate = data.plate;
       this.selectedPlate["wells"] = data.wells;
 
-      await this.loadPlateCalculations(plateId);
-      await this.loadPlateProtocols(plateId);
+      if (this.selectedPlate !== null) {
+        await this.loadPlateMeasurements(plateId);
+        await this.loadPlateCurves(plateId);
+      }
     },
     async loadPlateMeasurements(plateId) {
       const data = await projectsGraphQlAPI.measurementsByPlateId(plateId);
