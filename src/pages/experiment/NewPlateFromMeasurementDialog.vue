@@ -5,7 +5,7 @@
         class="text-h6 items-center full-width q-pa-sm bg-primary text-secondary"
       >
         <q-icon name="add" class="q-pr-sm" />
-        New Plate from Measurement
+        New Plate(s) from Measurement
       </q-card-section>
 
       <q-card-section>
@@ -82,8 +82,8 @@ onMounted(() => {
 });
 
 onUpdated(() => {
-  measurementStore.measurements = []
-})
+  measurementStore.measurements = [];
+});
 const newPlateMeasurementExperiment = ref(props.experiments[0]);
 
 const now = new Date();
@@ -166,8 +166,8 @@ const createPlates = async () => {
 const resetDates = () => {
   fromDate.value = date.subtractFromDate(now, { days: 7 });
   toDate.value = date.addToDate(now, { days: 1 });
-  measurementStore.measurements = []
-  selectedMeasurements.value = []
+  measurementStore.measurements = [];
+  selectedMeasurements.value = [];
 };
 </script>
 
