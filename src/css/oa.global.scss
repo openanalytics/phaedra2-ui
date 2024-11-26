@@ -8,6 +8,7 @@
 
 .oa-root-div {
   background-color: $secondary;
+  min-height: calc(100vh - 50px) !important;
 }
 
 .oa-section {
