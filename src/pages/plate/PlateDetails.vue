@@ -44,8 +44,14 @@
                   round
                   dense
                   @click="showCalculateDialog = true"
+                  :disable="disableRecalculateButton"
                 >
-                  <q-tooltip>Recalculate</q-tooltip>
+                  <q-tooltip
+                    >Recalculate
+                    <span v-if="disableRecalculateButton"
+                      >({{ disabledRecalculateButtonMessage }})</span
+                    ></q-tooltip
+                  >
                 </q-btn>
               </span>
               <span class="q-ml-sm">
@@ -151,7 +157,7 @@
 
 <script setup>
 import { usePlateStore } from "@/stores/plate";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import UserChip from "@/components/widgets/UserChip";
 import EditableField from "@/components/widgets/EditableField";
 import DateChip from "@/components/widgets/DateChip.vue";
@@ -177,6 +183,12 @@ const readOnly = ref(
   props.plate?.approvalStatus === "APPROVED" || experimentStore.isClosed
 );
 const showEditDialog = ref(false);
+
+const disableRecalculateButton = computed(
+  () => props.plate.linkStatus !== "LINKED"
+);
+const disabledRecalculateButtonMessage =
+  "to enable set plate layout and link active measurements ";
 
 const loadingHandler = useLoadingHandler();
 const onEdited = async (newVal) => {
