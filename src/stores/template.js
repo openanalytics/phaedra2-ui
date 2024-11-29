@@ -31,10 +31,6 @@ export const useTemplateStore = defineStore("template", {
             this.template.name = newTemplateName
             await this.saveTemplate()
         },
-        async deleteTemplate() {
-            await templateAPI.deletePlateTemplate(this.template?.id)
-            this.reset()
-        },
         async editTemplateDescription(newDescription) {
             this.template.description = newDescription
             await this.saveTemplate()
@@ -58,6 +54,10 @@ export const useTemplateStore = defineStore("template", {
         },
         async handleDeleteProperty(property) {
             await deleteProperty(this.template.id,'PLATE_TEMPLATE', property, this.reloadTemplate)
+        },
+        async deleteTemplate() {
+            await templateAPI.deletePlateTemplate(this.template?.id)
+            this.reset()
         },
         reset() {
             this.template = {}

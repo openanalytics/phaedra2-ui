@@ -153,7 +153,6 @@ export const usePlateStore = defineStore("plate", () => {
 
   watch(plate, async () => {
     if (!isMetadataUpdate.value && plate.value) {
-      await experimentStore.loadExperiment(plate.value.experimentId);
       await loadPlateMeasurements(plate.value.id);
       await loadPlateCalculations(plate.value.id);
       await loadPlateProtocols(plate.value.id);

@@ -119,17 +119,19 @@ const initSelectedFeature = () => {
 watch(selectedFeatureOption, () => initSelectedFeature());
 
 const handleRawFeatureSelection = (feature) => {
-  if (
-    selectedRawFeature.value === null ||
-    selectedRawFeature.value.measurementId !== feature.measurementId
-  )
-    selectedRawFeature.value = feature;
-  emits("rawFeatureSelection", selectedRawFeature.value);
+  if (feature) {
+    if (selectedRawFeature.value === null ||
+        selectedRawFeature.value.measurementId !== feature.measurementId)
+      selectedRawFeature.value = feature;
+    emits("rawFeatureSelection", selectedRawFeature.value);
+  }
 };
 
 const handleCalculatedFeatureSelection = (feature) => {
-  if (selectedCalcFeature.value === null) selectedCalcFeature.value = feature;
-  emits("calculatedFeatureSelection", selectedCalcFeature.value);
+  if (feature) {
+    if (selectedCalcFeature.value === null) selectedCalcFeature.value = feature;
+    emits("calculatedFeatureSelection", selectedCalcFeature.value);
+  }
 };
 
 const filterRawOptions = (filter, update) => {

@@ -1,32 +1,10 @@
 <template>
-  <q-table
-    :rows="plateStatRows"
+<!--  <q-table-->
+  <oa-table
     :columns="columns"
-    row-key="id"
-    :pagination="{ rowsPerPage: 10, sortBy: 'barcode' }"
-    :filter="filter"
-    :filter-method="filterMethod"
-    :loading="loading"
-    separator="cell"
-    dense
-    flat
-    square
-    bordered
+    :rows="plateStatRows"
   >
-    <template v-slot:top-right>
-      <q-input
-        outlined
-        dense
-        debounce="300"
-        v-model="filter"
-        placeholder="Search"
-      >
-        <template v-slot:append>
-          <q-icon name="search" />
-        </template>
-      </q-input>
-    </template>
-    <template v-slot:header="props">
+    <template v-slot:header="props" v-if="features.length > 0">
       <q-tr :props="props">
         <q-th style="text-align: left" class="text-grey">Barcode</q-th>
         <q-th
@@ -51,17 +29,17 @@
         </q-th>
       </q-tr>
     </template>
-    <template v-slot:body-cell-barcode="props">
-      <q-td :props="props">
-        <router-link :to="'/plate/' + props.row.id" class="nav-link">
-          <div class="row items-center cursor-pointer">
-            <q-icon name="view_module" class="icon q-pr-sm" />
-            {{ props.row.barcode }}
-          </div>
-        </router-link>
-      </q-td>
-    </template>
-    <template v-slot:body-cell="props">
+<!--    <template v-slot:body-cell-barcode="props">-->
+<!--      <q-td :props="props">-->
+<!--        <router-link :to="'/plate/' + props.row.id" class="nav-link">-->
+<!--          <div class="row items-center cursor-pointer">-->
+<!--            <q-icon name="view_module" class="icon q-pr-sm" />-->
+<!--            {{ props.row.barcode }}-->
+<!--          </div>-->
+<!--        </router-link>-->
+<!--      </q-td>-->
+<!--    </template>-->
+    <template v-slot:body-cell="props" v-if="features.length > 0">
       <q-td :props="props">
         <div v-if="props.col.name.endsWith('-zprime')">
           <q-linear-progress
@@ -88,12 +66,8 @@
         </div>
       </q-td>
     </template>
-    <template v-slot:no-data>
-      <div class="full-width row text-info">
-        <span>No plates to show.</span>
-      </div>
-    </template>
-  </q-table>
+
+  </oa-table>
 </template>
 
 <style scoped>
@@ -112,6 +86,7 @@ import { computed, ref, watch } from "vue";
 import FilterUtils from "@/lib/FilterUtils";
 import resultDataGraphQlAPI from "@/api/graphql/resultdata";
 import { useLoadingHandler } from "../../composable/loadingHandler";
+import OaTable from "@/components/table/OaTable.vue";
 
 const statsToShow = ["zprime", "cv", "stdev", "min", "mean", "median", "max"];
 
@@ -124,14 +99,14 @@ const filterMethod = FilterUtils.defaultFilterMethod();
 const columns = ref([
   {
     name: "barcode",
-    align: "center",
+    align: "left",
     label: "Barcode",
     field: "barcode",
     sortable: true,
   },
 ]);
 
-const plates = computed(() => props.plates || []);
+const plates = ref(props.plates);
 const plateStatRows = ref([]);
 
 // Phase 1: fetch protocol and feature info
@@ -141,13 +116,10 @@ const features = ref([]);
 const loadingHandler = useLoadingHandler();
 
 const fetchProtocols = async () => {
-  await loadingHandler.handleLoadingDuring(
-    resultDataGraphQlAPI
-      .protocolsByExperimentId(props.experiment.id)
-      .then((data) => {
-        protocols.value = data.protocols;
-      })
-  );
+  // await loadingHandler.handleLoadingDuring(
+  const data = await resultDataGraphQlAPI.protocolsByExperimentId(props.experiment.id);
+  protocols.value = data.protocols;
+
   features.value = protocols.value.flatMap((protocol) => protocol.features);
   features.value.forEach((feature) => {
     for (let i in statsToShow) {
@@ -163,98 +135,38 @@ const fetchProtocols = async () => {
     }
   });
   await fetchResultSets();
-  // const {onResult, onError} = await resultDataGraphQlAPI.protocolsByExperimentId(props.experiment.id)
-  // onResult(({data}) => {
-  //   protocols.value = data.protocols
-  //   features.value = protocols.value.flatMap(protocol => protocol.features)
-  //   features.value.forEach(feature => {
-  //     for (let i in statsToShow) {
-  //       const stat = statsToShow[i]
-  //       columns.value.push({ name: `stat-${feature.id}-${stat}`, type: 'stat', label: stat, align: 'left', field: `stat-${feature.id}-${stat}`, sortable: true });
-  //     }
-  //   })
-  //   fetchResultSets()
-  // })
 };
 
 // Phase 2: fetch plate stats
 const fetchResultSets = async () => {
   const plateIds = plates.value.map((plate) => plate.id);
 
-  await loadingHandler.handleLoadingDuring(
-    resultDataGraphQlAPI
-      .latestResultSetsByPlateIds(plateIds)
-      .then((data) => async () => {
-        for (let i in data.resultSets) {
-          const plateStatRow = {
-            id: data.resultSets[i].plateId,
-            barcode: plates.value.find(
-              (plate) => plate.id === data.resultSets[i].plateId
-            ).barcode,
-          };
-
-          const rsFStats = await resultDataGraphQlAPI.resultSetFeatureStats(
-            data.resultSets[i].id
-          );
-          features.value.forEach((feature) => {
-            statsToShow.forEach((stat) => {
-              const rsStat = rsFStats.rsFeatureStats.find(
-                (rss) =>
-                  rss.statisticName === stat && rss.featureId === feature.id
-              );
-              if (rsStat) {
-                plateStatRow[
-                  `stat-${rsStat.featureId}-${rsStat.statisticName}`
+  const data = await resultDataGraphQlAPI.latestResultSetsByPlateIds(plateIds);
+  for (let i in plates.value) {
+    const plate = plates.value[i]
+    const plateResultSet = data.resultSets.find((rs) => rs.plateId === plate.id)
+    if (plateResultSet) {
+      const plateStatRow = {
+        id: plate.id,
+        barcode: plate.barcode
+      };
+      const rsFStats = await resultDataGraphQlAPI.resultSetFeatureStats(plateResultSet.id);
+      features.value.forEach((feature) => {
+        statsToShow.forEach((stat) => {
+          const rsStat = rsFStats.rsFeatureStats.find((rss) => rss.statisticName === stat
+              && rss.featureId === feature.id);
+          if (rsStat) {
+            plateStatRow[
+                `stat-${rsStat.featureId}-${rsStat.statisticName}`
                 ] = Math.round(rsStat.value * 100) / 100;
-              } else {
-                plateStatRow[`stat-${feature.id}-${stat}`] = NaN;
-              }
-            });
-          });
-          plateStatRows.value.push(plateStatRow);
-        }
-      })
-  );
-  // const {onResult, onError} = await resultDataGraphQlAPI.latestResultSetsByPlateIds(plateIds)
-  // onResult(async ({data}) => {
-  //   for (let i in data.resultSets) {
-  //     const plateStatRow = {
-  //       'id': data.resultSets[i].plateId,
-  //       'barcode': plates.value.find(plate => plate.id === data.resultSets[i].plateId).barcode
-  //     }
-  //
-  //     const rsFStats = await resultDataGraphQlAPI.resultSetFeatureStats(data.resultSets[i].id)
-  //     features.value.forEach(feature => {
-  //       statsToShow.forEach(stat => {
-  //         const rsStat = rsFStats.rsFeatureStats.find(
-  //             rss => rss.statisticName === stat && rss.featureId === feature.id)
-  //         if (rsStat) {
-  //           plateStatRow[`stat-${rsStat.featureId}-${rsStat.statisticName}`] = Math.round(
-  //               rsStat.value * 100) / 100
-  //         } else {
-  //           plateStatRow[`stat-${feature.id}-${stat}`] = NaN
-  //         }
-  //       })
-  //     })
-  //     plateStatRows.value.push(plateStatRow)
-  //
-  //     // TODO: implement onError
-  //     // const {onResult, onError} = await resultDataGraphQlAPI.resultSetFeatureStats(data.resultSets[i].id)
-  //     // onResult(({data}) => {
-  //     //   features.value.forEach(feature => {
-  //     //     statsToShow.forEach(stat => {
-  //     //       const rsStat = data.rsFeatureStats.find(rss => rss.statisticName === stat && rss.featureId === feature.id)
-  //     //       if (rsStat)
-  //     //       plateStatRow[`stat-${rsStat.featureId}-${rsStat.statisticName}`] = Math.round(rsStat.value * 100) / 100
-  //     //       else
-  //     //       plateStatRow[`stat-${feature.id}-${stat}`] = NaN
-  //     //     })
-  //     //   })
-  //     //
-  //     //   plateStatRows.value.push(plateStatRow)
-  //     // })
-  //   }
-  // })
+          } else {
+            plateStatRow[`stat-${feature.id}-${stat}`] = NaN;
+          }
+        });
+      });
+      plateStatRows.value.push(plateStatRow);
+    }
+  }
 };
-await fetchProtocols();
+loadingHandler.handleLoadingDuring(fetchProtocols());
 </script>

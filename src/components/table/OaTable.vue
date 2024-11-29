@@ -71,6 +71,11 @@
     <template v-for="(_, name) in $slots" v-slot:[name]="data">
       <slot :name="name" v-bind="data" />
     </template>
+    <template v-slot:no-data>
+      <div class="full-width row text-info">
+        <span>No data to show.</span>
+      </div>
+    </template>
   </q-table>
 </template>
 

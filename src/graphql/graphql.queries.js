@@ -436,7 +436,7 @@ export const projectsQueries = {
         }
     `,
   activeMeasurementsByExperimentId: `
-        query getActiveMeasurementsByExperimentId {
+        query getActiveMeasurementsByExperimentId($experimentId: ID) {
             plateMeasurements:getActiveMeasurementsByExperimentId(experimentId: $experimentId) {
                 plateId
                 measurementId

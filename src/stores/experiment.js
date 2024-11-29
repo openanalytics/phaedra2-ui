@@ -132,7 +132,7 @@ export const useExperimentStore = defineStore("experiment", () => {
 
   async function movePlates(plates, experimentId) {
     await plateAPI.movePlates(plates, experimentId);
-    await reloadExperiment(e);
+    await reloadExperiment(experimentId);
   }
 
   async function linkMeasurement(plates, measurementId) {
