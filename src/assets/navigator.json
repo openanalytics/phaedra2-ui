@@ -1,12 +1,5 @@
 [
   {
-    "label": "Dashboard",
-    "header": "link",
-    "route": "dashboard",
-    "icon": "home",
-    "role": "user"
-  },
-  {
     "label": "Workbench",
     "header": "link",
     "route": "workbench",
@@ -125,6 +118,24 @@
         "label": "Pipeline Executions",
         "icon": "play_circle_outline",
         "route": "browsePipelineExecutions"
+      }
+    ]
+  },
+  {
+    "label": "Query Tool",
+    "header": "category",
+    "icon": "search",
+    "role": "user",
+    "children": [
+      {
+        "label": "Create Query...",
+        "icon": "add",
+        "route": ""
+      },
+      {
+        "label": "Queries",
+        "icon": "list",
+        "route": ""
       }
     ]
   },

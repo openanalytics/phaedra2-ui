@@ -3,7 +3,7 @@
     class="oa-breadcrumb"
     v-if="experimentStore.experiment && experimentStore.experiment.project"
   >
-    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard' }" />
+    <q-breadcrumbs-el icon="home" :to="{ name: 'workbench' }" />
     <q-breadcrumbs-el :label="'Projects'" icon="list" :to="'/projects'" />
     <q-breadcrumbs-el
       :label="experimentStore.experiment.project.name"
@@ -43,7 +43,7 @@
           dense
           no-caps
           align="left"
-          class="oa-section-title"
+          class="oa-section"
         >
           <q-tab name="overview" icon="table_rows" label="Overview" />
           <q-tab name="statistics" icon="functions" label="Statistics" />

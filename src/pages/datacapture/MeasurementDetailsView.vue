@@ -1,6 +1,6 @@
 <template>
   <q-breadcrumbs class="oa-breadcrumb" v-if="measurementStore.measurement">
-    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard' }" />
+    <q-breadcrumbs-el icon="home" :to="{ name: 'workbench' }" />
     <q-breadcrumbs-el
       :label="'Measurements'"
       icon="list"

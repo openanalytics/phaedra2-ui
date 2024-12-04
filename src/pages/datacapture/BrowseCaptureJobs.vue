@@ -1,6 +1,6 @@
 <template>
   <q-breadcrumbs class="oa-breadcrumb">
-    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard' }" />
+    <q-breadcrumbs-el icon="home" :to="{ name: 'workbench' }" />
     <q-breadcrumbs-el label="Data Capture Jobs" icon="cloud_upload" />
   </q-breadcrumbs>
 
@@ -375,7 +375,7 @@ const submitJobAction = async () => {
   }
 
 
-  
+
   captureJobs.forEach(job => {
     store.dispatch('datacapture/submitJob', job);
   })

@@ -53,9 +53,7 @@ export const usePlateStore = defineStore("plate", () => {
   }
 
   async function reloadPlate(id) {
-    if (id) {
-      await loadPlate(id);
-    }
+    id  ? await loadPlate(id) : await loadPlate(this.plate.id);
   }
 
   async function reloadPlateWells() {

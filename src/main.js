@@ -119,7 +119,7 @@ import { prepareWorkbench } from "@/composable/router/prepareViews";
 const routes = createRouter({
   history: createWebHistory(publicPath),
   routes: [
-    { name: "dashboard", path: "/", component: Dashboard },
+    { name: "dashboard", path: "/", redirect: "/workbench" },
     {
       name: "workbench",
       path: "/workbench",

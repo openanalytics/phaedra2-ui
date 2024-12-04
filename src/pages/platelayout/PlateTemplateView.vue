@@ -1,6 +1,6 @@
 <template>
   <q-breadcrumbs class="oa-breadcrumb" v-if="templateStore.template">
-    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard' }" />
+    <q-breadcrumbs-el icon="home" :to="{ name: 'workbench' }" />
     <q-breadcrumbs-el :label="'Templates'" icon="list" :to="'/templates'" />
     <q-breadcrumbs-el
       :label="templateStore.template.name"
@@ -48,8 +48,9 @@
             </q-field>
             <q-field label="Tags" stack-label borderless dense>
               <template v-slot:control>
-                <TagList
+                <TagListEditable
                   :tags="templateStore.template.tags"
+                  :read-only="false"
                   @addTag="onAddTag"
                   @removeTag="onRemoveTag"
                 />
@@ -120,7 +121,7 @@
         dense
         no-caps
         align="left"
-        class="oa-section-title"
+        class="oa-section"
         v-model="activeTab"
       >
         <q-tab name="overview" icon="view_module" label="Overview" />

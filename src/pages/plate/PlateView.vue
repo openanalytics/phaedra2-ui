@@ -7,7 +7,7 @@
       plateStore.plate.project
     "
   >
-    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard' }" />
+    <q-breadcrumbs-el icon="home" :to="{ name: 'workbench' }" />
     <q-breadcrumbs-el label="Projects" icon="list" :to="'/projects'" />
     <q-breadcrumbs-el
       :label="plateStore.plate.project.name"
@@ -22,23 +22,9 @@
     <q-breadcrumbs-el :label="plateStore.plate.barcode" icon="view_module" />
   </q-breadcrumbs>
 
-  <q-page
-    class="oa-root-div"
-    :style-fn="pageStyleFnForBreadcrumbs"
-    v-if="plateStore.plate"
-  >
-    <oa-section
-      v-if="!plateStore.plate"
-      title="Loading plate..."
-      icon="view_module"
-    />
-    <plate-details
-      v-else
-      :plate="plateStore.plate"
-      :activeMeasurement="plateStore.activeMeasurement"
-      @updated="plateStore.reloadPlate(plateStore.plate.id)"
-      @deleted="onDelete"
-    />
+  <q-page class="oa-root-div" v-if="plateStore.plate">
+    <plate-details :plate="plateStore.plate" :activeMeasurement="plateStore.activeMeasurement"
+                   @updated="plateStore.reloadPlate" @deleted="onDelete"/>
 
     <splitpanes class="default-theme" :horizontal="horizontal">
       <pane
@@ -51,44 +37,38 @@
           dense
           no-caps
           align="left"
-          class="oa-section-title"
           v-model="activeTab"
+          class="oa-section"
         >
           <q-tab
             name="layout"
             icon="view_module"
             label="Layout"
-            class="oa-section-title"
           />
           <q-tab
             name="heatmap"
             icon="view_module"
             label="Heatmap"
-            class="oa-section-title"
           />
           <q-tab
             name="wells"
             icon="table_rows"
             label="Well List"
-            class="oa-section-title"
           />
           <q-tab
             name="measurements"
             icon="text_snippet"
             label="Measurements"
-            class="oa-section-title"
           />
           <q-tab
             name="results"
             icon="functions"
             label="Calculations"
-            class="oa-section-title"
           />
           <q-tab
             name="curves"
             icon="show_chart"
             label="Dose-Response Curves"
-            class="oa-section-title"
           />
         </q-tabs>
         <div class="row oa-section-body">
@@ -224,7 +204,6 @@ import { useUIStore } from "@/stores/ui";
 import { useNotification } from "@/composable/notification";
 import WellImageViewer from "@/components/image/WellImageViewer.vue";
 import PlateDetails from "@/pages/plate/PlateDetails.vue";
-import OaSection from "@/components/widgets/OaSection";
 import { useLoadingHandler } from "../../composable/loadingHandler";
 
 const route = useRoute();

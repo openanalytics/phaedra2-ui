@@ -8,7 +8,7 @@
       wellStore.well.project
     "
   >
-    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard' }" />
+    <q-breadcrumbs-el icon="home" :to="{ name: 'workbench' }" />
     <q-breadcrumbs-el label="Projects" icon="list" :to="'/projects'" />
     <q-breadcrumbs-el
       :label="wellStore.well.project.name"

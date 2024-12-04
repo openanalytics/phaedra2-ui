@@ -1,6 +1,6 @@
 <template>
   <q-breadcrumbs class="oa-breadcrumb" v-if="pipelineStore.pipeline">
-    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard' }" />
+    <q-breadcrumbs-el icon="home" :to="{ name: 'workbench' }" />
     <q-breadcrumbs-el label="Pipelines" icon="list" :to="'/pipelines'" />
     <q-breadcrumbs-el :label="pipelineStore.pipeline.name" icon="route" />
   </q-breadcrumbs>
