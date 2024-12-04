@@ -17,20 +17,14 @@
     </template>
     <template v-slot:body-cell-details="props">
       <q-td :props="props">
-        <q-btn
-          label="Details"
-          icon-right="chevron_right"
-          size="sm"
-          @click="doShowDetails(props.row)"
-        />
+        <q-btn label="Details" icon-right="chevron_right" size="sm"
+               @click="doShowDetails(props.row)"/>
       </q-td>
     </template>
   </oa-table>
 
   <q-dialog v-model="showResultSetDetails">
-    <ResultSetDetailsPanel
-      :resultSet="resultSetDetails"
-    ></ResultSetDetailsPanel>
+    <ResultSetDetailsPanel :resultSet="resultSetDetails"/>
   </q-dialog>
 </template>
 
