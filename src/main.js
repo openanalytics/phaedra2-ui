@@ -115,6 +115,8 @@ import PipelineAdmin from "@/pages/pipeline/PipelineAdmin.vue";
 import WellView from "@/pages/well/WellView.vue";
 import Workbench from "@/pages/workbench/Workbench.vue";
 import { prepareWorkbench } from "@/composable/router/prepareViews";
+import BrowseQueries from "@/pages/query/BrowseQueries.vue";
+import CreateQuery from "@/pages/query/CreateQuery.vue";
 
 const routes = createRouter({
   history: createWebHistory(publicPath),
@@ -247,6 +249,8 @@ const routes = createRouter({
       path: "/pipeline-execution/:id",
       component: PipelineExecutionDetails,
     },
+    { name: "browseQueries", path: "/queries", component: BrowseQueries },
+    { name: "newQuery", path: "/queries/new", component: CreateQuery },
     {
       name: "pipelineAdmin",
       path: "/pipeline-admin",

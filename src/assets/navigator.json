@@ -130,12 +130,12 @@
       {
         "label": "Create Query...",
         "icon": "add",
-        "route": ""
+        "route": "newQuery"
       },
       {
         "label": "Queries",
         "icon": "list",
-        "route": ""
+        "route": "browseQueries"
       }
     ]
   },
