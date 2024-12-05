@@ -45,7 +45,7 @@
 
 <script setup>
 import { ref } from "vue";
-import OaSectionHeader from "../../components/widgets/OaSectionHeader";
+import OaSectionHeader from "../../../components/widgets/OaSectionHeader.vue";
 import { useProtocolStore } from "@/stores/protocol";
 import { useRouter } from "vue-router";
 

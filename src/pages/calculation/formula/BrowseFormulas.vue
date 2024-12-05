@@ -7,21 +7,12 @@
   <q-page class="oa-root-div">
     <div class="q-pa-sm">
       <oa-section title="Calculation Formulas" icon="functions">
-        <oa-table
-          :rows="formulas"
-          :columns="columns"
-          @row-dblclick="selectFormula"
-        >
+        <oa-table :rows="formulas" :columns="columns" @row-dblclick="selectFormula">
           <template v-slot:top-right>
             <div class="row action-button on-left">
-              <q-btn
-                round
-                size="sm"
-                color="primary"
-                icon="add"
-                @click="createNewFormula"
-                ><q-tooltip>New Formula./..</q-tooltip></q-btn
-              >
+              <q-btn round size="sm" color="primary" icon="add" @click="createNewFormula">
+                <q-tooltip>New Formula./..</q-tooltip>
+              </q-btn>
             </div>
           </template>
           <template v-slot:body-cell-name="props">
@@ -34,13 +25,7 @@
           <template v-slot:body-cell-menu="props">
             <q-td :props="props">
               <div class="row items-center cursor-pointer">
-                <q-btn
-                  flat
-                  round
-                  icon="more_horiz"
-                  size="sm"
-                  style="border-radius: 50%"
-                >
+                <q-btn flat round icon="more_horiz" size="sm" style="border-radius: 50%">
                   <q-menu fit>
                     <q-list dense style="min-width: 100px">
                       <q-item clickable :to="'/calc/formula/' + props.row.id">
@@ -94,48 +79,14 @@ const formulas = computed(() =>
 const columns = [
   { name: "id", align: "left", label: "ID", field: "id", sortable: true },
   { name: "name", align: "left", label: "Name", field: "name", sortable: true },
+  { name: "description", align: "left", label: "Description", field: "description", sortable: true },
+  { name: "versionNumber", align: "left", label: "Version", field: "versionNumber", sortable: true },
+  { name: "createdBy", align: "left", label: "Created By", field: "createdBy", sortable: true },
+  { name: "scope", align: "left", label: "Scope", field: "scope", sortable: true },
+  { name: "language", align: "left", label: "Language", field: "language", sortable: true },
   {
-    name: "description",
-    align: "left",
-    label: "Description",
-    field: "description",
-    sortable: true,
-  },
-  {
-    name: "versionNumber",
-    align: "left",
-    label: "Version",
-    field: "versionNumber",
-    sortable: true,
-  },
-  {
-    name: "createdBy",
-    align: "left",
-    label: "Created By",
-    field: "createdBy",
-    sortable: true,
-  },
-  {
-    name: "scope",
-    align: "left",
-    label: "Scope",
-    field: "scope",
-    sortable: true,
-  },
-  {
-    name: "language",
-    align: "left",
-    label: "Language",
-    field: "language",
-    sortable: true,
-  },
-  {
-    name: "formula",
-    align: "left",
-    label: "Formula",
-    field: "formula",
-    sortable: true,
-    format: (val) => (val ? FormatUtils.formatTextMaxLength(val, 50) : ""),
+    name: "formula", align: "left", label: "Formula", field: "formula", sortable: true,
+    format: (val) => (val ? FormatUtils.formatTextMaxLength(val, 50) : "")
   },
   { name: "menu", align: "left", field: "menu", sortable: false },
 ];

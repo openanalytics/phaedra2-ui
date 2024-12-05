@@ -1,10 +1,10 @@
 <template>
     <q-breadcrumbs class="oa-breadcrumb">
-        <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
+        <q-breadcrumbs-el icon="home" :to="{ name: 'workbench'}"/>
         <q-breadcrumbs-el label="Capture Configurations" icon="settings" to="/datacapture/configs" />
         <q-breadcrumbs-el :label="config.name" icon="settings"/>
     </q-breadcrumbs>
-    
+
     <q-page class="oa-root-div">
         <div class="q-pa-sm">
             <oa-section :title="config.name" icon="settings" :collapsible="true">
@@ -68,7 +68,7 @@
             </oa-section>
         </div>
     </q-page>
-    
+
     <delete-dialog v-model:id="config.id" v-model:name="config.name" v-model:show="showDeleteDialog" objectClass="config" @onDeleted="confirmDelete" />
 </template>
 
@@ -103,7 +103,7 @@
     if (!isNewConfig) {
         store.dispatch('datacapture/loadCaptureConfigById', configId).then(getWorkingCopy);
     }
-    
+
     const editMode = ref(isNewConfig);
     const exitEditMode = async (saveChanges) => {
         editMode.value = false;

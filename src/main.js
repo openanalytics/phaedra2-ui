@@ -72,10 +72,10 @@ import BrowseProjects from "@/pages/project/BrowseProjects.vue";
 import ProjectView from "@/pages/project/ProjectView.vue";
 import NewProjectView from "@/pages/project/NewProjectView.vue";
 
-import BrowseProtocols from "@/pages/protocol/BrowseProtocols.vue";
-import ProtocolView from "@/pages/protocol/ProtocolView.vue";
-import NewProtocolView from "@/pages/protocol/NewProtocolView.vue";
-import ImportProtocolView from "@/pages/protocol/ImportProtocolView.vue";
+import BrowseProtocols from "@/pages/calculation/protocol/BrowseProtocols.vue";
+import ProtocolView from "@/pages/calculation/protocol/ProtocolView.vue";
+import NewProtocolView from "@/pages/calculation/protocol/NewProtocolView.vue";
+import ImportProtocolView from "@/pages/calculation/protocol/ImportProtocolView.vue";
 
 import BrowseFormulas from "@/pages/calculation/formula/BrowseFormulas.vue";
 import FormulaView from "@/pages/calculation/formula/FormulaView.vue";

@@ -1,10 +1,10 @@
 <template>
     <q-breadcrumbs class="oa-breadcrumb">
-        <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
+        <q-breadcrumbs-el icon="home" :to="{ name: 'workbench'}"/>
         <q-breadcrumbs-el label="Capture Scripts" icon="data_object" to="/datacapture/scripts" />
         <q-breadcrumbs-el :label="script.name" icon="data_object"/>
     </q-breadcrumbs>
-    
+
     <q-page class="oa-root-div">
         <div class="q-pa-sm">
             <oa-section :title="script.name" icon="data_object" :collapsible="true">
@@ -68,7 +68,7 @@
             </oa-section>
         </div>
     </q-page>
-    
+
     <delete-dialog v-model:id="script.id" v-model:name="script.name" v-model:show="showDeleteDialog" objectClass="script" @onDeleted="confirmDelete" />
 </template>
 
@@ -103,7 +103,7 @@
     if (!isNewScript) {
         store.dispatch('datacapture/loadCaptureScriptById', scriptId).then(getWorkingCopy);
     }
-    
+
     const editMode = ref(isNewScript);
     const exitEditMode = async (saveChanges) => {
         editMode.value = false;

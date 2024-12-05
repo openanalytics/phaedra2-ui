@@ -51,11 +51,6 @@ export const useProtocolStore = defineStore("protocol",  {
         async loadAllProtocols() {
             const data = await protocolGraphQLAPI.protocols()
             this.protocols = data.protocols
-            // const {onResult, onError} = protocolGraphQLAPI.protocols()
-            // onResult(({data}) => {
-            //     this.protocols = data.protocols
-            // })
-            //TODO: implement onError event!
         },
         addFeature(feature) {
             if (this.protocol.features) {

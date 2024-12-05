@@ -5,38 +5,18 @@
   </q-breadcrumbs>
 
   <q-page class="oa-root-div q-pa-sm">
-    <oa-section
-      title="Data Capture Jobs"
-      icon="cloud_upload"
-      :collapsible="true"
-    >
-      <oa-table
-        :rows="jobs"
-        :columns="columns"
-        :pagination="{
-          rowsPerPage: 20,
-          sortBy: 'createDate',
-          descending: true,
-        }"
+    <oa-section title="Data Capture Jobs" icon="cloud_upload" :collapsible="true">
+      <oa-table :rows="jobs" :columns="columns"
+                :pagination="{ rowsPerPage: 20, sortBy: 'createDate', descending: true }"
       >
         <template v-slot:top-left>
           <div class="justify-end">
-            <q-btn
-              round
-              icon="refresh"
-              size="sm"
-              @click="refreshList"
-              class="on-left"
-              ><q-tooltip>Refresh</q-tooltip></q-btn
-            >
-            <q-btn
-              color="primary"
-              round
-              icon="add"
-              size="sm"
-              @click="showSubmitJobDialog = true"
-              ><q-tooltip>Submit New Job...</q-tooltip></q-btn
-            >
+            <q-btn round icon="refresh" size="sm" @click="refreshList" class="on-left">
+              <q-tooltip>Refresh</q-tooltip>
+            </q-btn>
+            <q-btn color="primary" round icon="add" size="sm" @click="showSubmitJobDialog = true">
+              <q-tooltip>Submit New Job...</q-tooltip>
+            </q-btn>
           </div>
         </template>
         <template v-slot:top-right>
@@ -58,23 +38,12 @@
         </template>
         <template v-slot:body-cell-actions="props">
           <q-td :props="props">
-            <q-btn
-              v-if="canCancelJob(props.row)"
-              label="Cancel"
-              icon-right="cancel"
-              size="sm"
-              @click="cancelJob(props.row.id)"
-            />
-            <q-btn
-              v-if="canResubmitJob(props.row)"
-              label="Re-submit"
-              icon-right="restart_alt"
-              size="sm"
-              @click="
-                jobToResubmit = props.row;
-                showResubmitConfirmation = true;
-              "
-            />
+            <q-btn v-if="canCancelJob(props.row)"
+                   label="Cancel" icon-right="cancel" size="sm"
+                   @click="cancelJob(props.row.id)"/>
+            <q-btn v-if="canResubmitJob(props.row)"
+                   label="Re-submit" icon-right="restart_alt" size="sm"
+                   @click=" jobToResubmit = props.row; showResubmitConfirmation = true;"/>
           </q-td>
         </template>
         <template v-slot:no-data>
@@ -102,45 +71,23 @@
                 <q-card-section class="q-pa-sm">
                   <div class="text-h6">Source</div>
                   <div class="row">
-                    <q-radio
-                      v-model="sourceType"
-                      val="folder"
-                      label="Folder"
-                      dense
-                      size="sm"
-                      class="col-2"
-                    />
+                    <q-radio v-model="sourceType" val="folder" label="Folder"
+                             dense size="sm" class="col-2"/>
 
-                    <q-file
-                      :display-value="selectedSource.folderName"
-                      @update:model-value="handleFolderSelection"
-                      :disable="sourceType != 'folder'"
-                      multiple
-                      dense
-                      stack-label
-                      webkitdirectory
-                      class="col-10"
-                    >
+                    <q-file :display-value="selectedSource.folderName"
+                            @update:model-value="handleFolderSelection"
+                            :disable="sourceType != 'folder'"
+                            multiple dense stack-label webkitdirectory class="col-10">
                       <template v-slot:append>
                         <q-icon name="folder" />
                       </template>
                     </q-file>
 
-                    <q-radio
-                      v-model="sourceType"
-                      val="url"
-                      label="URL"
-                      dense
-                      size="sm"
-                      class="col-2"
-                    />
+                    <q-radio v-model="sourceType" val="url" label="URL"
+                             dense size="sm" class="col-2"/>
 
-                    <q-input
-                      v-model="selectedSource.url"
-                      :disable="sourceType != 'url'"
-                      dense
-                      class="col-10"
-                    />
+                    <q-input v-model="selectedSource.url" :disable="sourceType != 'url'"
+                             dense class="col-10" />
                   </div>
                 </q-card-section>
               </q-card>

@@ -1,6 +1,6 @@
 <template>
     <q-breadcrumbs class="oa-breadcrumb" v-if="formula">
-        <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
+        <q-breadcrumbs-el icon="home" :to="{ name: 'workbench'}"/>
         <q-breadcrumbs-el :label="'Formulas'" icon="list" :to="'/calc/formulas'"/>
         <q-breadcrumbs-el :label="formula.name" icon="functions"/>
     </q-breadcrumbs>
