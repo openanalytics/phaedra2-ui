@@ -6,153 +6,35 @@
   </q-breadcrumbs>
 
   <q-page class="oa-root-div">
-    <div class="q-pa-sm" v-if="!templateStore.template">
+    <div class="q-pa-sm">
       <oa-section title="New Template" icon="add">
-        <div class="row q-pa-md">
-          <div class="col-10">
-            <q-input v-model="newPlateTemplate.name" label="Name: " dense />
-            <q-input
-              v-model="newPlateTemplate.description"
-              label="Description: "
-              dense
-            />
-            <q-input v-model="newPlateTemplate.rows" label="Rows: " dense />
-            <q-input
-              v-model="newPlateTemplate.columns"
-              label="Columns: "
-              dense
-            />
-          </div>
-          <div class="col-2">
-            <div class="row justify-end">
-              <q-btn
-                size="sm"
-                label="Import ..."
-                class="oa-action-button"
-                @click="importFromFile = true"
-              />
+        <div class="q-pa-sm">
+          <q-form class="full-width" @submit="onSubmit" @reset="onReset">
+            <div>
+              <q-input v-model="newPlateTemplate.name" label="Name" lazy-rules
+                       :rules="[(val) => (val && val.length > 0) || 'Template name is required']"
+                       dense />
+              <q-input v-model="newPlateTemplate.description" label="Description" dense/>
+              <q-input v-model="newPlateTemplate.rows" label="Rows" lazy-rules
+                       :rules="[(val) => (val && val.length > 0) || 'Rows must be > 0']"
+                       dense />
+              <q-input v-model="newPlateTemplate.columns" label="Columns" lazy-rules
+                       :rules="[(val) => (val && val.length > 0) || 'Columns must be > 0']"
+                       dense />
             </div>
             <div class="row justify-end">
-              <q-btn
-                size="sm"
-                label="Save"
-                class="oa-action-button"
-                @click="onSubmit"
-              />
+                <q-btn label="Import..." color="primary" @click="importFromFile = true" class="q-mr-sm"/>
+                <q-btn label="Create" type="submit" color="primary" class="q-mr-sm"/>
+                <router-link :to="{ name: 'browseTemplates' }" class="nav-link">
+                  <q-btn label="Cancel" type="reset" color="primary" flat/>
+                </router-link>
             </div>
-            <div class="row justify-end">
-              <router-link :to="{ name: 'browseTemplates' }" class="nav-link">
-                <q-btn size="sm" label="Cancel" class="oa-action-button" />
-              </router-link>
-            </div>
-          </div>
+          </q-form>
         </div>
       </oa-section>
     </div>
 
-    <div class="q-pa-sm" v-if="templateStore.template">
-      <oa-section
-        :title="templateStore.template.name"
-        icon="border_outer"
-        :collapsible="true"
-      >
-        <div class="row q-pa-md">
-          <div class="col-3">
-            <q-field label="Dimensions" stack-label borderless dense>
-              <template v-slot:control>
-                {{ templateStore.template.rows }} x
-                {{ templateStore.template.columns }} ({{
-                  templateStore.template.rows * templateStore.template.columns
-                }}
-                wells)
-              </template>
-            </q-field>
-            <q-field label="Description" stack-label borderless dense>
-              <template v-slot:control>
-                <EditableField
-                  :object="templateStore.template"
-                  fieldName="description"
-                  @valueChanged="onDescriptionChanged"
-                />
-              </template>
-            </q-field>
-          </div>
 
-          <div class="col-3" />
-          <div class="col-4" />
-
-          <div class="col-2">
-            <div class="row justify-end action-button">
-              <q-btn
-                size="sm"
-                icon="save"
-                class="oa-action-button"
-                label="Save"
-                @click="savePlateTemplate"
-              />
-            </div>
-            <div class="row justify-end action-button">
-              <q-btn
-                size="sm"
-                icon="edit"
-                class="oa-action-button"
-                label="Rename"
-                @click="showRenameDialog = true"
-              />
-            </div>
-          </div>
-        </div>
-      </oa-section>
-    </div>
-
-    <div class="q-pa-sm" v-if="templateStore.template">
-      <q-tabs
-        inline-label
-        dense
-        no-caps
-        align="left"
-        class="oa-section-title"
-        v-model="activeTab"
-      >
-        <q-tab name="overview" icon="view_module" label="Overview" />
-        <q-tab name="well-type" icon="text_snippet" label="Well Type" />
-        <q-tab name="substance" icon="view_module" label="Substance" />
-        <q-tab name="concentration" icon="view_module" label="Concentration" />
-      </q-tabs>
-
-      <div class="oa-section-body">
-        <q-tab-panels v-model="activeTab" animated style="width: 100%">
-          <q-tab-panel name="overview" icon="view_module" label="Overview">
-            <PlateTemplateLayout
-              :plate="templateStore.template"
-              :tab="activeTab"
-            />
-          </q-tab-panel>
-          <q-tab-panel name="well-type" icon="view_module" label="Well Type">
-            <PlateTemplateLayout
-              :plate="templateStore.template"
-              :tab="activeTab"
-            />
-          </q-tab-panel>
-          <q-tab-panel name="substance" icon="view_module" label="Substance">
-            <PlateTemplateLayout
-              :plate="templateStore.template"
-              :tab="activeTab"
-            />
-          </q-tab-panel>
-          <q-tab-panel
-            name="concentration"
-            icon="view_module"
-            label="Concentration"
-          >
-            <PlateTemplateLayout
-              :plate="templateStore.template"
-              :tab="activeTab"
-            />
-          </q-tab-panel>
-        </q-tab-panels>
-      </div>
-    </div>
   </q-page>
 
   <q-dialog v-model="importFromFile" persistent>
@@ -176,15 +58,7 @@
       </div>
     </div>
   </q-dialog>
-  <rename-dialog
-    v-model:show="showRenameDialog"
-    objectClass="plate_template"
-    fieldName="name"
-    :object="templateStore.template"
-    @valueChanged="onNameChanged"
-  />
 </template>
-
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
@@ -201,8 +75,6 @@ const router = useRouter();
 const templateStore = useTemplateStore();
 templateStore.$reset();
 
-const activeTab = ref("overview");
-
 const props = defineProps({
   plateTemplate: Object,
 });
@@ -218,15 +90,15 @@ const newPlateTemplate = ref({
 const importFromFile = ref(false);
 const importFile = ref(null);
 
-const loadingHandler = useLoadingHandler();
-
-const onSubmit = async () => {
-  await loadingHandler.handleLoadingDuring(
-    templateAPI.createPlateTemplate(newPlateTemplate.value).then((data) => {
-      router.push("/template/" + data.id);
-    })
-  );
+const createPlateTemplate = async () => {
+  const data = await templateAPI.createPlateTemplate(newPlateTemplate.value);
+  await router.push("/template/" + data.id);
 };
+
+const loadingHandler = useLoadingHandler();
+const onSubmit = async () => {
+  await loadingHandler.handleLoadingDuring(createPlateTemplate());
+}
 
 const onReset = () => {
   importFile.value = null;
@@ -250,26 +122,5 @@ const onImportFile = async () => {
     templateStore.template = newPlateTemplate.value;
   };
   reader.readAsText(importFile.value);
-};
-
-const savePlateTemplate = async () => {
-  await loadingHandler.handleLoadingDuring(
-    templateAPI.createPlateTemplate(templateStore.template).then((data) => {
-      router.push("/template/" + data.id);
-    })
-  );
-};
-
-const showRenameDialog = ref(false);
-const onNameChanged = async (newTemplateName) => {
-  await loadingHandler.handleLoadingDuring(
-    templateStore.renameTemplate(newTemplateName)
-  );
-};
-
-const onDescriptionChanged = async (newDescription) => {
-  await loadingHandler.handleLoadingDuring(
-    templateStore.editTemplateDescription(newDescription)
-  );
 };
 </script>

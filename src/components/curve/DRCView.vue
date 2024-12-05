@@ -50,7 +50,6 @@
         @wellSelection="updateSelectedWells"
       />
       <WellActionMenu
-        touch-position
         context-menu
         @acceptWells="handleAcceptWells"
         @rejectWells="handleRejectWells"

@@ -102,7 +102,6 @@
     </template>
   </oa-table>
   <ExperimentMenu
-    touch-position
     @onDeleteExperiment="deleteExperiments"
     @open="open"
     @updated="updated"

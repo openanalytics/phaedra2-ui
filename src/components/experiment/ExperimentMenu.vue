@@ -1,5 +1,5 @@
 <template>
-  <q-menu context-menu v-if="experiments.length > 0">
+  <q-menu context-menu v-if="experiments.length > 0" touch-position>
     <q-list dense>
       <div v-if="isOpen">
         <menu-item

@@ -1,5 +1,5 @@
 <template>
-  <q-menu v-if="well && well != undefined">
+  <q-menu v-if="well && well != undefined" touch-position>
     <q-list dense>
       <menu-item
         icon="info"

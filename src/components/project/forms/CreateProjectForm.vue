@@ -1,6 +1,6 @@
 <template>
   <q-form class="full-width" @submit="onSubmit" @reset="onReset">
-    <div>
+    <div class="q-pt-md">
       <q-input
         label="Name"
         v-model="newProject.name"
@@ -10,11 +10,7 @@
         ]"
         dense
       />
-    </div>
-    <div>
       <q-input label="Description" v-model="newProject.description" dense />
-    </div>
-    <div class="q-pt-md">
       <q-select
         label="Admin Team"
         v-model="newProject.adminTeam"
@@ -27,10 +23,10 @@
       />
     </div>
     <div class="row justify-end q-pt-md">
+      <q-btn label="Create" type="submit" color="primary" class="q-ml-sm" />
       <router-link :to="{ name: 'browseProjects' }" class="nav-link">
         <q-btn label="Cancel" type="reset" color="primary" flat />
       </router-link>
-      <q-btn label="Create" type="submit" color="primary" class="q-ml-sm" />
     </div>
   </q-form>
 </template>

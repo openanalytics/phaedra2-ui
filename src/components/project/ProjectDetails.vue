@@ -1,75 +1,65 @@
 <template>
-  <q-card v-if="project && project.name" flat bordered
-          class="row justify-between" style="width: 100%">
-    <q-card-section horizontal class="col-7">
-      <q-card-section class="q-pt-xs justify-between" style="width: 100%">
-        <div class="row align-center text-h5 q-mt-sm q-mb-xs">
-          <div>
-            <span>{{ project.name }}</span>
-            <span class="q-mx-sm" style="font-size: 0.7em">
-              ({{ project.id }})
-              <q-tooltip>ID</q-tooltip>
-            </span>
-          </div>
-          <span>
-            <q-btn icon="edit" size="xs" color="positive"
-                   @click="showEditDialog = true" round dense>
-              <q-tooltip>Edit Project</q-tooltip>
-            </q-btn>
-          </span>
-          <span class="q-ml-sm">
-            <q-btn icon="delete" size="xs" color="negative"
-                   @click="showDeleteDialog = true" round dense>
-              <q-tooltip>Delete Project</q-tooltip>
-            </q-btn>
-          </span>
+  <phaedra-details-section v-if="project && project.name">
+    <template v-slot:title>
+      <span>{{ project.name }}</span>
+      <span class="q-mx-sm" style="font-size: 0.7em">
+        ({{ project.id }})
+        <q-tooltip>ID</q-tooltip>
+      </span>
+    </template>
+    <template v-slot:actions>
+      <span>
+        <q-btn icon="edit" size="xs" color="positive"
+               @click="showEditDialog = true" round dense>
+          <q-tooltip>Edit Project</q-tooltip>
+        </q-btn>
+      </span>
+      <span class="q-ml-sm">
+        <q-btn icon="delete" size="xs" color="negative"
+               @click="showDeleteDialog = true" round dense>
+          <q-tooltip>Delete Project</q-tooltip>
+        </q-btn>
+      </span>
+    </template>
+    <template v-slot:readonly>
+      <div class="col">
+        <div>
+          <UserChip :id="project.createdBy"
+                    onHoverMessage="Created By" label="Created By"/>
         </div>
-
-        <div class="row text-caption q-mt-sm">
-          <div class="col">
-            <div>
-              <UserChip :id="project.createdBy"
-                        onHoverMessage="Created By" label="Created By"/>
-            </div>
-            <div>
-              <UserChip :id="project.updatedBy"
-                        onHoverMessage="Updated By" label="Updated By"/>
-            </div>
-          </div>
-          <div class="col">
-            <div>
-              <DateChip :dateTime="project.createdOn"
-                        onHoverMessage="Created On" label="Created On"/>
-            </div>
-            <div>
-              <DateChip :dateTime="project.updatedOn"
-                        onHoverMessage="Updated On" label="Updated On"/>
-            </div>
-          </div>
+        <div>
+          <UserChip :id="project.updatedBy"
+                    onHoverMessage="Updated By" label="Updated By"/>
         </div>
-
-        <div class="text-caption text-grey q-mt-sm">
-          <EditableField readOnly :object="project" fieldName="description" />
-          <TagListEditable :tags="project.tags" @addTag="onAddTag" @removeTag="onRemoveTag" />
-          <AccessControlListEditable :projectAccess="project.access"
-                                     @addAccess="onAddAccess" @removeAccess="onRemoveAccess"/>
+      </div>
+      <div class="col">
+        <div>
+          <DateChip :dateTime="project.createdOn"
+                    onHoverMessage="Created On" label="Created On"/>
         </div>
-      </q-card-section>
-    </q-card-section>
-
-    <q-card-section class="col-grow row justify-center">
-      <PropertyTable
-        :properties="project.properties"
-        @addProperty="onAddProperty"
-        @removeProperty="onRemoveProperty"
-      />
-    </q-card-section>
-  </q-card>
+        <div>
+          <DateChip :dateTime="project.updatedOn"
+                    onHoverMessage="Updated On" label="Updated On"/>
+        </div>
+      </div>
+    </template>
+    <template v-slot:editable>
+      <EditableField readOnly :object="project" fieldName="description" />
+      <TagListEditable :tags="project.tags" @addTag="onAddTag" @removeTag="onRemoveTag" />
+      <AccessControlListEditable :projectAccess="project.access"
+                                 @addAccess="onAddAccess" @removeAccess="onRemoveAccess"/>
+    </template>
+    <template v-slot:properties>
+      <PropertyTable :properties="project.properties"
+                     @addProperty="onAddProperty"
+                     @removeProperty="onRemoveProperty"/>
+    </template>
+  </phaedra-details-section>
 
   <div v-else class="absolute-center">
-    <q-badge color="negative" class="q-pa-md text-weight-bold">{{
-      errorMessage
-    }}</q-badge>
+    <q-badge color="negative" class="q-pa-md text-weight-bold">
+      {{ errorMessage }}
+    </q-badge>
   </div>
 
   <EditResourceDialog
@@ -106,6 +96,7 @@ import DateChip from "@/components/widgets/DateChip.vue";
 import TagListEditable from "@/components/tag/TagListEditable.vue";
 import AccessControlListEditable from "@/components//widgets/AccessControlListEditable.vue";
 import { useLoadingHandler } from "@/composable/loadingHandler";
+import PhaedraDetailsSection from "@/components/widgets/PhaedraDetailsSection.vue";
 
 const props = defineProps({
   project: Object,
