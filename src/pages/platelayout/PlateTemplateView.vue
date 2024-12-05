@@ -64,6 +64,7 @@ import { useRoute } from "vue-router";
 
 import { useLoadingHandler } from "../../composable/loadingHandler";
 import PlateTemplateDetails from "@/pages/platelayout/PlateTemplateDetails.vue";
+import PlateTemplateLayout from "@/pages/platelayout/PlateTemplateLayout.vue";
 
 const route = useRoute();
 const templateStore = useTemplateStore();
