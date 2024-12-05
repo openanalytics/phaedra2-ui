@@ -16,7 +16,7 @@ import {onMounted, ref} from "vue";
 import {useProtocolStore} from "@/stores/protocol";
 import {useFormulasStore} from "@/stores/formulas";
 import {useFeatureStore} from "@/stores/feature";
-import ViewProtocol from "@/components/protocol/ViewProtocol.vue";
+import ViewProtocol from "@/components/protocol/ProtocolDetails.vue";
 
 const route = useRoute();
 const protocolStore = useProtocolStore();

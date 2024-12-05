@@ -3,7 +3,7 @@
     <q-card-section horizontal class="col-7">
       <q-card-section class="q-pt-xs justify-between" style="width: 100%">
         <div class="row align-center text-h5 q-mt-sm q-mb-xs">
-          <div>
+          <div class="row">
             <slot name="title"></slot>
           </div>
           <div>

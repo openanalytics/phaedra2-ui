@@ -1,5 +1,5 @@
 <template>
-    <q-breadcrumbs class="oa-breadcrumb" v-if="newProtocol" @click="resetStores">
+    <q-breadcrumbs class="oa-breadcrumb" v-if="newProtocol" @click="onReset">
         <q-breadcrumbs-el icon="home" :to="{ name: 'workbench'}"/>
         <q-breadcrumbs-el label="Protocols" icon="list" :to="'/protocols'"/>
         <q-breadcrumbs-el label="New Protocol" icon="ballot"/>
@@ -8,27 +8,23 @@
     <q-page class="oa-root-div">
         <div class="q-pa-sm">
             <oa-section title="New Protocol" icon="ballot">
-                <div class="row q-pa-md">
+                <div class="q-pa-sm">
+                  <q-form class="full-width" @submit="onSubmit" @reset="onReset">
                     <div class="col-10">
-                        <q-input v-model="newProtocol.name" label="Name:" dense/>
-                        <q-input v-model="newProtocol.description" label="Description:" dense/>
-                        <q-input v-model="newProtocol.versionNumber" label="Version:" mask="#.#.#" hint="Mask: #.#.#, Example: 1.0.0" dense/>
+                      <q-input v-model="newProtocol.name" label="Name:" dense/>
+                      <q-input v-model="newProtocol.description" label="Description:" dense/>
+                      <q-input v-model="newProtocol.versionNumber" label="Version:" mask="#.#.#" hint="Mask: #.#.#, Example: 1.0.0" dense/>
                     </div>
-                    <div class="col-2">
-                        <div class="row justify-end">
-                            <router-link :to="{ name: 'importProtocol' }" class="nav-link">
-                                <q-btn size="sm" label="Import ..." class="oa-action-button" />
-                            </router-link>
-                        </div>
-                        <div class="row justify-end">
-                            <q-btn size="sm" label="Save" @click="saveProtocol()" class="oa-action-button"/>
-                        </div>
-                        <div class="row justify-end">
-                            <router-link :to="{ name: 'browseProtocols' }" class="nav-link">
-                                <q-btn size="sm" label="Cancel" class="oa-action-button"/>
-                            </router-link>
-                        </div>
+                    <div class="row justify-end">
+                      <router-link :to="{ name: 'importProtocol' }" class="nav-link">
+                        <q-btn label="Import ..." color="primary" class="q-mr-sm" />
+                      </router-link>
+                      <q-btn label="Create" type="submit" color="primary" class="q-mr-sm" />
+                      <router-link :to="{ name: 'browseProtocols' }" class="nav-link">
+                        <q-btn label="Cancel" type="reset" color="primary" flat />
+                      </router-link>
                     </div>
+                  </q-form>
                 </div>
             </oa-section>
         </div>
@@ -56,7 +52,7 @@ const props = defineProps(['protocol'])
 const newProtocol = ref({})
 
 onMounted(() => {
-  resetStores()
+  onReset()
   newProtocol.value = {
     name: null,
     description: null,
@@ -72,7 +68,7 @@ onMounted(() => {
 
 const wellTypeOptions = ['LC', 'HC', 'NC', 'PC'];
 
-const saveProtocol = () => {
+const onSubmit = () => {
     newProtocol.value.createdOn = new Date();
     protocolStore.createProtocol(newProtocol.value).then(protocol => {
       router.push({path: '/protocol/' + protocol?.id})
@@ -83,7 +79,7 @@ const addNewFeature = (newFeature) => {
     newProtocol.value.features.push(newFeature)
 }
 
-const resetStores = () => {
+const onReset = () => {
     protocolStore.reset()
     featureStore.reset()
 }

@@ -18,10 +18,6 @@ export const useProtocolStore = defineStore("protocol",  {
         async loadProtocol(protocolId) {
             const data = await protocolGraphQLAPI.protocolById(protocolId)
             this.protocol = data.protocol
-            // const {onResult, onError} = protocolGraphQLAPI.protocolById(protocolId)
-            // onResult(({data}) => {
-            //     this.protocol = data.protocol
-            // })
         },
         async reloadProtocol() {
             await this.loadProtocol(this.protocol.id)
@@ -81,7 +77,7 @@ export const useProtocolStore = defineStore("protocol",  {
             return this.protocol.features ? this.protocol.features.filter((f) => { return f.deleted !== true }) : []
         },
         async addTag(newTag) {
-            await metadataAPI.addTag({'objectId': this.protocol.id, 'objectClass': 'PROTOCOL', 'tag': newTag })
+            await metadataAPI.addTag([{'objectId': this.protocol.id, 'objectClass': 'PROTOCOL', 'tag': newTag }])
             await this.reloadProtocol()
         },
         async deleteTag(tag) {
