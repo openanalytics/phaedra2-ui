@@ -1,16 +1,15 @@
 <template>
-  <div class="q-pa-sm">
-    <phaedra-details-section v-if="well && well.pos">
-      <template v-slot:title>
-        <div>
-          <span> {{ well.pos }} </span>
-          <span class="q-mx-sm" style="font-size: 0.7em">
+  <phaedra-details-section v-if="well && well.pos">
+    <template v-slot:title>
+      <div>
+        <span> {{ well.pos }} </span>
+        <span class="q-mx-sm" style="font-size: 0.7em">
               ({{ well.id }})
               <q-tooltip>ID</q-tooltip>
           </span>
-        </div>
-      </template>
-      <template v-slot:actions>
+      </div>
+    </template>
+    <template v-slot:actions>
         <span v-if="!readOnly">
           <span class="q-ml-sm" v-if="well.status.startsWith('ACCEPT')">
             <q-btn icon="close" size="xs" color="negative" round dense @click="handleRejectWells">
@@ -24,63 +23,62 @@
             </q-btn>
           </span>
         </span>
-      </template>
-      <template v-slot:readonly>
-        <div class="col">
-          <DimensionsChip label="Row x Column" :rows="well.row" :columns="well.column"
-                          onHoverMessage="Row x Column" />
-          <div>
-            <span style="font-size: 10px; color: rgba(0, 0, 0, 0.6)"> Well Status: </span>
-            <q-chip v-if="well.status" dense size="12px"
-                    :color="wellStateColor" :text-color="calculateTextColor(wellStateColor)">
-              {{ well.status }}
-              <q-tooltip>Status</q-tooltip>
-            </q-chip>
-          </div>
-          <div>
-            <span style="font-size: 10px; color: rgba(0, 0, 0, 0.6)"> Well Type: </span>
-            <q-chip v-if="well.wellType" dense size="12px"
-                    :color="wellTypeColor" :text-color="calculateTextColor(wellTypeColor)">
-              {{ well.wellType }}
-              <q-tooltip>Well Type</q-tooltip>
-            </q-chip>
-          </div>
+    </template>
+    <template v-slot:readonly>
+      <div class="col">
+        <DimensionsChip label="Row x Column" :rows="well.row" :columns="well.column"
+                        onHoverMessage="Row x Column"/>
+        <div>
+          <span style="font-size: 10px; color: rgba(0, 0, 0, 0.6)"> Well Status: </span>
+          <q-chip v-if="well.status" dense size="12px"
+                  :color="wellStateColor" :text-color="calculateTextColor(wellStateColor)">
+            {{ well.status }}
+            <q-tooltip>Status</q-tooltip>
+          </q-chip>
         </div>
-        <div class="col">
-          <div>
-            <span style="font-size: 10px; color: rgba(0, 0, 0, 0.6)"> Substance: </span>
-            <q-chip v-if="well.wellSubstance?.name" dense size="12px">
-              {{ well.wellSubstance?.name }}
-              <q-tooltip>Substance Name</q-tooltip>
-            </q-chip>
-          </div>
-          <div>
-            <span style="font-size: 10px; color: rgba(0, 0, 0, 0.6)"> Substance Type: </span>
-            <q-chip v-if="well.wellSubstance?.type" dense size="12px">
-              {{ well.wellSubstance?.type }}
-              <q-tooltip>Substance Type</q-tooltip>
-            </q-chip>
-          </div>
-          <div>
-            <span style="font-size: 10px; color: rgba(0, 0, 0, 0.6)"> Concentration: </span>
-            <q-chip dense size="12px">
-              {{ well.wellSubstance?.concentration }}
-              <q-tooltip>Concentration</q-tooltip>
-            </q-chip>
-          </div>
+        <div>
+          <span style="font-size: 10px; color: rgba(0, 0, 0, 0.6)"> Well Type: </span>
+          <q-chip v-if="well.wellType" dense size="12px"
+                  :color="wellTypeColor" :text-color="calculateTextColor(wellTypeColor)">
+            {{ well.wellType }}
+            <q-tooltip>Well Type</q-tooltip>
+          </q-chip>
         </div>
-      </template>
-      <template v-slot:editable>
-        <EditableField  :object="well" fieldName="description" />
-        <TagListEditable :tags="well.tags" :read-only="readOnly"
-                         @addTag="onAddTag" @removeTag="onRemoveTag" />
-      </template>
-      <template v-slot:properties>
-        <PropertyTable :properties="well.properties" :read-only="readOnly"
-                       @addProperty="onAddProperty" @removeProperty="onRemoveProperty" />
-      </template>
-    </phaedra-details-section>
-  </div>
+      </div>
+      <div class="col">
+        <div>
+          <span style="font-size: 10px; color: rgba(0, 0, 0, 0.6)"> Substance: </span>
+          <q-chip v-if="well.wellSubstance?.name" dense size="12px">
+            {{ well.wellSubstance?.name }}
+            <q-tooltip>Substance Name</q-tooltip>
+          </q-chip>
+        </div>
+        <div>
+          <span style="font-size: 10px; color: rgba(0, 0, 0, 0.6)"> Substance Type: </span>
+          <q-chip v-if="well.wellSubstance?.type" dense size="12px">
+            {{ well.wellSubstance?.type }}
+            <q-tooltip>Substance Type</q-tooltip>
+          </q-chip>
+        </div>
+        <div>
+          <span style="font-size: 10px; color: rgba(0, 0, 0, 0.6)"> Concentration: </span>
+          <q-chip dense size="12px">
+            {{ well.wellSubstance?.concentration }}
+            <q-tooltip>Concentration</q-tooltip>
+          </q-chip>
+        </div>
+      </div>
+    </template>
+    <template v-slot:editable>
+      <EditableField :object="well" fieldName="description"/>
+      <TagListEditable :tags="well.tags" :read-only="readOnly"
+                       @addTag="onAddTag" @removeTag="onRemoveTag"/>
+    </template>
+    <template v-slot:properties>
+      <PropertyTable :properties="well.properties" :read-only="readOnly"
+                     @addProperty="onAddProperty" @removeProperty="onRemoveProperty"/>
+    </template>
+  </phaedra-details-section>
 </template>
 
 <script setup>

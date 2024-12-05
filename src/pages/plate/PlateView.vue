@@ -23,157 +23,159 @@
   </q-breadcrumbs>
 
   <q-page class="oa-root-div" v-if="plateStore.plate">
-    <plate-details :plate="plateStore.plate" :activeMeasurement="plateStore.activeMeasurement"
-                   @updated="plateStore.reloadPlate" @deleted="onDelete"/>
-
-    <splitpanes class="default-theme" :horizontal="horizontal">
-      <pane
-        class="q-pa-sm"
-        v-if="plateStore.plate"
-        style="background-color: #e6e6e6"
-      >
-        <q-tabs
-          inline-label
-          dense
-          no-caps
-          align="left"
-          v-model="activeTab"
-          class="oa-section"
+    <div class="q-pa-sm">
+      <plate-details :plate="plateStore.plate" :activeMeasurement="plateStore.activeMeasurement"
+                     @updated="plateStore.reloadPlate" @deleted="onDelete"/>
+    </div>
+    <div class="q-pa-sm">
+      <splitpanes class="default-theme" :horizontal="horizontal">
+        <pane
+            v-if="plateStore.plate"
+            style="background-color: #e6e6e6"
         >
-          <q-tab
-            name="layout"
-            icon="view_module"
-            label="Layout"
-          />
-          <q-tab
-            name="heatmap"
-            icon="view_module"
-            label="Heatmap"
-          />
-          <q-tab
-            name="wells"
-            icon="table_rows"
-            label="Well List"
-          />
-          <q-tab
-            name="measurements"
-            icon="text_snippet"
-            label="Measurements"
-          />
-          <q-tab
-            name="results"
-            icon="functions"
-            label="Calculations"
-          />
-          <q-tab
-            name="curves"
-            icon="show_chart"
-            label="Dose-Response Curves"
-          />
-        </q-tabs>
-        <div class="row oa-section-body">
-          <q-tab-panels
-            v-model="activeTab"
-            animated
-            style="width: 100%; height: 100%"
+          <q-tabs
+              inline-label
+              dense
+              no-caps
+              align="left"
+              v-model="activeTab"
+              class="oa-section"
           >
-            <q-tab-panel name="layout">
-              <PlateLayout
-                :plate="plateStore.plate"
-                :wells="plateStore.wells"
-                @wellStatusChanged="onWellStatusChanged"
-              />
-            </q-tab-panel>
-            <q-tab-panel name="heatmap">
-              <PlateHeatmap
-                :plate="plateStore.plate"
-                :wells="plateStore.wells"
-                :measurements="
+            <q-tab
+                name="layout"
+                icon="view_module"
+                label="Layout"
+            />
+            <q-tab
+                name="heatmap"
+                icon="view_module"
+                label="Heatmap"
+            />
+            <q-tab
+                name="wells"
+                icon="table_rows"
+                label="Well List"
+            />
+            <q-tab
+                name="measurements"
+                icon="text_snippet"
+                label="Measurements"
+            />
+            <q-tab
+                name="results"
+                icon="functions"
+                label="Calculations"
+            />
+            <q-tab
+                name="curves"
+                icon="show_chart"
+                label="Dose-Response Curves"
+            />
+          </q-tabs>
+          <div class="row oa-section-body">
+            <q-tab-panels
+                v-model="activeTab"
+                animated
+                style="width: 100%; height: 100%"
+            >
+              <q-tab-panel name="layout">
+                <PlateLayout
+                    :plate="plateStore.plate"
+                    :wells="plateStore.wells"
+                    @wellStatusChanged="onWellStatusChanged"
+                />
+              </q-tab-panel>
+              <q-tab-panel name="heatmap">
+                <PlateHeatmap
+                    :plate="plateStore.plate"
+                    :wells="plateStore.wells"
+                    :measurements="
                   plateStore.activeMeasurement !== undefined
                     ? [plateStore.activeMeasurement]
                     : []
                 "
-                :protocols="plateStore.protocols"
-                @wellStatusChanged="onWellStatusChanged"
-              />
-            </q-tab-panel>
-            <q-tab-panel name="wells" class="q-px-none">
-              <WellList
-                :plates="plateStore.plate"
-                :wells="plateStore.wells"
-                @open="handleOpen"
-                @wellStatusChanged="onWellStatusChanged"
-                @selection="handleSelection"
-              />
-            </q-tab-panel>
-            <q-tab-panel
-              name="measurements"
-              icon="view_module"
-              label="Layout"
-              class="q-px-none"
-            >
-              <MeasList :plate="plateStore.plate" :read-only="readOnly" />
-            </q-tab-panel>
-            <q-tab-panel name="results" class="q-px-none">
-              <ResultSetList :plate="plateStore.plate" />
-            </q-tab-panel>
-            <q-tab-panel name="curves" icon="show_chart" class="q-px-none">
-              <DRCList
-                :plate="plateStore.plate"
-                :curves="plateStore.curves"
-                :protocols="plateStore.protocols"
-              />
-            </q-tab-panel>
-          </q-tab-panels>
-        </div>
-      </pane>
-      <pane
-        v-if="uiStore.showDRCView"
-        style="background-color: #e6e6e6"
-        ref="drcViewPane"
-      >
-        <DRCView
-          :height="height"
-          :width="width"
-          :curves="uiStore.selectedDRCurves"
-          :update="Date.now()"
-          @changeOrientation="horizontal = !horizontal"
-          @wellStatusChanged="onWellStatusChanged"
-        />
-      </pane>
-      <pane
-        class="q-pa-sm"
-        v-if="uiStore.showChartViewer"
-        style="background-color: #e6e6e6"
-        ref="chartViewerPane"
-      >
-        <ChartViewer
-          :update="Date.now()"
-          @changeOrientation="horizontal = !horizontal"
-          @wellStatusChanged="onWellStatusChanged"
-        />
-      </pane>
-      <pane
-        class="q-pa-sm"
-        v-if="uiStore.showImageView"
-        style="background-color: #e6e6e6"
-        ref="imageViewPane"
-      >
-        <div class="row oa-section-title">
-          <div class="col text-h6 q-ml-md">Well Image</div>
-          <div class="col-1 text-h6">
-            <q-btn
-              icon="close"
-              @click="closeImageView"
-              class="q-pa-xs"
-              size="md"
-              flat
-            />
+                    :protocols="plateStore.protocols"
+                    @wellStatusChanged="onWellStatusChanged"
+                />
+              </q-tab-panel>
+              <q-tab-panel name="wells" class="q-px-none">
+                <WellList
+                    :plates="plateStore.plate"
+                    :wells="plateStore.wells"
+                    @open="handleOpen"
+                    @wellStatusChanged="onWellStatusChanged"
+                    @selection="handleSelection"
+                />
+              </q-tab-panel>
+              <q-tab-panel
+                  name="measurements"
+                  icon="view_module"
+                  label="Layout"
+                  class="q-px-none"
+              >
+                <MeasList :plate="plateStore.plate" :read-only="readOnly" />
+              </q-tab-panel>
+              <q-tab-panel name="results" class="q-px-none">
+                <ResultSetList :plate="plateStore.plate" />
+              </q-tab-panel>
+              <q-tab-panel name="curves" icon="show_chart" class="q-px-none">
+                <DRCList
+                    :plate="plateStore.plate"
+                    :curves="plateStore.curves"
+                    :protocols="plateStore.protocols"
+                />
+              </q-tab-panel>
+            </q-tab-panels>
           </div>
-        </div>
-        <WellImageViewer />
-      </pane>
-    </splitpanes>
+        </pane>
+        <pane
+            v-if="uiStore.showDRCView"
+            style="background-color: #e6e6e6"
+            ref="drcViewPane"
+        >
+          <DRCView
+              :height="height"
+              :width="width"
+              :curves="uiStore.selectedDRCurves"
+              :update="Date.now()"
+              @changeOrientation="horizontal = !horizontal"
+              @wellStatusChanged="onWellStatusChanged"
+          />
+        </pane>
+        <pane
+            v-if="uiStore.showChartViewer"
+            style="background-color: #e6e6e6"
+            ref="chartViewerPane"
+        >
+          <ChartViewer
+              :update="Date.now()"
+              @changeOrientation="horizontal = !horizontal"
+              @wellStatusChanged="onWellStatusChanged"
+          />
+        </pane>
+        <pane
+            class="q-pa-sm"
+            v-if="uiStore.showImageView"
+            style="background-color: #e6e6e6"
+            ref="imageViewPane"
+        >
+          <div class="row oa-section-title">
+            <div class="col text-h6 q-ml-md">Well Image</div>
+            <div class="col-1 text-h6">
+              <q-btn
+                  icon="close"
+                  @click="closeImageView"
+                  class="q-pa-xs"
+                  size="md"
+                  flat
+              />
+            </div>
+          </div>
+          <WellImageViewer />
+        </pane>
+      </splitpanes>
+    </div>
+
 
     <CalculatePlateDialog
       v-model:show="showCalculateDialog"
@@ -234,12 +236,10 @@ async function onDelete(promise, experimentId) {
 
 const fetchPlate = async () => {
   const plateId = parseInt(route.params.plateId);
-  await loadingHandler.handleLoadingDuring(plateStore.loadPlate(plateId));
+  await plateStore.loadPlate(plateId);
 };
-fetchPlate();
-// onMounted(async () => {
-//   await plateStore.loadPlate(plateId);
-// });
+loadingHandler.handleLoadingDuring(fetchPlate());
+
 const showCalculateDialog = ref(false);
 
 const wellStatusNotification = useNotification();

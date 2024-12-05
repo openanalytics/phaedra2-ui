@@ -1,5 +1,5 @@
 <template>
-  <div class="q-pa-sm">
+  <div>
     <div class="row oa-section justify-evenly">
       <div class="col-1 text-h6 q-ml-md">
         <q-icon name="show_chart" />

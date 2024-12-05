@@ -49,10 +49,12 @@
 import {ref, watch} from "vue";
 import {useTemplateStore } from "@/stores/template";
 import {useUIStore} from "@/stores/ui";
+import {useLoadingHandler} from "@/composable/loadingHandler";
 
 const props = defineProps(['plateId', 'tab', 'update'])
 const templateStore = useTemplateStore()
 const uiStore = useUIStore()
+const loadingHandler = useLoadingHandler();
 
 const wellTypes = ["EMPTY", "SAMPLE", "LC", "HC", "NC", "PC"]
 const selectedType = ref(null)
@@ -68,7 +70,9 @@ else
 
 const updateSkipped = () => {
   if (uiStore.selectedWells && uiStore.selectedWells.length > 0)
-    templateStore.updateTemplateWells(uiStore.selectedWells, 'skipped', skipped.value)
+    loadingHandler.handleLoadingDuring(
+        templateStore.updateTemplateWells(uiStore.selectedWells, 'skipped', skipped.value)
+    )
 }
 
 const updateWellType = () => {
@@ -78,17 +82,23 @@ const updateWellType = () => {
 
 const updateSubstanceType = () => {
   if (uiStore.selectedWells && uiStore.selectedWells.length > 0)
-    templateStore.updateTemplateWells(uiStore.selectedWells, 'substanceType', substanceType.value)
+    loadingHandler.handleLoadingDuring(
+      templateStore.updateTemplateWells(uiStore.selectedWells, 'substanceType', substanceType.value)
+    )
 }
 
 const updateSubstanceName = () => {
   if (uiStore.selectedWells && uiStore.selectedWells.length > 0)
-    templateStore.updateTemplateWells(uiStore.selectedWells, 'substanceName', substanceName.value)
+    loadingHandler.handleLoadingDuring(
+      templateStore.updateTemplateWells(uiStore.selectedWells, 'substanceName', substanceName.value)
+    )
 }
 
 const updateConcentration = () => {
   if (uiStore.selectedWells && uiStore.selectedWells.length > 0)
-    templateStore.updateTemplateWells(uiStore.selectedWells, 'concentration', concentration.value)
+    loadingHandler.handleLoadingDuring(
+      templateStore.updateTemplateWells(uiStore.selectedWells, 'concentration', concentration.value)
+    )
 }
 
 const getSelectedWellValue = (property) => {
@@ -103,7 +113,7 @@ const getSelectedWellValue = (property) => {
 }
 
 const savePlateTemplate = () => {
-  templateStore.saveTemplate()
+  loadingHandler.handleLoadingDuring(templateStore.saveTemplate())
 }
 
 watch(() => props.update, () => {
