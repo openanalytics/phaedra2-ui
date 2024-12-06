@@ -37,7 +37,7 @@ export const useFormulasStore = defineStore("formulas", () => {
         formulaId)
   }
 
-  const getFormulaById = async (formulaId) => {
+  const getFormulaById = (formulaId) => {
     return formulas.value.find((formula) => formula.id === formulaId)
   }
 
@@ -45,7 +45,7 @@ export const useFormulasStore = defineStore("formulas", () => {
     return formulaInputs.value[formulaId] || []
   }
 
-  const getHigherVersionFormula = async () => {
+  const getHigherVersionFormula = (formulaId) => {
     // If a higher version for this formula exists, return it (the highest one available). Otherwise return null.
     const formula = formulas.value.find(f => f.id === formulaId);
     if (!formula) {
