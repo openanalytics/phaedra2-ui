@@ -59,7 +59,7 @@
         </div>
       </template>
       <template v-slot:editable>
-        <EditableField :object="protocolStore.protocol" fieldName="description"
+        <EditableField :object="protocolStore.protocol" fieldName="description" label="Description"
                        @valueChanged="onDescriptionChanged"/>
         <TagListEditable :tags="protocolStore.protocol.tags"
                          @addTag="onAddTag" @removeTag="onRemoveTag" />

@@ -6,7 +6,7 @@
           <div class="row">
             <slot name="title"></slot>
           </div>
-          <div>
+          <div class="row">
             <slot name="actions"></slot>
           </div>
         </div>

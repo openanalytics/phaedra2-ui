@@ -54,27 +54,33 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from "vue";
-import { useStore } from "vuex";
+import { ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import FormatUtils from "@/lib/FormatUtils.js";
 import DeleteFormulaDialog from "@/pages/calculation/formula/DeleteFormulaDialog.vue";
 import OaSection from "@/components/widgets/OaSection";
 import OaTable from "@/components/table/OaTable.vue";
+import {useLoadingHandler} from "@/composable/loadingHandler";
+import {useFormulasStore} from "@/stores/formulas";
 
 const loading = ref(true);
 
 const showDeprecated = ref(true);
+const formulas = ref([])
 
-const store = useStore();
-store
-  .dispatch("calculations/getAllFormulas")
-  .then(() => (loading.value = false));
-const formulas = computed(() =>
-  store.getters["calculations/getLatestFormulas"]().filter(
-    (f) => showDeprecated.value || !f.deprecated
+const formulaStore = useFormulasStore()
+const fetchFormulas = async () => {
+  await formulaStore.loadAllFormulas();
+  const latest = await formulaStore.getLatestFormulas();
+  formulas.value = latest.filter(
+      (f) => showDeprecated.value || !f.deprecated
   )
-);
+  console.log(formulas.value)
+}
+
+const loadingHandler = useLoadingHandler();
+loadingHandler.handleLoadingDuring(fetchFormulas());
+
 
 const columns = [
   { name: "id", align: "left", label: "ID", field: "id", sortable: true },
@@ -97,7 +103,7 @@ const selectFormula = (e, row) => {
   router.push("/calc/formula/" + row.id);
 };
 const createNewFormula = () => {
-  router.push("/calc/formula/0");
+  router.push("/calc/formula/new");
 };
 
 const deleteDialog = ref(null);

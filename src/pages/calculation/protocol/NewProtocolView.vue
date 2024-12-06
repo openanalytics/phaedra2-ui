@@ -10,18 +10,18 @@
             <oa-section title="New Protocol" icon="ballot">
                 <div class="q-pa-sm">
                   <q-form class="full-width" @submit="onSubmit" @reset="onReset">
-                    <div class="col-10">
+                    <div class="col">
                       <q-input v-model="newProtocol.name" label="Name:" dense/>
                       <q-input v-model="newProtocol.description" label="Description:" dense/>
                       <q-input v-model="newProtocol.versionNumber" label="Version:" mask="#.#.#" hint="Mask: #.#.#, Example: 1.0.0" dense/>
                     </div>
                     <div class="row justify-end">
                       <router-link :to="{ name: 'importProtocol' }" class="nav-link">
-                        <q-btn label="Import ..." color="primary" class="q-mr-sm" />
+                        <q-btn label="Import..." color="primary" class="q-mr-sm" />
                       </router-link>
-                      <q-btn label="Create" type="submit" color="primary" class="q-mr-sm" />
+                      <q-btn label="Create" type="submit" color="primary" icon="save" class="q-mr-sm" />
                       <router-link :to="{ name: 'browseProtocols' }" class="nav-link">
-                        <q-btn label="Cancel" type="reset" color="primary" flat />
+                        <q-btn label="Cancel" type="reset" icon="cancel" color="primary" flat />
                       </router-link>
                     </div>
                   </q-form>

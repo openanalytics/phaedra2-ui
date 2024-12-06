@@ -117,6 +117,7 @@ import Workbench from "@/pages/workbench/Workbench.vue";
 import { prepareWorkbench } from "@/composable/router/prepareViews";
 import BrowseQueries from "@/pages/query/BrowseQueries.vue";
 import CreateQuery from "@/pages/query/CreateQuery.vue";
+import NewFormulaView from "@/pages/calculation/formula/NewFormulaView.vue";
 
 const routes = createRouter({
   history: createWebHistory(publicPath),
@@ -170,15 +171,11 @@ const routes = createRouter({
 
     { name: "browseTemplates", path: "/templates", component: BrowseTemplates },
     { name: "template", path: "/template/:id", component: PlateTemplateView },
-    {
-      name: "newPlateTemplate",
-      path: "/template/new",
-      component: NewPlateTemplateView,
-      props: true,
-    },
+    { name: "newPlateTemplate", path: "/template/new", component: NewPlateTemplateView, props: true},
 
     { name: "calcFormulas", path: "/calc/formulas", component: BrowseFormulas },
     { name: "calcFormula", path: "/calc/formula/:id", component: FormulaView },
+    { name: "newCalcFormula", path: "/calc/formula/new", component: NewFormulaView, props: true },
 
     {
       name: "manageFeatureStats",

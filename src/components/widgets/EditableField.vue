@@ -1,7 +1,7 @@
 <template>
   <div class="row items-center q-mt-xs"
        style="font-size: 10px; color: rgba(0, 0, 0, 0.6)">
-    <div>Description</div>
+    <div>{{ label }}</div>
     <div>
       <q-btn v-show="!props.readOnly" round flat dense
              class="q-my-xs" icon="edit" size="xs" color="primary"
