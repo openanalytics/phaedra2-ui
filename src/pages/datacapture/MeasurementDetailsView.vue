@@ -1,30 +1,14 @@
 <template>
   <q-breadcrumbs class="oa-breadcrumb" v-if="measurementStore.measurement">
     <q-breadcrumbs-el icon="home" :to="{ name: 'workbench' }" />
-    <q-breadcrumbs-el
-      :label="'Measurements'"
-      icon="list"
-      :to="'/datacapture/meas'"
-    />
-    <q-breadcrumbs-el
-      :label="measurementStore.measurement.barcode"
-      icon="text_snippet"
-    />
+    <q-breadcrumbs-el :label="'Measurements'" icon="list" :to="'/datacapture/meas'"/>
+    <q-breadcrumbs-el :label="measurementStore.measurement.barcode" icon="text_snippet"/>
   </q-breadcrumbs>
 
   <q-page class="oa-root-div">
     <div class="q-pa-sm">
-      <oa-section
-        v-if="!measurementStore.measurement"
-        title="Loading..."
-        icon="text_snippet"
-      />
-      <oa-section
-        v-else
-        :title="measurementStore.measurement.barcode"
-        icon="text_snippet"
-        :collapsible="true"
-      >
+      <oa-section v-if="!measurementStore.measurement" title="Loading..." icon="text_snippet"/>
+      <oa-section v-else :title="measurementStore.measurement.barcode" icon="text_snippet">
         <div class="row q-pa-md">
           <div class="col-4">
             <q-field label="ID" stack-label borderless dense>
@@ -100,14 +84,7 @@
       </oa-section>
 
       <div class="q-pt-sm">
-        <q-tabs
-          inline-label
-          dense
-          no-caps
-          class="oa-section-title"
-          v-model="activeTab"
-          align="left"
-        >
+        <q-tabs inline-label dense no-caps class="oa-section" v-model="activeTab" align="left">
           <q-tab name="wellData" icon="table_rows" label="Well Data" />
           <q-tab name="subWellData" icon="table_rows" label="SubWell Data" />
           <q-tab name="imageData" icon="image" label="Image Data" />
@@ -115,43 +92,21 @@
         <div class="row oa-section-body">
           <q-tab-panels v-model="activeTab" animated class="full-width">
             <q-tab-panel name="wellData" class="q-px-none">
-              <q-table
-                table-header-class="text-grey"
-                flat
-                dense
-                :rows="wellData"
-                :columns="wellDataColumns"
-                row-key="id"
-                :pagination="{ rowsPerPage: 100 }"
-                :filter="filter"
-                :filter-method="filterMethod"
-                :loading="loading"
-                separator="cell"
-                bordered
-              >
+              <q-table table-header-class="text-grey" :rows="wellData" :columns="wellDataColumns"
+                       row-key="id" :pagination="{ rowsPerPage: 100 }"
+                       :filter="filter" :filter-method="filterMethod" :loading="loading"
+                       separator="cell" bordered flat dense>
                 <template v-slot:top-left>
                   <div v-if="wellNrLimit > 0">
-                    <span class="text-info"
-                      >Showing first {{ wellNrLimit }} wells.</span
-                    >
-                    <q-btn
-                      class="on-right"
-                      size="xs"
-                      color="info"
-                      @click="wellNrLimit = -1"
-                      >Load all</q-btn
-                    >
+                    <span class="text-info">Showing first {{ wellNrLimit }} wells.</span>
+                    <q-btn class="on-right" size="xs" color="info" label="Load all"
+                           @click="wellNrLimit = -1"/>
                   </div>
                 </template>
                 <template v-slot:top-right>
                   <div class="row">
-                    <q-input
-                      outlined
-                      dense
-                      debounce="300"
-                      v-model="filter.name.term"
-                      placeholder="Search"
-                    >
+                    <q-input v-model="filter.name.term" placeholder="Search"
+                             outlined dense debounce="300">
                       <template v-slot:append>
                         <q-icon name="search" />
                       </template>

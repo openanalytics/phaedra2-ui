@@ -1,5 +1,5 @@
 <template>
-  <phaedra-details-section v-if="plate && plate.barcode">
+  <phaedra-details-section v-if="plate && plate.barcode" :collapsible="collapsible">
     <template v-slot:title>
       <div>
         <span> {{ plate.barcode }} </span>
@@ -59,7 +59,7 @@
       </div>
     </template>
     <template v-slot:editable>
-      <EditableField read-only :object="plate" fieldName="description"/>
+      <EditableField read-only :object="plate" fieldName="description" label="Description"/>
       <TagListEditable :tags="plate.tags" :read-only="readOnly"
                        @addTag="onAddTag" @removeTag="onRemoveTag"/>
     </template>
@@ -93,7 +93,14 @@ import CalculatePlateDialog from "@/components/plate/CalculatePlateDialog.vue";
 import {useLoadingHandler} from "@/composable/loadingHandler";
 import PhaedraDetailsSection from "@/components/widgets/PhaedraDetailsSection.vue";
 
-const props = defineProps(["plate", "activeMeasurement"]);
+const props = defineProps({
+  plate: Object,
+  activeMeasurement: Object,
+  collapsible: {
+    type: Boolean,
+    default: true,
+  }
+});
 const emits = defineEmits(["updated", "deleted"]);
 
 const experimentStore = useExperimentStore();

@@ -1,5 +1,5 @@
 <template>
-  <phaedra-details-section v-if="well && well.pos">
+  <phaedra-details-section v-if="well && well.pos" :collapsible="collapsible">
     <template v-slot:title>
       <div>
         <span> {{ well.pos }} </span>
@@ -70,7 +70,6 @@
       </div>
     </template>
     <template v-slot:editable>
-      <EditableField :object="well" fieldName="description"/>
       <TagListEditable :tags="well.tags" :read-only="readOnly"
                        @addTag="onAddTag" @removeTag="onRemoveTag"/>
     </template>
@@ -91,7 +90,13 @@ import { computed, readonly } from "vue";
 import { useLoadingHandler } from "../../composable/loadingHandler";
 import PhaedraDetailsSection from "@/components/widgets/PhaedraDetailsSection.vue";
 
-const props = defineProps(["well"]);
+const props = defineProps({
+  well: Object,
+  collapsible: {
+    type: Boolean,
+    default: true,
+  }
+});
 const emit = defineEmits(["wellStatusChanged", "updated"]);
 
 const wellStore = useWellStore();

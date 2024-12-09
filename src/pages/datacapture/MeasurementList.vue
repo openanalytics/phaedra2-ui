@@ -1,12 +1,12 @@
 <template>
   <oa-table :rows="measurementStore.measurements" :columns="columns"
             @row-dblclick="handleDblRowClick">
-    <template v-slot:top-left>
+    <template v-slot:top-right>
       <q-btn round icon="refresh" size="sm" @click="refreshList" class="on-left">
         <q-tooltip>Refresh</q-tooltip>
       </q-btn>
     </template>
-    <template v-slot:top-right>
+    <template v-slot:top-left>
       <date-range-selector v-model:from="fromDate" v-model:to="toDate"
                            @rangeChanged="refreshList"/>
     </template>

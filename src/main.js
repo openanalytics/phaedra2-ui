@@ -118,6 +118,7 @@ import { prepareWorkbench } from "@/composable/router/prepareViews";
 import BrowseQueries from "@/pages/query/BrowseQueries.vue";
 import CreateQuery from "@/pages/query/CreateQuery.vue";
 import NewFormulaView from "@/pages/calculation/formula/NewFormulaView.vue";
+import NewCaptureConfigView from "@/pages/datacapture/NewCaptureConfigView.vue";
 
 const routes = createRouter({
   history: createWebHistory(publicPath),
@@ -198,16 +199,9 @@ const routes = createRouter({
       path: "/datacapture/script/:id",
       component: CaptureScriptView,
     },
-    {
-      name: "dataCaptureConfigs",
-      path: "/datacapture/configs",
-      component: BrowseCaptureConfigs,
-    },
-    {
-      name: "dataCaptureConfig",
-      path: "/datacapture/config/:id",
-      component: CaptureConfigView,
-    },
+    { name: "dataCaptureConfigs", path: "/datacapture/configs", component: BrowseCaptureConfigs },
+    { name: "dataCaptureConfig", path: "/datacapture/config/:id", component: CaptureConfigView },
+    { name: "newDataCaptureConfig", path: "/datacapture/config/new", component: NewCaptureConfigView },
     {
       name: "measurements",
       path: "/datacapture/meas",

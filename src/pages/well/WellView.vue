@@ -34,12 +34,12 @@
       title="Loading well..."
       icon="crop_square"
     />
-    <WellDetails
-      v-else
-      @wellStatusChanged="onWellStatusChanged"
-      :well="wellStore.well"
-      @updated="wellStore.reloadWell()"
-    />
+    <div v-else class="q-pa-sm">
+      <WellDetails :well="wellStore.well"
+                   @wellStatusChanged="onWellStatusChanged"
+                   @updated="wellStore.reloadWell()"
+      />
+    </div>
     <splitpanes class="default-theme">
       <pane style="background-color: #e6e6e6">
         <WellImageViewer2

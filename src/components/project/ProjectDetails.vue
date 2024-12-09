@@ -1,5 +1,5 @@
 <template>
-  <phaedra-details-section v-if="project && project.name">
+  <phaedra-details-section v-if="project && project.name" :collapsible="collapsible">
     <template v-slot:title>
       <span>{{ project.name }}</span>
       <span class="q-mx-sm" style="font-size: 0.7em">
@@ -44,7 +44,7 @@
       </div>
     </template>
     <template v-slot:editable>
-      <EditableField readOnly :object="project" fieldName="description" />
+      <EditableField readOnly :object="project" fieldName="description" label="Description"/>
       <TagListEditable :tags="project.tags" @addTag="onAddTag" @removeTag="onRemoveTag" />
       <AccessControlListEditable :projectAccess="project.access"
                                  @addAccess="onAddAccess" @removeAccess="onRemoveAccess"/>
@@ -100,6 +100,10 @@ import PhaedraDetailsSection from "@/components/widgets/PhaedraDetailsSection.vu
 
 const props = defineProps({
   project: Object,
+  collapsible: {
+    type: Boolean,
+    default: true,
+  },
 });
 const emits = defineEmits(["updated"]);
 

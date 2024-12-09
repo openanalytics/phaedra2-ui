@@ -8,14 +8,12 @@
     <q-page class="oa-root-div">
         <div class="q-pa-sm">
           <formula-details @edit="toggleEditMode"/>
-            <oa-section title="Formula" icon="description" class="q-pt-sm">
-                <div class="q-pa-md">
-                    <codemirror :disabled="!editMode" v-model="formulaStore.formula.formula"/>
-                    <div class="text-grey text-caption q-pt-md">
-                        {{ formulaInputs.length }} input variable(s) detected: {{ formulaInputs.length > 0 ? formulaInputs.map(n => `\"${n}\"`).join(",") : 'None' }}
-                    </div>
-                </div>
-            </oa-section>
+          <oa-section title="Formula" icon="description" class="q-pt-sm">
+            <codemirror :disabled="!editMode" v-model="formulaStore.formula.formula"/>
+            <div class="text-grey text-caption q-pt-md">
+                {{ formulaInputs.length }} input variable(s) detected: {{ formulaInputs.length > 0 ? formulaInputs.map(n => `\"${n}\"`).join(",") : 'None' }}
+            </div>
+          </oa-section>
         </div>
     </q-page>
 </template>

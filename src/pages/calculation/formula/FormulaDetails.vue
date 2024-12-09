@@ -10,17 +10,17 @@
     </template>
     <template v-slot:actions>
       <span v-show="!editMode" class="q-ml-xs">
-        <q-btn size="xs" icon="edit" color="positive" round dense @click="toggleEditMode">
+        <q-btn size="xs" icon="edit" color="positive" round @click="toggleEditMode">
           <q-tooltip>Edit Formula</q-tooltip>
         </q-btn>
       </span>
       <span v-show="editMode" class="q-ml-xs">
-        <q-btn size="xs" icon="save" color="positive" round dense @click="saveChanges">
+        <q-btn size="xs" icon="save" color="positive" round @click="saveChanges">
           <q-tooltip>Save Changes</q-tooltip>
         </q-btn>
       </span>
       <span v-show="editMode" class="q-ml-xs">
-        <q-btn size="xs" icon="cancel" color="negative" round dense @click="cancelEditMode">
+        <q-btn size="xs" icon="cancel" color="negative" round @click="cancelEditMode">
           <q-tooltip>Cancel Changes</q-tooltip>
         </q-btn>
       </span>

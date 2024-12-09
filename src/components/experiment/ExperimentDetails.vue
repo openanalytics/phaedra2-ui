@@ -1,5 +1,5 @@
 <template>
-  <phaedra-details-section v-if="experiment && experiment.name">
+  <phaedra-details-section v-if="experiment && experiment.name" :collapsible="collapsible">
     <template v-slot:title>
       <div>
         <span>{{ experiment.name }}</span>
@@ -56,7 +56,7 @@
       </div>
     </template>
     <template v-slot:editable>
-      <EditableField readOnly :object="experiment" fieldName="description"/>
+      <EditableField readOnly :object="experiment" fieldName="description" label="Description"/>
       <TagListEditable :tags="experiment.tags" :read-only="experimentStore.isClosed"
                        @addTag="onAddTag" @removeTag="onRemoveTag"/>
     </template>
@@ -105,7 +105,13 @@ import TagListEditable from "../tag/TagListEditable.vue";
 import { useLoadingHandler } from "@/composable/loadingHandler";
 import PhaedraDetailsSection from "@/components/widgets/PhaedraDetailsSection.vue";
 
-const props = defineProps(["experiment"]);
+const props = defineProps({
+  experiment: Object,
+  collapsible: {
+    type: Boolean,
+    default: true,
+  }
+});
 const emits = defineEmits(["updated"]);
 
 const projectStore = useProjectStore();

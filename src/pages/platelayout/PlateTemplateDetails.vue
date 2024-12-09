@@ -2,7 +2,7 @@
   <phaedra-details-section v-if="template">
     <template v-slot:title>
       <span>
-<!--        <q-icon lass="column q-pr-sm" name="border_outer" size="md"/>-->
+        <q-icon name="border_outer" size="md"/>
         {{ template.name }}
       </span>
       <span class="q-mx-sm" style="font-size: 0.7em">
@@ -12,12 +12,14 @@
     </template>
     <template v-slot:actions>
       <span>
-        <q-btn size="xs" icon="edit" color="positive" @click="showRenameDialog = true"
-               round>
+        <q-btn icon="edit" size="xs" color="positive"
+               @click="showRenameDialog = true" round dense>
           <q-tooltip>Rename Template</q-tooltip>
         </q-btn>
-        <q-btn size="xs" icon="delete" color="negative" @click="openDeleteDialog"
-               round class="q-ml-sm">
+      </span>
+      <span class="q-ml-xs">
+        <q-btn icon="delete" size="xs" color="negative"
+               @click="openDeleteDialog" round dense>
           <q-tooltip>Delete Template</q-tooltip>
         </q-btn>
       </span>
@@ -45,7 +47,7 @@
       </div>
     </template>
     <template v-slot:editable>
-      <EditableField :object="template" fieldName="description"
+      <EditableField :object="template" fieldName="description" label="Description"
                      @valueChanged="onDescriptionChanged"/>
       <TagListEditable :tags="template.tags" :read-only="false"
                        @addTag="onAddTag" @removeTag="onRemoveTag"/>

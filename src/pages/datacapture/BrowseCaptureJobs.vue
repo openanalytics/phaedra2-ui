@@ -9,7 +9,7 @@
       <oa-table :rows="jobs" :columns="columns"
                 :pagination="{ rowsPerPage: 20, sortBy: 'createDate', descending: true }"
       >
-        <template v-slot:top-left>
+        <template v-slot:top-right>
           <div class="justify-end">
             <q-btn round icon="refresh" size="sm" @click="refreshList" class="on-left">
               <q-tooltip>Refresh</q-tooltip>
@@ -19,31 +19,33 @@
             </q-btn>
           </div>
         </template>
-        <template v-slot:top-right>
+        <template v-slot:top-left>
           <date-range-selector
             v-model:from="fromDate"
             v-model:to="toDate"
             @rangeChanged="refreshList"
           />
         </template>
-        <template v-slot:body-cell-details="props">
-          <q-td :props="props">
-            <q-btn
-              label="Details"
-              icon-right="chevron_right"
-              size="sm"
-              @click="doShowJobDetails(props.row)"
-            />
-          </q-td>
-        </template>
         <template v-slot:body-cell-actions="props">
           <q-td :props="props">
-            <q-btn v-if="canCancelJob(props.row)"
-                   label="Cancel" icon-right="cancel" size="sm"
-                   @click="cancelJob(props.row.id)"/>
-            <q-btn v-if="canResubmitJob(props.row)"
-                   label="Re-submit" icon-right="restart_alt" size="sm"
-                   @click=" jobToResubmit = props.row; showResubmitConfirmation = true;"/>
+            <span class="q-ml-xs">
+              <q-btn icon="info" color="primary" size="xs" round
+                     @click="doShowJobDetails(props.row)">
+                <q-tooltip>Job Details</q-tooltip>
+              </q-btn>
+            </span>
+            <span v-if="canCancelJob(props.row)" class="q-ml-xs">
+              <q-btn icon="cancel" color="negative" size="xs" round
+                     @click="cancelJob(props.row.id)">
+                <q-tooltip>Cancel Job</q-tooltip>
+              </q-btn>
+            </span>
+            <span v-if="canResubmitJob(props.row)" class="q-ml-xs">
+              <q-btn icon="restart_alt" size="xs" round
+                     @click=" jobToResubmit = props.row; showResubmitConfirmation = true;">
+                <q-tooltip>Resubmit Job</q-tooltip>
+              </q-btn>
+            </span>
           </q-td>
         </template>
         <template v-slot:no-data>
@@ -229,7 +231,7 @@ const columns = ref([
     sortable: true,
     format: (t) => FormatUtils.formatTextMaxLength(t, 50),
   },
-  { name: "details", align: "center" },
+  // { name: "details", align: "center" },
   { name: "actions", align: "center" },
 ]);
 

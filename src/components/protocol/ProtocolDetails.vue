@@ -12,19 +12,18 @@
         </div>
       </template>
       <template v-slot:actions>
-        <span>
-          <q-btn size="xs" icon="edit" color="positive" round dense
-                 @click="showRenameDialog = true">
+        <span class="q-ml-xs">
+          <q-btn size="xs" icon="edit" color="positive" round @click="showRenameDialog = true">
             <q-tooltip>Rename Protocol</q-tooltip>
           </q-btn>
         </span>
         <span class="q-ml-sm">
-          <q-btn size="xs" icon="import_export" color="warning" @click="exportToJson" round dense>
+          <q-btn size="xs" icon="import_export" color="warning" round @click="exportToJson">
             <q-tooltip>Export to JSON</q-tooltip>
           </q-btn>
         </span>
         <span class="q-ml-sm">
-          <q-btn size="xs" icon="delete" color="negative" @click="openDeleteDialog" round dense>
+          <q-btn size="xs" icon="delete" color="negative" round @click="openDeleteDialog">
             <q-tooltip>Delete Protocol</q-tooltip>
           </q-btn>
         </span>
