@@ -1,6 +1,6 @@
 <template>
   <oa-table :rows="measurementStore.measurements" :columns="columns"
-            @row-dblclick="handleDblRowClick">
+            @row-dblclick="handleDblRowClick" :pagination="{ rowsPerPage: 20 }">
     <template v-slot:top-right>
       <q-btn round icon="refresh" size="sm" @click="refreshList" class="on-left">
         <q-tooltip>Refresh</q-tooltip>

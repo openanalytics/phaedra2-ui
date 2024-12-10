@@ -74,6 +74,13 @@ function asCSSColor(color) {
 }
 
 function asRGBColor(color) {
+    if (!color) {
+        return {
+            red: 0,
+            green: 0,
+            blue: 0
+        }
+    }
     if (color.red && color.green && color.blue) {
         return color
     }

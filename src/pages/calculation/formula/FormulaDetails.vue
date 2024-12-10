@@ -1,26 +1,23 @@
 <template>
-  <phaedra-details-section v-if="formulaStore.formula && formulaStore.formula.name">
-    <template v-slot:title>
-      <q-icon class="q-mx-sm" name="functions" size="md"/>
-      <span> {{ formulaStore.formula.name }} </span>
-      <span class="q-mx-sm" style="font-size: 0.7em">
-        ({{ formulaStore.formula.id }})
-        <q-tooltip>ID</q-tooltip>
-      </span>
-    </template>
+  <phaedra-details-section v-if="formulaStore.formula && formulaStore.formula.name"
+                           :object-id="formulaStore.formula.id"
+                           :object-title="formulaStore.formula.name" title-icon="functions">
     <template v-slot:actions>
-      <span v-show="!editMode" class="q-ml-xs">
-        <q-btn size="xs" icon="edit" color="positive" round @click="toggleEditMode">
+      <span v-show="!editMode">
+        <q-btn size="xs" icon="edit" color="positive"
+               @click="toggleEditMode" round dense>
           <q-tooltip>Edit Formula</q-tooltip>
         </q-btn>
       </span>
       <span v-show="editMode" class="q-ml-xs">
-        <q-btn size="xs" icon="save" color="positive" round @click="saveChanges">
+        <q-btn size="xs" icon="save" color="positive"
+               @click="saveChanges" round dense>
           <q-tooltip>Save Changes</q-tooltip>
         </q-btn>
       </span>
       <span v-show="editMode" class="q-ml-xs">
-        <q-btn size="xs" icon="cancel" color="negative" round @click="cancelEditMode">
+        <q-btn size="xs" icon="cancel" color="negative"
+               @click="cancelEditMode" round dense>
           <q-tooltip>Cancel Changes</q-tooltip>
         </q-btn>
       </span>

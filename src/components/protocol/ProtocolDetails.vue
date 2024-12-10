@@ -1,16 +1,7 @@
 <template>
   <div class="q-pa-sm">
-    <phaedra-details-section v-if="protocolStore.protocol">
-      <template v-slot:title>
-        <div>
-          <q-icon class="q-mx-sm" name="ballot" size="md"/>
-          <span> {{ protocolStore.protocol.name }} </span>
-          <span class="q-mx-sm" style="font-size: 0.7em">
-            ({{ protocolStore.protocol.id }})
-            <q-tooltip>ID</q-tooltip>
-          </span>
-        </div>
-      </template>
+    <phaedra-details-section v-if="protocolStore.protocol" :object-id="protocolStore.protocol.id"
+                             :object-title="protocolStore.protocol.name" title-icon="ballot">
       <template v-slot:actions>
         <span class="q-ml-xs">
           <q-btn size="xs" icon="edit" color="positive" round @click="showRenameDialog = true">

@@ -1,133 +1,177 @@
 <template>
-    <q-breadcrumbs class="oa-breadcrumb">
-        <q-breadcrumbs-el icon="home" :to="{ name: 'workbench'}"/>
-        <q-breadcrumbs-el label="Capture Scripts" icon="data_object" to="/datacapture/scripts" />
-        <q-breadcrumbs-el :label="script.name" icon="data_object"/>
-    </q-breadcrumbs>
+  <q-breadcrumbs class="oa-breadcrumb">
+    <q-breadcrumbs-el icon="home" :to="{ name: 'workbench'}"/>
+    <q-breadcrumbs-el label="Capture Scripts" icon="data_object" to="/datacapture/scripts"/>
+    <q-breadcrumbs-el :label="script.name" icon="data_object"/>
+  </q-breadcrumbs>
 
-    <q-page class="oa-root-div">
-        <div class="q-pa-sm">
-            <oa-section :title="script.name" icon="data_object" :collapsible="true">
-                <div class="q-pa-md">
-                    <div class="row q-col-gutter-md">
-                        <div class="col-4">
-                            <q-input v-model="script.name" label="Name" :readonly="!editMode" stack-label dense :borderless="!editMode"></q-input>
-                            <q-input v-model="script.description" label="Description" :readonly="!editMode" stack-label dense :borderless="!editMode"></q-input>
-                        </div>
-                        <div class="col-3">
-                            <q-input v-model="script.id" label="ID" readonly dense borderless></q-input>
-                            <q-input v-model="script.version" label="Version" stack-label dense borderless></q-input>
-                        </div>
-                        <div class="col-2">
-                            <q-field label="Created On" stack-label dense borderless>
-                                <template v-slot:control>
-                                    {{ FormatUtils.formatDate(script.createdOn) }}
-                                </template>
-                            </q-field>
-                            <q-field label="Created By" stack-label dense borderless>
-                                <template v-slot:control>
-                                    <div class="q-pt-xs">
-                                        <UserChip :id="script.createdBy"/>
-                                    </div>
-                                </template>
-                            </q-field>
-                        </div>
-                        <div class="col-2">
-                            <q-field label="Updated On" stack-label dense borderless>
-                                <template v-slot:control>
-                                    {{ FormatUtils.formatDate(script.updatedOn) }}
-                                </template>
-                            </q-field>
-                            <q-field label="Updated By" stack-label dense borderless>
-                                <template v-slot:control>
-                                    <div class="q-pt-xs">
-                                        <UserChip :id="script.updatedBy"/>
-                                    </div>
-                                </template>
-                            </q-field>
-                        </div>
-                        <div class="col-1">
-                            <div class="row justify-end">
-                                <q-btn size="sm" color="primary" icon="edit" label="Edit" v-show="!editMode" @click="editMode = true" />
-                                <q-btn size="sm" color="primary" icon="save" label="Save" v-show="editMode" @click="exitEditMode(true)" />
-                                <q-btn size="sm" color="primary" icon="cancel" label="Cancel" v-show="editMode" @click="exitEditMode(false)" class="q-mt-sm" />
-                                <q-btn size="sm" color="primary" icon="delete" label="Delete" v-show="!editMode" @click="showDeleteDialog = true" class="oa-button-delete q-mt-sm" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </oa-section>
-            <oa-section title="Code" class="q-pt-sm" :collapsible="true">
-                <div class="q-pa-md">
-                    <codemirror
-                        :disabled="!editMode"
-                        :extensions="editorConfig.extensions"
-                        v-model="script.value"
-                    />
-                </div>
-            </oa-section>
-        </div>
-    </q-page>
+  <q-page class="oa-root-div">
+    <div class="q-pa-sm">
+      <phaedra-details-section>
+        <template v-slot:title>
+          <span>
+            <q-icon name="data_object" size="md"/>
+            {{ script.name }}
+          </span>
+          <span class="q-mx-sm" style="font-size: 0.7em">
+            ({{ script.id }})
+            <q-tooltip>ID</q-tooltip>
+          </span>
+        </template>
+        <template v-slot:actions>
+          <span v-show="!editMode" class="q-ml-xs">
+            <q-btn size="xs" color="positive" icon="edit"
+                 @click="editMode = true" round dense/>
+          </span>
+          <span v-show="editMode" class="q-ml-xs">
+            <q-btn size="xs" color="positive" icon="save"
+                 @click="exitEditMode(true)" round dense/>
+          </span>
+          <span v-show="editMode" class="q-ml-xs">
+            <q-btn size="xs" color="negative" icon="cancel"
+                 @click="exitEditMode(false)" round dense/>
+          </span>
+          <span v-show="!editMode" class="q-ml-xs">
+            <q-btn size="xs" color="negative" icon="delete"
+                 @click="showDeleteDialog = true" round dense/>
+          </span>
+        </template>
+        <template v-slot:readonly>
+          <div class="col">
+            <div>
+              <user-chip :id="script.createdBy" label="Created By"
+                         on-hover-message="Created By"/>
+            </div>
+            <div>
+              <date-chip :date-time="script.createdOn" label="Created On"
+                         on-hover-message="Created On"/>
+            </div>
+          </div>
+          <div class="col">
+            <div>
+              <user-chip :id="script.updatedBy" label="Updated By"
+                         on-hover-message="Updated By"/>
+            </div>
+            <div>
+              <date-chip :date-time="script.updatedOn" label="Updated On"
+                         on-hover-message="Updated On"/>
+            </div>
+          </div>
+        </template>
+        <template v-slot:editable>
+          <div class="row">
+            <div class="col">
+              <editable-field :object="script" field-name="name"
+                              :read-only="!editMode" label="Name"
+                              @value-changed="(value) => script.name = value"/>
+              <editable-field :object="script" field-name="description"
+                              :read-only="!editMode" label="Description"
+                              @value-changed="(value) => script.description = value"/>
+            </div>
+            <div class="col">
+              <editable-field :object="script" field-name="version"
+                              :read-only="!editMode" label="Version"
+                              @value-changed="(value) => script.version = value"/>
+            </div>
+          </div>
+          <tag-list-editable :tags="script.tags"
+                             @addTag="onAddTag" @removeTag="onRemoveTag"/>
+        </template>
+        <template v-slot:properties>
+          <property-table :properties="script.properties"
+                          @addProperty="onAddProperty" @removeProperty="onRemoveProperty"/>
+        </template>
+      </phaedra-details-section>
+      <oa-section title="Code" class="q-pt-sm" icon="data_object">
+          <codemirror :disabled="!editMode" :extensions="editorConfig.extensions"
+                      v-model="script.value"/>
+      </oa-section>
+    </div>
+  </q-page>
 
-    <delete-dialog v-model:id="script.id" v-model:name="script.name" v-model:show="showDeleteDialog" objectClass="script" @onDeleted="confirmDelete" />
+  <delete-dialog v-model:id="script.id" v-model:name="script.name" v-model:show="showDeleteDialog"
+                 objectClass="script" @onDeleted="confirmDelete"/>
 </template>
 
 <script setup>
-    import {ref} from 'vue'
-    import {useStore} from "vuex";
-    import {useRoute, useRouter} from 'vue-router';
-    import { Codemirror } from 'vue-codemirror';
-    import { javascript } from '@codemirror/lang-javascript';
-    import FormatUtils from "@/lib/FormatUtils.js"
-    import OaSection from "@/components/widgets/OaSection";
-    import UserChip from "@/components/widgets/UserChip";
-    import DeleteDialog from "@/components/widgets/DeleteDialog";
+import {ref} from 'vue'
+import {useStore} from "vuex";
+import {useRoute, useRouter} from 'vue-router';
+import {Codemirror} from 'vue-codemirror';
+import {javascript} from '@codemirror/lang-javascript';
+import OaSection from "@/components/widgets/OaSection";
+import UserChip from "@/components/widgets/UserChip";
+import DeleteDialog from "@/components/widgets/DeleteDialog";
+import PhaedraDetailsSection from "@/components/widgets/PhaedraDetailsSection.vue";
+import DateChip from "@/components/widgets/DateChip.vue";
+import EditableField from "@/components/widgets/EditableField.vue";
+import PropertyTable from "@/components/property/PropertyTable.vue";
+import TagListEditable from "@/components/tag/TagListEditable.vue";
 
-    const store = useStore();
-    const route = useRoute();
-    const router = useRouter();
+const store = useStore();
+const route = useRoute();
+const router = useRouter();
 
-    const scriptId = parseInt(route.params.id);
-    const blankScript = {
-        name: 'New Script',
-        value: '// Enter script code here'
-    };
-    const script = ref(blankScript);
-    const getWorkingCopy = () => {
-        let originalScript = store.getters['datacapture/getCaptureScriptById'](scriptId) || blankScript;
-        // Return a shallow copy of the script for editing
-        script.value = {...originalScript};
+const scriptId = parseInt(route.params.id);
+const blankScript = {
+  name: 'New Script',
+  value: '// Enter script code here'
+};
+const script = ref(blankScript);
+const getWorkingCopy = () => {
+  let originalScript = store.getters['datacapture/getCaptureScriptById'](scriptId) || blankScript;
+  // Return a shallow copy of the script for editing
+  script.value = {...originalScript};
+}
+
+const isNewScript = (route.params.id == 'new');
+if (!isNewScript) {
+  store.dispatch('datacapture/loadCaptureScriptById', scriptId).then(getWorkingCopy);
+}
+
+const editMode = ref(isNewScript);
+const exitEditMode = async (saveChanges) => {
+  editMode.value = false;
+  if (saveChanges) {
+    if (isNewScript) {
+      let newScript = await store.dispatch('datacapture/createCaptureScript', script.value);
+      router.push(`/datacapture/script/${newScript.id}`);
+    } else {
+      await store.dispatch('datacapture/updateCaptureScript', script.value);
+      getWorkingCopy();
     }
-
-    const isNewScript = (route.params.id == 'new');
-    if (!isNewScript) {
-        store.dispatch('datacapture/loadCaptureScriptById', scriptId).then(getWorkingCopy);
+  } else {
+    if (isNewScript) {
+      router.push("/datacapture/scripts");
+    } else {
+      getWorkingCopy();
     }
+  }
+};
 
-    const editMode = ref(isNewScript);
-    const exitEditMode = async (saveChanges) => {
-        editMode.value = false;
-        if (saveChanges) {
-            if (isNewScript) {
-                let newScript = await store.dispatch('datacapture/createCaptureScript', script.value);
-                router.push(`/datacapture/script/${newScript.id}`);
-            } else {
-                await store.dispatch('datacapture/updateCaptureScript', script.value);
-                getWorkingCopy();
-            }
-        } else {
-            if (isNewScript) router.push("/datacapture/scripts");
-            else getWorkingCopy();
-        }
-    };
+const editorConfig = {
+  extensions: [javascript()]
+};
 
-    const editorConfig = {
-        extensions: [javascript()]
-    };
+const showDeleteDialog = ref(false);
+const confirmDelete = async () => {
+  await store.dispatch('datacapture/deleteCaptureScript', scriptId);
+  router.push("/datacapture/scripts");
+}
 
-    const showDeleteDialog = ref(false);
-    const confirmDelete = async () => {
-        await store.dispatch('datacapture/deleteCaptureScript', scriptId);
-        router.push("/datacapture/scripts");
-    }
+const onAddTag = async (newTag) => {
+  // TODO: implement add tags for formulas
+}
+
+const onRemoveTag = async (tag) => {
+  // TODO: implement add tags for formulas
+}
+
+const onAddProperty = async (newProperty) => {
+  // TODO: implement add properties for formulas
+}
+
+const onRemoveProperty = async (property) => {
+  // TODO: implement add properties for formulas
+}
 </script>

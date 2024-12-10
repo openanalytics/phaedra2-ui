@@ -6,7 +6,14 @@
       <template v-slot:header>
         <q-item-section class="row align-center text-h5 q-mb-xs">
           <div class="row">
-            <slot name="title"></slot>
+            <slot name="title">
+              <q-icon v-if="titleIcon !== null" :name="titleIcon" size="md"/>
+              <span>{{ objectTitle }}</span>
+              <span class="q-mx-sm" style="font-size: 0.7em">
+                ({{ objectId }})
+                <q-tooltip>ID</q-tooltip>
+              </span>
+            </slot>
             <slot name="actions"></slot>
           </div>
         </q-item-section>
@@ -35,7 +42,10 @@ const props = defineProps({
   collapsible: {
     default: true,
     type: Boolean
-  }
+  },
+  objectId: Number,
+  objectTitle: String,
+  titleIcon: String
 })
 </script>
 

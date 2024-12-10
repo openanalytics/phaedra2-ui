@@ -1,12 +1,8 @@
 <template>
-  <phaedra-details-section v-if="project && project.name" :collapsible="collapsible">
-    <template v-slot:title>
-      <span>{{ project.name }}</span>
-      <span class="q-mx-sm" style="font-size: 0.7em">
-        ({{ project.id }})
-        <q-tooltip>ID</q-tooltip>
-      </span>
-    </template>
+  <phaedra-details-section v-if="project && project.name"
+                           :object-id="project.id"
+                           :object-title="project.name"
+                           :collapsible="collapsible">
     <template v-slot:actions>
       <span>
         <q-btn icon="edit" size="xs" color="positive"

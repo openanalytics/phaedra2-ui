@@ -20,7 +20,8 @@
         </template>
         <template v-slot:actions>
           <span v-show="!editMode" class="q-ml-xs">
-            <q-btn size="xs" icon="edit" color="positive" @click="editMode = true" round dense>
+            <q-btn size="xs" icon="edit" color="positive"
+                   @click="editMode = true" round dense>
               <q-tooltip>Edit Capture Config</q-tooltip>
             </q-btn>
           </span>
@@ -46,7 +47,8 @@
         <template v-slot:readonly>
           <div class="col">
             <div>
-              <user-chip :id="config.createdBy" label="Created By" on-hover-message="Created By"/>
+              <user-chip :id="config.createdBy" label="Created By"
+                         on-hover-message="Created By"/>
             </div>
             <div>
               <date-chip :date-time="config.createdOn" label="Created On"
@@ -55,7 +57,8 @@
           </div>
           <div class="col">
             <div>
-              <user-chip :id="config.updatedBy" label="Updated By" on-hover-message="Updated By"/>
+              <user-chip :id="config.updatedBy" label="Updated By"
+                         on-hover-message="Updated By"/>
             </div>
             <div>
               <date-chip :date-time="config.updatedOn" label="Updated On"

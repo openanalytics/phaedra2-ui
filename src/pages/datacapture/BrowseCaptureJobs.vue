@@ -7,8 +7,7 @@
   <q-page class="oa-root-div q-pa-sm">
     <oa-section title="Data Capture Jobs" icon="cloud_upload" :collapsible="true">
       <oa-table :rows="jobs" :columns="columns"
-                :pagination="{ rowsPerPage: 20, sortBy: 'createDate', descending: true }"
-      >
+                :pagination="{ rowsPerPage: 20, sortBy: 'createDate', descending: true }">
         <template v-slot:top-right>
           <div class="justify-end">
             <q-btn round icon="refresh" size="sm" @click="refreshList" class="on-left">
@@ -61,10 +60,14 @@
 
       <q-dialog @hide="clearData" v-model="showSubmitJobDialog">
         <q-card style="width: 700px; max-width: 80vw;">
-          <q-card-section class="bg-primary text-white">
-            <div class="text-h6">
-              <q-icon name="scanner" class="on-left" />
-              Submit New Data Capture Job
+          <q-card-section style="width: 100%; padding: 4px">
+            <div style="width: 100%" class="row align-center text-h5 q-mb-xs">
+              <div class="row">
+                <q-icon name="scanner" class="on-left" />
+                <div style="align-items: baseline">
+                  <span> Submit New Data Capture Job </span>
+                </div>
+              </div>
             </div>
           </q-card-section>
           <q-card-section class="q-pa-sm q-gutter-sm">
@@ -322,8 +325,6 @@ const submitJobAction = async () => {
       }
     }
   }
-
-
 
   captureJobs.forEach(job => {
     store.dispatch('datacapture/submitJob', job);

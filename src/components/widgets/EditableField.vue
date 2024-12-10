@@ -3,10 +3,10 @@
        style="font-size: 10px; color: rgba(0, 0, 0, 0.6)">
     <div>{{ label }}</div>
     <div>
-      <q-btn v-show="!props.readOnly" round flat dense
+      <q-btn v-show="!props?.readOnly" round flat dense
              class="q-my-xs" icon="edit" size="xs" color="primary"
              @click="showEditDialog = true">
-        <q-tooltip>Edit {{ fieldName }}</q-tooltip>
+        <q-tooltip>Edit {{ label }}</q-tooltip>
       </q-btn>
     </div>
   </div>
@@ -17,9 +17,15 @@
   </div>
   <q-dialog @hide="cancelChanges" v-model="showEditDialog">
     <q-card style="min-width: 30vw">
-      <q-card-section class="text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
-        <q-icon name="edit" class="q-pr-sm" />
-        Edit {{ fieldName }}
+      <q-card-section style="width: 100%; padding: 4px">
+        <div style="width: 100%" class="row align-center text-h5 q-mb-xs">
+          <div class="row">
+            <q-icon name="edit" size="md" class="q-pr-sm" />
+            <div style="align-items: baseline">
+              <span> Edit {{ label }} </span>
+            </div>
+          </div>
+        </div>
       </q-card-section>
 
       <q-card-section>
@@ -42,7 +48,10 @@ const props = defineProps({
   object: Object,
   fieldName: String,
   number: Boolean,
-  readOnly: Boolean,
+  readOnly: {
+    type: Boolean,
+    default: false
+  },
   label: String,
 });
 const emit = defineEmits(["valueChanged"]);

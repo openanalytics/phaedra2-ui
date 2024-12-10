@@ -1,25 +1,24 @@
 <template>
   <q-dialog v-model="showDialog" persistent>
     <q-card style="min-width: 30vw">
-      <q-card-section
-        class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary"
-      >
-        <q-icon name="add" class="q-pr-sm" />
-        Add Tag
+      <q-card-section style="width: 100%; padding: 4px">
+        <div class="row align-center text-h5 q-mb-xs">
+          <div class="row">
+            <q-icon name="add" size="md" class="q-mr-sm"/>
+            <div style="align-items: baseline">
+              <span> Add Tag </span>
+            </div>
+          </div>
+        </div>
       </q-card-section>
       <q-card-section>
-        <div class="row">
-          <div class="col-2 row items-center">
-            <q-avatar icon="sell" color="primary" text-color="white" />
+        <div class="row items-center">
+          <div class="col-1">
+            <q-icon name="sell" size="md" class="q-mr-sm"/>
           </div>
-          <div class="col-10">
-            <span>New Tag Name:</span><br />
-            <q-input
-              dense
-              v-model="newTag"
-              autofocus
-              @keyup.enter="showAddTagDialog = false"
-            />
+          <div class="col">
+            <q-input dense v-model="newTag" autofocus @keyup.enter="showAddTagDialog = false"
+                     label="New Tag Name" />
           </div>
         </div>
       </q-card-section>

@@ -1,15 +1,6 @@
 <template>
-  <phaedra-details-section v-if="template">
-    <template v-slot:title>
-      <span>
-        <q-icon name="border_outer" size="md"/>
-        {{ template.name }}
-      </span>
-      <span class="q-mx-sm" style="font-size: 0.7em">
-        ({{ template.id }})
-        <q-tooltip>ID</q-tooltip>
-      </span>
-    </template>
+  <phaedra-details-section v-if="template" :object-title="template.name"
+                           :object-id="template.id" title-icon="border_outer">
     <template v-slot:actions>
       <span>
         <q-btn icon="edit" size="xs" color="positive"

@@ -1,7 +1,7 @@
 <template>
   <oa-section title="Features" icon="functions" :collapsible="true">
     <oa-table :rows="features" :columns="columns" :pagination="{ rowsPerPage: 10, sortBy: 'name' }">
-      <template v-slot:top-left>
+      <template v-slot:top-right>
         <div class="col action-button on-left">
           <q-btn icon="add" color="primary" @click="showNewFeatureView" size="sm" round>
             <q-tooltip>Add a new feature</q-tooltip>
