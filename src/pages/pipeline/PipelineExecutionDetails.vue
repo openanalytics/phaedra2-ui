@@ -184,6 +184,7 @@ import ConfirmDialog from "@/components/widgets/ConfirmDialog";
 import StatusLabel from "@/components/widgets/StatusLabel";
 import OaSection from "@/components/widgets/OaSection";
 import { usePipelineStore } from "@/stores/pipeline";
+import {useLoadingHandler} from "@/composable/loadingHandler";
 
 const pipelineStore = usePipelineStore();
 const router = useRouter();
