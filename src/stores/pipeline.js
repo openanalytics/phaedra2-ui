@@ -44,7 +44,6 @@ export const usePipelineStore = defineStore("pipeline", () => {
 
         const updatePipelineProperty = async (property, value) => {
             pipeline.value[property] = value
-            // await updatePipeline()
         }
 
         const deletePipeline = async (pipelineId) => {
@@ -54,12 +53,10 @@ export const usePipelineStore = defineStore("pipeline", () => {
 
         const enablePipeline = async () => {
             pipeline.value.status = 'ENABLED'
-            // await updatePipeline()
         }
 
         const disablePipeline = async () => {
             pipeline.value.status = 'DISABLED'
-            // await updatePipeline()
         }
 
         const loadPipelineExecutions = async (range) => {
