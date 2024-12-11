@@ -52,11 +52,12 @@ const newProject = ref({
 
 const loadingHandler = useLoadingHandler();
 const onSubmit = async () => {
-  await loadingHandler.handleLoadingDuring(
-    projectStore.createNewProject(newProject.value).then(() => {
-      router.push({ path: "/project/" + projectStore.project.id });
-    })
-  );
+  await loadingHandler.handleLoadingDuring(createNewProject());
+};
+
+const createNewProject =async () => {
+  await projectStore.createNewProject(newProject.value);
+  await router.push({ path: "/project/" + projectStore.project.id });
 };
 
 const onReset = () => {

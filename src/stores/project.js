@@ -66,11 +66,8 @@ export const useProjectStore = defineStore("project", () => {
   const deleteExperiment = async (experimentId) => {
     await experimentAPI.deleteExperiment(experimentId);
   };
-  const createProjectAccess = async (projectId, newAccess) => {
-    await projectAPI.createProjectAccess({
-      projectId: projectId,
-      ...newAccess,
-    });
+  const createProjectAccess = async (newAccess) => {
+    await projectAPI.createProjectAccess(newAccess);
   };
   const deleteProjectAccess = async (access) => {
     await projectAPI.deleteProjectAccess(access.id);
