@@ -122,24 +122,6 @@
     ]
   },
   {
-    "label": "Query Tool",
-    "header": "category",
-    "icon": "search",
-    "role": "user",
-    "children": [
-      {
-        "label": "Create Query...",
-        "icon": "add",
-        "route": "newQuery"
-      },
-      {
-        "label": "Queries",
-        "icon": "list",
-        "route": "browseQueries"
-      }
-    ]
-  },
-  {
     "label": "Admin",
     "header": "category",
     "icon": "settings",
