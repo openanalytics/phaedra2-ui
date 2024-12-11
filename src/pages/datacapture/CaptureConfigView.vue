@@ -19,7 +19,7 @@
           </span>
         </template>
         <template v-slot:actions>
-          <span v-show="!editMode" class="q-ml-xs">
+          <span v-show="!editMode">
             <q-btn size="xs" icon="edit" color="positive"
                    @click="editMode = true" round dense>
               <q-tooltip>Edit Capture Config</q-tooltip>

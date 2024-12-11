@@ -7,7 +7,6 @@
 
   <q-page class="oa-root-div" v-if="measurementStore.measurement">
     <div class="q-pa-sm">
-<!--      <oa-section title="Loading..." icon="text_snippet"/>-->
       <phaedra-details-section :object-id="measurementStore.measurement.id"
                                :object-title="measurementStore.measurement.barcode"
                                title-icon="text_snippet">
@@ -81,9 +80,6 @@
                           @addProperty="onAddProperty" @removeProperty="onRemoveProperty"/>
         </template>
       </phaedra-details-section>
-<!--      <oa-section :title="measurementStore.measurement.barcode" icon="text_snippet">-->
-<!--        -->
-<!--      </oa-section>-->
 
       <div class="q-pt-sm">
         <q-tabs inline-label dense no-caps class="oa-section" v-model="activeTab" align="left">
