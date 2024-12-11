@@ -60,23 +60,10 @@
     <template v-slot:body-cell-menu="props">
       <q-td :props="props">
         <div class="col items-center cursor-pointer" v-if="editable">
-          <q-btn
-            flat
-            round
-            dense
-            icon="edit"
-            size="sm"
-            @click="editFeatureStat(props.row)"
-          />
-          <q-btn
-            flat
-            round
-            dense
-            icon="delete"
-            color="red"
-            size="sm"
-            @click="askDeleteFeatureStat(props.row)"
-          />
+          <q-btn icon="edit" size="sm" color="primary"
+                 @click="editFeatureStat(props.row)" round dense/>
+          <q-btn icon="delete" color="negative" size="sm"
+            @click="askDeleteFeatureStat(props.row)" round dense/>
         </div>
       </q-td>
     </template>

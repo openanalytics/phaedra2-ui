@@ -16,7 +16,7 @@
         :loading="loading"
         @row-click="gotoPipelineExecutionDetails"
       >
-        <template v-slot:top-left>
+        <template v-slot:top-right>
           <q-btn
             round
             icon="refresh"
@@ -26,7 +26,7 @@
             ><q-tooltip>Refresh</q-tooltip></q-btn
           >
         </template>
-        <template v-slot:top-right>
+        <template v-slot:top-left>
           <date-range-selector
             v-model:from="fromDate"
             v-model:to="toDate"
