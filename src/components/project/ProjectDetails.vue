@@ -114,66 +114,59 @@ const loadingHandler = useLoadingHandler();
 
 const onEdited = async (newVal) => {
   await loadingHandler.handleLoadingDuring(
-    projectStore.editProject(props.project.id, newVal).then(() => {
-      emits("updated");
-    })
+    projectStore.editProject(props.project.id, newVal)
   );
+  emits("updated");
 };
 
 const onDeleted = async () => {
   await loadingHandler.handleLoadingDuring(
-    projectStore.deleteProject(props.project.id).then(() => {
-      emits("updated");
-    })
+    projectStore.deleteProject(props.project.id)
   );
+  emits("updated");
   await router.push({ name: "browseProjects" });
 };
 
 const onAddAccess = async (newAccess) => {
+  newAccess["projectId"] = props.project.id;
   await loadingHandler.handleLoadingDuring(
-    projectStore.createProjectAccess(props.project.id, newAccess).then(() => {
-      emits("updated");
-    })
+    projectStore.createProjectAccess(newAccess)
   );
+  emits("updated");
 };
 
 const onRemoveAccess = async (access) => {
   await loadingHandler.handleLoadingDuring(
-    projectStore.deleteProjectAccess(access).then(() => {
-      emits("updated");
-    })
+    projectStore.deleteProjectAccess(access)
   );
+  emits("updated");
 };
 
 const onAddTag = async (newTag) => {
   await loadingHandler.handleLoadingDuring(
-    projectStore.handleAddTag(props.project.id, newTag).then(() => {
-      emits("updated");
-    })
+    projectStore.handleAddTag(props.project.id, newTag)
   );
+  emits("updated");
 };
 
 const onRemoveTag = async (tag) => {
   await loadingHandler.handleLoadingDuring(
-    projectStore.handleDeleteTag(props.project.id, tag).then(() => {
-      emits("updated");
-    })
+    projectStore.handleDeleteTag(props.project.id, tag)
   );
+  emits("updated");
 };
 
 const onAddProperty = async (newProperty) => {
   await loadingHandler.handleLoadingDuring(
-    projectStore.handleAddProperty(props.project.id, newProperty).then(() => {
-      emits("updated");
-    })
+    projectStore.handleAddProperty(props.project.id, newProperty)
   );
+  emits("updated");
 };
 
 const onRemoveProperty = async (property) => {
   await loadingHandler.handleLoadingDuring(
-    projectStore.handleDeleteProperty(props.project.id, property).then(() => {
-      emits("updated");
-    })
+    projectStore.handleDeleteProperty(props.project.id, property)
   );
+  emits("updated");
 };
 </script>

@@ -92,6 +92,7 @@ import DimensionsChip from "@/components/plate/DimensionsChip.vue";
 import CalculatePlateDialog from "@/components/plate/CalculatePlateDialog.vue";
 import {useLoadingHandler} from "@/composable/loadingHandler";
 import PhaedraDetailsSection from "@/components/widgets/PhaedraDetailsSection.vue";
+import {addTag} from "@/lib/MetadataUtils";
 
 const props = defineProps({
   plate: Object,
@@ -137,34 +138,30 @@ const onDeleted = async () => {
 
 const onAddTag = async (newTag) => {
   await loadingHandler.handleLoadingDuring(
-      plateStore.handleAddTag(props.plate?.id, newTag).then(() => {
-        emits("updated");
-      })
-  );
+      plateStore.handleAddTag(props.plate?.id, newTag)
+  )
+  emits("updated")
 };
 
 const onRemoveTag = async (tag) => {
   await loadingHandler.handleLoadingDuring(
-      plateStore.handleDeleteTag(props.plate?.id, tag).then(() => {
-        emits("updated");
-      })
-  );
+      plateStore.handleDeleteTag(props.plate?.id, tag)
+  )
+  emits("updated")
 };
 
 const onAddProperty = async (newProperty) => {
   await loadingHandler.handleLoadingDuring(
-      plateStore.handleAddProperty(props.plate?.id, newProperty).then(() => {
-        emits("updated");
-      })
-  );
+      plateStore.handleAddProperty(props.plate?.id, newProperty)
+  )
+  emits("updated")
 };
 
 const onRemoveProperty = async (property) => {
   await loadingHandler.handleLoadingDuring(
-      plateStore.handleDeleteProperty(props.plate?.id, property).then(() => {
-        emits("updated");
-      })
-  );
+      plateStore.handleDeleteProperty(props.plate?.id, property)
+  )
+  emits("updated")
 };
 </script>
 
