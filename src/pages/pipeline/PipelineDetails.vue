@@ -180,6 +180,7 @@ const onPipelineEdited = async (fieldName, newValue) => {
 
 const saveChanges = () => {
   editMode.value = false;
+  pipelineStore.pipeline.config = JSON.parse(configWorkingCopy.value);
   pipelineStore.updatePipeline()
 }
 
