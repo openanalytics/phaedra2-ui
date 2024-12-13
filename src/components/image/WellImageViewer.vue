@@ -26,7 +26,7 @@
         </q-badge>
         <q-btn color="blue" size="xs" round icon="settings" class="q-ml-sm" @click="showRenderConfigDialog = true" />
       </div>
-      <div class="image-container" style="width: 100%; min-height: 30vh; max-height: 70vh; overflow: auto;">
+      <div class="image-container" style="width: 100%; min-height: 30vh; max-height: 80vh; overflow: auto;">
         <img :src="wellImage" />
       </div>
       <div class="absolute-center" v-if="loading">
