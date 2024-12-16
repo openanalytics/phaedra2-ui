@@ -1,12 +1,5 @@
 [
   {
-    "label": "Dashboard",
-    "header": "link",
-    "route": "dashboard",
-    "icon": "home",
-    "role": "user"
-  },
-  {
     "label": "Workbench",
     "header": "link",
     "route": "workbench",

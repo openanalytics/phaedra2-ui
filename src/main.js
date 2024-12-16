@@ -116,10 +116,19 @@ import WellView from "@/pages/well/WellView.vue";
 import Workbench from "@/pages/workbench/Workbench.vue";
 import { prepareWorkbench } from "@/composable/router/prepareViews";
 
+// { name: "dashboard", path: "/", component: Dashboard },
+
 const routes = createRouter({
   history: createWebHistory(publicPath),
   routes: [
-    { name: "dashboard", path: "/", component: Dashboard },
+    {
+      name: "dashboard",
+      path: "/",
+      component: Workbench,
+      beforeEnter: () => {
+        prepareWorkbench();
+      }
+    },
     {
       name: "workbench",
       path: "/workbench",
