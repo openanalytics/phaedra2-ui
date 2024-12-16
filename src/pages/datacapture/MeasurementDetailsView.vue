@@ -219,14 +219,14 @@
             </q-tab-panel>
             <q-tab-panel name="imageData" class="q-px-none">
               <div class="row q-px-sm">
-                <div class="col-4">
+                <div class="col">
                   <WellGrid
                     :plate="plate"
                     :wells="plate.wells"
                     @wellSelection="handleWellSelection"
                   />
                 </div>
-                <div class="col-8 q-px-sm">
+                <div class="col q-px-sm">
                   <WellImageViewer />
                 </div>
               </div>
