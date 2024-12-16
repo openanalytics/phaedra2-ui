@@ -122,8 +122,16 @@ const routes = createRouter({
   history: createWebHistory(publicPath),
   routes: [
     {
-      name: "workbench",
+      name: "dashboard",
       path: "/",
+      component: Workbench,
+      beforeEnter: () => {
+        prepareWorkbench();
+      }
+    },
+    {
+      name: "workbench",
+      path: "/workbench",
       component: Workbench,
       beforeEnter: () => {
         prepareWorkbench();
