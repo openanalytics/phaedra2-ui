@@ -121,10 +121,19 @@ import NewFormulaView from "@/pages/calculation/formula/NewFormulaView.vue";
 import NewCaptureConfigView from "@/pages/datacapture/NewCaptureConfigView.vue";
 import NewCaptureScriptView from "@/pages/datacapture/NewCaptureScriptView.vue";
 
+// { name: "dashboard", path: "/", component: Dashboard },
+
 const routes = createRouter({
   history: createWebHistory(publicPath),
   routes: [
-    { name: "dashboard", path: "/", redirect: "/workbench" },
+    {
+      name: "dashboard",
+      path: "/",
+      component: Workbench,
+      beforeEnter: () => {
+        prepareWorkbench();
+      }
+    },
     {
       name: "workbench",
       path: "/workbench",
