@@ -1,6 +1,6 @@
 <template>
   <q-breadcrumbs class="oa-breadcrumb" v-if="projectStore.project">
-    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard' }" />
+    <q-breadcrumbs-el icon="home" :to="{ name: 'workbench' }" />
     <q-breadcrumbs-el :label="'Projects'" icon="list" :to="'/projects'" />
     <q-breadcrumbs-el :label="projectStore.project.name" icon="folder" />
   </q-breadcrumbs>
@@ -15,7 +15,7 @@
       <ProjectDetails
         v-else
         :project="projectStore.project"
-        @updated="projectStore.reloadProject(projectStore.projectId)"
+        @updated="projectStore.reloadProject(projectStore.project.id)"
       />
     </div>
 
@@ -72,6 +72,7 @@ import ChartViewer from "@/components/chart/ChartViewer.vue";
 import { useUIStore } from "@/stores/ui";
 import { useExperimentStore } from "@/stores/experiment";
 import ProjectDetails from "@/components/project/ProjectDetails.vue";
+import { useLoadingHandler } from "../../composable/loadingHandler";
 
 const uiStore = useUIStore();
 const projectStore = useProjectStore();
@@ -84,14 +85,20 @@ onBeforeMount(() => {
   experimentStore.reset();
 });
 
-onMounted(() => {
-  projectStore.loadProject(route.params.id);
+const loadingHandler = useLoadingHandler();
+
+onMounted(async () => {
+  await loadingHandler.handleLoadingDuring(
+    projectStore.loadProject(route.params.id)
+  );
 });
 
 const onCreateNewExperiment = async (newExperiment) => {
-  await projectStore.addExperiment(newExperiment).then(() => {
-    projectStore.reloadProject(newExperiment.projectId);
-  });
+  await loadingHandler.handleLoadingDuring(
+    projectStore.addExperiment(newExperiment).then(() => {
+      projectStore.reloadProject(newExperiment.projectId);
+    })
+  );
 };
 
 const handleSelection = (experiments) => {

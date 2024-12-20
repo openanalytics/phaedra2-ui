@@ -8,34 +8,35 @@
     selection="multiple"
     v-model:selected="selectedExperiments"
   >
-    <template v-slot:top-left>
+    <template v-slot:top-right>
       <div class="row action-button on-left">
         <q-btn
+          round
           size="sm"
+          color="primary"
           icon="add"
-          class="oa-button"
-          label="New Experiment"
           @click="showNewExperimentDialog = true"
-        />
-      </div>
-    </template>
-    <template v-slot:top-right>
-      <div class="row action-button">
-        <q-btn-dropdown size="sm" class="oa-button q-mr-md" label="Export">
-          <q-list dense>
-            <q-item clickable v-close-popup @click="exportToCSV">
-              <q-item-section>
-                <q-item-label>Export to CSV</q-item-label>
-              </q-item-section>
-            </q-item>
-
-            <q-item clickable v-close-popup @click="exportToXLSX">
-              <q-item-section>
-                <q-item-label>Export to Excel</q-item-label>
-              </q-item-section>
-            </q-item>
-          </q-list>
-        </q-btn-dropdown>
+          :disable="!createExperimentCondition"
+          ><q-tooltip
+            >Create New Experiment
+            <span v-if="!createExperimentCondition"
+              >(You need to select at least 1 project)</span
+            ></q-tooltip
+          >
+        </q-btn>
+        <q-btn round icon="download" size="sm" class="q-mx-sm">
+          <q-tooltip>Download experiments list</q-tooltip>
+          <q-menu anchor="bottom middle" self="top left">
+            <q-list style="min-width: 100px">
+              <q-item clickable v-close-popup @click="exportToCSV">
+                <q-item-section>Export to CSV</q-item-section>
+              </q-item>
+              <q-item clickable v-close-popup @click="exportToXLSX">
+                <q-item-section>Export to Excel</q-item-section>
+              </q-item>
+            </q-list>
+          </q-menu>
+        </q-btn>
       </div>
     </template>
     <template v-slot:body-cell-name="props">
@@ -101,14 +102,13 @@
     </template>
   </oa-table>
   <ExperimentMenu
-    touch-position
     @onDeleteExperiment="deleteExperiments"
     @open="open"
     @updated="updated"
     :experiments="selectedExperiments"
   />
 
-  <q-dialog v-model="showNewExperimentDialog">
+  <q-dialog @hide="cancelCreateNewExperiment" v-model="showNewExperimentDialog">
     <q-card style="min-width: 30vw">
       <q-card-section
         class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary"
@@ -116,18 +116,24 @@
         Create New Experiment
       </q-card-section>
       <q-card-section>
-        <div class="row">
-          <div class="col-2 row items-center">
-            <q-avatar icon="edit" color="primary" text-color="white" />
-          </div>
-          <div class="col-10">
-            <span>New Experiment Name:</span><br />
-            <q-input dense v-model="newExperimentName" autofocus />
-          </div>
-        </div>
+        <q-select
+          class="q-pa-xs"
+          v-model="newExperimentProject"
+          :options="projects"
+          label="project"
+          option-value="id"
+          option-label="name"
+          dense
+        />
+        <q-input
+          dense
+          v-model="newExperimentName"
+          autofocus
+          label="experiment name"
+        />
       </q-card-section>
       <q-card-actions align="right">
-        <q-btn flat label="Cancel" color="primary" v-close-popup />
+        <q-btn flat label="Cancel" @click="cancelCreateNewExperiment" color="primary" v-close-popup />
         <q-btn
           label="Create"
           color="primary"
@@ -149,8 +155,10 @@ import FormatUtils from "@/lib/FormatUtils.js";
 import FilterUtils from "@/lib/FilterUtils";
 import { useExportTableData } from "@/composable/exportTableData";
 import { useRoute, useRouter } from "vue-router";
+import { useProjectStore } from "@/stores/project";
 import OaTable from "@/components/table/OaTable.vue";
 import { useExperimentStore } from "@/stores/experiment";
+import { useLoadingHandler } from "@/composable/loadingHandler";
 
 const props = defineProps({
   experiments: [Object],
@@ -166,7 +174,7 @@ const emits = defineEmits([
 
 const router = useRouter();
 
-const columns = ref([
+const baseColumns = ref([
   {
     name: "id",
     align: "left",
@@ -174,6 +182,14 @@ const columns = ref([
     field: "id",
     sortable: true,
     description: "The experiment id",
+  },
+  {
+    name: "project",
+    align: "left",
+    label: "Project",
+    field: (row) => row.project.name,
+    sortable: true,
+    description: "The project name",
   },
   {
     name: "name",
@@ -265,10 +281,20 @@ const columns = ref([
     description: "Open or closed",
   },
 ]);
+const route = useRoute();
+
+const columns = computed(() => {
+  if (route.name != "workbench") {
+    return baseColumns.value.filter((col) => col.name != "project");
+  }
+  return baseColumns.value;
+});
 
 const experiments = computed(() =>
   props.experiments ? props.experiments : []
 );
+
+const createExperimentCondition = computed(() => props.projects.length > 0);
 
 const projectsNames = computed(() =>
   experimentsToExport.value
@@ -297,21 +323,33 @@ const gotoExperimentView = (event, row) => {
 
 const showNewExperimentDialog = ref(false);
 const newExperimentName = ref("");
+const newExperimentProject = ref(props.projects[0]);
+watch(
+  () => props.projects,
+  (newVal) => {
+    if (newVal.length > 0) {
+      newExperimentProject.value = newVal[0];
+    }
+  }
+);
 
-const doCreateNewExperiment = () => {
+const doCreateNewExperiment = async () => {
   const newExperiment = {
-    projectId: props.projects[0].id,
+    projectId: newExperimentProject.value.id,
     name: newExperimentName.value,
     status: "OPEN",
     createdOn: new Date(),
   };
-  emits("createNewExperiment", newExperiment);
+  await loadingHandler.handleLoadingDuring(createNewExperiment(newExperiment));
+  newExperimentName.value = ""
 };
 
+const cancelCreateNewExperiment = () => {
+  newExperimentName.value = ""
+}
+
 const loading = ref();
-const visibleColumns = ref([]);
 watch(experiments, () => {
-  visibleColumns.value = [...columns.value.map((a) => a.name)];
   loading.value = false;
 });
 
@@ -377,20 +415,29 @@ function getUnique(value, index, array) {
   return array.indexOf(value) === index;
 }
 const experimentStore = useExperimentStore();
-function deleteExperiments() {
-  experimentStore
-    .deleteExperiments(selectedExperiments.value.map((exp) => exp.id))
-    .then(() => {
+const loadingHandler = useLoadingHandler();
+const deleteExperiments = async () => {
+  await loadingHandler.handleLoadingDuring(
+    experimentStore
+      .deleteExperiments(selectedExperiments.value.map((exp) => exp.id))
+      .then(() => {
+        selectedExperiments.value = [];
+      })
+  );
+};
+
+const projectStore = useProjectStore();
+const createNewExperiment = async (newExperiment) => {
+  await loadingHandler.handleLoadingDuring(
+    projectStore.addExperiment(newExperiment).then(() => {
       updated();
-    });
-  selectedExperiments.value = [];
-}
+    })
+  );
+};
 
 function updated() {
   emits("updated");
 }
-
-const route = useRoute();
 
 onBeforeMount(() => {
   if (route.name == "workbench") {

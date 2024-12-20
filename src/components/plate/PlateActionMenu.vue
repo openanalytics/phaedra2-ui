@@ -160,7 +160,7 @@
         <q-item-section side>
           <q-icon name="keyboard_arrow_right" />
         </q-item-section>
-        <q-menu>
+        <q-menu anchor="top right">
           <q-list>
             <menu-item
               icon="timeline"
@@ -201,7 +201,7 @@
         <q-item-section side>
           <q-icon name="keyboard_arrow_right" />
         </q-item-section>
-        <q-menu>
+        <q-menu anchor="top right">
           <q-list>
             <menu-item
               icon="view_module"
@@ -233,17 +233,17 @@
 
   <invalidate-dialog
     v-model:show="showInvalidateDialog"
-    :plates="uiStore.selectedPlates"
+    :plates="plates"
     @onInvalidate="onInvalidatePlate"
   />
   <approve-dialog
     v-model:show="showApproveDialog"
-    :plates="uiStore.selectedPlates"
+    :plates="plates"
     @onApprove="onApprovePlate"
   />
   <disapprove-dialog
     v-model:show="showDisapproveDialog"
-    :plates="uiStore.selectedPlates"
+    :plates="plates"
     @onDisapprove="onDisapprovePlate"
   />
   <calculate-plate-dialog
@@ -469,9 +469,10 @@ const handlePlateSelection = (action, onFailureMessage) => {
     action();
   }
 };
-const handleSetPlateLayout = () => {
+const handleSetPlateLayout = async () => {
+  await experimentStore.reloadExperiment()
   notify.showInfo(
-    "The plate layout has been updated! ",
+    "The plate layout has been updated! Recalculate plate(s)?",
     () => {
       showCalculateDialog.value = true;
     },

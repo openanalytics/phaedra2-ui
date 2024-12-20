@@ -72,10 +72,10 @@ import BrowseProjects from "@/pages/project/BrowseProjects.vue";
 import ProjectView from "@/pages/project/ProjectView.vue";
 import NewProjectView from "@/pages/project/NewProjectView.vue";
 
-import BrowseProtocols from "@/pages/protocol/BrowseProtocols.vue";
-import ProtocolView from "@/pages/protocol/ProtocolView.vue";
-import NewProtocolView from "@/pages/protocol/NewProtocolView.vue";
-import ImportProtocolView from "@/pages/protocol/ImportProtocolView.vue";
+import BrowseProtocols from "@/pages/calculation/protocol/BrowseProtocols.vue";
+import ProtocolView from "@/pages/calculation/protocol/ProtocolView.vue";
+import NewProtocolView from "@/pages/calculation/protocol/NewProtocolView.vue";
+import ImportProtocolView from "@/pages/calculation/protocol/ImportProtocolView.vue";
 
 import BrowseFormulas from "@/pages/calculation/formula/BrowseFormulas.vue";
 import FormulaView from "@/pages/calculation/formula/FormulaView.vue";
@@ -115,11 +115,25 @@ import PipelineAdmin from "@/pages/pipeline/PipelineAdmin.vue";
 import WellView from "@/pages/well/WellView.vue";
 import Workbench from "@/pages/workbench/Workbench.vue";
 import { prepareWorkbench } from "@/composable/router/prepareViews";
+import BrowseQueries from "@/pages/query/BrowseQueries.vue";
+import CreateQuery from "@/pages/query/CreateQuery.vue";
+import NewFormulaView from "@/pages/calculation/formula/NewFormulaView.vue";
+import NewCaptureConfigView from "@/pages/datacapture/NewCaptureConfigView.vue";
+import NewCaptureScriptView from "@/pages/datacapture/NewCaptureScriptView.vue";
+
+// { name: "dashboard", path: "/", component: Dashboard },
 
 const routes = createRouter({
   history: createWebHistory(publicPath),
   routes: [
-    { name: "dashboard", path: "/", component: Dashboard },
+    {
+      name: "dashboard",
+      path: "/",
+      component: Workbench,
+      beforeEnter: () => {
+        prepareWorkbench();
+      }
+    },
     {
       name: "workbench",
       path: "/workbench",
@@ -168,20 +182,11 @@ const routes = createRouter({
 
     { name: "browseTemplates", path: "/templates", component: BrowseTemplates },
     { name: "template", path: "/template/:id", component: PlateTemplateView },
-    {
-      name: "newPlateTemplate",
-      path: "/template/new",
-      component: NewPlateTemplateView,
-      props: true,
-    },
-    {
-      name: "newPlateTemplateFromFile",
-      path: "/template/new",
-      component: ImportPlateTemplateFromFile,
-    },
+    { name: "newPlateTemplate", path: "/template/new", component: NewPlateTemplateView, props: true},
 
     { name: "calcFormulas", path: "/calc/formulas", component: BrowseFormulas },
     { name: "calcFormula", path: "/calc/formula/:id", component: FormulaView },
+    { name: "newCalcFormula", path: "/calc/formula/new", component: NewFormulaView, props: true },
 
     {
       name: "manageFeatureStats",
@@ -192,28 +197,14 @@ const routes = createRouter({
     {
       name: "dataCaptureJobs",
       path: "/datacapture/jobs",
-      component: BrowseCaptureJobs,
+      component: BrowseCaptureJobs
     },
-    {
-      name: "dataCaptureScripts",
-      path: "/datacapture/scripts",
-      component: BrowseCaptureScripts,
-    },
-    {
-      name: "dataCaptureScript",
-      path: "/datacapture/script/:id",
-      component: CaptureScriptView,
-    },
-    {
-      name: "dataCaptureConfigs",
-      path: "/datacapture/configs",
-      component: BrowseCaptureConfigs,
-    },
-    {
-      name: "dataCaptureConfig",
-      path: "/datacapture/config/:id",
-      component: CaptureConfigView,
-    },
+    { name: "dataCaptureScripts", path: "/datacapture/scripts", component: BrowseCaptureScripts },
+    { name: "dataCaptureScript", path: "/datacapture/script/:id", component: CaptureScriptView },
+    { name: "newDataCaptureScript", path: "/datacapture/script/new", component: NewCaptureScriptView },
+    { name: "dataCaptureConfigs", path: "/datacapture/configs", component: BrowseCaptureConfigs },
+    { name: "dataCaptureConfig", path: "/datacapture/config/:id", component: CaptureConfigView },
+    { name: "newDataCaptureConfig", path: "/datacapture/config/new", component: NewCaptureConfigView },
     {
       name: "measurements",
       path: "/datacapture/meas",
@@ -234,7 +225,6 @@ const routes = createRouter({
       path: "/datacapture/render-config/:id",
       component: ImageRenderConfigDetails,
     },
-
     { name: "browsePipelines", path: "/pipelines", component: BrowsePipelines },
     {
       name: "pipelineDetails",
@@ -252,6 +242,8 @@ const routes = createRouter({
       path: "/pipeline-execution/:id",
       component: PipelineExecutionDetails,
     },
+    { name: "browseQueries", path: "/queries", component: BrowseQueries },
+    { name: "newQuery", path: "/queries/new", component: CreateQuery },
     {
       name: "pipelineAdmin",
       path: "/pipeline-admin",

@@ -17,12 +17,14 @@ import WorkbenchMenu from "@/components/workbench/WorkbenchMenu.vue";
 import { onBeforeMount } from "vue";
 import { useSelectionStore } from "@/stores/selection";
 import { onBeforeRouteLeave } from "vue-router";
+import { useLoadingHandler } from "../../composable/loadingHandler";
 
 const panesStore = usePanesStore();
 const selectionStore = useSelectionStore();
+const loadingHandler = useLoadingHandler();
 
-onBeforeMount(() => {
-  selectionStore.fetchProjects();
+onBeforeMount(async () => {
+  await loadingHandler.handleLoadingDuring(selectionStore.fetchProjects());
 });
 
 onBeforeRouteLeave(() => {

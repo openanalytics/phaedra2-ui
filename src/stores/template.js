@@ -14,17 +14,13 @@ export const useTemplateStore = defineStore("template", {
         }
     },
     actions: {
-        loadTemplate(templateId) {
-            const {onResult, onError} = templatesGraphQlAPI.templateById(templateId)
-            onResult(({data}) => {
-                this.template = data.plateTemplate
-            })
+        async loadTemplate(templateId) {
+            const data = await templatesGraphQlAPI.templateById(templateId)
+            this.template = data.plateTemplate
         },
         async reloadTemplate() {
-            const {onResult, onError} = templatesGraphQlAPI.templateById(this.template.id)
-            onResult(({data}) => {
-                this.template = data.plateTemplate
-            })
+            const data = await templatesGraphQlAPI.templateById(this.template.id)
+            this.template = data.plateTemplate
         },
         async saveTemplate()  {
             await templateAPI.editPlateTemplate(this.template)
@@ -32,16 +28,12 @@ export const useTemplateStore = defineStore("template", {
             this.updated = false
         },
         async renameTemplate(newTemplateName) {
-            await templateAPI.editPlateTemplate({id: this.template.id, name: newTemplateName})
-            await this.reloadTemplate()
-        },
-        async deleteTemplate() {
-            await templateAPI.deletePlateTemplate(this.template?.id)
-            this.reset()
+            this.template.name = newTemplateName
+            await this.saveTemplate()
         },
         async editTemplateDescription(newDescription) {
-            await templateAPI.editPlateTemplate({id: this.template.id, description: newDescription})
-            await this.reloadTemplate()
+            this.template.description = newDescription
+            await this.saveTemplate()
         },
         async updateTemplateWell(well, property, value) {
             const index = this.template.wells.findIndex((w ) => (w.row === well.row && w.column === well.column))
@@ -53,19 +45,19 @@ export const useTemplateStore = defineStore("template", {
         },
         async handleAddTag(newTag) {
             await addTag(this.template.id, 'PLATE_TEMPLATE', newTag, this.reloadTemplate)
-            // await this.reloadTemplate()
         },
         async handleDeleteTag(tag) {
             await deleteTag(this.template.id, 'PLATE_TEMPLATE', tag, this.reloadTemplate)
-            // await this.reloadTemplate()
         },
         async handleAddProperty(newProperty) {
             await addProperty(this.template.id,'PLATE_TEMPLATE', newProperty, this.reloadTemplate)
-            // await this.reloadTemplate()
         },
         async handleDeleteProperty(property) {
             await deleteProperty(this.template.id,'PLATE_TEMPLATE', property, this.reloadTemplate)
-            // await this.reloadTemplate()
+        },
+        async deleteTemplate() {
+            await templateAPI.deletePlateTemplate(this.template?.id)
+            this.reset()
         },
         reset() {
             this.template = {}

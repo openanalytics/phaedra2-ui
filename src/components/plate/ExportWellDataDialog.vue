@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="showDialog">
+  <q-dialog v-model="showDialog" @hide="clearData">
     <q-card style="min-width: 60vw">
       <q-card-section class="row text-h6 no-wrap q-pa-sm bg-primary text-secondary">
         <div class="col"> Export Well Data </div>
@@ -110,18 +110,24 @@ onUpdated(() => {
 })
 
 const useNotify = useNotification()
-const fetchProtocolsByExperiment = () => {
+const fetchProtocolsByExperiment = async () => {
   experimentProtocols.value = []
   experimentFeatures.value = []
   for (let e = 0; e < experiment.value.length; e++) {
-    const {onResult, onError} = resultDataGraphQlAPI.protocolsByExperimentId(experiment.value[e].id)
-    onResult(({data}) => {
-      if (data.protocols && data.protocols.length > 0) {
-        experimentProtocols.value = map(groupBy(experimentProtocols.value.concat(data.protocols), 'id'), last);
-        experimentFeatures.value = experimentProtocols.value.map(extractFeatures).flat()
-      }
-    })
-    onError((error) => useNotify.showError(error))
+    const data = await resultDataGraphQlAPI.protocolsByExperimentId(experiment.value[e].id)
+    if (data.protocols && data.protocols.length > 0) {
+      experimentProtocols.value = map(
+          groupBy(experimentProtocols.value.concat(data.protocols), 'id'), last);
+      experimentFeatures.value = experimentProtocols.value.map(extractFeatures).flat()
+    }
+    // const {onResult, onError} = await resultDataGraphQlAPI.protocolsByExperimentId(experiment.value[e].id)
+    // onResult(({data}) => {
+    //   if (data.protocols && data.protocols.length > 0) {
+    //     experimentProtocols.value = map(groupBy(experimentProtocols.value.concat(data.protocols), 'id'), last);
+    //     experimentFeatures.value = experimentProtocols.value.map(extractFeatures).flat()
+    //   }
+    // })
+    // onError((error) => useNotify.showError(error))
   }
 }
 
@@ -180,6 +186,38 @@ const isValid = () => {
   if (step.value == 1)
     return filterModel.value.selectedFeatures.length > 0
   return true
+}
+
+const clearData = () => { 
+  filterModel.value.selectedFeatures = []
+  filterModel.value.plateFilter = {
+    filterOnValidation: false,
+    validationFilter: {
+      username: null,
+      validationDate: {
+        start: null,
+        end: null
+      }
+    },
+    filterOnApproval: false,
+    approvalFilter: {
+      username: null,
+      approvalDate: {
+        start: null,
+        end: null
+      }
+    },
+    includeInvalidatedPlates: false,
+    includeDisapprovedPlates: false,
+  }
+  filterModel.value.wellFilter = {
+    substances: [],
+    includeRejectedWells: false,
+    wellTypes: [],
+  }
+  filterModel.value.includeAllCurveProperties = false
+  filterModel.value.includeBasicCurveProperties = false
+  step.value = 1
 }
 
 </script>

@@ -47,63 +47,44 @@ export const usePlateStore = defineStore("plate", () => {
   }
 
   async function loadPlate(plateId) {
-    const { onResult, onError } = projectsGraphQlAPI.plateById(plateId);
-    onResult(({ data }) => {
-      plate.value = data.plate;
-      wells.value = data.wells;
-    });
+    const data = await projectsGraphQlAPI.plateById(plateId);
+    plate.value = data.plate;
+    wells.value = data.wells;
   }
 
   async function reloadPlate(id) {
-    if (id) {
-      await loadPlate(id);
-    }
+    (id) ? await loadPlate(id) : await loadPlate(plate.value.id);
   }
 
   async function reloadPlateWells() {
-    const { onResult, onError } = projectsGraphQlAPI.wellsByPlateId(
-      plate.value.id
-    );
-    onResult(({ data }) => {
-      wells.value = data.wells;
-    });
+    const data = await projectsGraphQlAPI.wellsByPlateId(plate.value.id);
+    wells.value = data.wells;
   }
 
   async function loadPlateMeasurements(plateId) {
-    const { onResult, onError } =
-      projectsGraphQlAPI.measurementsByPlateId(plateId);
-    onResult(({ data }) => {
-      measurements.value = data.plateMeasurements;
-      activeMeasurement.value = measurements.value.filter(
-        (m) => m.active === true
-      )[0];
-    });
+    const data = await projectsGraphQlAPI.measurementsByPlateId(plateId);
+    measurements.value = data.plateMeasurements;
+    activeMeasurement.value = measurements.value.filter(
+      (m) => m.active === true
+    )[0];
   }
 
   async function loadPlateCalculations(plateId) {
-    const { onResult, onError } =
-      resultdataGraphQlAPI.resultSetsByPlateId(plateId);
-    onResult(({ data }) => {
-      resultSets.value = data.resultSets;
-    });
+    const data = await resultdataGraphQlAPI.resultSetsByPlateId(plateId);
+    resultSets.value = data.resultSets;
   }
 
   async function loadPlateProtocols(plateId) {
-    const { onResult, onError } =
-      resultDataGraphQlAPI.protocolsByPlateId(plateId);
-    onResult(({ data }) => {
-      protocols.value = data.protocols;
-    });
+    const data = await resultDataGraphQlAPI.protocolsByPlateId(plateId);
+    protocols.value = data.protocols;
   }
 
   async function loadPlateCurves(plateId) {
-    const { onResult, onError } = curvesGraphQlAPI.curvesByPlateId(plateId);
-    onResult(({ data }) => {
-      const colorList = ColorUtils.getColorList(data.curves?.length);
-      curves.value = data.curves?.map((curve, index) => {
-        curve["color"] = colorList[index];
-        return curve;
-      });
+    const data = await curvesGraphQlAPI.curvesByPlateId(plateId);
+    const colorList = ColorUtils.getColorList(data.curves?.length);
+    curves.value = data.curves?.map((curve, index) => {
+      curve["color"] = colorList[index];
+      return curve;
     });
   }
 
@@ -169,8 +150,7 @@ export const usePlateStore = defineStore("plate", () => {
   }
 
   watch(plate, async () => {
-    if (!isMetadataUpdate.value) {
-      await experimentStore.loadExperiment(plate.value.experimentId);
+    if (!isMetadataUpdate.value && plate.value) {
       await loadPlateMeasurements(plate.value.id);
       await loadPlateCalculations(plate.value.id);
       await loadPlateProtocols(plate.value.id);

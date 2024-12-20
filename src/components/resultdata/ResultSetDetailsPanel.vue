@@ -90,6 +90,7 @@
     import StatusLabel from "@/components/widgets/StatusLabel"
     import protocolsGraphQlAPI from "@/api/graphql/protocols";
     import resultdataGraphQlAPI from "@/api/graphql/resultdata"
+    import {useLoadingHandler} from "@/composable/loadingHandler";
 
     const props = defineProps({ resultSet: Object });
     const store = useStore();
@@ -97,23 +98,23 @@
     const protocol = ref(null)
     const resultSetFeatureStats = ref([])
 
-    const fetchProtocol = () => {
-      // TODO: implement onError event handler
-      const {onResult, onError} = protocolsGraphQlAPI.protocolById(props.resultSet.protocolId)
-      onResult(({data}) => {
-        protocol.value = data.protocol
-      })
+    const fetchProtocol = async () => {
+      const data = await protocolsGraphQlAPI.protocolById(props.resultSet.protocolId)
+      protocol.value = data.protocol
     }
-    fetchProtocol()
 
-    const fetchFeatureStats = () => {
-      //TODO: implement onError event handler
-      const {onResult, onError} = resultdataGraphQlAPI.resultSetFeatureStats(props.resultSet.id)
-      onResult(({data}) => {
-        resultSetFeatureStats.value = data.rsFeatureStats
-      })
+    const fetchFeatureStats = async () => {
+      const data = await resultdataGraphQlAPI.resultSetFeatureStats(props.resultSet.id)
+      resultSetFeatureStats.value = data.rsFeatureStats
     }
-    fetchFeatureStats()
+
+    const fetchResultSetDetails = async () => {
+      await fetchProtocol()
+      await fetchFeatureStats()
+    }
+
+    const loadingHandler = useLoadingHandler();
+    loadingHandler.handleLoadingDuring(fetchResultSetDetails());
 
     const featureRows = computed(() => (protocol.value?.features || []).map(f => {
       const featureStats = resultSetFeatureStats.value.filter(rd => rd.featureId == f.id) || {};

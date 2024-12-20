@@ -10,7 +10,7 @@
         dense
         align="left"
         no-caps
-        class="oa-section-title"
+        class="oa-section"
       >
         <q-tab
           v-for="component in panes"
@@ -90,6 +90,18 @@ watch(
   (newVal, oldVal) => {
     if (newVal[newVal.length - 1].title != oldVal[oldVal.length - 1].title)
       activeTab.value = newVal[newVal.length - 1].title;
+  }
+);
+
+watch(
+  () => panesStore.newestOpenPaneKey,
+  () => {
+    const newPane = props.panes.find(
+      (pane) => pane.id == panesStore.newestOpenPane
+    );
+    if (newPane) {
+      activeTab.value = newPane.title;
+    }
   }
 );
 

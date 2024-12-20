@@ -1,12 +1,5 @@
 [
   {
-    "label": "Dashboard",
-    "header": "link",
-    "route": "dashboard",
-    "icon": "home",
-    "role": "user"
-  },
-  {
     "label": "Workbench",
     "header": "link",
     "route": "workbench",
@@ -79,17 +72,17 @@
     "role": "user",
     "children": [
       {
-        "label": "Capture Jobs",
+        "label": "Jobs",
         "icon": "cloud_upload",
         "route": "dataCaptureJobs"
       },
       {
-        "label": "Capture Scripts",
+        "label": "Scripts",
         "icon": "data_object",
         "route": "dataCaptureScripts"
       },
       {
-        "label": "Capture Configurations",
+        "label": "Configurations",
         "icon": "settings",
         "route": "dataCaptureConfigs"
       },

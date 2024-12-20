@@ -1,17 +1,12 @@
 <template>
   <div class="q-px-md" style="width: 100%">
-    <q-table
-      :rows="propertyRows"
-      :columns="propertyColumns"
-      class="oa-properties-table"
-      table-header-class="bg-secondary"
-      row-key="propertyName"
-      :pagination="pagination"
-      dense
-      flat
-      bordered
-      virtual-scroll
-    >
+    <q-table :rows="propertyRows"
+             :columns="propertyColumns"
+             class="oa-properties-table"
+             table-header-class="bg-secondary"
+             row-key="propertyName"
+             :pagination="pagination"
+             dense flat bordered virtual-scroll>
       <template v-slot:body-cell="props">
         <q-td :props="props">
           {{ props.row[props.col.name] }}
@@ -19,80 +14,53 @@
       </template>
       <template v-slot:header-cell-actions="props" v-if="!props.readOnly">
         <q-th :props="props">
-          <q-btn
-            dense
-            icon="add"
-            color="primary"
-            rounded
-            size="xs"
-            @click="showNewPropertyDialog = true"
-          >
-            <q-tooltip class="text-black bg-secondary"
-              >Add a new Property</q-tooltip
-            >
+          <q-btn icon="add" color="primary" size="xs"
+            @click="showNewPropertyDialog = true" dense round>
+            <q-tooltip class="text-black bg-secondary">Add a new Property</q-tooltip>
           </q-btn>
         </q-th>
       </template>
       <template v-slot:body-cell-actions="props" v-if="!props.readOnly">
         <q-td :props="props">
-          <q-btn
-            dense
-            icon="delete"
-            flat
-            color="negative"
-            size="xs"
-            @click="doRemoveProperty(props.row)"
-          >
-            <q-tooltip class="text-black bg-secondary"
-              >Delete this Property</q-tooltip
-            >
+          <q-btn icon="delete" color="negative" size="xs"
+            @click="doRemoveProperty(props.row)" round dense>
+            <q-tooltip class="text-black bg-secondary">Delete this Property</q-tooltip>
           </q-btn>
         </q-td>
       </template>
       <template v-slot:no-data>
         <div class="full-width row text-dark">
-          <span style="width: 100%; display: flex; justify-content: center">
-            No properties</span
-          >
+          <span style="width: 100%; display: flex; justify-content: center"> No properties </span >
         </div>
       </template>
     </q-table>
   </div>
 
-  <q-dialog v-model="showNewPropertyDialog">
+  <q-dialog @hide="clearData" v-model="showNewPropertyDialog">
     <q-card style="min-width: 30vw">
-      <q-card-section
-        class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary"
-      >
-        <q-icon name="add" class="q-pr-sm" />
-        Add Property
+      <q-card-section style="width: 100%; padding: 4px">
+        <div class="row align-center text-h5 q-mb-xs">
+          <div class="row">
+            <q-icon name="add" size="md" class="q-mr-sm"/>
+            <div style="align-items: baseline">
+              <span> Add Property </span>
+            </div>
+          </div>
+        </div>
       </q-card-section>
       <q-card-section>
         <div class="row">
           <div class="col full-width">
-            <q-input
-              label="Name"
-              dense
-              v-model="newProperty.name"
-              @keyup.enter="showNewPropertyDialog = false"
-            />
-            <q-input
-              label="Value"
-              dense
-              v-model="newProperty.value"
-              @keyup.enter="showNewPropertyDialog = false"
-            />
+            <q-input label="Name" v-model="newProperty.name"
+              @keyup.enter="showNewPropertyDialog = false" dense />
+            <q-input label="Value" v-model="newProperty.value"
+              @keyup.enter="showNewPropertyDialog = false" dense />
           </div>
         </div>
       </q-card-section>
       <q-card-actions align="right" class="text-primary">
         <q-btn label="Cancel" v-close-popup flat />
-        <q-btn
-          label="Save"
-          v-close-popup
-          class="oa-button"
-          @click="doAddProperty"
-        />
+        <q-btn label="Save" v-close-popup class="oa-button" @click="doAddProperty" />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -141,4 +109,8 @@ const doRemoveProperty = (property) => {
 };
 
 const pagination = ref({ rowsPerPage: 5 });
+
+const clearData = () => {
+  newProperty.value = { name: "", value: "" };
+}
 </script>

@@ -2,30 +2,35 @@
   <oa-table
     :columns="columns"
     :rows="plates"
-    :visible-columns="visibleColumns"
     @row-click="selectPlate"
     @row-dblclick="gotoPlateView"
     @row-contextmenu="plateContextMenu"
     selection="multiple"
     v-model:selected="selectedPlates"
   >
-    <template
-      v-slot:top-left
-      v-if="experiments.length > 0 && experiments[0].status === 'OPEN'"
-    >
-      <q-btn size="sm" icon="add" label="New Plate" class="oa-button">
+    <template v-slot:top-right>
+      <q-btn
+        size="sm"
+        icon="add"
+        round
+        color="primary"
+        :disable="!createPlateCondition"
+        ><q-tooltip
+          >Create New Plate
+          <span v-if="!createPlateCondition"
+            >(You need to select at least 1 'OPEN' experiment)</span
+          ></q-tooltip
+        >
         <q-menu>
           <q-list size="sm" dense>
             <q-item
               clickable
               v-close-popup
               v-ripple
-              class="oa-button"
               @click="openNewPlateDialog"
             >
               <q-item-section no-wrap>
                 <div style="vertical-align: center">
-                  <q-icon name="add" class="q-pr-md" />
                   <span
                     style="
                       text-transform: uppercase;
@@ -42,12 +47,10 @@
               clickable
               v-close-popup
               v-ripple
-              class="oa-button"
               @click="openNewPlateFromMeasurementsDialog"
             >
               <q-item-section no-wrap class="row">
                 <div>
-                  <q-icon name="add" class="q-pr-md" />
                   <span
                     style="
                       text-transform: uppercase;
@@ -63,23 +66,20 @@
           </q-list>
         </q-menu>
       </q-btn>
-    </template>
-    <template v-slot:top-right>
-      <q-btn-dropdown size="sm" class="oa-button q-mr-md" label="Export">
-        <q-list dense>
-          <q-item clickable v-close-popup @click="exportToCSV">
-            <q-item-section>
-              <q-item-label>Export to CSV</q-item-label>
-            </q-item-section>
-          </q-item>
 
-          <q-item clickable v-close-popup @click="exportToXLSX">
-            <q-item-section>
-              <q-item-label>Export to Excel</q-item-label>
-            </q-item-section>
-          </q-item>
-        </q-list>
-      </q-btn-dropdown>
+      <q-btn round icon="download" size="sm" class="q-mx-sm">
+        <q-tooltip>Download plates list</q-tooltip>
+        <q-menu anchor="bottom middle" self="top left">
+          <q-list style="min-width: 100px">
+            <q-item clickable v-close-popup @click="exportToCSV">
+              <q-item-section>Export to CSV</q-item-section>
+            </q-item>
+            <q-item clickable v-close-popup @click="exportToXLSX">
+              <q-item-section>Export to Excel</q-item-section>
+            </q-item>
+          </q-list>
+        </q-menu>
+      </q-btn>
     </template>
     <template v-slot:body-cell-link-status="props">
       <q-td :props="props">
@@ -126,8 +126,21 @@
     :plates="selectedPlates"
     @onDeletePlates="deletePlates"
     @open="open"
-    touch-position
   />
+
+  <div v-if="createPlateCondition">
+    <new-plate-from-measurement-dialog
+      v-model:show="showNewPlateFromMeasDialog"
+      :experiments="experiments"
+      @updated="emits('updated')"
+    />
+
+    <new-plate-dialog
+      v-model:show="showNewPlateDialog"
+      :experiments="experiments"
+      @updated="emits('updated')"
+    />
+  </div>
 </template>
 
 <script setup>
@@ -141,6 +154,9 @@ import FilterUtils from "@/lib/FilterUtils.js";
 import { useExportTableData } from "@/composable/exportTableData";
 import OaTable from "@/components/table/OaTable.vue";
 import { usePlateStore } from "../../stores/plate";
+import { useLoadingHandler } from "@/composable/loadingHandler";
+import NewPlateFromMeasurementDialog from "@/pages/experiment/NewPlateFromMeasurementDialog.vue";
+import NewPlateDialog from "@/pages/experiment/NewPlateDialog.vue";
 
 const props = defineProps([
   "plates",
@@ -159,8 +175,25 @@ const emits = defineEmits([
 
 const router = useRouter();
 
-const columns = [
+const showNewPlateDialog = ref(false);
+const showNewPlateFromMeasDialog = ref(false);
+
+const createPlateCondition = computed(
+  () =>
+    props.experiments.length > 0 &&
+    props.experiments.find((exp) => exp.status === "OPEN")
+);
+
+const baseColumns = ref([
   { name: "id", align: "left", label: "ID", field: "id", sortable: true },
+  {
+    name: "experiment",
+    align: "left",
+    label: "Experiment",
+    field: (row) => row.experiment.name,
+    sortable: true,
+    description: "The experiment name",
+  },
   {
     name: "barcode",
     align: "left",
@@ -217,11 +250,20 @@ const columns = [
     field: "createdBy",
     sortable: true,
   },
-];
+]);
+
+const route = useRoute();
+
+const columns = computed(() => {
+  if (route.name != "workbench") {
+    return baseColumns.value.filter((col) => col.name != "experiment");
+  }
+  return baseColumns.value;
+});
 
 const plates = computed(() => props.plates);
 
-const filter = FilterUtils.makeFilter(columns);
+const filter = FilterUtils.makeFilter(columns.value);
 const filterMethod = FilterUtils.defaultFilterMethod();
 
 const selectedPlate = ref({});
@@ -233,6 +275,7 @@ const plateContextMenu = (event, row) => {
 };
 
 const gotoPlateView = (event, row) => {
+  console.log(row);
   selectedPlate.value = row;
   if (router.currentRoute.value.name != "workbench") {
     router.push({ name: "plate", params: { plateId: selectedPlate.value.id } });
@@ -240,17 +283,14 @@ const gotoPlateView = (event, row) => {
 };
 
 const openNewPlateDialog = () => {
-  emits("update:newPlateTab", true);
+  showNewPlateDialog.value = true;
 };
 
 const openNewPlateFromMeasurementsDialog = () => {
-  emits("update:newPlateFromMeasurements", true);
+  showNewPlateFromMeasDialog.value = true;
 };
 
 const loading = ref();
-const visibleColumns = ref([]);
-
-const route = useRoute();
 
 onBeforeMount(() => {
   if (route.name == "workbench") {
@@ -259,12 +299,10 @@ onBeforeMount(() => {
 });
 
 onMounted(() => {
-  visibleColumns.value = [...columns.map((a) => a.name)];
   loading.value = false;
 });
 
 watch(plates, () => {
-  visibleColumns.value = [...columns.map((a) => a.name)];
   loading.value = false;
 });
 
@@ -315,13 +353,16 @@ function getUnique(value, index, array) {
   return array.indexOf(value) === index;
 }
 
+const loadingHandler = useLoadingHandler();
 const plateStore = usePlateStore();
-function deletePlates() {
-  plateStore
-    .deletePlates(selectedPlates.value.map((plate) => plate.id))
-    .then(() => {
-      emits("updated");
-    });
+async function deletePlates() {
+  await loadingHandler.handleLoadingDuring(
+    plateStore
+      .deletePlates(selectedPlates.value.map((plate) => plate.id))
+      .then(() => {
+        emits("updated");
+      })
+  );
   selectedPlates.value = [];
 }
 
@@ -334,7 +375,7 @@ const exportFileName = computed(() =>
     : experimentsNames.value[0]
 );
 
-const exportTableData = useExportTableData(columns);
+const exportTableData = useExportTableData(columns.value);
 const exportToCSV = () => {
   exportTableData.exportToCSV(
     filterMethod(platesToExport.value, filter.value),

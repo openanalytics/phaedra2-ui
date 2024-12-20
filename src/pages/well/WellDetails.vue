@@ -1,108 +1,83 @@
 <template>
-  <q-card
-    v-if="well && well.pos"
-    flat
-    bordered
-    class="row justify-between"
-    style="width: 100%"
-  >
-    <q-card-section horizontal class="col-7">
-      <q-card-section class="q-pt-xs">
-        <div
-          style="width: 100%"
-          class="row align-center text-h5 q-mt-sm q-mb-xs"
-        >
-          <div>
-            <span>
-              {{ well.pos }}
-            </span>
-
-            <span class="q-mx-sm" style="font-size: 0.7em"
-              >({{ well.id }}) <q-tooltip>ID</q-tooltip></span
-            >
-          </div>
-          <span v-if="!readOnly">
-            <span>
-              <q-btn
-                round
-                dense
-                icon="calculate"
-                size="xs"
-                color="positive"
-                @click="handleAcceptWells"
-                ><q-tooltip>Accept</q-tooltip></q-btn
-              >
-            </span>
-
-            <span class="q-ml-sm">
-              <q-btn
-                round
-                dense
-                icon="delete"
-                size="xs"
-                color="negative"
-                @click="handleRejectWells"
-                ><q-tooltip>Reject</q-tooltip></q-btn
-              >
-            </span>
+  <phaedra-details-section v-if="well && well.pos" :collapsible="collapsible">
+    <template v-slot:title>
+      <div>
+        <span> {{ well.pos }} </span>
+        <span class="q-mx-sm" style="font-size: 0.7em">
+              ({{ well.id }})
+              <q-tooltip>ID</q-tooltip>
           </span>
+      </div>
+    </template>
+    <template v-slot:actions>
+        <span v-if="!readOnly">
+          <span class="q-ml-sm" v-if="well.status.startsWith('ACCEPT')">
+            <q-btn icon="close" size="xs" color="negative" round dense @click="handleRejectWells">
+              <q-tooltip>Reject Well</q-tooltip>
+            </q-btn>
+          </span>
+
+          <span class="q-ml-sm" v-if="well.status.startsWith('REJECT')">
+            <q-btn icon="check" size="xs" color="positive" round dense @click="handleAcceptWells">
+              <q-tooltip>Accept Well</q-tooltip>
+            </q-btn>
+          </span>
+        </span>
+    </template>
+    <template v-slot:readonly>
+      <div class="col">
+        <DimensionsChip label="Row x Column" :rows="well.row" :columns="well.column"
+                        onHoverMessage="Row x Column"/>
+        <div>
+          <span style="font-size: 10px; color: rgba(0, 0, 0, 0.6)"> Well Status: </span>
+          <q-chip v-if="well.status" dense size="12px"
+                  :color="wellStateColor" :text-color="calculateTextColor(wellStateColor)">
+            {{ well.status }}
+            <q-tooltip>Status</q-tooltip>
+          </q-chip>
         </div>
-
-        <div class="row col-sm">
-          <div class="text-overline">
-            <DimensionsChip
-              :rows="well.row"
-              :columns="well.column"
-              onHoverMessage="Row x Column"
-            />
-          </div>
-          <div class="text-overline">
-            <q-chip v-if="well.status" dense size="12px"
-              >{{ well.status }}<q-tooltip>Status</q-tooltip></q-chip
-            >
-
-            <q-chip v-if="well.wellType" dense size="12px"
-              >{{ well.wellType }}<q-tooltip>Well Type</q-tooltip></q-chip
-            >
-
-            <q-chip v-if="well.wellSubstance?.name" dense size="12px"
-              >{{ well.wellSubstance?.name
-              }}<q-tooltip>Substance Name</q-tooltip></q-chip
-            >
-
-            <q-chip v-if="well.wellSubstance?.type" dense size="12px"
-              >{{ well.wellSubstance?.type
-              }}<q-tooltip>Substance Type</q-tooltip></q-chip
-            >
-
-            <q-chip dense size="12px"
-              >{{ well.wellSubstance?.concentration
-              }}<q-tooltip>Concentration</q-tooltip></q-chip
-            >
-          </div>
+        <div>
+          <span style="font-size: 10px; color: rgba(0, 0, 0, 0.6)"> Well Type: </span>
+          <q-chip v-if="well.wellType" dense size="12px"
+                  :color="wellTypeColor" :text-color="calculateTextColor(wellTypeColor)">
+            {{ well.wellType }}
+            <q-tooltip>Well Type</q-tooltip>
+          </q-chip>
         </div>
-        <div class="text-caption text-grey q-my-sm">
-          <EditableField readOnly :object="well" fieldName="description" />
+      </div>
+      <div class="col">
+        <div>
+          <span style="font-size: 10px; color: rgba(0, 0, 0, 0.6)"> Substance: </span>
+          <q-chip v-if="well.wellSubstance?.name" dense size="12px">
+            {{ well.wellSubstance?.name }}
+            <q-tooltip>Substance Name</q-tooltip>
+          </q-chip>
         </div>
-        <TagListEditable
-          :tags="well.tags"
-          :read-only="readOnly"
-          @addTag="onAddTag"
-          @removeTag="onRemoveTag"
-          class="q-pt-xs"
-        />
-      </q-card-section>
-    </q-card-section>
-
-    <q-card-section class="col-grow row justify-center">
-      <PropertyTable
-        :properties="well.properties"
-        :read-only="readOnly"
-        @addProperty="onAddProperty"
-        @removeProperty="onRemoveProperty"
-      />
-    </q-card-section>
-  </q-card>
+        <div>
+          <span style="font-size: 10px; color: rgba(0, 0, 0, 0.6)"> Substance Type: </span>
+          <q-chip v-if="well.wellSubstance?.type" dense size="12px">
+            {{ well.wellSubstance?.type }}
+            <q-tooltip>Substance Type</q-tooltip>
+          </q-chip>
+        </div>
+        <div>
+          <span style="font-size: 10px; color: rgba(0, 0, 0, 0.6)"> Concentration: </span>
+          <q-chip dense size="12px">
+            {{ well.wellSubstance?.concentration }}
+            <q-tooltip>Concentration</q-tooltip>
+          </q-chip>
+        </div>
+      </div>
+    </template>
+    <template v-slot:editable>
+      <TagListEditable :tags="well.tags" :read-only="readOnly"
+                       @addTag="onAddTag" @removeTag="onRemoveTag"/>
+    </template>
+    <template v-slot:properties>
+      <PropertyTable :properties="well.properties" :read-only="readOnly"
+                     @addProperty="onAddProperty" @removeProperty="onRemoveProperty"/>
+    </template>
+  </phaedra-details-section>
 </template>
 
 <script setup>
@@ -111,42 +86,62 @@ import PropertyTable from "@/components/property/PropertyTable.vue";
 import DimensionsChip from "@/components/plate/DimensionsChip.vue";
 import TagListEditable from "@/components/tag/TagListEditable.vue";
 import EditableField from "@/components/widgets/EditableField";
+import { computed, readonly } from "vue";
+import { useLoadingHandler } from "../../composable/loadingHandler";
+import PhaedraDetailsSection from "@/components/widgets/PhaedraDetailsSection.vue";
 
-const props = defineProps(["well"]);
+const props = defineProps({
+  well: Object,
+  collapsible: {
+    type: Boolean,
+    default: true,
+  }
+});
 const emit = defineEmits(["wellStatusChanged", "updated"]);
 
 const wellStore = useWellStore();
 
+const loadingHandler = useLoadingHandler();
 const onAddTag = async (newTag) => {
-  await wellStore.handleAddTag(props.well.id, newTag).then(() => {
-    emit("updated");
-  });
+  await loadingHandler.handleLoadingDuring(
+    wellStore.handleAddTag(props.well.id, newTag).then(() => {
+      emit("updated");
+    })
+  );
 };
 
 const onRemoveTag = async (tag) => {
-  await wellStore.handleDeleteTag(props.well.id, tag).then(() => {
-    emit("updated");
-  });
+  await loadingHandler.handleLoadingDuring(
+    wellStore.handleDeleteTag(props.well.id, tag).then(() => {
+      emit("updated");
+    })
+  );
 };
 
 const onAddProperty = async (newProperty) => {
-  await wellStore.handleAddProperty(props.well.id, newProperty).then(() => {
-    emit("updated");
-  });
+  await loadingHandler.handleLoadingDuring(
+    wellStore.handleAddProperty(props.well.id, newProperty).then(() => {
+      emit("updated");
+    })
+  );
 };
 
 const onRemoveProperty = async (property) => {
-  await wellStore.handleDeleteProperty(props.well.id, property).then(() => {
-    emit("updated");
-  });
+  await loadingHandler.handleLoadingDuring(
+    wellStore.handleDeleteProperty(props.well.id, property).then(() => {
+      emit("updated");
+    })
+  );
 };
 
 const handleRejectWells = async () => {
   if (props.well) {
-    await wellStore.rejectWell(
-      props.well.plateId,
-      "REJECTED_PHAEDRA",
-      "Well rejection from chart!"
+    await loadingHandler.handleLoadingDuring(
+      wellStore.rejectWell(
+        props.well.plateId,
+        "REJECTED_PHAEDRA",
+        "Well rejection from chart!"
+      )
     );
     emit("updated");
     emit("wellStatusChanged");
@@ -155,9 +150,38 @@ const handleRejectWells = async () => {
 
 const handleAcceptWells = async () => {
   if (props.well) {
-    await wellStore.acceptWell(props.well.plateId);
+    await loadingHandler.handleLoadingDuring(
+      wellStore.acceptWell(props.well.plateId)
+    );
     emit("updated");
     emit("wellStatusChanged");
+  }
+};
+
+const wellStateColor = computed(() =>
+  props.well.status.startsWith("ACCEPT")
+    ? "positive"
+    : props.well.status.startsWith("REJECT")
+    ? "negative"
+    : "default"
+);
+
+const wellTypeColor = computed(() =>
+  props.well.wellType == "PC"
+    ? "positive"
+    : props.well?.wellType == "NC"
+    ? "negative"
+    : "default"
+);
+
+const calculateTextColor = (color) => {
+  switch (color) {
+    case "positive":
+    case "negative":
+      return "white";
+    case "grey":
+    default:
+      return;
   }
 };
 </script>

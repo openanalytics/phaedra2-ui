@@ -1,136 +1,36 @@
-import {provideApolloClient, useQuery} from '@vue/apollo-composable'
-import gql from 'graphql-tag'
-import {apolloPlatesClient} from "@/graphql/apollo.clients";
-
-const defaultOptions = { fetchPolicy: 'no-cache', errorPolicy: 'ignore'}
-
-const executeQuery = (query, variables) => {
-  return provideApolloClient(apolloPlatesClient)(
-      () => useQuery(gql`${query}`, variables, defaultOptions));
-}
+import { platesGraphQLClient } from "@/graphql/graphql.clients";
+import { experimentsQueries } from "@/graphql/graphql.queries";
+import {useGraphQL} from "@/composable/useGraphQL";
 
 export default {
-  experiments(experimentIds) {
-    const query = `
-            query getExperiments($experimentIds: [ID]) {
-                experiments:getExperiments(experimentIds: $experimentIds) {
-                    id
-                    name
-                    description
-                    status
-                    projectId
-                    multiploMethod
-                    multiploParameter
-                    createdOn
-                    createdBy
-                    updatedOn
-                    updatedBy
-                    tags
-                }
-            }
-        `
-    return executeQuery(query, {experimentIds});
+  async experiments(experimentIds) {
+    const platesClient = useGraphQL(platesGraphQLClient)
+    const result = await platesClient.executeQuery(experimentsQueries.experiments, { experimentIds })
+    return result.data
   },
-  nMostRecentExperiments(n) {
-    const query = `
-            query nMostRecentExperiments($n: Int) {
-                experiments:getNMostRecentExperiments(n: $n) {
-                    id
-                    name
-                    description
-                    status
-                    projectId
-                    createdOn
-                    createdBy
-                    updatedOn
-                    updatedBy
-                    tags
-                }
-            }
-        `
-    return executeQuery(query, {n});
+  async nMostRecentExperiments(n) {
+    const platesClient = useGraphQL(platesGraphQLClient)
+    const result = await platesClient.executeQuery(experimentsQueries.nMostRecentExperiments, { n })
+    return result.data
   },
-  experimentById(experimentId) {
-    const query = `
-            query experimentById($experimentId: ID) {
-                experiment:getExperimentById(experimentId: $experimentId) {
-                    id
-                    name
-                    description
-                    status
-                    projectId
-                    multiploMethod
-                    multiploParameter
-                    createdOn
-                    createdBy
-                    updatedOn
-                    updatedBy
-                    tags
-                }
-            }
-        `
-    return executeQuery(query, {experimentId});
+  async experimentById(experimentId) {
+    const platesClient = useGraphQL(platesGraphQLClient)
+    const result = await platesClient.executeQuery(experimentsQueries.experimentById, { experimentId })
+    return result.data
   },
-  experimentsByProjectId(projectId) {
-    const query = `
-            query experimentsByProjectId($projectId: ID) {
-                experiment:getExperimentsByProjectId(projectId: $projectId) {
-                    id
-                    name
-                    description
-                    status
-                    projectId
-                    createdOn
-                    createdBy
-                    updatedOn
-                    updatedBy
-                    tags
-                }
-            }
-        `
-    return executeQuery(query, {projectId});
+  async experimentsByProjectId(projectId) {
+    const platesClient = useGraphQL(platesGraphQLClient)
+    const result = await platesClient.executeQuery(experimentsQueries.experimentsByProjectId, { projectId })
+    return result.data
   },
-  experimentsByProjectIds(projectIds) {
-    const query = `
-            query experimentsByProjectIds($projectIds: [ID]) {
-                experiments:getExperimentsByProjectIds(projectIds: $projectIds) {
-                    id
-                    name
-                    description
-                    status
-                    projectId
-                    multiploMethod
-                    multiploParameter
-                    createdOn
-                    createdBy
-                    updatedOn
-                    updatedBy
-                    tags
-                    summary {
-                      nrPlates
-                      nrPlatesLinkedLayout
-                      nrPlatesApproved
-                      nrPlatesCalculated
-                      nrPlatesValidated
-                    }
-                }
-            }
-        `
-    return executeQuery(query, {projectIds});
-    },
-    experimentSummaries() {
-    const query = `
-            query getExperiments {
-                experimentSummaries:getExperimentSummaries {
-                    experimentId
-                    nrPlates
-                    nrPlatesCalculated
-                    nrPlatesValidated
-                    nrPlatesApproved
-                }
-            }
-        `
-    return executeQuery(query, {});
-  }
-}
-
+  async experimentsByProjectIds(projectIds) {
+    const platesClient = useGraphQL(platesGraphQLClient)
+    const result = await platesClient.executeQuery(experimentsQueries.experimentsByProjectIds, { projectIds })
+    return result.data
+  },
+  async experimentSummaries() {
+    const platesClient = useGraphQL(platesGraphQLClient)
+    const result = await platesClient.executeQuery(experimentsQueries.experimentSummaries, {})
+    return result.data
+  },
+};

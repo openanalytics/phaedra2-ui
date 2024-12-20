@@ -1,13 +1,24 @@
 <template>
-  <q-dialog v-model="showDialog">
+  <q-dialog @hide="resetDates" v-model="showDialog">
     <q-card style="min-width: 50vw">
       <q-card-section
         class="text-h6 items-center full-width q-pa-sm bg-primary text-secondary"
       >
         <q-icon name="add" class="q-pr-sm" />
-        New Plate from Measurement
+        New Plate(s) from Measurement
       </q-card-section>
 
+      <q-card-section>
+        <q-select
+          class="q-pa-xs"
+          v-model="newPlateMeasurementExperiment"
+          :options="experiments"
+          label="experiment"
+          option-value="id"
+          option-label="name"
+          dense
+        />
+      </q-card-section>
       <q-card-section>
         <div>
           <span>Select measurement(s): </span>
@@ -49,7 +60,7 @@
 import DateRangeSelector from "@/components/widgets/DateRangeSelector";
 import OaTable from "@/components/table/OaTable.vue";
 import { useMeasurementStore } from "@/stores/measurement";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, onUpdated, ref } from "vue";
 import FormatUtils from "@/lib/FormatUtils";
 import { date } from "quasar";
 import { useLoadingHandler } from "@/composable/loadingHandler";
@@ -57,8 +68,9 @@ import { useExperimentStore } from "@/stores/experiment";
 
 const props = defineProps({
   show: Boolean,
+  experiments: [Object],
 });
-const emits = defineEmits(["update:show"]);
+const emits = defineEmits(["update:show", "updated"]);
 const showDialog = computed({
   get: () => props.show,
   set: (v) => emits("update:show", v),
@@ -68,6 +80,11 @@ const measurementStore = useMeasurementStore();
 onMounted(() => {
   refreshList();
 });
+
+onUpdated(() => {
+  measurementStore.measurements = [];
+});
+const newPlateMeasurementExperiment = ref(props.experiments[0]);
 
 const now = new Date();
 const fromDate = ref(date.subtractFromDate(now, { days: 7 }));
@@ -137,12 +154,20 @@ const createPlates = async () => {
     calculationStatus: "CALCULATION_NEEDED",
     validationStatus: "VALIDATION_NOT_SET",
     approvalStatus: "APPROVAL_NOT_SET",
-    experimentId: experimentStore.experiment.id,
+    experimentId: newPlateMeasurementExperiment.value.id,
     measurementId: m.id,
   }));
   await loadingHandler.handleLoadingDuring(
-    experimentStore.addPlates(experimentStore.experiment.id, newPlates)
+    experimentStore.addPlates(newPlateMeasurementExperiment.value.id, newPlates)
   );
+  emits("updated");
+};
+
+const resetDates = () => {
+  fromDate.value = date.subtractFromDate(now, { days: 7 });
+  toDate.value = date.addToDate(now, { days: 1 });
+  measurementStore.measurements = [];
+  selectedMeasurements.value = [];
 };
 </script>
 

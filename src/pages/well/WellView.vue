@@ -2,28 +2,28 @@
   <q-breadcrumbs
     class="oa-breadcrumb"
     v-if="
-      plateStore.plate &&
-      experimentStore.experiment &&
-      projectStore.project &&
-      wellStore.well
+      wellStore.well &&
+      wellStore.well.plate &&
+      wellStore.well.experiment &&
+      wellStore.well.project
     "
   >
-    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard' }" />
+    <q-breadcrumbs-el icon="home" :to="{ name: 'workbench' }" />
     <q-breadcrumbs-el label="Projects" icon="list" :to="'/projects'" />
     <q-breadcrumbs-el
-      :label="projectStore.project.name"
+      :label="wellStore.well.project.name"
       icon="folder"
-      :to="'/project/' + projectStore.project.id"
+      :to="'/project/' + wellStore.well.project.id"
     />
     <q-breadcrumbs-el
-      :label="experimentStore.experiment.name"
+      :label="wellStore.well.experiment.name"
       icon="science"
-      :to="'/experiment/' + experimentStore.experiment.id"
+      :to="'/experiment/' + wellStore.well.experiment.id"
     />
     <q-breadcrumbs-el
-      :label="plateStore.plate.barcode"
+      :label="wellStore.well.plate.barcode"
       icon="view_module"
-      :to="'/plate/' + plateStore.plate.id"
+      :to="'/plate/' + wellStore.well.plate.id"
     />/>
     <q-breadcrumbs-el :label="wellStore.well.pos" icon="square" />
   </q-breadcrumbs>
@@ -34,13 +34,12 @@
       title="Loading well..."
       icon="crop_square"
     />
-    <WellDetails
-      v-else
-      @wellStatusChanged="onWellStatusChanged"
-      :well="wellStore.well"
-      @updated="wellStore.reloadWell()"
-      @open="handleOpen"
-    />
+    <div v-else class="q-pa-sm">
+      <WellDetails :well="wellStore.well"
+                   @wellStatusChanged="onWellStatusChanged"
+                   @updated="wellStore.reloadWell()"
+      />
+    </div>
     <splitpanes class="default-theme">
       <pane style="background-color: #e6e6e6">
         <WellImageViewer2
@@ -64,19 +63,17 @@
     </splitpanes>
   </q-page>
 
-  <calculate-plate-dialog
-    v-model:show="showCalculateDialog"
-    :plates="[plateStore.plate]"
-    :protocol-id="plateStore.activeResultSet?.protocolId"
-  />
+  <!--  <calculate-plate-dialog-->
+  <!--    v-model:show="showCalculateDialog"-->
+  <!--    :plates="[plateStore.plate]"-->
+  <!--    :protocol-id="plateStore.activeResultSet?.protocolId"-->
+  <!--  />-->
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { ref } from "vue";
 import { useRoute } from "vue-router";
 import { usePlateStore } from "@/stores/plate";
-import { useExperimentStore } from "@/stores/experiment";
-import { useProjectStore } from "@/stores/project";
 import { useWellStore } from "@/stores/well";
 import WellDetails from "@/pages/well/WellDetails.vue";
 import { Pane, Splitpanes } from "splitpanes";
@@ -84,21 +81,23 @@ import DRCView from "@/components/curve/DRCView.vue";
 import WellImageViewer2 from "@/components/image/WellImageViewer2.vue";
 import { useNotification } from "@/composable/notification";
 import CalculatePlateDialog from "@/components/plate/CalculatePlateDialog.vue";
+import { useLoadingHandler } from "../../composable/loadingHandler";
 
-const projectStore = useProjectStore();
-const experimentStore = useExperimentStore();
 const plateStore = usePlateStore();
 const wellStore = useWellStore();
 
 const route = useRoute();
-const wellId = parseInt(route.params.wellId);
 
 const height = ref(500);
 const width = ref(500);
 
-onMounted(() => {
-  wellStore.loadWell(wellId);
-});
+const loadingHandler = useLoadingHandler();
+
+const fetchWell = async () => {
+  const wellId = parseInt(route.params.wellId);
+  await loadingHandler.handleLoadingDuring(wellStore.loadWell(wellId));
+};
+fetchWell();
 
 const showCalculateDialog = ref(false);
 const wellStatusNotification = useNotification();

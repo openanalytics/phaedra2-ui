@@ -1,0 +1,86 @@
+<template>
+    <q-breadcrumbs class="oa-breadcrumb" v-if="newProtocol" @click="onReset">
+        <q-breadcrumbs-el icon="home" :to="{ name: 'workbench'}"/>
+        <q-breadcrumbs-el label="Protocols" icon="list" :to="'/protocols'"/>
+        <q-breadcrumbs-el label="New Protocol" icon="ballot"/>
+    </q-breadcrumbs>
+
+    <q-page class="oa-root-div">
+        <div class="q-pa-sm">
+            <oa-section title="New Protocol" icon="ballot">
+                <div class="q-pa-sm">
+                  <q-form class="full-width" @submit="onSubmit" @reset="onReset">
+                    <div class="col">
+                      <q-input v-model="newProtocol.name" label="Name:" dense/>
+                      <q-input v-model="newProtocol.description" label="Description:" dense/>
+                      <q-input v-model="newProtocol.versionNumber" label="Version:" mask="#.#.#" hint="Mask: #.#.#, Example: 1.0.0" dense/>
+                    </div>
+                    <div class="row justify-end">
+                      <router-link :to="{ name: 'importProtocol' }" class="nav-link">
+                        <q-btn label="Import..." color="primary" class="q-mr-sm" />
+                      </router-link>
+                      <q-btn label="Create" type="submit" color="primary" icon="save" class="q-mr-sm" />
+                      <router-link :to="{ name: 'browseProtocols' }" class="nav-link">
+                        <q-btn label="Cancel" type="reset" icon="cancel" color="primary" flat />
+                      </router-link>
+                    </div>
+                  </q-form>
+                </div>
+            </oa-section>
+        </div>
+        <div class="q-pa-sm">
+            <FeatureList :protocol="newProtocol" @addFeature="addNewFeature"/>
+        </div>
+    </q-page>
+</template>
+
+<script setup>
+import {onMounted, ref} from "vue";
+import {useRouter} from "vue-router";
+
+import {useProtocolStore} from "@/stores/protocol";
+import {useFeatureStore} from "@/stores/feature";
+
+import OaSection from "@/components/widgets/OaSection.vue";
+import FeatureList from "@/components/feature/FeatureList.vue";
+
+const router = useRouter();
+const protocolStore = useProtocolStore();
+const featureStore = useFeatureStore();
+
+const props = defineProps(['protocol'])
+const newProtocol = ref({})
+
+onMounted(() => {
+  onReset()
+  newProtocol.value = {
+    name: null,
+    description: null,
+    lowWelltype: null,
+    highWellType: null,
+    versionNumber: null,
+    features: [],
+    tags: [],
+    properties: []
+  }
+})
+
+
+const wellTypeOptions = ['LC', 'HC', 'NC', 'PC'];
+
+const onSubmit = () => {
+    newProtocol.value.createdOn = new Date();
+    protocolStore.createProtocol(newProtocol.value).then(protocol => {
+      router.push({path: '/protocol/' + protocol?.id})
+    })
+}
+
+const addNewFeature = (newFeature) => {
+    newProtocol.value.features.push(newFeature)
+}
+
+const onReset = () => {
+    protocolStore.reset()
+    featureStore.reset()
+}
+</script>

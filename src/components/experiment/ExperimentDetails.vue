@@ -1,108 +1,73 @@
 <template>
-  <q-card
-    v-if="experiment && experiment.name"
-    flat
-    bordered
-    class="row justify-between"
-    style="width: 100%"
-  >
-    <q-card-section horizontal class="col-7">
-      <q-card-section class="q-pt-xs">
-        <div
-          style="width: 100%"
-          class="row align-center text-h5 q-mt-sm q-mb-xs"
-        >
-          <div>
-            <span>
-              {{ experiment.name }}
-            </span>
-
-            <span class="q-mx-sm" style="font-size: 0.7em"
-              >({{ experiment.id }}) <q-tooltip>ID</q-tooltip></span
-            >
-          </div>
-          <span>
-            <q-btn
-              round
-              dense
-              icon="edit"
-              size="xs"
-              color="positive"
-              @click="showEditDialog = true"
-              ><q-tooltip>Edit Experiment</q-tooltip></q-btn
-            >
+  <phaedra-details-section v-if="experiment && experiment.name" :collapsible="collapsible">
+    <template v-slot:title>
+      <div>
+        <span>{{ experiment.name }}</span>
+        <span class="q-mx-sm" style="font-size: 0.7em">
+            ({{ experiment.id }})
+            <q-tooltip>ID</q-tooltip>
           </span>
-          <span class="q-ml-sm">
-            <q-btn
-              v-if="experiment.status === 'OPEN'"
-              round
-              dense
-              size="xs"
-              icon="lock"
-              color="warning"
-              @click="handleCloseExperiment"
-              ><q-tooltip>Close Experiment</q-tooltip></q-btn
-            >
-            <q-btn
-              v-if="experiment.status === 'CLOSED'"
-              round
-              dense
-              size="xs"
-              icon="lock_open"
-              color="warning"
-              @click="handleOpenExperiment"
-              ><q-tooltip>Open Experiment</q-tooltip></q-btn
-            >
-          </span>
-          <span class="q-ml-sm">
-            <q-btn
-              round
-              dense
-              icon="delete"
-              size="xs"
-              color="negative"
-              @click="showDeleteDialog = true"
-              ><q-tooltip>Delete Experiment</q-tooltip></q-btn
-            >
-          </span>
+      </div>
+    </template>
+    <template v-slot:actions>
+      <span>
+          <q-btn icon="edit" size="xs" color="positive" round dense
+                 @click="showEditDialog = true">
+            <q-tooltip>Edit Experiment</q-tooltip>
+          </q-btn>
+        </span>
+      <span class="q-ml-sm">
+          <q-btn v-if="experiment.status === 'OPEN'" size="xs" icon="lock" color="warning"
+                 @click="handleCloseExperiment" round dense>
+            <q-tooltip>Close Experiment</q-tooltip>
+          </q-btn>
+          <q-btn v-if="experiment.status === 'CLOSED'" size="xs" icon="lock_open" color="warning"
+                 @click="handleOpenExperiment" round dense>
+            <q-tooltip>Open Experiment</q-tooltip>
+          </q-btn>
+        </span>
+      <span class="q-ml-sm">
+          <q-btn icon="delete" size="xs" color="negative" round dense
+                 @click="showDeleteDialog = true">
+            <q-tooltip>Delete Experiment</q-tooltip>
+          </q-btn>
+        </span>
+    </template>
+    <template v-slot:readonly>
+      <div class="col">
+        <div>
+          <UserChip :id="experiment.createdBy"
+                    onHoverMessage="Created By" label="Created By"/>
         </div>
-        <div class="row col-sm">
-          <div class="text-overline">
-            <UserChip :id="experiment.createdBy" onHoverMessage="Created By" />
-          </div>
-          <div class="text-overline">
-            <DateChip
-              :dateTime="experiment.createdOn"
-              onHoverMessage="Created On"
-            />
-          </div>
+        <div>
+          <UserChip :id="experiment.updatedBy"
+                    onHoverMessage="Updated By" label="Updated By"/>
         </div>
-        <div class="text-caption text-grey q-my-sm">
-          <EditableField
-            readOnly
-            :object="experiment"
-            fieldName="description"
-          />
+      </div>
+      <div class="col">
+        <div>
+          <DateChip :dateTime="experiment.createdOn"
+                    onHoverMessage="Created On" label="Created On"/>
         </div>
-        <TagListEditable
-          :tags="experiment.tags"
-          :read-only="experimentStore.isClosed"
-          @addTag="onAddTag"
-          @removeTag="onRemoveTag"
-          class="q-pt-xs"
-        />
-      </q-card-section>
-    </q-card-section>
-
-    <q-card-section class="col-grow row justify-center">
+        <div>
+          <DateChip :dateTime="experiment.updatedOn"
+                    onHoverMessage="Updated On" label="Updated On"/>
+        </div>
+      </div>
+    </template>
+    <template v-slot:editable>
+      <EditableField readOnly :object="experiment" fieldName="description" label="Description"/>
+      <TagListEditable :tags="experiment.tags" :read-only="experimentStore.isClosed"
+                       @addTag="onAddTag" @removeTag="onRemoveTag"/>
+    </template>
+    <template v-slot:properties>
       <PropertyTable
-        :properties="experiment.properties"
-        @addProperty="onAddProperty"
-        @removeProperty="onRemoveProperty"
+          :properties="experiment.properties"
+          @addProperty="onAddProperty"
+          @removeProperty="onRemoveProperty"
       />
-    </q-card-section>
-  </q-card>
-
+    </template>
+</phaedra-details-section>
   <div v-else class="absolute-center">
     <q-badge color="negative" class="q-pa-md text-weight-bold">{{
       errorMessage
@@ -121,10 +86,6 @@
     :objectClass="'experiment'"
     @onDeleted="onDeleteExperiment"
   />
-  <new-plate-dialog v-model:show="showNewPlateDialog" />
-  <new-plate-from-measurement-dialog
-    v-model:show="showNewPlateFromMeasDialog"
-  />
 </template>
 
 <script setup>
@@ -140,23 +101,27 @@ import EditResourceDialog from "@/components/widgets/EditResourceDialog";
 
 import { useExperimentStore } from "@/stores/experiment";
 import { useProjectStore } from "@/stores/project";
-import { useUIStore } from "@/stores/ui";
-import NewPlateDialog from "@/pages/experiment/NewPlateDialog.vue";
-import NewPlateFromMeasurementDialog from "@/pages/experiment/NewPlateFromMeasurementDialog.vue";
 import TagListEditable from "../tag/TagListEditable.vue";
+import { useLoadingHandler } from "@/composable/loadingHandler";
+import PhaedraDetailsSection from "@/components/widgets/PhaedraDetailsSection.vue";
 
-const props = defineProps(["experiment"]);
+const props = defineProps({
+  experiment: Object,
+  collapsible: {
+    type: Boolean,
+    default: true,
+  }
+});
 const emits = defineEmits(["updated"]);
 
-const uiStore = useUIStore();
 const projectStore = useProjectStore();
 const experimentStore = useExperimentStore();
 const route = useRoute();
 const router = useRouter();
 
 const experimentId = parseInt(route.params.experimentId);
-onMounted(() => {
-  experimentStore.loadExperiment(experimentId);
+onMounted(async () => {
+  await experimentStore.loadExperiment(experimentId);
 });
 
 watchEffect(() => {
@@ -166,80 +131,64 @@ watchEffect(() => {
   }
 });
 
-const showNewPlateDialog = ref(false);
-const showNewPlateFromMeasDialog = ref(false);
-const newPlate = ref({
-  barcode: null,
-  description: null,
-  rows: null,
-  columns: null,
-  sequence: null,
-  linkStatus: "NOT_LINKED",
-  calculationStatus: "CALCULATION_NEEDED",
-  validationStatus: "VALIDATION_NOT_SET",
-  approvalStatus: "APPROVAL_NOT_SET",
-});
 const showEditDialog = ref(false);
 const errorMessage = "No experiment selected";
 
+const loadingHandler = useLoadingHandler();
 const onEdited = async (newVal) => {
-  await experimentStore.editExperiment(props.experiment.id, newVal).then(() => {
-    emits("updated");
-  });
-};
-
-const createNewPlate = () => {
-  newPlate.value.sequence = "1";
-  newPlate.value.experimentId = experimentId;
-  experimentStore.addPlate(props.experiment.id, newPlate.value).then(() => {
-    emits("updated");
-  });
-  newPlateTab.value = false;
+  await loadingHandler.handleLoadingDuring(
+    experimentStore.editExperiment(props.experiment.id, newVal)
+  )
+  emits("updated")
 };
 
 const showDeleteDialog = ref(false);
-const onDeleteExperiment = () => {
-  experimentStore.deleteExperiment(props.experiment?.id);
-  router.push({ name: "project", params: { id: projectStore.project.id } });
+const onDeleteExperiment = async () => {
+  await loadingHandler.handleLoadingDuring(
+      experimentStore.deleteExperiment(props.experiment?.id)
+  )
+  await router.push({ name: "project", params: { id: projectStore.project.id } })
 };
 
-const handleCloseExperiment = () => {
-  experimentStore.closeExperiments([props.experiment?.id]).then(() => {
-    emits("updated");
-  });
+const handleCloseExperiment = async () => {
+  await loadingHandler.handleLoadingDuring(
+    experimentStore.closeExperiments([props.experiment?.id])
+  )
+  emits("updated")
 };
 
-const handleOpenExperiment = () => {
-  experimentStore.openExperiments([props.experiment?.id]).then(() => {
-    emits("updated");
-  });
+const handleOpenExperiment = async () => {
+  await loadingHandler.handleLoadingDuring(
+    experimentStore.openExperiments([props.experiment?.id])
+  )
+  emits("updated")
 };
 
 const onAddTag = async (newTag) => {
-  await experimentStore.handleAddTag(props.experiment.id, newTag).then(() => {
-    emits("updated");
-  });
+  await loadingHandler.handleLoadingDuring(
+    experimentStore.handleAddTag(props.experiment.id, newTag)
+  )
+  emits("updated")
 };
 
 const onRemoveTag = async (tag) => {
-  await experimentStore.handleDeleteTag(props.experiment.id, tag).then(() => {
-    emits("updated");
-  });
+  await loadingHandler.handleLoadingDuring(
+    experimentStore.handleDeleteTag(props.experiment.id, tag)
+  )
+  emits("updated")
 };
 
 const onAddProperty = async (newProperty) => {
-  await experimentStore
-    .handleAddProperty(props.experiment.id, newProperty)
-    .then(() => {
-      emits("updated");
-    });
+  await loadingHandler.handleLoadingDuring(
+    experimentStore.handleAddProperty(props.experiment.id, newProperty)
+  )
+  emits("updated")
 };
 
 const onRemoveProperty = async (property) => {
-  await experimentStore
-    .handleDeleteProperty(props.experiment.id, property)
-    .then(() => {
-      emits("updated");
-    });
+  await loadingHandler.handleLoadingDuring(
+    experimentStore.handleDeleteProperty(props.experiment.id, property)
+  )
+  emits("updated")
 };
 </script>

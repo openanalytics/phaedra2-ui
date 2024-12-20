@@ -1,6 +1,6 @@
 <template>
   <q-breadcrumbs class="oa-breadcrumb">
-    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard' }" />
+    <q-breadcrumbs-el icon="home" :to="{ name: 'workbench' }" />
     <q-breadcrumbs-el label="Projects" icon="list" />
   </q-breadcrumbs>
 
@@ -14,20 +14,16 @@
 <script setup>
 import OaSection from "@/components/widgets/OaSection";
 import ProjectsList from "@/components/project/ProjectsList.vue";
-import { onMounted, ref } from "vue";
+import { ref } from "vue";
 import projectsGraphQlAPI from "@/api/graphql/projects";
+import { useLoadingHandler } from "../../composable/loadingHandler";
 
 const projects = ref([]);
-
-const fetchAllProjects = () => {
-  const { onResult, onError } = projectsGraphQlAPI.projects();
-  onResult(({ data }) => {
-    projects.value = data.projects;
-  });
-  //TODO: implement onError event!
+const fetchAllProjects = async () => {
+  const data = await projectsGraphQlAPI.projects()
+  projects.value = data.projects;
 };
 
-onMounted(() => {
-  fetchAllProjects();
-});
+const loadingHandler = useLoadingHandler();
+loadingHandler.handleLoadingDuring(fetchAllProjects());
 </script>

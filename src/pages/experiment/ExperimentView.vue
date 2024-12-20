@@ -1,120 +1,85 @@
 <template>
-  <q-breadcrumbs class="oa-breadcrumb" v-if="experimentStore.experiment">
-    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard' }" />
+  <q-breadcrumbs
+    class="oa-breadcrumb"
+    v-if="experimentStore.experiment && experimentStore.experiment.project"
+  >
+    <q-breadcrumbs-el icon="home" :to="{ name: 'workbench' }" />
     <q-breadcrumbs-el :label="'Projects'" icon="list" :to="'/projects'" />
     <q-breadcrumbs-el
-      :label="projectStore.project.name"
+      :label="experimentStore.experiment.project.name"
       icon="folder"
-      :to="{ name: 'project', params: { id: projectStore.project.id } }"
+      :to="{
+        name: 'project',
+        params: { id: experimentStore.experiment.project.id },
+      }"
     />
     <q-breadcrumbs-el :label="experimentStore.experiment.name" icon="science" />
   </q-breadcrumbs>
 
   <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
     <div class="q-pa-sm">
-      <oa-section
-        v-if="!experimentStore.experiment"
-        title="Loading experiment..."
-        icon="science"
-      />
-      <ExperimentDetails
-        v-else
-        :experiment="experimentStore.experiment"
-        icon="science"
-        @updated="
-          experimentStore.reloadExperiment(experimentStore.experiment.id)
-        "
-      />
+      <ExperimentDetails :experiment="experimentStore.experiment"
+                         icon="science" @updated="handleUpdateExperimentDetails" />
     </div>
 
-    <splitpanes class="default-theme" :horizontal="horizontal">
-      <pane
-        class="q-pa-sm"
-        v-if="experimentStore.experiment"
-        style="background-color: #e6e6e6"
-      >
-        <q-tabs
-          v-model="activeTab"
-          inline-label
-          dense
-          no-caps
-          align="left"
-          class="oa-section-title"
-        >
-          <q-tab name="overview" icon="table_rows" label="Overview" />
-          <q-tab name="statistics" icon="functions" label="Statistics" />
-          <q-tab name="heatmaps" icon="view_module" label="Heatmaps" />
-        </q-tabs>
-        <div class="row oa-section-body">
-          <q-tab-panels v-model="activeTab" animated class="full-width">
-            <q-tab-panel name="overview" class="q-pa-none">
-              <PlateList
-                :experiments="[experimentStore.experiment]"
-                :plates="experimentStore.plates"
-                v-model:newPlateTab="showNewPlateDialog"
-                v-model:newPlateFromMeasurements="showNewPlateFromMeasDialog"
-                @selection="handlePlateSelection"
-                @updated="
-                  experimentStore.loadExperiment(experimentStore.experiment.id)
-                "
-                @open="handleOpen"
-              />
-            </q-tab-panel>
-            <q-tab-panel name="statistics" class="q-pa-none">
-              <PlateStatsList
-                :experiment="experimentStore.experiment"
-                :plates="experimentStore.plates"
-              />
-            </q-tab-panel>
-            <q-tab-panel name="heatmaps" class="q-pa-none">
-              <PlateGrid
-                :experiment="experimentStore.experiment"
-                :plates="experimentStore.plates"
-              />
-            </q-tab-panel>
-          </q-tab-panels>
-        </div>
-      </pane>
-      <pane
-        class="q-pa-sm"
-        v-if="uiStore.showChartViewer"
-        style="background-color: #e6e6e6"
-        ref="chartViewerPane"
-      >
-        <ChartViewer
-          :update="Date.now()"
-          @changeOrientation="horizontal = !horizontal"
-        />
-      </pane>
-    </splitpanes>
-
-    <div v-if="experimentStore.isOpen">
-      <new-plate-from-measurement-dialog
-        v-model:show="showNewPlateFromMeasDialog"
-      />
+    <div class="q-pa-sm">
+      <splitpanes class="default-theme" :horizontal="horizontal">
+        <pane v-if="experimentStore.experiment" style="background-color: #e6e6e6" >
+          <q-tabs v-model="activeTab" inline-label dense no-caps align="left" class="oa-section">
+            <q-tab name="overview" icon="table_rows" label="Overview" />
+            <q-tab name="statistics" icon="functions" label="Statistics" />
+            <q-tab name="heatmaps" icon="view_module" label="Heatmaps" />
+          </q-tabs>
+          <div class="row oa-section-body">
+            <q-tab-panels v-model="activeTab" animated class="full-width">
+              <q-tab-panel name="overview" class="q-pa-none">
+                <PlateList
+                    :experiments="[experimentStore.experiment]"
+                    :plates="experimentStore.plates"
+                    @selection="handlePlateSelection"
+                    @updated="handleUpdatePlateList"
+                    @open="handleOpen"
+                />
+              </q-tab-panel>
+              <q-tab-panel name="statistics" class="q-pa-none">
+                <PlateStatsList
+                    :experiment="experimentStore.experiment"
+                    :plates="experimentStore.plates"
+                />
+              </q-tab-panel>
+              <q-tab-panel name="heatmaps" class="q-pa-none">
+                <PlateGrid
+                    :experiment="experimentStore.experiment"
+                    :plates="experimentStore.plates"
+                />
+              </q-tab-panel>
+            </q-tab-panels>
+          </div>
+        </pane>
+        <pane v-if="uiStore.showChartViewer" style="background-color: #e6e6e6" ref="chartViewerPane">
+          <ChartViewer :update="Date.now()" @changeOrientation="horizontal = !horizontal"/>
+        </pane>
+      </splitpanes>
     </div>
   </q-page>
 </template>
 
 <script setup>
-import { ref, watchEffect, onMounted } from "vue";
+import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import PlateList from "@/components/plate/PlateList";
 import PlateStatsList from "@/pages/experiment/PlateStatsList";
 import PlateGrid from "@/pages/experiment/PlateGrid";
 import OaSection from "@/components/widgets/OaSection";
-
 import ChartViewer from "@/components/chart/ChartViewer";
 import { useExperimentStore } from "@/stores/experiment";
-import { useProjectStore } from "@/stores/project";
 import { Pane, Splitpanes } from "splitpanes";
 import { useUIStore } from "@/stores/ui";
-import NewPlateFromMeasurementDialog from "@/pages/experiment/NewPlateFromMeasurementDialog.vue";
+
 import ExperimentDetails from "../../components/experiment/ExperimentDetails.vue";
 import { useLoadingHandler } from "@/composable/loadingHandler";
 
 const uiStore = useUIStore();
-const projectStore = useProjectStore();
 const experimentStore = useExperimentStore();
 const route = useRoute();
 const router = useRouter();
@@ -123,31 +88,13 @@ const loadingHandler = useLoadingHandler();
 const activeTab = ref("overview");
 const horizontal = ref(false);
 
-const experimentId = parseInt(route.params.experimentId);
-onMounted(() => {
-  experimentStore.loadExperiment(experimentId);
-});
-
-watchEffect(() => {
-  if (experimentStore.isLoaded(experimentId)) {
-    const projectId = experimentStore.experiment.projectId;
-    if (!projectStore.isLoaded(projectId)) projectStore.loadProject(projectId);
-  }
-});
-
-const showNewPlateDialog = ref(false);
-const showNewPlateFromMeasDialog = ref(false);
-const newPlate = ref({
-  barcode: null,
-  description: null,
-  rows: null,
-  columns: null,
-  sequence: null,
-  linkStatus: "NOT_LINKED",
-  calculationStatus: "CALCULATION_NEEDED",
-  validationStatus: "VALIDATION_NOT_SET",
-  approvalStatus: "APPROVAL_NOT_SET",
-});
+const fetchExperiment = async () => {
+  const experimentId = parseInt(route.params.experimentId);
+  await loadingHandler.handleLoadingDuring(
+    experimentStore.loadExperiment(experimentId)
+  );
+};
+fetchExperiment();
 
 const handlePlateSelection = async (plates) => {
   uiStore.selectedPlate = plates[0] ?? null;
@@ -206,5 +153,17 @@ const handleOpen = async (id) => {
     default:
       break;
   }
+};
+
+const handleUpdatePlateList = async () => {
+  await loadingHandler.handleLoadingDuring(
+    experimentStore.loadExperiment(experimentStore.experiment.id)
+  );
+};
+
+const handleUpdateExperimentDetails = async () => {
+  await loadingHandler.handleLoadingDuring(
+    experimentStore.reloadExperiment(experimentStore.experiment.id)
+  );
 };
 </script>

@@ -39,6 +39,7 @@ import resultDataGraphQlAPI from "@/api/graphql/resultdata";
 import measurementsGraphQlAPI from "@/api/graphql/measurements";
 import { usePlateStore } from "@/stores/plate";
 import { useUIStore } from "@/stores/ui";
+import { useLoadingHandler } from "../../composable/loadingHandler";
 
 const props = defineProps(["plate", "wells", "measurements", "protocols"]);
 const emits = defineEmits(["wellStatusChanged"]);
@@ -54,33 +55,58 @@ const handleFeatureOptionSelection = () => {
   wellData.value = [];
 };
 
-const handleRawFeatureSelection = (measurementColumn) => {
+const loadingHandler = useLoadingHandler();
+const handleRawFeatureSelection = async (measurementColumn) => {
   if (measurementColumn) {
-    const { onResult } = measurementsGraphQlAPI.measurementWellData(
-      measurementColumn.measurementId,
-      measurementColumn.column
+    await loadingHandler.handleLoadingDuring(
+      measurementsGraphQlAPI
+        .measurementWellData(
+          measurementColumn.measurementId,
+          measurementColumn.column
+        )
+        .then((data) => {
+          wellData.value = data?.wellData ? data.wellData : [];
+        })
     );
-    onResult(({ data }) => {
-      wellData.value = data?.wellData ? data.wellData : [];
-    });
+    // const { onResult } = measurementsGraphQlAPI.measurementWellData(
+    //   measurementColumn.measurementId,
+    //   measurementColumn.column
+    // );
+    // onResult(({ data }) => {
+    //   wellData.value = data?.wellData ? data.wellData : [];
+    // });
   } else {
     wellData.value = [];
   }
 };
 
-const handleCalculatedFeatureSelection = (calculatedFeature) => {
+const handleCalculatedFeatureSelection = async (calculatedFeature) => {
   if (calculatedFeature) {
-    const { onResult } =
-      resultDataGraphQlAPI.featureValuesByPlateIdAndFeatureIdAndProtocolId(
-        props.plate.id,
-        calculatedFeature.featureId,
-        calculatedFeature.protocolId
-      );
-    onResult(({ data }) => {
-      wellData.value = data?.featureValues
-        ? data.featureValues.map((fv) => fv.value)
-        : [];
-    });
+    await loadingHandler.handleLoadingDuring(
+      resultDataGraphQlAPI
+        .featureValuesByPlateIdAndFeatureIdAndProtocolId(
+          props.plate.id,
+          calculatedFeature.featureId,
+          calculatedFeature.protocolId
+        )
+        .then((data) => {
+          wellData.value = data?.featureValues
+            ? data.featureValues.map((fv) => fv.value)
+            : [];
+        })
+    );
+
+    // const { onResult } =
+    //   await resultDataGraphQlAPI.featureValuesByPlateIdAndFeatureIdAndProtocolId(
+    //     props.plate.id,
+    //     calculatedFeature.featureId,
+    //     calculatedFeature.protocolId
+    //   );
+    // onResult(({ data }) => {
+    //   wellData.value = data?.featureValues
+    //     ? data.featureValues.map((fv) => fv.value)
+    //     : [];
+    // });
   } else {
     wellData.value = [];
   }

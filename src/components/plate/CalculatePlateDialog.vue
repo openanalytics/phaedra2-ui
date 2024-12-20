@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="showDialog" persistent>
+  <q-dialog @hide="clearData" v-model="showDialog" persistent>
     <q-card style="min-width: 60vw">
       <q-card-section
         class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary"
@@ -70,19 +70,16 @@ const showDialog = computed({
 const selected = ref([]);
 const activeMeasurements = ref({});
 
-onUpdated(() => {
+onUpdated(async () => {
   const plateIds = props.plates.map((plate) => Number.parseInt(plate.id));
-  const { onResult, onError } =
-    projectsGraphQlAPI.activeMeasurementByPlateIds(plateIds);
-  onResult(({ data }) => {
-    if (data.plateMeasurements) {
-      for (let plateMeas of data.plateMeasurements) {
-        activeMeasurements.value[plateMeas.plateId] = Number.parseInt(
-          plateMeas.measurementId
-        );
-      }
+  const data = await projectsGraphQlAPI.activeMeasurementByPlateIds(plateIds);
+  if (data.plateMeasurements) {
+    for (let plateMeas of data.plateMeasurements) {
+      activeMeasurements.value[plateMeas.plateId] = Number.parseInt(
+        plateMeas.measurementId
+      );
     }
-  });
+  }
   console.log("On update Calculate plate dialog!! ");
 });
 
@@ -110,5 +107,9 @@ const checkDimensions = () => {
     );
   }
   return true;
+};
+
+const clearData = () => {
+  selected.value = [];
 };
 </script>

@@ -16,12 +16,10 @@ export const useProjectStore = defineStore("project", () => {
   const projectAccess = ref([]);
 
   const loadProject = async (projectId) => {
-    const { onResult, onError } = projectsGraphQlAPI.projectById(projectId);
-    onResult(({ data }) => {
-      project.value = data.project;
-      experiments.value = data.experiments;
-      projectAccess.value = data.projectAccess;
-    });
+    const data = await projectsGraphQlAPI.projectById(projectId);
+    project.value = data.project;
+    experiments.value = data.experiments;
+    projectAccess.value = data.projectAccess;
   };
 
   const reloadProject = async (id) => {
@@ -68,8 +66,7 @@ export const useProjectStore = defineStore("project", () => {
   const deleteExperiment = async (experimentId) => {
     await experimentAPI.deleteExperiment(experimentId);
   };
-  const createProjectAccess = async (id, newAccess) => {
-    newAccess["projectId"] = id;
+  const createProjectAccess = async (newAccess) => {
     await projectAPI.createProjectAccess(newAccess);
   };
   const deleteProjectAccess = async (access) => {

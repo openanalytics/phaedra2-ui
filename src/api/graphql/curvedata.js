@@ -1,73 +1,18 @@
-import {provideApolloClient, useQuery} from '@vue/apollo-composable'
-import gql from 'graphql-tag'
-import {apolloCurvesClient} from "@/graphql/apollo.clients";
-
-const defaultOptions = {fetchPolicy: 'no-cache', errorPolicy: 'ignore'}
-
-const executeQuery = (query, variables) => {
-  return provideApolloClient(apolloCurvesClient)(
-      () => useQuery(gql`${query}`, variables, defaultOptions));
-}
+import {curvesGraphQLClient} from "@/graphql/graphql.clients";
+import {curvesQueries} from "@/graphql/graphql.queries";
+import {useGraphQL} from "@/composable/useGraphQL";
 
 export default {
-  curvesByPlateId(plateId) {
-    const query = `
-            query getCurvesByPlateId($plateId: ID) {
-                curves:getCurvesByPlateId(plateId: $plateId) {
-                    id
-                    plateId
-                    protocolId
-                    featureId
-                    resultSetId
-                    substanceName
-                    substanceType
-                    fitDate
-                    version
-                    wells
-                    wellConcentrations
-                    featureValues
-                    xAxisLabels
-                    plotDoseData
-                    plotPredictionData
-                    weights
-                    curveProperties {
-                        name
-                        numericValue
-                        stringValue
-                    }
-                }
-            }
-        `
-    return executeQuery(query, {plateId})
+  async curvesByPlateId(plateId) {
+    const curvesClient = useGraphQL(curvesGraphQLClient)
+    const result = await curvesClient.executeQuery(
+        curvesQueries.curvesByPlateId, {plateId})
+    return result.data
   },
-  curvesThatIncludesWellId(wellId) {
-    const query = `
-            query getCurvesThatIncludesWellId($wellId: ID) {
-                curves:getCurvesThatIncludesWellId(wellId: $wellId) {
-                    id
-                    plateId
-                    protocolId
-                    featureId
-                    resultSetId
-                    substanceName
-                    substanceType
-                    fitDate
-                    version
-                    wells
-                    wellConcentrations
-                    featureValues
-                    xAxisLabels
-                    plotDoseData
-                    plotPredictionData
-                    weights
-                    curveProperties {
-                        name
-                        numericValue
-                        stringValue
-                    }
-                }
-            }
-        `
-    return executeQuery(query, {wellId})
+  async curvesThatIncludesWellId(wellId) {
+    const curvesClient = useGraphQL(curvesGraphQLClient)
+    const result = await curvesClient.executeQuery(
+        curvesQueries.curvesThatIncludesWellId, {wellId})
+    return result.data
   }
 }

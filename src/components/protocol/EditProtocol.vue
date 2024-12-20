@@ -53,7 +53,6 @@
 
 <script setup>
 
-import {useStore} from "vuex";
 import {ref} from "vue";
 import {useProtocolStore} from "@/stores/protocol";
 
@@ -65,7 +64,6 @@ import FeatureList from "@/components/feature/FeatureList";
 const props = defineProps(['editMode', 'protocol']);
 const emit = defineEmits(['editMode', 'updateProtocol']);
 
-const store = useStore();
 const protocolStore = useProtocolStore();
 
 //TODO: Make external and hardcoded!!
@@ -78,7 +76,7 @@ const saveProtocol = () => {
 }
 
 const addNewFeature = (feature) => {
-  store.dispatch('features/addNewFeatureToProtocol', feature)
+  protocolStore.addFeature(feature)
 }
 
 const onAddTag = async (newTag) => {

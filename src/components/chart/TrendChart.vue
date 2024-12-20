@@ -4,11 +4,17 @@
     @update="handleFeatureSelection"
     :selectFields="settingsFields"
   />
+
   <div class="col oa-section-body">
-    <div v-show="selectedExperiments.length > 0" ref="chart" />
-    <div class="absolute-center" v-show="selectedExperiments.length == 0">
+    <div v-show="displayChartCondition" ref="chart" />
+    <div class="absolute-center" v-show="displayErrorCondition">
       <q-badge color="negative" class="q-pa-md text-weight-bold">{{
         errorMessage
+      }}</q-badge>
+    </div>
+    <div class="absolute-center" v-show="displayWarningCondition">
+      <q-badge color="warning" class="q-pa-md text-weight-bold">{{
+        warningMessage
       }}</q-badge>
     </div>
   </div>
@@ -76,6 +82,18 @@ onMounted(() => {
   loadTrendChart();
 });
 
+const displayChartCondition = computed(
+  () =>
+    props.selectedExperiments.length > 0 && featureStatValues.value.length > 0
+);
+const displayWarningCondition = computed(
+  () =>
+    props.selectedExperiments.length > 0 && featureStatValues.value.length == 0
+);
+const displayErrorCondition = computed(
+  () => props.selectedExperiments.length == 0
+);
+const warningMessage = "No feature data available";
 const errorMessage = "No experiment selected";
 
 function loadTrendChart() {
@@ -113,7 +131,6 @@ function handleFeatureSelection(val) {
   selectedFeature.value = val["Feature"];
   selectedStat.value = val["Statistic"];
   openSettings(false);
-  console.log("Update chart for selected feature " + selectedStat.value);
   updateChartTraces();
 }
 

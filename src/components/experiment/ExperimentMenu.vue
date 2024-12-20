@@ -1,5 +1,5 @@
 <template>
-  <q-menu context-menu v-if="experiments.length > 0">
+  <q-menu context-menu v-if="experiments.length > 0" touch-position>
     <q-list dense>
       <div v-if="isOpen">
         <menu-item
@@ -34,7 +34,7 @@
         <q-item-section side>
           <q-icon name="keyboard_arrow_right" />
         </q-item-section>
-        <q-menu>
+        <q-menu anchor="top right">
           <q-list>
             <menu-item
               icon="timeline"
@@ -56,20 +56,17 @@
         <q-item-section side>
           <q-icon name="keyboard_arrow_right" />
         </q-item-section>
-        <q-menu>
+        <q-menu anchor="top right">
           <q-list>
             <menu-item
-              icon="save_alt"
               label="Export Plate List"
               @click="openExportPlateListDialog"
             />
             <menu-item
-              icon="save_alt"
               label="Export Well Data"
               @click="openExportWellDataDialog"
             />
             <menu-item
-              icon="save_alt"
               label="Export Sub-Well Data"
               @click="exportPlateSubWellData"
             />
@@ -145,8 +142,6 @@
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 import { useNotification } from "@/composable/notification";
-
-import { usePanesStore } from "@/stores/panes";
 import { useProjectStore } from "@/stores/project";
 import { useUIStore } from "@/stores/ui";
 
@@ -185,23 +180,14 @@ const openDeleteDialog = () => {
   showDeleteDialog.value = true;
 };
 
-const getPlates = () => {
-  const { onResult, onError } = projectsGraphQlAPI.platesByExperimentIds(
-    props.experiments?.map((exp) => exp.id)
-  );
-  onResult(({ data }) => {
-    plates.value = [...data.plate];
-  });
-  onError((error) => {
-    notify.showError("Error while updating plates: " + error.message);
-  });
+const getPlates = async () => {
+  const data = await projectsGraphQlAPI.platesByExperimentIds(props.experiments?.map((exp) => exp.id));
+  plates.value = [...data.plate];
 };
 
 const setPlateLayout = () => {
-  handleExperimentSelection(() => {
-    getPlates();
-    showLinkPlateDialog.value = true;
-  }, "No experiment is selected!");
+  getPlates();
+  showLinkPlateDialog.value = true;
 };
 
 const openRecalculatePlatesDialog = () => {
@@ -237,10 +223,10 @@ const onDeleted = () => {
 };
 
 const useNotify = useNotification();
-const handleSetPlateLayout = () => {
-  projectStore.loadProject(projectId);
+const handleSetPlateLayout = async () => {
+  await projectStore.loadProject(projectId);
   useNotify.showInfo(
-    "The plate layout has been updated! ",
+    "The plate layout has been updated! Recalculate plate(s)?",
     () => {
       showCalculatePlateDialog.value = true;
     },

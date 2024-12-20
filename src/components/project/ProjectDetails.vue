@@ -1,93 +1,61 @@
 <template>
-  <q-card
-    v-if="project && project.name"
-    flat
-    bordered
-    class="row justify-between"
-    style="width: 100%"
-  >
-    <q-card-section horizontal class="col-7">
-      <q-card-section class="q-pt-xs">
-        <div
-          style="width: 100%"
-          class="row align-center text-h5 q-mt-sm q-mb-xs"
-        >
-          <div>
-            <span>
-              {{ project.name }}
-            </span>
-
-            <span class="q-mx-sm" style="font-size: 0.7em"
-              >({{ project.id }}) <q-tooltip>ID</q-tooltip></span
-            >
-          </div>
-          <span>
-            <q-btn
-              round
-              dense
-              icon="edit"
-              size="xs"
-              color="positive"
-              @click="showEditDialog = true"
-              ><q-tooltip>Edit Project</q-tooltip></q-btn
-            >
-          </span>
-          <span class="q-ml-sm">
-            <q-btn
-              round
-              dense
-              icon="delete"
-              size="xs"
-              color="negative"
-              @click="showDeleteDialog = true"
-              ><q-tooltip>Delete Project</q-tooltip></q-btn
-            >
-          </span>
+  <phaedra-details-section v-if="project && project.name"
+                           :object-id="project.id"
+                           :object-title="project.name"
+                           :collapsible="collapsible">
+    <template v-slot:actions>
+      <span>
+        <q-btn icon="edit" size="xs" color="positive"
+               @click="showEditDialog = true" round dense>
+          <q-tooltip>Edit Project</q-tooltip>
+        </q-btn>
+      </span>
+      <span class="q-ml-sm">
+        <q-btn icon="delete" size="xs" color="negative"
+               @click="showDeleteDialog = true" round dense>
+          <q-tooltip>Delete Project</q-tooltip>
+        </q-btn>
+      </span>
+    </template>
+    <template v-slot:readonly>
+      <div class="col">
+        <div>
+          <UserChip :id="project.createdBy"
+                    onHoverMessage="Created By" label="Created By"/>
         </div>
-
-        <div class="row col-sm">
-          <div class="text-overline">
-            <UserChip :id="project.createdBy" onHoverMessage="Created By" />
-          </div>
-          <div class="text-overline">
-            <DateChip
-              :dateTime="project.createdOn"
-              onHoverMessage="Created On"
-            />
-          </div>
+        <div>
+          <UserChip :id="project.updatedBy"
+                    onHoverMessage="Updated By" label="Updated By"/>
         </div>
-
-        <div class="text-caption text-grey q-my-sm">
-          <EditableField readOnly :object="project" fieldName="description" />
+      </div>
+      <div class="col">
+        <div>
+          <DateChip :dateTime="project.createdOn"
+                    onHoverMessage="Created On" label="Created On"/>
         </div>
-        <TagListEditable
-          :tags="project.tags"
-          @addTag="onAddTag"
-          @removeTag="onRemoveTag"
-          class="q-pt-xs"
-        />
-        <AccessControlListEditable
-          :projectAccess="project.access"
-          @addAccess="onAddAccess"
-          @removeAccess="onRemoveAccess"
-          class="q-mt-xs"
-        />
-      </q-card-section>
-    </q-card-section>
-
-    <q-card-section class="col-grow row justify-center">
-      <PropertyTable
-        :properties="project.properties"
-        @addProperty="onAddProperty"
-        @removeProperty="onRemoveProperty"
-      />
-    </q-card-section>
-  </q-card>
+        <div>
+          <DateChip :dateTime="project.updatedOn"
+                    onHoverMessage="Updated On" label="Updated On"/>
+        </div>
+      </div>
+    </template>
+    <template v-slot:editable>
+      <EditableField readOnly :object="project" fieldName="description" label="Description"/>
+      <TagListEditable :tags="project.tags" @addTag="onAddTag" @removeTag="onRemoveTag" />
+      <AccessControlListEditable :projectAccess="project.access"
+                                 @addAccess="onAddAccess" @removeAccess="onRemoveAccess"/>
+    </template>
+    <template v-slot:properties>
+      <PropertyTable :properties="project.properties"
+                     @addProperty="onAddProperty"
+                     @removeProperty="onRemoveProperty"/>
+    </template>
+  </phaedra-details-section>
 
   <div v-else class="absolute-center">
-    <q-badge color="negative" class="q-pa-md text-weight-bold">{{
-      errorMessage
-    }}</q-badge>
+    <q-badge color="negative" class="q-pa-md text-weight-bold">
+      {{ errorMessage }}
+    </q-badge>
   </div>
 
   <EditResourceDialog
@@ -123,9 +91,15 @@ import { useProjectStore } from "@/stores/project";
 import DateChip from "@/components/widgets/DateChip.vue";
 import TagListEditable from "@/components/tag/TagListEditable.vue";
 import AccessControlListEditable from "@/components//widgets/AccessControlListEditable.vue";
+import { useLoadingHandler } from "@/composable/loadingHandler";
+import PhaedraDetailsSection from "@/components/widgets/PhaedraDetailsSection.vue";
 
 const props = defineProps({
   project: Object,
+  collapsible: {
+    type: Boolean,
+    default: true,
+  },
 });
 const emits = defineEmits(["updated"]);
 
@@ -136,58 +110,63 @@ const showDeleteDialog = ref(false);
 const showEditDialog = ref(false);
 const errorMessage = "No project selected";
 
+const loadingHandler = useLoadingHandler();
+
 const onEdited = async (newVal) => {
-  await projectStore.editProject(props.project.id, newVal).then(() => {
-    emits("updated");
-  });
+  await loadingHandler.handleLoadingDuring(
+    projectStore.editProject(props.project.id, newVal)
+  );
+  emits("updated");
 };
 
 const onDeleted = async () => {
-  await projectStore.deleteProject(props.project.id).then(() => {
-    emits("updated");
-  });
+  await loadingHandler.handleLoadingDuring(
+    projectStore.deleteProject(props.project.id)
+  );
+  emits("updated");
   await router.push({ name: "browseProjects" });
 };
 
 const onAddAccess = async (newAccess) => {
-  await projectStore
-    .createProjectAccess(props.project.id, newAccess)
-    .then(() => {
-      emits("updated");
-    });
+  newAccess["projectId"] = props.project.id;
+  await loadingHandler.handleLoadingDuring(
+    projectStore.createProjectAccess(newAccess)
+  );
+  emits("updated");
 };
 
 const onRemoveAccess = async (access) => {
-  await projectStore.deleteProjectAccess(access).then(() => {
-    emits("updated");
-  });
+  await loadingHandler.handleLoadingDuring(
+    projectStore.deleteProjectAccess(access)
+  );
+  emits("updated");
 };
 
 const onAddTag = async (newTag) => {
-  await projectStore.handleAddTag(props.project.id, newTag).then(() => {
-    emits("updated");
-  });
+  await loadingHandler.handleLoadingDuring(
+    projectStore.handleAddTag(props.project.id, newTag)
+  );
+  emits("updated");
 };
 
 const onRemoveTag = async (tag) => {
-  await projectStore.handleDeleteTag(props.project.id, tag).then(() => {
-    emits("updated");
-  });
+  await loadingHandler.handleLoadingDuring(
+    projectStore.handleDeleteTag(props.project.id, tag)
+  );
+  emits("updated");
 };
 
 const onAddProperty = async (newProperty) => {
-  await projectStore
-    .handleAddProperty(props.project.id, newProperty)
-    .then(() => {
-      emits("updated");
-    });
+  await loadingHandler.handleLoadingDuring(
+    projectStore.handleAddProperty(props.project.id, newProperty)
+  );
+  emits("updated");
 };
 
 const onRemoveProperty = async (property) => {
-  await projectStore
-    .handleDeleteProperty(props.project.id, property)
-    .then(() => {
-      emits("updated");
-    });
+  await loadingHandler.handleLoadingDuring(
+    projectStore.handleDeleteProperty(props.project.id, property)
+  );
+  emits("updated");
 };
 </script>
