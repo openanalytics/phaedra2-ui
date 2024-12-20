@@ -177,7 +177,7 @@ const deleteFeature = (feature) => {
 }
 
 const showFormulaInfo = (formulaId) => {
-  router.push("/calc/formulas/" + formulaId);
+  router.push("/calc/formula/" + formulaId);
 }
 
 const saveProtocol = async () => {
