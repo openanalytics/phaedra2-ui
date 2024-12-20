@@ -1,7 +1,7 @@
 <template>
   <div>
-    <q-toolbar class="oa-section-title">
-      <q-icon name="functions" class="on-left" />
+    <q-toolbar class="oa-section">
+      <q-icon name="functions" class="on-left" size="md"/>
       <div class="text-h6 q-pr-xl">Add New Feature</div>
       <q-tabs v-model="activeTab" align="left" inline-label dense no-caps>
         <q-tab name="general" icon="info" label="General Info" />

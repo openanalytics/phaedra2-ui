@@ -1,145 +1,92 @@
 <template>
   <q-breadcrumbs class="oa-breadcrumb" v-if="pipelineStore.pipeline">
-    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard' }" />
+    <q-breadcrumbs-el icon="home" :to="{ name: 'workbench' }" />
     <q-breadcrumbs-el label="Pipelines" icon="list" :to="'/pipelines'" />
     <q-breadcrumbs-el :label="pipelineStore.pipeline.name" icon="route" />
   </q-breadcrumbs>
 
-  <q-page class="oa-root-div">
+  <q-page class="oa-root-div" v-if="pipelineStore.pipeline">
     <div class="q-pa-sm">
-      <oa-section
-        v-if="!pipelineStore.pipeline"
-        title="Loading..."
-        icon="route"
-      />
-      <oa-section
-        v-else
-        :title="pipelineStore.pipeline.name"
-        icon="route"
-        :collapsible="true"
-      >
-        <div class="row q-pa-md">
-          <div class="col-4">
-            <q-field label="ID" stack-label dense borderless>
-              <template v-slot:control>
-                {{ pipelineStore.pipeline.id }}
-              </template>
-            </q-field>
-            <q-field label="Description" stack-label dense borderless>
-              <template v-slot:control>
-                <EditableField
-                  :object="pipelineStore.pipeline"
-                  fieldName="description"
-                  @valueChanged="(val) => onPipelineEdited('description', val)"
-                />
-              </template>
-            </q-field>
-            <q-field label="Version" stack-label dense borderless>
-              <template v-slot:control>
-                {{ pipelineStore.pipeline.versionNumber }}
-              </template>
-            </q-field>
-            <q-field label="Status" stack-label dense borderless>
-              <template v-slot:control>
-                <StatusLabel :status="pipelineStore.pipeline.status" />
-                <q-toggle
-                  class="on-right"
-                  dense
-                  v-model="pipelineStatusToggle"
-                  @update:model-value="onStatusToggle"
-                />
-              </template>
-            </q-field>
-          </div>
-          <div class="col-4">
-            <q-field label="Created On" stack-label dense borderless>
-              <template v-slot:control>
-                {{ FormatUtils.formatDate(pipelineStore.pipeline.createdOn) }}
-              </template>
-            </q-field>
-            <q-field label="Created By" stack-label dense borderless>
-              <template v-slot:control>
-                <div class="q-pt-xs">
-                  <UserChip :id="pipelineStore.pipeline.createdBy" />
-                </div>
-              </template>
-            </q-field>
-            <q-field label="Updated On" stack-label dense borderless>
-              <template v-slot:control>
-                {{ FormatUtils.formatDate(pipelineStore.pipeline.updatedOn) }}
-              </template>
-            </q-field>
-            <q-field label="Updated By" stack-label dense borderless>
-              <template v-slot:control>
-                <div class="q-pt-xs">
-                  <UserChip :id="pipelineStore.pipeline.updatedBy" />
-                </div>
-              </template>
-            </q-field>
-          </div>
-          <div class="col-4 q-gutter-xs">
-            <div class="row justify-end action-button">
-              <q-btn
-                size="sm"
-                color="primary"
-                icon="delete"
-                class="oa-button-delete"
-                label="Delete"
-                @click="showDeleteDialog = true"
-              />
+      <phaedra-details-section :object-title="pipelineStore.pipeline.name" :object-id="pipelineStore.pipeline.id" title-icon="route">
+        <template v-slot:actions>
+          <span v-show="!editMode">
+            <q-btn size="xs" color="positive" icon="edit"
+                   @click="editMode = true" round dense/>
+          </span>
+          <span v-show="!editMode" class="q-ml-xs">
+            <q-btn size="xs" icon="delete" color="negative"
+                   @click="showDeleteDialog = true" round dense/>
+          </span>
+          <span v-show="editMode">
+            <q-btn size="xs" color="positive" icon="save"
+                   @click="saveChanges" round dense/>
+          </span>
+          <span v-show="editMode" class="q-ml-xs">
+            <q-btn size="xs" color="negative" icon="cancel"
+                   @click="exitEditMode" round dense/>
+          </span>
+        </template>
+        <template v-slot:readonly>
+          <div class="col">
+            <div>
+              <user-chip :id="pipelineStore.pipeline.createdBy" label="Created By"
+                         on-hover-message="Created By"/>
+            </div>
+            <div>
+              <date-chip :date-time="pipelineStore.pipeline.createdOn" label="Created On"
+                         on-hover-message="Created On"/>
             </div>
           </div>
-        </div>
-      </oa-section>
-
-      <oa-section
-        title="Configuration"
-        icon="settings"
-        :collapsible="true"
-        class="q-pt-sm"
-      >
-        <div class="row oa-section-body">
-          <div class="col-12 q-pa-md">
-            <div class="row">
-              <div class="col-11">
-                <codemirror
-                  :disabled="!editMode"
-                  :extensions="editorConfig.extensions"
-                  v-model="configWorkingCopy"
-                />
-              </div>
-              <div class="col-1">
-                <div class="row justify-end">
-                  <q-btn
-                    size="sm"
-                    color="primary"
-                    icon="edit"
-                    label="Edit"
-                    v-show="!editMode"
-                    @click="editMode = true"
-                  />
-                  <q-btn
-                    size="sm"
-                    color="primary"
-                    icon="save"
-                    label="Save"
-                    v-show="editMode"
-                    @click="exitEditMode(true)"
-                  />
-                  <q-btn
-                    size="sm"
-                    color="primary"
-                    icon="cancel"
-                    label="Cancel"
-                    v-show="editMode"
-                    @click="exitEditMode(false)"
-                    class="q-mt-sm"
-                  />
-                </div>
-              </div>
+          <div class="col">
+            <div>
+              <user-chip :id="pipelineStore.pipeline.updatedBy" label="Updated By"
+                         on-hover-message="Updated By"/>
+            </div>
+            <div>
+              <date-chip :date-time="pipelineStore.pipeline.updatedOn" label="Updated On"
+                         on-hover-message="Updated On"/>
             </div>
           </div>
-        </div>
+        </template>
+        <template v-slot:editable>
+          <div class="row">
+            <div class="col">
+              <editable-field :object="pipelineStore.pipeline" fieldName="name"
+                              :read-only="!editMode" label="Name"
+                              @valueChanged="(val) => onPipelineEdited('name', val)"/>
+              <editable-field :object="pipelineStore.pipeline" fieldName="description"
+                              :read-only="!editMode" label="Description"
+                              @valueChanged="(val) => onPipelineEdited('description', val)"/>
+            </div>
+            <div class="col">
+              <q-field label="Version" stack-label dense borderless>
+                <template v-slot:control>
+                  {{ pipelineStore.pipeline.versionNumber }}
+                </template>
+              </q-field>
+              <q-field label="Status" stack-label dense borderless>
+                <template v-slot:control>
+                  <StatusLabel :status="pipelineStore.pipeline.status" />
+                  <q-toggle class="on-right" v-model="pipelineStatusToggle" :disable="!editMode"
+                            @update:model-value="onStatusToggle" dense/>
+                </template>
+              </q-field>
+            </div>
+          </div>
+          <tag-list-editable :tags="pipelineStore.pipeline.tags"
+                             @addTag="onAddTag" @removeTag="onRemoveTag"/>
+        </template>
+        <template v-slot:properties>
+          <property-table :properties="pipelineStore.pipeline.properties"
+                          @addProperty="onAddProperty" @removeProperty="onRemoveProperty"/>
+        </template>
+      </phaedra-details-section>
+      <oa-section title="Configuration" icon="settings" class="q-pt-sm" >
+        <codemirror
+            :disabled="!editMode"
+            :extensions="editorConfig.extensions"
+            v-model="configWorkingCopy"
+        />
       </oa-section>
     </div>
   </q-page>
@@ -174,6 +121,10 @@ import ConfirmDialog from "@/components/widgets/ConfirmDialog";
 import EditableField from "@/components/widgets/EditableField";
 import { usePipelineStore } from "@/stores/pipeline";
 import { useLoadingHandler } from "../../composable/loadingHandler";
+import PhaedraDetailsSection from "@/components/widgets/PhaedraDetailsSection.vue";
+import DateChip from "@/components/widgets/DateChip.vue";
+import PropertyTable from "@/components/property/PropertyTable.vue";
+import TagListEditable from "@/components/tag/TagListEditable.vue";
 
 const pipelineStatusToggle = ref(false);
 const pipelineStore = usePipelineStore();
@@ -216,16 +167,9 @@ const cancelStatusChange = () => {
 
 const editMode = ref(false);
 const configWorkingCopy = ref("");
-const exitEditMode = (saveChanges) => {
+const exitEditMode = () => {
   editMode.value = false;
-  if (saveChanges) {
-    let newConfig = JSON.parse(configWorkingCopy.value);
-    onPipelineEdited("config", newConfig);
-  } else {
-    configWorkingCopy.value = FormatUtils.formatJSON(
-      pipelineStore.pipeline.config
-    );
-  }
+  pipelineStore.loadPipeline(pipelineId);
 };
 
 const onPipelineEdited = async (fieldName, newValue) => {
@@ -233,6 +177,12 @@ const onPipelineEdited = async (fieldName, newValue) => {
     pipelineStore.updatePipelineProperty(fieldName, newValue)
   );
 };
+
+const saveChanges = () => {
+  editMode.value = false;
+  pipelineStore.pipeline.config = JSON.parse(configWorkingCopy.value);
+  pipelineStore.updatePipeline()
+}
 
 const editorConfig = {
   extensions: [json()],
@@ -246,4 +196,20 @@ const confirmDelete = async () => {
       .then(() => router.push({ name: "browsePipelines" }))
   );
 };
+
+const onAddTag = async (newTag) => {
+  // TODO: implement add tags for formulas
+}
+
+const onRemoveTag = async (tag) => {
+  // TODO: implement add tags for formulas
+}
+
+const onAddProperty = async (newProperty) => {
+  // TODO: implement add properties for formulas
+}
+
+const onRemoveProperty = async (property) => {
+  // TODO: implement add properties for formulas
+}
 </script>

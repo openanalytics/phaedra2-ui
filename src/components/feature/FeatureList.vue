@@ -1,13 +1,11 @@
 <template>
   <oa-section title="Features" icon="functions" :collapsible="true">
-    <oa-table
-      :rows="features"
-      :columns="columns"
-      :pagination="{ rowsPerPage: 10, sortBy: 'name' }"
-    >
-      <template v-slot:top-left>
+    <oa-table :rows="features" :columns="columns" :pagination="{ rowsPerPage: 10, sortBy: 'name' }">
+      <template v-slot:top-right>
         <div class="col action-button on-left">
-          <q-btn icon="add" class="oa-button" label="Add Feature" @click="showNewFeatureView" size="sm" dense/>
+          <q-btn icon="add" color="primary" @click="showNewFeatureView" size="sm" round>
+            <q-tooltip>Add a new feature</q-tooltip>
+          </q-btn>
           <q-btn v-if="protocolStore.isUpdated" icon="save" class="oa-action-button" label="Save" @click="confirmChanges = true" size="sm" dense/>
           <q-btn v-if="protocolStore.isUpdated" icon="restart_alt" class="oa-action-button" label="Reset" @click="protocolStore.reloadProtocol" size="sm" dense/>
         </div>
@@ -179,7 +177,7 @@ const deleteFeature = (feature) => {
 }
 
 const showFormulaInfo = (formulaId) => {
-  router.push("/calc/formula/" + formulaId);
+  router.push("/calc/formulas/" + formulaId);
 }
 
 const saveProtocol = async () => {

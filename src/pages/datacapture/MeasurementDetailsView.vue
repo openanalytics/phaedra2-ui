@@ -1,113 +1,88 @@
 <template>
   <q-breadcrumbs class="oa-breadcrumb" v-if="measurementStore.measurement">
-    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard' }" />
-    <q-breadcrumbs-el
-      :label="'Measurements'"
-      icon="list"
-      :to="'/datacapture/meas'"
-    />
-    <q-breadcrumbs-el
-      :label="measurementStore.measurement.barcode"
-      icon="text_snippet"
-    />
+    <q-breadcrumbs-el icon="home" :to="{ name: 'workbench' }" />
+    <q-breadcrumbs-el :label="'Measurements'" icon="list" :to="'/datacapture/meas'"/>
+    <q-breadcrumbs-el :label="measurementStore.measurement.barcode" icon="text_snippet"/>
   </q-breadcrumbs>
 
-  <q-page class="oa-root-div">
+  <q-page class="oa-root-div" v-if="measurementStore.measurement">
     <div class="q-pa-sm">
-      <oa-section
-        v-if="!measurementStore.measurement"
-        title="Loading..."
-        icon="text_snippet"
-      />
-      <oa-section
-        v-else
-        :title="measurementStore.measurement.barcode"
-        icon="text_snippet"
-        :collapsible="true"
-      >
-        <div class="row q-pa-md">
-          <div class="col-4">
-            <q-field label="ID" stack-label borderless dense>
-              <template v-slot:control>
-                {{ measurementStore.measurement.id }}
-              </template>
-            </q-field>
-            <q-field label="Barcode" stack-label borderless dense>
-              <template v-slot:control>
-                {{ measurementStore.measurement.barcode }}
-              </template>
-            </q-field>
-            <q-field label="Dimensions" stack-label borderless dense>
-              <template v-slot:control>
-                <div class="self-center full-width no-outline">
-                  {{ measurementStore.measurement.rows }} x
-                  {{ measurementStore.measurement.columns }} ({{
-                    measurementStore.measurement.rows *
-                    measurementStore.measurement.columns
+      <phaedra-details-section :object-id="measurementStore.measurement.id"
+                               :object-title="measurementStore.measurement.barcode"
+                               title-icon="text_snippet">
+        <template v-slot:readonly>
+          <div class="col">
+            <div>
+              <user-chip :id="measurementStore.measurement.createdBy" label="Created By"
+                         on-hover-message="Created By"/>
+            </div>
+            <div>
+              <date-chip :date-time="measurementStore.measurement.createdOn" label="Created On"
+                         on-hover-message="Created On"/>
+            </div>
+          </div>
+          <div class="col">
+            <div>
+              <user-chip :id="measurementStore.measurement.updatedBy" label="Updated By"
+                         on-hover-message="Updated By"/>
+            </div>
+            <div>
+              <date-chip :date-time="measurementStore.measurement.updatedOn" label="Updated On"
+                         on-hover-message="Updated On"/>
+            </div>
+          </div>
+        </template>
+        <template v-slot:editable>
+          <div class="row">
+            <div class="col">
+              <q-field label="WellData Columns" stack-label borderless dense>
+                <template v-slot:control>
+                  {{ measurementStore.measurement?.wellColumns?.length || 0 }}
+                </template>
+              </q-field>
+
+              <q-field label="Dimensions" stack-label borderless dense>
+                <template v-slot:control>
+                  <div class="self-center full-width no-outline">
+                    {{ measurementStore.measurement.rows }} x
+                    {{ measurementStore.measurement.columns }} ({{
+                      measurementStore.measurement.rows *
+                      measurementStore.measurement.columns
+                    }}
+                    wells)
+                  </div>
+                </template>
+              </q-field>
+            </div>
+            <div class="col">
+              <q-field label="SubWellData Columns" stack-label borderless dense>
+                <template v-slot:control>
+                  {{ measurementStore.measurement?.subWellColumns?.length || 0 }}
+                </template>
+              </q-field>
+
+              <q-field label="Image Channels" stack-label borderless dense>
+                <template v-slot:control>
+                  {{
+                    (measurementStore.measurement?.imageChannels || []).join(
+                        ", "
+                    ) || "No image data"
                   }}
-                  wells)
-                </div>
-              </template>
-            </q-field>
-            <!--            <q-field label="Tags" stack-label dense borderless>-->
-            <!--              <template v-slot:control>-->
-            <!--                <tag-list :tags="[]" :read-only="true"-->
-            <!--                          @addTag="onAddTag" @removeTag="onRemoveTag"-->
-            <!--                          class="q-pt-xs"/>-->
-            <!--              </template>-->
-            <!--            </q-field>-->
+                </template>
+              </q-field>
+            </div>
           </div>
-          <div class="col-4">
-            <q-field label="WellData Columns" stack-label borderless dense>
-              <template v-slot:control>
-                {{ measurementStore.measurement?.wellColumns?.length || 0 }}
-              </template>
-            </q-field>
-            <q-field label="SubWellData Columns" stack-label borderless dense>
-              <template v-slot:control>
-                {{ measurementStore.measurement?.subWellColumns?.length || 0 }}
-              </template>
-            </q-field>
-            <q-field label="Image Channels" stack-label borderless dense>
-              <template v-slot:control>
-                {{
-                  (measurementStore.measurement?.imageChannels || []).join(
-                    ", "
-                  ) || "No image data"
-                }}
-              </template>
-            </q-field>
-          </div>
-          <div class="col-4">
-            <q-field label="Created On" stack-label dense borderless>
-              <template v-slot:control>
-                {{
-                  FormatUtils.formatDate(
-                    measurementStore.measurement?.createdOn
-                  )
-                }}
-              </template>
-            </q-field>
-            <q-field label="Created By" stack-label dense borderless>
-              <template v-slot:control>
-                <div class="q-pt-xs">
-                  <UserChip :id="measurementStore.measurement?.createdBy" />
-                </div>
-              </template>
-            </q-field>
-          </div>
-        </div>
-      </oa-section>
+          <tag-list-editable :tags="measurementStore.measurement.tags"
+                             @addTag="onAddTag" @removeTag="onRemoveTag"/>
+        </template>
+        <template v-slot:properties>
+          <property-table :properties="measurementStore.measurement.properties"
+                          @addProperty="onAddProperty" @removeProperty="onRemoveProperty"/>
+        </template>
+      </phaedra-details-section>
 
       <div class="q-pt-sm">
-        <q-tabs
-          inline-label
-          dense
-          no-caps
-          class="oa-section-title"
-          v-model="activeTab"
-          align="left"
-        >
+        <q-tabs inline-label dense no-caps class="oa-section" v-model="activeTab" align="left">
           <q-tab name="wellData" icon="table_rows" label="Well Data" />
           <q-tab name="subWellData" icon="table_rows" label="SubWell Data" />
           <q-tab name="imageData" icon="image" label="Image Data" />
@@ -115,43 +90,21 @@
         <div class="row oa-section-body">
           <q-tab-panels v-model="activeTab" animated class="full-width">
             <q-tab-panel name="wellData" class="q-px-none">
-              <q-table
-                table-header-class="text-grey"
-                flat
-                dense
-                :rows="wellData"
-                :columns="wellDataColumns"
-                row-key="id"
-                :pagination="{ rowsPerPage: 100 }"
-                :filter="filter"
-                :filter-method="filterMethod"
-                :loading="loading"
-                separator="cell"
-                bordered
-              >
+              <q-table table-header-class="text-grey" :rows="wellData" :columns="wellDataColumns"
+                       row-key="id" :pagination="{ rowsPerPage: 20 }"
+                       :filter="filter" :filter-method="filterMethod" :loading="loading"
+                       separator="cell" bordered flat dense>
                 <template v-slot:top-left>
                   <div v-if="wellNrLimit > 0">
-                    <span class="text-info"
-                      >Showing first {{ wellNrLimit }} wells.</span
-                    >
-                    <q-btn
-                      class="on-right"
-                      size="xs"
-                      color="info"
-                      @click="wellNrLimit = -1"
-                      >Load all</q-btn
-                    >
+                    <span class="text-info">Showing first {{ wellNrLimit }} wells.</span>
+                    <q-btn class="on-right" size="xs" color="info" label="Load all"
+                           @click="wellNrLimit = -1"/>
                   </div>
                 </template>
                 <template v-slot:top-right>
                   <div class="row">
-                    <q-input
-                      outlined
-                      dense
-                      debounce="300"
-                      v-model="filter.name.term"
-                      placeholder="Search"
-                    >
+                    <q-input v-model="filter.name.term" placeholder="Search"
+                             outlined dense debounce="300">
                       <template v-slot:append>
                         <q-icon name="search" />
                       </template>
@@ -254,6 +207,10 @@ import TagList from "@/components/tag/TagList.vue";
 import metadataAPI from "@/api/metadata";
 import { useMeasurementStore } from "@/stores/measurement";
 import { useLoadingHandler } from "@/composable/loadingHandler";
+import PhaedraDetailsSection from "@/components/widgets/PhaedraDetailsSection.vue";
+import DateChip from "@/components/widgets/DateChip.vue";
+import TagListEditable from "@/components/tag/TagListEditable.vue";
+import PropertyTable from "@/components/property/PropertyTable.vue";
 
 const activeTab = ref("wellData");
 const loading = ref(true);

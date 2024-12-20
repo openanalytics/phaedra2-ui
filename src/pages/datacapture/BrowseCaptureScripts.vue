@@ -1,26 +1,18 @@
 <template>
   <q-breadcrumbs class="oa-breadcrumb">
-    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard' }" />
+    <q-breadcrumbs-el icon="home" :to="{ name: 'workbench' }" />
     <q-breadcrumbs-el label="Capture Scripts" icon="data_object" />
   </q-breadcrumbs>
 
   <q-page class="oa-root-div">
     <oa-section title="Capture Scripts" icon="data_object" class="q-pa-sm">
-      <oa-table
-        :rows="scripts"
-        :columns="columns"
-        :loading="loading"
-        @row-dblclick="gotoCaptureScriptView"
-      >
+      <oa-table :rows="scripts" :columns="columns" :loading="loading"
+                @row-dblclick="gotoCaptureScriptView">
         <template v-slot:top-right>
-          <q-btn
-            round
-            size="sm"
-            color="primary"
-            icon="add"
-            @click="router.push('/datacapture/script/new')"
-            ><q-tooltip>New Script...</q-tooltip></q-btn
-          >
+          <q-btn round size="sm" color="primary" icon="add"
+                 @click="router.push('/datacapture/script/new')">
+            <q-tooltip>New Script...</q-tooltip>
+          </q-btn>
         </template>
         <template v-slot:no-data>
           <div class="full-width row text-info">

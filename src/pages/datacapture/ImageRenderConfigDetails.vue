@@ -1,125 +1,73 @@
 <template>
-  <q-breadcrumbs class="oa-breadcrumb" v-if="measurementStore.renderConfig">
-    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard' }" />
-    <q-breadcrumbs-el
-      label="Image Render Configurations"
-      icon="list"
-      :to="'/datacapture/render-configs'"
-    />
-    <q-breadcrumbs-el
-      :label="measurementStore.renderConfig.name"
-      icon="palette"
-    />
+  <q-breadcrumbs class="oa-breadcrumb">
+    <q-breadcrumbs-el icon="home" :to="{ name: 'workbench' }" />
+    <q-breadcrumbs-el label="Image Render Configurations" icon="list" :to="'/datacapture/render-configs'"/>
+    <q-breadcrumbs-el :label="measurementStore.renderConfig?.name" icon="palette" />
   </q-breadcrumbs>
 
-  <q-page class="oa-root-div">
+  <q-page class="oa-root-div" v-if="measurementStore.renderConfig && measurementStore.renderConfig.config">
     <div class="q-pa-sm">
-      <oa-section
-        v-if="!measurementStore.renderConfig"
-        title="Loading..."
-        icon="text_snippet"
-      />
-      <oa-section
-        v-else
-        :title="measurementStore.renderConfig.name"
-        icon="palette"
-        :collapsible="true"
-      >
-        <div class="row q-pa-md">
-          <div class="col-3">
-            <q-field label="ID" stack-label borderless dense>
-              <template v-slot:control>
-                {{ measurementStore.renderConfig.id }}
-              </template>
-            </q-field>
-            <q-field label="Name" stack-label borderless dense>
-              <template v-slot:control>
-                <div class="self-center full-width no-outline">
-                  <EditableField
-                    :object="measurementStore.renderConfig"
-                    fieldName="name"
-                    @valueChanged="onNameChanged"
-                  />
-                </div>
-              </template>
-            </q-field>
+      <phaedra-details-section :object-id="measurementStore.renderConfig?.id"
+                               :object-title="measurementStore.renderConfig?.name"
+                               title-icon="palette">
+        <template v-slot:readonly>
+          <div class="col">
+            <div>
+              <user-chip :id="measurementStore.renderConfig.createdBy" label="Created By"
+                         on-hover-message="Created By"/>
+            </div>
+            <div>
+              <date-chip :date-time="measurementStore.renderConfig.createdOn" label="Created On"
+                         on-hover-message="Created On"/>
+            </div>
           </div>
-          <div class="col-3">
-            <q-field label="Gamma" stack-label borderless dense>
-              <template v-slot:control>
-                <div class="self-center full-width no-outline">
-                  <EditableField
-                    :object="measurementStore.renderConfig.config"
-                    fieldName="gamma"
-                    :number="true"
-                    @valueChanged="
-                      (newValue) => onConfigValueChanged('gamma', newValue)
-                    "
-                  />
-                </div>
-              </template>
-            </q-field>
-            <q-field label="Scale" stack-label borderless dense>
-              <template v-slot:control>
-                <div class="self-center full-width no-outline">
-                  <EditableField
-                    :object="measurementStore.renderConfig.config"
-                    fieldName="scale"
-                    :number="true"
-                    @valueChanged="
-                      (newValue) => onConfigValueChanged('scale', newValue)
-                    "
-                  />
-                </div>
-              </template>
-            </q-field>
+          <div class="col">
+            <div>
+              <user-chip :id="measurementStore.renderConfig.updatedBy" label="Updated By"
+                         on-hover-message="Updated By"/>
+            </div>
+            <div>
+              <date-chip :date-time="measurementStore.renderConfig.updatedOn" label="Updated On"
+                         on-hover-message="Updated On"/>
+            </div>
           </div>
-          <div class="col-3">
-            <q-field label="Created On" stack-label dense borderless>
-              <template v-slot:control>
-                {{
-                  FormatUtils.formatDate(
-                    measurementStore.renderConfig.createdOn
-                  )
-                }}
-              </template>
-            </q-field>
-            <q-field label="Created By" stack-label dense borderless>
-              <template v-slot:control>
-                <div class="q-pt-xs">
-                  <UserChip :id="measurementStore.renderConfig.createdBy" />
-                </div>
-              </template>
-            </q-field>
+        </template>
+        <template v-slot:editable>
+          <div class="row">
+            <div class="col">
+              <editable-field :object="measurementStore.renderConfig" fieldName="name" label="Name"
+                             @value-changed="onNameChanged"/>
+              <editable-field :object="measurementStore.renderConfig.config" fieldName="scale"
+                             label="Scale" :number="true"
+                             @value-changed="(newValue) => onConfigValueChanged('scale', newValue)"/>
+            </div>
+            <div class="col">
+              <editable-field :object="measurementStore.renderConfig.config" fieldName="gamma"
+                              label="Gamma" :number="true"
+                              @value-changed="(newValue) => onConfigValueChanged('gamma', newValue)"/>
+            </div>
           </div>
-        </div>
-      </oa-section>
-      <oa-section
-        title="Channels"
-        icon="collections"
-        :collapsible="true"
-        class="q-pt-sm"
-      >
-        <oa-table :rows="channels" :columns="columns" row-key="id">
-          <template v-slot:top-left>
-            <q-btn
-              size="sm"
-              color="primary"
-              icon="add"
-              label="Add..."
-              @click="doAddChannel"
-              class="q-mt-sm"
-            />
+          <TagListEditable :tags="measurementStore.renderConfig.tags"
+                           @addTag="onAddTag" @removeTag="onRemoveTag" />
+        </template>
+        <template v-slot:properties>
+          <PropertyTable :properties="measurementStore.renderConfig.properties"
+                         @addProperty="onAddProperty"
+                         @removeProperty="onRemoveProperty"/>
+        </template>
+      </phaedra-details-section>
+      <oa-section title="Channels" icon="collections" class="q-pt-sm">
+        <oa-table :columns="columns" row-key="id"
+                  :rows="measurementStore.renderConfig.config.channelConfigs">
+          <template v-slot:top-right>
+            <q-btn size="sm" color="primary" icon="add" class="q-mt-sm"
+                   @click="doAddChannel" round dense/>
           </template>
           <template v-slot:body-cell-name="props">
             <q-td :props="props">
               {{ props.row.name }}
-              <q-popup-edit
-                v-model="props.row.name"
-                v-slot="scope"
-                buttons
-                @save="(value) => doUpdateName(props.row, value)"
-              >
+              <q-popup-edit v-model="props.row.name" v-slot="scope" buttons
+                @save="(value) => doUpdateName(props.rowIndex, value)">
                 <q-input v-model="scope.value" dense autofocus />
               </q-popup-edit>
             </q-td>
@@ -128,64 +76,43 @@
             <q-td :props="props">
               <ColorButton
                 v-model:rgb="props.row.rgb"
-                @update:rgb="(value) => doUpdateRGB(props.row, value)"
+                @update:rgb="(value) => doUpdateRGB(props.rowIndex, value)"
               />
             </q-td>
           </template>
           <template v-slot:body-cell-contrast="props">
             <q-td :props="props">
-              <q-range
-                dense
-                thumb-size="12px"
-                label
-                :model-value="{
-                  min: props.row.contrastMin * 100,
-                  max: props.row.contrastMax * 100,
-                }"
-                :min="0"
-                :max="100"
-                @change="(value) => doUpdateContrast(props.row, value)"
-              />
+              <q-range dense thumb-size="12px" label
+                :model-value="{ min: props.row.contrastMin * 100, max: props.row.contrastMax * 100 }"
+                :min="0" :max="100" @change="(value) => doUpdateContrast(props.rowIndex, value)"/>
             </q-td>
           </template>
           <template v-slot:body-cell-alpha="props">
             <q-td :props="props">
               {{ props.row.alpha * 100 }}%
-              <q-popup-edit
-                v-model="props.row.alpha"
-                v-slot="scope"
-                buttons
-                @save="(value) => doUpdateAlpha(props.row, value)"
-              >
+              <q-popup-edit v-model="props.row.alpha" v-slot="scope"
+                            buttons @save="(value) => doUpdateAlpha(props.rowIndex, value)">
                 <q-input v-model="scope.value" type="number" dense autofocus />
               </q-popup-edit>
             </q-td>
           </template>
           <template v-slot:body-cell-menu="props">
             <q-td :props="props">
-              <q-btn
-                flat
-                round
-                icon="delete"
-                size="sm"
-                @click="doDeleteChannel(props.rowIndex)"
-              />
+              <q-btn size="sm" icon="delete" color="negative"
+                     @click="doDeleteChannel(props.rowIndex)" round dense/>
             </q-td>
           </template>
         </oa-table>
       </oa-section>
     </div>
-  </q-page>
 
-  <DeleteChannelDialog
-    v-model="showDeleteChannelDialog"
-    :configId="configId"
-    :channelNr="channelNrToDelete"
-  />
+    <DeleteChannelDialog v-model="showDeleteChannelDialog"
+                         :configId="configId" :channelNr="channelNrToDelete"/>
+  </q-page>
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from "vue";
+import { ref } from "vue";
 import { useRoute } from "vue-router";
 import EditableField from "@/components/widgets/EditableField";
 import OaSection from "@/components/widgets/OaSection";
@@ -193,90 +120,51 @@ import ColorButton from "@/components/image/ColorButton";
 import DeleteChannelDialog from "@/components/image/DeleteChannelDialog";
 import UserChip from "@/components/widgets/UserChip";
 
-import FormatUtils from "@/lib/FormatUtils.js";
 import { useMeasurementStore } from "@/stores/measurement";
 import OaTable from "@/components/table/OaTable.vue";
 import { useLoadingHandler } from "@/composable/loadingHandler";
+import PhaedraDetailsSection from "@/components/widgets/PhaedraDetailsSection.vue";
+import DateChip from "@/components/widgets/DateChip.vue";
+import TagListEditable from "@/components/tag/TagListEditable.vue";
+import PropertyTable from "@/components/property/PropertyTable.vue";
 
 const route = useRoute();
 const configId = parseInt(route.params.id);
 
-const measurementStore = useMeasurementStore();
-const loadingHandler = useLoadingHandler();
-
-onMounted(async () => {
-  await loadingHandler.handleLoadingDuring(
-    measurementStore.loadRenderConfig(configId)
-  );
-});
-
-const channels = ref([]);
-watch(
-  () => measurementStore.renderConfig,
-  () => {
-    if (measurementStore.renderConfig?.config) {
-      channels.value.splice(0);
-      measurementStore.renderConfig.config.channelConfigs.forEach((ch, i) =>
-        channels.value.push({ ...ch, ...{ nr: i + 1 } })
-      );
-    }
-  },
-  { immediate: true }
-);
-
 const columns = ref([
-  {
-    name: "sequence",
-    align: "left",
-    label: "Sequence",
-    field: "nr",
-    sortable: true,
-  },
+  { name: "sequence", align: "left", label: "Sequence", field: "nr", sortable: true },
   { name: "name", align: "left", label: "Name", field: "name", sortable: true },
   { name: "rgb", align: "left", label: "Color", field: "rgb", sortable: true },
-  {
-    name: "contrast",
-    label: "Contrast Range",
-    align: "left",
-    headerStyle: "width: 200px",
-  },
-  {
-    name: "alpha",
-    align: "left",
-    label: "Alpha",
-    field: "alpha",
-    sortable: true,
-  },
-  { name: "menu", align: "left", field: "menu", sortable: false },
+  { name: "contrast", label: "Contrast Range", align: "left", headerStyle: "width: 200px"},
+  { name: "alpha", align: "left", label: "Alpha", field: "alpha", sortable: true },
+  { name: "menu", align: "left", field: "menu", sortable: false }
 ]);
 
-const onNameChanged = (newValue) => {
-  measurementStore.updateRenderConfig({ id: configId, name: newValue });
-};
-const onConfigValueChanged = async (fieldName, newValue) => {
-  let newConfig = { ...measurementStore.renderConfig.config };
-  newConfig[fieldName] = newValue;
-  await loadingHandler.handleLoadingDuring(
-    measurementStore.updateRenderConfig({ id: configId, config: newConfig })
-  );
+const measurementStore = useMeasurementStore();
+
+const fetchRenderConfig = async () => {
+  await measurementStore.loadRenderConfig(configId);
 };
 
-const copyConfig = () => {
-  let origConfig = measurementStore.renderConfig.config;
-  let newConfig = { ...origConfig };
-  newConfig.channelConfigs = [];
-  origConfig.channelConfigs.forEach((ch) =>
-    newConfig.channelConfigs.push({ ...ch })
-  );
-  return newConfig;
-};
+const loadingHandler = useLoadingHandler();
+loadingHandler.handleLoadingDuring(fetchRenderConfig())
+
+const onNameChanged = async (newValue) => {
+  measurementStore.renderConfig.name = newValue
+  await loadingHandler.handleLoadingDuring(measurementStore.updateRenderConfig())
+}
+
+const onConfigValueChanged = async (fieldName, newValue) => {
+  measurementStore.renderConfig.config[fieldName] = newValue
+  await loadingHandler.handleLoadingDuring(measurementStore.updateRenderConfig());
+}
 
 const doAddChannel = async () => {
-  let newConfig = copyConfig();
-  newConfig.channelConfigs.push({ name: "New Channel" });
+  await measurementStore.addRenderConfigChannel()
   await loadingHandler.handleLoadingDuring(
-    measurementStore.updateRenderConfig({ id: configId, config: newConfig })
+    measurementStore.updateRenderConfig({ id: configId, config: measurementStore.renderConfig.config })
   );
+  await measurementStore.loadRenderConfig(configId)
 };
 
 const showDeleteChannelDialog = ref(false);
@@ -286,8 +174,8 @@ const doDeleteChannel = (index) => {
   showDeleteChannelDialog.value = true;
 };
 
-const doUpdateName = (row, newName) => {
-  doUpdateChannelField(row, "name", newName);
+const doUpdateName = (rowIndex, newName) => {
+  doUpdateChannelField(rowIndex, "name", newName);
 };
 
 const doUpdateRGB = (row, rgb) => {
@@ -298,20 +186,34 @@ const doUpdateAlpha = (row, newAlpha) => {
   doUpdateChannelField(row, "alpha", newAlpha);
 };
 
-const doUpdateContrast = async (row, newContrast) => {
-  let newConfig = copyConfig();
-  newConfig.channelConfigs[row.nr - 1].contrastMin = newContrast.min / 100;
-  newConfig.channelConfigs[row.nr - 1].contrastMax = newContrast.max / 100;
+const doUpdateContrast = async (rowIndex, newContrast) => {
+  measurementStore.renderConfig.config.channelConfigs[rowIndex].contrastMin = newContrast.min / 100;
+  measurementStore.renderConfig.config.channelConfigs[rowIndex].contrastMax = newContrast.max / 100;
   await loadingHandler.handleLoadingDuring(
-    measurementStore.updateRenderConfig({ id: configId, config: newConfig })
+    measurementStore.updateRenderConfig()
   );
 };
 
-const doUpdateChannelField = async (row, fieldName, newValue) => {
-  let newConfig = copyConfig();
-  newConfig.channelConfigs[row.nr - 1][fieldName] = newValue;
+const doUpdateChannelField = async (rowIndex, fieldName, newValue) => {
+  measurementStore.renderConfig.config.channelConfigs[rowIndex][fieldName] = newValue;
   await loadingHandler.handleLoadingDuring(
-    measurementStore.updateRenderConfig({ id: configId, config: newConfig })
+    measurementStore.updateRenderConfig()
   );
 };
+
+const onAddTag = async (newTag) => {
+  // TODO: implement add tags for formulas
+}
+
+const onRemoveTag = async (tag) => {
+  // TODO: implement add tags for formulas
+}
+
+const onAddProperty = async (newProperty) => {
+  // TODO: implement add properties for formulas
+}
+
+const onRemoveProperty = async (property) => {
+  // TODO: implement add properties for formulas
+}
 </script>

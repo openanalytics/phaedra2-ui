@@ -1,11 +1,17 @@
 <template>
   <q-dialog v-model="showDialog" persistent @hide="clearData">
     <q-card style="min-width: 30vw">
-      <q-card-section
-        class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary"
-      >
-        <q-avatar icon="delete" color="primary" text-color="white" />
-        Delete {{ objectClass }}
+      <q-card-section horizontal>
+        <q-card-section style="width: 100%; padding: 4px">
+          <div style="width: 100%" class="row align-center text-h5 q-mb-xs">
+            <div class="row">
+              <q-icon name="delete" size="md" class="q-mr-sm"/>
+              <div style="align-items: baseline">
+                <span> Delete {{ objectClass }} </span>
+              </div>
+            </div>
+          </div>
+        </q-card-section>
       </q-card-section>
       <q-card-section>
         <div class="row">

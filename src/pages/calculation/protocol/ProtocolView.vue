@@ -1,6 +1,6 @@
 <template>
   <q-breadcrumbs class="oa-breadcrumb" v-if="protocolStore.protocol" @click="resetStores">
-    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard'}"/>
+    <q-breadcrumbs-el icon="home" :to="{ name: 'workbench'}"/>
     <q-breadcrumbs-el :label="'Protocols'" icon="list" :to="'/protocols'"/>
     <q-breadcrumbs-el :label="protocolStore.protocol.name" icon="ballot"/>
   </q-breadcrumbs>
@@ -16,7 +16,7 @@ import {onMounted, ref} from "vue";
 import {useProtocolStore} from "@/stores/protocol";
 import {useFormulasStore} from "@/stores/formulas";
 import {useFeatureStore} from "@/stores/feature";
-import ViewProtocol from "@/components/protocol/ViewProtocol";
+import ViewProtocol from "@/components/protocol/ProtocolDetails.vue";
 
 const route = useRoute();
 const protocolStore = useProtocolStore();

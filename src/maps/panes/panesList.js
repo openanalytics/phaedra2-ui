@@ -94,6 +94,7 @@ export function usePanesList() {
       closable: true,
       props: {
         project: selectionStore.selectedProjectDetails,
+        collapsible: false
       },
       events: {
         updated: async () =>
@@ -132,6 +133,7 @@ export function usePanesList() {
       closable: true,
       props: {
         experiment: selectionStore.selectedExperimentDetails,
+        collapsible: false
       },
       events: {
         updated: async () =>
@@ -192,6 +194,7 @@ export function usePanesList() {
       props: {
         plate: selectionStore.selectedPlateDetails,
         activeMeasurement: selectionStore.activeMeasurement,
+        collapsible: false
       },
       events: {
         updated: async () => {
@@ -295,6 +298,7 @@ export function usePanesList() {
       closable: true,
       props: {
         well: selectionStore.selectedWellDetails,
+        collapsible: false
       },
       events: {
         updated: async () =>

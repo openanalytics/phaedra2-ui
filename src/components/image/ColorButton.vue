@@ -4,12 +4,8 @@
     :style="{ width: '25px', border: '1px solid grey', backgroundColor: color }"
   >
     &nbsp;
-    <q-popup-proxy
-      v-if="props.editable"
-      cover
-      transition-show="scale"
-      transition-hide="scale"
-    >
+    <q-popup-proxy v-if="props.editable" cover
+                   transition-show="scale" transition-hide="scale" v-close-popup>
       <q-color v-model="color" @change="doEmitValue" />
     </q-popup-proxy>
     <q-tooltip v-if="props.tooltip">

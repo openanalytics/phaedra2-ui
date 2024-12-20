@@ -3,7 +3,7 @@
     class="oa-breadcrumb"
     v-if="experimentStore.experiment && experimentStore.experiment.project"
   >
-    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard' }" />
+    <q-breadcrumbs-el icon="home" :to="{ name: 'workbench' }" />
     <q-breadcrumbs-el :label="'Projects'" icon="list" :to="'/projects'" />
     <q-breadcrumbs-el
       :label="experimentStore.experiment.project.name"
@@ -18,75 +18,49 @@
 
   <q-page class="oa-root-div" :style-fn="pageStyleFnForBreadcrumbs">
     <div class="q-pa-sm">
-      <oa-section
-        v-if="!experimentStore.experiment"
-        title="Loading experiment..."
-        icon="science"
-      />
-      <ExperimentDetails
-        v-else
-        :experiment="experimentStore.experiment"
-        icon="science"
-        @updated="handleUpdateExperimentDetails"
-      />
+      <ExperimentDetails :experiment="experimentStore.experiment"
+                         icon="science" @updated="handleUpdateExperimentDetails" />
     </div>
 
-    <splitpanes class="default-theme" :horizontal="horizontal">
-      <pane
-        class="q-pa-sm"
-        v-if="experimentStore.experiment"
-        style="background-color: #e6e6e6"
-      >
-        <q-tabs
-          v-model="activeTab"
-          inline-label
-          dense
-          no-caps
-          align="left"
-          class="oa-section-title"
-        >
-          <q-tab name="overview" icon="table_rows" label="Overview" />
-          <q-tab name="statistics" icon="functions" label="Statistics" />
-          <q-tab name="heatmaps" icon="view_module" label="Heatmaps" />
-        </q-tabs>
-        <div class="row oa-section-body">
-          <q-tab-panels v-model="activeTab" animated class="full-width">
-            <q-tab-panel name="overview" class="q-pa-none">
-              <PlateList
-                :experiments="[experimentStore.experiment]"
-                :plates="experimentStore.plates"
-                @selection="handlePlateSelection"
-                @updated="handleUpdatePlateList"
-                @open="handleOpen"
-              />
-            </q-tab-panel>
-            <q-tab-panel name="statistics" class="q-pa-none">
-              <PlateStatsList
-                :experiment="experimentStore.experiment"
-                :plates="experimentStore.plates"
-              />
-            </q-tab-panel>
-            <q-tab-panel name="heatmaps" class="q-pa-none">
-              <PlateGrid
-                :experiment="experimentStore.experiment"
-                :plates="experimentStore.plates"
-              />
-            </q-tab-panel>
-          </q-tab-panels>
-        </div>
-      </pane>
-      <pane
-        class="q-pa-sm"
-        v-if="uiStore.showChartViewer"
-        style="background-color: #e6e6e6"
-        ref="chartViewerPane"
-      >
-        <ChartViewer
-          :update="Date.now()"
-          @changeOrientation="horizontal = !horizontal"
-        />
-      </pane>
-    </splitpanes>
+    <div class="q-pa-sm">
+      <splitpanes class="default-theme" :horizontal="horizontal">
+        <pane v-if="experimentStore.experiment" style="background-color: #e6e6e6" >
+          <q-tabs v-model="activeTab" inline-label dense no-caps align="left" class="oa-section">
+            <q-tab name="overview" icon="table_rows" label="Overview" />
+            <q-tab name="statistics" icon="functions" label="Statistics" />
+            <q-tab name="heatmaps" icon="view_module" label="Heatmaps" />
+          </q-tabs>
+          <div class="row oa-section-body">
+            <q-tab-panels v-model="activeTab" animated class="full-width">
+              <q-tab-panel name="overview" class="q-pa-none">
+                <PlateList
+                    :experiments="[experimentStore.experiment]"
+                    :plates="experimentStore.plates"
+                    @selection="handlePlateSelection"
+                    @updated="handleUpdatePlateList"
+                    @open="handleOpen"
+                />
+              </q-tab-panel>
+              <q-tab-panel name="statistics" class="q-pa-none">
+                <PlateStatsList
+                    :experiment="experimentStore.experiment"
+                    :plates="experimentStore.plates"
+                />
+              </q-tab-panel>
+              <q-tab-panel name="heatmaps" class="q-pa-none">
+                <PlateGrid
+                    :experiment="experimentStore.experiment"
+                    :plates="experimentStore.plates"
+                />
+              </q-tab-panel>
+            </q-tab-panels>
+          </div>
+        </pane>
+        <pane v-if="uiStore.showChartViewer" style="background-color: #e6e6e6" ref="chartViewerPane">
+          <ChartViewer :update="Date.now()" @changeOrientation="horizontal = !horizontal"/>
+        </pane>
+      </splitpanes>
+    </div>
   </q-page>
 </template>
 

@@ -71,12 +71,15 @@ export const useUIStore = defineStore("ui", {
       this.selectedPlate = data.plate;
       this.selectedPlate["wells"] = data.wells;
 
-      if (this.selectedPlate !== null) {
+      if (this.selectedPlate) {
         await this.loadPlateMeasurements(plateId);
         await this.loadPlateCurves(plateId);
       }
     },
     async loadPlateMeasurements(plateId) {
+      if (!this.selectedPlate) {
+        await this.loadSelectedPlate(plateId);
+      }
       const data = await projectsGraphQlAPI.measurementsByPlateId(plateId);
       this.selectedPlate["measurements"] = data.plateMeasurements;
     },
@@ -89,6 +92,9 @@ export const useUIStore = defineStore("ui", {
       this.selectedPlate["protocols"] = data.protocols;
     },
     async loadPlateCurves(plateId) {
+      if (!this.selectedPlate) {
+        await this.loadSelectedPlate(plateId);
+      }
       const data = await curvesGraphQlAPI.curvesByPlateId(plateId)
       const colorList = ColorUtils.getColorList(data.curves?.length);
       const curves = data.curves?.map((curve, index) => {

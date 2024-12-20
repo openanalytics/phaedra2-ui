@@ -126,7 +126,6 @@
     :plates="selectedPlates"
     @onDeletePlates="deletePlates"
     @open="open"
-    touch-position
   />
 
   <div v-if="createPlateCondition">

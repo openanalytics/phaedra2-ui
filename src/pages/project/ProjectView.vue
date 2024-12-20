@@ -1,6 +1,6 @@
 <template>
   <q-breadcrumbs class="oa-breadcrumb" v-if="projectStore.project">
-    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard' }" />
+    <q-breadcrumbs-el icon="home" :to="{ name: 'workbench' }" />
     <q-breadcrumbs-el :label="'Projects'" icon="list" :to="'/projects'" />
     <q-breadcrumbs-el :label="projectStore.project.name" icon="folder" />
   </q-breadcrumbs>

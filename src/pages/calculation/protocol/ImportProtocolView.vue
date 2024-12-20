@@ -1,6 +1,6 @@
 <template>
   <q-breadcrumbs class="oa-breadcrumb">
-    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard' }" />
+    <q-breadcrumbs-el icon="home" :to="{ name: 'workbench' }" />
     <q-breadcrumbs-el :label="'Import Protocol'" />
   </q-breadcrumbs>
 
@@ -45,7 +45,7 @@
 
 <script setup>
 import { ref } from "vue";
-import OaSectionHeader from "../../components/widgets/OaSectionHeader";
+import OaSectionHeader from "../../../components/widgets/OaSectionHeader.vue";
 import { useProtocolStore } from "@/stores/protocol";
 import { useRouter } from "vue-router";
 

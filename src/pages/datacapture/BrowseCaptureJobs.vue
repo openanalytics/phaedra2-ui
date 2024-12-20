@@ -1,80 +1,50 @@
 <template>
   <q-breadcrumbs class="oa-breadcrumb">
-    <q-breadcrumbs-el icon="home" :to="{ name: 'dashboard' }" />
+    <q-breadcrumbs-el icon="home" :to="{ name: 'workbench' }" />
     <q-breadcrumbs-el label="Data Capture Jobs" icon="cloud_upload" />
   </q-breadcrumbs>
 
   <q-page class="oa-root-div q-pa-sm">
-    <oa-section
-      title="Data Capture Jobs"
-      icon="cloud_upload"
-      :collapsible="true"
-    >
-      <oa-table
-        :rows="jobs"
-        :columns="columns"
-        :pagination="{
-          rowsPerPage: 20,
-          sortBy: 'createDate',
-          descending: true,
-        }"
-      >
-        <template v-slot:top-left>
+    <oa-section title="Data Capture Jobs" icon="cloud_upload" :collapsible="true">
+      <oa-table :rows="jobs" :columns="columns"
+                :pagination="{ rowsPerPage: 20, sortBy: 'createDate', descending: true }">
+        <template v-slot:top-right>
           <div class="justify-end">
-            <q-btn
-              round
-              icon="refresh"
-              size="sm"
-              @click="refreshList"
-              class="on-left"
-              ><q-tooltip>Refresh</q-tooltip></q-btn
-            >
-            <q-btn
-              color="primary"
-              round
-              icon="add"
-              size="sm"
-              @click="showSubmitJobDialog = true"
-              ><q-tooltip>Submit New Job...</q-tooltip></q-btn
-            >
+            <q-btn round icon="refresh" size="sm" @click="refreshList" class="on-left">
+              <q-tooltip>Refresh</q-tooltip>
+            </q-btn>
+            <q-btn color="primary" round icon="add" size="sm" @click="showSubmitJobDialog = true">
+              <q-tooltip>Submit New Job...</q-tooltip>
+            </q-btn>
           </div>
         </template>
-        <template v-slot:top-right>
+        <template v-slot:top-left>
           <date-range-selector
             v-model:from="fromDate"
             v-model:to="toDate"
             @rangeChanged="refreshList"
           />
         </template>
-        <template v-slot:body-cell-details="props">
-          <q-td :props="props">
-            <q-btn
-              label="Details"
-              icon-right="chevron_right"
-              size="sm"
-              @click="doShowJobDetails(props.row)"
-            />
-          </q-td>
-        </template>
         <template v-slot:body-cell-actions="props">
           <q-td :props="props">
-            <q-btn
-              v-if="canCancelJob(props.row)"
-              label="Cancel"
-              icon-right="cancel"
-              size="sm"
-              @click="cancelJob(props.row.id)"
-            />
-            <q-btn
-              v-if="canResubmitJob(props.row)"
-              label="Re-submit"
-              icon-right="restart_alt"
-              size="sm"
-              @click="
-                jobToResubmit = props.row;
-                showResubmitConfirmation = true;
-              "
-            />
+            <span class="q-ml-xs">
+              <q-btn icon="info" color="primary" size="xs" round
+                     @click="doShowJobDetails(props.row)">
+                <q-tooltip>Job Details</q-tooltip>
+              </q-btn>
+            </span>
+            <span v-if="canCancelJob(props.row)" class="q-ml-xs">
+              <q-btn icon="cancel" color="negative" size="xs" round
+                     @click="cancelJob(props.row.id)">
+                <q-tooltip>Cancel Job</q-tooltip>
+              </q-btn>
+            </span>
+            <span v-if="canResubmitJob(props.row)" class="q-ml-xs">
+              <q-btn icon="restart_alt" size="xs" round
+                     @click=" jobToResubmit = props.row; showResubmitConfirmation = true;">
+                <q-tooltip>Resubmit Job</q-tooltip>
+              </q-btn>
+            </span>
           </q-td>
         </template>
         <template v-slot:no-data>
@@ -90,10 +60,14 @@
 
       <q-dialog @hide="clearData" v-model="showSubmitJobDialog">
         <q-card style="width: 700px; max-width: 80vw;">
-          <q-card-section class="bg-primary text-white">
-            <div class="text-h6">
-              <q-icon name="scanner" class="on-left" />
-              Submit New Data Capture Job
+          <q-card-section style="width: 100%; padding: 4px">
+            <div style="width: 100%" class="row align-center text-h5 q-mb-xs">
+              <div class="row">
+                <q-icon name="scanner" class="on-left" />
+                <div style="align-items: baseline">
+                  <span> Submit New Data Capture Job </span>
+                </div>
+              </div>
             </div>
           </q-card-section>
           <q-card-section class="q-pa-sm q-gutter-sm">
@@ -102,45 +76,23 @@
                 <q-card-section class="q-pa-sm">
                   <div class="text-h6">Source</div>
                   <div class="row">
-                    <q-radio
-                      v-model="sourceType"
-                      val="folder"
-                      label="Folder"
-                      dense
-                      size="sm"
-                      class="col-2"
-                    />
+                    <q-radio v-model="sourceType" val="folder" label="Folder"
+                             dense size="sm" class="col-2"/>
 
-                    <q-file
-                      :display-value="selectedSource.folderName"
-                      @update:model-value="handleFolderSelection"
-                      :disable="sourceType != 'folder'"
-                      multiple
-                      dense
-                      stack-label
-                      webkitdirectory
-                      class="col-10"
-                    >
+                    <q-file :display-value="selectedSource.folderName"
+                            @update:model-value="handleFolderSelection"
+                            :disable="sourceType != 'folder'"
+                            multiple dense stack-label webkitdirectory class="col-10">
                       <template v-slot:append>
                         <q-icon name="folder" />
                       </template>
                     </q-file>
 
-                    <q-radio
-                      v-model="sourceType"
-                      val="url"
-                      label="URL"
-                      dense
-                      size="sm"
-                      class="col-2"
-                    />
+                    <q-radio v-model="sourceType" val="url" label="URL"
+                             dense size="sm" class="col-2"/>
 
-                    <q-input
-                      v-model="selectedSource.url"
-                      :disable="sourceType != 'url'"
-                      dense
-                      class="col-10"
-                    />
+                    <q-input v-model="selectedSource.url" :disable="sourceType != 'url'"
+                             dense class="col-10" />
                   </div>
                 </q-card-section>
               </q-card>
@@ -282,7 +234,7 @@ const columns = ref([
     sortable: true,
     format: (t) => FormatUtils.formatTextMaxLength(t, 50),
   },
-  { name: "details", align: "center" },
+  // { name: "details", align: "center" },
   { name: "actions", align: "center" },
 ]);
 
@@ -374,8 +326,6 @@ const submitJobAction = async () => {
     }
   }
 
-
-  
   captureJobs.forEach(job => {
     store.dispatch('datacapture/submitJob', job);
   })

@@ -1,15 +1,21 @@
 <template>
     <q-dialog v-model="showDialog" persistent>
         <q-card style="min-width: 20vw">
-            <q-card-section class="row text-h6 items-center full-width q-pa-sm bg-primary text-secondary">
-                <q-avatar icon="functions" color="primary" text-color="white"/>
-                {{ statWorkingCopy.id ? 'Edit' : 'Create' }} Feature Stat
+            <q-card-section>
+              <div style="width: 100%" class="row align-center text-h5 q-mb-xs">
+                <div class="row">
+                  <q-icon name="delete" size="md" class="q-mr-sm"/>
+                  <div style="align-items: baseline">
+                    <span> {{ statWorkingCopy.id ? 'Edit' : 'Create' }} Feature Stat </span>
+                  </div>
+                </div>
+              </div>
             </q-card-section>
-            
+
             <q-card-section>
                 <q-input v-model="statWorkingCopy.id" label="ID" readonly dense borderless></q-input>
                 <q-input v-model="statWorkingCopy.name" label="Name" stack-label dense></q-input>
-                
+
                 <q-field label="Is Plate Stat?" stack-label dense borderless class="q-pt-md">
                     <template v-slot:control>
                         <q-toggle v-model="statWorkingCopy.plateStat" size="sm" dense />

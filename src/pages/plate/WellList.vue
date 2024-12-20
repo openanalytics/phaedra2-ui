@@ -77,7 +77,6 @@
   </oa-table>
   <WellActionMenu
     :well="selectedWell"
-    touch-position
     context-menu
     @rejectWells="handleRejectWells"
     @acceptWells="handleAcceptWells"

@@ -10,7 +10,7 @@
         dense
         align="left"
         no-caps
-        class="oa-section-title"
+        class="oa-section"
       >
         <q-tab
           v-for="component in panes"
